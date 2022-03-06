@@ -2,7 +2,7 @@ import cairo
 
 from momapy.shapes import Rectangle
 from momapy.arcs import Arrow
-from momapy.renderer import CairoRenderer
+from momapy.rendering import CairoRenderer
 from momapy.coloring import *
 from momapy.geometry import Point
 from momapy.builder import get_or_make_builder_cls, LayoutBuilder
