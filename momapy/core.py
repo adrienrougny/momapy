@@ -33,10 +33,6 @@ class LayoutElement(MapElement):
         pass
 
     @abstractmethod
-    def flatten_layout_elements(self) -> list["LayoutElement"]:
-        return [self]
-
-    @abstractmethod
     def drawing_elements(self) -> list[DrawingElement]:
         pass
 
@@ -63,9 +59,6 @@ class NodeLayoutElementLabel(LayoutElement):
     def bbox(self) -> Bbox:
         return Bbox(self.position, self.width, self.height)
 
-    def flatten_layout_elements(self):
-        return super().flatten_layout_elements()
-
     def drawing_elements(self):
         text = Text(
             text=self.text,
@@ -79,19 +72,28 @@ class NodeLayoutElementLabel(LayoutElement):
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
-    group_layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
+    transform: Optional[tuple[Transformation]] = None
+    layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
 
-    def flatten_group_layout_elements(self):
-        layout_elements = []
-        for layout_element in self.group_layout_elements:
-            layout_elements += layout_element.flatten_layout_elements()
-        return layout_elements
+    @abstractmethod
+    def self_drawing_elements(self) -> list[DrawingElement]:
+        pass
 
+    def drawing_elements(self):
+        self_drawing_elements = self.self_drawing_elements()
+        if self_drawing_elements is not None:
+            drawing_elements = self_drawing_elements
+        else:
+            drawing_elements = []
+        for layout_element in self.layout_elements:
+            sub_drawing_elements = layout_element.drawing_elements()
+            if sub_drawing_elements is not None:
+                drawing_elements += sub_drawing_elements
+        group = Group(
+            transform=self.transform,
+            elements=drawing_elements)
+        return [group]
 
-    def flatten_layout_elements(self):
-        layout_elements = [self]
-        layout_elements += self.flatten_group_layout_elements()
-        return layout_elements
 
 @dataclass(frozen=True)
 class NodeLayoutElement(GroupLayoutElement):
@@ -102,16 +104,6 @@ class NodeLayoutElement(GroupLayoutElement):
     stroke_width: float = 1
     stroke: Optional[Color] = rgba(0, 0, 0, 1)
     fill: Optional[Color] = rgba(255, 255, 255, 1)
-    transform: Optional[tuple[Transformation]] = None
-    # anchor: InitVar[str] = "center"
-
-    # def __post_init__(self, anchor):
-    #     p = getattr(self, anchor)
-    #     object.__setattr__(
-    #         self, "position", self.position + (self.position - p))
-    #     if self.label is not None:
-    #         object.__setattr__(self.label, "position",
-    #                            self.label.position + (self.label.position - p))
 
     @property
     def x(self):
@@ -132,20 +124,19 @@ class NodeLayoutElement(GroupLayoutElement):
     def foreground_path(self) -> Optional[Path]:
         pass
 
-    def drawing_elements(self):
-        group = Group(transform=self.transform)
-        if self.background_path() is not None:
-            group += self.background_path()
-        if self.foreground_path() is not None:
-            group += self.foreground_path()
-        return [group]
-
-    def flatten_layout_elements(self):
-        layout_elements = [self]
+    def self_drawing_elements(self):
+        drawing_elements = []
+        background_path = self.background_path()
+        if background_path is not None:
+            drawing_elements += [background_path]
         if self.label is not None:
-            layout_elements.append(self.label)
-        layout_elements += self.flatten_group_layout_elements()
-        return layout_elements
+            label_drawing_elements = self.label.drawing_elements()
+            if label_drawing_elements is not None:
+                drawing_elements += label_drawing_elements
+        foreground_path = self.foreground_path()
+        if foreground_path is not None:
+            drawing_elements += [foreground_path]
+        return drawing_elements
 
     @abstractmethod
     def angle(self, angle, unit="degrees") -> Point:
@@ -208,17 +199,6 @@ class ArcLayoutElement(GroupLayoutElement):
         from momapy.positioning import fit
         return fit(self.points)
 
-
-    def flatten_layout_elements(self):
-        layout_elements = []
-        if self.source is not None:
-            layout_elements += self.source.flatten_layout_elements()
-        if self.target is not None:
-            layout_elements += self.target.flatten_layout_elements()
-        layout_elements.append(self)
-        layout_elements += self.flatten_group_layout_elements()
-        return layout_elements
-
     @abstractmethod
     def arrowtip_drawing_element(self) -> DrawingElement:
         pass
@@ -263,10 +243,19 @@ class ArcLayoutElement(GroupLayoutElement):
         return segment.p2, angle
 
 
-    def drawing_elements(self):
-        drawing_elements = [self._get_path_from_points()]
-        if self.arrowtip_drawing_element is not None:
-            arrowtip_drawing_element = self.arrowtip_drawing_element()
+    def self_drawing_elements(self):
+        drawing_elements = []
+        if self.source is not None:
+            source_drawing_elements = self.source.drawing_elements()
+            if source_drawing_elements is not None:
+                drawing_elements += source_drawing_elements
+        if self.target is not None:
+            target_drawing_elements = self.target.drawing_elements()
+            if target_drawing_elements is not None:
+                drawing_elements += target_drawing_elements
+        drawing_elements += [self._get_path_from_points()]
+        arrowtip_drawing_element = self.arrowtip_drawing_element()
+        if arrowtip_drawing_element is not None:
             transform = tuple([
                 translate(*self._get_arrowtip_start_point()),
                 rotate(self._get_arrowtip_rotation_angle())])
@@ -316,7 +305,7 @@ class Layout(GroupLayoutElement):
         return Bbox(Point(self.width / 2, self.height / 2),
                     width=self.width, height=self.height)
 
-    def drawing_elements(self):
+    def self_drawing_elements(self):
         path = Path(stroke=self.stroke, fill=self.fill,
                     stroke_width=self.stroke_width)
         path += move_to(self.bbox().north_west()) + \
@@ -343,6 +332,3 @@ class LayoutElementReference(object):
 
     def drawing_elements(self) -> None:
         return None
-
-    def flatten_layout_elements(self) -> list["LayoutElementReference"]:
-        return [self]

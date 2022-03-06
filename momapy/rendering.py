@@ -65,14 +65,14 @@ class CairoRenderer(Renderer):
         self.render_layout_element(map_.layout)
 
     def render_layout_element(self, layout_element):
-        for sub_layout_element in layout_element.flatten_layout_elements():
-            drawing_elements = sub_layout_element.drawing_elements()
-            if drawing_elements is not None: # for LayoutElementReference
-                for drawing_element in drawing_elements:
-                    self.render_drawing_element(drawing_element)
+        drawing_elements = layout_element.drawing_elements()
+        if drawing_elements is not None:
+            for drawing_element in drawing_elements:
+                self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
-        print(drawing_element)
+        # print(drawing_element)
+        # print()
         self._context.save()
         saved_stroke = self._current_stroke
         saved_fill = self._current_fill
