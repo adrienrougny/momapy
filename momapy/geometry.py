@@ -44,28 +44,28 @@ class Bbox(object):
         return (self.width, self.height)
 
     def north_west(self):
-        return Point(self.x - self.width / 2, self.y + self.height / 2)
+        return Point(self.x - self.width / 2, self.y - self.height / 2)
 
     def west(self):
         return Point(self.x - self.width / 2, self.y)
 
     def south_west(self):
-        return Point(self.x - self.width / 2, self.y - self.height / 2)
+        return Point(self.x - self.width / 2, self.y + self.height / 2)
 
     def south(self):
-        return Point(self.x, self.y - self.height / 2)
+        return Point(self.x, self.y + self.height / 2)
 
     def south_east(self):
-        return Point(self.x + self.width / 2, self.y - self.height / 2)
+        return Point(self.x + self.width / 2, self.y + self.height / 2)
 
     def east(self):
         return Point(self.x + self.width / 2, self.y)
 
     def north_east(self):
-        return Point(self.x + self.width / 2, self.y + self.height / 2)
+        return Point(self.x + self.width / 2, self.y - self.height / 2)
 
     def north(self):
-        return Point(self.x, self.y + self.height / 2)
+        return Point(self.x, self.y - self.height / 2)
 
     def center(self):
         return Point(self.x, self.y)
