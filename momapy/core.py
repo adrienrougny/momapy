@@ -76,6 +76,10 @@ class GroupLayoutElement(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
 
     @abstractmethod
+    def self_bbox(self):
+        pass
+
+    @abstractmethod
     def self_drawing_elements(self) -> list[DrawingElement]:
         pass
 
@@ -113,8 +117,11 @@ class NodeLayoutElement(GroupLayoutElement):
     def y(self):
         return self.position.y
 
-    def bbox(self):
+    def self_bbox(self):
         return Bbox(self.position, self.width, self.height)
+
+    def bbox(self):
+        return fit([self, self.label, self.layout_elements])
 
     @abstractmethod
     def background_path(self) -> Optional[Path]:
