@@ -56,34 +56,26 @@ class CairoRenderer(Renderer):
         self._stroke = None
         self._fill = None
         self._stroke_width = self.default_stroke_width
-        self._translated = False
-        self._save()
 
     def _save(self):
         state = {
             "stroke": self._stroke,
             "fill": self._fill,
             "stroke_width": self._stroke_width,
-            "translated": self._translated
         }
         self._states.append(state)
         self._context.save()
+        print("CONTEXT SAVED")
 
     def _restore(self):
         state = self._states.pop()
         self._set_state(state)
         self._context.restore()
+        print("CONTEXT RESTORED")
 
     def _set_state(self, state):
         for key in state:
             setattr(self, f"_{key}", state[key])
-
-    def _transform_y_coord(self, y):
-        if self._translated:
-            return -y
-        else:
-            return self.height - y
-
 
     def render_map(self, map_):
         self.render_layout_element(map_.layout)
@@ -95,11 +87,10 @@ class CairoRenderer(Renderer):
                 self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
-        # print(drawing_element)
-        # print()
         self._save()
         self._set_state_from_drawing_element(drawing_element)
         self._set_transform_from_drawing_element(drawing_element)
+        self._set_new_path() # context.restore() does not forget the current path
         render_function = self._get_drawing_element_render_function(drawing_element)
         render_function(drawing_element)
         self._restore()
@@ -125,6 +116,9 @@ class CairoRenderer(Renderer):
         if drawing_element.transform is not None:
             for transformation in drawing_element.transform:
                 self._render_transformation(transformation)
+
+    def _set_new_path(self):
+        self._context.new_path()
 
     def _render_transformation(self, transformation):
         render_transformation_function = self._get_transformation_render_function(transformation)
@@ -191,20 +185,19 @@ class CairoRenderer(Renderer):
             return self._render_close
 
     def _render_move_to(self, move_to):
-        self._context.move_to(move_to.x, self._transform_y_coord(move_to.y))
+        self._context.move_to(move_to.x, move_to.y)
 
     def _render_line_to(self, line_to):
-        self._context.line_to(line_to.x, self._transform_y_coord(line_to.y))
+        self._context.line_to(line_to.x, line_to.y)
 
     def _render_close(self, close):
         self._context.close_path()
 
     def _render_translation(self, translation):
-        self._context.translate(translation.tx, self._transform_y_coord(translation.ty))
-        self._translated = True
+        self._context.translate(translation.tx, translation.ty)
 
     def _render_rotation(self, rotation):
-        self._context.rotate(-rotation.angle)
+        self._context.rotate(rotation.angle)
 
 @dataclass
 class GTKRenderer(Renderer):

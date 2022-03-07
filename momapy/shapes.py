@@ -9,28 +9,28 @@ from momapy.geometry import Point, Line, get_angle_of_line, get_intersection_of_
 class Rectangle(NodeLayoutElement):
 
     def north_west(self):
-        return Point(self.x - self.width / 2, self.y + self.height / 2)
+        return Point(self.x - self.width / 2, self.y - self.height / 2)
 
     def west(self):
         return Point(self.x - self.width / 2, self.y)
 
     def south_west(self):
-        return Point(self.x - self.width / 2, self.y - self.height / 2)
+        return Point(self.x - self.width / 2, self.y + self.height / 2)
 
     def south(self):
-        return Point(self.x, self.y - self.height / 2)
+        return Point(self.x, self.y + self.height / 2)
 
     def south_east(self):
-        return Point(self.x + self.width / 2, self.y - self.height / 2)
+        return Point(self.x + self.width / 2, self.y + self.height / 2)
 
     def east(self):
         return Point(self.x + self.width / 2, self.y)
 
     def north_east(self):
-        return Point(self.x + self.width / 2, self.y + self.height / 2)
+        return Point(self.x + self.width / 2, self.y - self.height / 2)
 
     def north(self):
-        return Point(self.x, self.y + self.height / 2)
+        return Point(self.x, self.y - self.height / 2)
 
     def center(self):
         return Point(self.x, self.y)
@@ -48,25 +48,22 @@ class Rectangle(NodeLayoutElement):
         return None
 
     def angle(self, angle, unit="degrees"):
+        angle = -angle
         if unit == "degrees":
             angle = math.radians(angle)
         angle = get_normalized_angle(angle)
         line = Line(self.center(), self.center() + (math.cos(angle), math.sin(angle)))
-        if is_angle_in_sector(angle, self.center(), self.south_east(), self.north_east()):
-            p = get_intersection_of_lines(Line(self.south_east(), self.north_east()),
-                    line)
-        elif is_angle_in_sector(angle, self.center(), self.north_east(), self.north_west()):
-            p = get_intersection_of_lines(Line(self.north_east(), self.north_west()),
-                    line)
-        elif is_angle_in_sector(angle, self.center(), self.north_west(), self.south_west()):
-            p = get_intersection_of_lines(Line(self.north_west(), self.south_west()),
-                    line)
-        elif is_angle_in_sector(angle, self.center(), self.south_west(), self.south_east()):
-            p = get_intersection_of_lines(Line(self.south_west(), self.south_east()),
-                    line)
-        else:
-            p = self.center()
-        return p
+        sectors = [
+            (self.north_east(), self.south_east()),
+            (self.south_east(), self.south_west()),
+            (self.south_west(), self.north_west()),
+            (self.north_west(), self.north_east())
+        ]
+        for sector in sectors:
+            if is_angle_in_sector(angle, self.center(), sector[0], sector[1]):
+                p = get_intersection_of_lines(Line(sector[0], sector[1]), line)
+                return p
+        return self.center()
 
 @dataclass(frozen=True)
 class RectangleWithConnectors(NodeLayoutElement):
@@ -75,7 +72,7 @@ class RectangleWithConnectors(NodeLayoutElement):
     direction: Direction = Direction.HORIZONTAL
 
     def north_west(self):
-        return Point(self.x - self.width / 2, self.y + self.height / 2)
+        return Point(self.x - self.width / 2, self.y - self.height / 2)
 
     def west(self):
         if self.direction == Direction.VERTICAL:
@@ -84,16 +81,16 @@ class RectangleWithConnectors(NodeLayoutElement):
             return Point(self.x - self.width / 2 - self.left_connector_length, self.y)
 
     def south_west(self):
-        return Point(self.x - self.width / 2, self.y - self.height / 2)
+        return Point(self.x - self.width / 2, self.y + self.height / 2)
 
     def south(self):
         if self.direction == Direction.VERTICAL:
-            return Point(self.x, self.y - self.height / 2 - self.right_connector_length)
+            return Point(self.x, self.y + self.height / 2 + self.right_connector_length)
         else:
-            return Point(self.x, self.y - self.height / 2)
+            return Point(self.x, self.y + self.height / 2)
 
     def south_east(self):
-        return Point(self.x + self.width / 2, self.y - self.height / 2)
+        return Point(self.x + self.width / 2, self.y + self.height / 2)
 
     def east(self):
         if self.direction == Direction.VERTICAL:
@@ -102,13 +99,13 @@ class RectangleWithConnectors(NodeLayoutElement):
             return Point(self.x + self.width / 2 + self.right_connector_length, self.y)
 
     def north_east(self):
-        return Point(self.x + self.width / 2, self.y + self.height / 2)
+        return Point(self.x + self.width / 2, self.y - self.height / 2)
 
     def north(self):
         if self.direction == Direction.VERTICAL:
-            return Point(self.x, self.y + self.height / 2 + self.left_connector_length)
+            return Point(self.x, self.y - self.height / 2 - self.left_connector_length)
         else:
-            return Point(self.x, self.y + self.height / 2)
+            return Point(self.x, self.y - self.height / 2)
 
     def center(self):
         return Point(self.x, self.y)
@@ -149,6 +146,7 @@ class RectangleWithConnectors(NodeLayoutElement):
 
 
     def angle(self, angle, unit="degrees"):
+        angle = -angle
         if unit == "degrees":
             angle = math.radians(angle)
         line = Line(self.center(), self.center() + Point(math.cos(angle), math.sin(angle)))

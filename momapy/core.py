@@ -7,7 +7,7 @@ from enum import Enum
 
 from momapy.drawing import move_to, line_to, close, rotate, translate, Text, Path, DrawingElement, Transformation, Group
 from momapy.geometry import Point, Segment, get_position_at_fraction, get_angle_of_line, anchorpoint, Line, Bbox
-from momapy.coloring import rgba, Color
+from momapy.coloring import Color, colors
 
 
 class Direction(Enum):
@@ -43,7 +43,7 @@ class NodeLayoutElementLabel(LayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
     font_description: Optional[str] = "Arial 14"
-    font_color: Optional[Color] = rgba(0, 0, 0, 1)
+    font_color: Optional[Color] = colors.black
 
     @property
     def x(self) -> float:
@@ -102,8 +102,8 @@ class NodeLayoutElement(GroupLayoutElement):
     height: Optional[float] = None
     label: Optional[NodeLayoutElementLabel] = None
     stroke_width: float = 1
-    stroke: Optional[Color] = rgba(0, 0, 0, 1)
-    fill: Optional[Color] = rgba(255, 255, 255, 1)
+    stroke: Optional[Color] = colors.black
+    fill: Optional[Color] = colors.white
 
     @property
     def x(self):
@@ -183,7 +183,7 @@ class NodeLayoutElement(GroupLayoutElement):
 
     def border(self, point) -> Point:
         angle = get_angle_of_line(Line(self.center(), point))
-        return self.angle(angle, unit="radians")
+        return self.angle(-angle, unit="radians")
 
 
 @dataclass(frozen=True)
@@ -192,8 +192,8 @@ class ArcLayoutElement(GroupLayoutElement):
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
     stroke_width: float = 1
-    stroke: Optional[Color] = rgba(0, 0, 0, 1)
-    fill: Optional[Color] = rgba(0, 0, 0, 1)
+    stroke: Optional[Color] = colors.black
+    fill: Optional[Color] = colors.white
 
     def bbox(self):
         from momapy.positioning import fit
@@ -297,9 +297,9 @@ class Model(MapElement):
 class Layout(GroupLayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
-    stroke_width: float = 0
-    stroke: Optional[Color] = rgba(0, 0, 0, 1)
-    fill: Optional[Color] = rgba(255, 255, 255, 1)
+    stroke_width: float = 1
+    stroke: Optional[Color] = None
+    fill: Optional[Color] = None
 
     def bbox(self):
         return Bbox(Point(self.width / 2, self.height / 2),

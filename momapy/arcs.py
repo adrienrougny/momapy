@@ -23,9 +23,9 @@ class Arrow(ArcLayoutElement):
         path = Path(stroke=self.stroke,
                     stroke_width=self.stroke_width, fill=self.fill)
         path += move_to(Point(0, 0)) + \
-            line_to(Point(0, self.height / 2)) + \
-            line_to(Point(self.width, 0)) + \
             line_to(Point(0, -self.height / 2)) + \
+            line_to(Point(self.width, 0)) + \
+            line_to(Point(0, self.height / 2)) + \
             close()
         return path
 
