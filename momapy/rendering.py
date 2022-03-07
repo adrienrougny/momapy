@@ -49,10 +49,34 @@ class CairoRenderer(Renderer):
                 self._context = cairo.Context(surface)
             elif not authorize_no_context:
                 raise ValueError("must provide a context or a surface")
-        self._current_stroke = None
-        self._current_fill = None
-        self._current_stroke_width = self.default_stroke_width
+        self._states = []
+        self._initialize()
+
+    def _initialize(self):
+        self._stroke = None
+        self._fill = None
+        self._stroke_width = self.default_stroke_width
         self._translated = False
+        self._save()
+
+    def _save(self):
+        state = {
+            "stroke": self._stroke,
+            "fill": self._fill,
+            "stroke_width": self._stroke_width,
+            "translated": self._translated
+        }
+        self._states.append(state)
+        self._context.save()
+
+    def _restore(self):
+        state = self._states.pop()
+        self._set_state(state)
+        self._context.restore()
+
+    def _set_state(self, state):
+        for key in state:
+            setattr(self, f"_{key}", state[key])
 
     def _transform_y_coord(self, y):
         if self._translated:
@@ -73,23 +97,34 @@ class CairoRenderer(Renderer):
     def render_drawing_element(self, drawing_element):
         # print(drawing_element)
         # print()
-        self._context.save()
-        saved_stroke = self._current_stroke
-        saved_fill = self._current_fill
-        saved_stroke_width = self._current_stroke_width
-        self._set_current_stroke_from_drawing_element(drawing_element)
-        self._set_current_fill_from_drawing_element(drawing_element)
-        self._set_current_stroke_width_from_drawing_element(drawing_element)
+        self._save()
+        self._set_state_from_drawing_element(drawing_element)
+        self._set_transform_from_drawing_element(drawing_element)
+        render_function = self._get_drawing_element_render_function(drawing_element)
+        render_function(drawing_element)
+        self._restore()
+
+    def _set_state_from_drawing_element(self, drawing_element):
+        state = self._get_state_from_drawing_element(drawing_element)
+        self._set_state(state)
+
+    def _get_state_from_drawing_element(self, drawing_element):
+        state = {}
+        if drawing_element.stroke is NoneValue:
+            state["stroke"] = None
+        elif drawing_element.stroke is not None:
+            state["stroke"] = drawing_element.stroke
+        if drawing_element.fill is NoneValue:
+            state["fill"] = None
+        elif drawing_element.fill is not None:
+            state["fill"] = drawing_element.fill
+        state["stroke_width"] = drawing_element.stroke_width
+        return state
+
+    def _set_transform_from_drawing_element(self, drawing_element):
         if drawing_element.transform is not None:
             for transformation in drawing_element.transform:
                 self._render_transformation(transformation)
-        render_function = self._get_drawing_element_render_function(drawing_element)
-        render_function(drawing_element)
-        self._current_stroke = saved_stroke
-        self._current_fill = saved_fill
-        self._current_stroke_width = saved_stroke_width
-        self._translated = False
-        self._context.restore()
 
     def _render_transformation(self, transformation):
         render_transformation_function = self._get_transformation_render_function(transformation)
@@ -109,22 +144,6 @@ class CairoRenderer(Renderer):
         elif isinstance(drawing_element, Text):
             return self._render_text
 
-    def _set_current_fill_from_drawing_element(self, drawing_element):
-        if drawing_element.fill is NoneValue:
-            self._current_fill = None
-        elif drawing_element.stroke is not None:
-            self._current_fill = drawing_element.fill
-
-    def _set_current_stroke_from_drawing_element(self, drawing_element):
-        if drawing_element.stroke is NoneValue:
-            self._current_stroke = None
-        elif drawing_element.stroke is not None:
-            self._current_stroke = drawing_element.stroke
-
-    def _set_current_stroke_width_from_drawing_element(self, drawing_element):
-        if drawing_element.stroke is not None:
-            self._current_stroke_width = drawing_element.stroke_width
-
     def _render_group(self, group):
         for drawing_element in group.elements:
             self.render_drawing_element(drawing_element)
@@ -132,15 +151,15 @@ class CairoRenderer(Renderer):
     def _render_path(self, path):
         for path_action in path.actions:
             self._render_path_action(path_action)
-        if self._current_fill is not None:
-            self._context.set_source_rgba(*self._current_fill.to_rgba(rgba_range=(0, 1)))
-            if self._current_stroke is not None:
+        if self._fill is not None:
+            self._context.set_source_rgba(*self._fill.to_rgba(rgba_range=(0, 1)))
+            if self._stroke is not None:
                 self._context.fill_preserve()
             else:
                 self._context.fill()
-        if self._current_stroke is not None:
-            self._context.set_line_width(self._current_stroke_width)
-            self._context.set_source_rgba(*self._current_stroke.to_rgba(rgba_range=(0, 1)))
+        if self._stroke is not None:
+            self._context.set_line_width(self._stroke_width)
+            self._context.set_source_rgba(*self._stroke.to_rgba(rgba_range=(0, 1)))
             self._context.stroke()
 
     def _render_text(self, text):

@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass, field, replace
-from typing import Union
+from typing import Union, Optional
 
 from momapy.geometry import Point
 from momapy.coloring import Color, rgba
@@ -35,7 +35,7 @@ class DrawingElement(ABC):
     stroke_width: float = 1
     stroke: Union[Color, NoneValueType, None] = None
     fill: Union[Color, NoneValueType, None] = None
-    transform: Union[tuple[Transformation], NoneValueType, None] = None
+    transform: Optional[tuple[Transformation]] = None
 
 
 @dataclass(frozen=True)
