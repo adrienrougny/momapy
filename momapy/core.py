@@ -202,9 +202,12 @@ class ArcLayoutElement(GroupLayoutElement):
     stroke: Optional[Color] = colors.black
     fill: Optional[Color] = colors.white
 
-    def bbox(self):
+    def self_bbox(self):
         from momapy.positioning import fit
         return fit(self.points)
+
+    def bbox(self):
+        return self.self_bbox()
 
     @abstractmethod
     def arrowtip_drawing_element(self) -> DrawingElement:
@@ -308,7 +311,7 @@ class Layout(GroupLayoutElement):
     stroke: Optional[Color] = None
     fill: Optional[Color] = None
 
-    def bbox(self):
+    def self_bbox(self):
         return Bbox(Point(self.width / 2, self.height / 2),
                     width=self.width, height=self.height)
 
@@ -322,6 +325,9 @@ class Layout(GroupLayoutElement):
                 close()
         return [path]
 
+    def bbox(self):
+        return self.self_bbox()
+
 class ModelLayoutMapping(frozendict):
     pass
 
@@ -334,8 +340,20 @@ class Map(MapElement):
         default_factory=ModelLayoutMapping)
 
 @dataclass(frozen=True)
-class LayoutElementReference(object):
-    layout_element: LayoutElement
+class PhantomLayoutElement(LayoutElement):
+    layout_element: Optional[LayoutElement] = None
 
-    def drawing_elements(self) -> None:
-        return None
+    def bbox(self):
+        return self.layout_element.bbox()
+
+    def drawing_elements(self):
+        return []
+
+    def __getattr__(self, name):
+        if hasattr(self, name):
+            return getattr(self, name)
+        else:
+            if self.layout_element is not None:
+                return getattr(self.layout_element, name)
+            else:
+                raise AttributeError

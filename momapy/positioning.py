@@ -1,6 +1,6 @@
 from typing import Union, Optional
 
-from momapy.core import LayoutElement, NodeLayoutElement, LayoutElementReference
+from momapy.core import LayoutElement, NodeLayoutElement
 from momapy.geometry import Point, Bbox
 from momapy.builder import LayoutElementBuilder, PointBuilder, BboxBuilder, NodeLayoutElementBuilder
 from momapy.drawing import translate, rotate
@@ -30,7 +30,7 @@ def above_of(obj, distance):
         source_point = obj.north()
     else:
         raise TypeError
-    return source_point + (0, distance)
+    return source_point - (0, distance)
 
 def below_of(obj, distance):
     if isinstance(obj, Point):
@@ -39,7 +39,7 @@ def below_of(obj, distance):
         source_point = obj.south()
     else:
         raise TypeError
-    return source_point - (0, distance)
+    return source_point + (0, distance)
 
 def above_left_of(obj, distance1, distance2=None):
     if distance2 is None:
@@ -50,7 +50,7 @@ def above_left_of(obj, distance1, distance2=None):
         source_point = obj.north_west()
     else:
         raise TypeError
-    return source_point + (-distance2, distance1)
+    return source_point - (distance2, distance1)
 
 def above_right_of(obj, distance1, distance2=None):
     if distance2 is None:
@@ -61,7 +61,7 @@ def above_right_of(obj, distance1, distance2=None):
         source_point = obj.north_east()
     else:
         raise TypeError
-    return source_point + (distance2, distance1)
+    return source_point + (distance2, -distance1)
 
 def below_left_of(obj, distance1, distance2=None):
     if distance2 is None:
@@ -72,7 +72,7 @@ def below_left_of(obj, distance1, distance2=None):
         source_point = obj.south_west()
     else:
         raise TypeError
-    return source_point - (distance2, distance1)
+    return source_point + (-distance2, distance1)
 
 def below_right_of(obj, distance1, distance2=None):
     if distance2 is None:
@@ -83,7 +83,7 @@ def below_right_of(obj, distance1, distance2=None):
         source_point = obj.south_east()
     else:
         raise TypeError
-    return source_point + (distance2, -distance1)
+    return source_point + (distance2, distance1)
 
 def fit(elements, xsep=0, ysep=0):
     if len(elements) == 0:
@@ -99,8 +99,6 @@ def fit(elements, xsep=0, ysep=0):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
-        elif isinstance(element, LayoutElementReference):
-            pass
         else:
             raise TypeError
     point = points[0]
