@@ -65,13 +65,11 @@ class CairoRenderer(Renderer):
         }
         self._states.append(state)
         self._context.save()
-        print("CONTEXT SAVED")
 
     def _restore(self):
         state = self._states.pop()
         self._set_state(state)
         self._context.restore()
-        print("CONTEXT RESTORED")
 
     def _set_state(self, state):
         for key in state:
