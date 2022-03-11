@@ -12,18 +12,28 @@ import math
 import momapy.drawing
 
 def render_map(map_, output_file, format_="pdf", renderer="cairo"):
+    render_layout(map_.layout, output_file, format_, renderer)
+
+def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
     if renderer == "cairo":
-        if format_ == "pdf":
-            surface_cls = cairo.PDFSurface
-        elif format_ == "svg":
-            surface_cls = cairo.SVGSurface
+        if format_ == "pdf" or format_ == "svg":
+            if format_ == "pdf":
+                surface_cls = cairo.PDFSurface
+            elif format_ == "svg":
+                surface_cls = cairo.SVGSurface
+            surface = surface_cls(output_file, layout.width, layout.height)
+        elif format_ == "png":
+            surface_cls = cairo.ImageSurface
+            surface = surface_cls(cairo.FORMAT_RGB30, layout.width, layout.height)
         else:
             raise ValueError(f"unsupported format for the {renderer} renderer")
-        surface = surface_cls(output_file, map_.layout.width, map_.layout.height)
-        renderer = CairoRenderer(surface=surface, width=map_.layout.width, height=map_.layout.height)
-        renderer.render_map(map_)
+        renderer = CairoRenderer(surface=surface, width=layout.width, height=layout.height)
+        renderer.render_layout_element(layout)
+        if format_ == "png":
+            surface.write_to_png(output_file)
     else:
         raise ValueError(f"no renderer named {renderer}")
+
 
 @dataclass
 class Renderer(ABC):
