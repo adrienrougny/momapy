@@ -1,6 +1,6 @@
 from typing import Union, Optional
 
-from momapy.core import LayoutElement, NodeLayoutElement
+import momapy.core
 from momapy.geometry import Point, Bbox
 from momapy.builder import LayoutElementBuilder, PointBuilder, BboxBuilder, NodeLayoutElementBuilder
 from momapy.drawing import translate, rotate
@@ -8,7 +8,7 @@ from momapy.drawing import translate, rotate
 def right_of(obj, distance):
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.east()
     else:
         raise TypeError
@@ -17,7 +17,7 @@ def right_of(obj, distance):
 def left_of(obj, distance):
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.west()
     else:
         raise TypeError
@@ -26,7 +26,7 @@ def left_of(obj, distance):
 def above_of(obj, distance):
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.north()
     else:
         raise TypeError
@@ -35,7 +35,7 @@ def above_of(obj, distance):
 def below_of(obj, distance):
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.south()
     else:
         raise TypeError
@@ -46,7 +46,7 @@ def above_left_of(obj, distance1, distance2=None):
         distance2 = distance1
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.north_west()
     else:
         raise TypeError
@@ -57,7 +57,7 @@ def above_right_of(obj, distance1, distance2=None):
         distance2 = distance1
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.north_east()
     else:
         raise TypeError
@@ -68,7 +68,7 @@ def below_left_of(obj, distance1, distance2=None):
         distance2 = distance1
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.south_west()
     else:
         raise TypeError
@@ -79,7 +79,7 @@ def below_right_of(obj, distance1, distance2=None):
         distance2 = distance1
     if isinstance(obj, Point):
         source_point = obj
-    elif isinstance(obj, NodeLayoutElement):
+    elif isinstance(obj, momapy.core.NodeLayoutElement):
         source_point = obj.south_east()
     else:
         raise TypeError
@@ -95,7 +95,7 @@ def fit(elements, xsep=0, ysep=0):
         elif isinstance(element, (Bbox, BboxBuilder)):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif isinstance(element, (LayoutElement, LayoutElementBuilder)):
+        elif isinstance(element, (momapy.core.LayoutElement, LayoutElementBuilder)):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
