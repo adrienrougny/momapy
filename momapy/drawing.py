@@ -2,8 +2,8 @@ from abc import ABC
 from dataclasses import dataclass, field, replace
 from typing import Union, Optional
 
-from momapy.geometry import Point
-from momapy.coloring import Color, rgba
+import momapy.geometry
+import momapy.coloring
 
 
 class NoneValueType(object):
@@ -21,7 +21,7 @@ class Transformation(ABC):
 @dataclass(frozen=True)
 class Rotation(Transformation):
     angle: float
-    position: Point = None
+    position: momapy.geometry.Point = None
 
 
 @dataclass(frozen=True)
@@ -33,8 +33,8 @@ class Translation(Transformation):
 @dataclass(frozen=True)
 class DrawingElement(ABC):
     stroke_width: float = 1
-    stroke: Union[Color, NoneValueType, None] = None
-    fill: Union[Color, NoneValueType, None] = None
+    stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
+    fill: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     transform: Optional[tuple[Transformation]] = None
 
 
@@ -81,12 +81,12 @@ class Path(DrawingElement):
 
 @dataclass(frozen=True)
 class Text(DrawingElement):
-    text: Union[str, None] = None
-    position: Union[Point, None] = None
-    width: Union[float, None] = None
-    height: Union[float, None] = None
-    font_description: Union[str, None] = None
-    font_color: Color = rgba(0, 0, 0, 1)
+    text: Optional[str] = None
+    position: Optional[momapy.geometry.Point] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+    font_description: Optional[str] = None
+    font_color: momapy.coloring.Color = momapy.coloring.colors.black
 
     @property
     def x(self):
@@ -112,7 +112,7 @@ class Group(DrawingElement):
 
 @dataclass(frozen=True)
 class MoveTo(PathAction):
-    point: Point
+    point: momapy.geometry.Point
 
     @property
     def x(self):
@@ -125,7 +125,7 @@ class MoveTo(PathAction):
 
 @dataclass(frozen=True)
 class LineTo(PathAction):
-    point: Point
+    point: momapy.geometry.Point
 
     @property
     def x(self):

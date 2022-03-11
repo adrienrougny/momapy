@@ -6,9 +6,9 @@ from collections.abc import Mapping
 from uuid import uuid4
 from inspect import getmembers
 
-from momapy.core import MapElement, Map, ModelElement, Model, LayoutElement, ModelLayoutMapping, Layout, NodeLayoutElement, ArcLayoutElement, NodeLayoutElementLabel
-from momapy.geometry import Point, Bbox
-from momapy.event import Connectable, AttributeSet
+import momapy.core
+import momapy.geometry
+import momapy.event
 
 builders = {}
 
@@ -99,7 +99,7 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
             builder_fields.append(
                 (field_name, field_type, field(**field_dict)))
             field_o_type = get_origin(field_type)
-            if issubclass(cls, MapElement) and field_o_type is not None and isinstance(field_o_type, type) and issubclass(field_o_type, Collection):
+            if issubclass(cls, momapy.core.MapElement) and field_o_type is not None and isinstance(field_o_type, type) and issubclass(field_o_type, Collection):
                 fields_for_add_element.append(
                     {"field_name": field_name, "field_type": field_o_type, "a_types": get_args(field_type)})
 
@@ -110,7 +110,7 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
     builder_namespace["__post_init__"] = _post_init
 
     for field_ in builder_fields:
-        builder_namespace[field_[0]] = Connectable()
+        builder_namespace[field_[0]] = momapy.event.Connectable()
 
     if fields_for_add_element:
         builder_namespace["add_element"] = (lambda fields_for_add_element: lambda self, element: _add_element(
@@ -229,8 +229,8 @@ class ListBuilder(list, Builder):
 
 @dataclass
 class RelativePointBuilder(Builder):
-    _cls_to_build: ClassVar[type] = Point
-    evaluated: Connectable = Connectable()
+    _cls_to_build: ClassVar[type] = momapy.geometry.Point
+    evaluated: momapy.event.Connectable = momapy.event.Connectable()
     obj: Optional[Builder] = None
     func: Optional[Union[str, Callable]] = None
     args: Sequence[Any] = field(default_factory=list)
@@ -240,7 +240,9 @@ class RelativePointBuilder(Builder):
         self._x = None
         self._y = None
         self.evaluated = False
-        if isinstance(self.obj, get_or_make_builder_cls(NodeLayoutElement)):
+        if isinstance(
+            self.obj,
+            get_or_make_builder_cls(momapy.core.NodeLayoutElement)):
             for attribute in ["position", "width", "height"]:
                 self.obj.connect_attribute(
                     attribute, "set", self._set_to_evaluate)
@@ -252,7 +254,7 @@ class RelativePointBuilder(Builder):
         self.evaluated = False
 
     def __add__(self, xy):
-        return relative_point(self, Point.__add__, [xy])
+        return relative_point(self, momapy.geometry.Point.__add__, [xy])
 
     @ property
     def x(self):
@@ -289,7 +291,7 @@ class RelativePointBuilder(Builder):
 
 
 class ModelLayoutMappingBuilder(FrozendictBuilder):
-    _cls_to_build = ModelLayoutMapping
+    _cls_to_build = momapy.core.ModelLayoutMapping
 
 
 register_builder(FrozensetBuilder)
@@ -310,42 +312,48 @@ def map_element_builder__eq__(self, other):
 
 
 MapElementBuilder = get_or_make_builder_cls(
-    MapElement,
+    momapy.core.MapElement,
     builder_namespace={
         "__hash__": map_element_builder__hash__,
         "__eq__": map_element_builder__eq__
     }
 )
 
-ModelElementBuilder = get_or_make_builder_cls(ModelElement)
-LayoutElementBuilder = get_or_make_builder_cls(LayoutElement)
-NodeLayoutElementBuilder = get_or_make_builder_cls(NodeLayoutElement)
-ArcLayoutElementBuilder = get_or_make_builder_cls(ArcLayoutElement)
-NodeLayoutElementLabelLayoutElementBuilder = get_or_make_builder_cls(NodeLayoutElementLabel)
+ModelElementBuilder = get_or_make_builder_cls(momapy.core.ModelElement)
+LayoutElementBuilder = get_or_make_builder_cls(momapy.core.LayoutElement)
+NodeLayoutElementBuilder = get_or_make_builder_cls(
+    momapy.core.NodeLayoutElement)
+ArcLayoutElementBuilder = get_or_make_builder_cls(momapy.core.ArcLayoutElement)
+NodeLayoutElementLabelLayoutElementBuilder = get_or_make_builder_cls(
+    momapy.core.NodeLayoutElementLabel)
 
 
 def model_builder_new_element(self, element_cls, *args, **kwargs):
-    if not issubclass(element_cls, (ModelElementBuilder, ModelElement)):
+    if not issubclass(element_cls, (
+        momapy.core.ModelElementBuilder,
+        momapy.core.ModelElement)):
         raise TypeError(
             "element class must be a subclass of ModelElementBuilder or ModelElement")
     return new_object(element_cls, *args, **kwargs)
 
 
 ModelBuilder = get_or_make_builder_cls(
-    Model,
+    momapy.core.Model,
     builder_namespace={"new_element": model_builder_new_element}
 )
 
 
 def layout_builder_new_element(self, element_cls, *args, **kwargs):
-    if not issubclass(element_cls, (LayoutElementBuilder, LayoutElement)):
+    if not issubclass(
+        element_cls,
+        (momapy.core.LayoutElementBuilder, momapy.core.LayoutElement)):
         raise TypeError(
             "element class must be a subclass of LayoutElementBuilder or LayoutElement")
     return new_object(element_cls, *args, **kwargs)
 
 
 LayoutBuilder = get_or_make_builder_cls(
-    Layout,
+    momapy.core.Layout,
     builder_namespace={"new_element": layout_builder_new_element}
 )
 
@@ -365,12 +373,12 @@ def map_builder_new_model_layout_mapping(self, *args, **kwargs) -> ModelLayoutMa
     pass
 
 
-def map_builder_new_model_element(self, element_cls, *args, **kwargs) -> ModelElement:
+def map_builder_new_model_element(self, element_cls, *args, **kwargs) -> ModelElementBuilder:
     model_element = self.model.new_element(element_cls, *args, **kwargs)
     return model_element
 
 
-def map_builder_new_layout_element(self, element_cls, *args, **kwargs) -> LayoutElement:
+def map_builder_new_layout_element(self, element_cls, *args, **kwargs) -> LayoutElementBuilder:
     layout_element = self.layout.new_element(element_cls, *args, **kwargs)
     return layout_element
 
@@ -394,7 +402,7 @@ def map_builder_get_layout_elements(self, model_element):
 
 
 MapBuilder = get_or_make_builder_cls(
-    Map,
+    momapy.core.Map,
     builder_namespace={
         "new_model": map_builder_new_model,
         "new_layout": map_builder_new_layout,
@@ -408,8 +416,8 @@ MapBuilder = get_or_make_builder_cls(
     }
 )
 
-PointBuilder = get_or_make_builder_cls(Point)
-BboxBuilder = get_or_make_builder_cls(Bbox)
+PointBuilder = get_or_make_builder_cls(momapy.geometry.Point)
+BboxBuilder = get_or_make_builder_cls(momapy.geometry.Bbox)
 
 
 def relative_point(obj=None, func=None, args=None, kwargs=None):

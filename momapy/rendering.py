@@ -9,7 +9,7 @@ from gi.repository import PangoCairo, Pango, Gtk
 
 import math
 
-from momapy.drawing import Path, Text, Group, Rotation, Translation, MoveTo, LineTo, Close, NoneValue
+import momapy.drawing
 
 def render_map(map_, output_file, format_="pdf", renderer="cairo"):
     if renderer == "cairo":
@@ -99,11 +99,11 @@ class CairoRenderer(Renderer):
 
     def _get_state_from_drawing_element(self, drawing_element):
         state = {}
-        if drawing_element.stroke is NoneValue:
+        if drawing_element.stroke is momapy.drawing.NoneValue:
             state["stroke"] = None
         elif drawing_element.stroke is not None:
             state["stroke"] = drawing_element.stroke
-        if drawing_element.fill is NoneValue:
+        if drawing_element.fill is momapy.drawing.NoneValue:
             state["fill"] = None
         elif drawing_element.fill is not None:
             state["fill"] = drawing_element.fill
@@ -123,17 +123,17 @@ class CairoRenderer(Renderer):
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
-        if isinstance(transformation, Translation):
+        if isinstance(transformation, momapy.drawing.Translation):
             return self._render_translation
-        elif isinstance(transformation, Rotation):
+        elif isinstance(transformation, momapy.drawing.Rotation):
             return self._render_rotation
 
     def _get_drawing_element_render_function(self, drawing_element):
-        if isinstance(drawing_element, Group):
+        if isinstance(drawing_element, momapy.drawing.Group):
             return self._render_group
-        elif isinstance(drawing_element, Path):
+        elif isinstance(drawing_element, momapy.drawing.Path):
             return self._render_path
-        elif isinstance(drawing_element, Text):
+        elif isinstance(drawing_element, momapy.drawing.Text):
             return self._render_text
 
     def _render_group(self, group):
@@ -175,11 +175,11 @@ class CairoRenderer(Renderer):
         render_function(path_action)
 
     def _get_path_action_render_function(self, path_action):
-        if isinstance(path_action, MoveTo):
+        if isinstance(path_action, momapy.drawing.MoveTo):
             return self._render_move_to
-        elif isinstance(path_action, LineTo):
+        elif isinstance(path_action, momapy.drawing.LineTo):
             return self._render_line_to
-        elif isinstance(path_action, Close):
+        elif isinstance(path_action, momapy.drawing.Close):
             return self._render_close
 
     def _render_move_to(self, move_to):

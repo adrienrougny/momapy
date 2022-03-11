@@ -5,10 +5,9 @@ from typing import Optional
 from uuid import uuid4
 from enum import Enum
 
-from momapy.drawing import move_to, line_to, close, rotate, translate, Text, Path, DrawingElement, Transformation, Group
-from momapy.geometry import Point, Segment, get_position_at_fraction, get_angle_of_line, anchorpoint, Line, Bbox
-from momapy.coloring import Color, colors
-from momapy.positioning import fit
+import momapy.drawing
+import momapy.geometry
+import momapy.coloring
 
 class Direction(Enum):
     HORIZONTAL = 1
@@ -29,21 +28,21 @@ class ModelElement(MapElement):
 class LayoutElement(MapElement):
 
     @abstractmethod
-    def bbox(self) -> Bbox:
+    def bbox(self) -> momapy.geometry.Bbox:
         pass
 
     @abstractmethod
-    def drawing_elements(self) -> list[DrawingElement]:
+    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
 @dataclass(frozen=True)
 class NodeLayoutElementLabel(LayoutElement):
     text: Optional[str] = None
-    position: Optional[Point] = None
+    position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
     font_description: Optional[str] = "Arial 14"
-    font_color: Optional[Color] = colors.black
+    font_color: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
 
     @property
     def x(self) -> float:
@@ -56,7 +55,7 @@ class NodeLayoutElementLabel(LayoutElement):
     def size(self) -> tuple[float, float]:
         return (self.width, self.height)
 
-    def bbox(self) -> Bbox:
+    def bbox(self) -> momapy.geometry.Bbox:
         return Bbox(self.position, self.width, self.height)
 
     def drawing_elements(self):
@@ -72,15 +71,15 @@ class NodeLayoutElementLabel(LayoutElement):
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
-    transform: Optional[tuple[Transformation]] = None
+    transform: Optional[tuple[momapy.drawing.Transformation]] = None
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
 
     @abstractmethod
-    def self_bbox(self):
+    def self_bbox(self) -> momapy.geometry.Bbox:
         pass
 
     @abstractmethod
-    def self_drawing_elements(self) -> list[DrawingElement]:
+    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
     def drawing_elements(self):
@@ -93,7 +92,7 @@ class GroupLayoutElement(LayoutElement):
             sub_drawing_elements = layout_element.drawing_elements()
             if sub_drawing_elements is not None:
                 drawing_elements += sub_drawing_elements
-        group = Group(
+        group = momapy.drawing.Group(
             transform=self.transform,
             elements=drawing_elements)
         return [group]
@@ -101,13 +100,13 @@ class GroupLayoutElement(LayoutElement):
 
 @dataclass(frozen=True)
 class NodeLayoutElement(GroupLayoutElement):
-    position: Optional[Point] = None
+    position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
     label: Optional[NodeLayoutElementLabel] = None
     stroke_width: float = 1
-    stroke: Optional[Color] = colors.black
-    fill: Optional[Color] = colors.white
+    stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
+    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
 
     @property
     def x(self):
@@ -118,17 +117,22 @@ class NodeLayoutElement(GroupLayoutElement):
         return self.position.y
 
     def self_bbox(self):
-        return Bbox(self.position, self.width, self.height)
+        return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     def bbox(self):
-        return fit([self, self.label, self.layout_elements])
+        import momapy.positioning
+        elements = [self.self_bbox()]
+        if self.label is not None:
+            elements.append(self.label)
+        elements += self.layout_elements
+        return momapy.positioning.fit(elements)
 
     @abstractmethod
-    def background_path(self) -> Optional[Path]:
+    def background_path(self) -> Optional[momapy.drawing.Path]:
         pass
 
     @abstractmethod
-    def foreground_path(self) -> Optional[Path]:
+    def foreground_path(self) -> Optional[momapy.drawing.Path]:
         pass
 
     def self_drawing_elements(self):
@@ -146,80 +150,89 @@ class NodeLayoutElement(GroupLayoutElement):
         return drawing_elements
 
     @abstractmethod
-    def angle(self, angle, unit="degrees") -> Point:
+    def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
         pass
 
     def size(self):
         return (self.width, self.height)
 
     @abstractmethod
-    def east(self) -> Point:
+    def east(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def north_east(self) -> Point:
+    def north_east(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def north(self) -> Point:
+    def north(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def north_west(self) -> Point:
+    def north_west(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def west(self) -> Point:
+    def west(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def south_west(self) -> Point:
+    def south_west(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def south(self) -> Point:
+    def south(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def south_east(self) -> Point:
+    def south_east(self) -> momapy.geometry.Point:
         pass
 
     @abstractmethod
-    def center(self) -> Point:
+    def center(self) -> momapy.geometry.Point:
         pass
 
-    def border(self, point) -> Point:
-        angle = get_angle_of_line(Line(self.center(), point))
+    def border(self, point) -> momapy.geometry.Point:
+        angle = momapy.geometry.get_angle_of_line(
+            momapy.geometry.Line(self.center(), point))
         return self.angle(-angle, unit="radians")
 
 
 @dataclass(frozen=True)
 class ArcLayoutElement(GroupLayoutElement):
-    points: tuple[Point] = field(default_factory=tuple)
+    points: tuple[momapy.geometry.Point] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
     stroke_width: float = 1
-    stroke: Optional[Color] = colors.black
-    fill: Optional[Color] = colors.white
+    stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
+    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
 
     def self_bbox(self):
-        return fit(self.points)
+        import momapy.positioning
+        return momapy.positioning.fit(self.points)
 
     def bbox(self):
-        return self.self_bbox()
+        import momapy.positioning
+        elements = [self.self_bbox()]
+        if self.source is not None:
+            elements.append(self.source)
+        if self.target is not None:
+            elements.append(self.target)
+        elements += self.layout_elements
+        return momapy.positioning.fit(elements)
 
     @abstractmethod
-    def arrowtip_drawing_element(self) -> DrawingElement:
+    def arrowtip_drawing_element(self) -> momapy.drawing.DrawingElement:
         pass
 
     @abstractmethod
     def arrowtip_length(self) -> float:
         pass
 
-    def segments(self) -> list[Segment]:
+    def segments(self) -> list[momapy.geometry.Segment]:
         segments = []
         for i in range(len(self.points))[1:]:
-            segments.append(Segment(self.points[i - 1], self.points[i]))
+            segments.append(momapy.geometry.Segment(self.points[i - 1], self.points[i]))
         return segments
 
     def length(self):
@@ -236,17 +249,18 @@ class ArcLayoutElement(GroupLayoutElement):
         return segment
 
 
-    def fraction(self, fraction) -> tuple[Point, float]:
+    def fraction(self, fraction) -> tuple[momapy.geometry.Point, float]:
         if fraction < 0 or fraction > 1:
             raise ValueError("fraction must belong to [0, 1]")
         segment_at_fraction = self._get_segment_at_fraction(fraction)
-        angle = get_angle_of_line(segment_at_fraction)
+        angle = momapy.geometry.get_angle_of_line(segment_at_fraction)
         current_length = 0
         for segment in self.segments():
             if segment == segment_at_fraction:
                 fraction_on_segment = (self.length() * fraction \
                                        - current_length) / segment.length()
-                return get_position_at_fraction(segment, fraction_on_segment), angle
+                return momapy.geometry.get_position_at_fraction(
+                    segment, fraction_on_segment), angle
             else:
                 current_length += segment.length()
         return segment.p2, angle
@@ -266,34 +280,34 @@ class ArcLayoutElement(GroupLayoutElement):
         arrowtip_drawing_element = self.arrowtip_drawing_element()
         if arrowtip_drawing_element is not None:
             transform = tuple([
-                translate(*self._get_arrowtip_start_point()),
-                rotate(self._get_arrowtip_rotation_angle())])
+                momapy.drawing.translate(*self._get_arrowtip_start_point()),
+                momapy.drawing.rotate(self._get_arrowtip_rotation_angle())])
             arrowtip_drawing_element = replace(
                 arrowtip_drawing_element, transform=transform)
             drawing_elements.append(arrowtip_drawing_element)
         return drawing_elements
 
-    def _get_path_from_points(self) -> Path:
-        path = Path(stroke=self.stroke,
+    def _get_path_from_points(self) -> momapy.drawing.Path:
+        path = momapy.drawing.Path(stroke=self.stroke,
                     stroke_width=self.stroke_width, fill=None)
-        path += move_to(self.points[0])
+        path += momapy.drawing.move_to(self.points[0])
         for segment in self.segments()[:-1]:
-            path += line_to(segment.p2)
+            path += momapy.drawing.line_to(segment.p2)
         if self.arrowtip_drawing_element() is not None:
-            path += line_to(self._get_arrowtip_start_point())
+            path += momapy.drawing.line_to(self._get_arrowtip_start_point())
         else:
-            path += line_to(self.segments()[-1].p2)
+            path += momapy.drawing.line_to(self.segments()[-1].p2)
         return path
 
-    def _get_arrowtip_start_point(self) -> Point:
+    def _get_arrowtip_start_point(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
         fraction = 1 - self.arrowtip_length() / last_segment.length()
-        p = get_position_at_fraction(last_segment, fraction)
+        p = momapy.geometry.get_position_at_fraction(last_segment, fraction)
         return p
 
     def _get_arrowtip_rotation_angle(self) -> float:
         last_segment = self.segments()[-1]
-        angle = get_angle_of_line(last_segment)
+        angle = momapy.geometry.get_angle_of_line(last_segment)
         return angle
 
 
@@ -307,21 +321,21 @@ class Layout(GroupLayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
     stroke_width: float = 1
-    stroke: Optional[Color] = None
-    fill: Optional[Color] = None
+    stroke: Optional[momapy.coloring.Color] = None
+    fill: Optional[momapy.coloring.Color] = None
 
     def self_bbox(self):
-        return Bbox(Point(self.width / 2, self.height / 2),
+        return momapy.geometry.Bbox(momapy.geometry.Point(self.width / 2, self.height / 2),
                     width=self.width, height=self.height)
 
     def self_drawing_elements(self):
-        path = Path(stroke=self.stroke, fill=self.fill,
+        path = momapy.drawing.Path(stroke=self.stroke, fill=self.fill,
                     stroke_width=self.stroke_width)
-        path += move_to(self.bbox().north_west()) + \
-                line_to(self.bbox().north_east()) + \
-                line_to(self.bbox().south_east()) + \
-                line_to(self.bbox().south_west()) + \
-                close()
+        path += momapy.drawing.move_to(self.bbox().north_west()) + \
+                momapy.drawing.line_to(self.bbox().north_east()) + \
+                momapy.drawing.line_to(self.bbox().south_east()) + \
+                momapy.drawing.line_to(self.bbox().south_west()) + \
+                momapy.drawing.close()
         return [path]
 
     def bbox(self):
