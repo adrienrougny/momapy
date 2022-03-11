@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 
 @dataclass(frozen=True)
@@ -7,6 +7,11 @@ class Color(object):
     green: float
     blue: float
     alpha: float = 1
+
+    def __or__(self, alpha: float) -> "Color":
+        if n < 0 or n > 100:
+            raise ValueError("alpha should be a number between 0 and 100")
+        return replace(self, alpha=alpha / 100)
 
     def to_rgba(self, rgb_range=(0, 255), alpha_range=(0, 1), rgba_range=None):
         if rgba_range is not None:
