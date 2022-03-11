@@ -8,7 +8,7 @@ from enum import Enum
 from momapy.drawing import move_to, line_to, close, rotate, translate, Text, Path, DrawingElement, Transformation, Group
 from momapy.geometry import Point, Segment, get_position_at_fraction, get_angle_of_line, anchorpoint, Line, Bbox
 from momapy.coloring import Color, colors
-
+from momapy.positioning import fit
 
 class Direction(Enum):
     HORIZONTAL = 1
@@ -203,7 +203,6 @@ class ArcLayoutElement(GroupLayoutElement):
     fill: Optional[Color] = colors.white
 
     def self_bbox(self):
-        from momapy.positioning import fit
         return fit(self.points)
 
     def bbox(self):
