@@ -176,7 +176,7 @@ class CairoRenderer(Renderer):
         l_y = pixel_extents.y
         l_width = pixel_extents.width
         l_height = pixel_extents.height
-        self._context.translate(text.x - l_width / 2 - l_x, self._transform_y_coord(text.y) - l_height / 2)
+        self._context.translate(text.x - l_width / 2 - l_x, text.y - l_height / 2)
         self._context.set_source_rgba(*text.font_color.to_rgba(rgba_range=(0, 1)))
         PangoCairo.show_layout(self._context, p_layout)
 
