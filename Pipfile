@@ -8,6 +8,7 @@ frozendict = "*"
 libsbgnpy = "*"
 pycairo = "*"
 pygobject = "*"
+momapy = {editable = true, path = "."}
 
 [dev-packages]
 
