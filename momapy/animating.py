@@ -21,7 +21,6 @@ class Animator(object):
     def frames(self, n_frames: int):
         fimage = tempfile.mkstemp()
         self._n_images += 1
-        print(f"rendering image {self._n_images}/*", end="\r")
         momapy.rendering.render_layout(self.layout, fimage[1], format_="png")
         for i in range(n_frames):
             self._flimages[0].write(f"file '{fimage[1]}\n")
@@ -32,5 +31,4 @@ class Animator(object):
 
     def build(self, output_file, vcodec="libx264"):
         self._flimages[0].close()
-        print(f"\nrendering {output_file}")
         ffmpeg.input(self._flimages[1], r=str(self.fps), f="concat", safe="0").output(output_file, vcodec=vcodec).run(quiet=True, overwrite_output=True)
