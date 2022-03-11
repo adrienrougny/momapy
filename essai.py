@@ -7,7 +7,7 @@ from momapy.coloring import *
 from momapy.geometry import Point
 from momapy.builder import get_or_make_builder_cls, LayoutBuilder
 from momapy.positioning import fit, right_of, set_position_at, set_position_at_fraction_of
-from momapy.core import LayoutElementReference, NodeLayoutElementLabel
+from momapy.core import PhantomLayoutElement, NodeLayoutElementLabel
 from momapy.drawing import rotate, translate
 
 OUTPUT = "essai.pdf"
@@ -29,8 +29,8 @@ r3 = RectangleBuilder(position=Point(300, 300), width=100, height=50, fill=color
 
 
 a = ArrowBuilder()
-a.source = LayoutElementReference(r1)
-a.target = LayoutElementReference(r3)
+a.source = PhantomLayoutElement(layout_element=r1)
+a.target = PhantomLayoutElement(layout_element=r3)
 a.points.append(r1.border(r3.center()))
 a.points.append(r3.border(r1.center()))
 r4 = RectangleBuilder(width=20, height=10, fill=colors.sky_blue)
@@ -49,7 +49,4 @@ renderer = CairoRenderer(surface=surface, width=l.width, height=l.height)
 
 renderer.render_layout_element(l)
 
-for angle in range(20, 360, 20):
-    print(angle)
-    a.transform = (rotate(angle / 360 * 2 * 3.14159),)
-    renderer.render_layout_element(a)
+print(a.source.bbox())
