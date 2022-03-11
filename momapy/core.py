@@ -56,10 +56,10 @@ class NodeLayoutElementLabel(LayoutElement):
         return (self.width, self.height)
 
     def bbox(self) -> momapy.geometry.Bbox:
-        return Bbox(self.position, self.width, self.height)
+        return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     def drawing_elements(self):
-        text = Text(
+        text = momapy.drawing.Text(
             text=self.text,
             position=self.position,
             width=self.width,
