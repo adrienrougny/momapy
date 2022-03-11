@@ -9,6 +9,7 @@ libsbgnpy = "*"
 pycairo = "*"
 pygobject = "*"
 momapy = {editable = true, path = "."}
+ffmpeg-python = "*"
 
 [dev-packages]
 
