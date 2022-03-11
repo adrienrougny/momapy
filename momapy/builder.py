@@ -324,7 +324,7 @@ LayoutElementBuilder = get_or_make_builder_cls(momapy.core.LayoutElement)
 NodeLayoutElementBuilder = get_or_make_builder_cls(
     momapy.core.NodeLayoutElement)
 ArcLayoutElementBuilder = get_or_make_builder_cls(momapy.core.ArcLayoutElement)
-NodeLayoutElementLabelLayoutElementBuilder = get_or_make_builder_cls(
+NodeLayoutElementLabelBuilder = get_or_make_builder_cls(
     momapy.core.NodeLayoutElementLabel)
 
 
