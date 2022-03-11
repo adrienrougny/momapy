@@ -9,7 +9,7 @@ class Color(object):
     alpha: float = 1
 
     def __or__(self, alpha: float) -> "Color":
-        if n < 0 or n > 100:
+        if alpha 0 or alpha 100:
             raise ValueError("alpha should be a number between 0 and 100")
         return replace(self, alpha=alpha / 100)
 
