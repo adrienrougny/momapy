@@ -205,7 +205,13 @@ class CairoRenderer(Renderer):
         self._context.translate(translation.tx, translation.ty)
 
     def _render_rotation(self, rotation):
-        self._context.rotate(rotation.angle)
+        point = rotation.point
+        if point is not None:
+            self._context.translate(point.x, point.y)
+            self._context.rotate(rotation.angle)
+            self._context.translate(-point.x, -point.y)
+        else:
+            self._context.rotate(rotation.angle)
 
 @dataclass
 class GTKRenderer(Renderer):
