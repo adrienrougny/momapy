@@ -141,9 +141,10 @@ def fraction_of(arc_layout_element, fraction):
     return position, transform
 
 def set_position_at(
-    obj: Union[momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder],
-    position: momapy.geometry.Point,
-    anchor: Optional[str]=None,
+        obj: Union[momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder],
+        position: momapy.geometry.Point,
+        anchor: Optional[str]=None
+    ):
     obj.position = position
     if anchor is not None:
         p = getattr(obj, anchor)()
