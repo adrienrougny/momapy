@@ -21,7 +21,7 @@ class Transformation(ABC):
 @dataclass(frozen=True)
 class Rotation(Transformation):
     angle: float
-    point: Optional[momapy.geometry.Point = None]
+    point: Optional[momapy.geometry.Point] = None
 
 
 @dataclass(frozen=True)
