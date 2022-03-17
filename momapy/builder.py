@@ -233,13 +233,8 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
                     {"field_name": field_name, "field_type": field_o_type, "a_types": get_args(field_type)})
 
     builder_namespace["build"] = _build
-    # builder_namespace["connect"] = _connect
-    # builder_namespace["connect_attribute"] = _connect_attribute
     builder_namespace["_cls_to_build"] = cls
     builder_namespace["__post_init__"] = _post_init
-
-    for field_ in builder_fields:
-        builder_namespace[field_[0]] = ConnectableAttribute()
 
     if fields_for_add_element:
         builder_namespace["add_element"] = (lambda fields_for_add_element: lambda self, element: _add_element(
@@ -251,7 +246,16 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
         if (isinstance(func, Callable) or isinstance(func, property)) and not func_name.startswith("__"):
             builder_namespace[func_name] = func
 
-    builder_bases = tuple(builder_bases + [get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__] + ["Builder"])
+    cls_bases = [get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__]
+    builder_bases = builder_bases + [base_cls for base_cls in cls_bases if issubclass(base_cls, Builder)]
+    has_builder_cls = False
+    for builder_base in builder_bases:
+        if Builder in builder_base.__mro__:
+            has_builder_cls = True
+            break
+    if not has_builder_cls:
+        builder_bases = [Builder] + builder_bases
+    builder_bases = tuple(builder_bases)
 
     builder = make_dataclass(
         cls_name=f"{cls.__name__}Builder",
@@ -259,6 +263,11 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
         bases=builder_bases,
         namespace=builder_namespace,
         eq=False)
+
+    for field_ in builder_fields:
+        connectable_attribute = ConnectableAttribute()
+        setattr(builder, field_[0], connectable_attribute)
+        connectable_attribute.__set_name__(builder, field_[0])
 
     return builder
 
@@ -353,69 +362,6 @@ class ListBuilder(list, Builder):
 
     def build(self):
         return self._cls_to_build([build_object(obj) for obj in self])
-
-
-@dataclass
-class RelativePointBuilder(Builder):
-    _cls_to_build: ClassVar[type] = momapy.geometry.Point
-    _callbacks: dict[str, Callable] = field(default_factory=dict)
-    _attribute_callbacks: dict[str, Callable] = field(default_factory=dict)
-    evaluated: momapy.event.Connectable = momapy.event.Connectable()
-    obj: Optional[Builder] = None
-    func: Optional[Union[str, Callable]] = None
-    args: Sequence[Any] = field(default_factory=list)
-    kwargs: Mapping[str, Any] = field(default_factory=dict)
-
-    def __post_init__(self):
-        self._x = None
-        self._y = None
-        self.evaluated = False
-        if isinstance(self.obj, NodeLayoutElementBuilder):
-            for attribute in ["position", "width", "height"]:
-                self.obj.connect_attribute(
-                    attribute, "set", self._set_to_evaluate)
-        elif isinstance(self.obj, (RelativePointBuilder)):
-            self.obj.connect_attribute(
-                "evaluated", "set", self._set_to_evaluate)
-
-    def _set_to_evaluate(self, *args):
-        print("NEEDS EVAL")
-        self.evaluated = False
-
-    def __add__(self, xy):
-        return relative_point(self, momapy.geometry.Point.__add__, [xy])
-
-    @ property
-    def x(self):
-        if not self.evaluated:
-            self.evaluate()
-        return self._x
-
-    @ property
-    def y(self):
-        if not self.evaluated:
-            self.evaluate()
-        return self._y
-
-    def evaluate(self):
-        if self.obj is None:
-            point = self.func(*self.args, **self.kwargs)
-        else:
-            if isinstance(self.func, str):
-                func = getattr(self.obj, self.func)
-                if isinstance(func, MethodType) and func.__self__ is self.obj:
-                    point = func(*self.args, **self.kwargs)
-                else:
-                    point = func
-        print("EVALUATE", point)
-        self._x = point.x
-        self._y = point.y
-        self.evaluated = True
-
-    def build(self):
-        if not self.evaluated:
-            self.evaluate()
-        return self._cls_to_build(self.x, self.y)
 
 
 class ModelLayoutMappingBuilder(FrozendictBuilder):
