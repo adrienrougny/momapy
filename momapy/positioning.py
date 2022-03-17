@@ -143,7 +143,7 @@ def fraction_of(arc_layout_element, fraction):
 def set_position_at(
     obj: Union[momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder],
     position: momapy.geometry.Point,
-    anchor: Optional[str]=None) -> None:
+    anchor: Optional[str]=None,
     obj.position = position
     if anchor is not None:
         p = getattr(obj, anchor)()
@@ -155,8 +155,18 @@ def set_position_at_right_of(obj1: Union[momapy.builder.NodeLayoutElementBuilder
         p = getattr(obj1, anchor)()
         obj1.position += (obj1.position - p)
 
-def set_position_at_fraction_of(obj, arc_layout_element, fraction, anchor=None):
-    position, transform = fraction_of(arc_layout_element, fraction)
+def set_position_at_fraction_of(obj, arc_layout_element, fraction, anchor=None, updated=False):
+    func = fraction_of
+    if not updated:
+        position, transform = func(arc_layout_element, fraction)
+    else:
+        position_transform = momapy.builder.updated_object(
+            obj=None,
+            func=func,
+            args=[obj, arc_layout_element, fraction, anchor]
+        )
+        position = updated_object(position_transform, "__getitem__", args=[0])
+        transform = updated_object(position_transform, "__getitem__", args=[1])
     obj.position, obj.transform = position, transform
     if anchor is not None:
         p = getattr(obj, anchor)()
