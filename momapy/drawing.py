@@ -111,6 +111,21 @@ class Group(DrawingElement):
 
 
 @dataclass(frozen=True)
+class Ellipse(DrawingElement):
+    point: Optional[momapy.geometry.Point] = None
+    rx: Optional[float] = None
+    ry: Optional[float] = None
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
+
+@dataclass(frozen=True)
 class MoveTo(PathAction):
     point: momapy.geometry.Point
 

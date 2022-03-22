@@ -145,6 +145,9 @@ class CairoRenderer(Renderer):
             return self._render_path
         elif isinstance(drawing_element, momapy.drawing.Text):
             return self._render_text
+        elif isinstance(drawing_element, momapy.drawing.Ellipse):
+            return self._render_ellipse
+
 
     def _render_group(self, group):
         for drawing_element in group.elements:
@@ -179,6 +182,14 @@ class CairoRenderer(Renderer):
         self._context.translate(text.x - l_width / 2 - l_x, text.y - l_height / 2)
         self._context.set_source_rgba(*text.font_color.to_rgba(rgba_range=(0, 1)))
         PangoCairo.show_layout(self._context, p_layout)
+
+    def _render_ellipse(self, ellipse):
+        self._context.save()
+        self._context.translate(ellipse.x, ellipse.y)
+        self._context.scale(ellipse.rx, ellipse.ry)
+        self._context.arc(0, 0, 1, 0, 2 * math.pi)
+        self._context.close_path()
+        self._context.restore()
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
