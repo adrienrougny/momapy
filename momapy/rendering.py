@@ -11,10 +11,7 @@ import math
 
 import momapy.drawing
 
-def render_map(map_, output_file, format_="pdf", renderer="cairo"):
-    render_layout(map_.layout, output_file, format_, renderer)
-
-def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
+def _make_renderer_for_render_function(output_file, format_, renderer):
     if renderer == "cairo":
         if format_ == "pdf" or format_ == "svg":
             if format_ == "pdf":
@@ -28,12 +25,25 @@ def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
         else:
             raise ValueError(f"unsupported format for the {renderer} renderer")
         renderer = CairoRenderer(surface=surface, width=layout.width, height=layout.height)
-        renderer.render_layout_element(layout)
-        if format_ == "png":
-            surface.write_to_png(output_file)
     else:
         raise ValueError(f"no renderer named {renderer}")
+    return renderer
 
+def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
+    renderer = _make_renderer_for_render_function(output_file, format_, renderer)
+    renderer.render_layout_element(layout)
+    if format_ == "png":
+        renderer.surface.write_to_png(output_file)
+
+def render_map(map_, output_file, format_="pdf", renderer="cairo"):
+    render_layout(map_.layout, output_file, format_, renderer)
+
+def render_drawing_elements(drawing_element, output_file, format_="pdf", renderer="cairo"):
+    renderer = _make_renderer_for_render_function(output_file, format_, renderer)
+    for drawing_element in drawing_elements:
+        renderer.render_drawing_element(drawing_element)
+    if format_ == "png":
+        renderer.surface.write_to_png(output_file)
 
 @dataclass
 class Renderer(ABC):
