@@ -38,7 +38,7 @@ def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
 def render_map(map_, output_file, format_="pdf", renderer="cairo"):
     render_layout(map_.layout, output_file, format_, renderer)
 
-def render_drawing_elements(drawing_element, output_file, format_="pdf", renderer="cairo"):
+def render_drawing_elements(drawing_elements, output_file, format_="pdf", renderer="cairo"):
     renderer = _make_renderer_for_render_function(output_file, format_, renderer)
     for drawing_element in drawing_elements:
         renderer.render_drawing_element(drawing_element)
