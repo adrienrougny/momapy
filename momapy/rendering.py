@@ -158,14 +158,7 @@ class CairoRenderer(Renderer):
         elif isinstance(drawing_element, momapy.drawing.Ellipse):
             return self._render_ellipse
 
-
-    def _render_group(self, group):
-        for drawing_element in group.elements:
-            self.render_drawing_element(drawing_element)
-
-    def _render_path(self, path):
-        for path_action in path.actions:
-            self._render_path_action(path_action)
+    def _stroke_and_fill(self):
         if self._fill is not None:
             self._context.set_source_rgba(*self._fill.to_rgba(rgba_range=(0, 1)))
             if self._stroke is not None:
@@ -176,6 +169,16 @@ class CairoRenderer(Renderer):
             self._context.set_line_width(self._stroke_width)
             self._context.set_source_rgba(*self._stroke.to_rgba(rgba_range=(0, 1)))
             self._context.stroke()
+
+
+    def _render_group(self, group):
+        for drawing_element in group.elements:
+            self.render_drawing_element(drawing_element)
+
+    def _render_path(self, path):
+        for path_action in path.actions:
+            self._render_path_action(path_action)
+        self._stroke_and_fill()
 
     def _render_text(self, text):
         p_layout = PangoCairo.create_layout(self._context)
@@ -200,6 +203,7 @@ class CairoRenderer(Renderer):
         self._context.arc(0, 0, 1, 0, 2 * math.pi)
         self._context.close_path()
         self._context.restore()
+        self._stroke_and_fill()
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
