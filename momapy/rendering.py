@@ -191,6 +191,9 @@ class CairoRenderer(Renderer):
             return self._render_line_to
         elif isinstance(path_action, momapy.drawing.Close):
             return self._render_close
+        elif isinstance(path_action, momapy.drawing.Arc):
+            return self._render_arc
+
 
     def _render_move_to(self, move_to):
         self._context.move_to(move_to.x, move_to.y)
@@ -200,6 +203,15 @@ class CairoRenderer(Renderer):
 
     def _render_close(self, close):
         self._context.close_path()
+
+    def _render_arc(self, arc):
+        self._context.arc(
+            arc.x,
+            arc.y,
+            arc.abstractmethod,
+            arc.start_angle,
+            arc.end_angle
+        )
 
     def _render_translation(self, translation):
         self._context.translate(translation.tx, translation.ty)

@@ -135,6 +135,21 @@ class LineTo(PathAction):
     def y(self):
         return self.point.y
 
+@dataclass(frozen=True)
+class Arc(PathAction):
+    point: momapy.geometry.Point
+    radius: float
+    start_angle: float
+    end_angle: float
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
 
 @dataclass(frozen=True)
 class Close(PathAction):
@@ -147,6 +162,10 @@ def move_to(point):
 
 def line_to(point):
     return LineTo(point)
+
+
+def arc(point, radius, start_angle, end_angle):
+    return Arc(point, radius, start_angle, end_angle)
 
 
 def close():
