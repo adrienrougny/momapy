@@ -104,9 +104,9 @@ class NodeLayoutElement(GroupLayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
     label: Optional[NodeLayoutElementLabel] = None
-    stroke_width: float = 1
-    stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
-    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
+    stroke_width: float = None
+    stroke: Optional[momapy.coloring.Color] = None
+    fill: Optional[momapy.coloring.Color] = None
 
     @property
     def x(self):
@@ -206,6 +206,7 @@ class ArcLayoutElement(GroupLayoutElement):
     stroke_width: float = 1
     stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
     fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
+    shorten: Optional[float] = 0
 
     def self_bbox(self):
         import momapy.positioning
@@ -301,7 +302,8 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def _get_arrowtip_start_point(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
-        fraction = 1 - self.arrowtip_length() / last_segment.length()
+        fraction = (1 - (self.arrowtip_length() + self.shorten)
+                        / last_segment.length())
         p = momapy.geometry.get_position_at_fraction(last_segment, fraction)
         return p
 

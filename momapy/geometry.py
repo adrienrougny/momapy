@@ -70,6 +70,30 @@ class Bbox(object):
     def center(self):
         return Point(self.x, self.y)
 
+    def angle(self, angle, unit="degrees"):
+        angle = -angle
+        if unit == "degrees":
+            angle = math.radians(angle)
+        angle = momapy.geometry.get_normalized_angle(angle)
+        line = momapy.geometry.Line(
+            self.center(),
+            self.center() + (math.cos(angle), math.sin(angle))
+        )
+        sectors = [
+            (self.north_east(), self.south_east()),
+            (self.south_east(), self.south_west()),
+            (self.south_west(), self.north_west()),
+            (self.north_west(), self.north_east())
+        ]
+        for sector in sectors:
+            if momapy.geometry.is_angle_in_sector(
+                    angle, self.center(), sector[0], sector[1]):
+                p = momapy.geometry.get_intersection_of_lines(
+                        momapy.geometry.Line(sector[0], sector[1]), line)
+                return p
+        return self.center()
+
+
 @dataclass(frozen=True)
 class Line(object):
     p1: Point
@@ -162,3 +186,14 @@ def rotate_point(point, angle):
     px = point.x * math.cos(angle) + point.y * math.sin(angle)
     py = -point.x * math.sin(angle) + point.y * math.cos(angle)
     return Point(px, py)
+
+#angle is in radians between -pi and pi
+def get_angle_between_segments(segment1, segment2):
+    p1 = segment1.p2 - segment1.p1
+    p2 = segment2.p2 - segment2.p1
+    scalar_prod = p1.x * p2.x + p1.y * p2.y
+    angle = math.acos(scalar_prod / (segment1.length() * segment2.length()))
+    sign = p1.x * p2.y - p1.y * p2.x
+    if sign < 0:
+        angle = -angle
+    return angle

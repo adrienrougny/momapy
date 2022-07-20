@@ -32,7 +32,7 @@ class Translation(Transformation):
 
 @dataclass(frozen=True)
 class DrawingElement(ABC):
-    stroke_width: float = 1
+    stroke_width: float = None
     stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     fill: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     transform: Optional[tuple[Transformation]] = None
@@ -124,6 +124,32 @@ class Ellipse(DrawingElement):
     def y(self):
         return self.point.y
 
+@dataclass(frozen=True)
+class Rectangle(DrawingElement):
+    point: Optional[momapy.geometry.Point] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+    rx: Optional[float] = 0
+    ry: Optional[float] = 0
+
+    def __post_init__(self):
+        if self.rx is None and self.ry is not None:
+            self.rx = self.ry
+        elif self.ry is None and self.rx is not None:
+            self.ry = self.rx
+        if self.rx > self.width / 2:
+            self.rx = self.width / 2
+        if self.ry > self.height / 2:
+            self.ry = self.height / 2
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
 
 @dataclass(frozen=True)
 class MoveTo(PathAction):
@@ -165,6 +191,23 @@ class Arc(PathAction):
     def y(self):
         return self.point.y
 
+@dataclass(frozen=True)
+class EllipticalArc(PathAction):
+    point: momapy.geometry.Point
+    rx: float
+    ry: float
+    x_axis_rotation: float
+    arc_flag: int
+    sweep_flag: int
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
 
 @dataclass(frozen=True)
 class Close(PathAction):
@@ -181,6 +224,9 @@ def line_to(point):
 
 def arc(point, radius, start_angle, end_angle):
     return Arc(point, radius, start_angle, end_angle)
+
+def elliptical_arc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag):
+    return EllipticalArc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag)
 
 
 def close():

@@ -21,7 +21,7 @@ def _make_renderer_for_render_function(output_file, width, height, format_, rend
             surface = surface_cls(output_file, width, height)
         elif format_ == "png":
             surface_cls = cairo.ImageSurface
-            surface = surface_cls(cairo.FORMAT_RGB30, width, height)
+            surface = surface_cls(cairo.FORMAT_RGB30, int(width), int(height))
         else:
             raise ValueError(f"unsupported format for the {renderer} renderer")
         renderer = CairoRenderer(surface=surface, width=width, height=height)
@@ -33,7 +33,7 @@ def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
     renderer = _make_renderer_for_render_function(output_file, layout.width, layout.height, format_, renderer)
     renderer.render_layout_element(layout)
     if format_ == "png":
-        renderer.surface.write_to_png(output_file)
+        renderer._context.get_target().write_to_png(output_file)
 
 def render_map(map_, output_file, format_="pdf", renderer="cairo"):
     render_layout(map_.layout, output_file, format_, renderer)
@@ -43,7 +43,7 @@ def render_drawing_elements(drawing_elements, output_file, width, height, format
     for drawing_element in drawing_elements:
         renderer.render_drawing_element(drawing_element)
     if format_ == "png":
-        renderer.surface.write_to_png(output_file)
+        renderer._context.get_target().write_to_png(output_file)
 
 @dataclass
 class Renderer(ABC):
@@ -127,7 +127,8 @@ class CairoRenderer(Renderer):
             state["fill"] = None
         elif drawing_element.fill is not None:
             state["fill"] = drawing_element.fill
-        state["stroke_width"] = drawing_element.stroke_width
+        if drawing_element.stroke_width is not None: # not sure, need to check svg spec
+            state["stroke_width"] = drawing_element.stroke_width
         return state
 
     def _set_transform_from_drawing_element(self, drawing_element):
@@ -157,6 +158,9 @@ class CairoRenderer(Renderer):
             return self._render_text
         elif isinstance(drawing_element, momapy.drawing.Ellipse):
             return self._render_ellipse
+        elif isinstance(drawing_element, momapy.drawing.Rectangle):
+            return self._render_rectangle
+
 
     def _stroke_and_fill(self):
         if self._fill is not None:
@@ -205,6 +209,41 @@ class CairoRenderer(Renderer):
         self._context.restore()
         self._stroke_and_fill()
 
+
+    def _render_rectangle(self, rectangle):
+        path = momapy.drawing.Path(
+            stroke_width=rectangle.stroke_width,
+            stroke=rectangle.stroke,
+            fill=rectangle.fill,
+            transform=rectangle.transform)
+        x = rectangle.point.x
+        y = rectangle.point.y
+        rx = rectangle.rx
+        ry = rectangle.ry
+        width = rectangle.width
+        height = rectangle.height
+        path += momapy.drawing.move_to(momapy.geometry.Point(x + rx, y))
+        path += momapy.drawing.line_to(momapy.geometry.Point(x + width - rx, y))
+        if rx > 0 and ry > 0:
+            path += momapy.drawing.elliptical_arc(
+                momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 1, 1)
+        path += momapy.drawing.line_to(momapy.geometry.Point(
+            x + width, y + height - ry))
+        if rx > 0 and ry > 0:
+            path += momapy.drawing.elliptical_arc(
+                momapy.geometry.Point(x + width - rx, y + height), rx, ry, 0, 1, 1)
+        path += momapy.drawing.line_to(momapy.geometry.Point(x + rx, y + height))
+        if rx > 0 and ry > 0:
+            path += momapy.drawing.elliptical_arc(
+                momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 1, 1)
+        path += momapy.drawing.line_to(momapy.geometry.Point(x, y + ry))
+        if rx > 0 and ry > 0:
+            path += momapy.drawing.elliptical_arc(
+                momapy.geometry.Point(x + rx, y), rx, ry, 0, 1, 1)
+        path += momapy.drawing.close()
+        self._render_path(path)
+
+
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
         render_function(path_action)
@@ -218,7 +257,8 @@ class CairoRenderer(Renderer):
             return self._render_close
         elif isinstance(path_action, momapy.drawing.Arc):
             return self._render_arc
-
+        elif isinstance(path_action, momapy.drawing.EllipticalArc):
+            return self._render_elliptical_arc
 
     def _render_move_to(self, move_to):
         self._context.move_to(move_to.x, move_to.y)
@@ -233,10 +273,64 @@ class CairoRenderer(Renderer):
         self._context.arc(
             arc.x,
             arc.y,
-            arc.abstractmethod,
+            arc.radius,
             arc.start_angle,
             arc.end_angle
         )
+
+    def _render_elliptical_arc(self, elliptical_arc):
+        x1, y1 = self._context.get_current_point()
+        sigma = elliptical_arc.x_axis_rotation
+        p = elliptical_arc.point
+        x2 = p.x
+        y2 = p.y
+        rx = elliptical_arc.rx
+        ry = elliptical_arc.ry
+        fa = elliptical_arc.arc_flag
+        fs = elliptical_arc.sweep_flag
+        x1p = math.cos(sigma) * ((x1 - x2) / 2) + \
+                math.sin(sigma) * ((y1 - y2) / 2)
+        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + \
+                math.cos(sigma) * ((y1 - y2) / 2)
+        a = math.sqrt((rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2) / \
+                      (rx**2 * y1p**2 + ry**2 * x1p**2))
+        if fa != fs:
+            a = -a
+        cxp = a * rx * y1p / ry
+        cyp = -a * ry * x1p / rx
+        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
+        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
+        theta1 = momapy.geometry.get_angle_between_segments(
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0, 0),
+                momapy.geometry.Point(1, 0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0, 0),
+                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
+            )
+        )
+        delta_theta = momapy.geometry.get_angle_between_segments(
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0, 0),
+                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0, 0),
+                momapy.geometry.Point((-x1p - cxp) / rx, (-y1p - cyp) / ry)
+            )
+        )
+        if fs == 0 and delta_theta > 0:
+            delta_theta -= 2 * math.pi
+        elif fs == 1 and delta_theta < 0:
+            delta_theta += 2 * math.pi
+        theta2 = theta1 + delta_theta
+        self._context.save()
+        self._context.translate(cx, cy)
+        self._context.rotate(sigma)
+        self._context.scale(rx, ry)
+        self._context.arc(0, 0, 1, theta1, theta2)
+        self._context.restore()
 
     def _render_translation(self, translation):
         self._context.translate(translation.tx, translation.ty)

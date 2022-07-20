@@ -8,5 +8,8 @@ setup(name = "momapy",
     packages = ["momapy"],
     install_requires = [
         "libsbgnpy",
+        "frozendict",
+        "pycairo",
+        "pygobject"
     ],
 )

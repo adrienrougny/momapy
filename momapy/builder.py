@@ -167,8 +167,15 @@ def _build(self):
     args = {}
     for field_ in fields(self):
         attr_value = getattr(self, field_.name)
-        args[field_.name] = build_object(attr_value)
+        args[field_.name] = object_from_builder(attr_value)
     return self._cls_to_build(**args)
+
+def _from_object(cls, obj):
+    args = {}
+    for field_ in fields(obj):
+        attr_value = getattr(obj, field_.name)
+        args[field_.name] = builder_from_object(attr_value)
+    return cls(**args)
 
 
 def _add_element(self, element, fields_for_add_element):
@@ -191,20 +198,6 @@ def _post_init(self):
     self._attribute_callbacks = {}
 
 
-# def _connect_attribute(self, attribute, event_type, callback):
-#     if attribute not in self._attribute_callbacks:
-#         self._attribute_callbacks[attribute] = {}
-#     if event_type not in self._attribute_callbacks[attribute]:
-#         self._attribute_callbacks[attribute][event_type] = set()
-#     self._attribute_callbacks[attribute][event_type].add(callback)
-#
-#
-# def _connect(self, event_type, callback):
-#     if event_type not in self._callbacks:
-#         self._callbacks[event_type] = set()
-#     self._callbacks[event_type].add(callback)
-
-
 def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_namespace=None):
     cls_fields = fields(cls)
     if builder_fields is None:
@@ -214,7 +207,6 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
     if builder_namespace is None:
         builder_namespace = {}
     fields_for_add_element = []
-
     for field_ in cls_fields:
         field_name = field_.name
         if field_name not in [builder_field[0] for builder_field in builder_fields]:
@@ -228,13 +220,21 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
             builder_fields.append(
                 (field_name, field_type, field(**field_dict)))
             field_o_type = get_origin(field_type)
-            if issubclass(cls, momapy.core.MapElement) and field_o_type is not None and isinstance(field_o_type, type) and issubclass(field_o_type, Collection):
-                fields_for_add_element.append(
-                    {"field_name": field_name, "field_type": field_o_type, "a_types": get_args(field_type)})
+            if issubclass(cls, momapy.core.MapElement) and \
+               field_o_type is not None and \
+               isinstance(field_o_type, type) and \
+               issubclass(field_o_type, Collection):
+                fields_for_add_element.append({
+                    "field_name": field_name,
+                    "field_type": field_type,
+                    "a_types": get_args(field_type)
+                })
 
     builder_namespace["build"] = _build
+    builder_namespace["from_object"] = classmethod(_from_object)
     builder_namespace["_cls_to_build"] = cls
     builder_namespace["__post_init__"] = _post_init
+
 
     if fields_for_add_element:
         builder_namespace["add_element"] = (lambda fields_for_add_element: lambda self, element: _add_element(
@@ -271,10 +271,17 @@ def make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_names
 
     return builder
 
-
-def build_object(obj):
-    if hasattr(obj, "build") and isinstance(getattr(obj, "build"), Callable):
+def object_from_builder(obj):
+    if issubclass(type(obj), Builder):
         return obj.build()
+    else:
+        return obj
+
+
+def builder_from_object(obj):
+    cls = get_or_make_builder_cls(type(obj))
+    if issubclass(cls, Builder):
+        return cls.from_object(obj)
     else:
         return obj
 
@@ -285,7 +292,8 @@ def new_object(object_cls, *args, **kwargs):
     return builder_cls(*args, **kwargs)
 
 
-def get_or_make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_namespace=None):
+def get_or_make_builder_cls(
+        cls, builder_fields=None, builder_bases=None, builder_namespace=None):
     if has_builder(cls):
         return get_builder(cls)
     elif is_dataclass(cls):
@@ -295,7 +303,6 @@ def get_or_make_builder_cls(cls, builder_fields=None, builder_bases=None, builde
         return builder_cls
     else:
         return cls
-
 
 def has_builder(cls):
     return cls in builders
@@ -321,52 +328,80 @@ class Builder(ConnectableObject, ABC):
     def build(self):
         pass
 
+    @classmethod
+    @abstractmethod
+    def from_object(cls, obj):
+        pass
+
 
 class FrozensetBuilder(set, Builder):
     _cls_to_build = frozenset
 
     def build(self):
-        return self._cls_to_build([build_object(obj) for obj in self])
+        return self._cls_to_build([object_from_builder(elem) for elem in self])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([builder_from_object(elem) for elem in obj])
 
 
 class SetBuilder(set, Builder):
     _cls_to_build = set
 
     def build(self):
-        return self._cls_to_build([build_object(obj) for obj in self])
+        return self._cls_to_build([object_from_builder(elem) for elem in self])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([builder_from_object(elem) for elem in obj])
 
 
 class TupleBuilder(list, Builder):
     _cls_to_build = tuple
 
     def build(self):
-        return self._cls_to_build([build_object(obj) for obj in self])
+        return self._cls_to_build([object_from_builder(elem) for elem in self])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([builder_from_object(elem) for elem in obj])
 
 
 class DictBuilder(dict, Builder):
     _cls_to_build = dict
 
     def build(self):
-        return self._cls_to_build([(build_object(key), build_object(val)) for key, val in self.items()])
+        return self._cls_to_build([(object_from_builder(key), object_from_builder(val)) for key, val in self.items()])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([(builder_from_object(key), builder_from_object(val)) for key, val in obj.items()])
 
 
 class FrozendictBuilder(dict, Builder):
     _cls_to_build = frozendict
 
     def build(self):
-        return self._cls_to_build([(build_object(key), build_object(val)) for key, val in self.items()])
+        return self._cls_to_build([(object_from_builder(key), object_from_builder(val)) for key, val in self.items()])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([(builder_from_object(key), builder_from_object(val)) for key, val in obj.items()])
 
 
 class ListBuilder(list, Builder):
     _cls_to_build = list
 
     def build(self):
-        return self._cls_to_build([build_object(obj) for obj in self])
+        return self._cls_to_build([object_from_builder(elem) for elem in self])
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([builder_from_object(elem) for elem in obj])
 
 
 class ModelLayoutMappingBuilder(FrozendictBuilder):
     _cls_to_build = momapy.core.ModelLayoutMapping
-
 
 register_builder(FrozensetBuilder)
 register_builder(SetBuilder)
@@ -376,20 +411,41 @@ register_builder(FrozendictBuilder)
 register_builder(ListBuilder)
 register_builder(ModelLayoutMappingBuilder)
 
+def _point_builder_add(self, xy):
+    if isinstance(xy, PointBuilder):
+        xy = (xy.x, xy.y)
+    return PointBuilder(self.x + xy[0], self.y + xy[1])
 
-def map_element_builder__hash__(self):
+def _point_builder_sub(self, xy):
+    if isinstance(xy, PointBuilder):
+        xy = (xy.x, xy.y)
+    return PointBuilder(self.x - xy[0], self.y - xy[1])
+
+def _point_builder_iter(self):
+    yield self.x
+    yield self.y
+
+PointBuilder = get_or_make_builder_cls(
+    momapy.geometry.Point,
+    builder_namespace={
+        "__add__": _point_builder_add,
+        "__sub__": _point_builder_sub,
+        "__iter__": _point_builder_iter
+    }
+)
+
+def _map_element_builder_hash(self):
     return hash(self.id)
 
 
-def map_element_builder__eq__(self, other):
+def _map_element_builder_eq(self, other):
     return self.__class__ == other.__class__ and self.id == other.id
-
 
 MapElementBuilder = get_or_make_builder_cls(
     momapy.core.MapElement,
     builder_namespace={
-        "__hash__": map_element_builder__hash__,
-        "__eq__": map_element_builder__eq__
+        "__hash__": _map_element_builder_hash,
+        "__eq__": _map_element_builder_eq
     }
 )
 
@@ -402,9 +458,9 @@ NodeLayoutElementLabelBuilder = get_or_make_builder_cls(
     momapy.core.NodeLayoutElementLabel)
 
 
-def model_builder_new_element(self, element_cls, *args, **kwargs):
+def _model_builder_new_element(self, element_cls, *args, **kwargs):
     if not issubclass(element_cls, (
-        momapy.core.ModelElementBuilder,
+        ModelElementBuilder,
         momapy.core.ModelElement)):
         raise TypeError(
             "element class must be a subclass of ModelElementBuilder or ModelElement")
@@ -413,14 +469,14 @@ def model_builder_new_element(self, element_cls, *args, **kwargs):
 
 ModelBuilder = get_or_make_builder_cls(
     momapy.core.Model,
-    builder_namespace={"new_element": model_builder_new_element}
+    builder_namespace={"new_element": _model_builder_new_element}
 )
 
 
-def layout_builder_new_element(self, element_cls, *args, **kwargs):
+def _layout_builder_new_element(self, element_cls, *args, **kwargs):
     if not issubclass(
         element_cls,
-        (momapy.core.LayoutElementBuilder, momapy.core.LayoutElement)):
+        (LayoutElementBuilder, momapy.core.LayoutElement)):
         raise TypeError(
             "element class must be a subclass of LayoutElementBuilder or LayoutElement")
     return new_object(element_cls, *args, **kwargs)
@@ -428,70 +484,59 @@ def layout_builder_new_element(self, element_cls, *args, **kwargs):
 
 LayoutBuilder = get_or_make_builder_cls(
     momapy.core.Layout,
-    builder_namespace={"new_element": layout_builder_new_element}
+    builder_namespace={"new_element": _layout_builder_new_element}
 )
 
 
 @ abstractmethod
-def map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
+def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
     pass
-
 
 @ abstractmethod
-def map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
+def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
     pass
-
 
 @ abstractmethod
-def map_builder_new_model_layout_mapping(self, *args, **kwargs) -> ModelLayoutMappingBuilder:
+def _map_builder_new_model_layout_mapping(self, *args, **kwargs) -> ModelLayoutMappingBuilder:
     pass
 
-
-def map_builder_new_model_element(self, element_cls, *args, **kwargs) -> ModelElementBuilder:
+def _map_builder_new_model_element(self, element_cls, *args, **kwargs) -> ModelElementBuilder:
     model_element = self.model.new_element(element_cls, *args, **kwargs)
     return model_element
 
-
-def map_builder_new_layout_element(self, element_cls, *args, **kwargs) -> LayoutElementBuilder:
+def _map_builder_new_layout_element(self, element_cls, *args, **kwargs) -> LayoutElementBuilder:
     layout_element = self.layout.new_element(element_cls, *args, **kwargs)
     return layout_element
 
-
-def map_builder_add_model_element(self, model_element):
+def _map_builder_add_model_element(self, model_element):
     self.model.add_element(model_element)
 
-
-def map_builder_add_layout_element(self, layout_element):
+def _map_builder_add_layout_element(self, layout_element):
     self.layout.add_element(layout_element)
 
-
-def map_builder_add_layout_element_to_model_element(self, layout_element, model_element):
+def _map_builder_add_layout_element_to_model_element(self, layout_element, model_element):
     if model_element not in self.model_layout_mapping:
         self.model_layout_mapping[model_element] = FrozensetBuilder()
     self.model_layout_mapping[model_element].add(layout_element)
 
-
-def map_builder_get_layout_elements(self, model_element):
+def _map_builder_get_layout_elements(self, model_element):
     return self.model_layout_mapping[model_element]
-
 
 MapBuilder = get_or_make_builder_cls(
     momapy.core.Map,
     builder_namespace={
-        "new_model": map_builder_new_model,
-        "new_layout": map_builder_new_layout,
-        "new_model_layout_mapping": map_builder_new_model_layout_mapping,
-        "new_model_element": map_builder_new_model_element,
-        "new_layout_element": map_builder_new_layout_element,
-        "add_model_element": map_builder_add_model_element,
-        "add_layout_element": map_builder_add_layout_element,
-        "add_layout_element_to_model_element": map_builder_add_layout_element_to_model_element,
-        "get_layout_elements": map_builder_get_layout_elements
+        "new_model": _map_builder_new_model,
+        "new_layout": _map_builder_new_layout,
+        "new_model_layout_mapping": _map_builder_new_model_layout_mapping,
+        "new_model_element": _map_builder_new_model_element,
+        "new_layout_element": _map_builder_new_layout_element,
+        "add_model_element": _map_builder_add_model_element,
+        "add_layout_element": _map_builder_add_layout_element,
+        "add_layout_element_to_model_element": _map_builder_add_layout_element_to_model_element,
+        "get_layout_elements": _map_builder_get_layout_elements
     }
 )
 
-PointBuilder = get_or_make_builder_cls(momapy.geometry.Point)
 BboxBuilder = get_or_make_builder_cls(momapy.geometry.Bbox)
 
-
-
+PhantomLayoutElementBuilder = get_or_make_builder_cls(momapy.core.PhantomLayoutElement)
