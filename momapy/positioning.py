@@ -123,12 +123,8 @@ def fit(elements, xsep=0, ysep=0):
     width = max_x - min_x
     height = max_y - min_y
     return momapy.geometry.Bbox(
-        momapy.geometry.Point(
-            min_x + width / 2,
-            min_y + height / 2
-        ),
-        width,
-        height
+        momapy.geometry.Point(min_x + width/2, min_y + height/2),
+        width, height
     )
 
 def fraction_of(arc_layout_element, fraction):
@@ -140,34 +136,40 @@ def fraction_of(arc_layout_element, fraction):
     ])
     return position, transform
 
-def set_position_at(
-        obj: Union[momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder],
+def set_position(
+        obj: Union[
+            momapy.builder.NodeLayoutElementBuilder,
+            momapy.builder.BboxBuilder
+        ],
         position: momapy.geometry.Point,
-        anchor: Optional[str]=None
-    ):
+        anchor: Optional[str] = None):
     obj.position = position
     if anchor is not None:
         p = getattr(obj, anchor)()
         obj.position += (obj.position - p)
 
-def set_position_at_right_of(obj1: Union[momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder], obj2, distance, anchor=None):
+def set_right_of(
+        obj1: Union[
+            momapy.builder.NodeLayoutElementBuilder,
+            momapy.builder.BboxBuilder
+        ],
+        obj2,
+        distance,
+        anchor=None):
     obj1.position = right_of(obj2, distance)
     if anchor is not None:
         p = getattr(obj1, anchor)()
         obj1.position += (obj1.position - p)
 
-def set_position_at_fraction_of(obj, arc_layout_element, fraction, anchor=None, updated=False):
-    func = fraction_of
-    if not updated:
-        position, transform = func(arc_layout_element, fraction)
-    else:
-        position_transform = momapy.builder.updated_object(
-            obj=None,
-            func=func,
-            args=[obj, arc_layout_element, fraction, anchor]
-        )
-        position = updated_object(position_transform, "__getitem__", args=[0])
-        transform = updated_object(position_transform, "__getitem__", args=[1])
+def set_fraction_of(
+        obj: Union[
+            momapy.builder.NodeLayoutElementBuilder,
+            momapy.builder.BboxBuilder
+        ],
+        arc_layout_element: momapy.core.ArcLayoutElement,
+        fraction: float,
+        anchor: Optional[str] = None):
+    position, transform = fraction_of(arc_layout_element, fraction)
     obj.position, obj.transform = position, transform
     if anchor is not None:
         p = getattr(obj, anchor)()
