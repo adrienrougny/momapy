@@ -176,10 +176,11 @@ def get_normalized_angle(angle):
     return angle
 
 
-def get_position_at_fraction(segment, fraction):
+def get_position_and_angle_at_fraction(segment, fraction):
     px = segment.p1.x + fraction * (segment.p2.x - segment.p1.x)
     py = segment.p1.y + fraction * (segment.p2.y - segment.p1.y)
-    return Point(px, py)
+    angle = get_angle_of_line(segment)
+    return Point(px, py), angle
 
 #angle in radians
 def rotate_point(point, angle):
