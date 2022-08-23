@@ -206,11 +206,21 @@ class ArcLayoutElement(GroupLayoutElement):
     stroke_width: float = 1
     stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
     fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
-    shorten: Optional[float] = 0
+    shorten: float = 0
+
+    def segments(self) -> list[momapy.geometry.Segment]:
+        segments = []
+        for i in range(len(self.points))[1:]:
+            segments.append(
+                momapy.geometry.Segment(self.points[i - 1], self.points[i]))
+        return segments
+
+    def length(self):
+        return sum([segment.length() for segment in self.segments()])
 
     def self_bbox(self):
         import momapy.positioning
-        return momapy.positioning.fit(self.points)
+        return momapy.positioning.fit(self.points, self.arrowhead_bbox())
 
     def bbox(self):
         import momapy.positioning
@@ -222,95 +232,69 @@ class ArcLayoutElement(GroupLayoutElement):
         elements += self.layout_elements
         return momapy.positioning.fit(elements)
 
-    @abstractmethod
-    def arrowtip_drawing_element(self) -> momapy.drawing.DrawingElement:
-        pass
+    def start_point(self) -> momapy.geometry.Point:
+        return self.points[0]
 
-    @abstractmethod
-    def arrowtip_length(self) -> float:
-        pass
+    def end_point(self) -> momapy.geometry.Point:
+        return self.points[-1]
 
-    def segments(self) -> list[momapy.geometry.Segment]:
-        segments = []
-        for i in range(len(self.points))[1:]:
-            segments.append(momapy.geometry.Segment(self.points[i - 1], self.points[i]))
-        return segments
-
-    def length(self):
-        return sum([segment.length() for segment in self.segments()])
-
-    def _get_segment_at_fraction(self, fraction):
-        total_length = self.length()
-        current_length = 0
-        for segment in self.segments():
-            current_length += segment.length()
-            current_fraction = current_length / total_length
-            if current_fraction >= fraction:
-                return segment
-        return segment
-
-
-    def fraction(self, fraction) -> tuple[momapy.geometry.Point, float]:
-        if fraction < 0 or fraction > 1:
-            raise ValueError("fraction must belong to [0, 1]")
-        segment_at_fraction = self._get_segment_at_fraction(fraction)
-        angle = momapy.geometry.get_angle_of_line(segment_at_fraction)
-        current_length = 0
-        for segment in self.segments():
-            if segment == segment_at_fraction:
-                fraction_on_segment = (self.length() * fraction \
-                                       - current_length) / segment.length()
-                return momapy.geometry.get_position_at_fraction(
-                    segment, fraction_on_segment), angle
-            else:
-                current_length += segment.length()
-        return segment.p2, angle
-
-
-    def self_drawing_elements(self):
-        drawing_elements = []
-        if self.source is not None:
-            source_drawing_elements = self.source.drawing_elements()
-            if source_drawing_elements is not None:
-                drawing_elements += source_drawing_elements
-        if self.target is not None:
-            target_drawing_elements = self.target.drawing_elements()
-            if target_drawing_elements is not None:
-                drawing_elements += target_drawing_elements
-        drawing_elements += [self._get_path_from_points()]
-        arrowtip_drawing_element = self.arrowtip_drawing_element()
-        if arrowtip_drawing_element is not None:
-            transform = tuple([
-                momapy.drawing.translate(*self._get_arrowtip_start_point()),
-                momapy.drawing.rotate(self._get_arrowtip_rotation_angle())])
-            arrowtip_drawing_element = replace(
-                arrowtip_drawing_element, transform=transform)
-            drawing_elements.append(arrowtip_drawing_element)
-        return drawing_elements
-
-    def _get_path_from_points(self) -> momapy.drawing.Path:
-        path = momapy.drawing.Path(stroke=self.stroke,
-                    stroke_width=self.stroke_width, fill=None)
-        path += momapy.drawing.move_to(self.points[0])
-        for segment in self.segments()[:-1]:
-            path += momapy.drawing.line_to(segment.p2)
-        if self.arrowtip_drawing_element() is not None:
-            path += momapy.drawing.line_to(self._get_arrowtip_start_point())
-        else:
-            path += momapy.drawing.line_to(self.segments()[-1].p2)
-        return path
-
-    def _get_arrowtip_start_point(self) -> momapy.geometry.Point:
+    def arrowhead_base(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
-        fraction = (1 - (self.arrowtip_length() + self.shorten)
+        fraction = (1 - (self.arrowhead_length() + self.shorten)
                         / last_segment.length())
-        p = momapy.geometry.get_position_at_fraction(last_segment, fraction)
+        p, _ = momapy.geometry.get_position_and_angle_at_fraction(
+            last_segment, fraction)
         return p
 
-    def _get_arrowtip_rotation_angle(self) -> float:
+    def arrowhead_tip(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
-        angle = momapy.geometry.get_angle_of_line(last_segment)
-        return angle
+        fraction = 1 - self.shorten/last_segment.length()
+        p, _ = momapy.geometry.get_position_and_angle_at_fraction(
+            last_segment, fraction)
+        return p
+
+    @abstractmethod
+    def arrowhead_length(self) -> float:
+        pass
+
+    @abstractmethod
+    def arrowhead_drawing_element(self) -> momapy.drawing.DrawingElement:
+        pass
+
+    @abstractmethod
+    def arrowhead_bbox(self) -> momapy.geometry.Bbox:
+        pass
+
+    def self_drawing_elements(self):
+
+        def _get_path_from_points(arc_layout) -> momapy.drawing.Path:
+            path = momapy.drawing.Path(
+                stroke=arc_layout.stroke, stroke_width=arc_layout.stroke_width)
+            path += momapy.drawing.move_to(arc_layout.start_point())
+            for segment in arc_layout.segments()[:-1]:
+                path += momapy.drawing.line_to(segment.p2)
+            if arc_layout.arrowhead_drawing_element() is not None:
+                path += momapy.drawing.line_to(arc_layout.arrowhead_base())
+            else:
+                path += momapy.drawing.line_to(arc_layout.arrowhead_tip())
+            return path
+
+        drawing_elements = []
+        if self.source is not None:
+            drawing_elements += self.source.drawing_elements()
+        if self.target is not None:
+            drawing_elements += self.target.drawing_elements()
+        drawing_elements += [_get_path_from_points(self)]
+        arrowhead_drawing_element = self.arrowhead_drawing_element()
+        if arrowhead_drawing_element is not None:
+            last_segment = self.segments()[-1]
+            angle = momapy.geometry.get_angle_of_line(last_segment)
+            transform = tuple([
+                momapy.drawing.rotate(angle, self.arrowhead_base())])
+            arrowhead_drawing_element = replace(
+                arrowhead_drawing_element, transform=transform)
+            drawing_elements.append(arrowhead_drawing_element)
+        return drawing_elements
 
 
 @dataclass(frozen=True)
@@ -322,7 +306,7 @@ class Model(MapElement):
 class Layout(GroupLayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
-    stroke_width: float = 1
+    stroke_width: Optional[float] = None
     stroke: Optional[momapy.coloring.Color] = None
     fill: Optional[momapy.coloring.Color] = None
 
