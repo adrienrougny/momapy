@@ -35,6 +35,10 @@ class LayoutElement(MapElement):
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
+    @abstractmethod
+    def flatten(self) -> list["LayoutElement"]:
+        pass
+
 @dataclass(frozen=True)
 class NodeLayoutElementLabel(LayoutElement):
     text: Optional[str] = None
@@ -68,6 +72,9 @@ class NodeLayoutElementLabel(LayoutElement):
             font_color=self.font_color)
         return [text]
 
+    def flatten(self):
+        return [self]
+
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
@@ -80,6 +87,10 @@ class GroupLayoutElement(LayoutElement):
 
     @abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        pass
+
+    @abstractmethod
+    def self_flatten(self) -> list[LayoutElement]:
         pass
 
     def drawing_elements(self):
@@ -96,6 +107,12 @@ class GroupLayoutElement(LayoutElement):
             transform=self.transform,
             elements=drawing_elements)
         return [group]
+
+    def flatten(self):
+        layout_elements = self.self_flatten()
+        for sub_layout_element in self.layout_elements:
+            layout_elements += sub_layout_element.flatten()
+        return layout_elements
 
 
 @dataclass(frozen=True)
@@ -148,6 +165,12 @@ class NodeLayoutElement(GroupLayoutElement):
         if foreground_path is not None:
             drawing_elements += [foreground_path]
         return drawing_elements
+
+    def self_flatten(self):
+        layout_elements = [self]
+        if self.label is not None:
+            layout_elements.append(self.label)
+        return layout_elements
 
     @abstractmethod
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
@@ -296,6 +319,15 @@ class ArcLayoutElement(GroupLayoutElement):
             drawing_elements.append(arrowhead_drawing_element)
         return drawing_elements
 
+    def self_flatten(self):
+        layout_elements = []
+        if self.source is not None:
+            layout_elements.append(self.source)
+        if self.target is not None:
+            layout_elements.append(self.target)
+        layout_elements.append(self)
+        return layout_elements
+
 
 @dataclass(frozen=True)
 class Model(MapElement):
@@ -311,18 +343,24 @@ class Layout(GroupLayoutElement):
     fill: Optional[momapy.coloring.Color] = None
 
     def self_bbox(self):
-        return momapy.geometry.Bbox(momapy.geometry.Point(self.width / 2, self.height / 2),
-                    width=self.width, height=self.height)
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(self.width / 2, self.height / 2),
+            width=self.width, height=self.height
+        )
 
     def self_drawing_elements(self):
         path = momapy.drawing.Path(stroke=self.stroke, fill=self.fill,
                     stroke_width=self.stroke_width)
-        path += momapy.drawing.move_to(self.bbox().north_west()) + \
-                momapy.drawing.line_to(self.bbox().north_east()) + \
-                momapy.drawing.line_to(self.bbox().south_east()) + \
-                momapy.drawing.line_to(self.bbox().south_west()) + \
-                momapy.drawing.close()
+        path += (momapy.drawing.move_to(self.bbox().north_west())
+                    + momapy.drawing.line_to(self.bbox().north_east())
+                    + momapy.drawing.line_to(self.bbox().south_east())
+                    + momapy.drawing.line_to(self.bbox().south_west())
+                    + momapy.drawing.close()
+                )
         return [path]
+
+    def self_flatten(self):
+        return [self]
 
     def bbox(self):
         return self.self_bbox()
@@ -347,6 +385,9 @@ class PhantomLayoutElement(LayoutElement):
 
     def drawing_elements(self):
         return []
+
+    def flatten(self):
+        return [self]
 
     def __getattr__(self, name):
         if hasattr(self, name):
