@@ -126,13 +126,13 @@ LibSBGNGlyphMapping = {
     },
     "nucleic acid feature multimer subunit": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
     "simple chemical multimer subunit": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.SimpleChemicalMultimerLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
@@ -204,13 +204,13 @@ LibSBGNGlyphMapping = {
     },
     "nucleic acid feature multimer": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimer,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
     "simple chemical multimer": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimer,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.SimpleChemicalMultimerLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
@@ -228,25 +228,25 @@ LibSBGNGlyphMapping = {
     },
     "uncertain process": {
         "model_class": momapy.sbgn.pd.UncertainProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
+        "layout_class": momapy.sbgn.pd.UncertainProcessLayout,
         "font_description": "Arial 12",
         "has_connectors": True
     },
     "association": {
         "model_class": momapy.sbgn.pd.Association,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
+        "layout_class": momapy.sbgn.pd.AssociationLayout,
         "font_description": "Arial 12",
         "has_connectors": True
     },
     "dissociation": {
         "model_class": momapy.sbgn.pd.Dissociation,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
+        "layout_class": momapy.sbgn.pd.DissociationLayout,
         "font_description": "Arial 12",
         "has_connectors": True
     },
     "omitted process": {
         "model_class": momapy.sbgn.pd.OmittedProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
+        "layout_class": momapy.sbgn.pd.OmittedProcessLayout,
         "font_description": "Arial 12",
         "has_connectors": True
     },
@@ -294,7 +294,7 @@ LibSBGNGlyphMapping = {
     },
     "submap": {
         "model_class": momapy.sbgn.pd.Submap,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.SubmapLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },

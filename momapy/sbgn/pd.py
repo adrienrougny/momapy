@@ -5,7 +5,7 @@ from momapy.sbgn.core import SBGNMap, SBGNModelElement, SBGNRole, SBGNModel
 from momapy.core import Layout, ModelLayoutMapping
 from momapy.builder import get_or_make_builder_cls, LayoutBuilder, ModelLayoutMappingBuilder
 from momapy.arcs import PolyLine, Arrow, Circle, Bar, BarArrow, Diamond
-from momapy.shapes import Rectangle, RectangleWithConnectors, RectangleWithRoundedCorners, Ellipse, RectangleWithCutCorners, Stadium, RectangleWithBottomRoundedCorners, CircleWithDiagonalBar, CircleWithConnectorsAndText, Hexagon, DoubleRectangleWithRoundedCorners, DoubleRectangleWithCutCorners
+from momapy.shapes import Rectangle, RectangleWithConnectors, RectangleWithRoundedCorners, Ellipse, RectangleWithCutCorners, Stadium, RectangleWithBottomRoundedCorners, CircleWithDiagonalBar, CircleWithConnectorsAndText, Hexagon, DoubleRectangleWithRoundedCorners, DoubleRectangleWithCutCorners, DoubleRectangleWithBottomRoundedCorners, DoubleStadium, RectangleWithConnectorsAndText, CircleWithConnectors, CircleInsideCircleWithConnectors
 from momapy.coloring import Color, colors
 
 ############STATE VARIABLE AND UNIT OF INFORMATION###################
@@ -352,6 +352,14 @@ class SimpleChemicalLayout(Stadium):
     fill: Color = colors.white
 
 @dataclass(frozen=True)
+class SimpleChemicalMultimerLayout(DoubleStadium):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+    offset: float = 2
+
+
+@dataclass(frozen=True)
 class StateVariableLayout(Stadium):
     stroke: Color = colors.black
     stroke_width: float = 1
@@ -376,6 +384,14 @@ class ComplexMultimerLayout(DoubleRectangleWithCutCorners):
     stroke_width: float = 1
     fill: Color = colors.white
     cut_corners: float = 10
+    offset: float = 2
+
+@dataclass(frozen=True)
+class NucleicAcidFeatureMultimerLayout(DoubleRectangleWithBottomRoundedCorners):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+    rounded_corners: float = 10
     offset: float = 2
 
 @dataclass(frozen=True)
@@ -432,7 +448,40 @@ class GenericProcessLayout(RectangleWithConnectors):
     fill: Color = colors.white
 
 @dataclass(frozen=True)
+class OmittedProcessLayout(RectangleWithConnectorsAndText):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+    text: str = "//"
+
+@dataclass(frozen=True)
+class UncertainProcessLayout(RectangleWithConnectorsAndText):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+    text: str = "?"
+
+@dataclass(frozen=True)
+class AssociationLayout(CircleWithConnectors):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.black
+
+@dataclass(frozen=True)
+class DissociationLayout(CircleInsideCircleWithConnectors):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+    sep: float = 3
+
+@dataclass(frozen=True)
 class PhenotypeLayout(Hexagon):
+    stroke: Color = colors.black
+    stroke_width: float = 1
+    fill: Color = colors.white
+
+@dataclass(frozen=True)
+class SubmapLayout(Rectangle):
     stroke: Color = colors.black
     stroke_width: float = 1
     fill: Color = colors.white
