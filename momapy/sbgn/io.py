@@ -150,13 +150,13 @@ LibSBGNGlyphMapping = {
     },
     "empty set": {
         "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
+        "layout_class": momapy.sbgn.pd.EmptySetLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
     "source and sink": {
         "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
+        "layout_class": momapy.sbgn.pd.EmptySetLayout,
         "font_description": "Arial 12",
         "has_connectors": False
     },
