@@ -122,8 +122,8 @@ def fit(elements, xsep=0, ysep=0):
     min_y -= ysep
     width = max_x - min_x
     height = max_y - min_y
-    return momapy.geometry.Point(min_x + width/2, min_y + height/2),
-        width, height
+    return (momapy.geometry.Point(min_x + width/2, min_y + height/2),
+        width, height)
 
 def fraction_of(arc_layout_element, fraction):
     position, angle = arc_layout_element.fraction(fraction)
