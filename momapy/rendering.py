@@ -1,4 +1,5 @@
 from dataclasses import dataclass, InitVar
+from copy import deepcopy
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional
 import cairo
@@ -12,8 +13,10 @@ import math
 import momapy.drawing
 
 renderers = {
-    "cairo": CairoRenderer
 }
+
+def register_renderer(name, renderer_cls):
+    renderers[name] = renderer_cls
 
 def _make_renderer_for_render_function(output_file, width, height, format_, renderer):
     renderer_cls = renderers.get(renderer)
@@ -33,8 +36,6 @@ def render_maps(
         maps, output_file, format_="pdf", renderer="cairo", to_top_left=False):
     layouts = [map_.layout for map_ in maps]
     position, width, height = momapy.positioning.fit(layouts)
-    if to_top_left:
-        maps = [map_.copy() for map_ in maps]
     max_x = position.x + width/2
     max_y = position.y + height/2
     if to_top_left:
@@ -42,15 +43,18 @@ def render_maps(
         min_y = height/2 - position.y
         max_x -= min_x
         max_y -= min_y
-        maps = [map_.copy() for map_ in maps]
+        maps = [deepcopy(map_) for map_ in maps]
         translation = momapy.drawing.translate(min_x, min_y)
         for map_ in maps:
             if not isinstance(map_, momapy.builder.MapBuilder):
                 map_ = momapy.builder.builder_from_object(map_)
+            if map_.layout.transform is None:
+                map_.layout.transform = momapy.builder.TupleBuilder()
             map_.layout.transform.append(translation)
     renderer_obj = _make_renderer_for_render_function(
         output_file, max_x, max_y, format_, renderer)
     for map_ in maps:
+        print(map_.layout.transform)
         renderer_obj.render_map(map_)
 
 
@@ -70,7 +74,6 @@ class Renderer(ABC):
     def render_drawing_element(self, drawing_element):
         pass
 
-    @abstractmethod
     @classmethod
     def factory(cls, output_file, width, height, format_):
         pass
@@ -85,7 +88,7 @@ class CairoRenderer(Renderer):
 
     @classmethod
     def factory(cls, output_file, width, height, format_):
-        surface = self._make_surface(output_file, width, height, format_)
+        surface = cls._make_surface(output_file, width, height, format_)
         renderer_obj = cls(surface=surface)
         return renderer_obj
 
@@ -380,7 +383,7 @@ class CairoRenderer(Renderer):
             self._context.rotate(rotation.angle)
 
 @dataclass
-class GTKRenderer(Renderer):
+class GTKCairoRenderer(Renderer):
     drawing_area: Gtk.DrawingArea
     width: float
     height: float
@@ -393,3 +396,7 @@ class GTKRenderer(Renderer):
 
     def render_map(self, map_):
         self.cairo_renderer.render_map(map_)
+
+
+register_renderer("cairo", CairoRenderer)
+register_renderer("gtk-cairo", GTKCairoRenderer)
