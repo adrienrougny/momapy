@@ -20,3 +20,5 @@ def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
                 compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
                 compartment_layout.label.position = compartment_layout.position
+                compartment_layout.label.width = compartment_layout.width
+                compartment_layout.label.height = compartment_layout.height
