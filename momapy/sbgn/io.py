@@ -696,15 +696,15 @@ def _make_layout_element_from_arc(
         source_or_target = role["source_or_target"]
         if source_or_target == "source":
             layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_source()])
+                layout_element=d_layout_elements_ids[arc.get_source()])
         else:
             layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_target()])
+                layout_element=d_layout_elements_ids[arc.get_target()])
     else:
         layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_source()])
+            layout_element=d_layout_elements_ids[arc.get_source()])
         layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_target()])
+            layout_element=d_layout_elements_ids[arc.get_target()])
     for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
         layout_element.points.append(
             momapy.builder.PointBuilder(
