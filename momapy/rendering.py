@@ -11,39 +11,48 @@ import math
 
 import momapy.drawing
 
+renderers = {
+    "cairo": CairoRenderer
+}
+
 def _make_renderer_for_render_function(output_file, width, height, format_, renderer):
-    if renderer == "cairo":
-        if format_ == "pdf" or format_ == "svg":
-            if format_ == "pdf":
-                surface_cls = cairo.PDFSurface
-            elif format_ == "svg":
-                surface_cls = cairo.SVGSurface
-            surface = surface_cls(output_file, width, height)
-        elif format_ == "png":
-            surface_cls = cairo.ImageSurface
-            surface = surface_cls(cairo.FORMAT_RGB30, int(width), int(height))
-        else:
-            raise ValueError(f"unsupported format for the {renderer} renderer")
-        renderer = CairoRenderer(surface=surface, width=width, height=height)
+    renderer_cls = renderers.get(renderer)
+    if renderer_cls is not None:
+        renderer_obj = renderer_cls.factory(
+            output_file, width, height, format_)
     else:
         raise ValueError(f"no renderer named {renderer}")
-    return renderer
+    return renderer_obj
 
-def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
-    renderer = _make_renderer_for_render_function(output_file, layout.width, layout.height, format_, renderer)
-    renderer.render_layout_element(layout)
-    if format_ == "png":
-        renderer._context.get_target().write_to_png(output_file)
+def render_map(
+        map_, output_file, format_="pdf", renderer="cairo", to_top_left=False):
+    maps = [map_]
+    render_maps(maps, output_file, format_, renderer, to_top_left)
 
-def render_map(map_, output_file, format_="pdf", renderer="cairo"):
-    render_layout(map_.layout, output_file, format_, renderer)
+def render_maps(
+        maps, output_file, format_="pdf", renderer="cairo", to_top_left=False):
+    layouts = [map_.layout for map_ in maps]
+    position, width, height = momapy.positioning.fit(layouts)
+    if to_top_left:
+        maps = [map_.copy() for map_ in maps]
+    max_x = position.x + width/2
+    max_y = position.y + height/2
+    if to_top_left:
+        min_x = width/2 - position.x
+        min_y = height/2 - position.y
+        max_x -= min_x
+        max_y -= min_y
+        maps = [map_.copy() for map_ in maps]
+        translation = momapy.drawing.translate(min_x, min_y)
+        for map_ in maps:
+            if not isinstance(map_, momapy.builder.MapBuilder):
+                map_ = momapy.builder.builder_from_object(map_)
+            map_.layout.transform.append(translation)
+    renderer_obj = _make_renderer_for_render_function(
+        output_file, max_x, max_y, format_, renderer)
+    for map_ in maps:
+        renderer_obj.render_map(map_)
 
-def render_drawing_elements(drawing_elements, output_file, width, height, format_="pdf", renderer="cairo"):
-    renderer = _make_renderer_for_render_function(output_file, width, height, format_, renderer)
-    for drawing_element in drawing_elements:
-        renderer.render_drawing_element(drawing_element)
-    if format_ == "png":
-        renderer._context.get_target().write_to_png(output_file)
 
 @dataclass
 class Renderer(ABC):
@@ -53,6 +62,19 @@ class Renderer(ABC):
     def render_map(self, map_):
         pass
 
+    @abstractmethod
+    def render_layout_element(self, layout_element):
+        pass
+
+    @abstractmethod
+    def render_drawing_element(self, drawing_element):
+        pass
+
+    @abstractmethod
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        pass
+
 @dataclass
 class CairoRenderer(Renderer):
     surface: InitVar[Optional[cairo.Surface]] = None
@@ -60,6 +82,19 @@ class CairoRenderer(Renderer):
     authorize_no_context: InitVar[bool] = False
     width: Optional[float] = None
     height: Optional[float] = None
+
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        surface = self._make_surface(output_file, width, height, format_)
+        renderer_obj = cls(surface=surface)
+        return renderer_obj
+
+    @classmethod
+    def _make_surface(cls, output_file, width, height, format_):
+        if format_ == "pdf":
+            return cairo.PDFSurface(output_file, width, height)
+        elif format_ == "svg":
+            return cairo.SVGSurface(output_file, width, height)
 
     def __post_init__(self, surface, context, authorize_no_context):
         if context is not None:
