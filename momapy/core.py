@@ -340,6 +340,7 @@ class Model(MapElement):
 
 @dataclass(frozen=True)
 class Layout(GroupLayoutElement):
+    position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
     stroke_width: Optional[float] = None
@@ -347,10 +348,7 @@ class Layout(GroupLayoutElement):
     fill: Optional[momapy.coloring.Color] = None
 
     def self_bbox(self):
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(self.width / 2, self.height / 2),
-            width=self.width, height=self.height
-        )
+        return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     def self_drawing_elements(self):
         path = momapy.drawing.Path(stroke=self.stroke, fill=self.fill,
