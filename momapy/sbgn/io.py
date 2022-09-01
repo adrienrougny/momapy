@@ -392,8 +392,11 @@ def read_file(file_name, return_builder=False):
     builder.model_layout_mapping = model_layout_mapping
     d_model_elements_ids = {}
     d_layout_elements_ids = {}
-    builder.layout.width, builder.layout.height = _get_libsbgn_map_dimensions(
-        libsbgn_map)
+    libsbgn_map_dimensions = _get_libsbgn_map_dimensions(libsbgn_map)
+    builder.layout.width = libsbgn_map_dimensions[0]
+    builder.layout.height = libsbgn_map_dimensions[1]
+    builder.layout.position = momapy.builder.PointBuilder(
+        libsbgn_map_dimensions[0]/2, libsbgn_map_dimensions[1]/2)
     libsbgn_compartments = []
     libsbgn_other_glyphs = []
     for glyph in libsbgn_map.get_glyph():
