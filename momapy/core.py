@@ -142,7 +142,8 @@ class NodeLayoutElement(GroupLayoutElement):
         if self.label is not None:
             elements.append(self.label)
         elements += self.layout_elements
-        return momapy.positioning.fit(elements)
+        position, width, height = momapy.positioning.fit(elements)
+        return momapy.geometry.Bbox(position, width, height)
 
     @abstractmethod
     def background_path(self) -> Optional[momapy.drawing.Path]:
@@ -243,7 +244,9 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def self_bbox(self):
         import momapy.positioning
-        return momapy.positioning.fit(self.points, self.arrowhead_bbox())
+        position, width, height = momapy.positioning.fit(
+            self.points, self.arrowhead_bbox())
+        return momapy.geometry.Bbox(position, width, height)
 
     def bbox(self):
         import momapy.positioning
@@ -253,7 +256,8 @@ class ArcLayoutElement(GroupLayoutElement):
         if self.target is not None:
             elements.append(self.target)
         elements += self.layout_elements
-        return momapy.positioning.fit(elements)
+        position, width, height = momapy.positioning.fit(elements)
+        return momapy.geometry.Bbox(position, width, height)
 
     def start_point(self) -> momapy.geometry.Point:
         return self.points[0]
