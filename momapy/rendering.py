@@ -39,12 +39,12 @@ def render_maps(
     max_x = position.x + width/2
     max_y = position.y + height/2
     if to_top_left:
-        min_x = width/2 - position.x
-        min_y = height/2 - position.y
+        min_x = position.x - width/2
+        min_y = position.y - height/2
         max_x -= min_x
         max_y -= min_y
         maps = [deepcopy(map_) for map_ in maps]
-        translation = momapy.drawing.translate(min_x, min_y)
+        translation = momapy.drawing.translate(-min_x, -min_y)
         for map_ in maps:
             if not isinstance(map_, momapy.builder.MapBuilder):
                 map_ = momapy.builder.builder_from_object(map_)
@@ -54,7 +54,6 @@ def render_maps(
     renderer_obj = _make_renderer_for_render_function(
         output_file, max_x, max_y, format_, renderer)
     for map_ in maps:
-        print(map_.layout.transform)
         renderer_obj.render_map(map_)
 
 
