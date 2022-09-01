@@ -35,7 +35,7 @@ class DrawingElement(ABC):
     stroke_width: float = None
     stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     fill: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
-    transform: Optional[tuple[Transformation]] = None
+    transform: Optional[tuple[Transformation]] = field(default_factory=tuple)
 
 
 @dataclass(frozen=True)
