@@ -11,6 +11,7 @@ from gi.repository import PangoCairo, Pango, Gtk
 import math
 
 import momapy.drawing
+import momapy.styling
 
 renderers = {
 }
@@ -18,7 +19,8 @@ renderers = {
 def register_renderer(name, renderer_cls):
     renderers[name] = renderer_cls
 
-def _make_renderer_for_render_function(output_file, width, height, format_, renderer):
+def _make_renderer_for_render_function(
+        output_file, width, height, format_, renderer):
     renderer_cls = renderers.get(renderer)
     if renderer_cls is not None:
         renderer_obj = renderer_cls.factory(
@@ -28,22 +30,43 @@ def _make_renderer_for_render_function(output_file, width, height, format_, rend
     return renderer_obj
 
 def render_map(
-        map_, output_file, format_="pdf", renderer="cairo", to_top_left=False):
+        map_,
+        output_file,
+        format_="pdf",
+        renderer="cairo",
+        style_sheet=None,
+        to_top_left=False):
     maps = [map_]
-    render_maps(maps, output_file, format_, renderer, to_top_left)
+    render_maps(maps, output_file, format_, renderer, style_sheet, to_top_left)
 
 def render_maps(
-        maps, output_file, format_="pdf", renderer="cairo", to_top_left=False):
+        maps,
+        output_file,
+        format_="pdf",
+        renderer="cairo",
+        style_sheet=None,
+        to_top_left=False
+    ):
     layouts = [map_.layout for map_ in maps]
     position, width, height = momapy.positioning.fit(layouts)
     max_x = position.x + width/2
     max_y = position.y + height/2
+    if style_sheet is not None or to_top_left:
+        new_maps = []
+        for map_ in maps:
+            if isinstance(map_, momapy.core.Map):
+                new_maps.append(momapy.builder.builder_from_object(map_))
+            elif isinstance(map_, momapy.builder.MapBuilder):
+                new_maps.append(deepcopy(map_))
+        maps = new_maps
+    if style_sheet is not None:
+        for map_ in maps:
+            momapy.styling.apply_style_sheet(map_.layout, style_sheet)
     if to_top_left:
         min_x = position.x - width/2
         min_y = position.y - height/2
         max_x -= min_x
         max_y -= min_y
-        maps = [deepcopy(map_) for map_ in maps]
         translation = momapy.drawing.translate(-min_x, -min_y)
         for map_ in maps:
             if not isinstance(map_, momapy.builder.MapBuilder):
