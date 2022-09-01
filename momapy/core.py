@@ -245,7 +245,7 @@ class ArcLayoutElement(GroupLayoutElement):
     def self_bbox(self):
         import momapy.positioning
         position, width, height = momapy.positioning.fit(
-            self.points, self.arrowhead_bbox())
+            self.points + [self.arrowhead_bbox()])
         return momapy.geometry.Bbox(position, width, height)
 
     def bbox(self):
