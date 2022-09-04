@@ -24,6 +24,10 @@ class HAlignment(Enum):
     CENTER = 2
     RIGHT = 3
 
+class VAlignment(Enum):
+    TOP = 1
+    CENTER = 2
+    BOTTOM = 3
 
 @dataclass(frozen=True)
 class MapElement(ABC):
@@ -59,6 +63,7 @@ class TextLayoutElement(LayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
     horizontal_alignment: Optional[HAlignment] = HAlignment.LEFT
+    vertical_alignment: Optional[VAlignment] = VAlignment.TOP
     justify: Optional[bool] = False
 
     @property
@@ -96,11 +101,34 @@ class TextLayoutElement(LayoutElement):
         line_text = self.text[start_index:end_index]
         return line_text, momapy.geometry.Point(x, y)
 
-    def ink_bbox(self):
-        pango_layout = self._make_pango_layout()
-        pango_layout_extents, _ = pango_layout.get_pixel_extents()
+    def _get_tx_and_ty(self, pango_layout):
+        _, pango_layout_extents = pango_layout.get_pixel_extents()
+        if self.width is not None:
+            tx = self.x - self.width/2
+        else:
+            tx = self.x - (
+                pango_layout_extents.x + pango_layout_extents.width/2)
+        if self.height is not None:
+            if self.vertical_alignment == VAlignment.TOP:
+                ty = self.y - self.height/2
+            elif self.vertical_alignment == VAlignment.BOTTOM:
+                ty = self.y + self.height/2 - pango_layout_extents.height
+            else:
+                ty = self.y - (
+                    pango_layout_extents.y + pango_layout_extents.height/2)
+        else:
+            ty = self.y - (
+                pango_layout_extents.y + pango_layout_extents.height/2)
+        return tx, ty
+
+    def _get_bbox(self, pango_layout, pango_layout_extents):
+        position = momapy.geometry.Point(
+            pango_layout_extents.x + pango_layout_extents.width/2,
+            pango_layout_extents.y + pango_layout_extents.height/2
+        )
+        tx, ty = self._get_tx_and_ty(pango_layout)
         return momapy.geometry.Bbox(
-            self.position,
+            position + (tx, ty),
             pango_layout_extents.width,
             pango_layout_extents.height
         )
@@ -108,11 +136,13 @@ class TextLayoutElement(LayoutElement):
     def logical_bbox(self):
         pango_layout = self._make_pango_layout()
         _, pango_layout_extents = pango_layout.get_pixel_extents()
-        return momapy.geometry.Bbox(
-            self.position,
-            pango_layout_extents.width,
-            pango_layout_extents.height
-        )
+        return self._get_bbox(pango_layout, pango_layout_extents)
+
+
+    def ink_bbox(self):
+        pango_layout = self._make_pango_layout()
+        pango_layout_extents, _ = pango_layout.get_pixel_extents()
+        return self._get_bbox(pango_layout, pango_layout_extents)
 
     def bbox(self):
         return self.logical_bbox()
@@ -121,10 +151,7 @@ class TextLayoutElement(LayoutElement):
         drawing_elements = []
         pango_layout = self._make_pango_layout()
         pango_layout_iter = pango_layout.get_iter()
-        _, pango_layout_lextents = pango_layout.get_pixel_extents()
-        tx = self.x - (pango_layout_lextents.x + pango_layout_lextents.width/2)
-        ty = self.y - (
-            pango_layout_lextents.y + pango_layout_lextents.height/2)
+        tx, ty = self._get_tx_and_ty(pango_layout)
         done = False
         while not done:
             pango_line = pango_layout_iter.get_line()
