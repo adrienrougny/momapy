@@ -629,6 +629,7 @@ def _make_layout_element_from_glyph(
         label_element.font_description = LibSBGNGlyphMapping[glyph_key][
             "font_description"]
         label_element.horizontal_alignment = momapy.core.HAlignment.CENTER
+        label_element.vertical_alignment = momapy.core.VAlignment.CENTER
         layout_element.label = label_element
     if LibSBGNGlyphMapping[glyph_key]["has_connectors"]:
         for libsbgn_port in glyph.get_port():
