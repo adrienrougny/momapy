@@ -454,8 +454,8 @@ LayoutElementBuilder = get_or_make_builder_cls(momapy.core.LayoutElement)
 NodeLayoutElementBuilder = get_or_make_builder_cls(
     momapy.core.NodeLayoutElement)
 ArcLayoutElementBuilder = get_or_make_builder_cls(momapy.core.ArcLayoutElement)
-NodeLayoutElementLabelBuilder = get_or_make_builder_cls(
-    momapy.core.NodeLayoutElementLabel)
+TextLayoutElementBuilder = get_or_make_builder_cls(
+    momapy.core.TextLayoutElement)
 
 
 def _model_builder_new_element(self, element_cls, *args, **kwargs):

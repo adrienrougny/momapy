@@ -127,8 +127,8 @@ class TextLayoutElement(LayoutElement):
             line_text, pos = self._get_pango_line_text_and_initial_pos(
                 pango_layout, pango_layout_iter, pango_line)
             pos += (tx, ty)
-            drawing_elements.append(
-                momapy.drawing.text(line_text, pos, font_description)
+            drawing_elements.append(momapy.drawing.text(
+                line_text, pos, self.font_description, self.font_color))
             if pango_layout_iter.at_last_line():
                 done = True
             else:
