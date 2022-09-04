@@ -7,7 +7,7 @@ from enum import Enum
 
 import cairo
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version("Pango", '1.0')
 gi.require_version("PangoCairo", '1.0')
 from gi.repository import Pango, PangoCairo
 
@@ -131,8 +131,13 @@ class TextLayoutElement(LayoutElement):
             line_text, pos = self._get_pango_line_text_and_initial_pos(
                 pango_layout, pango_layout_iter, pango_line)
             pos += (tx, ty)
-            drawing_elements.append(momapy.drawing.Text(
-                line_text, pos, self.font_description, self.font_color))
+            text = momapy.drawing.Text(
+                text=line_text,
+                position=pos,
+                font_description=self.font_description,
+                font_color=self.font_color
+            )
+            drawing_elements.append(text)
             if pango_layout_iter.at_last_line():
                 done = True
             else:
