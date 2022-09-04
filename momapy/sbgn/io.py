@@ -620,7 +620,7 @@ def _make_layout_element_from_glyph(
             if libsbgn_label.get_bbox() is not None:
                 libsbgn_label_bbox = libsbgn_label.get_bbox()
         label_element = builder.new_layout_element(
-            momapy.core.NodeLayoutElementLabel)
+            momapy.core.TextLayoutElement)
         label_element.text = text
         label_element.position = _get_position_from_libsbgn_bbox(
             libsbgn_label_bbox)
@@ -628,6 +628,7 @@ def _make_layout_element_from_glyph(
         label_element.height = libsbgn_label_bbox.get_h()
         label_element.font_description = LibSBGNGlyphMapping[glyph_key][
             "font_description"]
+        label_element.horizontal_alignment = momapy.core.HAlignment.CENTER
         layout_element.label = label_element
     if LibSBGNGlyphMapping[glyph_key]["has_connectors"]:
         for libsbgn_port in glyph.get_port():
