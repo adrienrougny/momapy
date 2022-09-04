@@ -12,6 +12,7 @@ import math
 
 import momapy.drawing
 import momapy.styling
+import momapy.positioning
 
 renderers = {}
 
