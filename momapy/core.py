@@ -5,9 +5,11 @@ from typing import Optional
 from uuid import uuid4
 from enum import Enum
 
-# import gi
-# gi.require_version('Gtk', '3.0')
-from gi.repository import Pango
+import cairo
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version("PangoCairo", '1.0')
+from gi.repository import Pango, PangoCairo
 
 import momapy.drawing
 import momapy.geometry
@@ -56,7 +58,7 @@ class TextLayoutElement(LayoutElement):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
-    horizontal_alignement: Optional[HAlignment] = HAlignment.LEFT
+    horizontal_alignment: Optional[HAlignment] = HAlignment.LEFT
     justify: Optional[bool] = False
 
     @property
@@ -68,9 +70,11 @@ class TextLayoutElement(LayoutElement):
         return self.position.y
 
     def _make_pango_layout(self):
-        pango_layout = PangoCairo.create_layout()
+        cairo_surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)
+        cairo_context = cairo.Context(cairo_surface)
+        pango_layout = PangoCairo.create_layout(cairo_context)
         pango_layout.set_alignment(
-            Pango.Alignment[self.horizontal_alignement.name])
+            getattr(Pango.Alignment, self.horizontal_alignment.name))
         pango_layout.set_font_description(
             Pango.FontDescription.from_string(self.font_description))
         if self.width is not None:
@@ -83,7 +87,7 @@ class TextLayoutElement(LayoutElement):
 
     def _get_pango_line_text_and_initial_pos(
             self, pango_layout, pango_layout_iter, pango_line):
-        start_index = pango_line.start_index()
+        start_index = pango_line.get_start_index()
         end_index = start_index + pango_line.get_length()
         pos = pango_layout.index_to_pos(start_index)
         Pango.extents_to_pixels(pos)
@@ -127,7 +131,7 @@ class TextLayoutElement(LayoutElement):
             line_text, pos = self._get_pango_line_text_and_initial_pos(
                 pango_layout, pango_layout_iter, pango_line)
             pos += (tx, ty)
-            drawing_elements.append(momapy.drawing.text(
+            drawing_elements.append(momapy.drawing.Text(
                 line_text, pos, self.font_description, self.font_color))
             if pango_layout_iter.at_last_line():
                 done = True

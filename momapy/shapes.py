@@ -629,11 +629,13 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             right_connector += momapy.drawing.line_to(self.east())
         font_size=self.width/4
         font_description=f"Arial {font_size}"
-        text = momapy.drawing.Text(
+        text_layout = momapy.core.TextLayoutElement(
             text=self.text, position=self.position, width=self.width,
-            height=self.height, font_description=font_description
+            height=self.height, font_description=font_description,
+            horizontal_alignment=momapy.core.HAlignment.CENTER
         )
-        elements = (circle, left_connector, right_connector, text)
+        texts = text_layout.drawing_elements()
+        elements = (circle, left_connector, right_connector, *texts)
         group = momapy.drawing.Group(
             stroke=self.stroke, fill=self.fill,
             stroke_width=self.stroke_width, elements=elements
@@ -1089,11 +1091,13 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             right_connector += momapy.drawing.line_to(self.east())
         font_size=self.width/2
         font_description=f"Arial {font_size}"
-        text = momapy.drawing.Text(
+        text_layout = momapy.core.TextLayoutElement(
             text=self.text, position=self.position, width=self.width,
-            height=self.height, font_description=font_description
+            height=self.height, font_description=font_description,
+            horizontal_alignment=momapy.core.HAlignment.CENTER
         )
-        elements = (rectangle, left_connector, right_connector, text)
+        texts = text_layout.drawing_elements()
+        elements = (rectangle, left_connector, right_connector, *texts)
         group = momapy.drawing.Group(
             stroke=self.stroke, fill=self.fill,
             stroke_width=self.stroke_width, elements=elements
@@ -2088,11 +2092,13 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             right_connector += momapy.drawing.line_to(self.east())
         font_size=self.width/2
         font_description=f"Arial {font_size}"
-        text = momapy.drawing.Text(
+        text_layout = momapy.core.TextLayoutElement(
             text=self.text, position=self.position, width=self.width,
-            height=self.height, font_description=font_description
+            height=self.height, font_description=font_description,
+            horizontal_alignment=momapy.core.HAlignment.CENTER
         )
-        elements = (rectangle, left_connector, right_connector, text)
+        texts = text_layout.drawing_elements()
+        elements = (rectangle, left_connector, right_connector, *texts)
         group = momapy.drawing.Group(
             stroke=self.stroke, fill=self.fill,
             stroke_width=self.stroke_width, elements=elements
