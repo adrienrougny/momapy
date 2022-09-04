@@ -82,11 +82,9 @@ class Path(DrawingElement):
 @dataclass(frozen=True)
 class Text(DrawingElement):
     text: Optional[str] = None
-    position: Optional[momapy.geometry.Point] = None
-    width: Optional[float] = None
-    height: Optional[float] = None
     font_description: Optional[str] = None
     font_color: momapy.coloring.Color = momapy.coloring.colors.black
+    position: Optional[momapy.geometry.Point] = None
 
     @property
     def x(self):

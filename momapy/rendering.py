@@ -13,8 +13,7 @@ import math
 import momapy.drawing
 import momapy.styling
 
-renderers = {
-}
+renderers = {}
 
 def register_renderer(name, renderer_cls):
     renderers[name] = renderer_cls
@@ -69,10 +68,6 @@ def render_maps(
         max_y -= min_y
         translation = momapy.drawing.translate(-min_x, -min_y)
         for map_ in maps:
-            if not isinstance(map_, momapy.builder.MapBuilder):
-                map_ = momapy.builder.builder_from_object(map_)
-            if map_.layout.transform is None:
-                map_.layout.transform = momapy.builder.TupleBuilder()
             map_.layout.transform.append(translation)
     renderer_obj = _make_renderer_for_render_function(
         output_file, max_x, max_y, format_, renderer)
@@ -169,7 +164,8 @@ class CairoRenderer(Renderer):
         self._set_state_from_drawing_element(drawing_element)
         self._set_transform_from_drawing_element(drawing_element)
         self._set_new_path() # context.restore() does not forget the current path
-        render_function = self._get_drawing_element_render_function(drawing_element)
+        render_function = self._get_drawing_element_render_function(
+            drawing_element)
         render_function(drawing_element)
         self._restore()
 
@@ -200,7 +196,8 @@ class CairoRenderer(Renderer):
         self._context.new_path()
 
     def _render_transformation(self, transformation):
-        render_transformation_function = self._get_transformation_render_function(transformation)
+        render_transformation_function = \
+                self._get_transformation_render_function(transformation)
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
@@ -224,14 +221,16 @@ class CairoRenderer(Renderer):
 
     def _stroke_and_fill(self):
         if self._fill is not None:
-            self._context.set_source_rgba(*self._fill.to_rgba(rgba_range=(0, 1)))
+            self._context.set_source_rgba(
+                *self._fill.to_rgba(rgba_range=(0, 1)))
             if self._stroke is not None:
                 self._context.fill_preserve()
             else:
                 self._context.fill()
         if self._stroke is not None:
             self._context.set_line_width(self._stroke_width)
-            self._context.set_source_rgba(*self._stroke.to_rgba(rgba_range=(0, 1)))
+            self._context.set_source_rgba(
+                *self._stroke.to_rgba(rgba_range=(0, 1)))
             self._context.stroke()
 
 
@@ -245,20 +244,21 @@ class CairoRenderer(Renderer):
         self._stroke_and_fill()
 
     def _render_text(self, text):
-        p_layout = PangoCairo.create_layout(self._context)
-        p_layout.set_height(text.width)
-        p_layout.set_width(text.height)
-        p_layout.set_alignment(Pango.Alignment.CENTER)
-        p_layout.set_font_description(Pango.FontDescription.from_string(text.font_description))
-        p_layout.set_text(text.text)
-        pixel_extents = p_layout.get_pixel_extents()[1]
-        l_x = pixel_extents.x
-        l_y = pixel_extents.y
-        l_width = pixel_extents.width
-        l_height = pixel_extents.height
-        self._context.translate(text.x - l_width / 2 - l_x, text.y - l_height / 2)
-        self._context.set_source_rgba(*text.font_color.to_rgba(rgba_range=(0, 1)))
-        PangoCairo.show_layout(self._context, p_layout)
+        pango_layout = PangoCairo.create_layout(self._context)
+        pango_layout.set_font_description(Pango.FontDescription.from_string(
+            text.font_description))
+        pango_layout.set_text(text.text)
+        pos = pango_layout.index_to_pos(0)
+        Pango.extents_to_pixels(pos)
+        x = pos.x
+        pango_layout_iter = pango_layout.get_iter()
+        y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
+        tx = text.x - x
+        ty = text.y - y
+        self._context.translate(tx, ty)
+        self._context.set_source_rgba(
+            *text.font_color.to_rgba(rgba_range=(0, 1)))
+        PangoCairo.show_layout(self._context, pango_layout)
 
     def _render_ellipse(self, ellipse):
         self._context.save()
@@ -283,7 +283,8 @@ class CairoRenderer(Renderer):
         width = rectangle.width
         height = rectangle.height
         path += momapy.drawing.move_to(momapy.geometry.Point(x + rx, y))
-        path += momapy.drawing.line_to(momapy.geometry.Point(x + width - rx, y))
+        path += momapy.drawing.line_to(
+            momapy.geometry.Point(x + width - rx, y))
         if rx > 0 and ry > 0:
             path += momapy.drawing.elliptical_arc(
                 momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 1, 1)
@@ -291,8 +292,11 @@ class CairoRenderer(Renderer):
             x + width, y + height - ry))
         if rx > 0 and ry > 0:
             path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + width - rx, y + height), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(x + rx, y + height))
+                momapy.geometry.Point(x + width - rx, y + height),
+                rx, ry, 0, 1, 1
+            )
+        path += momapy.drawing.line_to(
+            momapy.geometry.Point(x + rx, y + height))
         if rx > 0 and ry > 0:
             path += momapy.drawing.elliptical_arc(
                 momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 1, 1)
@@ -411,7 +415,13 @@ class GTKCairoRenderer(Renderer):
     height: float
 
     def __post_init__(self):
-        self.cairo_renderer = CairoRenderer(surface=None, context=None, authorize_no_context=True, width=self.width, height=self.height)
+        self.cairo_renderer = CairoRenderer(
+            surface=None,
+            context=None,
+            authorize_no_context=True,
+            width=self.width,
+            height=self.height
+        )
 
     def set_context(self, context):
         self.cairo_renderer._context = context

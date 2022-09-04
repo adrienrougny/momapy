@@ -5,6 +5,10 @@ from typing import Optional
 from uuid import uuid4
 from enum import Enum
 
+# import gi
+# gi.require_version('Gtk', '3.0')
+from gi.repository import Pango
+
 import momapy.drawing
 import momapy.geometry
 import momapy.coloring
@@ -12,6 +16,11 @@ import momapy.coloring
 class Direction(Enum):
     HORIZONTAL = 1
     VERTICAL = 2
+
+class HAlignment(Enum):
+    LEFT = 1
+    CENTER = 2
+    RIGHT = 3
 
 
 @dataclass(frozen=True)
@@ -40,41 +49,94 @@ class LayoutElement(MapElement):
         pass
 
 @dataclass(frozen=True)
-class NodeLayoutElementLabel(LayoutElement):
+class TextLayoutElement(LayoutElement):
     text: Optional[str] = None
+    font_description: Optional[str] = None
+    font_color: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
-    font_description: Optional[str] = "Arial 14"
-    font_color: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
+    horizontal_alignement: Optional[HAlignment] = HAlignment.LEFT
+    justify: Optional[bool] = False
 
     @property
-    def x(self) -> float:
+    def x(self):
         return self.position.x
 
     @property
-    def y(self) -> float:
+    def y(self):
         return self.position.y
 
-    def size(self) -> tuple[float, float]:
-        return (self.width, self.height)
+    def _make_pango_layout(self):
+        pango_layout = PangoCairo.create_layout()
+        pango_layout.set_alignment(
+            Pango.Alignment[self.horizontal_alignement.name])
+        pango_layout.set_font_description(
+            Pango.FontDescription.from_string(self.font_description))
+        if self.width is not None:
+            pango_layout.set_width(Pango.units_from_double(self.width))
+        if self.height is not None:
+            pango_layout.set_height(Pango.units_from_double(self.height))
+        pango_layout.set_text(self.text)
+        pango_layout.set_justify(self.justify)
+        return pango_layout
 
-    def bbox(self) -> momapy.geometry.Bbox:
-        return momapy.geometry.Bbox(self.position, self.width, self.height)
+    def _get_pango_line_text_and_initial_pos(
+            self, pango_layout, pango_layout_iter, pango_line):
+        start_index = pango_line.start_index()
+        end_index = start_index + pango_line.get_length()
+        pos = pango_layout.index_to_pos(start_index)
+        Pango.extents_to_pixels(pos)
+        x = pos.x
+        y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
+        line_text = self.text[start_index:end_index]
+        return line_text, momapy.geometry.Point(x, y)
+
+    def ink_bbox(self):
+        pango_layout = self._make_pango_layout()
+        pango_layout_extents, _ = pango_layout.get_pixel_extents()
+        return momapy.geometry.Bbox(
+            self.position,
+            pango_layout_extents.width,
+            pango_layout_extents.height
+        )
+
+    def logical_bbox(self):
+        pango_layout = self._make_pango_layout()
+        _, pango_layout_extents = pango_layout.get_pixel_extents()
+        return momapy.geometry.Bbox(
+            self.position,
+            pango_layout_extents.width,
+            pango_layout_extents.height
+        )
+
+    def bbox(self):
+        return self.logical_bbox()
 
     def drawing_elements(self):
-        text = momapy.drawing.Text(
-            text=self.text,
-            position=self.position,
-            width=self.width,
-            height=self.height,
-            font_description=self.font_description,
-            font_color=self.font_color)
-        return [text]
+        drawing_elements = []
+        pango_layout = self._make_pango_layout()
+        pango_layout_iter = pango_layout.get_iter()
+        _, pango_layout_lextents = pango_layout.get_pixel_extents()
+        tx = self.x - (pango_layout_lextents.x + pango_layout_lextents.width/2)
+        ty = self.y - (
+            pango_layout_lextents.y + pango_layout_lextents.height/2)
+        done = False
+        while not done:
+            pango_line = pango_layout_iter.get_line()
+            line_text, pos = self._get_pango_line_text_and_initial_pos(
+                pango_layout, pango_layout_iter, pango_line)
+            pos += (tx, ty)
+            drawing_elements.append(
+                momapy.drawing.text(line_text, pos, font_description)
+            if pango_layout_iter.at_last_line():
+                done = True
+            else:
+                pango_layout_iter.next_line()
+        return drawing_elements
 
     def flatten(self):
         return [self]
-
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
@@ -120,7 +182,7 @@ class NodeLayoutElement(GroupLayoutElement):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
-    label: Optional[NodeLayoutElementLabel] = None
+    label: Optional[TextLayoutElement] = None
     stroke_width: float = None
     stroke: Optional[momapy.coloring.Color] = None
     fill: Optional[momapy.coloring.Color] = None
