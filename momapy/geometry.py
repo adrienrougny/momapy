@@ -99,6 +99,14 @@ class Line(object):
     p1: Point
     p2: Point
 
+    @property
+    def slope(self):
+        return (self.p2.y - self.p1.y)/(self.p2.x - self.p1.x)
+
+    @property
+    def intercept(self):
+        return self.p1.y - self.slope()*self.p1.x
+
     def get_angle(self):
         return get_angle_of_line(self)
 
@@ -114,10 +122,17 @@ class Segment(object):
     p2: Point
 
     def length(self):
-        return math.sqrt((self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2)
+        return math.sqrt(
+            (self.p2.x - self.p1.x)**2
+            + (self.p2.y - self.p1.y)**2
+        )
 
-# def get_intersection_of_lines(linex1, y1, x2, y2, x3, y3, x4, y4):
 def get_intersection_of_lines(line1, line2):
+    if (line1.slope() == line2.slope()
+            and line1.intercept() == line2.intercept()):
+        return line1
+    elif are_lines_parallel(line1, line2):
+        return None
     x1 = line1.p1.x
     y1 = line1.p1.y
     x2 = line1.p2.x
@@ -127,8 +142,8 @@ def get_intersection_of_lines(line1, line2):
     x4 = line2.p2.x
     y4 = line2.p2.y
     d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-    px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d
-    py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d
+    px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4))/d
+    py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4))/d
     return Point(px, py)
 
 #angle in radians
@@ -141,19 +156,7 @@ def get_angle_of_line(line):
     return get_normalized_angle(angle)
 
 def are_lines_parallel(line1, line2):
-    x1 = line1.p1.x
-    y1 = line1.p1.y
-    x2 = line1.p2.x
-    y2 = line1.p2.y
-    x3 = line2.p1.x
-    y3 = line2.p1.y
-    x4 = line2.p2.x
-    y4 = line2.p2.y
-    if x2 - x1 == 0 or x4 - x3 == 0:
-        return x2 - x1 == x4 - x3
-    a1 = (y2 - y1) / (x2 - x1)
-    a2 = (y4 - y3) / (x4 - x3)
-    return a1 == a2
+    return line1.slope() == line2.slope()
 
 #angle in radians
 def is_angle_in_sector(angle, center, point1, point2):
