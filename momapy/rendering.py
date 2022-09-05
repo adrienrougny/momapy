@@ -69,6 +69,8 @@ def render_maps(
         max_y -= min_y
         translation = momapy.drawing.translate(-min_x, -min_y)
         for map_ in maps:
+            if map_.layout.transform is None:
+                map_.layout.transform = momapy.builder.TupleBuilder()
             map_.layout.transform.append(translation)
     renderer_obj = _make_renderer_for_render_function(
         output_file, max_x, max_y, format_, renderer)
