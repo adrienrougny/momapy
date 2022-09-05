@@ -1,6 +1,7 @@
 import collections
 
 import momapy.positioning
+import momapy.builder
 
 def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
     compartment_entity_pools_mapping = collections.defaultdict(list)
@@ -22,3 +23,15 @@ def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
                 compartment_layout.label.position = compartment_layout.position
                 compartment_layout.label.width = compartment_layout.width
                 compartment_layout.label.height = compartment_layout.height
+
+def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
+    for layout_element in map_builder.layout.flatten():
+        if (isinstance(layout_element, momapy.builder.NodeLayoutElementBuilder)
+                and layout_element.label is not None
+        ):
+            position, width, height = momapy.positioning.fit([
+                layout_element.label.ink_bbox()], xsep=3, ysep=3)
+            if width > layout_element.width:
+                layout_element.width = width
+            if height > layout_element.height:
+                layout_element.height = height
