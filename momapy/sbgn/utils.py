@@ -35,3 +35,7 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
                 layout_element.width = width
             if height > layout_element.height:
                 layout_element.height = height
+
+def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
+    momapy.positioning.set_fit(
+        map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
