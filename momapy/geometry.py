@@ -116,6 +116,9 @@ class Line(object):
     def get_intersection_with_line(self, line):
         return get_intersection_of_lines(self, line)
 
+    def y_from_x(self, x):
+        return x*self.slope() + self.intercept
+
 @dataclass(frozen=True)
 class Segment(object):
     p1: Point
@@ -126,6 +129,31 @@ class Segment(object):
             (self.p2.x - self.p1.x)**2
             + (self.p2.y - self.p1.y)**2
         )
+
+@dataclass(frozen=True)
+class Circle(object):
+    point: Point
+    radius: float
+
+    def y_from_x(self, x):
+        d = self.radius**2 - (x - self.point.x)**2
+        if d < 0:
+            return None
+        return math.sqrt(d) + self.point.y
+
+@dataclass(frozen=True)
+class Arc(object):
+    point: Point
+    radius: float
+    start_angle: float
+    end_angle: float
+
+@dataclass(frozen=True)
+class Ellipse(object):
+    point: Point
+    rx: float
+    ry: float
+
 
 def get_intersection_of_lines(line1, line2):
     if (line1.slope() == line2.slope()
@@ -146,6 +174,37 @@ def get_intersection_of_lines(line1, line2):
     py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4))/d
     return Point(px, py)
 
+def get_intersection_of_line_and_arc(line, arc):
+    circle = Circle(arc.point, arc.radius)
+    circle_intersection = get_intersection_of_line_and_circle(line, circle)
+    if intersection is None:
+        return None
+    intersection = []
+    for point in circle_intersection:
+        angle = get_angle_of_line(Line(arc.point, point))
+        if is_angle_between(angle, arc.start_angle, arc.end_angle):
+            intersection.append(point)
+    return intersection
+
+def get_intersection_of_line_and_circle(line, circle):
+    dx = line.p2.x - line.p1.x
+    dy = line.p2.y - line.p1.y
+    dr = math.sqrt(dx**2 + dy**2)
+    d = line.p1.x*line.p2.y - line.p2.x*line.p1.y
+    delta = self.radius**2 * dr**2 - d**2
+    if delta < 0:
+        return None
+    intersection = []
+    sign = -1 if dy < 0 else 1
+    px1 = (d*dy + sign*dx*math.sqrt(self.radius**2*dr**2 - d**2)) / dr**2
+    py1 = self.y_from_x(px1)
+    intersection.append(Point(px1, py1))
+    if delta > 0:
+        px2 = (d*dy - sign*dx*math.sqrt(self.radius**2*dr**2 - d**2)) / dr**2
+        py2 = self.y_from_x(px2)
+        intersection.append(Point(px2, py2))
+    return intersection
+
 #angle in radians
 def get_angle_of_line(line):
     x1 = line.p1.x
@@ -162,13 +221,18 @@ def are_lines_parallel(line1, line2):
 def is_angle_in_sector(angle, center, point1, point2):
     angle1 = get_angle_of_line(Line(center, point1))
     angle2 = get_angle_of_line(Line(center, point2))
-    if angle1 < angle2:
-        if angle >= angle1 and angle <= angle2:
+    return is_angle_between(angle, angle1, angle2)
+
+def is_angle_between(angle, start_angle, end_angle):
+    if start_angle < end_angle:
+        if angle >= start_angle and angle <= end_angle:
             return True
     else:
-        if angle >= angle1 and angle <= 2 * math.pi or angle >= 0 and angle <= angle2:
+        if (angle >= start_angle and angle <= 2 * math.pi
+                or angle >= 0 and angle <= end_angle):
             return True
     return False
+
 
 #angle is in radians
 def get_normalized_angle(angle):
@@ -201,3 +265,15 @@ def get_angle_between_segments(segment1, segment2):
     if sign < 0:
         angle = -angle
     return angle
+
+#angle in radians
+def rotate_point(point, angle):
+    px = point.x * math.cos(angle) + point.y * math.sin(angle)
+    py = -point.x * math.sin(angle) + point.y * math.cos(angle)
+    return Point(px, py)
+
+def translate_point(point, tx, ty):
+    return point + (tx, ty)
+
+def translate_line(line, tx, ty):
+    return Line(translate_point(line.p1), translate_point(line.p2))
