@@ -604,6 +604,7 @@ def _make_layout_element_from_glyph(
     layout_element.position = _get_position_from_libsbgn_bbox(glyph.get_bbox())
     libsbgn_state = glyph.get_state()
     libsbgn_label = glyph.get_label()
+    label_position = layout_element.label_center()
     libsbgn_label_bbox = glyph.get_bbox()
     if (libsbgn_label is not None and libsbgn_label.get_text() is not None
             or libsbgn_state is not None):
@@ -619,11 +620,12 @@ def _make_layout_element_from_glyph(
             text = libsbgn_label.get_text()
             if libsbgn_label.get_bbox() is not None:
                 libsbgn_label_bbox = libsbgn_label.get_bbox()
+                label_position = get_position_from_libsbgn_bbox(
+                    libsbgn_label_bbox)
         label_element = builder.new_layout_element(
             momapy.core.TextLayoutElement)
         label_element.text = text
-        label_element.position = _get_position_from_libsbgn_bbox(
-            libsbgn_label_bbox)
+        label_element.position = label_position
         label_element.width = libsbgn_label_bbox.get_w()
         label_element.height = libsbgn_label_bbox.get_h()
         label_element.font_description = LibSBGNGlyphMapping[glyph_key][
