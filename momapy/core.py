@@ -314,6 +314,10 @@ class NodeLayoutElement(GroupLayoutElement):
     def center(self) -> momapy.geometry.Point:
         pass
 
+    @abstractmethod
+    def label_center(self) -> momapy.geometry.Point:
+        pass
+
     def border(self, point) -> momapy.geometry.Point:
         angle = momapy.geometry.get_angle_of_line(
             momapy.geometry.Line(self.center(), point))

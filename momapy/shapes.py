@@ -42,6 +42,10 @@ class Rectangle(momapy.core.NodeLayoutElement):
     def center(self):
         return momapy.geometry.Point(self.x, self.y)
 
+    def label_center(self):
+        return self.center()
+
+
     def background_path(self):
         rectangle = momapy.drawing.Rectangle(
             stroke=self.stroke,
@@ -111,6 +115,10 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.self_bbox().center()
+
+    def label_center(self):
+        return self.center()
+
 
     def background_path(self):
         rectangle = momapy.drawing.Rectangle(
@@ -188,6 +196,9 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
     def center(self):
         return momapy.geometry.Point(self.x, self.y)
 
+    def label_center(self):
+        return self.center()
+
     def base_left_connector(self):
         if self.direction == momapy.core.Direction.VERTICAL:
             return momapy.geometry.Point(self.x, self.y - self.height/2)
@@ -226,7 +237,6 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-
     def angle(self, angle, unit="degrees"):
         return Rectangle.angle(self, angle, unit)
 
@@ -259,6 +269,9 @@ class Ellipse(momapy.core.NodeLayoutElement):
 
     def center(self):
         return momapy.geometry.Point(self.x, self.y)
+
+    def label_center(self):
+        return self.center()
 
     def background_path(self):
         ellipse = momapy.drawing.Ellipse(
@@ -309,6 +322,9 @@ class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.position
+
+    def label_center(self):
+        return self.center()
 
     def north_north_west(self):
         return self.north() + (self.cut_corners - self.width/2, 0)
@@ -392,6 +408,9 @@ class Stadium(momapy.core.NodeLayoutElement):
     def center(self):
         return momapy.geometry.Point(self.x, self.y)
 
+    def label_center(self):
+        return self.center()
+
     def background_path(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
@@ -457,6 +476,9 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
     def center(self):
         return self.self_bbox().center()
 
+    def label_center(self):
+        return self.center()
+
     def background_path(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
@@ -509,6 +531,9 @@ class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.self_bbox().center()
+
+    def label_center(self):
+        return self.center()
 
     def background_path(self):
         circle = momapy.drawing.Ellipse(
@@ -601,6 +626,9 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.position
+
+    def label_center(self):
+        return self.center()
 
     def base_left_connector(self):
         if self.direction == momapy.core.Direction.VERTICAL:
@@ -708,6 +736,9 @@ class Hexagon(momapy.core.NodeLayoutElement):
     def center(self):
         return self.position
 
+    def label_center(self):
+        return self.center()
+
     def background_path(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
@@ -758,6 +789,20 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.self_bbox().center()
+
+    def label_center(self):
+        top_rectangle = RectangleWithRoundedCorners(
+            position=self.position - (self.offset, self.offset),
+            width=self.width - self.offset,
+            height=self.height - self.offset,
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            rounded_corners=self.rounded_corners
+        )
+        return top_rectangle.center()
+
 
     def background_path(self):
         bottom_rectangle = RectangleWithRoundedCorners(
@@ -830,6 +875,19 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
     def center(self):
         return self.self_bbox().center()
 
+    def label_center(self):
+        top_rectangle = RectangleWithCutCorners(
+            position=self.position - (self.offset, self.offset),
+            width=self.width - self.offset,
+            height=self.height - self.offset,
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            cut_corners=self.cut_corners
+        )
+        return top_rectangle.center()
+
     def background_path(self):
         bottom_rectangle = RectangleWithCutCorners(
             position=self.position + (self.offset, self.offset),
@@ -901,6 +959,19 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
     def center(self):
         return self.self_bbox().center()
 
+    def label_center(self):
+        top_rectangle = RectangleWithBottomRoundedCorners(
+            position=self.position - (self.offset, self.offset),
+            width=self.width - self.offset,
+            height=self.height - self.offset,
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            rounded_corners=self.rounded_corners
+        )
+        return top_rectangle.center()
+
     def background_path(self):
         bottom_rectangle = RectangleWithBottomRoundedCorners(
             position=self.position + (self.offset, self.offset),
@@ -970,6 +1041,18 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.self_bbox().center()
+
+    def label_center(self):
+        top_stadium = Stadium(
+            position=self.position - (self.offset, self.offset),
+            width=self.width - self.offset,
+            height=self.height - self.offset,
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+        )
+        return top_stadium.center()
 
     def background_path(self):
         bottom_stadium = Stadium(
@@ -1057,6 +1140,9 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.position
+
+    def label_center(self):
+        return self.center()
 
     def base_left_connector(self):
         if self.direction == momapy.core.Direction.VERTICAL:
@@ -1170,6 +1256,9 @@ class Hexagon(momapy.core.NodeLayoutElement):
     def center(self):
         return self.position
 
+    def label_center(self):
+        return self.center()
+
     def background_path(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
@@ -1220,6 +1309,19 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
     def center(self):
         return self.self_bbox().center()
+
+    def label_center(self):
+        top_rectangle = RectangleWithRoundedCorners(
+            position=self.position - (self.offset, self.offset),
+            width=self.width - self.offset,
+            height=self.height - self.offset,
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            rounded_corners=self.rounded_corners
+        )
+        return top_rectangle.center()
 
     def background_path(self):
         bottom_rectangle = RectangleWithRoundedCorners(
