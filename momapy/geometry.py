@@ -187,21 +187,26 @@ def get_intersection_of_line_and_arc(line, arc):
     return intersection
 
 def get_intersection_of_line_and_circle(line, circle):
+    line = Line(line.p1 - circle.point, line.p2 - circle.point)
     dx = line.p2.x - line.p1.x
     dy = line.p2.y - line.p1.y
     dr = math.sqrt(dx**2 + dy**2)
     d = line.p1.x*line.p2.y - line.p2.x*line.p1.y
-    delta = self.radius**2 * dr**2 - d**2
+    delta = circle.radius**2 * dr**2 - d**2
     if delta < 0:
         return None
     intersection = []
     sign = -1 if dy < 0 else 1
-    px1 = (d*dy + sign*dx*math.sqrt(self.radius**2*dr**2 - d**2)) / dr**2
-    py1 = self.y_from_x(px1)
+    px1 = ((d*dy + sign*dx*math.sqrt(circle.radius**2*dr**2 - d**2))
+            / dr**2 + circle.point.x)
+    py1 = ((-d*dx + abs(dy)*math.sqrt(circle.radius**2*dr**2 - d**2))
+            / dr**2 + circle.point.y)
     intersection.append(Point(px1, py1))
     if delta > 0:
-        px2 = (d*dy - sign*dx*math.sqrt(self.radius**2*dr**2 - d**2)) / dr**2
-        py2 = self.y_from_x(px2)
+        px2 = ((d*dy - sign*dx*math.sqrt(circle.radius**2*dr**2 - d**2))
+                / dr**2 + circle.point.x)
+        py2 = ((-d*dx - abs(dy)*math.sqrt(circle.radius**2*dr**2 - d**2))
+            / dr**2 + circle.point.y)
         intersection.append(Point(px2, py2))
     return intersection
 
