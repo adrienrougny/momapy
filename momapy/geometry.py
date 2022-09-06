@@ -168,7 +168,7 @@ def get_intersection_of_lines(line1, line2):
 def get_intersection_of_line_and_arc(line, arc):
     circle = Circle(arc.point, arc.radius)
     circle_intersection = get_intersection_of_line_and_circle(line, circle)
-    if intersection is None:
+    if circle_intersection is None:
         return None
     intersection = []
     for point in circle_intersection:
@@ -199,6 +199,24 @@ def get_intersection_of_line_and_circle(line, circle):
         py2 = ((-d*dx - abs(dy)*math.sqrt(circle.radius**2*dr**2 - d**2))
             / dr**2 + circle.point.y)
         intersection.append(Point(px2, py2))
+    return intersection
+
+def get_intersection_of_line_and_ellipse(line, ellipse):
+    circle = Circle(Point(0, 0), 1)
+    tx = ellipse.point.x
+    ty = ellipse.point.y
+    scale_x = ellipse.rx
+    scale_y = ellipse.ry
+    line = translate_line(line, -tx, -ty)
+    line = scale_line(line, 1/scale_x, 1/scale_y)
+    circle_intersection = get_intersection_of_line_and_circle(line, circle)
+    if circle_intersection is None:
+        return None
+    intersection = []
+    for point in circle_intersection:
+        point = scale_point(point, scale_x, scale_y)
+        point = translate_point(point, tx, ty)
+        intersection.append(point)
     return intersection
 
 #angle in radians
@@ -271,5 +289,17 @@ def rotate_point(point, angle):
 def translate_point(point, tx, ty):
     return point + (tx, ty)
 
+def scale_point(point, scale_x, scale_y):
+    return Point(point.x*scale_x, point.y*scale_y)
+
 def translate_line(line, tx, ty):
-    return Line(translate_point(line.p1), translate_point(line.p2))
+    return Line(
+        translate_point(line.p1, tx, ty),
+        translate_point(line.p2, tx, ty)
+    )
+
+def scale_line(line, scale_x, scale_y):
+    return Line(
+        scale_point(line.p1, scale_x, scale_y),
+        scale_point(line.p2, scale_x, scale_y)
+    )
