@@ -116,9 +116,6 @@ class Line(object):
     def get_intersection_with_line(self, line):
         return get_intersection_of_lines(self, line)
 
-    def y_from_x(self, x):
-        return x*self.slope() + self.intercept
-
 @dataclass(frozen=True)
 class Segment(object):
     p1: Point
@@ -134,12 +131,6 @@ class Segment(object):
 class Circle(object):
     point: Point
     radius: float
-
-    def y_from_x(self, x):
-        d = self.radius**2 - (x - self.point.x)**2
-        if d < 0:
-            return None
-        return math.sqrt(d) + self.point.y
 
 @dataclass(frozen=True)
 class Arc(object):
