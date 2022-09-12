@@ -4,6 +4,7 @@ from frozendict import frozendict
 from typing import Optional
 from uuid import uuid4
 from enum import Enum
+import math
 
 import cairo
 import gi
@@ -176,7 +177,7 @@ class TextLayoutElement(LayoutElement):
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
-    transform: Optional[tuple[momapy.drawing.Transformation]] = None
+    transform: Optional[tuple[momapy.geometry.Transformation]] = None
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
 
     @abstractmethod
@@ -271,10 +272,6 @@ class NodeLayoutElement(GroupLayoutElement):
             layout_elements.append(self.label)
         return layout_elements
 
-    @abstractmethod
-    def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
-        pass
-
     def size(self):
         return (self.width, self.height)
 
@@ -319,9 +316,41 @@ class NodeLayoutElement(GroupLayoutElement):
         pass
 
     def border(self, point) -> momapy.geometry.Point:
-        angle = momapy.geometry.get_angle_of_line(
-            momapy.geometry.Line(self.center(), point))
-        return self.angle(-angle, unit="radians")
+        line = momapy.geometry.Line(self.center(), point)
+        objects = []
+        for drawing_element in self.drawing_elements():
+            objects += drawing_element.to_geometry()
+        intersection = []
+        for obj in objects:
+            obj_intersection = obj.get_intersection_with_line(line)
+            if obj_intersection is not None:
+                intersection += obj_intersection
+        intersection_point = None
+        max_d = -1
+        ok_direction_exists = False
+        d1 = momapy.geometry.get_distance_between_points(
+                point, self.center())
+        for candidate_point in intersection:
+            d2 = momapy.geometry.get_distance_between_points(
+                candidate_point, point)
+            d3 = momapy.geometry.get_distance_between_points(
+                candidate_point, self.center())
+            candidate_ok_direction = (not d2 > d1 or d2 < d3)
+            if candidate_ok_direction or not ok_direction_exists:
+                if candidate_ok_direction and not ok_direction_exists:
+                    ok_direction_exists = True
+                    max_d = -1
+                if d3 > max_d:
+                    max_d = d3
+                    intersection_point = candidate_point
+        return intersection_point
+
+    def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+        if unit == "degrees":
+            angle = math.radians(angle)
+        d = 100
+        point = self.center() + (d*math.cos(angle), d*math.sin(angle))
+        return self.border(point)
 
 
 @dataclass(frozen=True)
@@ -419,7 +448,7 @@ class ArcLayoutElement(GroupLayoutElement):
             last_segment = self.segments()[-1]
             angle = momapy.geometry.get_angle_of_line(last_segment)
             transform = tuple([
-                momapy.drawing.rotate(angle, self.arrowhead_base())])
+                momapy.geometry.Rotation(angle, self.arrowhead_base())])
             arrowhead_drawing_element = replace(
                 arrowhead_drawing_element, transform=transform)
             drawing_elements.append(arrowhead_drawing_element)

@@ -62,29 +62,6 @@ class Rectangle(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        angle = -angle
-        if unit == "degrees":
-            angle = math.radians(angle)
-        angle = momapy.geometry.get_normalized_angle(angle)
-        line = momapy.geometry.Line(
-            self.center(),
-            self.center() + (math.cos(angle), math.sin(angle))
-        )
-        sectors = [
-            (self.north_east(), self.south_east()),
-            (self.south_east(), self.south_west()),
-            (self.south_west(), self.north_west()),
-            (self.north_west(), self.north_east())
-        ]
-        for sector in sectors:
-            if momapy.geometry.is_angle_in_sector(
-                    angle, self.center(), sector[0], sector[1]):
-                p = momapy.geometry.get_intersection_of_lines(
-                        momapy.geometry.Line(sector[0], sector[1]), line)
-                return p
-        return self.center()
-
 @dataclass(frozen=True)
 class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
     rounded_corners: float = 10
@@ -138,9 +115,6 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class RectangleWithConnectors(momapy.core.NodeLayoutElement):
@@ -236,9 +210,6 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return Rectangle.angle(self, angle, unit)
-
 @dataclass(frozen=True)
 class Ellipse(momapy.core.NodeLayoutElement):
 
@@ -286,9 +257,6 @@ class Ellipse(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
@@ -373,9 +341,6 @@ class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
-
 @dataclass(frozen=True)
 class Stadium(momapy.core.NodeLayoutElement):
 
@@ -427,9 +392,6 @@ class Stadium(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
@@ -497,9 +459,6 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
-
 @dataclass(frozen=True)
 class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
 
@@ -549,31 +508,8 @@ class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
-
-
-        path = momapy.drawing.Path(
-            stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
-        path += (momapy.drawing.move_to(self.north_west())
-                 + momapy.drawing.line_to(self.north_east())
-                 + momapy.drawing.line_to(self.east_south_east())
-                 + momapy.drawing.arc(
-                     self.east_south_east() - (self.rounded_corners, 0),
-                     self.rounded_corners, 0, math.pi/2)
-                 + momapy.drawing.line_to(self.south_south_west())
-                 + momapy.drawing.arc(
-                     self.south_south_west() - (0, self.rounded_corners),
-                     self.rounded_corners, math.pi/2, math.pi)
-                 + momapy.drawing.close()
-        )
-        return path
-
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
@@ -673,9 +609,6 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         return None
 
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(self, angle, unit)
-
 @dataclass(frozen=True)
 class Hexagon(momapy.core.NodeLayoutElement):
     top_left_angle: float = 50
@@ -752,9 +685,6 @@ class Hexagon(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
@@ -838,9 +768,6 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
-
 @dataclass(frozen=True)
 class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
     cut_corners: float = 10
@@ -921,9 +848,6 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
@@ -1006,9 +930,6 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
-
 @dataclass(frozen=True)
 class DoubleStadium(momapy.core.NodeLayoutElement):
     offset: float = 10
@@ -1085,9 +1006,6 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
@@ -1193,9 +1111,6 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         return None
 
 
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(self, angle, unit)
-
 @dataclass(frozen=True)
 class Hexagon(momapy.core.NodeLayoutElement):
     top_left_angle: float = 50
@@ -1272,9 +1187,6 @@ class Hexagon(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(angle, unit)
 
 @dataclass(frozen=True)
 class CircleWithConnectors(momapy.core.NodeLayoutElement):
@@ -1363,9 +1275,6 @@ class CircleWithConnectors(momapy.core.NodeLayoutElement):
     def foreground_path(self):
         return None
 
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(self, angle, unit)
 
 @dataclass(frozen=True)
 class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
@@ -1457,7 +1366,3 @@ class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
 
     def foreground_path(self):
         return None
-
-
-    def angle(self, angle, unit="degrees"):
-        return self.self_bbox().angle(self, angle, unit)

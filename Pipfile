@@ -10,6 +10,7 @@ pycairo = "*"
 pygobject = "*"
 momapy = {editable = true, path = "."}
 ffmpeg-python = "*"
+numpy = "*"
 
 [dev-packages]
 

@@ -67,7 +67,7 @@ def render_maps(
         min_y = position.y - height/2
         max_x -= min_x
         max_y -= min_y
-        translation = momapy.drawing.translate(-min_x, -min_y)
+        translation = momapy.geometry.Translation(-min_x, -min_y)
         for map_ in maps:
             if map_.layout.transform is None:
                 map_.layout.transform = momapy.builder.TupleBuilder()
@@ -204,10 +204,15 @@ class CairoRenderer(Renderer):
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
-        if isinstance(transformation, momapy.drawing.Translation):
+        if isinstance(transformation, momapy.geometry.Translation):
             return self._render_translation
-        elif isinstance(transformation, momapy.drawing.Rotation):
+        elif isinstance(transformation, momapy.geometry.Rotation):
             return self._render_rotation
+        elif isinstance(transformation, momapy.geometry.Scaling):
+            return self._render_scaling
+        elif isinstance(transformation, momapy.geometry.MatrixTransformation):
+            return self._render_matrix_transformation
+
 
     def _get_drawing_element_render_function(self, drawing_element):
         if isinstance(drawing_element, momapy.drawing.Group):
@@ -274,42 +279,8 @@ class CairoRenderer(Renderer):
 
 
     def _render_rectangle(self, rectangle):
-        path = momapy.drawing.Path(
-            stroke_width=rectangle.stroke_width,
-            stroke=rectangle.stroke,
-            fill=rectangle.fill,
-            transform=rectangle.transform)
-        x = rectangle.point.x
-        y = rectangle.point.y
-        rx = rectangle.rx
-        ry = rectangle.ry
-        width = rectangle.width
-        height = rectangle.height
-        path += momapy.drawing.move_to(momapy.geometry.Point(x + rx, y))
-        path += momapy.drawing.line_to(
-            momapy.geometry.Point(x + width - rx, y))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(
-            x + width, y + height - ry))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + width - rx, y + height),
-                rx, ry, 0, 1, 1
-            )
-        path += momapy.drawing.line_to(
-            momapy.geometry.Point(x + rx, y + height))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(x, y + ry))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + rx, y), rx, ry, 0, 1, 1)
-        path += momapy.drawing.close()
+        path = rectangle.to_path()
         self._render_path(path)
-
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
@@ -346,57 +317,24 @@ class CairoRenderer(Renderer):
         )
 
     def _render_elliptical_arc(self, elliptical_arc):
-        x1, y1 = self._context.get_current_point()
-        sigma = elliptical_arc.x_axis_rotation
-        p = elliptical_arc.point
-        x2 = p.x
-        y2 = p.y
-        rx = elliptical_arc.rx
-        ry = elliptical_arc.ry
-        fa = elliptical_arc.arc_flag
-        fs = elliptical_arc.sweep_flag
-        x1p = math.cos(sigma) * ((x1 - x2) / 2) + \
-                math.sin(sigma) * ((y1 - y2) / 2)
-        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + \
-                math.cos(sigma) * ((y1 - y2) / 2)
-        a = math.sqrt((rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2) / \
-                      (rx**2 * y1p**2 + ry**2 * x1p**2))
-        if fa != fs:
-            a = -a
-        cxp = a * rx * y1p / ry
-        cyp = -a * ry * x1p / rx
-        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
-        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
-        theta1 = momapy.geometry.get_angle_between_segments(
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point(1, 0)
+        obj = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(
+                self._context.get_current_point()[0],
+                self._context.get_current_point()[1]
             ),
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
-            )
+            elliptical_arc.point,
+            elliptical_arc.rx,
+            elliptical_arc.ry,
+            elliptical_arc.x_axis_rotation,
+            elliptical_arc.arc_flag,
+            elliptical_arc.sweep_flag
         )
-        delta_theta = momapy.geometry.get_angle_between_segments(
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
-            ),
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((-x1p - cxp) / rx, (-y1p - cyp) / ry)
-            )
-        )
-        if fs == 0 and delta_theta > 0:
-            delta_theta -= 2 * math.pi
-        elif fs == 1 and delta_theta < 0:
-            delta_theta += 2 * math.pi
-        theta2 = theta1 + delta_theta
+        arc, transformation = obj.to_arc_and_transformation()
+        arc = momapy.drawing.Arc(
+            arc.point, arc.radius, arc.start_angle, arc.end_angle)
         self._context.save()
-        self._context.translate(cx, cy)
-        self._context.rotate(sigma)
-        self._context.scale(rx, ry)
-        self._context.arc(0, 0, 1, theta1, theta2)
+        self._render_transformation(transformation)
+        self._render_path_action(arc)
         self._context.restore()
 
     def _render_translation(self, translation):
@@ -410,6 +348,21 @@ class CairoRenderer(Renderer):
             self._context.translate(-point.x, -point.y)
         else:
             self._context.rotate(rotation.angle)
+
+    def _render_scaling(self, scaling):
+        self._context.scale(scaling.sx, scaling.sy)
+
+    def _render_matrix_transformation(self, matrix_transformation):
+        m = cairo.Matrix(
+            xx=matrix_transformation.m[0][0],
+            yx=matrix_transformation.m[1][0],
+            xy=matrix_transformation.m[0][1],
+            yy=matrix_transformation.m[1][1],
+            x0=matrix_transformation.m[0][2],
+            y0=matrix_transformation.m[1][2]
+        )
+        self._context.set_matrix(m)
+
 
 @dataclass
 class GTKCairoRenderer(Renderer):
