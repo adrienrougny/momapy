@@ -45,19 +45,76 @@ def set_arcs_to_borders(map_builder):
                 source = source.layout_element
             if isinstance(target, momapy.builder.PhantomLayoutElementBuilder):
                 target = target.layout_element
-            if len(layout_element.points) > 2:
-                if source is not None:
-                    layout_element.points[0] = source.border(
-                        layout_element.points[1])
-                if target is not None:
-                    layout_element.points[-1] = target.border(
-                        layout_element.points[-2])
-            else:
-                if source is not None and target is not None:
-                    layout_element.points[0] = source.border(target.center())
-                    layout_element.points[-1] = target.border(source.center())
-
+            if source is not None or target is not None:
+                for main, index, increment, other in [
+                        (source, 0, 1, target), (target, -1, -1, source)]:
+                    if main is not None:
+                        if len(layout_element.points) > 2:
+                            reference_point = layout_element.points[
+                                index + increment]
+                        elif other is not None:
+                            if hasattr(other, "base_left_connector"):
+                                if other.direction == \
+                                        momapy.core.Direction.HORIZONTAL:
+                                    if main.center().x < other.center().x:
+                                        reference_point = other.west()
+                                    else:
+                                        reference_point = other.east()
+                                else:
+                                    if main.center().y < other.center().y:
+                                        reference_point = other.north()
+                                    else:
+                                        reference_point = other.south()
+                            else:
+                                reference_point = other.center()
+                        elif len(layout_element.points) > 1:
+                            reference_point = layout_elements.points[
+                                index - increment]
+                        if (hasattr(main, "base_left_connector") and not
+                                isinstance(layout_element, (
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.ModulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.StimulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.InhibitionLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.NecessaryStimulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.CatalysisLayout)
+                                ))
+                        ):
+                            if main.direction == \
+                                    momapy.core.Direction.HORIZONTAL:
+                                if reference_point.x < main.center().x:
+                                    point = main.west()
+                                else:
+                                    point = main.east()
+                            else:
+                                if reference_point.y < main.center().y:
+                                    point = main.north()
+                                else:
+                                    point = main.south()
+                        else:
+                            point = main.border(reference_point)
+                        layout_element.points[index] = point
 
 def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
     momapy.positioning.set_fit(
         map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
+
+def tidy(
+        map_builder,
+        nodes_xsep=3,
+        nodes_ysep=3,
+        compartments_xsep=15,
+        compartments_ysep=15,
+        layout_xsep=15,
+        layout_ysep=15
+    ):
+    set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
+    set_compartments_to_fit_content(
+        map_builder, compartments_xsep, compartments_ysep)
+    set_arcs_to_borders(map_builder)
+    set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
+
