@@ -412,12 +412,12 @@ register_builder(ListBuilder)
 register_builder(ModelLayoutMappingBuilder)
 
 def _point_builder_add(self, xy):
-    if isinstance(xy, PointBuilder):
+    if isinstance(xy, (PointBuilder, momapy.geometry.Point)):
         xy = (xy.x, xy.y)
     return PointBuilder(self.x + xy[0], self.y + xy[1])
 
 def _point_builder_sub(self, xy):
-    if isinstance(xy, PointBuilder):
+    if isinstance(xy, (PointBuilder, momapy.geometry.Point)):
         xy = (xy.x, xy.y)
     return PointBuilder(self.x - xy[0], self.y - xy[1])
 
