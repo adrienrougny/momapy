@@ -398,6 +398,8 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def arrowhead_base(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
+        if last_segment.length() == 0:
+            return self.arrowhead_tip() - (self.arrowhead_length(), 0)
         fraction = (1 - (self.arrowhead_length() + self.shorten)
                         / last_segment.length())
         p, _ = momapy.geometry.get_position_and_angle_at_fraction(
@@ -406,6 +408,8 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
+        if last_segment.length() == 0:
+            return last_segment.p2
         fraction = 1 - self.shorten/last_segment.length()
         p, _ = momapy.geometry.get_position_and_angle_at_fraction(
             last_segment, fraction)
