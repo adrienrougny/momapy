@@ -34,6 +34,8 @@ def apply_style_collection(layout_element, style_collection):
             setattr(layout_element, attribute, value)
 
 def apply_style_sheet(layout_element, style_sheet):
+    if isinstance(layout_element, momapy.builder.MapBuilder):
+        layout_element = layout_element.layout
     for sub_layout_element in layout_element.flatten():
         for selector, style_collection in style_sheet.items():
             if selector.select(sub_layout_element):
