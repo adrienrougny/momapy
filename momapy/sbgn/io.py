@@ -3,9 +3,11 @@ import momapy.builder
 import momapy.shapes
 import momapy.arcs
 import momapy.coloring
+import momapy.styling
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
+import momapy.sbgn.utils
 
 
 import libsbgnpy.libsbgn as libsbgn
@@ -379,7 +381,7 @@ LibSBGNArcMapping = {
     },
 }
 
-def read_file(file_name, return_builder=False):
+def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     libsbgn_sbgn = libsbgn.parse(file_name, silence=True)
     libsbgn_map = libsbgn_sbgn.get_map()
     language = libsbgn_map.get_language()
@@ -415,6 +417,10 @@ def read_file(file_name, return_builder=False):
     for arc in libsbgn_map.get_arc():
         _make_and_add_map_elements_from_arc(
             arc, builder, d_model_elements_ids, d_layout_elements_ids)
+    if style_sheet is not None:
+        momapy.styling.apply_style_sheet(builder, style_sheet)
+    if tidy:
+        momapy.sbgn.utils.tidy(builder)
     if return_builder:
         return builder
     return builder.build()
@@ -517,11 +523,9 @@ def _make_and_add_map_elements_from_arc(
             attribute.add(model_element)
         else:
             setattr(super_model_element, role["attribute"], model_element)
-        super_layout_element = d_layout_elements_ids[super_element_id]
-        super_layout_element.add_element(layout_element)
     else:
         builder.add_model_element(model_element)
-        builder.add_layout_element(layout_element)
+    builder.add_layout_element(layout_element)
     builder.add_layout_element_to_model_element(layout_element, model_element)
     d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
@@ -696,19 +700,10 @@ def _make_layout_element_from_arc(
     layout_element = builder.new_layout_element(layout_element_class)
     layout_element.id = arc.get_id()
     role = LibSBGNArcMapping[arc_key].get("role")
-    if role is not None:
-        source_or_target = role["source_or_target"]
-        if source_or_target == "source":
-            layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-                layout_element=d_layout_elements_ids[arc.get_source()])
-        else:
-            layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-                layout_element=d_layout_elements_ids[arc.get_target()])
-    else:
-        layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-            layout_element=d_layout_elements_ids[arc.get_source()])
-        layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-            layout_element=d_layout_elements_ids[arc.get_target()])
+    layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
+        layout_element=d_layout_elements_ids[arc.get_source()])
+    layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
+        layout_element=d_layout_elements_ids[arc.get_target()])
     for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
         layout_element.points.append(
             momapy.builder.PointBuilder(
