@@ -361,7 +361,7 @@ class CairoRenderer(Renderer):
             x0=matrix_transformation.m[0][2],
             y0=matrix_transformation.m[1][2]
         )
-        self._context.set_matrix(m)
+        self._context.transform(m)
 
 
 @dataclass
