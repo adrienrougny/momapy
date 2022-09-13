@@ -36,6 +36,28 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
             if height > layout_element.height:
                 layout_element.height = height
 
+def set_arcs_to_borders(map_builder):
+    for layout_element in map_builder.layout.flatten():
+        if isinstance(layout_element, momapy.builder.ArcLayoutElementBuilder):
+            source = layout_element.source
+            target = layout_element.target
+            if isinstance(source, momapy.builder.PhantomLayoutElementBuilder):
+                source = source.layout_element
+            if isinstance(target, momapy.builder.PhantomLayoutElementBuilder):
+                target = target.layout_element
+            if len(layout_element.points) > 2:
+                if source is not None:
+                    layout_element.points[0] = source.border(
+                        layout_element.points[1])
+                if target is not None:
+                    layout_element.points[-1] = target.border(
+                        layout_element.points[-2])
+            else:
+                if source is not None and target is not None:
+                    layout_element.points[0] = source.border(target.center())
+                    layout_element.points[-1] = target.border(source.center())
+
+
 def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
     momapy.positioning.set_fit(
         map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
