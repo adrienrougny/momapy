@@ -355,7 +355,6 @@ class EllipticalArc(object):
 
 
 def get_intersection_of_lines(line1, line2):
-    print(line1, line2)
     if line1.slope() is None:
         if line2.slope() is None:
             if line1.p1.x == line2.p2.x:
