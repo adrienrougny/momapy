@@ -53,7 +53,20 @@ def set_arcs_to_borders(map_builder):
                             reference_point = layout_element.points[
                                 index + increment]
                         elif other is not None:
-                            if hasattr(other, "base_left_connector"):
+                            if (hasattr(other, "base_left_connector") and not
+                                isinstance(layout_element, (
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.ModulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.StimulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.InhibitionLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.NecessaryStimulationLayout),
+                                momapy.builder.get_or_make_builder_cls(
+                                    momapy.sbgn.pd.CatalysisLayout)
+                                ))
+                            ):
                                 if other.direction == \
                                         momapy.core.Direction.HORIZONTAL:
                                     if main.center().x < other.center().x:
