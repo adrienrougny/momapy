@@ -52,8 +52,17 @@ class LayoutElement(MapElement):
         pass
 
     @abstractmethod
-    def flatten(self) -> list["LayoutElement"]:
+    def children(self) -> list["LayoutElement"]:
         pass
+
+    def descendants(self) -> list["LayoutElement"]:
+        descendants = []
+        for child in self.children():
+            descendants += child.flatten()
+        return descendants
+
+    def flatten(self) -> list["LayoutElement"]:
+        return [self] + self.descendants()
 
 @dataclass(frozen=True)
 class TextLayoutElement(LayoutElement):
@@ -172,8 +181,8 @@ class TextLayoutElement(LayoutElement):
                 pango_layout_iter.next_line()
         return drawing_elements
 
-    def flatten(self):
-        return [self]
+    def children(self):
+        return []
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
@@ -189,29 +198,26 @@ class GroupLayoutElement(LayoutElement):
         pass
 
     @abstractmethod
-    def self_flatten(self) -> list[LayoutElement]:
+    def self_children(self) -> list[LayoutElement]:
         pass
 
     def drawing_elements(self):
-        self_drawing_elements = self.self_drawing_elements()
-        if self_drawing_elements is not None:
-            drawing_elements = self_drawing_elements
-        else:
-            drawing_elements = []
-        for layout_element in self.layout_elements:
-            sub_drawing_elements = layout_element.drawing_elements()
-            if sub_drawing_elements is not None:
-                drawing_elements += sub_drawing_elements
+        drawing_elements = self.self_drawing_elements()
+        for child in self.children():
+            drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
             transform=self.transform,
             elements=drawing_elements)
         return [group]
 
-    def flatten(self):
-        layout_elements = self.self_flatten()
-        for sub_layout_element in self.layout_elements:
-            layout_elements += sub_layout_element.flatten()
-        return layout_elements
+    def children(self):
+        return self.self_children() + list(self.layout_elements)
+
+    def bbox(self):
+        import momapy.positioning
+        position, width, height = momapy.positioning.fit(
+            [self.self_bbox()] + self.descendants())
+        return momapy.geometry.Bbox(position, width, height)
 
 
 @dataclass(frozen=True)
@@ -235,15 +241,6 @@ class NodeLayoutElement(GroupLayoutElement):
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
-    def bbox(self):
-        import momapy.positioning
-        elements = [self.self_bbox()]
-        if self.label is not None:
-            elements.append(self.label)
-        elements += self.layout_elements
-        position, width, height = momapy.positioning.fit(elements)
-        return momapy.geometry.Bbox(position, width, height)
-
     @abstractmethod
     def background_path(self) -> Optional[momapy.drawing.Path]:
         pass
@@ -259,18 +256,16 @@ class NodeLayoutElement(GroupLayoutElement):
             drawing_elements += [background_path]
         if self.label is not None:
             label_drawing_elements = self.label.drawing_elements()
-            if label_drawing_elements is not None:
-                drawing_elements += label_drawing_elements
+            drawing_elements += label_drawing_elements
         foreground_path = self.foreground_path()
         if foreground_path is not None:
             drawing_elements += [foreground_path]
         return drawing_elements
 
-    def self_flatten(self):
-        layout_elements = [self]
+    def self_children(self):
         if self.label is not None:
-            layout_elements.append(self.label)
-        return layout_elements
+            return [self.label]
+        return []
 
     def size(self):
         return (self.width, self.height)
@@ -375,18 +370,11 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def self_bbox(self):
         import momapy.positioning
-        position, width, height = momapy.positioning.fit(
-            self.points + [self.arrowhead_bbox()])
-        return momapy.geometry.Bbox(position, width, height)
-
-    def bbox(self):
-        import momapy.positioning
-        elements = [self.self_bbox()]
+        elements = list(self.points) + [self.arrowhead_bbox()]
         if self.source is not None:
             elements.append(self.source)
         if self.target is not None:
             elements.append(self.target)
-        elements += self.layout_elements
         position, width, height = momapy.positioning.fit(elements)
         return momapy.geometry.Bbox(position, width, height)
 
@@ -458,20 +446,18 @@ class ArcLayoutElement(GroupLayoutElement):
             drawing_elements.append(arrowhead_drawing_element)
         return drawing_elements
 
-    def self_flatten(self):
+    def self_children(self):
         layout_elements = []
         if self.source is not None:
             layout_elements.append(self.source)
         if self.target is not None:
             layout_elements.append(self.target)
-        layout_elements.append(self)
         return layout_elements
 
 
 @dataclass(frozen=True)
 class Model(MapElement):
     pass
-
 
 @dataclass(frozen=True)
 class Layout(GroupLayoutElement):
@@ -496,22 +482,8 @@ class Layout(GroupLayoutElement):
                 )
         return [path]
 
-    def self_flatten(self):
-        return [self]
-
-    def bbox(self):
-        return self.self_bbox()
-
-class ModelLayoutMapping(frozendict):
-    pass
-
-
-@dataclass(frozen=True)
-class Map(MapElement):
-    model: Optional[Model] = None
-    layout: Optional[Layout] = None
-    model_layout_mapping: ModelLayoutMapping = field(
-        default_factory=ModelLayoutMapping)
+    def self_children(self):
+        return []
 
 @dataclass(frozen=True)
 class PhantomLayoutElement(LayoutElement):
@@ -523,8 +495,8 @@ class PhantomLayoutElement(LayoutElement):
     def drawing_elements(self):
         return []
 
-    def flatten(self):
-        return [self]
+    def children(self):
+        return []
 
     def __getattr__(self, name):
         if hasattr(self, name):
@@ -534,3 +506,14 @@ class PhantomLayoutElement(LayoutElement):
                 return getattr(self.layout_element, name)
             else:
                 raise AttributeError
+class ModelLayoutMapping(frozendict):
+    pass
+
+@dataclass(frozen=True)
+class Map(MapElement):
+    model: Optional[Model] = None
+    layout: Optional[Layout] = None
+    model_layout_mapping: ModelLayoutMapping = field(
+        default_factory=ModelLayoutMapping)
+
+
