@@ -41,7 +41,7 @@ class AncestorSelector(Selector):
     def select(self, obj, ancestors):
         if len(ancestors) == 0:
             return False
-        return (self.child_selector.select(obj, ancestors) 
+        return (self.child_selector.select(obj, ancestors)
                 and any([self.ancestor_selector.select(ancestor, ancestors[:i])
                          for i, ancestor in enumerate(ancestors)])
                )
