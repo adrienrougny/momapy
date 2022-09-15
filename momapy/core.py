@@ -474,10 +474,10 @@ class Layout(GroupLayoutElement):
     def self_drawing_elements(self):
         path = momapy.drawing.Path(stroke=self.stroke, fill=self.fill,
                     stroke_width=self.stroke_width)
-        path += (momapy.drawing.move_to(self.bbox().north_west())
-                    + momapy.drawing.line_to(self.bbox().north_east())
-                    + momapy.drawing.line_to(self.bbox().south_east())
-                    + momapy.drawing.line_to(self.bbox().south_west())
+        path += (momapy.drawing.move_to(self.self_bbox().north_west())
+                    + momapy.drawing.line_to(self.self_bbox().north_east())
+                    + momapy.drawing.line_to(self.self_bbox().south_east())
+                    + momapy.drawing.line_to(self.self_bbox().south_west())
                     + momapy.drawing.close()
                 )
         return [path]
