@@ -242,22 +242,15 @@ class NodeLayoutElement(GroupLayoutElement):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     @abstractmethod
-    def background_path(self) -> Optional[momapy.drawing.Path]:
-        pass
-
-    @abstractmethod
-    def foreground_path(self) -> Optional[momapy.drawing.Path]:
+    def border_drawing_element(self) -> Optional[
+            momapy.drawing.DrawingElement]:
         pass
 
     def self_drawing_elements(self):
-        drawing_elements = []
-        background_path = self.background_path()
-        if background_path is not None:
-            drawing_elements += [background_path]
-        foreground_path = self.foreground_path()
-        if foreground_path is not None:
-            drawing_elements += [foreground_path]
-        return drawing_elements
+        border_drawing_element = self.border_drawing_element()
+        if border_drawing_element is not None:
+            return [border_drawing_element]
+        return []
 
     def self_children(self):
         if self.label is not None:

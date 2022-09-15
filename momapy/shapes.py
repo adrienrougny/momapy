@@ -46,7 +46,7 @@ class Rectangle(momapy.core.NodeLayoutElement):
         return self.center()
 
 
-    def background_path(self):
+    def border_drawing_element(self):
         rectangle = momapy.drawing.Rectangle(
             stroke=self.stroke,
             fill=self.fill,
@@ -58,9 +58,6 @@ class Rectangle(momapy.core.NodeLayoutElement):
             ry=0
         )
         return rectangle
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
@@ -97,7 +94,7 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
         return self.center()
 
 
-    def background_path(self):
+    def border_drawing_element(self):
         rectangle = momapy.drawing.Rectangle(
             stroke=self.stroke,
             fill=self.fill,
@@ -112,9 +109,6 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
             ry=self.rounded_corners
         )
         return rectangle
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class RectangleWithConnectors(momapy.core.NodeLayoutElement):
@@ -184,7 +178,7 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
         else:
             return momapy.geometry.Point(self.x + self.width/2, self.y)
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
@@ -206,9 +200,6 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
                         + momapy.drawing.line_to(self.east())
             )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class Ellipse(momapy.core.NodeLayoutElement):
@@ -243,7 +234,7 @@ class Ellipse(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         ellipse = momapy.drawing.Ellipse(
             stroke=self.stroke,
             fill=self.fill,
@@ -254,9 +245,6 @@ class Ellipse(momapy.core.NodeLayoutElement):
         )
         return ellipse
 
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
@@ -320,7 +308,7 @@ class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
         return self.west() + (0, self.cut_corners - self.height/2, 0)
 
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke,
             fill=self.fill,
@@ -337,9 +325,6 @@ class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
                     + momapy.drawing.close()
         )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class Stadium(momapy.core.NodeLayoutElement):
@@ -374,7 +359,7 @@ class Stadium(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
@@ -389,9 +374,6 @@ class Stadium(momapy.core.NodeLayoutElement):
                     + momapy.drawing.close()
         )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
@@ -439,7 +421,7 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
@@ -455,9 +437,6 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
                  + momapy.drawing.close()
         )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
@@ -492,7 +471,7 @@ class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width/2, ry=self.height/2)
         bar = momapy.drawing.Path()
@@ -504,12 +483,6 @@ class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
             stroke_width=self.stroke_width, elements=elements)
         return group
 
-
-    def foreground_path(self):
-        return None
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
@@ -576,7 +549,7 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         else:
             return momapy.geometry.Point(self.x + self.width/2, self.y)
 
-    def background_path(self):
+    def border_drawing_element(self):
         circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width/2, ry=self.height/2)
         left_connector = momapy.drawing.Path()
@@ -604,10 +577,6 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             stroke_width=self.stroke_width, elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
-
 
 @dataclass(frozen=True)
 class Hexagon(momapy.core.NodeLayoutElement):
@@ -670,7 +639,7 @@ class Hexagon(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
@@ -682,9 +651,6 @@ class Hexagon(momapy.core.NodeLayoutElement):
                  + momapy.drawing.close()
         )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
@@ -732,7 +698,7 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
         return top_rectangle.center()
 
 
-    def background_path(self):
+    def border_drawing_element(self):
         bottom_rectangle = RectangleWithRoundedCorners(
             position=self.position + (self.offset, self.offset),
             width=self.width - self.offset,
@@ -754,8 +720,8 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
             rounded_corners=self.rounded_corners
         )
         elements = (
-            bottom_rectangle.background_path(),
-            top_rectangle.background_path()
+            bottom_rectangle.border_drawing_element(),
+            top_rectangle.border_drawing_element()
         )
         group = momapy.drawing.Group(
             stroke=self.stroke,
@@ -764,9 +730,6 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
             elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
@@ -813,7 +776,7 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
         )
         return top_rectangle.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         bottom_rectangle = RectangleWithCutCorners(
             position=self.position + (self.offset, self.offset),
             width=self.width - self.offset,
@@ -835,8 +798,8 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
             cut_corners=self.cut_corners
         )
         elements = (
-            bottom_rectangle.background_path(),
-            top_rectangle.background_path()
+            bottom_rectangle.border_drawing_element(),
+            top_rectangle.border_drawing_element()
         )
         group = momapy.drawing.Group(
             stroke=self.stroke,
@@ -845,9 +808,6 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
             elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
@@ -894,7 +854,7 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
         )
         return top_rectangle.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         bottom_rectangle = RectangleWithBottomRoundedCorners(
             position=self.position + (self.offset, self.offset),
             width=self.width - self.offset,
@@ -916,8 +876,8 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
             rounded_corners=self.rounded_corners
         )
         elements = (
-            bottom_rectangle.background_path(),
-            top_rectangle.background_path()
+            bottom_rectangle.border_drawing_element(),
+            top_rectangle.border_drawing_element()
         )
         group = momapy.drawing.Group(
             stroke=self.stroke,
@@ -926,9 +886,6 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
             elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class DoubleStadium(momapy.core.NodeLayoutElement):
@@ -973,7 +930,7 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
         )
         return top_stadium.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         bottom_stadium = Stadium(
             position=self.position + (self.offset, self.offset),
             width=self.width - self.offset,
@@ -993,8 +950,8 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
             transform=self.transform,
         )
         elements = (
-            bottom_stadium.background_path(),
-            top_stadium.background_path()
+            bottom_stadium.border_drawing_element(),
+            top_stadium.border_drawing_element()
         )
         group = momapy.drawing.Group(
             stroke=self.stroke,
@@ -1003,9 +960,6 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
             elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
@@ -1072,7 +1026,7 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         else:
             return momapy.geometry.Point(self.x + self.width/2, self.y)
 
-    def background_path(self):
+    def border_drawing_element(self):
         rectangle = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         rectangle += (momapy.drawing.move_to(self.north_west())
@@ -1106,10 +1060,6 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             stroke_width=self.stroke_width, elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
-
 
 @dataclass(frozen=True)
 class Hexagon(momapy.core.NodeLayoutElement):
@@ -1172,7 +1122,7 @@ class Hexagon(momapy.core.NodeLayoutElement):
     def label_center(self):
         return self.center()
 
-    def background_path(self):
+    def border_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
@@ -1184,9 +1134,6 @@ class Hexagon(momapy.core.NodeLayoutElement):
                  + momapy.drawing.close()
         )
         return path
-
-    def foreground_path(self):
-        return None
 
 @dataclass(frozen=True)
 class CircleWithConnectors(momapy.core.NodeLayoutElement):
@@ -1252,7 +1199,7 @@ class CircleWithConnectors(momapy.core.NodeLayoutElement):
         else:
             return momapy.geometry.Point(self.x + self.width/2, self.y)
 
-    def background_path(self):
+    def border_drawing_element(self):
         circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width/2, ry=self.height/2)
         left_connector = momapy.drawing.Path()
@@ -1271,10 +1218,6 @@ class CircleWithConnectors(momapy.core.NodeLayoutElement):
             stroke_width=self.stroke_width, elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
-
 
 @dataclass(frozen=True)
 class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
@@ -1341,7 +1284,7 @@ class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
         else:
             return momapy.geometry.Point(self.x + self.width/2, self.y)
 
-    def background_path(self):
+    def border_drawing_element(self):
         outer_circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width/2, ry=self.height/2)
         inner_circle = momapy.drawing.Ellipse(
@@ -1363,6 +1306,3 @@ class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
             stroke_width=self.stroke_width, elements=elements
         )
         return group
-
-    def foreground_path(self):
-        return None
