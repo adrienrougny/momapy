@@ -254,9 +254,6 @@ class NodeLayoutElement(GroupLayoutElement):
         background_path = self.background_path()
         if background_path is not None:
             drawing_elements += [background_path]
-        if self.label is not None:
-            label_drawing_elements = self.label.drawing_elements()
-            drawing_elements += label_drawing_elements
         foreground_path = self.foreground_path()
         if foreground_path is not None:
             drawing_elements += [foreground_path]
@@ -429,12 +426,7 @@ class ArcLayoutElement(GroupLayoutElement):
                 path += momapy.drawing.line_to(arc_layout.arrowhead_tip())
             return path
 
-        drawing_elements = []
-        if self.source is not None:
-            drawing_elements += self.source.drawing_elements()
-        if self.target is not None:
-            drawing_elements += self.target.drawing_elements()
-        drawing_elements += [_get_path_from_points(self)]
+        drawing_elements = [_get_path_from_points(self)]
         arrowhead_drawing_element = self.arrowhead_drawing_element()
         if arrowhead_drawing_element is not None:
             last_segment = self.segments()[-1]
@@ -479,7 +471,7 @@ class Layout(GroupLayoutElement):
                     + momapy.drawing.line_to(self.self_bbox().south_east())
                     + momapy.drawing.line_to(self.self_bbox().south_west())
                     + momapy.drawing.close()
-                )
+        )
         return [path]
 
     def self_children(self):
