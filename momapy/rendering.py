@@ -47,8 +47,8 @@ def render_maps(
         style_sheet=None,
         to_top_left=False
     ):
-    layouts = [map_.layout for map_ in maps]
-    position, width, height = momapy.positioning.fit(layouts)
+    bboxes = [map_.layout.self_bbox() for map_ in maps]
+    position, width, height = momapy.positioning.fit(bboxes)
     max_x = position.x + width/2
     max_y = position.y + height/2
     if style_sheet is not None or to_top_left:
