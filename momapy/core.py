@@ -67,7 +67,8 @@ class LayoutElement(MapElement):
 @dataclass(frozen=True)
 class TextLayoutElement(LayoutElement):
     text: Optional[str] = None
-    font_description: Optional[str] = None
+    font_size: Optional[float] = None
+    font_family: Optional[str] = None
     font_color: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
@@ -90,8 +91,11 @@ class TextLayoutElement(LayoutElement):
         pango_layout = PangoCairo.create_layout(cairo_context)
         pango_layout.set_alignment(
             getattr(Pango.Alignment, self.horizontal_alignment.name))
-        pango_layout.set_font_description(
-            Pango.FontDescription.from_string(self.font_description))
+        pango_font_description = Pango.FontDescription()
+        pango_font_description.set_family(self.font_family)
+        pango_font_description.set_size(
+            Pango.units_from_double(self.font_size))
+        pango_layout.set_font_description(pango_font_description)
         if self.width is not None:
             pango_layout.set_width(Pango.units_from_double(self.width))
         if self.height is not None:
@@ -170,9 +174,10 @@ class TextLayoutElement(LayoutElement):
             pos += (tx, ty)
             text = momapy.drawing.Text(
                 text=line_text,
-                position=pos,
-                font_description=self.font_description,
-                font_color=self.font_color
+                font_family=self.font_family,
+                font_size=self.font_size,
+                font_color=self.font_color,
+                position=pos
             )
             drawing_elements.append(text)
             if pango_layout_iter.at_last_line():

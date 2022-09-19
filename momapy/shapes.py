@@ -562,11 +562,11 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         else:
             left_connector += momapy.drawing.line_to(self.west())
             right_connector += momapy.drawing.line_to(self.east())
-        font_size=self.width/4
-        font_description=f"Arial Bold {font_size}"
+        font_size = self.width/4
+        font_family = "Arial"
         text_layout = momapy.core.TextLayoutElement(
             text=self.text, position=self.position, width=self.width,
-            height=self.height, font_description=font_description,
+            height=self.height, font_family=font_family, font_size=font_size,
             horizontal_alignment=momapy.core.HAlignment.CENTER,
             vertical_alignment=momapy.core.VAlignment.CENTER
         )
@@ -1045,11 +1045,11 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
         else:
             left_connector += momapy.drawing.line_to(self.west())
             right_connector += momapy.drawing.line_to(self.east())
-        font_size=self.width/2
-        font_description=f"Arial Bold {font_size}"
+        font_size = self.width/2
+        font_family = "Arial"
         text_layout = momapy.core.TextLayoutElement(
             text=self.text, position=self.position, width=self.width,
-            height=self.height, font_description=font_description,
+            height=self.height, font_family=font_family, font_size=font_size,
             horizontal_alignment=momapy.core.HAlignment.CENTER,
             vertical_alignment=momapy.core.VAlignment.CENTER
         )

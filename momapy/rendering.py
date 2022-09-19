@@ -253,8 +253,11 @@ class CairoRenderer(Renderer):
 
     def _render_text(self, text):
         pango_layout = PangoCairo.create_layout(self._context)
-        pango_layout.set_font_description(Pango.FontDescription.from_string(
-            text.font_description))
+        pango_font_description = Pango.FontDescription()
+        pango_font_description.set_family(text.font_family)
+        pango_font_description.set_size(
+            Pango.units_from_double(text.font_size))
+        pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
         pos = pango_layout.index_to_pos(0)
         Pango.extents_to_pixels(pos)
