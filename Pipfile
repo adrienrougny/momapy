@@ -11,6 +11,7 @@ pygobject = "*"
 momapy = {editable = true, path = "."}
 ffmpeg-python = "*"
 numpy = "*"
+pyparsing = "*"
 
 [dev-packages]
 
