@@ -64,20 +64,24 @@ class OrSelector(Selector):
         return any([selector.select(obj, ancestors)
                     for selector in self.selectors])
 
-def apply_style_collection(layout_element, style_collection):
+def apply_style_collection(layout_element, style_collection, strict=True):
     for attribute, value in style_collection.items():
         if hasattr(layout_element, attribute):
             setattr(layout_element, attribute, value)
+        else:
+            if strict:
+                raise AttributeError(f"{type(layout_element)} object has no "
+                                        f"attribute '{attribute}'")
 
-def apply_style_sheet(layout_element, style_sheet, descendants=None):
+def apply_style_sheet(layout_element, style_sheet, strict=True, descendants=None):
     if descendants is None:
         descendants = []
     for selector, style_collection in style_sheet.items():
         if selector.select(layout_element, descendants):
-            apply_style_collection(layout_element, style_collection)
+            apply_style_collection(layout_element, style_collection, strict)
     descendants = descendants + [layout_element]
     for child in layout_element.children():
-        apply_style_sheet(child, style_sheet, descendants)
+        apply_style_sheet(child, style_sheet, strict, descendants)
 
 def read_string(s):
     style_sheet = _css_style_sheet.parse_string(s, parse_all=True)[0]
