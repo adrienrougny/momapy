@@ -87,12 +87,13 @@ def read_file(file):
     style_sheet = _css_style_sheet.parse_file(file, parse_all=True)[0]
     return style_sheet
 
+_css_none_value = pp.Literal("none")
 _css_float_value = pp.Combine(pp.Word(pp.nums) + pp.Literal(".") + pp.Word(pp.nums))
 _css_string_value = pp.quoted_string
 _css_color_name_value = pp.Word(pp.alphas+"_")
 _css_color_value = _css_color_name_value
 _css_int_value = pp.Word(pp.nums)
-_css_attribute_value = _css_float_value | _css_string_value | _css_color_value | _css_int_value
+_css_attribute_value = _css_none_value | _css_float_value | _css_string_value | _css_color_value | _css_int_value
 _css_attribute_name = pp.Word(pp.alphas+"_", pp.alphanums+"_")
 _css_style = _css_attribute_name + pp.Literal(":") + _css_attribute_value + pp.Literal(";")
 _css_style_collection = pp.Literal("{") + pp.Group(_css_style[1, ...]) + pp.Literal("}")
@@ -106,6 +107,10 @@ _css_or_selector = pp.Group(pp.delimited_list(_css_elementary_selector, ","))
 _css_selector = _css_child_selector | _css_descendant_selector | _css_or_selector | _css_elementary_selector
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
+
+@_css_float_value.set_parse_action
+def _resolve_css_none_value(results):
+    return None
 
 @_css_float_value.set_parse_action
 def _resolve_css_float_value(results):
