@@ -60,14 +60,19 @@ def render_maps(
                 new_maps.append(deepcopy(map_))
         maps = new_maps
     if style_sheet is not None:
+        if (not isinstance(style_sheet, Collection)
+                or isinstance(style_sheet, str)):
+            style_sheets = [style_sheet]
+        else:
+            style_sheets = style_sheet
+        style_sheets = [
+            momapy.styling.read_file(style_sheet)
+            if not isinstance(style_sheet, momapy.styling.StyleSheet)
+            else style_sheet for style_sheet in style_sheets
+        ]
+        style_sheet = momapy.styling.join_style_sheets(style_sheets)
         for map_ in maps:
-            if (isinstance(style_sheet, Collection) and
-                    not isinstance(style_sheet, str)):
-                for style_sheet_unit in style_sheet:
-                    momapy.styling.apply_style_sheet(
-                        map_.layout, style_sheet_unit)
-            else:
-                momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+            momapy.styling.apply_style_sheet(map_.layout, style_sheet)
     if to_top_left:
         min_x = position.x - width/2
         min_y = position.y - height/2

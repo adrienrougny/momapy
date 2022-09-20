@@ -420,13 +420,18 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
         _make_and_add_map_elements_from_arc(
             arc, builder, d_model_elements_ids, d_layout_elements_ids)
     if style_sheet is not None:
-        if (isinstance(style_sheet, Collection)
-                and not isinstance(style_sheet, str)):
-            for style_sheet_unit in style_sheet:
-                momapy.styling.apply_style_sheet(
-                    builder.layout, style_sheet_unit)
+        if (not isinstance(style_sheet, Collection)
+                or isinstance(style_sheet, str)):
+            style_sheets = [style_sheet]
         else:
-            momapy.styling.apply_style_sheet(builder.layout, style_sheet)
+            style_sheets = style_sheet
+        style_sheets = [
+            momapy.styling.read_file(style_sheet)
+            if not isinstance(style_sheet, momapy.styling.StyleSheet)
+            else style_sheet for style_sheet in style_sheets
+        ]
+        style_sheet = momapy.styling.join_style_sheets(style_sheets)
+        momapy.styling.apply_style_sheet(builder.layout, style_sheet)
     if tidy:
         momapy.sbgn.utils.tidy(builder)
     if return_builder:

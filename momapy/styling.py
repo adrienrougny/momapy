@@ -3,9 +3,25 @@ import dataclasses
 import typing
 import uuid
 import pyparsing as pp
+import frozendict
+
 
 import momapy.builder
 import momapy.coloring
+
+class StyleCollection(frozendict.frozendict):
+    pass
+
+class StyleSheet(frozendict.frozendict):
+
+    def __or__(self, other):
+        d = dict(self)
+        for key, value in other.items():
+            if key in d:
+                d[key] |= value
+            else:
+                d[key] = value
+        return StyleSheet(d)
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
@@ -64,6 +80,14 @@ class OrSelector(Selector):
         return any([selector.select(obj, ancestors)
                     for selector in self.selectors])
 
+def join_style_sheets(style_sheets):
+    if len(style_sheets) == 0:
+        return None
+    output_style_sheet = style_sheets[0]
+    for style_sheet in style_sheets[1:]:
+        output_style_sheet |= style_sheet
+    return output_style_sheet
+
 def apply_style_collection(layout_element, style_collection, strict=True):
     for attribute, value in style_collection.items():
         if hasattr(layout_element, attribute):
@@ -74,24 +98,28 @@ def apply_style_collection(layout_element, style_collection, strict=True):
                                         f"attribute '{attribute}'")
 
 def apply_style_sheet(
-        layout_element, style_sheet, strict=True, descendants=None):
-    if isinstance(style_sheet, str):
-        style_sheet = read_file(style_sheet)
-    if descendants is None:
-        descendants = []
-    for selector, style_collection in style_sheet.items():
-        if selector.select(layout_element, descendants):
-            apply_style_collection(layout_element, style_collection, strict)
-    descendants = descendants + [layout_element]
-    for child in layout_element.children():
-        apply_style_sheet(child, style_sheet, strict, descendants)
+        layout_element,
+        style_sheet,
+        strict=True,
+        descendants=None
+):
+    if style_sheet is not None:
+        if descendants is None:
+            descendants = []
+        for selector, style_collection in style_sheet.items():
+            if selector.select(layout_element, descendants):
+                apply_style_collection(layout_element, style_collection, strict)
+        descendants = descendants + [layout_element]
+        for child in layout_element.children():
+            apply_style_sheet(child, style_sheet, strict, descendants)
 
 def read_string(s):
     style_sheet = _css_style_sheet.parse_string(s, parse_all=True)[0]
     return style_sheet
 
-def read_file(file):
-    style_sheet = _css_style_sheet.parse_file(file, parse_all=True)[0]
+def read_file(file_or_file_name):
+    style_sheet = _css_style_sheet.parse_file(
+        file_or_file_name, parse_all=True)[0]
     return style_sheet
 
 _css_none_value = pp.Literal("none")
@@ -110,7 +138,7 @@ _css_type_selector = pp.Word(pp.alphas+"_", pp.alphanums+"_")
 _css_elementary_selector = _css_type_selector | _css_id_selector
 _css_child_selector = _css_elementary_selector + pp.Literal(">") + _css_elementary_selector
 _css_descendant_selector = _css_elementary_selector + pp.OneOrMore(pp.White()) + _css_elementary_selector
-_css_or_selector = pp.Group(pp.delimited_list(_css_elementary_selector, ","))
+_css_or_selector = pp.Group(pp.delimited_list(_css_elementary_selector, ",", min=2))
 _css_selector = _css_child_selector | _css_descendant_selector | _css_or_selector | _css_elementary_selector
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
@@ -151,7 +179,7 @@ def _resolve_css_style(results):
 
 @_css_style_collection.set_parse_action
 def _resolve_css_style_collection(results):
-    return dict(list(results[1]))
+    return StyleCollection(list(results[1]))
 
 @_css_id.set_parse_action
 def _resolve_css_id(results):
@@ -187,4 +215,4 @@ def _resolve_css_rule(results):
 
 @_css_style_sheet.set_parse_action
 def _resolve_css_style_sheet(results):
-    return dict(list(results[0]))
+    return StyleSheet(list(results[0]))
