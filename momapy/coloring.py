@@ -209,3 +209,7 @@ class colors(object):
     gainsboro = rgb(220,220,220)
     white_smoke = rgb(245,245,245)
     white = rgb(255,255,255)
+
+    @classmethod
+    def has_color(cls, color: str) -> bool:
+        return hasattr(cls, color)
