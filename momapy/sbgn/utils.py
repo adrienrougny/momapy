@@ -112,6 +112,29 @@ def set_arcs_to_borders(map_builder):
                             point = main.border(reference_point)
                         layout_element.points[index] = point
 
+def set_auxilliary_units_to_borders(map_builder):
+
+    def _rec_set_auxilliary_units_to_borders(layout_element):
+        for child in layout_element.children():
+            if (isinstance(
+                    child,
+                    (
+                        momapy.builder.get_or_make_builder_cls(
+                            momapy.sbgn.pd.StateVariableLayout),
+                        momapy.builder.get_or_make_builder_cls(
+                            momapy.sbgn.pd.UnitOfInformationLayout)
+                    )
+                ) and isinstance(
+                    layout_element, momapy.builder.NodeLayoutElementBuilder)
+            ):
+                position = layout_element.self_border(child.position)
+                child.position = position
+                if child.label is not None:
+                    child.label.position = position
+            _rec_set_auxilliary_units_to_borders(child)
+
+    _rec_set_auxilliary_units_to_borders(map_builder.layout)
+
 def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
     momapy.positioning.set_fit(
         map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
@@ -124,8 +147,9 @@ def tidy(
         compartments_ysep=15,
         layout_xsep=15,
         layout_ysep=15
-    ):
+):
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
+    set_auxilliary_units_to_borders(map_builder)
     set_compartments_to_fit_content(
         map_builder, compartments_xsep, compartments_ysep)
     set_arcs_to_borders(map_builder)
