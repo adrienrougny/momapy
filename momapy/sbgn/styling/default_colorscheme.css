@@ -1,0 +1,152 @@
+Layout {
+    fill: white;
+}
+
+CompartmentLayout {
+    stroke: black;
+    fill: blanchedalmond;
+}
+
+GenericProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+UncertainProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+OmittedProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+AssociationLayout {
+    stroke: black;
+    fill: white;
+}
+
+DissociationLayout {
+    stroke: black;
+    fill: white;
+}
+
+PhenotypeLayout {
+    stroke: black;
+    fill: mediumpurple;
+}
+
+AndOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+OrOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+NotOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+EquivalenceOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnspecifiedEntityLayout {
+    stroke: black;
+    fill: moccasin;
+}
+
+MacromoleculeLayout {
+    stroke: black;
+    fill: lightblue;
+}
+
+MacromoleculeMultimerLayout {
+    stroke: black;
+    fill: lightblue;
+}
+
+ComplexLayout {
+    stroke: black;
+    fill: yellow;
+}
+
+ComplexMultimerLayout {
+    stroke: black;
+    fill: yellow;
+}
+
+SimpleChemicalLayout {
+    stroke: black;
+    fill: orange;
+}
+
+SimpleChemicalMultimerLayout {
+    stroke: black;
+    fill: orange;
+}
+
+NucleicAcidFeatureLayout {
+    stroke: black;
+    fill: palegreen;
+}
+
+NucleicAcidFeatureMultimerLayout {
+    stroke: black;
+    fill: palegreen;
+}
+
+EmptySetLayout {
+    stroke: black;
+    fill: white;
+}
+
+StateVariableLayout {
+    stroke: black;
+    fill: pink;
+}
+
+UnitOfInformationLayout {
+    stroke: black;
+    fill: pink;
+}
+
+ConsumptionLayout {
+    stroke: black;
+}
+
+ProductionLayout {
+    stroke: black;
+    fill: black;
+}
+
+ModulationLayout {
+    stroke: black;
+    fill: white;
+}
+
+StimulationLayout {
+    stroke: black;
+    fill: white;
+}
+
+CatalysisLayout {
+    stroke: black;
+    fill: white;
+}
+
+NecessaryStimulationLayout {
+    stroke: black;
+    fill: white;
+}
+
+InhibitionLayout {
+    stroke: black;
+    fill: white;
+}
