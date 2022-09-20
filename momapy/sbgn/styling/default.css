@@ -12,6 +12,8 @@ CompartmentLayout {
     stroke_width: 7.0;
     fill: blanchedalmond;
     rounded_corners: 10.0;
+    width: 70.0;
+    height: 70.0;
 }
 
 GenericProcessLayout {
@@ -96,6 +98,8 @@ UnspecifiedEntityLayout {
     stroke: black;
     stroke_width: 1.0;
     fill: moccasin;
+    width: 70.0;
+    height: 35.0;
 }
 
 MacromoleculeLayout {
