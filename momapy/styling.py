@@ -108,7 +108,7 @@ _css_selector = _css_child_selector | _css_descendant_selector | _css_or_selecto
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
 
-@_css_float_value.set_parse_action
+@_css_none_value.set_parse_action
 def _resolve_css_none_value(results):
     return None
 
@@ -126,6 +126,8 @@ def _resolve_css_int_value(results):
 
 @_css_color_name_value.set_parse_action
 def _resolve_css_color_name_value(results):
+    if not momapy.coloring.colors.has_color(results[0]):
+        raise ValueError(f"{results[0]} is not a valid color name")
     return getattr(momapy.coloring.colors, results[0])
 
 @_css_attribute_value.set_parse_action
