@@ -73,7 +73,10 @@ def apply_style_collection(layout_element, style_collection, strict=True):
                 raise AttributeError(f"{type(layout_element)} object has no "
                                         f"attribute '{attribute}'")
 
-def apply_style_sheet(layout_element, style_sheet, strict=True, descendants=None):
+def apply_style_sheet(
+        layout_element, style_sheet, strict=True, descendants=None):
+    if isinstance(style_sheet, str):
+        style_sheet = read_file(style_sheet)
     if descendants is None:
         descendants = []
     for selector, style_collection in style_sheet.items():

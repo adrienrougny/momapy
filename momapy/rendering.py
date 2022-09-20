@@ -1,7 +1,7 @@
 from dataclasses import dataclass, InitVar
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, Collection
 import cairo
 import gi
 gi.require_version('Gtk', '3.0')
@@ -61,7 +61,13 @@ def render_maps(
         maps = new_maps
     if style_sheet is not None:
         for map_ in maps:
-            momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+            if (isinstance(style_sheet, Collection) and
+                    not isinstance(style_sheet, str)):
+                for style_sheet_unit in style_sheet:
+                    momapy.styling.apply_style_sheet(
+                        map_.layout, style_sheet_unit)
+            else:
+                momapy.styling.apply_style_sheet(map_.layout, style_sheet)
     if to_top_left:
         min_x = position.x - width/2
         min_y = position.y - height/2
