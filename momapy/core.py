@@ -305,10 +305,10 @@ class NodeLayoutElement(GroupLayoutElement):
     def label_center(self) -> momapy.geometry.Point:
         pass
 
-    def border(self, point) -> momapy.geometry.Point:
+    def _border_from_drawing_elements(self, drawing_elements, point):
         line = momapy.geometry.Line(self.center(), point)
         objects = []
-        for drawing_element in self.drawing_elements():
+        for drawing_element in drawing_elements:
             objects += drawing_element.to_geometry()
         intersection = []
         for obj in objects:
@@ -334,6 +334,22 @@ class NodeLayoutElement(GroupLayoutElement):
                     max_d = d3
                     intersection_point = candidate_point
         return intersection_point
+
+
+    def border(self, point) -> momapy.geometry.Point:
+        return self._border_from_drawing_elements(
+            self.drawing_elements(), point)
+
+    def self_border(self, point) -> momapy.geometry.Point:
+        return self._border_from_drawing_elements(
+            self.self_drawing_elements(), point)
+
+    def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+        if unit == "degrees":
+            angle = math.radians(angle)
+        d = 100
+        point = self.center() + (d*math.cos(angle), d*math.sin(angle))
+        return self.self_border(point)
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
         if unit == "degrees":
