@@ -1,11 +1,15 @@
+from typing import Collection
+
 import momapy.core
 import momapy.builder
 import momapy.shapes
 import momapy.arcs
 import momapy.coloring
+import momapy.styling
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
+import momapy.sbgn.utils
 
 
 import libsbgnpy.libsbgn as libsbgn
@@ -79,223 +83,223 @@ LibSBGNGlyphMapping = {
     "state variable": {
         "model_class": momapy.sbgn.pd.StateVariable,
         "layout_class": momapy.sbgn.pd.StateVariableLayout,
-        "font_description": "Arial 8",
+        "font_family": "Arial", "font_size": 8,
         "has_connectors": False
     },
     "unit of information": {
         "model_class": momapy.sbgn.pd.UnitOfInformation,
         "layout_class": momapy.sbgn.pd.UnitOfInformationLayout,
-        "font_description": "Arial 8",
+        "font_family": "Arial", "font_size": 8,
         "has_connectors": False
     },
     "unspecified entity subunit": {
         "model_class": momapy.sbgn.pd.UnspecifiedEntitySubunit,
         "layout_class": momapy.sbgn.pd.UnspecifiedEntityLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "macromolecule subunit": {
         "model_class": momapy.sbgn.pd.MacromoleculeSubunit,
         "layout_class": momapy.sbgn.pd.MacromoleculeLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "nucleic acid feature subunit": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureSubunit,
         "layout_class": momapy.sbgn.pd.NucleicAcidFeatureLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "simple chemical subunit": {
         "model_class": momapy.sbgn.pd.SimpleChemicalSubunit,
         "layout_class": momapy.sbgn.pd.SimpleChemicalLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "complex subunit": {
         "model_class": momapy.sbgn.pd.ComplexSubunit,
         "layout_class": momapy.sbgn.pd.ComplexLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "macromolecule multimer subunit": {
         "model_class": momapy.sbgn.pd.MacromoleculeMultimerSubunit,
         "layout_class": momapy.sbgn.pd.MacromoleculeMultimerLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "nucleic acid feature multimer subunit": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "simple chemical multimer subunit": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.SimpleChemicalMultimerLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "complex multimer subunit": {
         "model_class": momapy.sbgn.pd.ComplexMultimerSubunit,
         "layout_class": momapy.sbgn.pd.ComplexMultimerLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "compartment": {
         "model_class": momapy.sbgn.pd.Compartment,
         "layout_class": momapy.sbgn.pd.CompartmentLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "empty set": {
         "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.EmptySetLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "source and sink": {
         "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.EmptySetLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "perturbing agent": {
         "model_class": momapy.sbgn.pd.PerturbingAgent,
         "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "unspecified entity": {
         "model_class": momapy.sbgn.pd.UnspecifiedEntity,
         "layout_class": momapy.sbgn.pd.UnspecifiedEntityLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "macromolecule": {
         "model_class": momapy.sbgn.pd.Macromolecule,
         "layout_class": momapy.sbgn.pd.MacromoleculeLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "nucleic acid feature": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeature,
         "layout_class": momapy.sbgn.pd.NucleicAcidFeatureLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "simple chemical": {
         "model_class": momapy.sbgn.pd.SimpleChemical,
         "layout_class": momapy.sbgn.pd.SimpleChemicalLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "complex": {
         "model_class": momapy.sbgn.pd.Complex,
         "layout_class": momapy.sbgn.pd.ComplexLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "macromolecule multimer": {
         "model_class": momapy.sbgn.pd.MacromoleculeMultimer,
         "layout_class": momapy.sbgn.pd.MacromoleculeMultimerLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "nucleic acid feature multimer": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimer,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "simple chemical multimer": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimer,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.SimpleChemicalMultimerLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "complex multimer": {
         "model_class": momapy.sbgn.pd.ComplexMultimer,
         "layout_class": momapy.sbgn.pd.ComplexMultimerLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "process": {
         "model_class": momapy.sbgn.pd.GenericProcess,
         "layout_class": momapy.sbgn.pd.GenericProcessLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "uncertain process": {
         "model_class": momapy.sbgn.pd.UncertainProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.UncertainProcessLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "association": {
         "model_class": momapy.sbgn.pd.Association,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.AssociationLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "dissociation": {
         "model_class": momapy.sbgn.pd.Dissociation,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.DissociationLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "omitted process": {
         "model_class": momapy.sbgn.pd.OmittedProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.OmittedProcessLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "phenotype": {
         "model_class": momapy.sbgn.pd.Phenotype,
         "layout_class": momapy.sbgn.pd.PhenotypeLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "or": {
         "model_class": momapy.sbgn.pd.OrOperator,
         "layout_class": momapy.sbgn.pd.OrOperatorLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "and": {
         "model_class": momapy.sbgn.pd.AndOperator,
         "layout_class": momapy.sbgn.pd.AndOperatorLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "not": {
         "model_class": momapy.sbgn.pd.NotOperator,
         "layout_class": momapy.sbgn.pd.NotOperatorLayout,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "equivalence": {
         "model_class": momapy.sbgn.pd.EquivalenceOperator,
         "layout_class": momapy.sbgn.pd.EquivalenceOperator,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": True
     },
     "terminal": {
         "model_class": momapy.sbgn.pd.Terminal,
         "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "tag": {
         "model_class": momapy.sbgn.pd.Tag,
         "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
     "submap": {
         "model_class": momapy.sbgn.pd.Submap,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
+        "layout_class": momapy.sbgn.pd.SubmapLayout,
+        "font_family": "Arial", "font_size": 20,
         "has_connectors": False
     },
 }
@@ -379,7 +383,7 @@ LibSBGNArcMapping = {
     },
 }
 
-def read_file(file_name, return_builder=False):
+def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     libsbgn_sbgn = libsbgn.parse(file_name, silence=True)
     libsbgn_map = libsbgn_sbgn.get_map()
     language = libsbgn_map.get_language()
@@ -392,8 +396,11 @@ def read_file(file_name, return_builder=False):
     builder.model_layout_mapping = model_layout_mapping
     d_model_elements_ids = {}
     d_layout_elements_ids = {}
-    builder.layout.width, builder.layout.height = _get_libsbgn_map_dimensions(
-        libsbgn_map)
+    libsbgn_map_dimensions = _get_libsbgn_map_dimensions(libsbgn_map)
+    builder.layout.width = libsbgn_map_dimensions[0]
+    builder.layout.height = libsbgn_map_dimensions[1]
+    builder.layout.position = momapy.builder.PointBuilder(
+        libsbgn_map_dimensions[0]/2, libsbgn_map_dimensions[1]/2)
     libsbgn_compartments = []
     libsbgn_other_glyphs = []
     for glyph in libsbgn_map.get_glyph():
@@ -412,6 +419,21 @@ def read_file(file_name, return_builder=False):
     for arc in libsbgn_map.get_arc():
         _make_and_add_map_elements_from_arc(
             arc, builder, d_model_elements_ids, d_layout_elements_ids)
+    if style_sheet is not None:
+        if (not isinstance(style_sheet, Collection)
+                or isinstance(style_sheet, str)):
+            style_sheets = [style_sheet]
+        else:
+            style_sheets = style_sheet
+        style_sheets = [
+            momapy.styling.read_file(style_sheet)
+            if not isinstance(style_sheet, momapy.styling.StyleSheet)
+            else style_sheet for style_sheet in style_sheets
+        ]
+        style_sheet = momapy.styling.join_style_sheets(style_sheets)
+        momapy.styling.apply_style_sheet(builder.layout, style_sheet)
+    if tidy:
+        momapy.sbgn.utils.tidy(builder)
     if return_builder:
         return builder
     return builder.build()
@@ -514,11 +536,9 @@ def _make_and_add_map_elements_from_arc(
             attribute.add(model_element)
         else:
             setattr(super_model_element, role["attribute"], model_element)
-        super_layout_element = d_layout_elements_ids[super_element_id]
-        super_layout_element.add_element(layout_element)
     else:
         builder.add_model_element(model_element)
-        builder.add_layout_element(layout_element)
+    builder.add_layout_element(layout_element)
     builder.add_layout_element_to_model_element(layout_element, model_element)
     d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
@@ -601,6 +621,7 @@ def _make_layout_element_from_glyph(
     layout_element.position = _get_position_from_libsbgn_bbox(glyph.get_bbox())
     libsbgn_state = glyph.get_state()
     libsbgn_label = glyph.get_label()
+    label_position = layout_element.label_center()
     libsbgn_label_bbox = glyph.get_bbox()
     if (libsbgn_label is not None and libsbgn_label.get_text() is not None
             or libsbgn_state is not None):
@@ -616,15 +637,20 @@ def _make_layout_element_from_glyph(
             text = libsbgn_label.get_text()
             if libsbgn_label.get_bbox() is not None:
                 libsbgn_label_bbox = libsbgn_label.get_bbox()
+                label_position = _get_position_from_libsbgn_bbox(
+                    libsbgn_label_bbox)
         label_element = builder.new_layout_element(
-            momapy.core.NodeLayoutElementLabel)
+            momapy.core.TextLayoutElement)
         label_element.text = text
-        label_element.position = _get_position_from_libsbgn_bbox(
-            libsbgn_label_bbox)
+        label_element.position = label_position
         label_element.width = libsbgn_label_bbox.get_w()
         label_element.height = libsbgn_label_bbox.get_h()
-        label_element.font_description = LibSBGNGlyphMapping[glyph_key][
-            "font_description"]
+        label_element.font_family = LibSBGNGlyphMapping[glyph_key][
+            "font_family"]
+        label_element.font_size = LibSBGNGlyphMapping[glyph_key][
+            "font_size"]
+        label_element.horizontal_alignment = momapy.core.HAlignment.CENTER
+        label_element.vertical_alignment = momapy.core.VAlignment.CENTER
         layout_element.label = label_element
     if LibSBGNGlyphMapping[glyph_key]["has_connectors"]:
         for libsbgn_port in glyph.get_port():
@@ -689,19 +715,10 @@ def _make_layout_element_from_arc(
     layout_element = builder.new_layout_element(layout_element_class)
     layout_element.id = arc.get_id()
     role = LibSBGNArcMapping[arc_key].get("role")
-    if role is not None:
-        source_or_target = role["source_or_target"]
-        if source_or_target == "source":
-            layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_source()])
-        else:
-            layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_target()])
-    else:
-        layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_source()])
-        layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_target()])
+    layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
+        layout_element=d_layout_elements_ids[arc.get_source()])
+    layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
+        layout_element=d_layout_elements_ids[arc.get_target()])
     for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
         layout_element.points.append(
             momapy.builder.PointBuilder(

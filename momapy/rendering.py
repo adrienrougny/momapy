@@ -1,6 +1,7 @@
 from dataclasses import dataclass, InitVar
+from copy import deepcopy
 from abc import ABC, abstractmethod
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, Collection
 import cairo
 import gi
 gi.require_version('Gtk', '3.0')
@@ -10,40 +11,83 @@ from gi.repository import PangoCairo, Pango, Gtk
 import math
 
 import momapy.drawing
+import momapy.styling
+import momapy.positioning
 
-def _make_renderer_for_render_function(output_file, width, height, format_, renderer):
-    if renderer == "cairo":
-        if format_ == "pdf" or format_ == "svg":
-            if format_ == "pdf":
-                surface_cls = cairo.PDFSurface
-            elif format_ == "svg":
-                surface_cls = cairo.SVGSurface
-            surface = surface_cls(output_file, width, height)
-        elif format_ == "png":
-            surface_cls = cairo.ImageSurface
-            surface = surface_cls(cairo.FORMAT_RGB30, int(width), int(height))
-        else:
-            raise ValueError(f"unsupported format for the {renderer} renderer")
-        renderer = CairoRenderer(surface=surface, width=width, height=height)
+renderers = {}
+
+def register_renderer(name, renderer_cls):
+    renderers[name] = renderer_cls
+
+def _make_renderer_for_render_function(
+        output_file, width, height, format_, renderer):
+    renderer_cls = renderers.get(renderer)
+    if renderer_cls is not None:
+        renderer_obj = renderer_cls.factory(
+            output_file, width, height, format_)
     else:
         raise ValueError(f"no renderer named {renderer}")
-    return renderer
+    return renderer_obj
 
-def render_layout(layout, output_file, format_="pdf", renderer="cairo"):
-    renderer = _make_renderer_for_render_function(output_file, layout.width, layout.height, format_, renderer)
-    renderer.render_layout_element(layout)
-    if format_ == "png":
-        renderer._context.get_target().write_to_png(output_file)
+def render_map(
+        map_,
+        output_file,
+        format_="pdf",
+        renderer="cairo",
+        style_sheet=None,
+        to_top_left=False):
+    maps = [map_]
+    render_maps(maps, output_file, format_, renderer, style_sheet, to_top_left)
 
-def render_map(map_, output_file, format_="pdf", renderer="cairo"):
-    render_layout(map_.layout, output_file, format_, renderer)
+def render_maps(
+        maps,
+        output_file,
+        format_="pdf",
+        renderer="cairo",
+        style_sheet=None,
+        to_top_left=False
+    ):
+    bboxes = [map_.layout.self_bbox() for map_ in maps]
+    position, width, height = momapy.positioning.fit(bboxes)
+    max_x = position.x + width/2
+    max_y = position.y + height/2
+    if style_sheet is not None or to_top_left:
+        new_maps = []
+        for map_ in maps:
+            if isinstance(map_, momapy.core.Map):
+                new_maps.append(momapy.builder.builder_from_object(map_))
+            elif isinstance(map_, momapy.builder.MapBuilder):
+                new_maps.append(deepcopy(map_))
+        maps = new_maps
+    if style_sheet is not None:
+        if (not isinstance(style_sheet, Collection)
+                or isinstance(style_sheet, str)):
+            style_sheets = [style_sheet]
+        else:
+            style_sheets = style_sheet
+        style_sheets = [
+            momapy.styling.read_file(style_sheet)
+            if not isinstance(style_sheet, momapy.styling.StyleSheet)
+            else style_sheet for style_sheet in style_sheets
+        ]
+        style_sheet = momapy.styling.join_style_sheets(style_sheets)
+        for map_ in maps:
+            momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+    if to_top_left:
+        min_x = position.x - width/2
+        min_y = position.y - height/2
+        max_x -= min_x
+        max_y -= min_y
+        translation = momapy.geometry.Translation(-min_x, -min_y)
+        for map_ in maps:
+            if map_.layout.transform is None:
+                map_.layout.transform = momapy.builder.TupleBuilder()
+            map_.layout.transform.append(translation)
+    renderer_obj = _make_renderer_for_render_function(
+        output_file, max_x, max_y, format_, renderer)
+    for map_ in maps:
+        renderer_obj.render_map(map_)
 
-def render_drawing_elements(drawing_elements, output_file, width, height, format_="pdf", renderer="cairo"):
-    renderer = _make_renderer_for_render_function(output_file, width, height, format_, renderer)
-    for drawing_element in drawing_elements:
-        renderer.render_drawing_element(drawing_element)
-    if format_ == "png":
-        renderer._context.get_target().write_to_png(output_file)
 
 @dataclass
 class Renderer(ABC):
@@ -53,6 +97,18 @@ class Renderer(ABC):
     def render_map(self, map_):
         pass
 
+    @abstractmethod
+    def render_layout_element(self, layout_element):
+        pass
+
+    @abstractmethod
+    def render_drawing_element(self, drawing_element):
+        pass
+
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        pass
+
 @dataclass
 class CairoRenderer(Renderer):
     surface: InitVar[Optional[cairo.Surface]] = None
@@ -60,6 +116,19 @@ class CairoRenderer(Renderer):
     authorize_no_context: InitVar[bool] = False
     width: Optional[float] = None
     height: Optional[float] = None
+
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        surface = cls._make_surface(output_file, width, height, format_)
+        renderer_obj = cls(surface=surface)
+        return renderer_obj
+
+    @classmethod
+    def _make_surface(cls, output_file, width, height, format_):
+        if format_ == "pdf":
+            return cairo.PDFSurface(output_file, width, height)
+        elif format_ == "svg":
+            return cairo.SVGSurface(output_file, width, height)
 
     def __post_init__(self, surface, context, authorize_no_context):
         if context is not None:
@@ -109,7 +178,8 @@ class CairoRenderer(Renderer):
         self._set_state_from_drawing_element(drawing_element)
         self._set_transform_from_drawing_element(drawing_element)
         self._set_new_path() # context.restore() does not forget the current path
-        render_function = self._get_drawing_element_render_function(drawing_element)
+        render_function = self._get_drawing_element_render_function(
+            drawing_element)
         render_function(drawing_element)
         self._restore()
 
@@ -140,14 +210,20 @@ class CairoRenderer(Renderer):
         self._context.new_path()
 
     def _render_transformation(self, transformation):
-        render_transformation_function = self._get_transformation_render_function(transformation)
+        render_transformation_function = \
+                self._get_transformation_render_function(transformation)
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
-        if isinstance(transformation, momapy.drawing.Translation):
+        if isinstance(transformation, momapy.geometry.Translation):
             return self._render_translation
-        elif isinstance(transformation, momapy.drawing.Rotation):
+        elif isinstance(transformation, momapy.geometry.Rotation):
             return self._render_rotation
+        elif isinstance(transformation, momapy.geometry.Scaling):
+            return self._render_scaling
+        elif isinstance(transformation, momapy.geometry.MatrixTransformation):
+            return self._render_matrix_transformation
+
 
     def _get_drawing_element_render_function(self, drawing_element):
         if isinstance(drawing_element, momapy.drawing.Group):
@@ -164,14 +240,16 @@ class CairoRenderer(Renderer):
 
     def _stroke_and_fill(self):
         if self._fill is not None:
-            self._context.set_source_rgba(*self._fill.to_rgba(rgba_range=(0, 1)))
+            self._context.set_source_rgba(
+                *self._fill.to_rgba(rgba_range=(0, 1)))
             if self._stroke is not None:
                 self._context.fill_preserve()
             else:
                 self._context.fill()
         if self._stroke is not None:
             self._context.set_line_width(self._stroke_width)
-            self._context.set_source_rgba(*self._stroke.to_rgba(rgba_range=(0, 1)))
+            self._context.set_source_rgba(
+                *self._stroke.to_rgba(rgba_range=(0, 1)))
             self._context.stroke()
 
 
@@ -185,20 +263,24 @@ class CairoRenderer(Renderer):
         self._stroke_and_fill()
 
     def _render_text(self, text):
-        p_layout = PangoCairo.create_layout(self._context)
-        p_layout.set_height(text.width)
-        p_layout.set_width(text.height)
-        p_layout.set_alignment(Pango.Alignment.CENTER)
-        p_layout.set_font_description(Pango.FontDescription.from_string(text.font_description))
-        p_layout.set_text(text.text)
-        pixel_extents = p_layout.get_pixel_extents()[1]
-        l_x = pixel_extents.x
-        l_y = pixel_extents.y
-        l_width = pixel_extents.width
-        l_height = pixel_extents.height
-        self._context.translate(text.x - l_width / 2 - l_x, text.y - l_height / 2)
-        self._context.set_source_rgba(*text.font_color.to_rgba(rgba_range=(0, 1)))
-        PangoCairo.show_layout(self._context, p_layout)
+        pango_layout = PangoCairo.create_layout(self._context)
+        pango_font_description = Pango.FontDescription()
+        pango_font_description.set_family(text.font_family)
+        pango_font_description.set_size(
+            Pango.units_from_double(text.font_size))
+        pango_layout.set_font_description(pango_font_description)
+        pango_layout.set_text(text.text)
+        pos = pango_layout.index_to_pos(0)
+        Pango.extents_to_pixels(pos)
+        x = pos.x
+        pango_layout_iter = pango_layout.get_iter()
+        y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
+        tx = text.x - x
+        ty = text.y - y
+        self._context.translate(tx, ty)
+        self._context.set_source_rgba(
+            *text.font_color.to_rgba(rgba_range=(0, 1)))
+        PangoCairo.show_layout(self._context, pango_layout)
 
     def _render_ellipse(self, ellipse):
         self._context.save()
@@ -211,38 +293,8 @@ class CairoRenderer(Renderer):
 
 
     def _render_rectangle(self, rectangle):
-        path = momapy.drawing.Path(
-            stroke_width=rectangle.stroke_width,
-            stroke=rectangle.stroke,
-            fill=rectangle.fill,
-            transform=rectangle.transform)
-        x = rectangle.point.x
-        y = rectangle.point.y
-        rx = rectangle.rx
-        ry = rectangle.ry
-        width = rectangle.width
-        height = rectangle.height
-        path += momapy.drawing.move_to(momapy.geometry.Point(x + rx, y))
-        path += momapy.drawing.line_to(momapy.geometry.Point(x + width - rx, y))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(
-            x + width, y + height - ry))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + width - rx, y + height), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(x + rx, y + height))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 1, 1)
-        path += momapy.drawing.line_to(momapy.geometry.Point(x, y + ry))
-        if rx > 0 and ry > 0:
-            path += momapy.drawing.elliptical_arc(
-                momapy.geometry.Point(x + rx, y), rx, ry, 0, 1, 1)
-        path += momapy.drawing.close()
+        path = rectangle.to_path()
         self._render_path(path)
-
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
@@ -279,57 +331,24 @@ class CairoRenderer(Renderer):
         )
 
     def _render_elliptical_arc(self, elliptical_arc):
-        x1, y1 = self._context.get_current_point()
-        sigma = elliptical_arc.x_axis_rotation
-        p = elliptical_arc.point
-        x2 = p.x
-        y2 = p.y
-        rx = elliptical_arc.rx
-        ry = elliptical_arc.ry
-        fa = elliptical_arc.arc_flag
-        fs = elliptical_arc.sweep_flag
-        x1p = math.cos(sigma) * ((x1 - x2) / 2) + \
-                math.sin(sigma) * ((y1 - y2) / 2)
-        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + \
-                math.cos(sigma) * ((y1 - y2) / 2)
-        a = math.sqrt((rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2) / \
-                      (rx**2 * y1p**2 + ry**2 * x1p**2))
-        if fa != fs:
-            a = -a
-        cxp = a * rx * y1p / ry
-        cyp = -a * ry * x1p / rx
-        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
-        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
-        theta1 = momapy.geometry.get_angle_between_segments(
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point(1, 0)
+        obj = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(
+                self._context.get_current_point()[0],
+                self._context.get_current_point()[1]
             ),
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
-            )
+            elliptical_arc.point,
+            elliptical_arc.rx,
+            elliptical_arc.ry,
+            elliptical_arc.x_axis_rotation,
+            elliptical_arc.arc_flag,
+            elliptical_arc.sweep_flag
         )
-        delta_theta = momapy.geometry.get_angle_between_segments(
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((x1p - cxp) / rx, (y1p - cyp) / ry)
-            ),
-            momapy.geometry.Segment(
-                momapy.geometry.Point(0, 0),
-                momapy.geometry.Point((-x1p - cxp) / rx, (-y1p - cyp) / ry)
-            )
-        )
-        if fs == 0 and delta_theta > 0:
-            delta_theta -= 2 * math.pi
-        elif fs == 1 and delta_theta < 0:
-            delta_theta += 2 * math.pi
-        theta2 = theta1 + delta_theta
+        arc, transformation = obj.to_arc_and_transformation()
+        arc = momapy.drawing.Arc(
+            arc.point, arc.radius, arc.start_angle, arc.end_angle)
         self._context.save()
-        self._context.translate(cx, cy)
-        self._context.rotate(sigma)
-        self._context.scale(rx, ry)
-        self._context.arc(0, 0, 1, theta1, theta2)
+        self._render_transformation(transformation)
+        self._render_path_action(arc)
         self._context.restore()
 
     def _render_translation(self, translation):
@@ -344,17 +363,42 @@ class CairoRenderer(Renderer):
         else:
             self._context.rotate(rotation.angle)
 
+    def _render_scaling(self, scaling):
+        self._context.scale(scaling.sx, scaling.sy)
+
+    def _render_matrix_transformation(self, matrix_transformation):
+        m = cairo.Matrix(
+            xx=matrix_transformation.m[0][0],
+            yx=matrix_transformation.m[1][0],
+            xy=matrix_transformation.m[0][1],
+            yy=matrix_transformation.m[1][1],
+            x0=matrix_transformation.m[0][2],
+            y0=matrix_transformation.m[1][2]
+        )
+        self._context.transform(m)
+
+
 @dataclass
-class GTKRenderer(Renderer):
+class GTKCairoRenderer(Renderer):
     drawing_area: Gtk.DrawingArea
     width: float
     height: float
 
     def __post_init__(self):
-        self.cairo_renderer = CairoRenderer(surface=None, context=None, authorize_no_context=True, width=self.width, height=self.height)
+        self.cairo_renderer = CairoRenderer(
+            surface=None,
+            context=None,
+            authorize_no_context=True,
+            width=self.width,
+            height=self.height
+        )
 
     def set_context(self, context):
         self.cairo_renderer._context = context
 
     def render_map(self, map_):
         self.cairo_renderer.render_map(map_)
+
+
+register_renderer("cairo", CairoRenderer)
+register_renderer("gtk-cairo", GTKCairoRenderer)
