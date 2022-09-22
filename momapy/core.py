@@ -93,7 +93,7 @@ class TextLayoutElement(LayoutElement):
             getattr(Pango.Alignment, self.horizontal_alignment.name))
         pango_font_description = Pango.FontDescription()
         pango_font_description.set_family(self.font_family)
-        pango_font_description.set_size(
+        pango_font_description.set_absolute_size(
             Pango.units_from_double(self.font_size))
         pango_layout.set_font_description(pango_font_description)
         if self.width is not None:
