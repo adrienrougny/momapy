@@ -266,7 +266,7 @@ class CairoRenderer(Renderer):
         pango_layout = PangoCairo.create_layout(self._context)
         pango_font_description = Pango.FontDescription()
         pango_font_description.set_family(text.font_family)
-        pango_font_description.set_size(
+        pango_font_description.set_absolute_size(
             Pango.units_from_double(text.font_size))
         pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
