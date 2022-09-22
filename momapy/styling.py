@@ -145,7 +145,7 @@ _css_style_sheet = pp.Group(_css_rule[1, ...])
 
 @_css_none_value.set_parse_action
 def _resolve_css_none_value(results):
-    return None
+    return momapy.drawing.NoneValue
 
 @_css_float_value.set_parse_action
 def _resolve_css_float_value(results):
