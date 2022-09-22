@@ -3,6 +3,10 @@ TextLayoutElement {
     font_size: 16.0;
 }
 
+Layout {
+    fill: none;
+}
+
 CompartmentLayout {
     stroke: black;
     stroke_width: 7.0;
