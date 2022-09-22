@@ -402,3 +402,229 @@ class GTKCairoRenderer(Renderer):
 
 register_renderer("cairo", CairoRenderer)
 register_renderer("gtk-cairo", GTKCairoRenderer)
+
+@dataclass
+class NativeSVGRenderer(Renderer):
+    width: float
+    height: float
+
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        renderer_obj = cls(width=width, height=height)
+        return renderer_obj
+
+    @classmethod
+    def _render_svg_element(
+            name,
+            svg_attributes=None,
+            value=None,
+            svg_subelements=None,
+            indent=0
+    ):
+        s = f"{'\t'*indent}<{name}"
+        if svg_attributes is not None and svg_attributes:
+            s_element += f" {' '.join(svg_attributes)}"
+        s += ">\n"
+        if value is not None:
+            s += f"{value}\n"
+        if svg_subelements is not None and svg_subelements:
+            for svg_subelement in svg_subelements:
+                s += f"{svg_subelement}\n"
+        s += f"{'\t'*indent}</{name}>"
+        return s
+
+    @classmethod
+    def _quote_string(s, quote='"'):
+        return f"{quote}{s}{quote}"
+
+    @classmethod
+    def _render_svg_attribute(
+            name,
+            value
+    ):
+        return f"{name}={self._quote_string(value)}"
+
+    def _get_transformation_render_function(self, transformation):
+        if isinstance(transformation, momapy.geometry.Translation):
+            return self._render_translation
+        elif isinstance(transformation, momapy.geometry.Rotation):
+            return self._render_rotation
+        elif isinstance(transformation, momapy.geometry.Scaling):
+            return self._render_scaling
+        elif isinstance(transformation, momapy.geometry.MatrixTransformation):
+            return self._render_matrix_transformation
+
+    def _get_path_action_render_function(self, path_action):
+        if isinstance(path_action, momapy.drawing.MoveTo):
+            return self._render_move_to
+        elif isinstance(path_action, momapy.drawing.LineTo):
+            return self._render_line_to
+        elif isinstance(path_action, momapy.drawing.Close):
+            return self._render_close
+        elif isinstance(path_action, momapy.drawing.Arc):
+            return self._render_arc
+        elif isinstance(path_action, momapy.drawing.EllipticalArc):
+            return self._render_elliptical_arc
+
+    def _get_drawing_element_render_function(self, drawing_element):
+        if isinstance(drawing_element, momapy.drawing.Group):
+            return self._render_group
+        elif isinstance(drawing_element, momapy.drawing.Path):
+            return self._render_path
+        elif isinstance(drawing_element, momapy.drawing.Text):
+            return self._render_text
+        elif isinstance(drawing_element, momapy.drawing.Ellipse):
+            return self._render_ellipse
+        elif isinstance(drawing_element, momapy.drawing.Rectangle):
+            return self._render_rectangle
+
+    def _render_transformation(self, transformation):
+        render_transformation_function = \
+                self._get_transformation_render_function(transformation)
+        render_transformation_function(transformation)
+
+    def _render_path_action(self, path_action):
+        render_function = self._get_path_action_render_function(path_action)
+        render_function(path_action)
+
+    def render_drawing_element(self, drawing_element):
+        self._save()
+        self._set_state_from_drawing_element(drawing_element)
+        self._set_transform_from_drawing_element(drawing_element)
+        self._set_new_path() # context.restore() does not forget the current path
+        render_function = self._get_drawing_element_render_function(
+            drawing_element)
+        render_function(drawing_element)
+        self._restore()
+
+    def _stroke_and_fill(self):
+        if self._fill is not None:
+            self._context.set_source_rgba(
+                *self._fill.to_rgba(rgba_range=(0, 1)))
+            if self._stroke is not None:
+                self._context.fill_preserve()
+            else:
+                self._context.fill()
+        if self._stroke is not None:
+            self._context.set_line_width(self._stroke_width)
+            self._context.set_source_rgba(
+                *self._stroke.to_rgba(rgba_range=(0, 1)))
+            self._context.stroke()
+
+
+    def _render_group(self, group):
+        for drawing_element in group.elements:
+            self.render_drawing_element(drawing_element)
+
+    def _render_path(self, path):
+        for path_action in path.actions:
+            self._render_path_action(path_action)
+        self._stroke_and_fill()
+
+    def _render_text(self, text):
+        pango_layout = PangoCairo.create_layout(self._context)
+        pango_font_description = Pango.FontDescription()
+        pango_font_description.set_family(text.font_family)
+        pango_font_description.set_size(
+            Pango.units_from_double(text.font_size))
+        pango_layout.set_font_description(pango_font_description)
+        pango_layout.set_text(text.text)
+        pos = pango_layout.index_to_pos(0)
+        Pango.extents_to_pixels(pos)
+        x = pos.x
+        pango_layout_iter = pango_layout.get_iter()
+        y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
+        tx = text.x - x
+        ty = text.y - y
+        self._context.translate(tx, ty)
+        self._context.set_source_rgba(
+            *text.font_color.to_rgba(rgba_range=(0, 1)))
+        PangoCairo.show_layout(self._context, pango_layout)
+
+    def _render_ellipse(self, ellipse):
+        self._context.save()
+        self._context.translate(ellipse.x, ellipse.y)
+        self._context.scale(ellipse.rx, ellipse.ry)
+        self._context.arc(0, 0, 1, 0, 2 * math.pi)
+        self._context.close_path()
+        self._context.restore()
+        self._stroke_and_fill()
+
+
+    def _render_rectangle(self, rectangle):
+        path = rectangle.to_path()
+        self._render_path(path)
+
+    def _render_path_action(self, path_action):
+        render_function = self._get_path_action_render_function(path_action)
+        render_function(path_action)
+
+
+    def _render_move_to(self, move_to):
+        self._context.move_to(move_to.x, move_to.y)
+
+    def _render_line_to(self, line_to):
+        self._context.line_to(line_to.x, line_to.y)
+
+    def _render_close(self, close):
+        self._context.close_path()
+
+    def _render_arc(self, arc):
+        self._context.arc(
+            arc.x,
+            arc.y,
+            arc.radius,
+            arc.start_angle,
+            arc.end_angle
+        )
+
+    def _render_elliptical_arc(self, elliptical_arc):
+        obj = momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(
+                self._context.get_current_point()[0],
+                self._context.get_current_point()[1]
+            ),
+            elliptical_arc.point,
+            elliptical_arc.rx,
+            elliptical_arc.ry,
+            elliptical_arc.x_axis_rotation,
+            elliptical_arc.arc_flag,
+            elliptical_arc.sweep_flag
+        )
+        arc, transformation = obj.to_arc_and_transformation()
+        arc = momapy.drawing.Arc(
+            arc.point, arc.radius, arc.start_angle, arc.end_angle)
+        self._context.save()
+        self._render_transformation(transformation)
+        self._render_path_action(arc)
+        self._context.restore()
+
+    def _render_translation(self, translation):
+        self._context.translate(translation.tx, translation.ty)
+
+    def _render_rotation(self, rotation):
+        point = rotation.point
+        if point is not None:
+            self._context.translate(point.x, point.y)
+            self._context.rotate(rotation.angle)
+            self._context.translate(-point.x, -point.y)
+        else:
+            self._context.rotate(rotation.angle)
+
+    def _render_scaling(self, scaling):
+        self._context.scale(scaling.sx, scaling.sy)
+
+    def _render_matrix_transformation(self, matrix_transformation):
+        m = cairo.Matrix(
+            xx=matrix_transformation.m[0][0],
+            yx=matrix_transformation.m[1][0],
+            xy=matrix_transformation.m[0][1],
+            yy=matrix_transformation.m[1][1],
+            x0=matrix_transformation.m[0][2],
+            y0=matrix_transformation.m[1][2]
+        )
+        self._context.transform(m)
+
+
+
+
