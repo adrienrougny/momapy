@@ -402,21 +402,35 @@ class GTKCairoRenderer(Renderer):
 
 @dataclass
 class SVGNativeRenderer(Renderer):
+    output_file: str
     width: float
     height: float
 
     @classmethod
     def factory(cls, output_file, width, height, format_):
-        renderer_obj = cls(width=width, height=height)
+        renderer_obj = cls(output_file=output_file, width=width, height=height)
         return renderer_obj
 
     def render_map(self, map_):
-        self.render_layout_element(map_.layout)
+        s = self._render_map(map_)
+        self._write_string_to_file(s, self.output_file)
 
     def render_layout_element(self, layout_element):
-        return self._render_svg_top_element(layout_element.drawing_elements())
+        s = self._render_layout_element(layout_element)
+        self._write_string_to_file(s, self.output_file)
 
     def render_drawing_element(self, drawing_element):
+        s = self._render_drawing_element(drawing_element)
+        self._write_string_to_file(s, self.output_file)
+
+    def _render_map(self, map_):
+        s = self._render_layout_element(map_.layout)
+        return s
+
+    def _render_layout_element(self, layout_element):
+        return self._render_svg_top_element(layout_element.drawing_elements())
+
+    def _render_drawing_element(self, drawing_element):
         return self._render_svg_top_element(drawing_element)
 
     def _render_svg_top_element(self, drawing_elements):
@@ -431,6 +445,11 @@ class SVGNativeRenderer(Renderer):
                            for de in drawing_elements]
         return self._render_svg_element(
             name, svg_attributes, value, svg_subelements)
+
+    @classmethod
+    def _write_string_to_file(cls, s, file_name):
+        with open(file_name, "w") as f:
+            f.write(s)
 
     @classmethod
     def _render_svg_element(
@@ -506,9 +525,9 @@ class SVGNativeRenderer(Renderer):
 
     def _render_rotation(self, rotation):
         angle = math.degrees(rotation.angle)
-        s = f"rotation({angle}"
+        s = f"rotate({angle}"
         if rotation.point is not None:
-            s += f" {self.point.x} {self.point.y}"
+            s += f" {rotation.point.x} {rotation.point.y}"
         s += ")"
         return s
 
@@ -574,7 +593,7 @@ class SVGNativeRenderer(Renderer):
                 "fill", svg_fill_value)
             svg_attributes.append(svg_fill_attribute)
         if drawing_element.stroke_width is not None:
-            svg_stroke_width_value = self.default_stroke_width
+            svg_stroke_width_value = drawing_element.stroke_width
             svg_stroke_width_attribute = self._render_svg_attribute(
                 "stroke-width", svg_stroke_width_value)
             svg_attributes.append(svg_stroke_width_attribute)
@@ -588,7 +607,7 @@ class SVGNativeRenderer(Renderer):
         value = None
         svg_subelements = [self._render_drawing_element(drawing_element)
                            for drawing_element in group.elements]
-        return name, value, svg_attributes, svg_subelements
+        return name, svg_attributes, value, svg_subelements
 
     def _prepare_path(self, path):
         name = "path"
@@ -607,7 +626,7 @@ class SVGNativeRenderer(Renderer):
         svg_font_size = self._render_svg_attribute(
             "font-size", text.font_size)
         svg_font_family = self._render_svg_attribute(
-            "font-family", text.font_size)
+            "font-family", text.font_family)
         svg_attributes = [svg_x, svg_y, svg_font_size, svg_font_family]
         value = text.text
         svg_subelements = []
@@ -625,12 +644,14 @@ class SVGNativeRenderer(Renderer):
         return name, svg_attributes, value, svg_subelements
 
     def _prepare_rectangle(self, rectangle):
-        name = "rectangle"
+        name = "rect"
         svg_x = self._render_svg_attribute("x", rectangle.x)
         svg_y = self._render_svg_attribute("y", rectangle.y)
+        svg_width = self._render_svg_attribute("width", rectangle.width)
+        svg_height = self._render_svg_attribute("height", rectangle.height)
         svg_rx = self._render_svg_attribute("rx", rectangle.rx)
         svg_ry = self._render_svg_attribute("ry", rectangle.ry)
-        svg_attributes = [svg_x, svg_y, svg_rx, svg_ry]
+        svg_attributes = [svg_x, svg_y, svg_width, svg_height, svg_rx, svg_ry]
         value = None
         svg_subelements = []
         return name, svg_attributes, value, svg_subelements
@@ -638,5 +659,3 @@ class SVGNativeRenderer(Renderer):
 register_renderer("cairo", CairoRenderer)
 register_renderer("svg-native", SVGNativeRenderer)
 register_renderer("gtk-cairo", GTKCairoRenderer)
-
-
