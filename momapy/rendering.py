@@ -92,6 +92,8 @@ def render_maps(
 @dataclass
 class Renderer(ABC):
     default_stroke_width: ClassVar[float] = 1
+    default_fill: ClassVar[
+        momapy.coloring.Color] = momapy.coloring.colors.black
 
     @abstractmethod
     def render_map(self, map_):
@@ -143,7 +145,7 @@ class CairoRenderer(Renderer):
 
     def _initialize(self):
         self._stroke = None
-        self._fill = None
+        self._fill = self.default_fill
         self._stroke_width = self.default_stroke_width
 
     def _save(self):
