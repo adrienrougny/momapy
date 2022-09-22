@@ -400,11 +400,8 @@ class GTKCairoRenderer(Renderer):
         self.cairo_renderer.render_map(map_)
 
 
-register_renderer("cairo", CairoRenderer)
-register_renderer("gtk-cairo", GTKCairoRenderer)
-
 @dataclass
-class NativeSVGRenderer(Renderer):
+class SVGNativeRenderer(Renderer):
     width: float
     height: float
 
@@ -413,36 +410,56 @@ class NativeSVGRenderer(Renderer):
         renderer_obj = cls(width=width, height=height)
         return renderer_obj
 
+    def render_map(self, map_):
+        self.render_layout_element(map_.layout)
+
+    def render_layout_element(self, layout_element):
+        return self._render_svg_top_element(layout_element.drawing_elements())
+
+    def render_drawing_element(self, drawing_element):
+        return self._render_svg_top_element(drawing_element)
+
+    def _render_svg_top_element(self, drawing_elements):
+        name = "svg"
+        svg_xlmns = self._render_svg_attribute(
+            "xlmns", "http://www.w3.org/2000/svg")
+        svg_viewbox = self._render_svg_attribute(
+            "viewBox", f"0 0 {self.width} {self.height}")
+        svg_attributes = [svg_xlmns, svg_viewbox]
+        value = None
+        svg_subelements = [self._render_drawing_element(de)
+                           for de in drawing_elements]
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements)
+
     @classmethod
     def _render_svg_element(
+            cls,
             name,
             svg_attributes=None,
             value=None,
             svg_subelements=None,
             indent=0
     ):
-        s = f"{'\t'*indent}<{name}"
+        s = f"{'    '*indent}<{name}"
         if svg_attributes is not None and svg_attributes:
-            s_element += f" {' '.join(svg_attributes)}"
+            s += f" {' '.join(svg_attributes)}"
         s += ">\n"
         if value is not None:
             s += f"{value}\n"
         if svg_subelements is not None and svg_subelements:
             for svg_subelement in svg_subelements:
                 s += f"{svg_subelement}\n"
-        s += f"{'\t'*indent}</{name}>"
+        s += f"{'   '*indent}</{name}>"
         return s
 
     @classmethod
-    def _quote_string(s, quote='"'):
+    def _quote_string(cls, s, quote='"'):
         return f"{quote}{s}{quote}"
 
     @classmethod
-    def _render_svg_attribute(
-            name,
-            value
-    ):
-        return f"{name}={self._quote_string(value)}"
+    def _render_svg_attribute(cls, name, value):
+        return f"{name}={cls._quote_string(value)}"
 
     def _get_transformation_render_function(self, transformation):
         if isinstance(transformation, momapy.geometry.Translation):
@@ -466,165 +483,160 @@ class NativeSVGRenderer(Renderer):
         elif isinstance(path_action, momapy.drawing.EllipticalArc):
             return self._render_elliptical_arc
 
-    def _get_drawing_element_render_function(self, drawing_element):
+    def _get_drawing_element_prepare_function(self, drawing_element):
         if isinstance(drawing_element, momapy.drawing.Group):
-            return self._render_group
+            return self._prepare_group
         elif isinstance(drawing_element, momapy.drawing.Path):
-            return self._render_path
+            return self._prepare_path
         elif isinstance(drawing_element, momapy.drawing.Text):
-            return self._render_text
+            return self._prepare_text
         elif isinstance(drawing_element, momapy.drawing.Ellipse):
-            return self._render_ellipse
+            return self._prepare_ellipse
         elif isinstance(drawing_element, momapy.drawing.Rectangle):
-            return self._render_rectangle
+            return self._prepare_rectangle
 
     def _render_transformation(self, transformation):
         render_transformation_function = \
                 self._get_transformation_render_function(transformation)
-        render_transformation_function(transformation)
-
-    def _render_path_action(self, path_action):
-        render_function = self._get_path_action_render_function(path_action)
-        render_function(path_action)
-
-    def render_drawing_element(self, drawing_element):
-        self._save()
-        self._set_state_from_drawing_element(drawing_element)
-        self._set_transform_from_drawing_element(drawing_element)
-        self._set_new_path() # context.restore() does not forget the current path
-        render_function = self._get_drawing_element_render_function(
-            drawing_element)
-        render_function(drawing_element)
-        self._restore()
-
-    def _stroke_and_fill(self):
-        if self._fill is not None:
-            self._context.set_source_rgba(
-                *self._fill.to_rgba(rgba_range=(0, 1)))
-            if self._stroke is not None:
-                self._context.fill_preserve()
-            else:
-                self._context.fill()
-        if self._stroke is not None:
-            self._context.set_line_width(self._stroke_width)
-            self._context.set_source_rgba(
-                *self._stroke.to_rgba(rgba_range=(0, 1)))
-            self._context.stroke()
-
-
-    def _render_group(self, group):
-        for drawing_element in group.elements:
-            self.render_drawing_element(drawing_element)
-
-    def _render_path(self, path):
-        for path_action in path.actions:
-            self._render_path_action(path_action)
-        self._stroke_and_fill()
-
-    def _render_text(self, text):
-        pango_layout = PangoCairo.create_layout(self._context)
-        pango_font_description = Pango.FontDescription()
-        pango_font_description.set_family(text.font_family)
-        pango_font_description.set_size(
-            Pango.units_from_double(text.font_size))
-        pango_layout.set_font_description(pango_font_description)
-        pango_layout.set_text(text.text)
-        pos = pango_layout.index_to_pos(0)
-        Pango.extents_to_pixels(pos)
-        x = pos.x
-        pango_layout_iter = pango_layout.get_iter()
-        y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
-        tx = text.x - x
-        ty = text.y - y
-        self._context.translate(tx, ty)
-        self._context.set_source_rgba(
-            *text.font_color.to_rgba(rgba_range=(0, 1)))
-        PangoCairo.show_layout(self._context, pango_layout)
-
-    def _render_ellipse(self, ellipse):
-        self._context.save()
-        self._context.translate(ellipse.x, ellipse.y)
-        self._context.scale(ellipse.rx, ellipse.ry)
-        self._context.arc(0, 0, 1, 0, 2 * math.pi)
-        self._context.close_path()
-        self._context.restore()
-        self._stroke_and_fill()
-
-
-    def _render_rectangle(self, rectangle):
-        path = rectangle.to_path()
-        self._render_path(path)
-
-    def _render_path_action(self, path_action):
-        render_function = self._get_path_action_render_function(path_action)
-        render_function(path_action)
-
-
-    def _render_move_to(self, move_to):
-        self._context.move_to(move_to.x, move_to.y)
-
-    def _render_line_to(self, line_to):
-        self._context.line_to(line_to.x, line_to.y)
-
-    def _render_close(self, close):
-        self._context.close_path()
-
-    def _render_arc(self, arc):
-        self._context.arc(
-            arc.x,
-            arc.y,
-            arc.radius,
-            arc.start_angle,
-            arc.end_angle
-        )
-
-    def _render_elliptical_arc(self, elliptical_arc):
-        obj = momapy.geometry.EllipticalArc(
-            momapy.geometry.Point(
-                self._context.get_current_point()[0],
-                self._context.get_current_point()[1]
-            ),
-            elliptical_arc.point,
-            elliptical_arc.rx,
-            elliptical_arc.ry,
-            elliptical_arc.x_axis_rotation,
-            elliptical_arc.arc_flag,
-            elliptical_arc.sweep_flag
-        )
-        arc, transformation = obj.to_arc_and_transformation()
-        arc = momapy.drawing.Arc(
-            arc.point, arc.radius, arc.start_angle, arc.end_angle)
-        self._context.save()
-        self._render_transformation(transformation)
-        self._render_path_action(arc)
-        self._context.restore()
+        s = render_transformation_function(transformation)
+        return s
 
     def _render_translation(self, translation):
-        self._context.translate(translation.tx, translation.ty)
+        return f"translation({translation.tx} {translation.ty})"
 
     def _render_rotation(self, rotation):
-        point = rotation.point
-        if point is not None:
-            self._context.translate(point.x, point.y)
-            self._context.rotate(rotation.angle)
-            self._context.translate(-point.x, -point.y)
-        else:
-            self._context.rotate(rotation.angle)
+        angle = math.degrees(rotation.angle)
+        s = f"rotation({angle}"
+        if rotation.point is not None:
+            s += f" {self.point.x} {self.point.y}"
+        s += ")"
+        return s
 
     def _render_scaling(self, scaling):
-        self._context.scale(scaling.sx, scaling.sy)
+        return f"scale({scaling.sx} {scaling.sy})"
 
     def _render_matrix_transformation(self, matrix_transformation):
-        m = cairo.Matrix(
-            xx=matrix_transformation.m[0][0],
-            yx=matrix_transformation.m[1][0],
-            xy=matrix_transformation.m[0][1],
-            yy=matrix_transformation.m[1][1],
-            x0=matrix_transformation.m[0][2],
-            y0=matrix_transformation.m[1][2]
+        values = [matrix_transformation.m[i][j]
+                  for j in range(len(matrix_transformation.m[0]))
+                  for i in range(len(matrix_transformation.m)-1)]
+        return f"matrix({' '.join(values)})"
+    def _render_path_action(self, path_action):
+        render_function = self._get_path_action_render_function(path_action)
+        s = render_function(path_action)
+        return s
+
+    def _render_path_action(self, path_action):
+        render_function = self._get_path_action_render_function(path_action)
+        s = render_function(path_action)
+        return s
+
+    def _render_move_to(self, move_to):
+        return f"M {move_to.x} {move_to.y}"
+
+    def _render_line_to(self, line_to):
+        return f"L {line_to.x} {line_to.y}"
+
+    def _render_close(self, close):
+        return "Z"
+
+    def _render_elliptical_arc(self, elliptical_arc):
+        return (f"A {elliptical_arc.rx} "
+            f"{elliptical_arc.ry} "
+            f"{elliptical_arc.x_axis_rotation} "
+            f"{elliptical_arc.arc_flag} "
+            f"{elliptical_arc.sweep_flag} "
+            f"{elliptical_arc.x} "
+            f"{elliptical_arc.y}"
         )
-        self._context.transform(m)
 
+    def _render_color(self, color):
+        return f"rgba({color.red}, {color.green}, {color.blue}, {color.alpha})"
 
+    def _render_drawing_element(self, drawing_element):
+        prepare_function = self._get_drawing_element_prepare_function(
+            drawing_element)
+        name, svg_attributes, value, svg_subelements = prepare_function(
+            drawing_element)
+        if drawing_element.transform is not None:
+            svg_transform_value = " ".join([self._render_transformation(t)
+                                            for t in drawing_element.transform])
+            svg_transform_attribute = self._render_svg_attribute(
+                "transform", svg_transform_value)
+            svg_attributes.append(svg_transform_attribute)
+        if drawing_element.stroke is not None:
+            svg_stroke_value = self._render_color(drawing_element.stroke)
+            svg_stroke_attribute = self._render_svg_attribute(
+                "stroke", svg_stroke_value)
+            svg_attributes.append(svg_stroke_attribute)
+        if drawing_element.fill is not None:
+            svg_fill_value = self._render_color(drawing_element.fill)
+            svg_fill_attribute = self._render_svg_attribute(
+                "fill", svg_fill_value)
+            svg_attributes.append(svg_fill_attribute)
+        if drawing_element.stroke_width is not None:
+            svg_stroke_width_value = self.default_stroke_width
+            svg_stroke_width_attribute = self._render_svg_attribute(
+                "stroke-width", svg_stroke_width_value)
+            svg_attributes.append(svg_stroke_width_attribute)
+        s = self._render_svg_element(
+            name, svg_attributes, value, svg_subelements)
+        return s
+
+    def _prepare_group(self, group):
+        name = "g"
+        svg_attributes = []
+        value = None
+        svg_subelements = [self._render_drawing_element(drawing_element)
+                           for drawing_element in group.elements]
+        return name, value, svg_attributes, svg_subelements
+
+    def _prepare_path(self, path):
+        name = "path"
+        svg_d_value = " ".join([self._render_path_action(pa)
+                                for pa in path.actions])
+        svg_d_attribute = self._render_svg_attribute("d", svg_d_value)
+        svg_attributes = [svg_d_attribute]
+        value = None
+        svg_subelements = []
+        return name, svg_attributes, value, svg_subelements
+
+    def _prepare_text(self, text):
+        name = "text"
+        svg_x = self._render_svg_attribute("x", text.x)
+        svg_y = self._render_svg_attribute("y", text.y)
+        svg_font_size = self._render_svg_attribute(
+            "font-size", text.font_size)
+        svg_font_family = self._render_svg_attribute(
+            "font-family", text.font_size)
+        svg_attributes = [svg_x, svg_y, svg_font_size, svg_font_family]
+        value = text.text
+        svg_subelements = []
+        return name, svg_attributes, value, svg_subelements
+
+    def _prepare_ellipse(self, ellipse):
+        name = "ellipse"
+        svg_cx = self._render_svg_attribute("cx", ellipse.x)
+        svg_cy = self._render_svg_attribute("cy", ellipse.y)
+        svg_rx = self._render_svg_attribute("rx", ellipse.rx)
+        svg_ry = self._render_svg_attribute("ry", ellipse.ry)
+        svg_attributes = [svg_cx, svg_cy, svg_rx, svg_ry]
+        value = None
+        svg_subelements = []
+        return name, svg_attributes, value, svg_subelements
+
+    def _prepare_rectangle(self, rectangle):
+        name = "rectangle"
+        svg_x = self._render_svg_attribute("x", rectangle.x)
+        svg_y = self._render_svg_attribute("y", rectangle.y)
+        svg_rx = self._render_svg_attribute("rx", rectangle.rx)
+        svg_ry = self._render_svg_attribute("ry", rectangle.ry)
+        svg_attributes = [svg_x, svg_y, svg_rx, svg_ry]
+        value = None
+        svg_subelements = []
+        return name, svg_attributes, value, svg_subelements
+
+register_renderer("cairo", CairoRenderer)
+register_renderer("svg-native", SVGNativeRenderer)
+register_renderer("gtk-cairo", GTKCairoRenderer)
 
 
