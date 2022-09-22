@@ -364,13 +364,15 @@ class Stadium(momapy.core.NodeLayoutElement):
             stroke=self.stroke, fill=self.fill, stroke_width=self.stroke_width)
         path += (momapy.drawing.move_to(self.north_west())
                     + momapy.drawing.line_to(self.north_east())
-                    + momapy.drawing.arc(
-                        self.north_east() + (0, self.height/2), self.height/2,
-                        -math.pi/2, math.pi/2)
+                    + momapy.drawing.elliptical_arc(
+                        self.south_east(), self.height/2, self.height/2,
+                        0, 0, 1
+                    )
                     + momapy.drawing.line_to(self.south_west())
-                    + momapy.drawing.arc(
-                        self.south_west() - (0, self.height/2), self.height/2,
-                        math.pi/2, 3*math.pi/2)
+                    + momapy.drawing.elliptical_arc(
+                        self.north_west(), self.height/2, self.height/2,
+                        0, 0, 1
+                    )
                     + momapy.drawing.close()
         )
         return path
@@ -427,13 +429,15 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
         path += (momapy.drawing.move_to(self.north_west())
                  + momapy.drawing.line_to(self.north_east())
                  + momapy.drawing.line_to(self.east_south_east())
-                 + momapy.drawing.arc(
-                     self.east_south_east() - (self.rounded_corners, 0),
-                     self.rounded_corners, 0, math.pi/2)
+                 + momapy.drawing.elliptical_arc(
+                     self.south_south_east(), self.rounded_corners,
+                     self.rounded_corners, 0, 0, 1
+                 )
                  + momapy.drawing.line_to(self.south_south_west())
-                 + momapy.drawing.arc(
-                     self.south_south_west() - (0, self.rounded_corners),
-                     self.rounded_corners, math.pi/2, math.pi)
+                 + momapy.drawing.elliptical_arc(
+                     self.west_south_west(), self.rounded_corners,
+                     self.rounded_corners, 0, 0, 1
+                 )
                  + momapy.drawing.close()
         )
         return path

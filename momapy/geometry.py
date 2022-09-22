@@ -2,9 +2,12 @@ from dataclasses import dataclass
 from typing import Optional, Any, Callable, Union
 from abc import ABC, abstractmethod
 
-import decimal
 import math
 import numpy
+import decimal
+
+ROUNDING = 2
+decimal.getcontext().prec = ROUNDING
 
 def anchorpoint(anchor_func):
     anchor_func.__anchor__ = True
@@ -201,7 +204,8 @@ class Line(object):
 
     def slope(self):
         if self.p1.x != self.p2.x:
-            return round((self.p2.y-self.p1.y) / (self.p2.x-self.p1.x), 10)
+            return round(
+                (self.p2.y-self.p1.y) / (self.p2.x-self.p1.x), ROUNDING)
         return None # infinite slope
 
     def intercept(self):
@@ -305,7 +309,6 @@ class EllipticalArc(object):
     def to_arc_and_transformation(self):
         x1, y1 = self.start_point.x, self.start_point.y
         sigma = self.x_axis_rotation
-        p = self.end_point
         x2, y2 = self.end_point.x, self.end_point.y
         rx = self.rx
         ry = self.ry
@@ -313,8 +316,14 @@ class EllipticalArc(object):
         fs = self.sweep_flag
         x1p = math.cos(sigma)*((x1-x2)/2) + math.sin(sigma)*((y1-y2)/2)
         y1p = -math.sin(sigma)*((x1-x2)/2) + math.cos(sigma)*((y1-y2)/2)
-        a = math.sqrt((rx**2*ry**2 - rx**2*y1p**2 - ry**2*x1p**2)
-                      / (rx**2*y1p**2 + ry**2*x1p**2))
+        l = x1p**2 / rx**2 + y1p**2/ry**2
+        if l > 1:
+            rx = math.sqrt(l)*rx
+            ry = math.sqrt(l)*ry
+        r = (rx**2*ry**2 - rx**2*y1p**2 - ry**2*x1p**2)
+        if r < 0: # dure to imprecision? to fix later
+            r = 0
+        a = math.sqrt(r / (rx**2*y1p**2 + ry**2*x1p**2))
         if fa == fs:
             a = -a
         cxp = a*rx*y1p/ry
@@ -527,7 +536,8 @@ def get_angle_between_segments(segment1, segment2):
     p1 = segment1.p2 - segment1.p1
     p2 = segment2.p2 - segment2.p1
     scalar_prod = p1.x*p2.x + p1.y*p2.y
-    angle = math.acos(scalar_prod / (segment1.length()*segment2.length()))
+    angle = math.acos(
+        round(scalar_prod / (segment1.length()*segment2.length()), ROUNDING))
     sign = p1.x*p2.y - p1.y*p2.x
     if sign < 0:
         angle = -angle
