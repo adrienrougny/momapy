@@ -155,11 +155,11 @@ UnitOfInformationLayout {
 }
 
 StateVariableLayout > TextLayoutElement {
-    font_size: 7;
+    font_size: 8;
 }
 
 UnitOfInformationLayout > TextLayoutElement {
-    font_size: 7;
+    font_size: 8;
 }
 
 ConsumptionLayout {
