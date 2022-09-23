@@ -176,7 +176,8 @@ class TextLayoutElement(LayoutElement):
                 text=line_text,
                 font_family=self.font_family,
                 font_size=self.font_size,
-                font_color=self.font_color,
+                fill=self.font_color,
+                stroke=momapy.drawing.NoneValue,
                 position=pos
             )
             drawing_elements.append(text)

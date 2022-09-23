@@ -161,7 +161,6 @@ class Text(DrawingElement):
     text: Optional[str] = None
     font_family: Optional[str] = None
     font_size: Optional[str] = None
-    font_color: momapy.coloring.Color = momapy.coloring.colors.black
     position: Optional[momapy.geometry.Point] = None
 
     @property

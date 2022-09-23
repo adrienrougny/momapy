@@ -281,7 +281,7 @@ class CairoRenderer(Renderer):
         ty = text.y - y
         self._context.translate(tx, ty)
         self._context.set_source_rgba(
-            *text.font_color.to_rgba(rgba_range=(0, 1)))
+            *self._fill.to_rgba(rgba_range=(0, 1)))
         PangoCairo.show_layout(self._context, pango_layout)
 
     def _render_ellipse(self, ellipse):
