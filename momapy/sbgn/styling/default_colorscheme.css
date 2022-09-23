@@ -1,5 +1,11 @@
+TextLayout {
+    font_color: black;
+}
+
 Layout {
-    fill: white;
+    stroke: none;
+    stroke_width: 1.0;
+    fill: none;
 }
 
 CompartmentLayout {
