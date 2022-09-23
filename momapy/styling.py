@@ -176,7 +176,7 @@ def _resolve_css_color_name_value(results):
 
 @_css_drop_shadow_filter_value.set_parse_action
 def _resolve_css_drop_shadow_filter_value(results):
-    filter_effect = momapy.drawing.DropShadowEffect(resuts[0], results[1])
+    filter_effect = momapy.drawing.DropShadowEffect(results[0], results[1])
     filter = momapy.drawing.Filter(
         filter_units="userScpaeOnUse",
         effects=(filter_effect,)
