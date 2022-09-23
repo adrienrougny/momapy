@@ -571,7 +571,10 @@ class SVGNativeRenderer(Renderer):
         )
 
     def _render_color(self, color):
-        return f"rgba({color.red}, {color.green}, {color.blue}, {color.alpha})"
+        return f"rgb({color.red}, {color.green}, {color.blue})"
+
+    def _render_opacity(self, color):
+        return str(color.alpha)
 
     def _render_drawing_element(self, drawing_element):
         prepare_function = self._get_drawing_element_prepare_function(
@@ -585,12 +588,28 @@ class SVGNativeRenderer(Renderer):
                 "transform", svg_transform_value)
             svg_attributes.append(svg_transform_attribute)
         if drawing_element.stroke is not None:
-            svg_stroke_value = self._render_color(drawing_element.stroke)
+            if drawing_element.stroke is momapy.drawing.NoneValue:
+                svg_stroke_value = "none"
+            else:
+                svg_stroke_value = self._render_color(drawing_element.stroke)
+                svg_stroke_opacity_value = self._render_opacity(
+                    drawing_element.stroke)
+                svg_stroke_opacity_attribute = self._render_svg_attribute(
+                    "stroke-opacity", svg_stroke_opacity_value)
+                svg_attributes.append(svg_stroke_opacity_attribute)
             svg_stroke_attribute = self._render_svg_attribute(
                 "stroke", svg_stroke_value)
             svg_attributes.append(svg_stroke_attribute)
         if drawing_element.fill is not None:
-            svg_fill_value = self._render_color(drawing_element.fill)
+            if drawing_element.fill is momapy.drawing.NoneValue:
+                svg_fill_value = "none"
+            else:
+                svg_fill_value = self._render_color(drawing_element.fill)
+                svg_fill_opacity_value = self._render_opacity(
+                    drawing_element.fill)
+                svg_fill_opacity_attribute = self._render_svg_attribute(
+                    "fill-opacity", svg_fill_opacity_value)
+                svg_attributes.append(svg_fill_opacity_attribute)
             svg_fill_attribute = self._render_svg_attribute(
                 "fill", svg_fill_value)
             svg_attributes.append(svg_fill_attribute)
