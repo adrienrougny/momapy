@@ -89,7 +89,6 @@ NucleicAcidFeatureMultimerLayout {
 }
 
 EmptySetLayout {
-    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
