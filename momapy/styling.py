@@ -128,7 +128,16 @@ _css_string_value = pp.quoted_string
 _css_color_name_value = pp.Word(pp.alphas+"_")
 _css_color_value = _css_color_name_value
 _css_int_value = pp.Word(pp.nums)
-_css_attribute_value = _css_none_value | _css_float_value | _css_string_value | _css_color_value | _css_int_value
+_css_drop_shadow_filter_value = (
+    pp.Literal("drop-shadow(")
+    + _css_float_value
+    + _css_float_value
+    + pp.Optional(_css_float_value)
+    + pp.Optional(_css_color_value)
+    + pp.Literal(")")
+)
+_css_filter_value = _css_drop_shadow_filter_value
+_css_attribute_value = _css_drop_shadow_filter_value | _css_none_value | _css_float_value | _css_string_value | _css_color_value | _css_int_value
 _css_attribute_name = pp.Word(pp.alphas+"_", pp.alphanums+"_")
 _css_style = _css_attribute_name + pp.Literal(":") + _css_attribute_value + pp.Literal(";")
 _css_style_collection = pp.Literal("{") + pp.Group(_css_style[1, ...]) + pp.Literal("}")
@@ -164,6 +173,15 @@ def _resolve_css_color_name_value(results):
     if not momapy.coloring.colors.has_color(results[0]):
         raise ValueError(f"{results[0]} is not a valid color name")
     return getattr(momapy.coloring.colors, results[0])
+
+@_css_drop_shadow_filter_value.set_parse_action
+def _resolve_css_drop_shadow_filter_value(results):
+    filter_effect = momapy.drawing.DropShadowEffect(resuts[0], results[1])
+    filter = momapy.drawing.Filter(
+        filter_units="userScpaeOnUse",
+        effects=(filter_effect,)
+    )
+    return filter
 
 @_css_attribute_value.set_parse_action
 def _resolve_css_attribute_value(results):
