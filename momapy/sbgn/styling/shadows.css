@@ -1,85 +1,85 @@
 CompartmentLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 GenericProcessLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 UncertainProcessLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 OmittedProcessLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 AssociationLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 DissociationLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 PhenotypeLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 AndOperatorLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 OrOperatorLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 NotOperatorLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 EquivalenceOperatorLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 UnspecifiedEntityLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 MacromoleculeLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 MacromoleculeMultimerLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 ComplexLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 ComplexMultimerLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 SimpleChemicalLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 SimpleChemicalMultimerLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 NucleicAcidFeatureLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 NucleicAcidFeatureMultimerLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 EmptySetLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 StateVariableLayout {
@@ -93,29 +93,29 @@ UnitOfInformationLayout {
 }
 
 ConsumptionLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 ProductionLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 ModulationLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 StimulationLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 CatalysisLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 NecessaryStimulationLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
 
 InhibitionLayout {
-    filter: drop-shadow(6.0, 6.0)
+    filter: drop-shadow(6.0 6.0)
 }
