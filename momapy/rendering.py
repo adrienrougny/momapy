@@ -437,11 +437,11 @@ class SVGNativeRenderer(Renderer):
 
     def _render_svg_top_element(self, drawing_elements):
         name = "svg"
-        svg_xlmns = self._render_svg_attribute(
-            "xlmns", "http://www.w3.org/2000/svg")
+        svg_xmlns = self._render_svg_attribute(
+            "xmlns", "http://www.w3.org/2000/svg")
         svg_viewbox = self._render_svg_attribute(
             "viewBox", f"0 0 {self.width} {self.height}")
-        svg_attributes = [svg_xlmns, svg_viewbox]
+        svg_attributes = [svg_xmlns, svg_viewbox]
         value = None
         svg_subelements = [self._render_drawing_element(de)
                            for de in drawing_elements]
