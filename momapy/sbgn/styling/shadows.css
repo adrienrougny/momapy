@@ -23,6 +23,7 @@ DissociationLayout {
 }
 
 PhenotypeLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
@@ -43,53 +44,61 @@ EquivalenceOperatorLayout {
 }
 
 UnspecifiedEntityLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 MacromoleculeLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 MacromoleculeMultimerLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 ComplexLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 ComplexMultimerLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 SimpleChemicalLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 SimpleChemicalMultimerLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 NucleicAcidFeatureLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 NucleicAcidFeatureMultimerLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 EmptySetLayout {
+    stroke: none;
     filter: drop-shadow(6.0 6.0);
 }
 
 StateVariableLayout {
-    stroke: black;
-    fill: pink;
+    stroke: none;
 }
 
 UnitOfInformationLayout {
-    stroke: black;
-    fill: pink;
+    stroke: none;
 }
 
 ConsumptionLayout {
