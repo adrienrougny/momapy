@@ -7,7 +7,7 @@ TextLayoutElement {
 Layout {
     stroke: none;
     stroke_width: 1.0;
-    fill: none;
+    fill: white;
 }
 
 CompartmentLayout {
