@@ -179,7 +179,7 @@ def _resolve_css_style(results):
 
 @_css_style_collection.set_parse_action
 def _resolve_css_style_collection(results):
-    return StyleCollection(dict(results[1]))
+    return StyleCollection(dict(list(results[1])))
 
 @_css_id.set_parse_action
 def _resolve_css_id(results):
@@ -215,4 +215,4 @@ def _resolve_css_rule(results):
 
 @_css_style_sheet.set_parse_action
 def _resolve_css_style_sheet(results):
-    return StyleSheet(dict(results[0]))
+    return StyleSheet(dict(list(results[0])))
