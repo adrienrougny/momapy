@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import Union, Optional
+from uuid import UUID, uuid4
 
 import momapy.geometry
 import momapy.coloring
@@ -12,11 +13,31 @@ class NoneValueType(object):
 NoneValue = NoneValueType()
 
 @dataclass(frozen=True)
+class FilterEffect(ABC):
+    pass
+
+@dataclass(frozen=True)
+class DropShadowEffect(FilterEffect):
+    dx: float
+    dy: float
+    std_deviation: float = 2.0
+    flood_opacity: float = 0.5
+    flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+
+@dataclass(frozen=True)
+class Filter(object):
+    id: Union[str, UUID] = field(
+        hash=False, compare=False, default_factory=uuid4)
+    filter_units: str = "userSpaceOnUse"
+    effects: tuple[FilterEffect] = field(default_factory=tuple)
+
+@dataclass(frozen=True)
 class DrawingElement(ABC):
-    stroke_width: float = None
+    stroke_width: Optional[float] = None
     stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     fill: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
-    transform: tuple[momapy.geometry.Transformation] = None
+    transform: Optional[tuple[momapy.geometry.Transformation]] = None
+    filter: Optional[Filter] = None
 
     @abstractmethod
     def to_geometry(self):

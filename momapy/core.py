@@ -192,8 +192,9 @@ class TextLayoutElement(LayoutElement):
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
-    transform: Optional[tuple[momapy.geometry.Transformation]] = None
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
+    transform: Optional[tuple[momapy.geometry.Transformation]] = None
+    filter: Optional[momapy.drawing.Filter] = None
 
     @abstractmethod
     def self_bbox(self) -> momapy.geometry.Bbox:
@@ -212,8 +213,9 @@ class GroupLayoutElement(LayoutElement):
         for child in self.children():
             drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
+            elements=drawing_elements,
             transform=self.transform,
-            elements=drawing_elements)
+            filter=self.filter)
         return [group]
 
     def children(self):

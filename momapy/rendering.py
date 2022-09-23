@@ -1,4 +1,4 @@
-from dataclasses import dataclass, InitVar
+from dataclasses import dataclass, InitVar, field
 from copy import deepcopy
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, Collection
@@ -407,6 +407,7 @@ class SVGNativeRenderer(Renderer):
     output_file: str
     width: float
     height: float
+    _filters: list[str] = field(default_factory=list)
 
     @classmethod
     def factory(cls, output_file, width, height, format_):
@@ -435,6 +436,14 @@ class SVGNativeRenderer(Renderer):
     def _render_drawing_element(self, drawing_element):
         return self._render_svg_top_element(drawing_element)
 
+    def _render_filters(self, drawing_elements):
+        svg_filters = set([])
+        for drawing_element in drawing_elements:
+            if drawing_element.filter is not None:
+                svg_filter = self._render_filter(drawing_element.filter)
+                svg_filters.add(svg_filter)
+        return svg_filters
+
     def _render_svg_top_element(self, drawing_elements):
         name = "svg"
         svg_xmlns = self._render_svg_attribute(
@@ -443,7 +452,10 @@ class SVGNativeRenderer(Renderer):
             "viewBox", f"0 0 {self.width} {self.height}")
         svg_attributes = [svg_xmlns, svg_viewbox]
         value = None
-        svg_subelements = [self._render_drawing_element(de)
+        svg_def_element = self._render_svg_element(
+            "defs", [], None, self._render_filters(drawing_elements))
+        svg_subelements = [svg_def_element]
+        svg_subelements += [self._render_drawing_element(de)
                            for de in drawing_elements]
         return self._render_svg_element(
             name, svg_attributes, value, svg_subelements)
@@ -491,6 +503,10 @@ class SVGNativeRenderer(Renderer):
             return self._render_scaling
         elif isinstance(transformation, momapy.geometry.MatrixTransformation):
             return self._render_matrix_transformation
+
+    def _get_filter_effect_render_function(self, filter_effect):
+        if isinstance(filter_effect, momapy.drawing.DropShadowEffect):
+            return self._render_drop_shadow_effect
 
     def _get_path_action_render_function(self, path_action):
         if isinstance(path_action, momapy.drawing.MoveTo):
@@ -541,10 +557,43 @@ class SVGNativeRenderer(Renderer):
                   for j in range(len(matrix_transformation.m[0]))
                   for i in range(len(matrix_transformation.m)-1)]
         return f"matrix({' '.join(values)})"
-    def _render_path_action(self, path_action):
-        render_function = self._get_path_action_render_function(path_action)
-        s = render_function(path_action)
+
+    def _render_filter_effect(self, filter_effect):
+        render_function = self._get_filter_effect_render_function(
+            filter_effect)
+        s = render_function(filter_effect)
         return s
+
+    def _render_drop_shadow_effect(self, filter_effect):
+        name = "feDropShadow"
+        svg_dx = self._render_svg_attribute("dx", filter_effect.dx)
+        svg_dy = self._render_svg_attribute("dy", filter_effect.dy)
+        svg_attributes = [svg_dx, svg_dy]
+        if filter_effect.std_deviation is not None:
+            svg_attributes.append(self._render_svg_attribute(
+                "stdDeviation", filter_effect.std_deviation))
+        if filter_effect.flood_opacity is not None:
+            svg_attributes.append(self._render_svg_attribute(
+                "flood-opacity", filter_effect.flood_opacity))
+        if filter_effect.flood_color is not None:
+            svg_attributes.append(self._render_svg_attribute(
+                "flood-color", self._render_color(filter_effect.flood_color)))
+        value = None
+        svg_subelements = []
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements)
+
+    def _render_filter(self, filter):
+        name = "filter"
+        svg_id_attribute = self._render_svg_attribute("id", filter.id)
+        svg_filter_units = self._render_svg_attribute(
+            "filterUnits", filter.filter_units)
+        svg_attributes = [svg_id_attribute, svg_filter_units]
+        value = None
+        svg_subelements = [self._render_filter_effect(fe)
+                           for fe in filter.effects]
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements)
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
@@ -618,6 +667,10 @@ class SVGNativeRenderer(Renderer):
             svg_stroke_width_attribute = self._render_svg_attribute(
                 "stroke-width", svg_stroke_width_value)
             svg_attributes.append(svg_stroke_width_attribute)
+        if drawing_element.filter is not None:
+            svg_filter_value = f"url(#{drawing_element.filter.id})"
+            svg_attributes.append(
+                self._render_svg_attribute("filter", svg_filter_value))
         s = self._render_svg_element(
             name, svg_attributes, value, svg_subelements)
         return s
