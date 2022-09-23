@@ -1,95 +1,95 @@
 CompartmentLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 GenericProcessLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 UncertainProcessLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 OmittedProcessLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 AssociationLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 DissociationLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 PhenotypeLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 AndOperatorLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 OrOperatorLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 NotOperatorLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 EquivalenceOperatorLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 UnspecifiedEntityLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 MacromoleculeLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 MacromoleculeMultimerLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 ComplexLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 ComplexMultimerLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 SimpleChemicalLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 SimpleChemicalMultimerLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 NucleicAcidFeatureLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 NucleicAcidFeatureMultimerLayout {
     stroke: none;
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 EmptySetLayout {
-    filter: drop-shadow(6.0 6.0);
+    filter: drop-shadow(3.0 3.0);
 }
 
 StateVariableLayout {
@@ -98,32 +98,4 @@ StateVariableLayout {
 
 UnitOfInformationLayout {
     stroke: none;
-}
-
-ConsumptionLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-ProductionLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-ModulationLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-StimulationLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-CatalysisLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-NecessaryStimulationLayout {
-    filter: drop-shadow(6.0 6.0);
-}
-
-InhibitionLayout {
-    filter: drop-shadow(6.0 6.0);
 }
