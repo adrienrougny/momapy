@@ -407,7 +407,6 @@ class SVGNativeRenderer(Renderer):
     output_file: str
     width: float
     height: float
-    _filters: list[str] = field(default_factory=list)
 
     @classmethod
     def factory(cls, output_file, width, height, format_):
@@ -415,8 +414,7 @@ class SVGNativeRenderer(Renderer):
         return renderer_obj
 
     def render_map(self, map_):
-        s = self._render_map(map_)
-        self._write_string_to_file(s, self.output_file)
+        self.render_layout_element(map_.layout)
 
     def render_layout_element(self, layout_element):
         s = self._render_layout_element(layout_element)
@@ -425,10 +423,6 @@ class SVGNativeRenderer(Renderer):
     def render_drawing_element(self, drawing_element):
         s = self._render_drawing_element(drawing_element)
         self._write_string_to_file(s, self.output_file)
-
-    def _render_map(self, map_):
-        s = self._render_layout_element(map_.layout)
-        return s
 
     def _render_layout_element(self, layout_element):
         return self._render_svg_top_element(layout_element.drawing_elements())
@@ -442,6 +436,16 @@ class SVGNativeRenderer(Renderer):
             if drawing_element.filter is not None:
                 svg_filter = self._render_filter(drawing_element.filter)
                 svg_filters.add(svg_filter)
+            if isinstance(
+                    drawing_element,
+                    (
+                        momapy.drawing.Group,
+                        momapy.builder.get_or_make_builder_cls(
+                            momapy.drawing.Group)
+                    )
+            ):
+                svg_filters |= self._render_filters(
+                    drawing_element.elements)
         return svg_filters
 
     def _render_svg_top_element(self, drawing_elements):
