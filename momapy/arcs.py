@@ -24,8 +24,11 @@ class Arrow(momapy.core.ArcLayoutElement):
     height: float = 10
 
     def arrowhead_drawing_element(self):
-        path = momapy.drawing.Path(stroke=self.stroke,
-                    stroke_width=self.stroke_width, fill=self.fill)
+        path = momapy.drawing.Path(
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            fill=self.arrowhead_fill
+        )
         path += (momapy.drawing.move_to(self.arrowhead_base())
                     + momapy.drawing.line_to(
                         self.arrowhead_base() - (0, self.height/2))
@@ -51,9 +54,12 @@ class Circle(momapy.core.ArcLayoutElement):
 
     def arrowhead_drawing_element(self):
         ellipse = momapy.drawing.Ellipse(
-            stroke=self.stroke, stroke_width=self.stroke_width,
-            fill=self.fill, point=self.arrowhead_base() + (self.width/2, 0),
-            rx=self.width/2, ry=self.height/2
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            fill=self.arrowhead_fill,
+            point=self.arrowhead_base() + (self.width/2, 0),
+            rx=self.width/2,
+            ry=self.height/2
         )
         return ellipse
 
@@ -71,8 +77,11 @@ class Bar(momapy.core.ArcLayoutElement):
     height: float = 10
 
     def arrowhead_drawing_element(self):
-        path = momapy.drawing.Path(stroke=self.stroke,
-                    stroke_width=self.width, fill=self.fill)
+        path = momapy.drawing.Path(
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            fill=self.arrowhead_fill
+        )
         path += (momapy.drawing.move_to(
                         self.arrowhead_base() + (self.width/2, self.height/2))
                     + momapy.drawing.line_to(
@@ -139,8 +148,10 @@ class BarArrow(momapy.core.ArcLayoutElement):
         )
         elements = (bar, sep, arrow)
         group = momapy.drawing.Group(
-            stroke=self.stroke, stroke_width=self.stroke_width,
-            fill=self.fill, elements=elements
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            fill=self.arrowhead_fill,
+            elements=elements
         )
         return group
 
@@ -158,8 +169,11 @@ class Diamond(momapy.core.ArcLayoutElement):
     height: float = 10
 
     def arrowhead_drawing_element(self):
-        path = momapy.drawing.Path(stroke=self.stroke,
-                    stroke_width=self.stroke_width, fill=self.fill)
+        path = momapy.drawing.Path(
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            fill=self.arrowhead_fill
+        )
         path += (momapy.drawing.move_to(self.arrowhead_base())
                     + momapy.drawing.line_to(
                         self.arrowhead_base() + (self.width/2, -self.height/2))

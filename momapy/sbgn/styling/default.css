@@ -13,12 +13,14 @@ Layout {
 CompartmentLayout {
     stroke: black;
     stroke_width: 7.0;
+    fill: white;
     rounded_corners: 10.0;
 }
 
 GenericProcessLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -26,6 +28,7 @@ GenericProcessLayout {
 UncertainProcessLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -33,6 +36,7 @@ UncertainProcessLayout {
 OmittedProcessLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -40,6 +44,7 @@ OmittedProcessLayout {
 AssociationLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: black;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -47,6 +52,7 @@ AssociationLayout {
 DissociationLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -54,11 +60,13 @@ DissociationLayout {
 PhenotypeLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 AndOperatorLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -66,6 +74,7 @@ AndOperatorLayout {
 OrOperatorLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -73,6 +82,7 @@ OrOperatorLayout {
 NotOperatorLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -80,6 +90,7 @@ NotOperatorLayout {
 EquivalenceOperatorLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     left_connector_length: 10.0;
     right_connector_length: 10.0;
 }
@@ -87,17 +98,20 @@ EquivalenceOperatorLayout {
 UnspecifiedEntityLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 MacromoleculeLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     rounded_corners: 10.0;
 }
 
 MacromoleculeMultimerLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     rounded_corners: 10.0;
     offset: 2.0;
 }
@@ -105,12 +119,14 @@ MacromoleculeMultimerLayout {
 ComplexLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     cut_corners: 10.0;
 }
 
 ComplexMultimerLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     cut_corners: 10.0;
     offset: 2.0;
 }
@@ -118,23 +134,27 @@ ComplexMultimerLayout {
 SimpleChemicalLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 SimpleChemicalMultimerLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     offset: 2.0;
 }
 
 NucleicAcidFeatureLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     rounded_corners: 10.0;
 }
 
 NucleicAcidFeatureMultimerLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
     rounded_corners: 10.0;
     offset: 2.0;
 }
@@ -142,16 +162,19 @@ NucleicAcidFeatureMultimerLayout {
 EmptySetLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 StateVariableLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 UnitOfInformationLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: white;
 }
 
 StateVariableLayout > TextLayoutElement {
@@ -172,7 +195,10 @@ ConsumptionLayout {
 ProductionLayout {
     stroke: black;
     stroke_width: 1.0;
-    fill: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: black;
     shorten: 1.0;
     width: 10.0;
     height: 10.0;
@@ -181,6 +207,10 @@ ProductionLayout {
 ModulationLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: white;
     shorten: 1.0;
     width: 12.0;
     height: 12.0;
@@ -189,7 +219,10 @@ ModulationLayout {
 StimulationLayout {
     stroke: black;
     stroke_width: 1.0;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: white;
     shorten: 1.0;
     width: 12.0;
     height: 12.0;
@@ -198,7 +231,10 @@ StimulationLayout {
 CatalysisLayout {
     stroke: black;
     stroke_width: 1.0;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: white;
     shorten: 1.0;
     width: 12.0;
     height: 12.0;
@@ -207,11 +243,14 @@ CatalysisLayout {
 NecessaryStimulationLayout {
     stroke: black;
     stroke_width: 1.0;
-    fill: white;
-    shorten: 1.0;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: white;
     bar_width: 1.0;
     bar_height: 12.0;
     sep: 2.0;
+    shorten: 1.0;
     width: 12.0;
     height: 12.0;
 }
@@ -219,6 +258,10 @@ NecessaryStimulationLayout {
 InhibitionLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.0;
+    arrowhead_fill: white;
     shorten: 2.0;
     width: 1.5;
     height: 12.0;

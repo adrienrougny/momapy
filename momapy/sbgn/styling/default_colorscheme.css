@@ -83,9 +83,17 @@ ComplexLayout {
     fill: yellow;
 }
 
+ComplexLayout > ComplexLayout {
+    fill: gold;
+}
+
 ComplexMultimerLayout {
     stroke: black;
     fill: yellow;
+}
+
+ComplexLayout > ComplexMultimerLayout {
+    fill: gold;
 }
 
 SimpleChemicalLayout {
@@ -125,34 +133,46 @@ UnitOfInformationLayout {
 
 ConsumptionLayout {
     stroke: black;
+    fill: none;
 }
 
 ProductionLayout {
     stroke: black;
-    fill: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
 }
 
 ModulationLayout {
     stroke: black;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
 }
 
 StimulationLayout {
     stroke: black;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
 }
 
 CatalysisLayout {
     stroke: black;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
 }
 
 NecessaryStimulationLayout {
     stroke: black;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
 }
 
 InhibitionLayout {
     stroke: black;
-    fill: white;
+    fill: none;
+    arrowhead_stroke: black;
 }

@@ -193,6 +193,9 @@ class TextLayoutElement(LayoutElement):
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
+    stroke: Optional[momapy.coloring.Color] = None
+    stroke_width: Optional[float] = None
+    fill: Optional[momapy.coloring.Color] = None
     transform: Optional[tuple[momapy.geometry.Transformation]] = None
     filter: Optional[momapy.drawing.Filter] = None
 
@@ -214,6 +217,9 @@ class GroupLayoutElement(LayoutElement):
             drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
             elements=drawing_elements,
+            stroke=self.stroke,
+            stroke_width=self.stroke_width,
+            fill=self.fill,
             transform=self.transform,
             filter=self.filter)
         return [group]
@@ -234,9 +240,6 @@ class NodeLayoutElement(GroupLayoutElement):
     width: Optional[float] = None
     height: Optional[float] = None
     label: Optional[TextLayoutElement] = None
-    stroke_width: float = None
-    stroke: Optional[momapy.coloring.Color] = None
-    fill: Optional[momapy.coloring.Color] = None
 
     @property
     def x(self):
@@ -338,14 +341,13 @@ class NodeLayoutElement(GroupLayoutElement):
                     intersection_point = candidate_point
         return intersection_point
 
+    def self_border(self, point) -> momapy.geometry.Point:
+        return self._border_from_drawing_elements(
+            self.self_drawing_elements(), point)
 
     def border(self, point) -> momapy.geometry.Point:
         return self._border_from_drawing_elements(
             self.drawing_elements(), point)
-
-    def self_border(self, point) -> momapy.geometry.Point:
-        return self._border_from_drawing_elements(
-            self.self_drawing_elements(), point)
 
     def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
         if unit == "degrees":
@@ -367,9 +369,9 @@ class ArcLayoutElement(GroupLayoutElement):
     points: tuple[momapy.geometry.Point] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
-    stroke_width: float = 1
-    stroke: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
-    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
+    arrowhead_stroke: Optional[momapy.coloring.Color] = None
+    arrowhead_stroke_width: Optional[float] = None
+    arrowhead_fill: Optional[momapy.coloring.Color] = None
     shorten: float = 0
 
     def segments(self) -> list[momapy.geometry.Segment]:
@@ -422,7 +424,8 @@ class ArcLayoutElement(GroupLayoutElement):
         pass
 
     @abstractmethod
-    def arrowhead_drawing_element(self) -> momapy.drawing.DrawingElement:
+    def arrowhead_drawing_element(self) -> Optional[
+            momapy.drawing.DrawingElement]:
         pass
 
     @abstractmethod
@@ -432,8 +435,7 @@ class ArcLayoutElement(GroupLayoutElement):
     def self_drawing_elements(self):
 
         def _get_path_from_points(arc_layout) -> momapy.drawing.Path:
-            path = momapy.drawing.Path(
-                stroke=arc_layout.stroke, stroke_width=arc_layout.stroke_width)
+            path = momapy.drawing.Path()
             path += momapy.drawing.move_to(arc_layout.start_point())
             for segment in arc_layout.segments()[:-1]:
                 path += momapy.drawing.line_to(segment.p2)
@@ -473,16 +475,12 @@ class Layout(GroupLayoutElement):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
-    stroke_width: Optional[float] = None
-    stroke: Optional[momapy.coloring.Color] = None
-    fill: Optional[momapy.coloring.Color] = None
 
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     def self_drawing_elements(self):
-        path = momapy.drawing.Path(stroke=self.stroke, fill=self.fill,
-                    stroke_width=self.stroke_width)
+        path = momapy.drawing.Path()
         path += (momapy.drawing.move_to(self.self_bbox().north_west())
                     + momapy.drawing.line_to(self.self_bbox().north_east())
                     + momapy.drawing.line_to(self.self_bbox().south_east())
@@ -515,6 +513,7 @@ class PhantomLayoutElement(LayoutElement):
                 return getattr(self.layout_element, name)
             else:
                 raise AttributeError
+
 class ModelLayoutMapping(frozendict):
     pass
 
@@ -524,5 +523,3 @@ class Map(MapElement):
     layout: Optional[Layout] = None
     model_layout_mapping: ModelLayoutMapping = field(
         default_factory=ModelLayoutMapping)
-
-
