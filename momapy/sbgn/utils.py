@@ -15,7 +15,6 @@ def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
                 compartment]:
             elements = []
             for entity_pool in compartment_entity_pools_mapping[compartment]:
-                a = map_builder.model_layout_mapping[entity_pool]
                 elements += map_builder.model_layout_mapping[entity_pool]
             momapy.positioning.set_fit(
                 compartment_layout, elements, xsep, ysep)
@@ -24,13 +23,34 @@ def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
                 compartment_layout.label.width = compartment_layout.width
                 compartment_layout.label.height = compartment_layout.height
 
+def set_complexes_to_fit_content(map_builder, xsep=0, ysep=0):
+    for entity_pool in map_builder.model.entity_pools:
+        if isinstance(entity_pool, momapy.builder.get_or_make_builder_cls(
+                momapy.sbgn.pd.Complex)):
+            for complex_layout in map_builder.model_layout_mapping[
+                    entity_pool]:
+                elements = []
+                for subunit in entity_pool.subunits:
+                    subunit_layouts = map_builder.model_layout_mapping[
+                        subunit]
+                    for subunit_layout in subunit_layouts:
+                        if subunit_layout in complex_layout.layout_elements:
+                            elements.append(subunit_layout)
+                if len(elements) > 0:
+                    momapy.positioning.set_fit(
+                        complex_layout, elements, xsep, ysep)
+                    if complex_layout.label is not None:
+                        complex_layout.label.position = complex_layout.position
+                        complex_layout.label.width = complex_layout.width
+                        complex_layout.label.height = complex_layout.height
+
 def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
     for layout_element in map_builder.layout.flatten():
         if (isinstance(layout_element, momapy.builder.NodeLayoutElementBuilder)
                 and layout_element.label is not None
         ):
             position, width, height = momapy.positioning.fit([
-                layout_element.label.ink_bbox()], xsep=3, ysep=3)
+                layout_element.label.ink_bbox()], xsep, ysep)
             if width > layout_element.width:
                 layout_element.width = width
             if height > layout_element.height:
@@ -143,6 +163,8 @@ def tidy(
         map_builder,
         nodes_xsep=3,
         nodes_ysep=3,
+        complexes_xsep=15,
+        complexes_ysep=15,
         compartments_xsep=15,
         compartments_ysep=15,
         layout_xsep=15,
@@ -150,8 +172,9 @@ def tidy(
 ):
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_auxilliary_units_to_borders(map_builder)
+    set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
+    set_auxilliary_units_to_borders(map_builder)
     set_compartments_to_fit_content(
         map_builder, compartments_xsep, compartments_ysep)
     set_arcs_to_borders(map_builder)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
-
