@@ -266,3 +266,17 @@ InhibitionLayout {
     width: 1.5;
     height: 12.0;
 }
+
+LogicArcLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: none;
+    shorten: 0.0;
+}
+
+EquivalenceArcLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: none;
+    shorten: 0.0;
+}

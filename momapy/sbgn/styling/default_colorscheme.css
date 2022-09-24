@@ -126,9 +126,25 @@ StateVariableLayout {
     fill: pink;
 }
 
+MacromoleculeLayout > StateVariableLayout {
+    fill: cadetblue;
+}
+
+NucleicAcidFeatureLayout > StateVariableLayout {
+    fill: mediumspringgreen;
+}
+
 UnitOfInformationLayout {
     stroke: black;
     fill: pink;
+}
+
+MacromoleculeLayout > UnitOfInformationLayout {
+    fill: lightskyblue;
+}
+
+NucleicAcidFeatureLayout > UnitOfInformationLayout {
+    fill: mediumseagreen;
 }
 
 ConsumptionLayout {
