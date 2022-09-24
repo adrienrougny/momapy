@@ -165,6 +165,7 @@ UnitOfInformationLayout > TextLayoutElement {
 ConsumptionLayout {
     stroke: black;
     stroke_width: 1.0;
+    fill: none;
     shorten: 0.0;
 }
 
