@@ -10,7 +10,7 @@ Layout {
 
 CompartmentLayout {
     stroke: black;
-    fill: blanchedalmond;
+    fill: ivory;
 }
 
 GenericProcessLayout {
@@ -30,7 +30,7 @@ OmittedProcessLayout {
 
 AssociationLayout {
     stroke: black;
-    fill: white;
+    fill: black;
 }
 
 DissociationLayout {
@@ -140,7 +140,7 @@ ProductionLayout {
     stroke: black;
     fill: none;
     arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead_fill: black;
 }
 
 ModulationLayout {
