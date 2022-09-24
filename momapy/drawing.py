@@ -8,7 +8,12 @@ import momapy.coloring
 
 
 class NoneValueType(object):
-    pass
+
+    def __copy__(self):
+        return self
+
+    def __deepcopy__(self, memo):
+        return self
 
 NoneValue = NoneValueType()
 
