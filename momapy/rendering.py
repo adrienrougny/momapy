@@ -543,7 +543,7 @@ class SVGNativeRenderer(Renderer):
         return s
 
     def _render_translation(self, translation):
-        return f"translation({translation.tx} {translation.ty})"
+        return f"translate({translation.tx} {translation.ty})"
 
     def _render_rotation(self, rotation):
         angle = math.degrees(rotation.angle)
