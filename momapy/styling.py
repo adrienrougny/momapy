@@ -8,6 +8,7 @@ import frozendict
 
 import momapy.builder
 import momapy.coloring
+import momapy.drawing
 
 class StyleCollection(frozendict.frozendict):
     pass
