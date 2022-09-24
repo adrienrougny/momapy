@@ -179,7 +179,6 @@ def _resolve_css_color_name_value(results):
 def _resolve_css_drop_shadow_filter_value(results):
     filter_effect = momapy.drawing.DropShadowEffect(results[1], results[2])
     filter = momapy.drawing.Filter(
-        filter_units="userSpaceOnUse",
         effects=(filter_effect,)
     )
     return filter

@@ -33,7 +33,7 @@ class DropShadowEffect(FilterEffect):
 class Filter(object):
     id: Union[str, UUID] = field(
         hash=False, compare=False, default_factory=uuid4)
-    filter_units: str = "userSpaceOnUse"
+    filter_units: str = "objectBoundingBox"
     effects: tuple[FilterEffect] = field(default_factory=tuple)
 
 @dataclass(frozen=True)

@@ -592,7 +592,15 @@ class SVGNativeRenderer(Renderer):
         svg_id_attribute = self._render_svg_attribute("id", filter.id)
         svg_filter_units = self._render_svg_attribute(
             "filterUnits", filter.filter_units)
-        svg_attributes = [svg_id_attribute, svg_filter_units]
+        svg_x = self._render_svg_attribute("x", "-20%")
+        svg_y = self._render_svg_attribute("y", "-20%")
+        svg_width = self._render_svg_attribute("width", "140%")
+        svg_height = self._render_svg_attribute("height", "140%")
+        svg_attributes = [
+            svg_id_attribute, svg_filter_units,
+            svg_x, svg_y, svg_width, svg_height
+        ]
+        # svg_attributes = [svg_id_attribute, svg_filter_units]
         value = None
         svg_subelements = [self._render_filter_effect(fe)
                            for fe in filter.effects]
