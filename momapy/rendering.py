@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, Collection
 import cairo
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('PangoCairo', '1.0')
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("PangoCairo", "1.0")
 from gi.repository import PangoCairo, Pango, Gtk
 
 import math
@@ -13,44 +14,51 @@ import math
 import momapy.drawing
 import momapy.styling
 import momapy.positioning
+import momapy.geometry
+import momapy.builder
 
 renderers = {}
+
 
 def register_renderer(name, renderer_cls):
     renderers[name] = renderer_cls
 
+
 def _make_renderer_for_render_function(
-        output_file, width, height, format_, renderer):
+    output_file, width, height, format_, renderer
+):
     renderer_cls = renderers.get(renderer)
     if renderer_cls is not None:
-        renderer_obj = renderer_cls.factory(
-            output_file, width, height, format_)
+        renderer_obj = renderer_cls.factory(output_file, width, height, format_)
     else:
         raise ValueError(f"no renderer named {renderer}")
     return renderer_obj
 
+
 def render_map(
-        map_,
-        output_file,
-        format_="pdf",
-        renderer="cairo",
-        style_sheet=None,
-        to_top_left=False):
+    map_,
+    output_file,
+    format_="pdf",
+    renderer="cairo",
+    style_sheet=None,
+    to_top_left=False,
+):
     maps = [map_]
     render_maps(maps, output_file, format_, renderer, style_sheet, to_top_left)
 
+
 def render_maps(
-        maps,
-        output_file,
-        format_="pdf",
-        renderer="cairo",
-        style_sheet=None,
-        to_top_left=False
-    ):
+    maps,
+    output_file,
+    format_="pdf",
+    renderer="cairo",
+    style_sheet=None,
+    to_top_left=False,
+):
     bboxes = [map_.layout.self_bbox() for map_ in maps]
     position, width, height = momapy.positioning.fit(bboxes)
-    max_x = position.x + width/2
-    max_y = position.y + height/2
+    max_x = position.x + width / 2
+    max_y = position.y + height / 2
     if style_sheet is not None or to_top_left:
         new_maps = []
         for map_ in maps:
@@ -60,22 +68,24 @@ def render_maps(
                 new_maps.append(deepcopy(map_))
         maps = new_maps
     if style_sheet is not None:
-        if (not isinstance(style_sheet, Collection)
-                or isinstance(style_sheet, str)):
+        if not isinstance(style_sheet, Collection) or isinstance(
+            style_sheet, str
+        ):
             style_sheets = [style_sheet]
         else:
             style_sheets = style_sheet
         style_sheets = [
             momapy.styling.read_file(style_sheet)
             if not isinstance(style_sheet, momapy.styling.StyleSheet)
-            else style_sheet for style_sheet in style_sheets
+            else style_sheet
+            for style_sheet in style_sheets
         ]
         style_sheet = momapy.styling.join_style_sheets(style_sheets)
         for map_ in maps:
             momapy.styling.apply_style_sheet(map_.layout, style_sheet)
     if to_top_left:
-        min_x = position.x - width/2
-        min_y = position.y - height/2
+        min_x = position.x - width / 2
+        min_y = position.y - height / 2
         max_x -= min_x
         max_y -= min_y
         translation = momapy.geometry.Translation(-min_x, -min_y)
@@ -84,7 +94,8 @@ def render_maps(
                 map_.layout.transform = momapy.builder.TupleBuilder()
             map_.layout.transform.append(translation)
     renderer_obj = _make_renderer_for_render_function(
-        output_file, max_x, max_y, format_, renderer)
+        output_file, max_x, max_y, format_, renderer
+    )
     for map_ in maps:
         renderer_obj.render_map(map_)
 
@@ -92,8 +103,7 @@ def render_maps(
 @dataclass
 class Renderer(ABC):
     default_stroke_width: ClassVar[float] = 1
-    default_fill: ClassVar[
-        momapy.coloring.Color] = momapy.coloring.colors.black
+    default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.colors.black
 
     @abstractmethod
     def render_map(self, map_):
@@ -110,6 +120,7 @@ class Renderer(ABC):
     @classmethod
     def factory(cls, output_file, width, height, format_):
         pass
+
 
 @dataclass
 class CairoRenderer(Renderer):
@@ -179,9 +190,10 @@ class CairoRenderer(Renderer):
         self._save()
         self._set_state_from_drawing_element(drawing_element)
         self._set_transform_from_drawing_element(drawing_element)
-        self._set_new_path() # context.restore() does not forget the current path
+        self._set_new_path()  # context.restore() does not forget the current path
         render_function = self._get_drawing_element_render_function(
-            drawing_element)
+            drawing_element
+        )
         render_function(drawing_element)
         self._restore()
 
@@ -199,7 +211,9 @@ class CairoRenderer(Renderer):
             state["fill"] = None
         elif drawing_element.fill is not None:
             state["fill"] = drawing_element.fill
-        if drawing_element.stroke_width is not None: # not sure, need to check svg spec
+        if (
+            drawing_element.stroke_width is not None
+        ):  # not sure, need to check svg spec
             state["stroke_width"] = drawing_element.stroke_width
         return state
 
@@ -212,8 +226,9 @@ class CairoRenderer(Renderer):
         self._context.new_path()
 
     def _render_transformation(self, transformation):
-        render_transformation_function = \
-                self._get_transformation_render_function(transformation)
+        render_transformation_function = (
+            self._get_transformation_render_function(transformation)
+        )
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
@@ -225,7 +240,6 @@ class CairoRenderer(Renderer):
             return self._render_scaling
         elif isinstance(transformation, momapy.geometry.MatrixTransformation):
             return self._render_matrix_transformation
-
 
     def _get_drawing_element_render_function(self, drawing_element):
         if isinstance(drawing_element, momapy.drawing.Group):
@@ -239,11 +253,11 @@ class CairoRenderer(Renderer):
         elif isinstance(drawing_element, momapy.drawing.Rectangle):
             return self._render_rectangle
 
-
     def _stroke_and_fill(self):
         if self._fill is not None:
             self._context.set_source_rgba(
-                *self._fill.to_rgba(rgba_range=(0, 1)))
+                *self._fill.to_rgba(rgba_range=(0, 1))
+            )
             if self._stroke is not None:
                 self._context.fill_preserve()
             else:
@@ -251,9 +265,9 @@ class CairoRenderer(Renderer):
         if self._stroke is not None:
             self._context.set_line_width(self._stroke_width)
             self._context.set_source_rgba(
-                *self._stroke.to_rgba(rgba_range=(0, 1)))
+                *self._stroke.to_rgba(rgba_range=(0, 1))
+            )
             self._context.stroke()
-
 
     def _render_group(self, group):
         for drawing_element in group.elements:
@@ -269,7 +283,8 @@ class CairoRenderer(Renderer):
         pango_font_description = Pango.FontDescription()
         pango_font_description.set_family(text.font_family)
         pango_font_description.set_absolute_size(
-            Pango.units_from_double(text.font_size))
+            Pango.units_from_double(text.font_size)
+        )
         pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
         pos = pango_layout.index_to_pos(0)
@@ -280,8 +295,7 @@ class CairoRenderer(Renderer):
         tx = text.x - x
         ty = text.y - y
         self._context.translate(tx, ty)
-        self._context.set_source_rgba(
-            *self._fill.to_rgba(rgba_range=(0, 1)))
+        self._context.set_source_rgba(*self._fill.to_rgba(rgba_range=(0, 1)))
         PangoCairo.show_layout(self._context, pango_layout)
 
     def _render_ellipse(self, ellipse):
@@ -292,7 +306,6 @@ class CairoRenderer(Renderer):
         self._context.close_path()
         self._context.restore()
         self._stroke_and_fill()
-
 
     def _render_rectangle(self, rectangle):
         path = rectangle.to_path()
@@ -325,29 +338,26 @@ class CairoRenderer(Renderer):
 
     def _render_arc(self, arc):
         self._context.arc(
-            arc.x,
-            arc.y,
-            arc.radius,
-            arc.start_angle,
-            arc.end_angle
+            arc.x, arc.y, arc.radius, arc.start_angle, arc.end_angle
         )
 
     def _render_elliptical_arc(self, elliptical_arc):
         obj = momapy.geometry.EllipticalArc(
             momapy.geometry.Point(
                 self._context.get_current_point()[0],
-                self._context.get_current_point()[1]
+                self._context.get_current_point()[1],
             ),
             elliptical_arc.point,
             elliptical_arc.rx,
             elliptical_arc.ry,
             elliptical_arc.x_axis_rotation,
             elliptical_arc.arc_flag,
-            elliptical_arc.sweep_flag
+            elliptical_arc.sweep_flag,
         )
         arc, transformation = obj.to_arc_and_transformation()
         arc = momapy.drawing.Arc(
-            arc.point, arc.radius, arc.start_angle, arc.end_angle)
+            arc.point, arc.radius, arc.start_angle, arc.end_angle
+        )
         self._context.save()
         self._render_transformation(transformation)
         self._render_path_action(arc)
@@ -375,7 +385,7 @@ class CairoRenderer(Renderer):
             xy=matrix_transformation.m[0][1],
             yy=matrix_transformation.m[1][1],
             x0=matrix_transformation.m[0][2],
-            y0=matrix_transformation.m[1][2]
+            y0=matrix_transformation.m[1][2],
         )
         self._context.transform(m)
 
@@ -392,7 +402,7 @@ class GTKCairoRenderer(Renderer):
             context=None,
             authorize_no_context=True,
             width=self.width,
-            height=self.height
+            height=self.height,
         )
 
     def set_context(self, context):
@@ -400,6 +410,12 @@ class GTKCairoRenderer(Renderer):
 
     def render_map(self, map_):
         self.cairo_renderer.render_map(map_)
+
+    def render_layout_element(self, layout_element):
+        self.cairo_renderer.render_layout_element(layout_element)
+
+    def render_drawing_element(self, drawing_element):
+        self.cairo_renderer.render_drawing_element(drawing_element)
 
 
 @dataclass
@@ -437,32 +453,37 @@ class SVGNativeRenderer(Renderer):
                 svg_filter = self._render_filter(drawing_element.filter)
                 svg_filters.add(svg_filter)
             if isinstance(
-                    drawing_element,
-                    (
-                        momapy.drawing.Group,
-                        momapy.builder.get_or_make_builder_cls(
-                            momapy.drawing.Group)
-                    )
+                drawing_element,
+                (
+                    momapy.drawing.Group,
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.drawing.Group
+                    ),
+                ),
             ):
-                svg_filters |= self._render_filters(
-                    drawing_element.elements)
+                svg_filters |= self._render_filters(drawing_element.elements)
         return svg_filters
 
     def _render_svg_top_element(self, drawing_elements):
         name = "svg"
         svg_xmlns = self._render_svg_attribute(
-            "xmlns", "http://www.w3.org/2000/svg")
+            "xmlns", "http://www.w3.org/2000/svg"
+        )
         svg_viewbox = self._render_svg_attribute(
-            "viewBox", f"0 0 {self.width} {self.height}")
+            "viewBox", f"0 0 {self.width} {self.height}"
+        )
         svg_attributes = [svg_xmlns, svg_viewbox]
         value = None
         svg_def_element = self._render_svg_element(
-            "defs", [], None, self._render_filters(drawing_elements))
+            "defs", [], None, self._render_filters(drawing_elements)
+        )
         svg_subelements = [svg_def_element]
-        svg_subelements += [self._render_drawing_element(de)
-                           for de in drawing_elements]
+        svg_subelements += [
+            self._render_drawing_element(de) for de in drawing_elements
+        ]
         return self._render_svg_element(
-            name, svg_attributes, value, svg_subelements)
+            name, svg_attributes, value, svg_subelements
+        )
 
     @classmethod
     def _write_string_to_file(cls, s, file_name):
@@ -471,14 +492,14 @@ class SVGNativeRenderer(Renderer):
 
     @classmethod
     def _render_svg_element(
-            cls,
-            name,
-            svg_attributes=None,
-            value=None,
-            svg_subelements=None,
-            indent=0
+        cls,
+        name,
+        svg_attributes=None,
+        value=None,
+        svg_subelements=None,
+        indent=0,
     ):
-        s = f"{'    '*indent}<{name}"
+        s = f"{'    ' * indent}<{name}"
         if svg_attributes is not None and svg_attributes:
             s += f" {' '.join(svg_attributes)}"
         s += ">\n"
@@ -487,7 +508,7 @@ class SVGNativeRenderer(Renderer):
         if svg_subelements is not None and svg_subelements:
             for svg_subelement in svg_subelements:
                 s += f"{svg_subelement}\n"
-        s += f"{'   '*indent}</{name}>"
+        s += f"{'   ' * indent}</{name}>"
         return s
 
     @classmethod
@@ -537,8 +558,9 @@ class SVGNativeRenderer(Renderer):
             return self._prepare_rectangle
 
     def _render_transformation(self, transformation):
-        render_transformation_function = \
-                self._get_transformation_render_function(transformation)
+        render_transformation_function = (
+            self._get_transformation_render_function(transformation)
+        )
         s = render_transformation_function(transformation)
         return s
 
@@ -557,14 +579,15 @@ class SVGNativeRenderer(Renderer):
         return f"scale({scaling.sx} {scaling.sy})"
 
     def _render_matrix_transformation(self, matrix_transformation):
-        values = [matrix_transformation.m[i][j]
-                  for j in range(len(matrix_transformation.m[0]))
-                  for i in range(len(matrix_transformation.m)-1)]
+        values = [
+            matrix_transformation.m[i][j]
+            for j in range(len(matrix_transformation.m[0]))
+            for i in range(len(matrix_transformation.m) - 1)
+        ]
         return f"matrix({' '.join(values)})"
 
     def _render_filter_effect(self, filter_effect):
-        render_function = self._get_filter_effect_render_function(
-            filter_effect)
+        render_function = self._get_filter_effect_render_function(filter_effect)
         s = render_function(filter_effect)
         return s
 
@@ -574,38 +597,55 @@ class SVGNativeRenderer(Renderer):
         svg_dy = self._render_svg_attribute("dy", filter_effect.dy)
         svg_attributes = [svg_dx, svg_dy]
         if filter_effect.std_deviation is not None:
-            svg_attributes.append(self._render_svg_attribute(
-                "stdDeviation", filter_effect.std_deviation))
+            svg_attributes.append(
+                self._render_svg_attribute(
+                    "stdDeviation", filter_effect.std_deviation
+                )
+            )
         if filter_effect.flood_opacity is not None:
-            svg_attributes.append(self._render_svg_attribute(
-                "flood-opacity", filter_effect.flood_opacity))
+            svg_attributes.append(
+                self._render_svg_attribute(
+                    "flood-opacity", filter_effect.flood_opacity
+                )
+            )
         if filter_effect.flood_color is not None:
-            svg_attributes.append(self._render_svg_attribute(
-                "flood-color", self._render_color(filter_effect.flood_color)))
+            svg_attributes.append(
+                self._render_svg_attribute(
+                    "flood-color", self._render_color(filter_effect.flood_color)
+                )
+            )
         value = None
         svg_subelements = []
         return self._render_svg_element(
-            name, svg_attributes, value, svg_subelements)
+            name, svg_attributes, value, svg_subelements
+        )
 
     def _render_filter(self, filter):
         name = "filter"
         svg_id_attribute = self._render_svg_attribute("id", filter.id)
         svg_filter_units = self._render_svg_attribute(
-            "filterUnits", filter.filter_units)
+            "filterUnits", filter.filter_units
+        )
         svg_x = self._render_svg_attribute("x", "-20%")
         svg_y = self._render_svg_attribute("y", "-20%")
         svg_width = self._render_svg_attribute("width", "140%")
         svg_height = self._render_svg_attribute("height", "140%")
         svg_attributes = [
-            svg_id_attribute, svg_filter_units,
-            svg_x, svg_y, svg_width, svg_height
+            svg_id_attribute,
+            svg_filter_units,
+            svg_x,
+            svg_y,
+            svg_width,
+            svg_height,
         ]
         # svg_attributes = [svg_id_attribute, svg_filter_units]
         value = None
-        svg_subelements = [self._render_filter_effect(fe)
-                           for fe in filter.effects]
+        svg_subelements = [
+            self._render_filter_effect(fe) for fe in filter.effects
+        ]
         return self._render_svg_element(
-            name, svg_attributes, value, svg_subelements)
+            name, svg_attributes, value, svg_subelements
+        )
 
     def _render_path_action(self, path_action):
         render_function = self._get_path_action_render_function(path_action)
@@ -622,7 +662,8 @@ class SVGNativeRenderer(Renderer):
         return "Z"
 
     def _render_elliptical_arc(self, elliptical_arc):
-        return (f"A {elliptical_arc.rx} "
+        return (
+            f"A {elliptical_arc.rx} "
             f"{elliptical_arc.ry} "
             f"{elliptical_arc.x_axis_rotation} "
             f"{elliptical_arc.arc_flag} "
@@ -639,14 +680,21 @@ class SVGNativeRenderer(Renderer):
 
     def _render_drawing_element(self, drawing_element):
         prepare_function = self._get_drawing_element_prepare_function(
-            drawing_element)
+            drawing_element
+        )
         name, svg_attributes, value, svg_subelements = prepare_function(
-            drawing_element)
+            drawing_element
+        )
         if drawing_element.transform is not None:
-            svg_transform_value = " ".join([self._render_transformation(t)
-                                            for t in drawing_element.transform])
+            svg_transform_value = " ".join(
+                [
+                    self._render_transformation(t)
+                    for t in drawing_element.transform
+                ]
+            )
             svg_transform_attribute = self._render_svg_attribute(
-                "transform", svg_transform_value)
+                "transform", svg_transform_value
+            )
             svg_attributes.append(svg_transform_attribute)
         if drawing_element.stroke is not None:
             if drawing_element.stroke is momapy.drawing.NoneValue:
@@ -654,12 +702,15 @@ class SVGNativeRenderer(Renderer):
             else:
                 svg_stroke_value = self._render_color(drawing_element.stroke)
                 svg_stroke_opacity_value = self._render_opacity(
-                    drawing_element.stroke)
+                    drawing_element.stroke
+                )
                 svg_stroke_opacity_attribute = self._render_svg_attribute(
-                    "stroke-opacity", svg_stroke_opacity_value)
+                    "stroke-opacity", svg_stroke_opacity_value
+                )
                 svg_attributes.append(svg_stroke_opacity_attribute)
             svg_stroke_attribute = self._render_svg_attribute(
-                "stroke", svg_stroke_value)
+                "stroke", svg_stroke_value
+            )
             svg_attributes.append(svg_stroke_attribute)
         if drawing_element.fill is not None:
             if drawing_element.fill is momapy.drawing.NoneValue:
@@ -667,38 +718,47 @@ class SVGNativeRenderer(Renderer):
             else:
                 svg_fill_value = self._render_color(drawing_element.fill)
                 svg_fill_opacity_value = self._render_opacity(
-                    drawing_element.fill)
+                    drawing_element.fill
+                )
                 svg_fill_opacity_attribute = self._render_svg_attribute(
-                    "fill-opacity", svg_fill_opacity_value)
+                    "fill-opacity", svg_fill_opacity_value
+                )
                 svg_attributes.append(svg_fill_opacity_attribute)
             svg_fill_attribute = self._render_svg_attribute(
-                "fill", svg_fill_value)
+                "fill", svg_fill_value
+            )
             svg_attributes.append(svg_fill_attribute)
         if drawing_element.stroke_width is not None:
             svg_stroke_width_value = drawing_element.stroke_width
             svg_stroke_width_attribute = self._render_svg_attribute(
-                "stroke-width", svg_stroke_width_value)
+                "stroke-width", svg_stroke_width_value
+            )
             svg_attributes.append(svg_stroke_width_attribute)
         if drawing_element.filter is not None:
             svg_filter_value = f"url(#{drawing_element.filter.id})"
             svg_attributes.append(
-                self._render_svg_attribute("filter", svg_filter_value))
+                self._render_svg_attribute("filter", svg_filter_value)
+            )
         s = self._render_svg_element(
-            name, svg_attributes, value, svg_subelements)
+            name, svg_attributes, value, svg_subelements
+        )
         return s
 
     def _prepare_group(self, group):
         name = "g"
         svg_attributes = []
         value = None
-        svg_subelements = [self._render_drawing_element(drawing_element)
-                           for drawing_element in group.elements]
+        svg_subelements = [
+            self._render_drawing_element(drawing_element)
+            for drawing_element in group.elements
+        ]
         return name, svg_attributes, value, svg_subelements
 
     def _prepare_path(self, path):
         name = "path"
-        svg_d_value = " ".join([self._render_path_action(pa)
-                                for pa in path.actions])
+        svg_d_value = " ".join(
+            [self._render_path_action(pa) for pa in path.actions]
+        )
         svg_d_attribute = self._render_svg_attribute("d", svg_d_value)
         svg_attributes = [svg_d_attribute]
         value = None
@@ -709,10 +769,10 @@ class SVGNativeRenderer(Renderer):
         name = "text"
         svg_x = self._render_svg_attribute("x", text.x)
         svg_y = self._render_svg_attribute("y", text.y)
-        svg_font_size = self._render_svg_attribute(
-            "font-size", text.font_size)
+        svg_font_size = self._render_svg_attribute("font-size", text.font_size)
         svg_font_family = self._render_svg_attribute(
-            "font-family", text.font_family)
+            "font-family", text.font_family
+        )
         svg_attributes = [svg_x, svg_y, svg_font_size, svg_font_family]
         value = text.text
         svg_subelements = []
@@ -741,6 +801,7 @@ class SVGNativeRenderer(Renderer):
         value = None
         svg_subelements = []
         return name, svg_attributes, value, svg_subelements
+
 
 register_renderer("cairo", CairoRenderer)
 register_renderer("svg-native", SVGNativeRenderer)
