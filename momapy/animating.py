@@ -5,6 +5,7 @@ import ffmpeg
 import momapy.core
 import momapy.rendering
 
+
 @dataclass
 class Animator(object):
     layout: momapy.core.Layout
@@ -31,4 +32,8 @@ class Animator(object):
 
     def build(self, output_file, vcodec="libx264"):
         self._flimages[0].close()
-        ffmpeg.input(self._flimages[1], r=str(self.fps), f="concat", safe="0").output(output_file, vcodec=vcodec).run(quiet=True, overwrite_output=True)
+        ffmpeg.input(
+            self._flimages[1], r=str(self.fps), f="concat", safe="0"
+        ).output(output_file, vcodec=vcodec).run(
+            quiet=True, overwrite_output=True
+        )

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, InitVar, field
+from dataclasses import dataclass, InitVar
 from copy import deepcopy
 from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, Collection
