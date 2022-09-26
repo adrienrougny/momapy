@@ -96,12 +96,14 @@ def below_right_of(obj, distance1, distance2=None):
 
 def fit(
     elements: Collection[
-        momapy.core.LayoutElement,
-        momapy.geometry.Bbox,
-        momapy.geometry.Point,
-        momapy.builder.LayoutElementBuilder,
-        momapy.builder.BboxBuilder,
-        momapy.builder.PointBuilder,
+        Union[
+            momapy.core.LayoutElement,
+            momapy.geometry.Bbox,
+            momapy.geometry.Point,
+            momapy.builder.LayoutElementBuilder,
+            momapy.builder.BboxBuilder,
+            momapy.builder.PointBuilder,
+        ]
     ],
     xsep: float = 0,
     ysep: float = 0,
