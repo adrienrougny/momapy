@@ -8,27 +8,32 @@ import math
 
 import cairo
 import gi
-gi.require_version("Pango", '1.0')
-gi.require_version("PangoCairo", '1.0')
+
+gi.require_version("Pango", "1.0")
+gi.require_version("PangoCairo", "1.0")
 from gi.repository import Pango, PangoCairo
 
 import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 
+
 class Direction(Enum):
     HORIZONTAL = 1
     VERTICAL = 2
+
 
 class HAlignment(Enum):
     LEFT = 1
     CENTER = 2
     RIGHT = 3
 
+
 class VAlignment(Enum):
     TOP = 1
     CENTER = 2
     BOTTOM = 3
+
 
 @dataclass(frozen=True)
 class MapElement(ABC):
@@ -42,7 +47,6 @@ class ModelElement(MapElement):
 
 @dataclass(frozen=True)
 class LayoutElement(MapElement):
-
     @abstractmethod
     def bbox(self) -> momapy.geometry.Bbox:
         pass
@@ -63,6 +67,7 @@ class LayoutElement(MapElement):
 
     def flatten(self) -> list["LayoutElement"]:
         return [self] + self.descendants()
+
 
 @dataclass(frozen=True)
 class TextLayoutElement(LayoutElement):
@@ -90,11 +95,13 @@ class TextLayoutElement(LayoutElement):
         cairo_context = cairo.Context(cairo_surface)
         pango_layout = PangoCairo.create_layout(cairo_context)
         pango_layout.set_alignment(
-            getattr(Pango.Alignment, self.horizontal_alignment.name))
+            getattr(Pango.Alignment, self.horizontal_alignment.name)
+        )
         pango_font_description = Pango.FontDescription()
         pango_font_description.set_family(self.font_family)
         pango_font_description.set_absolute_size(
-            Pango.units_from_double(self.font_size))
+            Pango.units_from_double(self.font_size)
+        )
         pango_layout.set_font_description(pango_font_description)
         if self.width is not None:
             pango_layout.set_width(Pango.units_from_double(self.width))
@@ -105,7 +112,8 @@ class TextLayoutElement(LayoutElement):
         return pango_layout
 
     def _get_pango_line_text_and_initial_pos(
-            self, pango_layout, pango_layout_iter, pango_line):
+        self, pango_layout, pango_layout_iter, pango_line
+    ):
         start_index = pango_line.get_start_index()
         end_index = start_index + pango_line.get_length()
         pos = pango_layout.index_to_pos(start_index)
@@ -118,40 +126,42 @@ class TextLayoutElement(LayoutElement):
     def _get_tx_and_ty(self, pango_layout):
         _, pango_layout_extents = pango_layout.get_pixel_extents()
         if self.width is not None:
-            tx = self.x - self.width/2
+            tx = self.x - self.width / 2
         else:
             tx = self.x - (
-                pango_layout_extents.x + pango_layout_extents.width/2)
+                pango_layout_extents.x + pango_layout_extents.width / 2
+            )
         if self.height is not None:
             if self.vertical_alignment == VAlignment.TOP:
-                ty = self.y - self.height/2
+                ty = self.y - self.height / 2
             elif self.vertical_alignment == VAlignment.BOTTOM:
-                ty = self.y + self.height/2 - pango_layout_extents.height
+                ty = self.y + self.height / 2 - pango_layout_extents.height
             else:
                 ty = self.y - (
-                    pango_layout_extents.y + pango_layout_extents.height/2)
+                    pango_layout_extents.y + pango_layout_extents.height / 2
+                )
         else:
             ty = self.y - (
-                pango_layout_extents.y + pango_layout_extents.height/2)
+                pango_layout_extents.y + pango_layout_extents.height / 2
+            )
         return tx, ty
 
     def _get_bbox(self, pango_layout, pango_layout_extents):
         position = momapy.geometry.Point(
-            pango_layout_extents.x + pango_layout_extents.width/2,
-            pango_layout_extents.y + pango_layout_extents.height/2
+            pango_layout_extents.x + pango_layout_extents.width / 2,
+            pango_layout_extents.y + pango_layout_extents.height / 2,
         )
         tx, ty = self._get_tx_and_ty(pango_layout)
         return momapy.geometry.Bbox(
             position + (tx, ty),
             pango_layout_extents.width,
-            pango_layout_extents.height
+            pango_layout_extents.height,
         )
 
     def logical_bbox(self):
         pango_layout = self._make_pango_layout()
         _, pango_layout_extents = pango_layout.get_pixel_extents()
         return self._get_bbox(pango_layout, pango_layout_extents)
-
 
     def ink_bbox(self):
         pango_layout = self._make_pango_layout()
@@ -170,7 +180,8 @@ class TextLayoutElement(LayoutElement):
         while not done:
             pango_line = pango_layout_iter.get_line()
             line_text, pos = self._get_pango_line_text_and_initial_pos(
-                pango_layout, pango_layout_iter, pango_line)
+                pango_layout, pango_layout_iter, pango_line
+            )
             pos += (tx, ty)
             text = momapy.drawing.Text(
                 text=line_text,
@@ -178,7 +189,7 @@ class TextLayoutElement(LayoutElement):
                 font_size=self.font_size,
                 fill=self.font_color,
                 stroke=momapy.drawing.NoneValue,
-                position=pos
+                position=pos,
             )
             drawing_elements.append(text)
             if pango_layout_iter.at_last_line():
@@ -189,6 +200,7 @@ class TextLayoutElement(LayoutElement):
 
     def children(self):
         return []
+
 
 @dataclass(frozen=True)
 class GroupLayoutElement(LayoutElement):
@@ -221,7 +233,8 @@ class GroupLayoutElement(LayoutElement):
             stroke_width=self.stroke_width,
             fill=self.fill,
             transform=self.transform,
-            filter=self.filter)
+            filter=self.filter,
+        )
         return [group]
 
     def children(self):
@@ -229,8 +242,10 @@ class GroupLayoutElement(LayoutElement):
 
     def bbox(self):
         import momapy.positioning
+
         position, width, height = momapy.positioning.fit(
-            [self.self_bbox()] + self.descendants())
+            [self.self_bbox()] + self.descendants()
+        )
         return momapy.geometry.Bbox(position, width, height)
 
 
@@ -253,8 +268,7 @@ class NodeLayoutElement(GroupLayoutElement):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     @abstractmethod
-    def border_drawing_element(self) -> Optional[
-            momapy.drawing.DrawingElement]:
+    def border_drawing_element(self) -> Optional[momapy.drawing.DrawingElement]:
         pass
 
     def self_drawing_elements(self):
@@ -324,14 +338,15 @@ class NodeLayoutElement(GroupLayoutElement):
         intersection_point = None
         max_d = -1
         ok_direction_exists = False
-        d1 = momapy.geometry.get_distance_between_points(
-                point, self.center())
+        d1 = momapy.geometry.get_distance_between_points(point, self.center())
         for candidate_point in intersection:
             d2 = momapy.geometry.get_distance_between_points(
-                candidate_point, point)
+                candidate_point, point
+            )
             d3 = momapy.geometry.get_distance_between_points(
-                candidate_point, self.center())
-            candidate_ok_direction = (not d2 > d1 or d2 < d3)
+                candidate_point, self.center()
+            )
+            candidate_ok_direction = not d2 > d1 or d2 < d3
             if candidate_ok_direction or not ok_direction_exists:
                 if candidate_ok_direction and not ok_direction_exists:
                     ok_direction_exists = True
@@ -343,24 +358,26 @@ class NodeLayoutElement(GroupLayoutElement):
 
     def self_border(self, point) -> momapy.geometry.Point:
         return self._border_from_drawing_elements(
-            self.self_drawing_elements(), point)
+            self.self_drawing_elements(), point
+        )
 
     def border(self, point) -> momapy.geometry.Point:
         return self._border_from_drawing_elements(
-            self.drawing_elements(), point)
+            self.drawing_elements(), point
+        )
 
     def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
         if unit == "degrees":
             angle = math.radians(angle)
         d = 100
-        point = self.center() + (d*math.cos(angle), d*math.sin(angle))
+        point = self.center() + (d * math.cos(angle), d * math.sin(angle))
         return self.self_border(point)
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
         if unit == "degrees":
             angle = math.radians(angle)
         d = 100
-        point = self.center() + (d*math.cos(angle), d*math.sin(angle))
+        point = self.center() + (d * math.cos(angle), d * math.sin(angle))
         return self.border(point)
 
 
@@ -378,7 +395,8 @@ class ArcLayoutElement(GroupLayoutElement):
         segments = []
         for i in range(len(self.points))[1:]:
             segments.append(
-                momapy.geometry.Segment(self.points[i - 1], self.points[i]))
+                momapy.geometry.Segment(self.points[i - 1], self.points[i])
+            )
         return segments
 
     def length(self):
@@ -386,6 +404,7 @@ class ArcLayoutElement(GroupLayoutElement):
 
     def self_bbox(self):
         import momapy.positioning
+
         elements = list(self.points) + [self.arrowhead_bbox()]
         if self.source is not None:
             elements.append(self.source)
@@ -404,19 +423,22 @@ class ArcLayoutElement(GroupLayoutElement):
         last_segment = self.segments()[-1]
         if last_segment.length() == 0:
             return self.arrowhead_tip() - (self.arrowhead_length(), 0)
-        fraction = (1 - (self.arrowhead_length() + self.shorten)
-                        / last_segment.length())
+        fraction = (
+            1 - (self.arrowhead_length() + self.shorten) / last_segment.length()
+        )
         p, _ = momapy.geometry.get_position_and_angle_at_fraction(
-            last_segment, fraction)
+            last_segment, fraction
+        )
         return p
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
         last_segment = self.segments()[-1]
         if last_segment.length() == 0:
             return last_segment.p2
-        fraction = 1 - self.shorten/last_segment.length()
+        fraction = 1 - self.shorten / last_segment.length()
         p, _ = momapy.geometry.get_position_and_angle_at_fraction(
-            last_segment, fraction)
+            last_segment, fraction
+        )
         return p
 
     @abstractmethod
@@ -424,8 +446,9 @@ class ArcLayoutElement(GroupLayoutElement):
         pass
 
     @abstractmethod
-    def arrowhead_drawing_element(self) -> Optional[
-            momapy.drawing.DrawingElement]:
+    def arrowhead_drawing_element(
+        self,
+    ) -> Optional[momapy.drawing.DrawingElement]:
         pass
 
     @abstractmethod
@@ -433,7 +456,6 @@ class ArcLayoutElement(GroupLayoutElement):
         pass
 
     def self_drawing_elements(self):
-
         def _get_path_from_points(arc_layout) -> momapy.drawing.Path:
             path = momapy.drawing.Path()
             path += momapy.drawing.move_to(arc_layout.start_point())
@@ -450,10 +472,12 @@ class ArcLayoutElement(GroupLayoutElement):
         if arrowhead_drawing_element is not None:
             last_segment = self.segments()[-1]
             angle = momapy.geometry.get_angle_of_line(last_segment)
-            transform = tuple([
-                momapy.geometry.Rotation(angle, self.arrowhead_base())])
+            transform = tuple(
+                [momapy.geometry.Rotation(angle, self.arrowhead_base())]
+            )
             arrowhead_drawing_element = replace(
-                arrowhead_drawing_element, transform=transform)
+                arrowhead_drawing_element, transform=transform
+            )
             drawing_elements.append(arrowhead_drawing_element)
         return drawing_elements
 
@@ -470,6 +494,7 @@ class ArcLayoutElement(GroupLayoutElement):
 class Model(MapElement):
     pass
 
+
 @dataclass(frozen=True)
 class Layout(GroupLayoutElement):
     position: Optional[momapy.geometry.Point] = None
@@ -481,16 +506,18 @@ class Layout(GroupLayoutElement):
 
     def self_drawing_elements(self):
         path = momapy.drawing.Path()
-        path += (momapy.drawing.move_to(self.self_bbox().north_west())
-                    + momapy.drawing.line_to(self.self_bbox().north_east())
-                    + momapy.drawing.line_to(self.self_bbox().south_east())
-                    + momapy.drawing.line_to(self.self_bbox().south_west())
-                    + momapy.drawing.close()
+        path += (
+            momapy.drawing.move_to(self.self_bbox().north_west())
+            + momapy.drawing.line_to(self.self_bbox().north_east())
+            + momapy.drawing.line_to(self.self_bbox().south_east())
+            + momapy.drawing.line_to(self.self_bbox().south_west())
+            + momapy.drawing.close()
         )
         return [path]
 
     def self_children(self):
         return []
+
 
 @dataclass(frozen=True)
 class PhantomLayoutElement(LayoutElement):
@@ -514,12 +541,15 @@ class PhantomLayoutElement(LayoutElement):
             else:
                 raise AttributeError
 
+
 class ModelLayoutMapping(frozendict):
     pass
+
 
 @dataclass(frozen=True)
 class Map(MapElement):
     model: Optional[Model] = None
     layout: Optional[Layout] = None
     model_layout_mapping: ModelLayoutMapping = field(
-        default_factory=ModelLayoutMapping)
+        default_factory=ModelLayoutMapping
+    )
