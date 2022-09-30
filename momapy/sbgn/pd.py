@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field, replace, fields
 from typing import TypeVar, Union, Optional
 
 from momapy.sbgn.core import SBGNMap, SBGNModelElement, SBGNRole, SBGNModel
@@ -386,29 +386,50 @@ class SBGNPDModel(SBGNModel):
     tags: frozenset[Tag] = field(default_factory=frozenset)
 
     def is_ovav(self):
-        entity_pool_variables_mapping = {}
-        for entity_pool in self.entity_pools:
-            if (
-                hasattr(entity_pool, "state_variables")
-                and len(entity_pool.state_variables) > 0
-            ):
-                variables = set(
-                    [sv.variable for sv in entity_pool.state_variables]
-                )
-                entity_pool_no_svs = replace(
-                    entity_pool, states_variables=frozenset([])
-                )
-                if entity_pool_no_svs not in entity_pool_variables_mapping:
-                    entity_pool_variables_mapping[
-                        entity_pool_no_svs
-                    ] = variables
-                else:
-                    if (
-                        entity_pool_variables_mapping[entity_pool_no_svs]
-                        != variables
-                    ):
+
+        subunit_cls_entity_pool_cls_mapping = {
+            MacromoleculeSubunit: Macromolecule,
+            NucleicAcidFeatureSubunit: NucleicAcidFeature,
+            ComplexSubunit: Complex,
+            SimpleChemicalSubunit: SimpleChemical,
+            MacromoleculeMultimerSubunit: MacromoleculeMultimer,
+            NucleicAcidFeatureMultimerSubunit: NucleicAcidFeatureMultimer,
+            ComplexMultimerSubunit: ComplexMultimer,
+            SimpleChemicalMultimerSubunit: SimpleChemicalMultimer,
+        }
+
+        def _check_entities(entities, entity_variables_mapping=None):
+            if entity_variables_mapping is None:
+                entity_variables_mapping = {}
+            for entity in entities:
+                if hasattr(entity, "state_variables"):
+                    variables = set(
+                        [sv.variable for sv in entity.state_variables]
+                    )
+                    attributes = []
+                    for field in fields(entity):
+                        if field.name != "state_variables":
+                            attributes.append(field.name)
+                    args = {attr: getattr(entity, attr) for attr in attributes}
+                    if isinstance(entity, Subunit):
+                        cls = subunit_cls_entity_pool_cls_mapping[type(entity)]
+                    else:
+                        cls = type(entity)
+                    entity_no_svs = cls(**args)
+                    if entity_no_svs not in entity_variables_mapping:
+                        entity_variables_mapping[entity_no_svs] = variables
+                    else:
+                        if entity_variables_mapping[entity_no_svs] != variables:
+                            return False
+                if hasattr(entity, "subunits"):
+                    is_ovav = _check_entities(
+                        entity.subunits, entity_variables_mapping
+                    )
+                    if not is_ovav:
                         return False
-        return True
+            return True
+
+        return _check_entities(self.entity_pools)
 
     def contains(self, other):
         return (
