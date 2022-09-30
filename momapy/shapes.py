@@ -7,7 +7,7 @@ import momapy.geometry
 
 
 @dataclass(frozen=True)
-class Rectangle(momapy.core.NodeLayoutElement):
+class Rectangle(momapy.core.NodeLayout):
     def north_west(self):
         return momapy.geometry.Point(
             self.x - self.width / 2, self.y - self.height / 2
@@ -58,7 +58,7 @@ class Rectangle(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
+class RectangleWithRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 10
 
     def north_west(self):
@@ -105,7 +105,7 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class RectangleWithConnectors(momapy.core.NodeLayoutElement):
+class RectangleWithConnectors(momapy.core.NodeLayout):
     left_connector_length: float = 0
     right_connector_length: float = 0
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
@@ -207,7 +207,7 @@ class RectangleWithConnectors(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class Ellipse(momapy.core.NodeLayoutElement):
+class Ellipse(momapy.core.NodeLayout):
     def north_west(self):
         return self.self_bbox().north_west()
 
@@ -246,7 +246,7 @@ class Ellipse(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
+class RectangleWithCutCorners(momapy.core.NodeLayout):
     cut_corners: float = 0
 
     def north_west(self):
@@ -320,7 +320,7 @@ class RectangleWithCutCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class Stadium(momapy.core.NodeLayoutElement):
+class Stadium(momapy.core.NodeLayout):
     def north_west(self):
         return self.self_bbox().north_west() + (self.height / 2, 0)
 
@@ -369,7 +369,7 @@ class Stadium(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
+class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 0
 
     def north_west(self):
@@ -443,7 +443,7 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
+class CircleWithDiagonalBar(momapy.core.NodeLayout):
     def north_west(self):
         return self.self_bbox().north_west()
 
@@ -488,7 +488,7 @@ class CircleWithDiagonalBar(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
+class CircleWithConnectorsAndText(momapy.core.NodeLayout):
     left_connector_length: float = 0
     right_connector_length: float = 0
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
@@ -572,7 +572,7 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             right_connector += momapy.drawing.line_to(self.east())
         font_size = self.width / 3
         font_family = "Cantarell"
-        text_layout = momapy.core.TextLayoutElement(
+        text_layout = momapy.core.TextLayout(
             text=self.text,
             position=self.position,
             width=self.width,
@@ -589,7 +589,7 @@ class CircleWithConnectorsAndText(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class Hexagon(momapy.core.NodeLayoutElement):
+class Hexagon(momapy.core.NodeLayout):
     top_left_angle: float = 50
     top_right_angle: float = 50
     bottom_left_angle: float = 50
@@ -664,7 +664,7 @@ class Hexagon(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
+class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 10
     offset: float = 10
 
@@ -730,7 +730,7 @@ class DoubleRectangleWithRoundedCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
+class DoubleRectangleWithCutCorners(momapy.core.NodeLayout):
     cut_corners: float = 10
     offset: float = 10
 
@@ -796,7 +796,7 @@ class DoubleRectangleWithCutCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
+class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 10
     offset: float = 10
 
@@ -862,7 +862,7 @@ class DoubleRectangleWithBottomRoundedCorners(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class DoubleStadium(momapy.core.NodeLayoutElement):
+class DoubleStadium(momapy.core.NodeLayout):
     offset: float = 10
 
     def north_west(self):
@@ -924,7 +924,7 @@ class DoubleStadium(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
+class RectangleWithConnectorsAndText(momapy.core.NodeLayout):
     left_connector_length: float = 0
     right_connector_length: float = 0
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
@@ -1013,7 +1013,7 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
             right_connector += momapy.drawing.line_to(self.east())
         font_size = self.width / 1.5
         font_family = "Cantarell"
-        text_layout = momapy.core.TextLayoutElement(
+        text_layout = momapy.core.TextLayout(
             text=self.text,
             position=self.position,
             width=self.width,
@@ -1030,7 +1030,7 @@ class RectangleWithConnectorsAndText(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class Hexagon(momapy.core.NodeLayoutElement):
+class Hexagon(momapy.core.NodeLayout):
     top_left_angle: float = 50
     top_right_angle: float = 50
     bottom_left_angle: float = 50
@@ -1105,7 +1105,7 @@ class Hexagon(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class CircleWithConnectors(momapy.core.NodeLayoutElement):
+class CircleWithConnectors(momapy.core.NodeLayout):
     left_connector_length: float = 0
     right_connector_length: float = 0
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
@@ -1192,7 +1192,7 @@ class CircleWithConnectors(momapy.core.NodeLayoutElement):
 
 
 @dataclass(frozen=True)
-class CircleInsideCircleWithConnectors(momapy.core.NodeLayoutElement):
+class CircleInsideCircleWithConnectors(momapy.core.NodeLayout):
     left_connector_length: float = 0
     right_connector_length: float = 0
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL

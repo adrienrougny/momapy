@@ -1,10 +1,10 @@
-TextLayoutElement {
+TextLayout {
     font_family: "Cantarell";
     font_size: 16.0;
     font_color: black;
 }
 
-Layout {
+MapLayout {
     stroke: none;
     stroke_width: 1.0;
     fill: white;
@@ -177,11 +177,11 @@ UnitOfInformationLayout {
     fill: white;
 }
 
-StateVariableLayout > TextLayoutElement {
+StateVariableLayout > TextLayout {
     font_size: 8;
 }
 
-UnitOfInformationLayout > TextLayoutElement {
+UnitOfInformationLayout > TextLayout {
     font_size: 8;
 }
 

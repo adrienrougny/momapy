@@ -1,389 +1,396 @@
-from dataclasses import dataclass, field, replace, fields
-from typing import TypeVar, Union, Optional
+import dataclasses
+import typing
 
-from momapy.sbgn.core import SBGNMap, SBGNModelElement, SBGNRole, SBGNModel
-from momapy.core import Layout, ModelLayoutMapping
-from momapy.builder import (
-    get_or_make_builder_cls,
-    LayoutBuilder,
-    ModelLayoutMappingBuilder,
-)
-from momapy.arcs import PolyLine, Arrow, Circle, Bar, BarArrow, Diamond
-from momapy.shapes import (
-    Rectangle,
-    RectangleWithConnectors,
-    RectangleWithRoundedCorners,
-    Ellipse,
-    RectangleWithCutCorners,
-    Stadium,
-    RectangleWithBottomRoundedCorners,
-    CircleWithDiagonalBar,
-    CircleWithConnectorsAndText,
-    Hexagon,
-    DoubleRectangleWithRoundedCorners,
-    DoubleRectangleWithCutCorners,
-    DoubleRectangleWithBottomRoundedCorners,
-    DoubleStadium,
-    RectangleWithConnectorsAndText,
-    CircleWithConnectors,
-    CircleInsideCircleWithConnectors,
-)
-from momapy.coloring import Color, colors
+import momapy.sbgn.core
+import momapy.builder
+import momapy.arcs
+import momapy.shapes
+import momapy.coloring
 
 ############STATE VARIABLE AND UNIT OF INFORMATION###################
-@dataclass(frozen=True)
-class UndefinedVariable(SBGNModelElement):
-    order: Optional[int] = None
+@dataclasses.dataclass(frozen=True)
+class UndefinedVariable(momapy.sbgn.core.SBGNModelElement):
+    order: typing.Optional[int] = None
 
 
-@dataclass(frozen=True)
-class StateVariable(SBGNModelElement):
-    variable: Optional[Union[str, UndefinedVariable]] = None
-    value: Optional[str] = None
+@dataclasses.dataclass(frozen=True)
+class StateVariable(momapy.sbgn.core.SBGNModelElement):
+    variable: typing.Optional[typing.Union[str, UndefinedVariable]] = None
+    value: typing.Optional[str] = None
 
 
-@dataclass(frozen=True)
-class UnitOfInformation(SBGNModelElement):
-    value: Optional[str] = None
-    prefix: Optional[str] = None
+@dataclasses.dataclass(frozen=True)
+class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
+    value: typing.Optional[str] = None
+    prefix: typing.Optional[str] = None
 
 
 ############SUBUNITS###################
-@dataclass(frozen=True)
-class Subunit(SBGNModelElement):
-    label: Optional[str] = None
+@dataclasses.dataclass(frozen=True)
+class Subunit(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class UnspecifiedEntitySubunit(Subunit):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class MacromoleculeSubunit(Subunit):
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NucleicAcidFeatureSubunit(Subunit):
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SimpleChemicalSubunit(Subunit):
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class ComplexSubunit(Subunit):
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
-    subunits: frozenset[Subunit] = field(default_factory=frozenset)
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
+        default_factory=frozenset
+    )
+    subunits: frozenset[Subunit] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class MultimerSubunit(ComplexSubunit):
-    cardinality: Optional[int] = None
+    cardinality: typing.Optional[int] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class MacromoleculeMultimerSubunit(MultimerSubunit):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NucleicAcidFeatureMultimerSubunit(MultimerSubunit):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SimpleChemicalMultimerSubunit(MultimerSubunit):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class ComplexMultimerSubunit(MultimerSubunit):
     pass
 
 
 ############COMPARTMENT###################
-@dataclass(frozen=True)
-class Compartment(SBGNModelElement):
-    label: Optional[str] = None
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+@dataclasses.dataclass(frozen=True)
+class Compartment(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
 ############ENTITY POOLS###################
-@dataclass(frozen=True)
-class EntityPool(SBGNModelElement):
-    compartment: Optional[Compartment] = None
+@dataclasses.dataclass(frozen=True)
+class EntityPool(momapy.sbgn.core.SBGNModelElement):
+    compartment: typing.Optional[Compartment] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class EmptySet(EntityPool):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class PerturbingAgent(EntityPool):
-    label: Optional[str] = None
+    label: typing.Optional[str] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class UnspecifiedEntity(EntityPool):
-    label: Optional[str] = None
+    label: typing.Optional[str] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Macromolecule(EntityPool):
-    label: Optional[str] = None
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    label: typing.Optional[str] = None
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NucleicAcidFeature(EntityPool):
-    label: Optional[str] = None
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    label: typing.Optional[str] = None
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SimpleChemical(EntityPool):
-    label: Optional[str] = None
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    label: typing.Optional[str] = None
+    state_variables: frozenset[StateVariable] = dataclasses.field(
+        default_factory=frozenset
+    )
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Complex(EntityPool):
-    label: Optional[str] = None
-    state_variables: frozenset[StateVariable] = field(default_factory=frozenset)
-    units_of_information: frozenset[UnitOfInformation] = field(
+    label: typing.Optional[str] = None
+    state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
-    subunits: frozenset[Subunit] = field(default_factory=frozenset)
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
+        default_factory=frozenset
+    )
+    subunits: frozenset[Subunit] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Multimer(Complex):
-    cardinality: Optional[int] = None
+    cardinality: typing.Optional[int] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class MacromoleculeMultimer(Multimer):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NucleicAcidFeatureMultimer(Multimer):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SimpleChemicalMultimer(Multimer):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class ComplexMultimer(Multimer):
     pass
 
 
 ############SBGN ROLES###################
-@dataclass(frozen=True)
-class FluxRole(SBGNRole):
+@dataclasses.dataclass(frozen=True)
+class FluxRole(momapy.sbgn.core.SBGNRole):
     element: EntityPool
-    stoichiometry: Optional[int] = None
+    stoichiometry: typing.Optional[int] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Reactant(FluxRole):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Product(FluxRole):
     pass
 
 
-@dataclass(frozen=True)
-class LogicalOperatorInput(SBGNRole):
-    element: Union[EntityPool, "LogicalOperator"]
+@dataclasses.dataclass(frozen=True)
+class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[EntityPool, "LogicalOperator"]
 
 
-@dataclass(frozen=True)
-class EquivalenceOperatorInput(SBGNRole):
+@dataclasses.dataclass(frozen=True)
+class EquivalenceOperatorInput(momapy.sbgn.core.SBGNRole):
     element: EntityPool
 
 
-@dataclass(frozen=True)
-class EquivalenceOperatorOutput(SBGNRole):
+@dataclasses.dataclass(frozen=True)
+class EquivalenceOperatorOutput(momapy.sbgn.core.SBGNRole):
     element: EntityPool
 
 
-@dataclass(frozen=True)
-class TerminalReference(SBGNRole):
-    element: Union[EntityPool, Compartment] = None
+@dataclasses.dataclass(frozen=True)
+class TerminalReference(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[EntityPool, Compartment] = None
 
 
-@dataclass(frozen=True)
-class TagReference(SBGNRole):
-    element: Union[EntityPool, Compartment] = None
+@dataclasses.dataclass(frozen=True)
+class TagReference(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[EntityPool, Compartment] = None
 
 
 ############PROCESSES###################
-@dataclass(frozen=True)
-class Process(SBGNModelElement):
+@dataclasses.dataclass(frozen=True)
+class Process(momapy.sbgn.core.SBGNModelElement):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class StoichiometricProcess(Process):
-    reactants: frozenset[Reactant] = field(default_factory=frozenset)
-    products: frozenset[Product] = field(default_factory=frozenset)
+    reactants: frozenset[Reactant] = dataclasses.field(
+        default_factory=frozenset
+    )
+    products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class GenericProcess(StoichiometricProcess):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class UncertainProcess(StoichiometricProcess):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Association(GenericProcess):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Dissociation(GenericProcess):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class OmittedProcess(GenericProcess):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Phenotype(Process):
-    label: Optional[str] = None
+    label: typing.Optional[str] = None
 
 
 ############OPERATORS###################
-@dataclass(frozen=True)
-class LogicalOperator(SBGNModelElement):
-    inputs: frozenset[LogicalOperatorInput] = field(default_factory=frozenset)
+@dataclasses.dataclass(frozen=True)
+class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
+    inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class OrOperator(LogicalOperator):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class AndOperator(LogicalOperator):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NotOperator(LogicalOperator):
     pass
 
 
-@dataclass(frozen=True)
-class EquivalenceOperator(SBGNModelElement):
-    inputs: frozenset[EquivalenceOperatorInput] = field(
+@dataclasses.dataclass(frozen=True)
+class EquivalenceOperator(momapy.sbgn.core.SBGNModelElement):
+    inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
         default_factory=frozenset
     )
-    output: Optional[EquivalenceOperatorOutput] = None
+    output: typing.Optional[EquivalenceOperatorOutput] = None
 
 
 ############MODULATIONS###################
-@dataclass(frozen=True)
-class Modulation(SBGNModelElement):
-    source: Optional[Union[EntityPool, LogicalOperator]] = None
-    target: Optional[Process] = None
+@dataclasses.dataclass(frozen=True)
+class Modulation(momapy.sbgn.core.SBGNModelElement):
+    source: typing.Optional[typing.Union[EntityPool, LogicalOperator]] = None
+    target: typing.Optional[Process] = None
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Inhibition(Modulation):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Stimulation(Modulation):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Catalysis(Stimulation):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NecessaryStimulation(Stimulation):
     pass
 
 
 ############SUBMAP###################
-@dataclass(frozen=True)
-class Terminal(SBGNModelElement):
-    label: Optional[str] = None
-    refers_to: Optional[TerminalReference] = None
+@dataclasses.dataclass(frozen=True)
+class Terminal(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    refers_to: typing.Optional[TerminalReference] = None
 
 
-@dataclass(frozen=True)
-class Tag(SBGNModelElement):
-    label: Optional[str] = None
-    refers_to: Optional[TagReference] = None
+@dataclasses.dataclass(frozen=True)
+class Tag(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    refers_to: typing.Optional[TagReference] = None
 
 
-@dataclass(frozen=True)
-class Submap(SBGNModelElement):
-    label: Optional[str] = None
-    terminals: frozenset[Terminal] = field(default_factory=frozenset)
+@dataclasses.dataclass(frozen=True)
+class Submap(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    terminals: frozenset[Terminal] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
 ############MODELS###################
-@dataclass(frozen=True)
-class SBGNPDModel(SBGNModel):
-    entity_pools: frozenset[EntityPool] = field(default_factory=frozenset)
-    processes: frozenset[Process] = field(default_factory=frozenset)
-    compartments: frozenset[Compartment] = field(default_factory=frozenset)
-    modulations: frozenset[Modulation] = field(default_factory=frozenset)
-    logical_operators: frozenset[LogicalOperator] = field(
+@dataclasses.dataclass(frozen=True)
+class SBGNPDModel(momapy.sbgn.core.SBGNModel):
+    entity_pools: frozenset[EntityPool] = dataclasses.field(
         default_factory=frozenset
     )
-    equivalence_operators: frozenset[EquivalenceOperator] = field(
+    processes: frozenset[Process] = dataclasses.field(default_factory=frozenset)
+    compartments: frozenset[Compartment] = dataclasses.field(
         default_factory=frozenset
     )
-    submaps: frozenset[Submap] = field(default_factory=frozenset)
-    tags: frozenset[Tag] = field(default_factory=frozenset)
+    modulations: frozenset[Modulation] = dataclasses.field(
+        default_factory=frozenset
+    )
+    logical_operators: frozenset[LogicalOperator] = dataclasses.field(
+        default_factory=frozenset
+    )
+    equivalence_operators: frozenset[EquivalenceOperator] = dataclasses.field(
+        default_factory=frozenset
+    )
+    submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
+    tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
     def is_ovav(self):
 
@@ -445,13 +452,13 @@ class SBGNPDModel(SBGNModel):
 
 
 ############MAP###################
-@dataclass(frozen=True)
-class SBGNPDMap(SBGNMap):
-    model: Optional[SBGNPDModel] = None
+@dataclasses.dataclass(frozen=True)
+class SBGNPDMap(momapy.sbgn.core.SBGNMap):
+    model: typing.Optional[SBGNPDModel] = None
 
 
 ############BUILDERS###################
-SBGNPDModelBuilder = get_or_make_builder_cls(SBGNPDModel)
+SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
 
 
 def sbgnpd_map_builder_new_model(self, *args, **kwargs):
@@ -459,14 +466,14 @@ def sbgnpd_map_builder_new_model(self, *args, **kwargs):
 
 
 def sbgnpd_map_builder_new_layout(self, *args, **kwargs):
-    return LayoutBuilder(*args, **kwargs)
+    return momapy.core.MapLayoutBuilder(*args, **kwargs)
 
 
 def sbgnpd_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return ModelLayoutMappingBuilder(*args, **kwargs)
+    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
 
 
-SBGNPDMapBuilder = get_or_make_builder_cls(
+SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
     SBGNPDMap,
     builder_namespace={
         "new_model": sbgnpd_map_builder_new_model,
@@ -479,236 +486,240 @@ SBGNPDMapBuilder = get_or_make_builder_cls(
 ############GLYPHS###################
 
 
-@dataclass(frozen=True)
-class CompartmentLayout(RectangleWithRoundedCorners):
+@dataclasses.dataclass(frozen=True)
+class CompartmentLayout(momapy.shapes.RectangleWithRoundedCorners):
     rounded_corners: float = 10
-    stroke: Color = colors.black
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 4
 
 
-@dataclass(frozen=True)
-class MacromoleculeLayout(RectangleWithRoundedCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class MacromoleculeLayout(momapy.shapes.RectangleWithRoundedCorners):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     rounded_corners: float = 10
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class MacromoleculeMultimerLayout(DoubleRectangleWithRoundedCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class MacromoleculeMultimerLayout(
+    momapy.shapes.DoubleRectangleWithRoundedCorners
+):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     rounded_corners: float = 10
     offset: float = 2
 
 
-@dataclass(frozen=True)
-class SimpleChemicalLayout(Stadium):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class SimpleChemicalLayout(momapy.shapes.Stadium):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class SimpleChemicalMultimerLayout(DoubleStadium):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class SimpleChemicalMultimerLayout(momapy.shapes.DoubleStadium):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     offset: float = 2
 
 
-@dataclass(frozen=True)
-class StateVariableLayout(Stadium):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class StateVariableLayout(momapy.shapes.Stadium):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class UnitOfInformationLayout(Rectangle):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class UnitOfInformationLayout(momapy.shapes.Rectangle):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class ComplexLayout(RectangleWithCutCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class ComplexLayout(momapy.shapes.RectangleWithCutCorners):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     cut_corners: float = 10
 
 
-@dataclass(frozen=True)
-class ComplexMultimerLayout(DoubleRectangleWithCutCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class ComplexMultimerLayout(momapy.shapes.DoubleRectangleWithCutCorners):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     cut_corners: float = 10
     offset: float = 2
 
 
-@dataclass(frozen=True)
-class NucleicAcidFeatureMultimerLayout(DoubleRectangleWithBottomRoundedCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class NucleicAcidFeatureMultimerLayout(
+    momapy.shapes.DoubleRectangleWithBottomRoundedCorners
+):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     rounded_corners: float = 10
     offset: float = 2
 
 
-@dataclass(frozen=True)
-class NucleicAcidFeatureLayout(RectangleWithBottomRoundedCorners):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class NucleicAcidFeatureLayout(momapy.shapes.RectangleWithBottomRoundedCorners):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     rounded_corners: float = 10
 
 
-@dataclass(frozen=True)
-class EmptySetLayout(CircleWithDiagonalBar):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class EmptySetLayout(momapy.shapes.CircleWithDiagonalBar):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class AndOperatorLayout(CircleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class AndOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "AND"
 
 
-@dataclass(frozen=True)
-class OrOperatorLayout(CircleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class OrOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "OR"
 
 
-@dataclass(frozen=True)
-class NotOperatorLayout(CircleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class NotOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "NOT"
 
 
-@dataclass(frozen=True)
-class EquivalenceOperatorLayout(CircleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class EquivalenceOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "≡"
 
 
-@dataclass(frozen=True)
-class UnspecifiedEntityLayout(Ellipse):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class UnspecifiedEntityLayout(momapy.shapes.Ellipse):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class GenericProcessLayout(RectangleWithConnectors):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class GenericProcessLayout(momapy.shapes.RectangleWithConnectors):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class OmittedProcessLayout(RectangleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class OmittedProcessLayout(momapy.shapes.RectangleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "//"
 
 
-@dataclass(frozen=True)
-class UncertainProcessLayout(RectangleWithConnectorsAndText):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class UncertainProcessLayout(momapy.shapes.RectangleWithConnectorsAndText):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     text: str = "?"
 
 
-@dataclass(frozen=True)
-class AssociationLayout(CircleWithConnectors):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class AssociationLayout(momapy.shapes.CircleWithConnectors):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.black
+    fill: momapy.coloring.Color = momapy.coloring.colors.black
 
 
-@dataclass(frozen=True)
-class DissociationLayout(CircleInsideCircleWithConnectors):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class DissociationLayout(momapy.shapes.CircleInsideCircleWithConnectors):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     sep: float = 3
 
 
-@dataclass(frozen=True)
-class PhenotypeLayout(Hexagon):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class PhenotypeLayout(momapy.shapes.Hexagon):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class SubmapLayout(Rectangle):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class SubmapLayout(momapy.shapes.Rectangle):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
-@dataclass(frozen=True)
-class ConsumptionLayout(PolyLine):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class ConsumptionLayout(momapy.arcs.PolyLine):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
 
 
-@dataclass(frozen=True)
-class ProductionLayout(Arrow):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class ProductionLayout(momapy.arcs.Arrow):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.black
+    fill: momapy.coloring.Color = momapy.coloring.colors.black
     width: float = 12
     height: float = 12
 
 
-@dataclass(frozen=True)
-class StimulationLayout(Arrow):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class StimulationLayout(momapy.arcs.Arrow):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     width: float = 12
     height: float = 12
 
 
-@dataclass(frozen=True)
-class CatalysisLayout(Circle):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class CatalysisLayout(momapy.arcs.Circle):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     width: float = 11
     height: float = 11
 
 
-@dataclass(frozen=True)
-class InhibitionLayout(Bar):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class InhibitionLayout(momapy.arcs.Bar):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     width: float = 1.5
     height: float = 12
     shorten: float = 2
 
 
-@dataclass(frozen=True)
-class NecessaryStimulationLayout(BarArrow):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class NecessaryStimulationLayout(momapy.arcs.BarArrow):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     bar_width: float = 1
     bar_height: float = 12
@@ -717,22 +728,22 @@ class NecessaryStimulationLayout(BarArrow):
     sep: float = 2
 
 
-@dataclass(frozen=True)
-class ModulationLayout(Diamond):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class ModulationLayout(momapy.arcs.Diamond):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    fill: Color = colors.white
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
     width: float = 12
     height: float = 12
 
 
-@dataclass(frozen=True)
-class LogicArcLayout(PolyLine):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class LogicArcLayout(momapy.arcs.PolyLine):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
 
 
-@dataclass(frozen=True)
-class EquivalenceArcLayout(PolyLine):
-    stroke: Color = colors.black
+@dataclasses.dataclass(frozen=True)
+class EquivalenceArcLayout(momapy.arcs.PolyLine):
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1

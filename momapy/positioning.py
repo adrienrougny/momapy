@@ -6,88 +6,172 @@ import momapy.builder
 import momapy.drawing
 
 
-def right_of(obj, distance):
-    if isinstance(obj, momapy.geometry.Point):
+def right_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.east()
     else:
         raise TypeError
     return source_point + (distance, 0)
 
 
-def left_of(obj, distance):
-    if isinstance(obj, momapy.geometry.Point):
+def left_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.west()
     else:
         raise TypeError
     return source_point - (distance, 0)
 
 
-def above_of(obj, distance):
-    if isinstance(obj, momapy.geometry.Point):
+def above_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.north()
     else:
         raise TypeError
     return source_point - (0, distance)
 
 
-def below_of(obj, distance):
-    if isinstance(obj, momapy.geometry.Point):
+def below_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.south()
     else:
         raise TypeError
     return source_point + (0, distance)
 
 
-def above_left_of(obj, distance1, distance2=None):
+def above_left_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+):
     if distance2 is None:
         distance2 = distance1
-    if isinstance(obj, momapy.geometry.Point):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.north_west()
     else:
         raise TypeError
     return source_point - (distance2, distance1)
 
 
-def above_right_of(obj, distance1, distance2=None):
+def above_right_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+):
     if distance2 is None:
         distance2 = distance1
-    if isinstance(obj, momapy.geometry.Point):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.north_east()
     else:
         raise TypeError
     return source_point + (distance2, -distance1)
 
 
-def below_left_of(obj, distance1, distance2=None):
+def below_left_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+):
     if distance2 is None:
         distance2 = distance1
-    if isinstance(obj, momapy.geometry.Point):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.south_west()
     else:
         raise TypeError
     return source_point + (-distance2, distance1)
 
 
-def below_right_of(obj, distance1, distance2=None):
+def below_right_of(
+    obj: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+):
     if distance2 is None:
         distance2 = distance1
-    if isinstance(obj, momapy.geometry.Point):
+    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif isinstance(obj, momapy.core.NodeLayoutElement):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
         source_point = obj.south_east()
     else:
         raise TypeError
@@ -98,11 +182,11 @@ def fit(
     elements: Collection[
         Union[
             momapy.core.LayoutElement,
+            momapy.core.LayoutElementBuilder,
             momapy.geometry.Bbox,
+            momapy.geometry.BboxBuilder,
             momapy.geometry.Point,
-            momapy.builder.LayoutElementBuilder,
-            momapy.builder.BboxBuilder,
-            momapy.builder.PointBuilder,
+            momapy.geometry.PointBuilder,
         ]
     ],
     xsep: float = 0,
@@ -112,18 +196,15 @@ def fit(
         raise ValueError("elements must contain at least one element")
     points = []
     for element in elements:
-        if isinstance(
-            element, (momapy.geometry.Point, momapy.builder.PointBuilder)
-        ):
+        if momapy.builder.isinstance_or_builder(element, momapy.geometry.Point):
             points.append(element)
-        elif isinstance(
-            element, (momapy.geometry.Bbox, momapy.builder.BboxBuilder)
+        elif momapy.builder.isinstance_or_builder(
+            element, momapy.geometry.Bbox
         ):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif isinstance(
-            element,
-            (momapy.core.LayoutElement, momapy.builder.LayoutElementBuilder),
+        elif momapy.builder.isinstance_or_builder(
+            element, momapy.core.LayoutElement
         ):
             bbox = element.bbox()
             points.append(bbox.north_west())
@@ -158,7 +239,10 @@ def fit(
 
 
 def fraction_of(
-    arc_layout_element: momapy.core.ArcLayoutElement, fraction: float
+    arc_layout_element: Union[
+        momapy.core.ArcLayout, momapy.core.ArcLayoutBuilder
+    ],
+    fraction: float,
 ):
     current_length = 0
     length_to_reach = fraction * arc_layout_element.length()
@@ -173,26 +257,9 @@ def fraction_of(
     return position, transform
 
 
-def set_fraction_of(
-    obj: Union[
-        momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder
-    ],
-    arc_layout_element: Union[
-        momapy.core.ArcLayoutElement, momapy.builder.ArcLayoutElementBuilder
-    ],
-    fraction: float,
-    anchor: Optional[str] = None,
-):
-    position, transform = fraction_of(arc_layout_element, fraction)
-    set_position(obj, position, anchor)
-    obj.transform = transform
-
-
 def set_position(
-    obj: Union[
-        momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder
-    ],
-    position: momapy.geometry.Point,
+    obj: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    position: Union[momapy.geometry.Point, momapy.geometry.PointBuilder],
     anchor: Optional[str] = None,
 ):
     obj.position = position
@@ -202,23 +269,173 @@ def set_position(
 
 
 def set_right_of(
-    obj1: Union[
-        momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
     ],
-    obj2,
-    distance,
+    distance: float,
     anchor=None,
 ):
     position = right_of(obj2, distance)
     set_position(obj1, position, anchor)
 
 
-def set_fit(
-    obj: Union[
-        momapy.builder.NodeLayoutElementBuilder, momapy.builder.BboxBuilder
+def set_left_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
     ],
-    elements,
-    xsep=0,
-    ysep=0,
+    distance: float,
+    anchor=None,
 ):
-    obj.position, obj.width, obj.height = fit(elements, xsep, ysep)
+    position = left_of(obj2, distance)
+    set_position(obj1, position, anchor)
+
+
+def set_above_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+    anchor=None,
+):
+    position = above_of(obj2, distance)
+    set_position(obj1, position, anchor)
+
+
+def set_below_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance: float,
+    anchor=None,
+):
+    position = below_of(obj2, distance)
+    set_position(obj1, position, anchor)
+
+
+def set_above_left_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+    anchor=None,
+):
+    position = above_left_of(obj2, distance1, distance2)
+    set_position(obj1, position, anchor)
+
+
+def set_above_right_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+    anchor=None,
+):
+    position = above_right_of(obj2, distance1, distance2)
+    set_position(obj1, position, anchor)
+
+
+def set_below_left_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+    anchor=None,
+):
+    position = below_left_of(obj2, distance1, distance2)
+    set_position(obj1, position, anchor)
+
+
+def set_below_right_of(
+    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj2: Union[
+        momapy.geometry.Point,
+        momapy.geometry.PointBuilder,
+        momapy.geometry.Bbox,
+        momapy.geometry.BboxBuilder,
+        momapy.core.LayoutElement,
+        momapy.core.LayoutElementBuilder,
+    ],
+    distance1: float,
+    distance2: Optional[float] = None,
+    anchor=None,
+):
+    position = below_right_of(obj2, distance1, distance2)
+    set_position(obj1, position, anchor)
+
+
+def set_fit(
+    obj: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    elements: Collection[
+        Union[
+            momapy.geometry.Point,
+            momapy.geometry.PointBuilder,
+            momapy.geometry.Bbox,
+            momapy.geometry.BboxBuilder,
+            momapy.core.LayoutElement,
+            momapy.core.LayoutElementBuilder,
+        ]
+    ],
+    xsep: float = 0,
+    ysep: float = 0,
+    anchor: Optional[str] = None,
+):
+    position, obj.width, obj.height = fit(elements, xsep, ysep)
+    set_position(obj, position, anchor)
+
+
+def set_fraction_of(
+    obj: momapy.core.NodeLayoutBuilder,
+    arc_layout_element: Union[
+        momapy.core.ArcLayout, momapy.core.ArcLayoutBuilder
+    ],
+    fraction: float,
+    anchor: Optional[str] = None,
+):
+    position, transform = fraction_of(arc_layout_element, fraction)
+    set_position(obj, position, anchor)
+    obj.transform = transform

@@ -1,10 +1,10 @@
-TextLayoutElement {
+TextLayout {
     font_family: "Cantarell";
     font_size: 14.0;
     font_color: black;
 }
 
-Layout {
+MapLayout {
     stroke: none;
     stroke_width: 2.0;
     fill: white;

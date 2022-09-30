@@ -6,20 +6,19 @@ import momapy.geometry
 
 
 @dataclass(frozen=True)
-class PolyLine(momapy.core.ArcLayoutElement):
+class PolyLine(momapy.core.ArcLayout):
     def arrowhead_drawing_element(self):
         return None
 
     def arrowhead_length(self):
         return 0.0
 
-    # to code
     def arrowhead_bbox(self):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
 @dataclass(frozen=True)
-class Arrow(momapy.core.ArcLayoutElement):
+class Arrow(momapy.core.ArcLayout):
     width: float = 10
     height: float = 10
 
@@ -51,7 +50,7 @@ class Arrow(momapy.core.ArcLayoutElement):
 
 
 @dataclass(frozen=True)
-class Circle(momapy.core.ArcLayoutElement):
+class Circle(momapy.core.ArcLayout):
     width: float = 10
     height: float = 10
 
@@ -75,7 +74,7 @@ class Circle(momapy.core.ArcLayoutElement):
 
 
 @dataclass(frozen=True)
-class Bar(momapy.core.ArcLayoutElement):
+class Bar(momapy.core.ArcLayout):
     width: float = 1
     height: float = 10
 
@@ -101,7 +100,7 @@ class Bar(momapy.core.ArcLayoutElement):
 
 
 @dataclass(frozen=True)
-class BarArrow(momapy.core.ArcLayoutElement):
+class BarArrow(momapy.core.ArcLayout):
     bar_width: float = 1
     bar_height: float = 10
     width: float = 10
@@ -158,7 +157,7 @@ class BarArrow(momapy.core.ArcLayoutElement):
 
 
 @dataclass(frozen=True)
-class Diamond(momapy.core.ArcLayoutElement):
+class Diamond(momapy.core.ArcLayout):
     width: float = 10
     height: float = 10
 

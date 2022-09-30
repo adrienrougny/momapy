@@ -16,6 +16,7 @@ from gi.repository import Pango, PangoCairo
 import momapy.drawing
 import momapy.geometry
 import momapy.coloring
+import momapy.builder
 
 
 class Direction(Enum):
@@ -70,7 +71,7 @@ class LayoutElement(MapElement):
 
 
 @dataclass(frozen=True)
-class TextLayoutElement(LayoutElement):
+class TextLayout(LayoutElement):
     text: Optional[str] = None
     font_size: Optional[float] = None
     font_family: Optional[str] = None
@@ -203,7 +204,7 @@ class TextLayoutElement(LayoutElement):
 
 
 @dataclass(frozen=True)
-class GroupLayoutElement(LayoutElement):
+class GroupLayout(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
     stroke: Optional[momapy.coloring.Color] = None
     stroke_width: Optional[float] = None
@@ -250,11 +251,11 @@ class GroupLayoutElement(LayoutElement):
 
 
 @dataclass(frozen=True)
-class NodeLayoutElement(GroupLayoutElement):
+class NodeLayout(GroupLayout):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
-    label: Optional[TextLayoutElement] = None
+    label: Optional[TextLayout] = None
 
     @property
     def x(self):
@@ -366,23 +367,24 @@ class NodeLayoutElement(GroupLayoutElement):
             self.drawing_elements(), point
         )
 
-    def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+    def _make_point_for_angle(self, angle, unit="degrees"):
         if unit == "degrees":
             angle = math.radians(angle)
         d = 100
         point = self.center() + (d * math.cos(angle), d * math.sin(angle))
+        return point
+
+    def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+        point = self._make_point_for_angle(angle, units)
         return self.self_border(point)
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
-        if unit == "degrees":
-            angle = math.radians(angle)
-        d = 100
-        point = self.center() + (d * math.cos(angle), d * math.sin(angle))
+        point = self._make_point_for_angle(angle, units)
         return self.border(point)
 
 
 @dataclass(frozen=True)
-class ArcLayoutElement(GroupLayoutElement):
+class ArcLayout(GroupLayout):
     points: tuple[momapy.geometry.Point] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
@@ -496,7 +498,7 @@ class Model(MapElement):
 
 
 @dataclass(frozen=True)
-class Layout(GroupLayoutElement):
+class MapLayout(GroupLayout):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
@@ -520,7 +522,7 @@ class Layout(GroupLayoutElement):
 
 
 @dataclass(frozen=True)
-class PhantomLayoutElement(LayoutElement):
+class PhantomLayout(LayoutElement):
     layout_element: Optional[LayoutElement] = None
 
     def bbox(self):
@@ -549,7 +551,246 @@ class ModelLayoutMapping(frozendict):
 @dataclass(frozen=True)
 class Map(MapElement):
     model: Optional[Model] = None
-    layout: Optional[Layout] = None
+    layout: Optional[MapLayout] = None
     model_layout_mapping: ModelLayoutMapping = field(
         default_factory=ModelLayoutMapping
     )
+
+
+class FrozensetBuilder(set, momapy.builder.Builder):
+    _cls_to_build = frozenset
+
+    def build(self):
+        return self._cls_to_build(
+            [momapy.builder.object_from_builder(elem) for elem in self]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+
+
+class SetBuilder(set, momapy.builder.Builder):
+    _cls_to_build = set
+
+    def build(self):
+        return self._cls_to_build(
+            [momapy.builder.object_from_builder(elem) for elem in self]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+
+
+class TupleBuilder(list, momapy.builder.Builder):
+    _cls_to_build = tuple
+
+    def build(self):
+        return self._cls_to_build(
+            [momapy.builder.object_from_builder(elem) for elem in self]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+
+
+class DictBuilder(dict, momapy.builder.Builder):
+    _cls_to_build = dict
+
+    def build(self):
+        return self._cls_to_build(
+            [
+                (
+                    momapy.builder.object_from_builder(key),
+                    momapy.builder.object_from_builder(val),
+                )
+                for key, val in self.items()
+            ]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls(
+            [
+                (
+                    momapy.builder.builder_from_object(key),
+                    momapy.builder.builder_from_object(val),
+                )
+                for key, val in obj.items()
+            ]
+        )
+
+
+class FrozendictBuilder(dict, momapy.builder.Builder):
+    _cls_to_build = frozendict
+
+    def build(self):
+        return self._cls_to_build(
+            [
+                (
+                    momapy.builder.object_from_builder(key),
+                    momapy.builder.object_from_builder(val),
+                )
+                for key, val in self.items()
+            ]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls(
+            [
+                (
+                    momapy.builder.builder_from_object(key),
+                    momapy.builder.builder_from_object(val),
+                )
+                for key, val in obj.items()
+            ]
+        )
+
+
+class ListBuilder(list, momapy.builder.Builder):
+    _cls_to_build = list
+
+    def build(self):
+        return self._cls_to_build(
+            [momapy.builder.object_from_builder(elem) for elem in self]
+        )
+
+    @classmethod
+    def from_object(cls, obj):
+        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+
+
+class ModelLayoutMappingBuilder(FrozendictBuilder):
+    _cls_to_build = ModelLayoutMapping
+
+
+momapy.builder.register_builder(FrozensetBuilder)
+momapy.builder.register_builder(SetBuilder)
+momapy.builder.register_builder(TupleBuilder)
+momapy.builder.register_builder(DictBuilder)
+momapy.builder.register_builder(FrozendictBuilder)
+momapy.builder.register_builder(ListBuilder)
+momapy.builder.register_builder(ModelLayoutMappingBuilder)
+
+
+def _map_element_builder_hash(self):
+    return hash(self.id)
+
+
+def _map_element_builder_eq(self, other):
+    return self.__class__ == other.__class__ and self.id == other.id
+
+
+MapElementBuilder = momapy.builder.get_or_make_builder_cls(
+    MapElement,
+    builder_namespace={
+        "__hash__": _map_element_builder_hash,
+        "__eq__": _map_element_builder_eq,
+    },
+)
+
+ModelElementBuilder = momapy.builder.get_or_make_builder_cls(ModelElement)
+LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(LayoutElement)
+NodeLayoutBuilder = momapy.builder.get_or_make_builder_cls(NodeLayout)
+ArcLayoutBuilder = momapy.builder.get_or_make_builder_cls(ArcLayout)
+TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(TextLayout)
+
+
+def _model_builder_new_element(self, element_cls, *args, **kwargs):
+    if not momapy.builder.issubclass_or_builder(element_cls, ModelElement):
+        raise TypeError(
+            "element class must be a subclass of ModelElementBuilder or ModelElement"
+        )
+    return momapy.builder.new_builder(element_cls, *args, **kwargs)
+
+
+ModelBuilder = momapy.builder.get_or_make_builder_cls(
+    Model,
+    builder_namespace={"new_element": _model_builder_new_element},
+)
+
+
+def _layout_builder_new_element(self, element_cls, *args, **kwargs):
+    if not momapy.builder.issubclass_or_builder(element_cls, LayoutElement):
+        raise TypeError(
+            "element class must be a subclass of LayoutElementBuilder or LayoutElement"
+        )
+    return momapy.builder.new_builder(element_cls, *args, **kwargs)
+
+
+MapLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+    MapLayout,
+    builder_namespace={"new_element": _layout_builder_new_element},
+)
+
+
+@abstractmethod
+def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
+    pass
+
+
+@abstractmethod
+def _map_builder_new_layout(self, *args, **kwargs) -> MapLayoutBuilder:
+    pass
+
+
+@abstractmethod
+def _map_builder_new_model_layout_mapping(
+    self, *args, **kwargs
+) -> ModelLayoutMappingBuilder:
+    pass
+
+
+def _map_builder_new_model_element(
+    self, element_cls, *args, **kwargs
+) -> ModelElementBuilder:
+    model_element = self.model.new_element(element_cls, *args, **kwargs)
+    return model_element
+
+
+def _map_builder_new_layout_element(
+    self, element_cls, *args, **kwargs
+) -> LayoutElementBuilder:
+    layout_element = self.layout.new_element(element_cls, *args, **kwargs)
+    return layout_element
+
+
+def _map_builder_add_model_element(self, model_element):
+    self.model.add_element(model_element)
+
+
+def _map_builder_add_layout_element(self, layout_element):
+    self.layout.add_element(layout_element)
+
+
+def _map_builder_add_layout_element_to_model_element(
+    self, layout_element, model_element
+):
+    if model_element not in self.model_layout_mapping:
+        self.model_layout_mapping[model_element] = FrozensetBuilder()
+    self.model_layout_mapping[model_element].add(layout_element)
+
+
+def _map_builder_get_layout_elements(self, model_element):
+    return self.model_layout_mapping[model_element]
+
+
+MapBuilder = momapy.builder.get_or_make_builder_cls(
+    Map,
+    builder_namespace={
+        "new_model": _map_builder_new_model,
+        "new_layout": _map_builder_new_layout,
+        "new_model_layout_mapping": _map_builder_new_model_layout_mapping,
+        "new_model_element": _map_builder_new_model_element,
+        "new_layout_element": _map_builder_new_layout_element,
+        "add_model_element": _map_builder_add_model_element,
+        "add_layout_element": _map_builder_add_layout_element,
+        "add_layout_element_to_model_element": _map_builder_add_layout_element_to_model_element,
+        "get_layout_elements": _map_builder_get_layout_elements,
+    },
+)
+
+PhantomLayoutBuilder = momapy.builder.get_or_make_builder_cls(PhantomLayout)

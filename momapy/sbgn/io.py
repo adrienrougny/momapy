@@ -11,7 +11,6 @@ import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbgn.utils
 
-
 import libsbgnpy.libsbgn as libsbgn
 
 LibSBGNDisambiguationArcMapping = {
@@ -390,7 +389,7 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     libsbgn_sbgn = libsbgn.parse(file_name, silence=True)
     libsbgn_map = libsbgn_sbgn.get_map()
     language = libsbgn_map.get_language()
-    builder = momapy.builder.new_object(LibSBGNMapMapping[language.value])
+    builder = momapy.builder.new_builder(LibSBGNMapMapping[language.value])
     model = builder.new_model()
     layout = builder.new_layout()
     model_layout_mapping = builder.new_model_layout_mapping()
@@ -402,7 +401,7 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     libsbgn_map_dimensions = _get_libsbgn_map_dimensions(libsbgn_map)
     builder.layout.width = libsbgn_map_dimensions[0]
     builder.layout.height = libsbgn_map_dimensions[1]
-    builder.layout.position = momapy.builder.PointBuilder(
+    builder.layout.position = momapy.geometry.PointBuilder(
         libsbgn_map_dimensions[0] / 2, libsbgn_map_dimensions[1] / 2
     )
     libsbgn_compartments = []
@@ -708,9 +707,7 @@ def _make_layout_element_from_glyph(
                 label_position = _get_position_from_libsbgn_bbox(
                     libsbgn_label_bbox
                 )
-        label_element = builder.new_layout_element(
-            momapy.core.TextLayoutElement
-        )
+        label_element = builder.new_layout_element(momapy.core.TextLayout)
         label_element.text = text
         label_element.position = label_position
         label_element.width = libsbgn_label_bbox.get_w()
@@ -798,15 +795,15 @@ def _make_layout_element_from_arc(
     layout_element = builder.new_layout_element(layout_element_class)
     layout_element.id = arc.get_id()
     role = LibSBGNArcMapping[arc_key].get("role")
-    layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
+    layout_element.source = momapy.core.PhantomLayoutBuilder(
         layout_element=d_layout_elements_ids[arc.get_source()]
     )
-    layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
+    layout_element.target = momapy.core.PhantomLayoutBuilder(
         layout_element=d_layout_elements_ids[arc.get_target()]
     )
     for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
         layout_element.points.append(
-            momapy.builder.PointBuilder(
+            momapy.geometry.PointBuilder(
                 libsbgn_point.get_x(), libsbgn_point.get_y()
             )
         )
@@ -889,6 +886,6 @@ def _get_libsbgn_map_max_x_and_y(libsbgn_map):
 
 
 def _get_position_from_libsbgn_bbox(bbox):
-    return momapy.builder.PointBuilder(
+    return momapy.geometry.PointBuilder(
         bbox.get_x() + bbox.get_w() / 2, bbox.get_y() + bbox.get_h() / 2
     )

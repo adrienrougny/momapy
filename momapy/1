@@ -23,12 +23,12 @@ class Point(object):
     y: Optional[float] = None
 
     def __add__(self, xy):
-        if momapy.builder.isinstance_or_builder(xy, Point):
+        if isinstance(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x + xy[0], self.y + xy[1])
 
     def __sub__(self, xy):
-        if momapy.builder.isinstance_or_builder(xy, Point):
+        if isinstance(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x - xy[0], self.y - xy[1])
 
@@ -571,13 +571,13 @@ def get_distance_between_points(p1, p2):
 
 
 def _point_builder_add(self, xy):
-    if momapy.builder.isinstance_or_builder(xy, Point):
+    if momapy.builder.isinstance_or_builder(xy, PointBuilder):
         xy = (xy.x, xy.y)
     return PointBuilder(self.x + xy[0], self.y + xy[1])
 
 
 def _point_builder_sub(self, xy):
-    if momapy.builder.isinstance_or_builder(xy, Point):
+    if momapy.builder.isinstance_or_builder(xy, PointBuilder):
         xy = (xy.x, xy.y)
     return PointBuilder(self.x - xy[0], self.y - xy[1])
 
@@ -588,7 +588,7 @@ def _point_builder_iter(self):
 
 
 PointBuilder = momapy.builder.get_or_make_builder_cls(
-    Point,
+    momapy.geometry.Point,
     builder_namespace={
         "__add__": _point_builder_add,
         "__sub__": _point_builder_sub,
@@ -596,8 +596,4 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
     },
 )
 
-momapy.builder.register_builder(PointBuilder)
-
-BboxBuilder = momapy.builder.get_or_make_builder_cls(Bbox)
-
-momapy.builder.register_builder(BboxBuilder)
+BboxBuilder = momapy.builder.get_or_make_builder_cls(momapy.geometry.Bbox)

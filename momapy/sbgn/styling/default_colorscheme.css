@@ -2,7 +2,7 @@ TextLayout {
     font_color: black;
 }
 
-Layout {
+MapLayout {
     stroke: none;
     stroke_width: 1.0;
     fill: white;

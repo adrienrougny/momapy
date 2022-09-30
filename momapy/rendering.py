@@ -64,7 +64,7 @@ def render_maps(
         for map_ in maps:
             if isinstance(map_, momapy.core.Map):
                 new_maps.append(momapy.builder.builder_from_object(map_))
-            elif isinstance(map_, momapy.builder.MapBuilder):
+            elif isinstance(map_, momapy.core.MapBuilder):
                 new_maps.append(deepcopy(map_))
         maps = new_maps
     if style_sheet is not None:
@@ -91,7 +91,7 @@ def render_maps(
         translation = momapy.geometry.Translation(-min_x, -min_y)
         for map_ in maps:
             if map_.layout.transform is None:
-                map_.layout.transform = momapy.builder.TupleBuilder()
+                map_.layout.transform = momapy.core.TupleBuilder()
             map_.layout.transform.append(translation)
     renderer_obj = _make_renderer_for_render_function(
         output_file, max_x, max_y, format_, renderer
@@ -452,14 +452,9 @@ class SVGNativeRenderer(Renderer):
             if drawing_element.filter is not None:
                 svg_filter = self._render_filter(drawing_element.filter)
                 svg_filters.add(svg_filter)
-            if isinstance(
+            if momapy.builder.isinstance_or_builder(
                 drawing_element,
-                (
-                    momapy.drawing.Group,
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.drawing.Group
-                    ),
-                ),
+                momapy.drawing.Group,
             ):
                 svg_filters |= self._render_filters(drawing_element.elements)
         return svg_filters

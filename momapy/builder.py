@@ -1,186 +1,30 @@
-from abc import ABC, abstractmethod
-from dataclasses import (
-    dataclass,
-    field,
-    is_dataclass,
-    fields,
-    MISSING,
-    make_dataclass,
-)
-from frozendict import frozendict
-from typing import (
-    Callable,
-    Collection,
-    get_origin,
-    get_args,
-    Optional,
-    Any,
-)
-from inspect import getmembers
-from types import MethodType
+import abc
+import dataclasses
+import typing
+import inspect
 
 import momapy.core
 import momapy.geometry
 
-@dataclass
-class Event(ABC):
-    pass
 
+class Builder(abc.ABC):
+    _cls_to_build: typing.ClassVar[type]
 
-@dataclass
-class AttributeGet(Event):
-    obj: Any
-    attribute: str
+    @abc.abstractmethod
+    def build(self):
+        pass
 
-
-@dataclass
-class AttributeSet(Event):
-    obj: Any
-    attribute: str
-    value: Any
-
-
-class ConnectableAttribute(object):
-    def __set_name__(self, owner, name):
-        self.name = name
-
-    def __get__(self, obj, objtype=None):
-        if obj is not None:
-            if (
-                self.name in obj.attribute_callbacks
-                and "get" in obj.attribute_callbacks[self.name]
-            ):
-                for callback in obj.attribute_callbacks[self.name]["get"]:
-                    callback(obj, AttributeGet(obj, self.name))
-            return obj.__dict__[self.name]
-        else:
-            return objtype.__dict__[self.name]
-
-    def __set__(self, obj, value):
-        if self.name in obj.attribute_callbacks:
-            if "set" in obj.attribute_callbacks[self.name]:
-                for callback in obj.attribute_callbacks[self.name]["set"]:
-                    callback(obj, AttributeSet(obj, self.name, value))
-        obj.__dict__[self.name] = value
-
-
-@dataclass
-class ConnectableObject(object):
-    def connect_attribute(self, attribute, event_type, callback):
-        if attribute not in self.attribute_callbacks:
-            self.attribute_callbacks[attribute] = {}
-        if event_type not in self.attribute_callbacks[attribute]:
-            self.attribute_callbacks[attribute][event_type] = set()
-        self.attribute_callbacks[attribute][event_type].add(callback)
-
-    @property
-    def attribute_callbacks(self):
-        if not hasattr(self, "_attribute_callbacks"):
-            self._attribute_callbacks = {}
-        return self._attribute_callbacks
-
-    def connectables(self):
-        connectables = []
-        for name, attribute in type(self).__dict__.items():
-            if isinstance(attribute, ConnectableAttribute):
-                connectables.append(name)
-        return connectables
-
-
-@dataclass(eq=False)
-class UpdatedObject(ConnectableObject):
-    obj: Optional[Any] = None
-    func: Optional[str] = None
-    args: list[Any] = field(default_factory=list)
-    kwargs: dict[str, Any] = field(default_factory=dict)
-    updated = ConnectableAttribute()
-
-    def __post_init__(self):
-        self.updated = True
-        self.update()
-        for item in [self.obj] + self.args + list(self.kwargs.values()):
-            if isinstance(item, ConnectableObject):
-                for connectable in item.connectables():
-                    item.connect_attribute(
-                        connectable, "set", self._set_to_update
-                    )
-
-    @property
-    def value(self):
-        if not self.updated:
-            self.update()
-        return self._value
-
-    def update(self):
-        if self.obj is None:
-            value = self.func(*self.args, **self.kwargs)
-        else:
-            if isinstance(self.func, str):
-                func = getattr(self.obj, self.func)
-                if isinstance(func, MethodType) and func.__self__ == self.obj:
-                    value = func(*self.args, **self.kwargs)
-                else:
-                    value = func
-        self._value = value
-        self.updated = True
-
-    def _set_to_update(self, obj, event):
-        self.updated = False
-
-    def __getattribute__(self, name):
-        if name in [
-            "__post_init__",
-            "attribute_callbacks",
-            "_attribute_callbacks",
-            "__dict__",
-            "obj",
-            "func",
-            "updated",
-            "update",
-            "_set_to_update",
-            "value",
-            "_value",
-            "connectables",
-            "connect_attribute",
-            "args",
-            "kwargs",
-        ]:
-            return object.__getattribute__(self, name)
-        else:
-            return getattr(self.value, name)
-
-    def __add__(self, other):
-        return self.value.__add__(other)
-
-    def __sub__(self, other):
-        return self.value.__sub__(other)
-
-    def __div__(self, other):
-        return self.value.__div__(other)
-
-    def __mul__(self, other):
-        return self.value.__mul__(other)
-
-    def __len__(self):
-        return self.value.__len__()
-
-    def __iter__(self):
-        return self.value.__iter__()
-
-
-def updated_object(obj=None, func=None, args=None, kwargs=None):
-    if args is None:
-        args = []
-    if kwargs is None:
-        kwargs = {}
-    return UpdatedObject(obj=obj, func=func, args=args, kwargs=kwargs)
+    @classmethod
+    @abc.abstractmethod
+    def from_object(cls, obj):
+        pass
 
 
 builders = {}
 
 
-def _transform_type(type_):
-    o_type = get_origin(type_)
+def transform_type(type_):
+    o_type = typing.get_origin(type_)
     if o_type is not None:
         if isinstance(o_type, type):  # o_type is a class
             new_o_type = get_or_make_builder_cls(o_type)
@@ -189,7 +33,7 @@ def _transform_type(type_):
         else:
             new_o_type = o_type
         new_type = new_o_type[
-            tuple([_transform_type(a_type) for a_type in get_args(type_)])
+            tuple([transform_type(a_type) for a_type in typing.get_args(type_)])
         ]
     else:
         if isinstance(type_, type):  # type_ is a class
@@ -201,46 +45,38 @@ def _transform_type(type_):
     return new_type
 
 
-def _build(self):
-    args = {}
-    for field_ in fields(self):
-        attr_value = getattr(self, field_.name)
-        args[field_.name] = object_from_builder(attr_value)
-    return self._cls_to_build(**args)
-
-
-def _from_object(cls, obj):
-    args = {}
-    for field_ in fields(obj):
-        attr_value = getattr(obj, field_.name)
-        args[field_.name] = builder_from_object(attr_value)
-    return cls(**args)
-
-
-def _add_element(self, element, fields_for_add_element):
-    added = False
-    for field_ in fields_for_add_element:
-        if isinstance(element, field_["a_types"]):
-            attr = getattr(self, field_["field_name"])
-            if hasattr(attr, "append"):
-                attr.append(element)
-                added = True
-            elif hasattr(attr, "add"):
-                attr.add(element)
-                added = True
-    if not added:
-        raise TypeError(f"unsupported type {type(element)}")
-
-
-def _post_init(self):
-    self._callbacks = {}
-    self._attribute_callbacks = {}
-
-
 def make_builder_cls(
     cls, builder_fields=None, builder_bases=None, builder_namespace=None
 ):
-    cls_fields = fields(cls)
+    def _builder_build(self):
+        args = {}
+        for field_ in dataclasses.fields(self):
+            attr_value = getattr(self, field_.name)
+            args[field_.name] = object_from_builder(attr_value)
+        return self._cls_to_build(**args)
+
+    def _builder_from_object(cls, obj):
+        args = {}
+        for field_ in fields(obj):
+            attr_value = getattr(obj, field_.name)
+            args[field_.name] = builder_from_object(attr_value)
+        return cls(**args)
+
+    def _builder_add_element(self, element, fields_for_add_element):
+        added = False
+        for field_ in fields_for_add_element:
+            if isinstance(element, field_["a_types"]):
+                attr = getattr(self, field_["field_name"])
+                if hasattr(attr, "append"):
+                    attr.append(element)
+                    added = True
+                elif hasattr(attr, "add"):
+                    attr.add(element)
+                    added = True
+        if not added:
+            raise TypeError(f"unsupported type {type(element)}")
+
+    cls_fields = dataclasses.fields(cls)
     if builder_fields is None:
         builder_fields = []
     if builder_bases is None:
@@ -248,53 +84,54 @@ def make_builder_cls(
     if builder_namespace is None:
         builder_namespace = {}
     fields_for_add_element = []
+    builder_field_names = [builder_field[0] for builder_field in builder_fields]
     for field_ in cls_fields:
         field_name = field_.name
-        if field_name not in [
-            builder_field[0] for builder_field in builder_fields
-        ]:
+        if field_name not in builder_field_names:
             field_dict = {}
-            field_type = _transform_type(field_.type)
-            if field_.default_factory != MISSING:
-                field_dict["default_factory"] = _transform_type(
+            field_type = transform_type(field_.type)
+            if field_.default_factory != dataclasses.MISSING:
+                field_dict["default_factory"] = transform_type(
                     field_.default_factory
                 )
-            if field_.default != MISSING:
+            if field_.default != dataclasses.MISSING:
                 field_dict["default"] = field_.default
-            builder_fields.append((field_name, field_type, field(**field_dict)))
-            field_o_type = get_origin(field_type)
+            builder_fields.append(
+                (field_name, field_type, dataclasses.field(**field_dict))
+            )
+            field_o_type = typing.get_origin(field_type)
             if (
-                issubclass(cls, momapy.core.MapElement)
-                and field_o_type is not None
+                field_o_type is not None
                 and isinstance(field_o_type, type)
-                and issubclass(field_o_type, Collection)
+                and issubclass(field_o_type, typing.Collection)
             ):
                 fields_for_add_element.append(
                     {
                         "field_name": field_name,
                         "field_type": field_type,
-                        "a_types": get_args(field_type),
+                        "a_types": typing.get_args(field_type),
                     }
                 )
 
-    builder_namespace["build"] = _build
-    builder_namespace["from_object"] = classmethod(_from_object)
+    builder_namespace["build"] = _builder_build
+    builder_namespace["from_object"] = classmethod(_builder_from_object)
     builder_namespace["_cls_to_build"] = cls
-    builder_namespace["__post_init__"] = _post_init
 
     if fields_for_add_element:
         builder_namespace["add_element"] = (
-            lambda fields_for_add_element: lambda self, element: _add_element(
+            lambda fields_for_add_element: lambda self, element: _builder_add_element(
                 self, element, fields_for_add_element
             )
         )(fields_for_add_element)
 
-    for member in getmembers(cls):
+    for member in inspect.getmembers(cls):
         func_name = member[0]
         func = member[1]
         if (
-            isinstance(func, Callable) or isinstance(func, property)
-        ) and not func_name.startswith("__"):
+            (isinstance(func, typing.Callable) or isinstance(func, property))
+            and not func_name.startswith("__")
+            and not func_name == "_cls_to_build"
+        ):
             builder_namespace[func_name] = func
 
     cls_bases = [
@@ -312,18 +149,13 @@ def make_builder_cls(
         builder_bases = [Builder] + builder_bases
     builder_bases = tuple(builder_bases)
 
-    builder = make_dataclass(
+    builder = dataclasses.make_dataclass(
         cls_name=f"{cls.__name__}Builder",
         fields=builder_fields,
         bases=builder_bases,
         namespace=builder_namespace,
         eq=False,
     )
-
-    for field_ in builder_fields:
-        connectable_attribute = ConnectableAttribute()
-        setattr(builder, field_[0], connectable_attribute)
-        connectable_attribute.__set_name__(builder, field_[0])
 
     return builder
 
@@ -343,25 +175,25 @@ def builder_from_object(obj):
         return obj
 
 
-def new_object(object_cls, *args, **kwargs):
-    if not issubclass(object_cls, Builder):
-        builder_cls = get_or_make_builder_cls(object_cls)
-    return builder_cls(*args, **kwargs)
+def new_builder(cls, *args, **kwargs):
+    if not issubclass(cls, Builder):
+        cls = get_or_make_builder_cls(cls)
+    return cls(*args, **kwargs)
 
 
 def get_or_make_builder_cls(
     cls, builder_fields=None, builder_bases=None, builder_namespace=None
 ):
-    if has_builder(cls):
-        return get_builder(cls)
-    elif is_dataclass(cls):
-        builder_cls = make_builder_cls(
-            cls, builder_fields, builder_bases, builder_namespace
-        )
-        register_builder(builder_cls)
-        return builder_cls
-    else:
-        return cls
+    builder_cls = get_builder(cls)
+    if builder_cls is None:
+        if dataclasses.is_dataclass(cls):
+            builder_cls = make_builder_cls(
+                cls, builder_fields, builder_bases, builder_namespace
+            )
+            register_builder(builder_cls)
+        else:
+            builder_cls = cls
+    return builder_cls
 
 
 def has_builder(cls):
@@ -369,283 +201,22 @@ def has_builder(cls):
 
 
 def get_builder(cls):
-    return builders[cls]
+    return builders.get(cls)
 
 
 def register_builder(builder_cls):
     builders[builder_cls._cls_to_build] = builder_cls
 
 
-class Builder(ConnectableObject, ABC):
-    @property
-    @classmethod
-    @abstractmethod
-    def _cls_to_build(cls) -> type:
-        pass
-
-    @abstractmethod
-    def build(self):
-        pass
-
-    @classmethod
-    @abstractmethod
-    def from_object(cls, obj):
-        pass
-
-
-class FrozensetBuilder(set, Builder):
-    _cls_to_build = frozenset
-
-    def build(self):
-        return self._cls_to_build([object_from_builder(elem) for elem in self])
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([builder_from_object(elem) for elem in obj])
-
-
-class SetBuilder(set, Builder):
-    _cls_to_build = set
-
-    def build(self):
-        return self._cls_to_build([object_from_builder(elem) for elem in self])
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([builder_from_object(elem) for elem in obj])
-
-
-class TupleBuilder(list, Builder):
-    _cls_to_build = tuple
-
-    def build(self):
-        return self._cls_to_build([object_from_builder(elem) for elem in self])
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([builder_from_object(elem) for elem in obj])
-
-
-class DictBuilder(dict, Builder):
-    _cls_to_build = dict
-
-    def build(self):
-        return self._cls_to_build(
-            [
-                (object_from_builder(key), object_from_builder(val))
-                for key, val in self.items()
-            ]
-        )
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls(
-            [
-                (builder_from_object(key), builder_from_object(val))
-                for key, val in obj.items()
-            ]
-        )
-
-
-class FrozendictBuilder(dict, Builder):
-    _cls_to_build = frozendict
-
-    def build(self):
-        return self._cls_to_build(
-            [
-                (object_from_builder(key), object_from_builder(val))
-                for key, val in self.items()
-            ]
-        )
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls(
-            [
-                (builder_from_object(key), builder_from_object(val))
-                for key, val in obj.items()
-            ]
-        )
-
-
-class ListBuilder(list, Builder):
-    _cls_to_build = list
-
-    def build(self):
-        return self._cls_to_build([object_from_builder(elem) for elem in self])
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([builder_from_object(elem) for elem in obj])
-
-
-class ModelLayoutMappingBuilder(FrozendictBuilder):
-    _cls_to_build = momapy.core.ModelLayoutMapping
-
-
-register_builder(FrozensetBuilder)
-register_builder(SetBuilder)
-register_builder(TupleBuilder)
-register_builder(DictBuilder)
-register_builder(FrozendictBuilder)
-register_builder(ListBuilder)
-register_builder(ModelLayoutMappingBuilder)
-
-
-def _point_builder_add(self, xy):
-    if isinstance(xy, (PointBuilder, momapy.geometry.Point)):
-        xy = (xy.x, xy.y)
-    return PointBuilder(self.x + xy[0], self.y + xy[1])
-
-
-def _point_builder_sub(self, xy):
-    if isinstance(xy, (PointBuilder, momapy.geometry.Point)):
-        xy = (xy.x, xy.y)
-    return PointBuilder(self.x - xy[0], self.y - xy[1])
-
-
-def _point_builder_iter(self):
-    yield self.x
-    yield self.y
-
-
-PointBuilder = get_or_make_builder_cls(
-    momapy.geometry.Point,
-    builder_namespace={
-        "__add__": _point_builder_add,
-        "__sub__": _point_builder_sub,
-        "__iter__": _point_builder_iter,
-    },
-)
-
-
-def _map_element_builder_hash(self):
-    return hash(self.id)
-
-
-def _map_element_builder_eq(self, other):
-    return self.__class__ == other.__class__ and self.id == other.id
-
-
-MapElementBuilder = get_or_make_builder_cls(
-    momapy.core.MapElement,
-    builder_namespace={
-        "__hash__": _map_element_builder_hash,
-        "__eq__": _map_element_builder_eq,
-    },
-)
-
-ModelElementBuilder = get_or_make_builder_cls(momapy.core.ModelElement)
-LayoutElementBuilder = get_or_make_builder_cls(momapy.core.LayoutElement)
-NodeLayoutElementBuilder = get_or_make_builder_cls(
-    momapy.core.NodeLayoutElement
-)
-ArcLayoutElementBuilder = get_or_make_builder_cls(momapy.core.ArcLayoutElement)
-TextLayoutElementBuilder = get_or_make_builder_cls(
-    momapy.core.TextLayoutElement
-)
-
-
-def _model_builder_new_element(self, element_cls, *args, **kwargs):
-    if not issubclass(
-        element_cls, (ModelElementBuilder, momapy.core.ModelElement)
-    ):
-        raise TypeError(
-            "element class must be a subclass of ModelElementBuilder or ModelElement"
-        )
-    return new_object(element_cls, *args, **kwargs)
-
-
-ModelBuilder = get_or_make_builder_cls(
-    momapy.core.Model,
-    builder_namespace={"new_element": _model_builder_new_element},
-)
-
-
-def _layout_builder_new_element(self, element_cls, *args, **kwargs):
-    if not issubclass(
-        element_cls, (LayoutElementBuilder, momapy.core.LayoutElement)
-    ):
-        raise TypeError(
-            "element class must be a subclass of LayoutElementBuilder or LayoutElement"
-        )
-    return new_object(element_cls, *args, **kwargs)
-
-
-LayoutBuilder = get_or_make_builder_cls(
-    momapy.core.Layout,
-    builder_namespace={"new_element": _layout_builder_new_element},
-)
-
-
-@abstractmethod
-def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
-    pass
-
-
-@abstractmethod
-def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
-    pass
-
-
-@abstractmethod
-def _map_builder_new_model_layout_mapping(
-    self, *args, **kwargs
-) -> ModelLayoutMappingBuilder:
-    pass
-
-
-def _map_builder_new_model_element(
-    self, element_cls, *args, **kwargs
-) -> ModelElementBuilder:
-    model_element = self.model.new_element(element_cls, *args, **kwargs)
-    return model_element
-
-
-def _map_builder_new_layout_element(
-    self, element_cls, *args, **kwargs
-) -> LayoutElementBuilder:
-    layout_element = self.layout.new_element(element_cls, *args, **kwargs)
-    return layout_element
-
-
-def _map_builder_add_model_element(self, model_element):
-    self.model.add_element(model_element)
-
-
-def _map_builder_add_layout_element(self, layout_element):
-    self.layout.add_element(layout_element)
-
-
-def _map_builder_add_layout_element_to_model_element(
-    self, layout_element, model_element
-):
-    if model_element not in self.model_layout_mapping:
-        self.model_layout_mapping[model_element] = FrozensetBuilder()
-    self.model_layout_mapping[model_element].add(layout_element)
-
-
-def _map_builder_get_layout_elements(self, model_element):
-    return self.model_layout_mapping[model_element]
-
-
-MapBuilder = get_or_make_builder_cls(
-    momapy.core.Map,
-    builder_namespace={
-        "new_model": _map_builder_new_model,
-        "new_layout": _map_builder_new_layout,
-        "new_model_layout_mapping": _map_builder_new_model_layout_mapping,
-        "new_model_element": _map_builder_new_model_element,
-        "new_layout_element": _map_builder_new_layout_element,
-        "add_model_element": _map_builder_add_model_element,
-        "add_layout_element": _map_builder_add_layout_element,
-        "add_layout_element_to_model_element": _map_builder_add_layout_element_to_model_element,
-        "get_layout_elements": _map_builder_get_layout_elements,
-    },
-)
-
-BboxBuilder = get_or_make_builder_cls(momapy.geometry.Bbox)
-
-PhantomLayoutElementBuilder = get_or_make_builder_cls(
-    momapy.core.PhantomLayoutElement
-)
+def isinstance_or_builder(obj, type_):
+    if isinstance(type_, type):
+        type_ = (type_,)
+    type_ += tuple([get_or_make_builder_cls(t) for t in type_])
+    return isinstance(obj, type_)
+
+
+def issubclass_or_builder(cls, type_):
+    if isinstance(type_, type):
+        type_ = (type_,)
+    type_ += tuple([get_or_make_builder_cls(t) for t in type_])
+    return issubclass(cls, type_)
