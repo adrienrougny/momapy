@@ -57,7 +57,7 @@ def make_builder_cls(
 
     def _builder_from_object(cls, obj):
         args = {}
-        for field_ in fields(obj):
+        for field_ in dataclasses.fields(obj):
             attr_value = getattr(obj, field_.name)
             args[field_.name] = builder_from_object(attr_value)
         return cls(**args)
@@ -127,11 +127,13 @@ def make_builder_cls(
     for member in inspect.getmembers(cls):
         func_name = member[0]
         func = member[1]
-        if (
-            (isinstance(func, typing.Callable) or isinstance(func, property))
-            and not func_name.startswith("__")
-            and not func_name == "_cls_to_build"
-        ):
+        # if (
+        #     (isinstance(func, typing.Callable) or isinstance(func, property))
+        #     and not func_name.startswith("__")
+        #     and not func_name == "_cls_to_build"
+        # ):
+        if not func_name.startswith("__") and not func_name == "_cls_to_build":
+
             builder_namespace[func_name] = func
 
     cls_bases = [
@@ -156,7 +158,6 @@ def make_builder_cls(
         namespace=builder_namespace,
         eq=False,
     )
-
     return builder
 
 
