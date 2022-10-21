@@ -3,7 +3,6 @@ import dataclasses
 import typing
 import inspect
 
-import momapy.core
 import momapy.geometry
 
 

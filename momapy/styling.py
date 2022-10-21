@@ -6,7 +6,6 @@ import pyparsing as pp
 import frozendict
 
 
-import momapy.builder
 import momapy.coloring
 import momapy.drawing
 
@@ -16,7 +15,6 @@ class StyleCollection(frozendict.frozendict):
 
 
 class StyleSheet(frozendict.frozendict):
-
     def __or__(self, other):
         d = dict(self)
         for key, value in other.items():
@@ -29,7 +27,6 @@ class StyleSheet(frozendict.frozendict):
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
-
     @abc.abstractmethod
     def select(self, obj, ancestors) -> bool:
         pass
@@ -42,8 +39,10 @@ class TypeSelector(Selector):
     def select(self, obj, ancestors):
         obj_class = type(obj).__name__
         if not self.class_name.endswith("Builder"):
-            return (obj_class == self.class_name
-                    or obj_class == f"{self.class_name}Builder")
+            return (
+                obj_class == self.class_name
+                or obj_class == f"{self.class_name}Builder"
+            )
         return obj_class == self.class_name
 
 
@@ -63,8 +62,9 @@ class ChildSelector(Selector):
     def select(self, obj, ancestors):
         if len(ancestors) == 0:
             return False
-        return (self.child_selector.select(obj, ancestors)
-                and self.parent_selector.select(ancestors[-1], ancestors[:-1]))
+        return self.child_selector.select(
+            obj, ancestors
+        ) and self.parent_selector.select(ancestors[-1], ancestors[:-1])
 
 
 @dataclasses.dataclass(frozen=True)
@@ -75,10 +75,12 @@ class DescendantSelector(Selector):
     def select(self, obj, ancestors):
         if len(ancestors) == 0:
             return False
-        return (self.descendant_selector.select(obj, ancestors)
-                and any([self.ancestor_selector.select(ancestor, ancestors[:i])
-                         for i, ancestor in enumerate(ancestors)])
-                )
+        return self.descendant_selector.select(obj, ancestors) and any(
+            [
+                self.ancestor_selector.select(ancestor, ancestors[:i])
+                for i, ancestor in enumerate(ancestors)
+            ]
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -86,8 +88,9 @@ class OrSelector(Selector):
     selectors: tuple[Selector]
 
     def select(self, obj, ancestors):
-        return any([selector.select(obj, ancestors)
-                    for selector in self.selectors])
+        return any(
+            [selector.select(obj, ancestors) for selector in self.selectors]
+        )
 
 
 def join_style_sheets(style_sheets):
@@ -105,15 +108,14 @@ def apply_style_collection(layout_element, style_collection, strict=True):
             setattr(layout_element, attribute, value)
         else:
             if strict:
-                raise AttributeError(f"{type(layout_element)} object has no "
-                                     f"attribute '{attribute}'")
+                raise AttributeError(
+                    f"{type(layout_element)} object has no "
+                    f"attribute '{attribute}'"
+                )
 
 
 def apply_style_sheet(
-        layout_element,
-        style_sheet,
-        strict=True,
-        descendants=None
+    layout_element, style_sheet, strict=True, descendants=None
 ):
     if style_sheet is not None:
         if descendants is None:
@@ -133,54 +135,66 @@ def read_string(s):
 
 def read_file(file_or_file_name):
     style_sheet = _css_style_sheet.parse_file(
-        file_or_file_name, parse_all=True)[0]
+        file_or_file_name, parse_all=True
+    )[0]
     return style_sheet
 
 
 _css_none_value = pp.Literal("none")
 _css_float_value = pp.Combine(
-    pp.Word(pp.nums) + pp.Literal(".") + pp.Word(pp.nums))
+    pp.Word(pp.nums) + pp.Literal(".") + pp.Word(pp.nums)
+)
 _css_string_value = pp.quoted_string
 _css_color_name_value = pp.Word(pp.alphas + "_")
 _css_color_value = _css_color_name_value
 _css_int_value = pp.Word(pp.nums)
 _css_drop_shadow_filter_value = (
-        pp.Literal("drop-shadow(")
-        + _css_float_value
-        + _css_float_value
-        + pp.Optional(_css_float_value)
-        + pp.Optional(_css_color_value)
-        + pp.Literal(")")
+    pp.Literal("drop-shadow(")
+    + _css_float_value
+    + _css_float_value
+    + pp.Optional(_css_float_value)
+    + pp.Optional(_css_color_value)
+    + pp.Literal(")")
 )
 _css_filter_value = _css_drop_shadow_filter_value
 _css_attribute_value = (
-        _css_drop_shadow_filter_value
-        | _css_none_value
-        | _css_float_value
-        | _css_string_value
-        | _css_color_value
-        | _css_int_value
+    _css_drop_shadow_filter_value
+    | _css_none_value
+    | _css_float_value
+    | _css_string_value
+    | _css_color_value
+    | _css_int_value
 )
 _css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
-_css_style = _css_attribute_name + pp.Literal(
-    ":") + _css_attribute_value + pp.Literal(";")
-_css_style_collection = pp.Literal("{") + pp.Group(
-    _css_style[1, ...]) + pp.Literal("}")
+_css_style = (
+    _css_attribute_name
+    + pp.Literal(":")
+    + _css_attribute_value
+    + pp.Literal(";")
+)
+_css_style_collection = (
+    pp.Literal("{") + pp.Group(_css_style[1, ...]) + pp.Literal("}")
+)
 _css_id = pp.Word(pp.printables)
 _css_id_selector = pp.Literal("#") + _css_id
 _css_type_selector = pp.Word(pp.alphas + "_", pp.alphanums + "_")
 _css_elementary_selector = _css_type_selector | _css_id_selector
-_css_child_selector = _css_elementary_selector + pp.Literal(
-    ">") + _css_elementary_selector
-_css_descendant_selector = _css_elementary_selector + pp.OneOrMore(
-    pp.White()) + _css_elementary_selector
+_css_child_selector = (
+    _css_elementary_selector + pp.Literal(">") + _css_elementary_selector
+)
+_css_descendant_selector = (
+    _css_elementary_selector
+    + pp.OneOrMore(pp.White())
+    + _css_elementary_selector
+)
 _css_or_selector = pp.Group(
-    pp.delimited_list(_css_elementary_selector, ",", min=2))
+    pp.delimited_list(_css_elementary_selector, ",", min=2)
+)
 _css_selector = (
-        _css_child_selector
-        | _css_descendant_selector
-        | _css_or_selector
-        | _css_elementary_selector
+    _css_child_selector
+    | _css_descendant_selector
+    | _css_or_selector
+    | _css_elementary_selector
 )
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
@@ -216,9 +230,7 @@ def _resolve_css_color_name_value(results):
 @_css_drop_shadow_filter_value.set_parse_action
 def _resolve_css_drop_shadow_filter_value(results):
     filter_effect = momapy.drawing.DropShadowEffect(results[1], results[2])
-    filter = momapy.drawing.Filter(
-        effects=(filter_effect,)
-    )
+    filter = momapy.drawing.Filter(effects=(filter_effect,))
     return filter
 
 
@@ -234,7 +246,10 @@ def _resolve_css_attribute_name(results):
 
 @_css_style.set_parse_action
 def _resolve_css_style(results):
-    return (results[0], results[2],)
+    return (
+        results[0],
+        results[2],
+    )
 
 
 @_css_style_collection.set_parse_action
@@ -279,7 +294,10 @@ def _resolve_css_or_selector(results):
 
 @_css_rule.set_parse_action
 def _resolve_css_rule(results):
-    return (results[0], results[1],)
+    return (
+        results[0],
+        results[1],
+    )
 
 
 @_css_style_sheet.set_parse_action
