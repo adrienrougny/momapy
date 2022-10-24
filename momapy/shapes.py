@@ -1192,73 +1192,38 @@ class CircleWithConnectors(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True)
-class CircleInsideCircleWithConnectors(momapy.core.NodeLayout):
-    left_connector_length: float = 0
-    right_connector_length: float = 0
-    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
+class CircleWithInsideCircle(momapy.core.NodeLayout):
     sep: float = 2
 
     def north_west(self):
         return self.self_bbox().north_west()
 
     def west(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x - self.width / 2, self.y)
-        else:
-            return momapy.geometry.Point(
-                self.x - self.width / 2 - self.left_connector_length, self.y
-            )
+        return self.self_bbox().west()
 
     def south_west(self):
         return self.self_bbox().south_west()
 
     def south(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y + self.height / 2 + self.right_connector_length
-            )
-        else:
-            return momapy.geometry.Point(self.x, self.y + self.height / 2)
+        return self.self_bbox().south()
 
     def south_east(self):
         return self.self_bbox().south_east()
 
     def east(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x + self.width / 2, self.y)
-        else:
-            return momapy.geometry.Point(
-                self.x + self.width / 2 + self.right_connector_length, self.y
-            )
+        return self.self_bbox().east()
 
     def north_east(self):
         return self.self_bbox().north_east()
 
     def north(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y - self.height / 2 - self.left_connector_length
-            )
-        else:
-            return momapy.geometry.Point(self.x, self.y - self.height / 2)
+        return self.self_bbox().north()
 
     def center(self):
         return self.position
 
     def label_center(self):
         return self.center()
-
-    def base_left_connector(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x, self.y - self.height / 2)
-        else:
-            return momapy.geometry.Point(self.x - self.width / 2, self.y)
-
-    def base_right_connector(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x, self.y + self.height / 2)
-        else:
-            return momapy.geometry.Point(self.x + self.width / 2, self.y)
 
     def border_drawing_element(self):
         outer_circle = momapy.drawing.Ellipse(
@@ -1269,16 +1234,6 @@ class CircleInsideCircleWithConnectors(momapy.core.NodeLayout):
             rx=self.width / 2 - self.sep,
             ry=self.height / 2 - self.sep,
         )
-        left_connector = momapy.drawing.Path()
-        left_connector += momapy.drawing.move_to(self.base_left_connector())
-        right_connector = momapy.drawing.Path()
-        right_connector += momapy.drawing.move_to(self.base_right_connector())
-        if self.direction == momapy.core.Direction.VERTICAL:
-            left_connector += momapy.drawing.line_to(self.north())
-            right_connector += momapy.drawing.line_to(self.south())
-        else:
-            left_connector += momapy.drawing.line_to(self.west())
-            right_connector += momapy.drawing.line_to(self.east())
-        elements = (outer_circle, inner_circle, left_connector, right_connector)
+        elements = (outer_circle, inner_circle)
         group = momapy.drawing.Group(elements=elements)
         return group

@@ -1,166 +1,343 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from typing import TypeVar, Union, Optional, ClassVar, Callable
+from typing import TypeVar, Union, Optional, ClassVar, Callable, Any
 
-from momapy.core import (
-    Map,
-    ModelElement,
-    Model,
-    MapLayout,
-    ModelLayoutMapping,
-    NodeLayout,
-    Direction,
-    TextLayout,
-)
+import momapy.core
+import momapy.geometry
 
 
-############Annotation###################
 @dataclass(frozen=True)
-class Annotation(ModelElement):
+class Annotation(momapy.core.ModelElement):
     pass
 
 
-############SBGN MODEL ELEMENT###################
 @dataclass(frozen=True)
-class SBGNModelElement(ModelElement):
+class SBGNModelElement(momapy.core.ModelElement):
     annotations: frozenset[Annotation] = field(default_factory=frozenset)
 
 
-############SBGN ROLES###################
 @dataclass(frozen=True)
 class SBGNRole(SBGNModelElement):
     element: Optional[SBGNModelElement] = None
 
 
-############MODEL###################
 @dataclass(frozen=True)
-class SBGNModel(Model):
+class SBGNModel(momapy.core.Model):
     pass
 
 
-############MAP###################
 @dataclass(frozen=True)
-class SBGNMap(Map):
+class SBGNMap(momapy.core.Map):
     model: Optional[SBGNModel] = None
-    layout: Optional[MapLayout] = None
-    model_layout_mapping: Optional[ModelLayoutMapping] = None
-
-
-class _MetaSBGNShape(type):
-    def _get_subunit_anchor_point(obj, i, anchor):
-        return getattr(obj._make_subunit(i), anchor)()
-
-    def __new__(cls, bases, namespace, **kwds):
-        if namespace.get("_with_connectors") is True:
-            namespace["base_left_connector"] = self._base_left_connector
-            namespace["base_right_connector"] = self._base_right_connector
-        if namespace.get("_with_multi") is True:
-            namespace["subunits_stroke"] = field(default_factory=tuple)
-            namespace["subunits_stroke_width"] = field(default_factory=tuple)
-            namespace["subunits_fill"] = field(default_factory=tuple)
-            for i in range(self._n):
-                for anchor in namespace["_shape"].anchors:
-                    namespace[
-                        f"subunit{i}_{anchor}"
-                    ] = lambda i, anchor: _get_subunit_anchor_point(
-                        obj, i, anchor
-                    )
-        return super().__new__(cls, bases, namespace, **kwds)
+    layout: Optional[momapy.core.MapLayout] = None
+    model_layout_mapping: Optional[momapy.core.ModelLayoutMapping] = None
 
 
 @dataclass(frozen=True)
-class _SBGNShape(NodeLayout, metaclass=_MetaSBGNShape):
-    _shape: Optional[NodeLayout] = None
-    _arg_names_mapping: Optional[dict[str, str]] = None
-    _with_connectors: bool = False
-    _default_left_connector_length: Optional[float] = None
-    _default_right_connector_length: Optional[float] = None
-    _default_direction: Optional[Direction] = Direction.HORIZONTAL
-    _with_multi: bool = False
-    _n: Optional[int] = None
-    _with_text: bool = False
-    _text: Optional[str] = None
-    _font_size_func: Optional[Callable] = None
-    _font_family: Optional[str] = None
+class _SBGNShapeBase(momapy.core.NodeLayout):
+    def border_drawing_element(self):
+        drawing_elements = []
+        for base in type(self).__mro__:
+            if (
+                momapy.builder.issubclass_or_builder(base, _SBGNMixinBase)
+                and base is not _SBGNMixinBase
+                and base
+                is not momapy.builder.get_or_make_builder_cls(_SBGNMixinBase)
+                and base is not type(self)
+            ):
+                drawing_elements += getattr(base, "_mixin_drawing_elements")(
+                    self
+                )
+        group = momapy.drawing.Group(elements=drawing_elements)
+        return group
 
-    def _get_subunit_initialization_arguments(self, order=0) -> dict[str, Any]:
-        args = {}
-        for arg_name in self.arg_names_mapping:
-            args[arg_name] = getattr(self, self.arg_names_mapping[arg_name])
-        if self.n > 1:
-            for arg_name in ["stroke", "stroke_width", "fill"]:
-                if arg_name not in self.arg_names_mapping:
-                    if len(getattr(self, f"subunits_{arg_name}s")) > order:
-                        args[arg_name] = getattr(self, f"subunits_{arg_name}s")[
-                            order
-                        ]
-        args["position"] = self._get_subunit_position(order=0)
-        args["width"] = self._get_subunit_width()
-        args["height"] = self._get_subunit_height()
-        return args
+    def self_bbox(self):
+        bboxes = []
+        for base in type(self).__bases__:
+            if (
+                momapy.builder.issubclass_or_builder(base, _SBGNMixinBase)
+                and base is not _SBGNMixinBase
+                and base
+                is not momapy.builder.get_or_make_builder_cls(_SBGNMixinBase)
+            ):
+                bboxes.append(getattr(base, "_mixin_bbox")(self))
+        position, width, height = momapy.positioning.fit(bboxes)
+        return momapy.geometry.Bbox(position, width, height)
+
+
+@dataclass(frozen=True)
+class _SBGNMixinBase(object):
+    @classmethod
+    @abstractmethod
+    def _mixin_drawing_elements(cls, obj):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def _mixin_bbox(cls, obj):
+        pass
+
+
+@dataclass(frozen=True)
+class _ConnectorsMixin(_SBGNMixinBase):
+    left_connector_length: Optional[float] = None
+    right_connector_length: Optional[float] = None
+    direction: Optional[
+        momapy.core.Direction
+    ] = momapy.core.Direction.HORIZONTAL
+
+    def base_left_connector(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(self.x, self.y - self.height / 2)
+        else:
+            return momapy.geometry.Point(self.x - self.width / 2, self.y)
+
+    def base_right_connector(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(self.x, self.y + self.height / 2)
+        else:
+            return momapy.geometry.Point(self.x + self.width / 2, self.y)
+
+    def west(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(self.x - self.width / 2, self.y)
+        else:
+            return momapy.geometry.Point(
+                self.x - self.width / 2 - self.left_connector_length, self.y
+            )
+
+    def south(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(
+                self.x, self.y + self.height / 2 + self.right_connector_length
+            )
+        else:
+            return momapy.geometry.Point(self.x, self.y + self.height / 2)
+
+    def east(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(self.x + self.width / 2, self.y)
+        else:
+            return momapy.geometry.Point(
+                self.x + self.width / 2 + self.right_connector_length, self.y
+            )
+
+    def north(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(
+                self.x, self.y - self.height / 2 - self.left_connector_length
+            )
+        else:
+            return momapy.geometry.Point(self.x, self.y - self.height / 2)
+
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        path_left = momapy.drawing.Path()
+        path_right = momapy.drawing.Path()
+        if obj.direction == momapy.core.Direction.VERTICAL:
+            path_left += momapy.drawing.move_to(
+                obj.base_left_connector()
+            ) + momapy.drawing.line_to(obj.north())
+            path_right += momapy.drawing.move_to(
+                obj.base_right_connector()
+            ) + momapy.drawing.line_to(obj.south())
+        else:
+            path_left += momapy.drawing.move_to(
+                obj.base_left_connector()
+            ) + momapy.drawing.line_to(obj.west())
+            path_right += momapy.drawing.move_to(
+                obj.base_right_connector()
+            ) + momapy.drawing.line_to(obj.east())
+        return [path_left, path_right]
+
+    @classmethod
+    def _mixin_bbox(cls, obj):
+        position = obj.position
+        if obj.direction == momapy.core.Direction.VERTICAL:
+            width = obj.width
+            height = obj.east().y - obj.west().y
+        else:
+            width = obj.east().x - obj.west().x
+            height = obj.height
+        return momapy.geometry.Bbox(position, width, height)
+
+
+@dataclass(frozen=True)
+class _SimpleMixin(_SBGNMixinBase):
+    _shape_cls: ClassVar[type]
+    _arg_names_mapping: ClassVar[dict[str, str]]
+
+    def north(self):
+        return self._make_shape().north()
+
+    def east(self):
+        return self._make_shape().east()
+
+    def south(self):
+        return self._make_shape().south()
+
+    def west(self):
+        return self._make_shape().west()
+
+    def north_east(self):
+        return self._make_shape().north_east()
+
+    def south_east(self):
+        return self._make_shape().south_east()
+
+    def south_west(self):
+        return self._make_shape().south_west()
+
+    def north_west(self):
+        return self._make_shape().north_west()
+
+    def center(self):
+        return self._make_shape().center()
+
+    def label_center(self):
+        return self._make_shape().label_center()
+
+    def _get_shape_initialization_arguments(self) -> dict[str, Any]:
+        kwargs = {}
+        for arg_name in self._arg_names_mapping:
+            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
+        kwargs["position"] = self.position
+        kwargs["width"] = self.width
+        kwargs["height"] = self.height
+        return kwargs
+
+    def _make_shape(self):
+        kwargs = self._get_shape_initialization_arguments()
+        return self._shape_cls(**kwargs)
+
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        return obj._make_shape().drawing_elements()
+
+    @classmethod
+    def _mixin_bbox(cls, obj):
+        return momapy.geometry.Bbox(obj.position, obj.width, obj.height)
+
+
+@dataclass(frozen=True)
+class _MultiMixin(_SBGNMixinBase):
+    _n: ClassVar[int]
+    _shape_cls: ClassVar[momapy.core.NodeLayout]
+    _arg_names_mapping: ClassVar[dict[str, str]]
+    offset: int = 10
+    subunits_stroke: tuple[momapy.coloring.Color] = field(default_factory=tuple)
+    subunits_stroke_width: tuple[float] = field(default_factory=tuple)
+    subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
+
+    def north(self):
+        return self.self_bbox().north()
+
+    def east(self):
+        return self.self_bbox().east()
+
+    def south(self):
+        return self.self_bbox().south()
+
+    def west(self):
+        return self.self_bbox().west()
+
+    def north_east(self):
+        return self.self_bbox().north_east()
+
+    def south_east(self):
+        return self.self_bbox().south_east()
+
+    def south_west(self):
+        return self.self_bbox().south_west()
+
+    def north_west(self):
+        return self.self_bbox().north_west()
+
+    def center(self):
+        return self.self_bbox().center()
+
+    def label_center(self):
+        return self._make_subunit(self._n - 1).label_center()
 
     def _get_subunit_width(self):
-        width = self.width - self.offset * self.n
+        width = self.width - self.offset * (self._n - 1)
         return width
 
     def _get_subunit_height(self):
-        height = self.height - self.offset * self.n
+        height = self.height - self.offset * (self._n - 1)
         return height
 
     def _get_subunit_position(self, order=0):
         position = self.position + (
-            -self.width / 2
-            + self._get_subunit_width() / 2
-            + order * self.offset,
-            -self.height / 2
-            + self._get_subunit_height() / 2
-            + order * self.offset,
+            +self.width / 2
+            - self._get_subunit_width() / 2
+            - order * self.offset,
+            +self.height / 2
+            - self._get_subunit_height() / 2
+            - order * self.offset,
         )
         return position
 
+    def _get_subunit_initialization_arguments(self, order=0) -> dict[str, Any]:
+        kwargs = {}
+        for arg_name in self._arg_names_mapping:
+            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
+        if self._n > 1:
+            for arg_name in ["stroke", "stroke_width", "fill"]:
+                if arg_name not in self._arg_names_mapping:
+                    if len(getattr(self, f"subunits_{arg_name}")) > order:
+                        kwargs[arg_name] = getattr(
+                            self, f"subunits_{arg_name}"
+                        )[order]
+        kwargs["position"] = self._get_subunit_position(order)
+        kwargs["width"] = self._get_subunit_width()
+        kwargs["height"] = self._get_subunit_height()
+        return kwargs
+
     def _make_subunit(self, order=0):
-        args = self._get_subunit_initialization_arguments(order)
-        return self.shape(**args)
+        kwargs = self._get_subunit_initialization_arguments(order)
+        return self._shape_cls(**kwargs)
 
-    def _make_subunits_drawing_elements(self):
-        subunits_drawing_elements = []
+    def _make_subunits(self):
+        subunits = []
         for i in range(self._n):
-            subunits_drawing_elements.append(
-                self._make_subunit(i).drawing_elements()
-            )
-        return subunits_drawing_elements
+            subunit = self._make_subunit(i)
+            subunits.append(subunit)
+        return subunits
 
-    def _make_connectors_drawing_elements(self):
-        path_left = Path()
-        path_right = Path()
-        if self.direction == momapy.core.Direction.VERTICAL:
-            path_left += momapy.drawing.move_to(
-                self.base_left_connector()
-            ) + momapy.drawing.line_to(self.north())
-            path_right += +momapy.drawing.move_to(
-                self.base_right_connector()
-            ) + momapy.drawing.line_to(self.south())
-        else:
-            path_left += momapy.drawing.move_to(
-                self.base_left_connector()
-            ) + momapy.drawing.line_to(self.west())
-            path_right += +momapy.drawing.move_to(
-                self.base_right_connector()
-            ) + momapy.drawing.line_to(self.east())
-        return [path_left, path_right]
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        drawing_elements = []
+        for subunit in obj._make_subunits():
+            drawing_elements += subunit.drawing_elements()
+        return drawing_elements
 
-    def _make_text_drawing_elements(self):
-        text_layout = TextLayout(
+    @classmethod
+    def _mixin_bbox(cls, obj):
+        return momapy.geometry.Bbox(obj.position, obj.width, obj.height)
+
+
+@dataclass(frozen=True)
+class _TextMixin(_SBGNMixinBase):
+    _text: ClassVar[str]
+    _font_color: ClassVar[momapy.coloring.Color]
+    _font_family: ClassVar[str]
+    _font_size_func: ClassVar[Callable]
+
+    def _make_text_layout(self):
+        text_layout = momapy.core.TextLayout(
+            position=self.position,
             text=self._text,
             font_family=self._font_family,
             font_size=self._font_size_func(),
+            font_color=self._font_color,
         )
-        return text_layout.drawing_elements()
+        return text_layout
 
-    def self_drawing_elements(self):
-        drawing_elements = self._make_subunits_drawing_elements()
-        if self._with_connectors:
-            drawing_elements += self._make_connectors_drawing_elements()
-        if self._with_text:
-            drawing_elements += self._make_text_drawing_elements()
-        return drawing_elements
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        return obj._make_text_layout().drawing_elements()
+
+    @classmethod
+    def _mixin_bbox(cls, obj):
+        return obj._make_text_layout().bbox()

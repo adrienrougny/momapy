@@ -484,27 +484,82 @@ SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
 
 
 ############GLYPHS###################
-
-
 @dataclasses.dataclass(frozen=True)
-class CompartmentLayout(momapy.shapes.RectangleWithRoundedCorners):
-    rounded_corners: float = 10
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 4
-
-
-@dataclasses.dataclass(frozen=True)
-class MacromoleculeLayout(momapy.shapes.RectangleWithRoundedCorners):
+class StateVariableLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
-    rounded_corners: float = 10
     fill: momapy.coloring.Color = momapy.coloring.colors.white
+
+
+@dataclasses.dataclass(frozen=True)
+class UnitOfInformationLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+
+
+@dataclasses.dataclass(frozen=True)
+class CompartmentLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 4
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+    rounded_corners: float = 10
+
+
+@dataclasses.dataclass(frozen=True)
+class UnspecifiedEntityLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+
+
+@dataclasses.dataclass(frozen=True)
+class MacromoleculeLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+    rounded_corners: float = 10
 
 
 @dataclasses.dataclass(frozen=True)
 class MacromoleculeMultimerLayout(
-    momapy.shapes.DoubleRectangleWithRoundedCorners
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
 ):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    _n: int = 2
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -513,14 +568,23 @@ class MacromoleculeMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True)
-class SimpleChemicalLayout(momapy.shapes.Stadium):
+class SimpleChemicalLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
 @dataclasses.dataclass(frozen=True)
-class SimpleChemicalMultimerLayout(momapy.shapes.DoubleStadium):
+class SimpleChemicalMultimerLayout(
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    _n: int = 2
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -528,21 +592,13 @@ class SimpleChemicalMultimerLayout(momapy.shapes.DoubleStadium):
 
 
 @dataclasses.dataclass(frozen=True)
-class StateVariableLayout(momapy.shapes.Stadium):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-
-
-@dataclasses.dataclass(frozen=True)
-class UnitOfInformationLayout(momapy.shapes.Rectangle):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-
-
-@dataclasses.dataclass(frozen=True)
-class ComplexLayout(momapy.shapes.RectangleWithCutCorners):
+class ComplexLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "cut_corners": "cut_corners"
+    }
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -550,18 +606,49 @@ class ComplexLayout(momapy.shapes.RectangleWithCutCorners):
 
 
 @dataclasses.dataclass(frozen=True)
-class ComplexMultimerLayout(momapy.shapes.DoubleRectangleWithCutCorners):
+class ComplexMultimerLayout(
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "cut_corners": "cut_corners"
+    }
+    _n: int = 2
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     cut_corners: float = 10
     offset: float = 2
+
+
+@dataclasses.dataclass(frozen=True)
+class NucleicAcidFeatureLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithBottomRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    _n: int = 2
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+    rounded_corners: float = 10
 
 
 @dataclasses.dataclass(frozen=True)
 class NucleicAcidFeatureMultimerLayout(
-    momapy.shapes.DoubleRectangleWithBottomRoundedCorners
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
 ):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithBottomRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    _n: int = 2
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -570,106 +657,184 @@ class NucleicAcidFeatureMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True)
-class NucleicAcidFeatureLayout(momapy.shapes.RectangleWithBottomRoundedCorners):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-    rounded_corners: float = 10
-
-
-@dataclasses.dataclass(frozen=True)
-class EmptySetLayout(momapy.shapes.CircleWithDiagonalBar):
+class EmptySetLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithDiagonalBar
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
 
 
 @dataclasses.dataclass(frozen=True)
-class AndOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
+class _LogicalOperatorLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _font_color: typing.ClassVar[
+        momapy.coloring.Color
+    ] = momapy.coloring.colors.black
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
+    stroke_width: float = 1.0
     fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "AND"
+    left_connector_length: float = 10.0
+    right_connector_length: float = 10.0
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
-class OrOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "OR"
+class AndOperatorLayout(_LogicalOperatorLayout):
+    _text: typing.ClassVar[str] = "AND"
 
 
 @dataclasses.dataclass(frozen=True)
-class NotOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "NOT"
+class OrOperatorLayout(_LogicalOperatorLayout):
+    _text: typing.ClassVar[str] = "OR"
 
 
 @dataclasses.dataclass(frozen=True)
-class EquivalenceOperatorLayout(momapy.shapes.CircleWithConnectorsAndText):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "≡"
+class NotOperatorLayout(_LogicalOperatorLayout):
+    _text: typing.ClassVar[str] = "NOT"
 
 
 @dataclasses.dataclass(frozen=True)
-class UnspecifiedEntityLayout(momapy.shapes.Ellipse):
-    stroke: momapy.coloring.Color = momapy.coloring.colors.black
-    stroke_width: float = 1
-    fill: momapy.coloring.Color = momapy.coloring.colors.white
+class EquivalenceOperatorLayout(_LogicalOperatorLayout):
+    _text: typing.ClassVar[str] = "≡"
 
 
 @dataclasses.dataclass(frozen=True)
-class GenericProcessLayout(momapy.shapes.RectangleWithConnectors):
+class GenericProcessLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
+    left_connector_length: float = 10
+    right_connector_length: float = 10
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
-class OmittedProcessLayout(momapy.shapes.RectangleWithConnectorsAndText):
+class OmittedProcessLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "//"
+    left_connector_length: float = 10
+    right_connector_length: float = 10
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
+    _text: typing.ClassVar[str] = "\\\\"
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 1.5
+    )
+    _font_color: typing.ClassVar[
+        momapy.coloring.Color
+    ] = momapy.coloring.colors.black
 
 
 @dataclasses.dataclass(frozen=True)
-class UncertainProcessLayout(momapy.shapes.RectangleWithConnectorsAndText):
+class UncertainProcessLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
-    text: str = "?"
+    left_connector_length: float = 10
+    right_connector_length: float = 10
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
+    _text: typing.ClassVar[str] = "?"
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 1.5
+    )
+    _font_color: typing.ClassVar[
+        momapy.coloring.Color
+    ] = momapy.coloring.colors.black
 
 
 @dataclasses.dataclass(frozen=True)
-class AssociationLayout(momapy.shapes.CircleWithConnectors):
+class AssociationLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.black
+    left_connector_length: float = 10
+    right_connector_length: float = 10
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
-class DissociationLayout(momapy.shapes.CircleInsideCircleWithConnectors):
+class DissociationLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithInsideCircle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {"sep": "sep"}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
-    sep: float = 3
+    left_connector_length: float = 10
+    right_connector_length: float = 10
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
+    sep: float = 3.5
 
 
 @dataclasses.dataclass(frozen=True)
-class PhenotypeLayout(momapy.shapes.Hexagon):
+class PhenotypeLayout(
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Hexagon
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "top_left_angle": "angle",
+        "top_right_angle": "angle",
+        "bottom_left_angle": "angle",
+        "bottom_right_angle": "angle",
+    }
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
+    angle: float = 50
 
 
 @dataclasses.dataclass(frozen=True)
-class SubmapLayout(momapy.shapes.Rectangle):
+class SubmapLayout(
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._SBGNShapeBase,
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
