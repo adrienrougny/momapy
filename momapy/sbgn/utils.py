@@ -59,6 +59,9 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
                 layout_element.width = width
             if height > layout_element.height:
                 layout_element.height = height
+            momapy.positioning.set_position(
+                layout_element, position, anchor="label_center"
+            )
 
 
 def set_arcs_to_borders(map_builder):
