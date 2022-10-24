@@ -74,6 +74,7 @@ PhenotypeLayout {
     stroke: black;
     stroke_width: 2.0;
     fill: white;
+    angle: 60.0;
 }
 
 AndOperatorLayout {
@@ -210,6 +211,15 @@ EmptySetLayout {
     fill: white;
 }
 
+PerturbingAgentLayout {
+    width: 108;
+    height: 60;
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    angle: 60.0;
+}
+
 StateVariableLayout {
     width: 18;
     height: 18;
@@ -225,6 +235,15 @@ UnitOfInformationLayout {
     stroke_width: 2.0;
     fill: white;
 }
+
+SubmapLayout {
+    width: 216;
+    height: 120;
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+}
+
 
 StateVariableLayout > TextLayoutElement {
     font_size: 10.0;

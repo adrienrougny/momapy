@@ -668,6 +668,23 @@ class EmptySetLayout(
 
 
 @dataclasses.dataclass(frozen=True)
+class PerturbingAgentLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.InvertedHexagon
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "top_left_angle": "angle",
+        "top_right_angle": "angle",
+        "bottom_left_angle": "angle",
+        "bottom_right_angle": "angle",
+    }
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+    angle: float = 50
+
+
+@dataclasses.dataclass(frozen=True)
 class _LogicalOperatorLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,

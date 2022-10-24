@@ -165,7 +165,7 @@ LibSBGNGlyphMapping = {
     },
     "perturbing agent": {
         "model_class": momapy.sbgn.pd.PerturbingAgent,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.PerturbingAgentLayout,
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
