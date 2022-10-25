@@ -262,7 +262,6 @@ def _resolve_css_attribute_name(results):
 
 @_css_style.set_parse_action
 def _resolve_css_style(results):
-    print(results[2])
     return (
         results[0],
         results[2],
