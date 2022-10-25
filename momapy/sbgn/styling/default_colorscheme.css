@@ -81,7 +81,6 @@ MacromoleculeLayout {
 MacromoleculeMultimerLayout {
     stroke: black;
     fill: lightblue;
-    subunits_fill: lightblue, lightskyblue;
 }
 
 ComplexLayout {

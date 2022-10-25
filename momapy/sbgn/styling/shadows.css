@@ -61,6 +61,7 @@ MacromoleculeLayout {
 MacromoleculeMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0 3.0);
+    subunits_filter: none, drop-shadow(1.0 1.0);
 }
 
 ComplexLayout {
@@ -71,6 +72,7 @@ ComplexLayout {
 ComplexMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0 3.0);
+    subunits_filter: none, drop-shadow(1.0 1.0);
 }
 
 SimpleChemicalLayout {
@@ -81,6 +83,7 @@ SimpleChemicalLayout {
 SimpleChemicalMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0 3.0);
+    subunits_filter: none, drop-shadow(1.0 1.0);
 }
 
 NucleicAcidFeatureLayout {
@@ -91,6 +94,7 @@ NucleicAcidFeatureLayout {
 NucleicAcidFeatureMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0 3.0);
+    subunits_filter: none, drop-shadow(1.0 1.0);
 }
 
 EmptySetLayout {
