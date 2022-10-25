@@ -126,7 +126,17 @@ EmptySetLayout {
     fill: white;
 }
 
+PerturbingAgentLayout {
+    stroke: black;
+    fill: red;
+}
+
 TagLayout {
+    stroke: black;
+    fill: brown;
+}
+
+SubmapTerminalLayout {
     stroke: black;
     fill: brown;
 }

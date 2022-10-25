@@ -522,6 +522,11 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
 
 
 @dataclasses.dataclass(frozen=True)
+class TerminalLayout(TagLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
 class CompartmentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):

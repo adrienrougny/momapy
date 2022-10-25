@@ -101,6 +101,11 @@ EmptySetLayout {
     filter: drop-shadow(3.0 3.0);
 }
 
+PerturbingAgentLayout {
+    stroke: none;
+    filter: drop-shadow(3.0 3.0);
+}
+
 StateVariableLayout {
     stroke: none;
 }
@@ -110,5 +115,10 @@ UnitOfInformationLayout {
 }
 
 TagLayout {
+    stroke: none;
+    filter: drop-shadow(3.0 3.0);
+}
+
+SubmapTerminalLayout {
     stroke: none;
 }

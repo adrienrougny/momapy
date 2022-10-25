@@ -339,7 +339,7 @@ LibSBGNGlyphMapping = {
     },
     "terminal": {
         "model_class": momapy.sbgn.pd.Terminal,
-        "layout_class": momapy.sbgn.pd.TagLayout,
+        "layout_class": momapy.sbgn.pd.TerminalLayout,
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,

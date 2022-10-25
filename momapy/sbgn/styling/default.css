@@ -20,6 +20,14 @@ TagLayout {
     stroke: black;
     stroke_width: 1.0;
     fill: white;
+    angle: 50.0;
+}
+
+TerminalLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: white;
+    angle: 50.0;
 }
 
 CompartmentLayout {
@@ -73,6 +81,7 @@ PhenotypeLayout {
     stroke: black;
     stroke_width: 1.0;
     fill: white;
+    angle: 50.0;
 }
 
 AndOperatorLayout {
@@ -175,6 +184,13 @@ EmptySetLayout {
     stroke: black;
     stroke_width: 1.0;
     fill: white;
+}
+
+PerturbingAgent {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: white;
+    angle: 50.0;
 }
 
 StateVariableLayout {
