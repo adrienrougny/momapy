@@ -507,6 +507,21 @@ class UnitOfInformationLayout(
 
 
 @dataclasses.dataclass(frozen=True)
+class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Pointer
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "top_angle": "angle",
+        "bottom_angle": "angle",
+        "direction": "direction",
+    }
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+    angle: float = 50.0
+    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+
+
+@dataclasses.dataclass(frozen=True)
 class CompartmentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):

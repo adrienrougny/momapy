@@ -387,10 +387,10 @@ class CircleWithDiagonalBar(momapy.core.NodeLayout):
 
 @dataclass(frozen=True)
 class Hexagon(momapy.core.NodeLayout):
-    top_left_angle: float = 50
-    top_right_angle: float = 50
-    bottom_left_angle: float = 50
-    bottom_right_angle: float = 50
+    top_left_angle: float = 50.0
+    top_right_angle: float = 50.0
+    bottom_left_angle: float = 50.0
+    bottom_right_angle: float = 50.0
 
     def north_west(self):
         angle = math.radians(self.top_left_angle)
@@ -462,10 +462,10 @@ class Hexagon(momapy.core.NodeLayout):
 
 @dataclass(frozen=True)
 class InvertedHexagon(momapy.core.NodeLayout):
-    top_left_angle: float = 50
-    top_right_angle: float = 50
-    bottom_left_angle: float = 50
-    bottom_right_angle: float = 50
+    top_left_angle: float = 50.0
+    top_right_angle: float = 50.0
+    bottom_left_angle: float = 50.0
+    bottom_right_angle: float = 50.0
 
     def inner_left(self):
         d = 100
@@ -599,3 +599,121 @@ class CircleWithInsideCircle(momapy.core.NodeLayout):
         elements = (outer_circle, inner_circle)
         group = momapy.drawing.Group(elements=elements)
         return group
+
+
+@dataclass(frozen=True)
+class Pointer(momapy.core.NodeLayout):
+    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    top_angle: float = 50.0
+    bottom_angle: float = 50.0
+
+    def north_west(self):
+        if self.direction == momapy.core.Direction.UP:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                -self.height / 2 + side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.LEFT:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2 + side_length * math.cos(angle),
+                -self.height / 2,
+            )
+        else:
+            return self.position - (self.width / 2, self.height / 2)
+
+    def west(self):
+        return momapy.geometry.Point(self.x - self.width / 2, self.y)
+
+    def south_west(self):
+        if self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                +self.height / 2 - side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.LEFT:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2 + side_length * math.cos(angle),
+                self.height / 2,
+            )
+        else:
+            return self.position + (-self.width / 2, self.height / 2)
+
+    def south(self):
+        return momapy.geometry.Point(self.x, self.y + self.height / 2)
+
+    def south_east(self):
+        if self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2,
+                self.height / 2 - side_length * math.cos(angle),
+            )
+        elif (
+            self.direction == momapy.core.Direction.UP
+            or self.direction == momapy.core.Direction.LEFT
+        ):
+            return self.position + (self.width / 2, self.height / 2)
+        else:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2 - side_length * math.cos(angle),
+                self.height / 2,
+            )
+
+    def east(self):
+        return momapy.geometry.Point(self.x + self.width / 2, self.y)
+
+    def north_east(self):
+        if self.direction == momapy.core.Direction.UP:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2,
+                -self.height / 2 + side_length * math.cos(angle),
+            )
+        elif (
+            self.direction == momapy.core.Direction.DOWN
+            or self.direction == momapy.core.Direction.LEFT
+        ):
+            return self.position + (self.width / 2, -self.height / 2)
+        else:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2 - side_length * math.cos(angle),
+                -self.height / 2,
+            )
+
+    def north(self):
+        return momapy.geometry.Point(self.x, self.y - self.height / 2)
+
+    def center(self):
+        return self.position
+
+    def label_center(self):
+        return self.center()
+
+    def border_drawing_element(self):
+        path = momapy.drawing.Path()
+        path += (
+            momapy.drawing.move_to(self.north_west())
+            + momapy.drawing.line_to(self.north())
+            + momapy.drawing.line_to(self.north_east())
+            + momapy.drawing.line_to(self.east())
+            + momapy.drawing.line_to(self.south_east())
+            + momapy.drawing.line_to(self.south())
+            + momapy.drawing.line_to(self.south_west())
+            + momapy.drawing.line_to(self.west())
+            + momapy.drawing.close()
+        )
+        return path

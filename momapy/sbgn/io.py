@@ -71,6 +71,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 8,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "unit of information": {
         "model_class": momapy.sbgn.pd.UnitOfInformation,
@@ -78,6 +79,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 8,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "unspecified entity subunit": {
         "model_class": momapy.sbgn.pd.UnspecifiedEntitySubunit,
@@ -85,6 +87,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "macromolecule subunit": {
         "model_class": momapy.sbgn.pd.MacromoleculeSubunit,
@@ -92,6 +95,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "nucleic acid feature subunit": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureSubunit,
@@ -99,6 +103,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "simple chemical subunit": {
         "model_class": momapy.sbgn.pd.SimpleChemicalSubunit,
@@ -106,6 +111,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "complex subunit": {
         "model_class": momapy.sbgn.pd.ComplexSubunit,
@@ -113,6 +119,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "macromolecule multimer subunit": {
         "model_class": momapy.sbgn.pd.MacromoleculeMultimerSubunit,
@@ -120,6 +127,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "nucleic acid feature multimer subunit": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
@@ -127,6 +135,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "simple chemical multimer subunit": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
@@ -134,6 +143,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "complex multimer subunit": {
         "model_class": momapy.sbgn.pd.ComplexMultimerSubunit,
@@ -141,6 +151,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "compartment": {
         "model_class": momapy.sbgn.pd.Compartment,
@@ -148,6 +159,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "empty set": {
         "model_class": momapy.sbgn.pd.EmptySet,
@@ -155,6 +167,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "source and sink": {
         "model_class": momapy.sbgn.pd.EmptySet,
@@ -162,6 +175,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "perturbing agent": {
         "model_class": momapy.sbgn.pd.PerturbingAgent,
@@ -169,6 +183,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "unspecified entity": {
         "model_class": momapy.sbgn.pd.UnspecifiedEntity,
@@ -176,6 +191,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "macromolecule": {
         "model_class": momapy.sbgn.pd.Macromolecule,
@@ -183,6 +199,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "nucleic acid feature": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeature,
@@ -190,6 +207,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "simple chemical": {
         "model_class": momapy.sbgn.pd.SimpleChemical,
@@ -197,6 +215,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "complex": {
         "model_class": momapy.sbgn.pd.Complex,
@@ -204,6 +223,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "macromolecule multimer": {
         "model_class": momapy.sbgn.pd.MacromoleculeMultimer,
@@ -211,6 +231,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "nucleic acid feature multimer": {
         "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimer,
@@ -218,6 +239,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "simple chemical multimer": {
         "model_class": momapy.sbgn.pd.SimpleChemicalMultimer,
@@ -225,6 +247,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "complex multimer": {
         "model_class": momapy.sbgn.pd.ComplexMultimer,
@@ -232,6 +255,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "process": {
         "model_class": momapy.sbgn.pd.GenericProcess,
@@ -239,6 +263,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "uncertain process": {
         "model_class": momapy.sbgn.pd.UncertainProcess,
@@ -246,6 +271,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "association": {
         "model_class": momapy.sbgn.pd.Association,
@@ -253,6 +279,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "dissociation": {
         "model_class": momapy.sbgn.pd.Dissociation,
@@ -260,6 +287,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "omitted process": {
         "model_class": momapy.sbgn.pd.OmittedProcess,
@@ -267,6 +295,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "phenotype": {
         "model_class": momapy.sbgn.pd.Phenotype,
@@ -274,6 +303,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
     "or": {
         "model_class": momapy.sbgn.pd.OrOperator,
@@ -281,6 +311,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "and": {
         "model_class": momapy.sbgn.pd.AndOperator,
@@ -288,6 +319,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "not": {
         "model_class": momapy.sbgn.pd.NotOperator,
@@ -295,6 +327,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "equivalence": {
         "model_class": momapy.sbgn.pd.EquivalenceOperator,
@@ -302,20 +335,23 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": True,
+        "has_orientation": False,
     },
     "terminal": {
         "model_class": momapy.sbgn.pd.Terminal,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.TagLayout,
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": True,
     },
     "tag": {
         "model_class": momapy.sbgn.pd.Tag,
-        "layout_class": momapy.shapes.Rectangle,
+        "layout_class": momapy.sbgn.pd.TagLayout,
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": True,
     },
     "submap": {
         "model_class": momapy.sbgn.pd.Submap,
@@ -323,6 +359,7 @@ LibSBGNGlyphMapping = {
         "font_family": "Arial",
         "font_size": 20,
         "has_connectors": False,
+        "has_orientation": False,
     },
 }
 
@@ -751,6 +788,10 @@ def _make_layout_element_from_glyph(
                     - glyph.get_bbox().get_h()
                 )
                 layout_element.direction = momapy.core.Direction.VERTICAL
+    if LibSBGNGlyphMapping[glyph_key]["has_orientation"]:
+        layout_element.direction = momapy.core.Direction[
+            glyph.get_orientation().name
+        ]
     return layout_element
 
 
