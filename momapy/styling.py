@@ -246,13 +246,13 @@ def _resolve_css_simple_value(results):
 
 
 @_css_list_value.set_parse_action
-def _resolve_css_simple_value(results):
-    return momapy.core.TupleBuilder(results[0])
+def _resolve_css_list_value(results):
+    return [momapy.core.TupleBuilder(results[0])]
 
 
 @_css_attribute_value.set_parse_action
 def _resolve_css_attribute_value(results):
-    return results[0]
+    return results
 
 
 @_css_attribute_name.set_parse_action
@@ -262,6 +262,7 @@ def _resolve_css_attribute_name(results):
 
 @_css_style.set_parse_action
 def _resolve_css_style(results):
+    print(results[2])
     return (
         results[0],
         results[2],
