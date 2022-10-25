@@ -477,7 +477,10 @@ class SVGNativeRenderer(Renderer):
     def _render_filters(self, drawing_elements):
         svg_filters = set([])
         for drawing_element in drawing_elements:
-            if drawing_element.filter is not None:
+            if (
+                drawing_element.filter is not None
+                and drawing_element.filter is not momapy.drawing.NoneValue
+            ):
                 svg_filter = self._render_filter(drawing_element.filter)
                 svg_filters.add(svg_filter)
             if momapy.builder.momapy.builder.isinstance_or_builder(
@@ -787,7 +790,10 @@ class SVGNativeRenderer(Renderer):
                 "stroke-width", svg_stroke_width_value
             )
             svg_attributes.append(svg_stroke_width_attribute)
-        if drawing_element.filter is not None:
+        if (
+            drawing_element.filter is not None
+            and drawing_element.filter is not momapy.drawing.NoneValue
+        ):
             svg_filter_value = f"url(#{drawing_element.filter.id})"
             svg_attributes.append(
                 self._render_svg_attribute("filter", svg_filter_value)
