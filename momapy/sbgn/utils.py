@@ -46,6 +46,23 @@ def set_complexes_to_fit_content(map_builder, xsep=0, ysep=0):
                         complex_layout.label.height = complex_layout.height
 
 
+def set_submaps_to_fit_content(map_builder, xsep=0, ysep=0):
+    for submap in map_builder.model.submaps:
+        for submap_layout in map_builder.model_layout_mapping[submap]:
+            elements = []
+            for terminal in submap.terminals:
+                terminal_layouts = map_builder.model_layout_mapping[terminal]
+                for terminal_layout in terminal_layouts:
+                    if terminal_layout in submap_layout.layout_elements:
+                        elements.append(terminal_layout)
+            if len(elements) > 0:
+                momapy.positioning.set_fit(submap_layout, elements, xsep, ysep)
+                if submap_layout.label is not None:
+                    submap_layout.label.position = submap_layout.position
+                    submap_layout.label.width = submap_layout.width
+                    submap_layout.label.height = submap_layout.height
+
+
 def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
     for layout_element in map_builder.layout.flatten():
         if (
@@ -209,6 +226,7 @@ def tidy(
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_auxilliary_units_to_borders(map_builder)
     set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
+    set_submaps_to_fit_content(map_builder, 0, 0)
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_auxilliary_units_to_borders(map_builder)
     set_compartments_to_fit_content(
