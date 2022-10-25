@@ -157,7 +157,7 @@ _css_drop_shadow_filter_value = (
     + pp.Literal(")")
 )
 _css_filter_value = _css_drop_shadow_filter_value
-_css_attribute_value = (
+_css_simple_value = (
     _css_drop_shadow_filter_value
     | _css_none_value
     | _css_float_value
@@ -165,6 +165,8 @@ _css_attribute_value = (
     | _css_color_value
     | _css_int_value
 )
+_css_list_value = pp.Group(pp.delimited_list(_css_simple_value, ",", min=2))
+_css_attribute_value = _css_list_value | _css_simple_value
 _css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
 _css_style = (
     _css_attribute_name
@@ -229,9 +231,23 @@ def _resolve_css_color_name_value(results):
 
 @_css_drop_shadow_filter_value.set_parse_action
 def _resolve_css_drop_shadow_filter_value(results):
-    filter_effect = momapy.drawing.DropShadowEffect(results[1], results[2])
-    filter = momapy.drawing.Filter(effects=(filter_effect,))
+    filter_effect = momapy.builder.get_or_make_builder_cls(
+        momapy.drawing.DropShadowEffect
+    )(results[1], results[2])
+    filter = momapy.builder.get_or_make_builder_cls(momapy.drawing.Filter)(
+        effects=momapy.core.TupleBuilder([filter_effect])
+    )
     return filter
+
+
+@_css_simple_value.set_parse_action
+def _resolve_css_simple_value(results):
+    return results[0]
+
+
+@_css_list_value.set_parse_action
+def _resolve_css_simple_value(results):
+    return momapy.core.TupleBuilder(results[0])
 
 
 @_css_attribute_value.set_parse_action
