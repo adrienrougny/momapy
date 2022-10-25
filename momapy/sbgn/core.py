@@ -228,6 +228,7 @@ class _MultiMixin(_SBGNMixinBase):
     subunits_stroke: tuple[momapy.coloring.Color] = field(default_factory=tuple)
     subunits_stroke_width: tuple[float] = field(default_factory=tuple)
     subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
+    subunits_filter: tuple[momapy.drawing.Filter] = field(default_factory=tuple)
 
     def north(self):
         return self.self_bbox().north()
@@ -283,7 +284,7 @@ class _MultiMixin(_SBGNMixinBase):
         for arg_name in self._arg_names_mapping:
             kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
         if self._n > 1:
-            for arg_name in ["stroke", "stroke_width", "fill"]:
+            for arg_name in ["stroke", "stroke_width", "fill", "filter"]:
                 if arg_name not in self._arg_names_mapping:
                     if len(getattr(self, f"subunits_{arg_name}")) > order:
                         kwargs[arg_name] = getattr(
