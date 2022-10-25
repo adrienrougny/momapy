@@ -10,6 +10,18 @@ MapLayout {
     fill: white;
 }
 
+SubmapLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: white;
+}
+
+TagLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: white;
+}
+
 CompartmentLayout {
     stroke: black;
     stroke_width: 7.0;

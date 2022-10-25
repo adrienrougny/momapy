@@ -1,3 +1,8 @@
+SubmapLayout {
+    stroke: none;
+    filter: drop-shadow(3.0 3.0);
+}
+
 CompartmentLayout {
     filter: drop-shadow(3.0 3.0);
 }
@@ -97,5 +102,9 @@ StateVariableLayout {
 }
 
 UnitOfInformationLayout {
+    stroke: none;
+}
+
+TagLayout {
     stroke: none;
 }
