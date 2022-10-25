@@ -232,25 +232,43 @@ class CairoRenderer(Renderer):
         render_transformation_function(transformation)
 
     def _get_transformation_render_function(self, transformation):
-        if isinstance(transformation, momapy.geometry.Translation):
+        if momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Translation
+        ):
             return self._render_translation
-        elif isinstance(transformation, momapy.geometry.Rotation):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Rotation
+        ):
             return self._render_rotation
-        elif isinstance(transformation, momapy.geometry.Scaling):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Scaling
+        ):
             return self._render_scaling
-        elif isinstance(transformation, momapy.geometry.MatrixTransformation):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.MatrixTransformation
+        ):
             return self._render_matrix_transformation
 
     def _get_drawing_element_render_function(self, drawing_element):
-        if isinstance(drawing_element, momapy.drawing.Group):
+        if momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Group
+        ):
             return self._render_group
-        elif isinstance(drawing_element, momapy.drawing.Path):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Path
+        ):
             return self._render_path
-        elif isinstance(drawing_element, momapy.drawing.Text):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Text
+        ):
             return self._render_text
-        elif isinstance(drawing_element, momapy.drawing.Ellipse):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Ellipse
+        ):
             return self._render_ellipse
-        elif isinstance(drawing_element, momapy.drawing.Rectangle):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Rectangle
+        ):
             return self._render_rectangle
 
     def _stroke_and_fill(self):
@@ -316,15 +334,25 @@ class CairoRenderer(Renderer):
         render_function(path_action)
 
     def _get_path_action_render_function(self, path_action):
-        if isinstance(path_action, momapy.drawing.MoveTo):
+        if momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.MoveTo
+        ):
             return self._render_move_to
-        elif isinstance(path_action, momapy.drawing.LineTo):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.LineTo
+        ):
             return self._render_line_to
-        elif isinstance(path_action, momapy.drawing.Close):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Close
+        ):
             return self._render_close
-        elif isinstance(path_action, momapy.drawing.Arc):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Arc
+        ):
             return self._render_arc
-        elif isinstance(path_action, momapy.drawing.EllipticalArc):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.EllipticalArc
+        ):
             return self._render_elliptical_arc
 
     def _render_move_to(self, move_to):
@@ -452,7 +480,7 @@ class SVGNativeRenderer(Renderer):
             if drawing_element.filter is not None:
                 svg_filter = self._render_filter(drawing_element.filter)
                 svg_filters.add(svg_filter)
-            if momapy.builder.isinstance_or_builder(
+            if momapy.builder.momapy.builder.isinstance_or_builder(
                 drawing_element,
                 momapy.drawing.Group,
             ):
@@ -515,41 +543,71 @@ class SVGNativeRenderer(Renderer):
         return f"{name}={cls._quote_string(value)}"
 
     def _get_transformation_render_function(self, transformation):
-        if isinstance(transformation, momapy.geometry.Translation):
+        if momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Translation
+        ):
             return self._render_translation
-        elif isinstance(transformation, momapy.geometry.Rotation):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Rotation
+        ):
             return self._render_rotation
-        elif isinstance(transformation, momapy.geometry.Scaling):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Scaling
+        ):
             return self._render_scaling
-        elif isinstance(transformation, momapy.geometry.MatrixTransformation):
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.MatrixTransformation
+        ):
             return self._render_matrix_transformation
 
     def _get_filter_effect_render_function(self, filter_effect):
-        if isinstance(filter_effect, momapy.drawing.DropShadowEffect):
+        if momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.DropShadowEffect
+        ):
             return self._render_drop_shadow_effect
 
     def _get_path_action_render_function(self, path_action):
-        if isinstance(path_action, momapy.drawing.MoveTo):
+        if momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.MoveTo
+        ):
             return self._render_move_to
-        elif isinstance(path_action, momapy.drawing.LineTo):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.LineTo
+        ):
             return self._render_line_to
-        elif isinstance(path_action, momapy.drawing.Close):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Close
+        ):
             return self._render_close
-        elif isinstance(path_action, momapy.drawing.Arc):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Arc
+        ):
             return self._render_arc
-        elif isinstance(path_action, momapy.drawing.EllipticalArc):
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.EllipticalArc
+        ):
             return self._render_elliptical_arc
 
     def _get_drawing_element_prepare_function(self, drawing_element):
-        if isinstance(drawing_element, momapy.drawing.Group):
+        if momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Group
+        ):
             return self._prepare_group
-        elif isinstance(drawing_element, momapy.drawing.Path):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Path
+        ):
             return self._prepare_path
-        elif isinstance(drawing_element, momapy.drawing.Text):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Text
+        ):
             return self._prepare_text
-        elif isinstance(drawing_element, momapy.drawing.Ellipse):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Ellipse
+        ):
             return self._prepare_ellipse
-        elif isinstance(drawing_element, momapy.drawing.Rectangle):
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Rectangle
+        ):
             return self._prepare_rectangle
 
     def _render_transformation(self, transformation):
