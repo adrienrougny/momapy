@@ -479,8 +479,10 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
             arc, builder, d_model_elements_ids, d_layout_elements_ids
         )
     if style_sheet is not None:
-        if not isinstance(style_sheet, Collection) or isinstance(
-            style_sheet, str
+        if (
+            not isinstance(style_sheet, Collection)
+            or isinstance(style_sheet, str)
+            or isinstance(style_sheet, momapy.styling.StyleSheet)
         ):
             style_sheets = [style_sheet]
         else:
