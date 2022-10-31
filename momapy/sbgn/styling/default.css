@@ -205,11 +205,21 @@ UnitOfInformationLayout {
     fill: white;
 }
 
+CardinalityLayout {
+    stroke: black;
+    stroke_width: 1.0;
+    fill: white;
+}
+
 StateVariableLayout > TextLayout {
     font_size: 8;
 }
 
 UnitOfInformationLayout > TextLayout {
+    font_size: 8;
+}
+
+CardinalityLayout > TextLayout {
     font_size: 8;
 }
 

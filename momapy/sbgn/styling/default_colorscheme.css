@@ -159,6 +159,11 @@ UnitOfInformationLayout {
     fill: pink;
 }
 
+CardinalityLayout {
+    stroke: black;
+    fill: white;
+}
+
 MacromoleculeLayout > UnitOfInformationLayout {
     fill: lightskyblue;
 }

@@ -236,6 +236,14 @@ UnitOfInformationLayout {
     fill: white;
 }
 
+CardinalityLayout {
+    width: 23.5;
+    height: 18.5;
+    stroke: black;
+    stroke_width: 1.5;
+    fill: white;
+}
+
 SubmapLayout {
     width: 216;
     height: 120;
@@ -276,6 +284,10 @@ StateVariableLayout > TextLayoutElement {
 
 UnitOfInformationLayout > TextLayoutElement {
     font_size: 10.0;
+}
+
+CardinalityLayout > TextLayoutElement {
+    font_size: 12.0;
 }
 
 ConsumptionLayout {
