@@ -81,6 +81,22 @@ LibSBGNGlyphMapping = {
         "has_connectors": False,
         "has_orientation": False,
     },
+    "cardinality": {
+        "model_class": int,
+        "layout_class": momapy.sbgn.pd.CardinalityLayout,
+        "font_family": "Arial",
+        "font_size": 8,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "stoichiometry": {
+        "model_class": int,
+        "layout_class": momapy.sbgn.pd.CardinalityLayout,
+        "font_family": "Arial",
+        "font_size": 8,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
     "unspecified entity subunit": {
         "model_class": momapy.sbgn.pd.UnspecifiedEntitySubunit,
         "layout_class": momapy.sbgn.pd.UnspecifiedEntityLayout,
@@ -494,6 +510,7 @@ def _make_and_add_map_elements_from_glyph(
     super_layout_element=None,
     order=None,
 ):
+
     model_element, layout_element = _make_map_elements_from_glyph(
         glyph,
         builder,
@@ -506,10 +523,21 @@ def _make_and_add_map_elements_from_glyph(
         builder.add_model_element(model_element)
         builder.add_layout_element(layout_element)
     else:
-        super_model_element.add_element(model_element)
+        if (
+            glyph.get_class() != libsbgn.GlyphClass.CARDINALITY
+            and glyph.get_class() != libsbgn.GlyphClass.STOICHIOMETRY
+        ):
+            super_model_element.add_element(model_element)
+        else:
+            super_model_element.stoichiometry = model_element
         super_layout_element.add_element(layout_element)
-    builder.add_layout_element_to_model_element(layout_element, model_element)
-    d_model_elements_ids[model_element.id] = model_element
+    if momapy.builder.isinstance_or_builder(
+        model_element, momapy.core.ModelElement
+    ):
+        builder.add_layout_element_to_model_element(
+            layout_element, model_element
+        )
+        d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
     libsbgn_no_var_svs = []
     libsbgn_other_subglyphs = []
@@ -610,12 +638,15 @@ def _make_and_add_map_elements_from_arc(
     d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
     for subglyph in arc.get_glyph():
-        _make_and_add_map_elements_from_subglyph(
+        _make_and_add_map_elements_from_glyph(
             subglyph,
-            model_element,
             builder,
             d_model_elements_ids,
             d_layout_elements_ids,
+            is_subglyph=True,
+            super_model_element=model_element,
+            super_layout_element=layout_element,
+            order=None,
         )
     for port in arc.get_port():
         d_model_elements_ids[port.get_id()] = model_element
@@ -630,6 +661,7 @@ def _make_map_elements_from_glyph(
     is_subglyph=False,
     order=None,
 ):
+
     model_element = _make_model_element_from_glyph(
         glyph,
         builder,
@@ -666,39 +698,45 @@ def _make_model_element_from_glyph(
     is_subglyph=False,
     order=None,
 ):
-    if is_subglyph:
-        glyph_key = _disambiguate_subglyph(glyph)
-    else:
-        glyph_key = glyph.get_class().value
-    model_element_class = LibSBGNGlyphMapping[glyph_key]["model_class"]
-    model_element = builder.new_model_element(model_element_class)
-    model_element.id = glyph.get_id()
     if (
-        glyph.get_label() is not None
-        and glyph.get_label().get_text() is not None
+        glyph.get_class() != libsbgn.GlyphClass.CARDINALITY
+        and glyph.get_class() != libsbgn.GlyphClass.STOICHIOMETRY
     ):
-        if glyph_key == "unit of information":
-            label = glyph.get_label().get_text()
-            l = label.split(":")
-            model_element.value = l[-1]
-            if len(l) > 1:
-                model_element.prefix = l[0]
+        if is_subglyph:
+            glyph_key = _disambiguate_subglyph(glyph)
         else:
-            model_element.label = glyph.get_label().get_text()
-    if glyph.get_compartmentRef() is not None and hasattr(
-        model_element, "compartment"
-    ):
-        model_element.compartment = d_model_elements_ids[
-            glyph.get_compartmentRef()
-        ]
-    if glyph.get_state() is not None:
-        model_element.value = glyph.get_state().get_value()
-        libsbgn_variable = glyph.get_state().get_variable()
-        if libsbgn_variable is None:
-            variable = momapy.sbgn.pd.UndefinedVariable(order=order)
-        else:
-            variable = libsbgn_variable
-        model_element.variable = variable
+            glyph_key = glyph.get_class().value
+        model_element_class = LibSBGNGlyphMapping[glyph_key]["model_class"]
+        model_element = builder.new_model_element(model_element_class)
+        model_element.id = glyph.get_id()
+        if (
+            glyph.get_label() is not None
+            and glyph.get_label().get_text() is not None
+        ):
+            if glyph_key == "unit of information":
+                label = glyph.get_label().get_text()
+                l = label.split(":")
+                model_element.value = l[-1]
+                if len(l) > 1:
+                    model_element.prefix = l[0]
+            else:
+                model_element.label = glyph.get_label().get_text()
+        if glyph.get_compartmentRef() is not None and hasattr(
+            model_element, "compartment"
+        ):
+            model_element.compartment = d_model_elements_ids[
+                glyph.get_compartmentRef()
+            ]
+        if glyph.get_state() is not None:
+            model_element.value = glyph.get_state().get_value()
+            libsbgn_variable = glyph.get_state().get_variable()
+            if libsbgn_variable is None:
+                variable = momapy.sbgn.pd.UndefinedVariable(order=order)
+            else:
+                variable = libsbgn_variable
+            model_element.variable = variable
+    else:
+        return int(glyph.get_label().get_text())
     return model_element
 
 

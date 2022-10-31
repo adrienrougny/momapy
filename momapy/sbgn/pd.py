@@ -527,6 +527,17 @@ class TerminalLayout(TagLayout):
 
 
 @dataclasses.dataclass(frozen=True)
+class CardinalityLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+
+
+@dataclasses.dataclass(frozen=True)
 class CompartmentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
