@@ -68,8 +68,10 @@ def render_maps(
                 new_maps.append(deepcopy(map_))
         maps = new_maps
     if style_sheet is not None:
-        if not isinstance(style_sheet, Collection) or isinstance(
-            style_sheet, str
+        if (
+            not isinstance(style_sheet, Collection)
+            or isinstance(style_sheet, str)
+            or isinstance(style_sheet, momapy.styling.StyleSheet)
         ):
             style_sheets = [style_sheet]
         else:
