@@ -6,7 +6,7 @@ setup(
     description="Molecular Maps Python library",
     author="Adrien Rougny",
     author_email="adrienrougny@gmail.com",
-    packages=["momapy"],
+    packages=["momapy", "momapy.sbgn", "momapy.sbgn.styling"],
     install_requires=[
         "libsbgnpy",
         "frozendict",
@@ -15,4 +15,6 @@ setup(
         "numpy",
         "pyparsing",
     ],
+    package_data={"": ["*.css"]},
+    include_package_data=True,
 )
