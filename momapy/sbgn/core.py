@@ -82,6 +82,8 @@ class _SBGNMixinBase(object):
 class _ConnectorsMixin(_SBGNMixinBase):
     left_connector_length: Optional[float] = None
     right_connector_length: Optional[float] = None
+    left_connector_stroke_width: Optional[float] = None
+    right_connector_stroke_width: Optional[float] = None
     direction: Optional[
         momapy.core.Direction
     ] = momapy.core.Direction.HORIZONTAL
@@ -132,8 +134,12 @@ class _ConnectorsMixin(_SBGNMixinBase):
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        path_left = momapy.drawing.Path()
-        path_right = momapy.drawing.Path()
+        path_left = momapy.drawing.Path(
+            stroke_width=obj.left_connector_stroke_width
+        )
+        path_right = momapy.drawing.Path(
+            stroke_width=obj.right_connector_stroke_width
+        )
         if obj.direction == momapy.core.Direction.VERTICAL:
             path_left += momapy.drawing.move_to(
                 obj.base_left_connector()
