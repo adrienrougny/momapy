@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import ClassVar, Optional, Collection
 import cairo
 import gi
+import skia
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("PangoCairo", "1.0")
@@ -864,6 +865,436 @@ class SVGNativeRenderer(Renderer):
         return name, svg_attributes, value, svg_subelements
 
 
+@dataclass
+class SkiaRenderer(Renderer):
+    _canvas: Optional[skia.Canvas] = None
+    _document: Optional[skia.Document] = None
+    _surface: Optional[skia.Surface] = None
+    _output_file: Optional[str] = None
+    _format: Optional[str] = None
+    _stream: Optional[skia.Stream] = None
+    width: Optional[float] = None
+    height: Optional[float] = None
+
+    @classmethod
+    def factory(cls, output_file, width, height, format_):
+        kwargs = cls._make_ini_kwargs(output_file, width, height, format_)
+        renderer_obj = cls(**kwargs)
+        return renderer_obj
+
+    @classmethod
+    def _make_ini_kwargs(cls, output_file, width, height, format_):
+        if format_ == "pdf":
+            stream = skia.FILEWStream(output_file)
+            document = skia.PDF.MakeDocument(stream)
+            canvas = document.beginPage(width=width, height=height)
+            kwargs = {
+                "_document": document,
+                "_stream": stream,
+            }
+        elif format_ == "png":
+            surface = skia.Surface(width=int(width), height=int(height))
+            canvas = surface.getCanvas()
+            kwargs = {
+                "_surface": surface,
+                "_output_file": output_file,
+            }
+        elif format_ == "svg":
+            stream = skia.FILEWStream(output_file)
+            canvas = skia.SVGCanvas.Make((width, height), stream)
+            kwargs = {"_stream": stream}
+        kwargs["width"] = width
+        kwargs["height"] = height
+        kwargs["_format"] = format_
+        kwargs["_canvas"] = canvas
+        return kwargs
+
+    def __post_init__(self, *args):
+        self._initialize()
+
+    def _initialize(self):
+        self._states = []
+        self._stroke = None
+        self._fill = self.default_fill
+        self._stroke_width = self.default_stroke_width
+
+    def _save(self):
+        state = {
+            "stroke": self._stroke,
+            "fill": self._fill,
+            "stroke_width": self._stroke_width,
+        }
+        self._states.append(state)
+        self._canvas.save()
+
+    def _restore(self):
+        state = self._states.pop()
+        self._set_state(state)
+        self._canvas.restore()
+
+    def _set_state(self, state):
+        for key in state:
+            setattr(self, f"_{key}", state[key])
+
+    def render_map(self, map_):
+        self.render_layout_element(map_.layout)
+        if self._format == "pdf":
+            self._document.endPage()
+            self._document.close()
+        elif self._format == "png":
+            image = self._surface.makeImageSnapshot()
+            image.save(self._output_file, skia.kPNG)
+        elif self._format == "svg":
+            del self._canvas
+            self._stream.flush()
+
+    def render_layout_element(self, layout_element):
+        drawing_elements = layout_element.drawing_elements()
+        if drawing_elements is not None:
+            for drawing_element in drawing_elements:
+                self.render_drawing_element(drawing_element)
+
+    def render_drawing_element(self, drawing_element):
+        self._save()
+        self._set_state_from_drawing_element(drawing_element)
+        self._set_transform_from_drawing_element(drawing_element)
+        render_function = self._get_drawing_element_render_function(
+            drawing_element
+        )
+        render_function(drawing_element)
+        self._restore()
+
+    def _set_state_from_drawing_element(self, drawing_element):
+        state = self._get_state_from_drawing_element(drawing_element)
+        self._set_state(state)
+
+    def _get_state_from_drawing_element(self, drawing_element):
+        state = {}
+        if drawing_element.stroke is momapy.drawing.NoneValue:
+            state["stroke"] = None
+        elif drawing_element.stroke is not None:
+            state["stroke"] = drawing_element.stroke
+        if drawing_element.fill is momapy.drawing.NoneValue:
+            state["fill"] = None
+        elif drawing_element.fill is not None:
+            state["fill"] = drawing_element.fill
+        if (
+            drawing_element.stroke_width is not None
+        ):  # not sure, need to check svg spec
+            state["stroke_width"] = drawing_element.stroke_width
+        return state
+
+    def _set_transform_from_drawing_element(self, drawing_element):
+        if drawing_element.transform is not None:
+            for transformation in drawing_element.transform:
+                self._render_transformation(transformation)
+
+    def _set_new_path(self):
+        pass
+
+    def _make_stroke_paint(self):
+        skia_paint = skia.Paint(
+            Color4f=skia.Color4f(self._stroke.to_rgba(rgba_range=(0, 1))),
+            StrokeWidth=self._stroke_width,
+            Style=skia.Paint.kStroke_Style,
+        )
+        return skia_paint
+
+    def _make_fill_paint(self):
+        skia_paint = skia.Paint(
+            Color4f=skia.Color4f(self._fill.to_rgba(rgba_range=(0, 1))),
+            Style=skia.Paint.kFill_Style,
+        )
+        return skia_paint
+
+    def _make_filter_paints_from_filter(self, filter_):
+        skia_paints = []
+        for filter_effect in filter_.effects:
+            render_function = self._get_filter_effect_render_function(
+                filter_effect
+            )
+            skia_paint = render_function(filter_effect)
+            skia_paints.append(skia_paint)
+        return skia_paints
+
+    def _get_filter_effect_render_function(self, filter_effect):
+        if momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.DropShadowEffect
+        ):
+            return self._render_drop_shadow_effect
+
+    def _render_drop_shadow_effect(self, filter_effect):
+        skia_filter = skia.ImageFilters.DropShadow(
+            dx=filter_effect.dx,
+            dy=filter_effect.dy,
+            sigmaX=filter_effect.std_deviation,
+            sigmaY=filter_effect.std_deviation,
+            color=skia.Color4f(
+                filter_effect.flood_color.to_rgba(rgba_range=(0, 1))
+            ),
+        )
+        skia_paint = skia.Paint(ImageFilter=skia_filter)
+        return skia_paint
+
+    def _render_transformation(self, transformation):
+        render_transformation_function = (
+            self._get_transformation_render_function(transformation)
+        )
+        render_transformation_function(transformation)
+
+    def _get_transformation_render_function(self, transformation):
+        if momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Translation
+        ):
+            return self._render_translation
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Rotation
+        ):
+            return self._render_rotation
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.Scaling
+        ):
+            return self._render_scaling
+        elif momapy.builder.isinstance_or_builder(
+            transformation, momapy.geometry.MatrixTransformation
+        ):
+            return self._render_matrix_transformation
+
+    def _get_drawing_element_render_function(self, drawing_element):
+        if momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Group
+        ):
+            return self._render_group
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Path
+        ):
+            return self._render_path
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Text
+        ):
+            return self._render_text
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Ellipse
+        ):
+            return self._render_ellipse
+        elif momapy.builder.isinstance_or_builder(
+            drawing_element, momapy.drawing.Rectangle
+        ):
+            return self._render_rectangle
+
+    def _render_group(self, group):
+        saved_canvas = self._canvas
+        recorder = skia.PictureRecorder()
+        canvas = recorder.beginRecording(skia.Rect(self.width, self.height))
+        self._canvas = canvas
+        for drawing_element in group.elements:
+            self.render_drawing_element(drawing_element)
+        picture = recorder.finishRecordingAsPicture()
+        if (
+            group.filter is not None
+            and group.filter != momapy.drawing.NoneValue
+        ):
+            skia_paints = self._make_filter_paints_from_filter(group.filter)
+        else:
+            skia_paints = [None]
+        self._canvas = saved_canvas
+        for skia_paint in skia_paints:
+            self._canvas.drawPicture(picture, paint=skia_paint)
+
+    def _render_path(self, path):
+        skia_path = self._make_path(path)
+        if self._fill is not None:
+            skia_paint = self._make_fill_paint()
+            self._canvas.drawPath(path=skia_path, paint=skia_paint)
+        if self._stroke is not None:
+            skia_paint = self._make_stroke_paint()
+            self._canvas.drawPath(path=skia_path, paint=skia_paint)
+
+    def _make_path(self, path):
+        skia_path = skia.Path()
+        for path_action in path.actions:
+            self._add_path_action_to_skia_path(skia_path, path_action)
+        return skia_path
+
+    def _render_text(self, text):
+        skia_typeface = skia.Typeface(familyName=text.font_family)
+        skia_font = skia.Font(typeface=skia_typeface, size=text.font_size)
+        if self._fill is not None:
+            skia_paint = self._make_fill_paint()
+            self._canvas.drawString(
+                text=text.text,
+                x=text.x,
+                y=text.y,
+                font=skia_font,
+                paint=skia_paint,
+            )
+        if self._stroke is not None:
+            skia_paint = self._make_stroke_paint()
+            self._canvas.drawString(
+                text=text.text,
+                x=text.x,
+                y=text.y,
+                font=skia_font,
+                paint=skia_paint,
+            )
+
+    def _render_ellipse(self, ellipse):
+        skia_rect = skia.Rect(
+            ellipse.x - ellipse.rx,
+            ellipse.y - ellipse.ry,
+            ellipse.x + ellipse.rx,
+            ellipse.y + ellipse.ry,
+        )
+        if self._fill is not None:
+            skia_paint = self._make_fill_paint()
+            self._canvas.drawOval(oval=skia_rect, paint=skia_paint)
+        if self._stroke is not None:
+            skia_paint = self._make_stroke_paint()
+            self._canvas.drawOval(oval=skia_rect, paint=skia_paint)
+
+    def _render_rectangle(self, rectangle):
+        skia_rect = skia.Rect(
+            rectangle.x,
+            rectangle.y,
+            rectangle.x + rectangle.width,
+            rectangle.y + rectangle.height,
+        )
+        if self._fill is not None:
+            skia_paint = self._make_fill_paint()
+            self._canvas.drawRoundRect(
+                rect=skia_rect,
+                rx=rectangle.rx,
+                ry=rectangle.ry,
+                paint=skia_paint,
+            )
+        if self._stroke is not None:
+            skia_paint = self._make_stroke_paint()
+            self._canvas.drawRoundRect(
+                rect=skia_rect,
+                rx=rectangle.rx,
+                ry=rectangle.ry,
+                paint=skia_paint,
+            )
+
+    @classmethod
+    def _add_path_action_to_skia_path(cls, skia_path, path_action):
+        add_function = cls._get_path_action_add_function(path_action)
+        add_function(skia_path, path_action)
+
+    @classmethod
+    def _get_path_action_add_function(cls, path_action):
+        if momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.MoveTo
+        ):
+            return cls._add_move_to
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.LineTo
+        ):
+            return cls._add_line_to
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Close
+        ):
+            return cls._add_close
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.Arc
+        ):
+            return cls._add_arc
+        elif momapy.builder.isinstance_or_builder(
+            path_action, momapy.drawing.EllipticalArc
+        ):
+            return cls._add_elliptical_arc
+
+    @staticmethod
+    def _add_move_to(skia_path, move_to):
+        skia_path.moveTo(move_to.x, move_to.y)
+
+    @staticmethod
+    def _add_line_to(skia_path, line_to):
+        skia_path.lineTo(line_to.x, line_to.y)
+
+    @staticmethod
+    def _add_close(skia_path, close):
+        skia_path.close()
+
+    @staticmethod
+    def _add_elliptical_arc(skia_path, elliptical_arc):
+        if elliptical_arc.arc_flag == 0:
+            skia_arc_flag = skia.Path.ArcSize.kSmall_ArcSize
+        else:
+            skia_arc_flag = skia.Path.ArcSize.kLarge_ArcSize
+        if elliptical_arc.sweep_flag == 1:
+            skia_sweep_flag = skia.PathDirection.kCW
+        else:
+            skia_sweep_flag = skia.PathDirection.kCCW
+        skia_path.arcTo(
+            rx=elliptical_arc.rx,
+            ry=elliptical_arc.ry,
+            xAxisRotate=elliptical_arc.x_axis_rotation,
+            largeArc=skia_arc_flag,
+            sweep=skia_sweep_flag,
+            x=elliptical_arc.x,
+            y=elliptical_arc.y,
+        )
+
+    def _render_translation(self, translation):
+        self._canvas.translate(dx=translation.tx, dy=translation.ty)
+
+    def _render_rotation(self, rotation):
+        angle = math.degrees(rotation.angle)
+        if rotation.point is not None:
+            self._canvas.rotate(
+                degrees=angle, px=rotation.point.x, py=rotation.point.y
+            )
+        else:
+            self._canvas.rotate(degrees=angle)
+
+    def _render_scaling(self, scaling):
+        self._canvas.scale(sx=scaling.sx, sy=scaling.sy)
+
+    def _render_matrix_transformation(self, matrix_transformation):
+        m = skia.Matrix.MakeAll(
+            scaleX=matrix_transformation.m[0][0],
+            skewX=matrix_transformation.m[0][1],
+            transX=matrix_transformation.m[0][2],
+            skewY=matrix_transformation.m[1][0],
+            scaleY=matrix_transformation.m[1][1],
+            transY=matrix_transformation.m[1][2],
+            pers0=matrix_transformation.m[2][0],
+            pers1=matrix_transformation.m[2][1],
+            pers2=matrix_transformation.m[2][2],
+        )
+        self._canvas.concat(m)
+
+
+@dataclass
+class GTKCairoRenderer(Renderer):
+    drawing_area: Gtk.DrawingArea
+    width: float
+    height: float
+
+    def __post_init__(self):
+        self.cairo_renderer = CairoRenderer(
+            surface=None,
+            context=None,
+            authorize_no_context=True,
+            width=self.width,
+            height=self.height,
+        )
+
+    def set_context(self, context):
+        self.cairo_renderer._context = context
+
+    def render_map(self, map_):
+        self.cairo_renderer.render_map(map_)
+
+    def render_layout_element(self, layout_element):
+        self.cairo_renderer.render_layout_element(layout_element)
+
+    def render_drawing_element(self, drawing_element):
+        self.cairo_renderer.render_drawing_element(drawing_element)
+
+
 register_renderer("cairo", CairoRenderer)
 register_renderer("svg-native", SVGNativeRenderer)
 register_renderer("gtk-cairo", GTKCairoRenderer)
+register_renderer("skia", SkiaRenderer)
