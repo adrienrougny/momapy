@@ -1,150 +1,322 @@
-from enum import Enum
-from dataclasses import dataclass, field
-from typing import TypeVar, Union, Optional
+import enum
+import dataclasses
+import typing
 
-from momapy.sbgn.core import SBGNModelElement, SBGNModel, SBGNMap
-from momapy.builder import get_or_make_builder_cls
-
-############UNIT OF INFORMATION###################
-class UnifOfInformationType(Enum):
-    MACROMOLECULE = "macromolecule"
+import momapy.sbgn.core
 
 
-@dataclass(frozen=True)
-class UnitOfInformation(SBGNModelElement):
-    label: Optional[str] = None
-    type_: Optional[UnifOfInformationType] = None
+@dataclasses.dataclass(frozen=True)
+class Compartment(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
 
 
-############COMPARTMENT###################
-@dataclass(frozen=True)
-class Compartment(SBGNModelElement):
-    label: Optional[str] = None
+@dataclasses.dataclass(frozen=True)
+class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
 
 
-############LOGICAL OPERATORS###################
-TLogicalOperatorInput = TypeVar(
-    "TLogicalOperatorInput", "BiologicalActivity", "LogicalOperator"
-)
-
-
-@dataclass(frozen=True)
-class LogicalOperator(SBGNModelElement):
-    inputs: frozenset[TLogicalOperatorInput] = field(default_factory=frozenset)
-
-
-@dataclass(frozen=True)
-class OrOperator(LogicalOperator):
+@dataclasses.dataclass(frozen=True)
+class MacromoleculeUnitOfInformation(UnitOfInformation):
     pass
 
 
-@dataclass(frozen=True)
-class AndOperator(LogicalOperator):
+@dataclasses.dataclass(frozen=True)
+class NucleicAcidFeatureUnitOfInformation(UnitOfInformation):
     pass
 
 
-@dataclass(frozen=True)
-class NotOperator(LogicalOperator):
+@dataclasses.dataclass(frozen=True)
+class ComplexUnitOfInformation(UnitOfInformation):
     pass
 
 
-############ACTIVITIES###################
-@dataclass(frozen=True)
-class Activity(SBGNModelElement):
-    label: Optional[str] = None
+@dataclasses.dataclass(frozen=True)
+class SimpleChemicalUnitOfInformation(UnitOfInformation):
+    pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
+class UnspecifiedEntityUnitOfInformation(UnitOfInformation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PerturbationUnitOfInformation(UnitOfInformation):
+    pass
+
+
+class Activity(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    compartment: typing.Optional[Compartment] = None
+
+
+@dataclasses.dataclass(frozen=True)
 class BiologicalActivity(Activity):
-    units_of_information: frozenset[UnitOfInformation] = field(
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Phenotype(Activity):
     pass
 
 
-############INFLUENCES###################
-@dataclass(frozen=True)
-class Influence(SBGNModelElement):
-    source: Optional[Union[BiologicalActivity, LogicalOperator]] = None
-    target: Optional[Activity] = None
+@dataclasses.dataclass(frozen=True)
+class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[BiologicalActivity, "LogicalOperator"]
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
+class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
+    inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
+        default_factory=frozenset
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class OrOperator(LogicalOperator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class AndOperator(LogicalOperator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class NotOperator(LogicalOperator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class DelayOperator(LogicalOperator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Influence(momapy.sbgn.core.SBGNModelElement):
+    source: typing.Optional[
+        typing.Union[BiologicalActivity, LogicalOperator]
+    ] = None
+    target: typing.Optional[Activity] = None
+
+
+@dataclasses.dataclass(frozen=True)
 class UnknownInfluence(Influence):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class PositiveInfluence(Influence):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NegativeInfluence(Influence):
     pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class NecessaryStimulation(Influence):
     pass
 
 
-############SUBMAP###################
-@dataclass(frozen=True)
-class Tag(SBGNModelElement):
-    label: Optional[str] = None
-    refers_to: Optional[Union[Activity, Compartment]] = None
+@dataclasses.dataclass(frozen=True)
+class TerminalReference(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[Activity, Compartment] = None
 
 
-@dataclass(frozen=True)
-class Submap(SBGNModelElement):
-    label: Optional[str] = None
-    tags: frozenset[Tag] = field(default_factory=frozenset)
+@dataclasses.dataclass(frozen=True)
+class TagReference(momapy.sbgn.core.SBGNRole):
+    element: typing.Union[Activity, Compartment] = None
 
 
-############MODELS###################
-@dataclass(frozen=True)
-class SBGNAFModel(SBGNModel):
-    activities: frozenset[Activity] = field(default_factory=frozenset)
-    compartments: frozenset[Compartment] = field(default_factory=frozenset)
-    influences: frozenset[Influence] = field(default_factory=frozenset)
-    logical_operators: frozenset[LogicalOperator] = field(
+@dataclasses.dataclass(frozen=True)
+class Terminal(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    refers_to: typing.Optional[TerminalReference] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class Tag(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    refers_to: typing.Optional[TagReference] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class Submap(momapy.sbgn.core.SBGNModelElement):
+    label: typing.Optional[str] = None
+    terminals: frozenset[Terminal] = dataclasses.field(
         default_factory=frozenset
     )
-    submaps: frozenset[Submap] = field(default_factory=frozenset)
 
 
-############MAP###################
-@dataclass(frozen=True)
-class SBGNAFMap(SBGNMap):
-    model: Optional[SBGNAFModel] = None
+@dataclasses.dataclass(frozen=True)
+class SBGNAFModel(momapy.sbgn.core.SBGNModel):
+    activities: frozenset[Activity] = dataclasses.field(
+        default_factory=frozenset
+    )
+    compartments: frozenset[Compartment] = dataclasses.field(
+        default_factory=frozenset
+    )
+    influences: frozenset[Influence] = dataclasses.field(
+        default_factory=frozenset
+    )
+    logical_operators: frozenset[LogicalOperator] = dataclasses.field(
+        default_factory=frozenset
+    )
+    submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
+    tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
 
-############BUILDERS###################
-SBGNAFModelBuilder = get_or_make_builder_cls(SBGNAFModel)
+@dataclasses.dataclass(frozen=True)
+class MacromoleculeUnitOfInformationLayout(momapy.sbgn.pd.MacromoleculeLayout):
+    pass
 
 
-def sbgnaf_map_builder_new_model(self, *args, **kwargs):
+@dataclasses.dataclass(frozen=True)
+class NucleicAcidFeatureUnitOfInformationLayout(
+    momapy.sbgn.pd.NucleicAcidFeatureLayout
+):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ComplexUnitOfInformationLayout(momapy.sbgn.pd.ComplexLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnspecifiedEntityUnitOfInformationLayout(
+    momapy.sbgn.pd.UnspecifiedEntityLayout
+):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PerturbationUnitOfInformationLayout(momapy.sbgn.pd.PerturbingAgentLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class SimpleChemicalUnitOfInformationLayout(
+    momapy.sbgn.pd.SimpleChemicalLayout
+):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class BiologicalActivityLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
+):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    stroke: momapy.coloring.Color = momapy.coloring.colors.black
+    stroke_width: float = 1
+    fill: momapy.coloring.Color = momapy.coloring.colors.white
+
+
+@dataclasses.dataclass(frozen=True)
+class PhenotypeLayout(momapy.sbgn.pd.PhenotypeLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class AndOperatorLayout(momapy.sbgn.pd.AndOperatorLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class OrOperatorLayout(momapy.sbgn.pd.OrOperatorLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class NotOperatorLayout(momapy.sbgn.pd.NotOperatorLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class DelayOperatorLayout(momapy.sbgn.pd._LogicalOperatorLayout):
+    _text: typing.ClassVar[str] = "τ"
+
+
+@dataclasses.dataclass(frozen=True)
+class CompartmentLayout(momapy.sbgn.pd.CompartmentLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class SubmapLayout(momapy.sbgn.pd.SubmapLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownInfluenceLayout(momapy.sbgn.pd.ModulationLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PositiveInfluenceLayout(momapy.sbgn.pd.StimulationLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class NegativeInfluenceLayout(momapy.sbgn.pd.InhibitionLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class NecessaryStimulationLayout(momapy.sbgn.pd.NecessaryStimulationLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class LogicArcLayout(momapy.sbgn.pd.LogicArcLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class EquivalenceArcLayout(momapy.sbgn.pd.EquivalenceArcLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class TagLayout(momapy.sbgn.pd.TagLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class TerminalLayout(momapy.sbgn.pd.TerminalLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class SBGNAFMap(momapy.sbgn.core.SBGNMap):
+    model: typing.Optional[SBGNAFModel] = None
+
+
+SBGNAFModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFModel)
+
+
+def _sbgnaf_map_builder_new_model(self, *args, **kwargs):
     return SBGNAFModelBuilder(*args, **kwargs)
 
 
-def sbgnaf_map_builder_new_layout(self, *args, **kwargs):
-    return LayoutBuilder(*args, **kwargs)
+def _sbgnaf_map_builder_new_layout(self, *args, **kwargs):
+    return momapy.core.MapLayoutBuilder(*args, **kwargs)
 
 
-def sbgnaf_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return ModelLayoutMappingBuilder(*args, **kwargs)
+def _sbgnaf_map_builder_new_model_layout_mapping(self, *args, **kwargs):
+    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
 
 
-SBGNAFMapBuilder = get_or_make_builder_cls(
+SBGNAFMapBuilder = momapy.builder.get_or_make_builder_cls(
     SBGNAFMap,
     builder_namespace={
-        "new_model": sbgnaf_map_builder_new_model,
-        "new_layout": sbgnaf_map_builder_new_layout,
-        "new_model_layout_mapping": sbgnaf_map_builder_new_model_layout_mapping,
+        "new_model": _sbgnaf_map_builder_new_model,
+        "new_layout": _sbgnaf_map_builder_new_layout,
+        "new_model_layout_mapping": _sbgnaf_map_builder_new_model_layout_mapping,
     },
 )

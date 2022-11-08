@@ -1,4 +1,4 @@
-from typing import Collection
+import typing
 
 import momapy.core
 import momapy.builder
@@ -13,12 +13,14 @@ import momapy.sbgn.utils
 
 import libsbgnpy.libsbgn as libsbgn
 
-LibSBGNDisambiguationArcMapping = {
+LibSBGNPDDisambiguationArcMapping = {
     "equivalence arc": {
         "source_or_target": "target",
         "keys": {
             momapy.sbgn.pd.Tag: "equivalence arc to tag",
             momapy.sbgn.pd.Terminal: "equivalence arc to terminal",
+            momapy.sbgn.af.Tag: "equivalence arc to tag",
+            momapy.sbgn.af.Terminal: "equivalence arc to terminal",
         },
     },
     "logic arc": {
@@ -42,11 +44,15 @@ LibSBGNDisambiguationArcMapping = {
             momapy.sbgn.pd.AndOperator: "logic arc to logical operator",
             momapy.sbgn.pd.OrOperator: "logic arc to logical operator",
             momapy.sbgn.pd.NotOperator: "logic arc to logical operator",
+            momapy.sbgn.af.LogicalOperator: "logic arc to logical operator",
+            momapy.sbgn.af.AndOperator: "logic arc to logical operator",
+            momapy.sbgn.af.OrOperator: "logic arc to logical operator",
+            momapy.sbgn.af.NotOperator: "logic arc to logical operator",
         },
     },
 }
 
-LibSBGNDisambiguationGlyphMapping = {
+LibSBGNPDDisambiguationGlyphMapping = {
     "unspecified entity": "unspecified entity subunit",
     "macromolecule": "macromolecule subunit",
     "nucleic acid feature": "nucleic acid feature subunit",
@@ -58,13 +64,36 @@ LibSBGNDisambiguationGlyphMapping = {
     "complex multimer": "complex multimer subunit",
 }
 
-LibSBGNMapMapping = {
-    "process description": momapy.sbgn.pd.SBGNPDMap,
-    "activity flow": momapy.sbgn.af.SBGNAFMap,
-    "entity relationship": None,
+LibSBGNAFDisambiguationArcMapping = {
+    "equivalence arc": {
+        "source_or_target": "target",
+        "keys": {
+            momapy.sbgn.af.Tag: "equivalence arc to tag",
+            momapy.sbgn.af.Terminal: "equivalence arc to terminal",
+        },
+    },
+    "logic arc": {
+        "source_or_target": "target",
+        "keys": {
+            momapy.sbgn.af.LogicalOperator: "logic arc to logical operator",
+            momapy.sbgn.af.AndOperator: "logic arc to logical operator",
+            momapy.sbgn.af.OrOperator: "logic arc to logical operator",
+            momapy.sbgn.af.NotOperator: "logic arc to logical operator",
+            momapy.sbgn.af.DelayOperator: "logic arc to logical operator",
+        },
+    },
 }
 
-LibSBGNGlyphMapping = {
+LibSBGNAFDisambiguationGlyphMapping = {
+    "unspecified entity": "unspecified entity unit of information",
+    "macromolecule": "macromolecule unit of information",
+    "nucleic acid feature": "nucleic acid feature unit of information",
+    "simple chemical": "simple chemical unit of information",
+    "complex": "complex unit of information",
+    "perturbation": "perturbation unit of information",
+}
+
+LibSBGNPDGlyphMapping = {
     "state variable": {
         "model_class": momapy.sbgn.pd.StateVariable,
         "layout_class": momapy.sbgn.pd.StateVariableLayout,
@@ -379,7 +408,139 @@ LibSBGNGlyphMapping = {
     },
 }
 
-LibSBGNArcMapping = {
+LibSBGNAFGlyphMapping = {
+    "biological activity": {
+        "model_class": momapy.sbgn.af.BiologicalActivity,
+        "layout_class": momapy.sbgn.af.BiologicalActivityLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "phenotype": {
+        "model_class": momapy.sbgn.af.Phenotype,
+        "layout_class": momapy.sbgn.af.PhenotypeLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "compartment": {
+        "model_class": momapy.sbgn.af.Compartment,
+        "layout_class": momapy.sbgn.af.CompartmentLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "and": {
+        "model_class": momapy.sbgn.af.AndOperator,
+        "layout_class": momapy.sbgn.af.AndOperatorLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": True,
+        "has_orientation": False,
+    },
+    "or": {
+        "model_class": momapy.sbgn.af.OrOperator,
+        "layout_class": momapy.sbgn.af.OrOperatorLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": True,
+        "has_orientation": False,
+    },
+    "not": {
+        "model_class": momapy.sbgn.af.NotOperator,
+        "layout_class": momapy.sbgn.af.NotOperatorLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": True,
+        "has_orientation": False,
+    },
+    "delay": {
+        "model_class": momapy.sbgn.af.DelayOperator,
+        "layout_class": momapy.sbgn.af.DelayOperatorLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": True,
+        "has_orientation": False,
+    },
+    "unspecified entity unit of information": {
+        "model_class": momapy.sbgn.af.UnspecifiedEntityUnitOfInformation,
+        "layout_class": momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "macromolecule unit of information": {
+        "model_class": momapy.sbgn.af.MacromoleculeUnitOfInformation,
+        "layout_class": momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "nucleic acid feature unit of information": {
+        "model_class": momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation,
+        "layout_class": momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "simple chemical unit of information": {
+        "model_class": momapy.sbgn.af.SimpleChemicalUnitOfInformation,
+        "layout_class": momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "complex unit of information": {
+        "model_class": momapy.sbgn.af.ComplexUnitOfInformation,
+        "layout_class": momapy.sbgn.af.ComplexUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "perturbation unit of information": {
+        "model_class": momapy.sbgn.af.PerturbationUnitOfInformation,
+        "layout_class": momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+        "font_family": "Arial",
+        "font_size": 14,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "submap": {
+        "model_class": momapy.sbgn.af.Submap,
+        "layout_class": momapy.sbgn.af.SubmapLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "tag": {
+        "model_class": momapy.sbgn.af.Tag,
+        "layout_class": momapy.sbgn.af.TagLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+    "terminal": {
+        "model_class": momapy.sbgn.af.Terminal,
+        "layout_class": momapy.sbgn.af.TerminalLayout,
+        "font_family": "Arial",
+        "font_size": 20,
+        "has_connectors": False,
+        "has_orientation": False,
+    },
+}
+
+
+LibSBGNPDArcMapping = {
     "consumption": {
         "model_class": momapy.sbgn.pd.Reactant,
         "layout_class": momapy.sbgn.pd.ConsumptionLayout,
@@ -437,12 +598,76 @@ LibSBGNArcMapping = {
     },
 }
 
+LibSBGNAFArcMapping = {
+    "unknown influence": {
+        "model_class": momapy.sbgn.af.UnknownInfluence,
+        "layout_class": momapy.sbgn.af.UnknownInfluenceLayout,
+    },
+    "positive influence": {
+        "model_class": momapy.sbgn.af.PositiveInfluence,
+        "layout_class": momapy.sbgn.af.PositiveInfluenceLayout,
+    },
+    "negative influence": {
+        "model_class": momapy.sbgn.af.NegativeInfluence,
+        "layout_class": momapy.sbgn.af.NegativeInfluenceLayout,
+    },
+    "necessary stimulation": {
+        "model_class": momapy.sbgn.af.NecessaryStimulation,
+        "layout_class": momapy.sbgn.af.NecessaryStimulationLayout,
+    },
+    "logic arc to logical operator": {
+        "model_class": momapy.sbgn.af.LogicalOperatorInput,
+        "layout_class": momapy.sbgn.af.LogicArcLayout,
+        "role": {"source_or_target": "source", "attribute": "inputs"},
+    },
+    "equivalence arc to terminal": {
+        "model_class": momapy.sbgn.af.TerminalReference,
+        "layout_class": momapy.sbgn.af.EquivalenceArcLayout,
+        "role": {"source_or_target": "source", "attribute": "refers_to"},
+    },
+    "equivalence arc to tag": {
+        "model_class": momapy.sbgn.af.TagReference,
+        "layout_class": momapy.sbgn.af.EquivalenceArcLayout,
+        "role": {"source_or_target": "source", "attribute": "refers_to"},
+    },
+}
+
+LibSBGNMapMapping = {
+    "process description": {
+        "model": momapy.sbgn.pd.SBGNPDMap,
+        "glyph_mapping": LibSBGNPDGlyphMapping,
+        "arc_mapping": LibSBGNPDArcMapping,
+        "glyph_disambiguation_mapping": LibSBGNPDDisambiguationGlyphMapping,
+        "arc_disambiguation_mapping": LibSBGNPDDisambiguationArcMapping,
+    },
+    "activity flow": {
+        "model": momapy.sbgn.af.SBGNAFMap,
+        "glyph_mapping": LibSBGNAFGlyphMapping,
+        "arc_mapping": LibSBGNAFArcMapping,
+        "glyph_disambiguation_mapping": LibSBGNAFDisambiguationGlyphMapping,
+        "arc_disambiguation_mapping": LibSBGNAFDisambiguationArcMapping,
+    },
+    "entity relationship": {
+        "model": None,
+    },
+}
+
 
 def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     libsbgn_sbgn = libsbgn.parse(file_name, silence=True)
     libsbgn_map = libsbgn_sbgn.get_map()
     language = libsbgn_map.get_language()
-    builder = momapy.builder.new_builder(LibSBGNMapMapping[language.value])
+    builder = momapy.builder.new_builder(
+        LibSBGNMapMapping[language.value]["model"]
+    )
+    glyph_mapping = LibSBGNMapMapping[language.value]["glyph_mapping"]
+    arc_mapping = LibSBGNMapMapping[language.value]["arc_mapping"]
+    glyph_disambiguation_mapping = LibSBGNMapMapping[language.value][
+        "glyph_disambiguation_mapping"
+    ]
+    arc_disambiguation_mapping = LibSBGNMapMapping[language.value][
+        "arc_disambiguation_mapping"
+    ]
     model = builder.new_model()
     layout = builder.new_layout()
     model_layout_mapping = builder.new_model_layout_mapping()
@@ -472,15 +697,25 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     )
     for glyph in libsbgn_compartments + libsbgn_other_glyphs:
         _make_and_add_map_elements_from_glyph(
-            glyph, builder, d_model_elements_ids, d_layout_elements_ids
+            glyph,
+            builder,
+            glyph_mapping,
+            glyph_disambiguation_mapping,
+            d_model_elements_ids,
+            d_layout_elements_ids,
         )
     for arc in libsbgn_map.get_arc():
         _make_and_add_map_elements_from_arc(
-            arc, builder, d_model_elements_ids, d_layout_elements_ids
+            arc,
+            builder,
+            arc_mapping,
+            arc_disambiguation_mapping,
+            d_model_elements_ids,
+            d_layout_elements_ids,
         )
     if style_sheet is not None:
         if (
-            not isinstance(style_sheet, Collection)
+            not isinstance(style_sheet, typing.Collection)
             or isinstance(style_sheet, str)
             or isinstance(style_sheet, momapy.styling.StyleSheet)
         ):
@@ -505,6 +740,8 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
 def _make_and_add_map_elements_from_glyph(
     glyph,
     builder,
+    glyph_mapping,
+    glyph_disambiguation_mapping,
     d_model_elements_ids,
     d_layout_elements_ids,
     is_subglyph=False,
@@ -516,6 +753,8 @@ def _make_and_add_map_elements_from_glyph(
     model_element, layout_element = _make_map_elements_from_glyph(
         glyph,
         builder,
+        glyph_mapping,
+        glyph_disambiguation_mapping,
         d_model_elements_ids,
         d_layout_elements_ids,
         is_subglyph,
@@ -572,6 +811,8 @@ def _make_and_add_map_elements_from_glyph(
             _make_and_add_map_elements_from_glyph(
                 subglyph,
                 builder,
+                glyph_mapping,
+                glyph_disambiguation_mapping,
                 d_model_elements_ids,
                 d_layout_elements_ids,
                 is_subglyph=True,
@@ -583,6 +824,8 @@ def _make_and_add_map_elements_from_glyph(
         _make_and_add_map_elements_from_glyph(
             subglyph,
             builder,
+            glyph_mapping,
+            glyph_disambiguation_mapping,
             d_model_elements_ids,
             d_layout_elements_ids,
             is_subglyph=True,
@@ -595,9 +838,9 @@ def _make_and_add_map_elements_from_glyph(
         d_layout_elements_ids[port.get_id()] = layout_element
 
 
-def _disambiguate_arc(arc, d_model_elements_ids):
+def _disambiguate_arc(arc, arc_disambiguation_mapping, d_model_elements_ids):
     disambiguation_key = arc.get_class().value
-    disambiguation = LibSBGNDisambiguationArcMapping.get(disambiguation_key)
+    disambiguation = arc_disambiguation_mapping.get(disambiguation_key)
     if disambiguation is not None:
         source_or_target = disambiguation["source_or_target"]
         if source_or_target == "source":
@@ -612,13 +855,25 @@ def _disambiguate_arc(arc, d_model_elements_ids):
 
 
 def _make_and_add_map_elements_from_arc(
-    arc, builder, d_model_elements_ids, d_layout_elements_ids
+    arc,
+    builder,
+    arc_mapping,
+    arc_disambiguation_mapping,
+    d_model_elements_ids,
+    d_layout_elements_ids,
 ):
     model_element, layout_element = _make_map_elements_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids
+        arc,
+        builder,
+        arc_mapping,
+        arc_disambiguation_mapping,
+        d_model_elements_ids,
+        d_layout_elements_ids,
     )
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    role = LibSBGNArcMapping[arc_key].get("role")
+    arc_key = _disambiguate_arc(
+        arc, arc_disambiguation_mapping, d_model_elements_ids
+    )
+    role = arc_mapping[arc_key].get("role")
     if role is not None:
         source_or_target = role["source_or_target"]
         if source_or_target == "target":
@@ -643,6 +898,8 @@ def _make_and_add_map_elements_from_arc(
         _make_and_add_map_elements_from_glyph(
             subglyph,
             builder,
+            glyph_mapping,
+            glyph_disambiguation_mapping,
             d_model_elements_ids,
             d_layout_elements_ids,
             is_subglyph=True,
@@ -658,6 +915,8 @@ def _make_and_add_map_elements_from_arc(
 def _make_map_elements_from_glyph(
     glyph,
     builder,
+    glyph_mapping,
+    glyph_disambiguation_mapping,
     d_model_elements_ids,
     d_layout_elements_ids,
     is_subglyph=False,
@@ -667,6 +926,8 @@ def _make_map_elements_from_glyph(
     model_element = _make_model_element_from_glyph(
         glyph,
         builder,
+        glyph_mapping,
+        glyph_disambiguation_mapping,
         d_model_elements_ids,
         d_layout_elements_ids,
         is_subglyph,
@@ -675,6 +936,8 @@ def _make_map_elements_from_glyph(
     layout_element = _make_layout_element_from_glyph(
         glyph,
         builder,
+        glyph_mapping,
+        glyph_disambiguation_mapping,
         d_model_elements_ids,
         d_layout_elements_ids,
         is_subglyph,
@@ -683,18 +946,23 @@ def _make_map_elements_from_glyph(
     return model_element, layout_element
 
 
-def _disambiguate_subglyph(subglyph):
+def _disambiguate_subglyph(subglyph, glyph_disambiguation_mapping):
     disambiguation_key = subglyph.get_class().value
-    if disambiguation_key in LibSBGNDisambiguationGlyphMapping:
-        disambiguation_key = LibSBGNDisambiguationGlyphMapping[
-            disambiguation_key
-        ]
+    if disambiguation_key in glyph_disambiguation_mapping:
+        disambiguation_key = glyph_disambiguation_mapping[disambiguation_key]
+    else:
+        if subglyph.get_entity() is not None:
+            disambiguation_key = glyph_disambiguation_mapping[
+                subglyph.get_entity().get_name()
+            ]
     return disambiguation_key
 
 
 def _make_model_element_from_glyph(
     glyph,
     builder,
+    glyph_mapping,
+    glyph_disambiguation_mapping,
     d_model_elements_ids,
     d_layout_elements_ids,
     is_subglyph=False,
@@ -705,10 +973,12 @@ def _make_model_element_from_glyph(
         and glyph.get_class() != libsbgn.GlyphClass.STOICHIOMETRY
     ):
         if is_subglyph:
-            glyph_key = _disambiguate_subglyph(glyph)
+            glyph_key = _disambiguate_subglyph(
+                glyph, glyph_disambiguation_mapping
+            )
         else:
             glyph_key = glyph.get_class().value
-        model_element_class = LibSBGNGlyphMapping[glyph_key]["model_class"]
+        model_element_class = glyph_mapping[glyph_key]["model_class"]
         model_element = builder.new_model_element(model_element_class)
         model_element.id = glyph.get_id()
         if (
@@ -745,16 +1015,18 @@ def _make_model_element_from_glyph(
 def _make_layout_element_from_glyph(
     glyph,
     builder,
+    glyph_mapping,
+    glyph_disambiguation_mapping,
     d_model_elements_ids,
     d_layout_elements_ids,
     is_subglyph=False,
     order=None,
 ):
     if is_subglyph:
-        glyph_key = _disambiguate_subglyph(glyph)
+        glyph_key = _disambiguate_subglyph(glyph, glyph_disambiguation_mapping)
     else:
         glyph_key = glyph.get_class().value
-    layout_element_class = LibSBGNGlyphMapping[glyph_key]["layout_class"]
+    layout_element_class = glyph_mapping[glyph_key]["layout_class"]
     layout_element = builder.new_layout_element(layout_element_class)
     layout_element.id = glyph.get_id()
     layout_element.width = glyph.get_bbox().get_w()
@@ -789,14 +1061,12 @@ def _make_layout_element_from_glyph(
         label_element.position = label_position
         label_element.width = libsbgn_label_bbox.get_w()
         label_element.height = libsbgn_label_bbox.get_h()
-        label_element.font_family = LibSBGNGlyphMapping[glyph_key][
-            "font_family"
-        ]
-        label_element.font_size = LibSBGNGlyphMapping[glyph_key]["font_size"]
+        label_element.font_family = glyph_mapping[glyph_key]["font_family"]
+        label_element.font_size = glyph_mapping[glyph_key]["font_size"]
         label_element.horizontal_alignment = momapy.core.HAlignment.CENTER
         label_element.vertical_alignment = momapy.core.VAlignment.CENTER
         layout_element.label = label_element
-    if LibSBGNGlyphMapping[glyph_key]["has_connectors"]:
+    if glyph_mapping[glyph_key]["has_connectors"]:
         for libsbgn_port in glyph.get_port():
             if libsbgn_port.get_x() < glyph.get_bbox().get_x():  # LEFT
                 layout_element.left_connector_length = (
@@ -828,7 +1098,7 @@ def _make_layout_element_from_glyph(
                     - glyph.get_bbox().get_h()
                 )
                 layout_element.direction = momapy.core.Direction.VERTICAL
-    if LibSBGNGlyphMapping[glyph_key]["has_orientation"]:
+    if glyph_mapping[glyph_key]["has_orientation"]:
         layout_element.direction = momapy.core.Direction[
             glyph.get_orientation().name
         ]
@@ -836,25 +1106,47 @@ def _make_layout_element_from_glyph(
 
 
 def _make_map_elements_from_arc(
-    arc, builder, d_model_elements_ids, d_layout_elements_ids
+    arc,
+    builder,
+    arc_mapping,
+    arc_disambiguation_mapping,
+    d_model_elements_ids,
+    d_layout_elements_ids,
 ):
     model_element = _make_model_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids
+        arc,
+        builder,
+        arc_mapping,
+        arc_disambiguation_mapping,
+        d_model_elements_ids,
+        d_layout_elements_ids,
     )
     layout_element = _make_layout_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids
+        arc,
+        builder,
+        arc_mapping,
+        arc_disambiguation_mapping,
+        d_model_elements_ids,
+        d_layout_elements_ids,
     )
     return model_element, layout_element
 
 
 def _make_model_element_from_arc(
-    arc, builder, d_model_elements_ids, d_layout_elements_ids
+    arc,
+    builder,
+    arc_mapping,
+    arc_disambiguation_mapping,
+    d_model_elements_ids,
+    d_layout_elements_ids,
 ):
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    model_element_class = LibSBGNArcMapping[arc_key]["model_class"]
+    arc_key = _disambiguate_arc(
+        arc, arc_disambiguation_mapping, d_model_elements_ids
+    )
+    model_element_class = arc_mapping[arc_key]["model_class"]
     model_element = builder.new_model_element(model_element_class)
     model_element.id = arc.get_id()
-    role = LibSBGNArcMapping[arc_key].get("role")
+    role = arc_mapping[arc_key].get("role")
     if role is not None:
         source_or_target = role["source_or_target"]
         if source_or_target == "source":
@@ -869,13 +1161,20 @@ def _make_model_element_from_arc(
 
 
 def _make_layout_element_from_arc(
-    arc, builder, d_model_elements_ids, d_layout_elements_ids
+    arc,
+    builder,
+    arc_mapping,
+    arc_disambiguation_mapping,
+    d_model_elements_ids,
+    d_layout_elements_ids,
 ):
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    layout_element_class = LibSBGNArcMapping[arc_key]["layout_class"]
+    arc_key = _disambiguate_arc(
+        arc, arc_disambiguation_mapping, d_model_elements_ids
+    )
+    layout_element_class = arc_mapping[arc_key]["layout_class"]
     layout_element = builder.new_layout_element(layout_element_class)
     layout_element.id = arc.get_id()
-    role = LibSBGNArcMapping[arc_key].get("role")
+    role = arc_mapping[arc_key].get("role")
     layout_element.source = momapy.core.PhantomLayoutBuilder(
         layout_element=d_layout_elements_ids[arc.get_source()]
     )

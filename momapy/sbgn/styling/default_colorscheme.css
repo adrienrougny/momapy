@@ -217,3 +217,71 @@ InhibitionLayout {
     fill: none;
     arrowhead_stroke: black;
 }
+
+MacromoleculeUnitOfInformationLayout {
+    stroke: black;
+    fill: lightblue;
+}
+
+UnspecifiedEntityUnitOfInformationLayout {
+    stroke: black;
+    fill: moccasin;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout {
+    stroke: black;
+    fill: palegreen;
+}
+
+ComplexUnitOfInformationLayout {
+    stroke: black;
+    fill: yellow;
+}
+
+SimpleChemicalUnitOfInformationLayout {
+    stroke: black;
+    fill: orange;
+}
+
+PerturbationUnitOfInformationLayout {
+    stroke: black;
+    fill: red;
+}
+
+DelayOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnknownInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
+}
+
+PositiveInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
+}
+
+NecessaryStimulationLayout {
+    stroke: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: white;
+}
+
+NegativeInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_fill: none;
+}
+
+BiologicalActivityLayout {
+    stroke: black;
+    fill: lavender;
+}

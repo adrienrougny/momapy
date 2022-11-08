@@ -403,3 +403,123 @@ EquivalenceArcLayout {
     fill: none;
     shorten: 0.0;
 }
+
+MacromoleculeUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    rounded_corners: 3.0;
+}
+
+UnspecifiedEntityUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    rounded_corners: 3.0;
+}
+
+ComplexUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    cut_corners: 3.0;
+}
+
+SimpleChemicalUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+}
+
+PerturbationUnitOfInformationLayout {
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    angle: 60.0;
+}
+
+MacromoleculeUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+UnspecifiedEntityUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+ComplexUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+SimpleChemicalUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+PerturbationUnitOfInformationLayout > TextLayout {
+    font_size: 10.0;
+}
+
+DelayOperatorLayout {
+    width: 42;
+    height: 42;
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+    left_connector_length: 10.0;
+    right_connector_length: 10.0;
+    left_connector_stroke_width: 1.5;
+    right_connector_stroke_width: 1.5;
+}
+
+UnknownInfluenceLayout {
+    stroke: black;
+    stroke_width: 1.5;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.5;
+    arrowhead_fill: white;
+    shorten: 1.0;
+    width: 15.0;
+    height: 15.0;
+}
+
+PositiveInfluenceLayout {
+    stroke: black;
+    stroke_width: 1.5;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.5;
+    arrowhead_fill: white;
+    shorten: 1.0;
+    width: 15.0;
+    height: 15.0;
+}
+
+NegativeInfluenceLayout {
+    stroke: black;
+    stroke_width: 1.5;
+    fill: none;
+    arrowhead_stroke: black;
+    arrowhead_stroke_width: 1.5;
+    arrowhead_fill: white;
+    shorten: 6.0;
+    width: 1.5;
+    height: 15.0;
+}
+
+BiologicalActivityLayout {
+    width: 108.0;
+    height: 60.0;
+    stroke: black;
+    stroke_width: 2.0;
+    fill: white;
+}

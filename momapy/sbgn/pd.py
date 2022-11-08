@@ -7,7 +7,7 @@ import momapy.arcs
 import momapy.shapes
 import momapy.coloring
 
-############STATE VARIABLE AND UNIT OF INFORMATION###################
+
 @dataclasses.dataclass(frozen=True)
 class UndefinedVariable(momapy.sbgn.core.SBGNModelElement):
     order: typing.Optional[int] = None
@@ -25,7 +25,6 @@ class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
     prefix: typing.Optional[str] = None
 
 
-############SUBUNITS###################
 @dataclasses.dataclass(frozen=True)
 class Subunit(momapy.sbgn.core.SBGNModelElement):
     label: typing.Optional[str] = None
@@ -102,7 +101,6 @@ class ComplexMultimerSubunit(MultimerSubunit):
     pass
 
 
-############COMPARTMENT###################
 @dataclasses.dataclass(frozen=True)
 class Compartment(momapy.sbgn.core.SBGNModelElement):
     label: typing.Optional[str] = None
@@ -114,7 +112,6 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
     )
 
 
-############ENTITY POOLS###################
 @dataclasses.dataclass(frozen=True)
 class EntityPool(momapy.sbgn.core.SBGNModelElement):
     compartment: typing.Optional[Compartment] = None
@@ -205,7 +202,6 @@ class ComplexMultimer(Multimer):
     pass
 
 
-############SBGN ROLES###################
 @dataclasses.dataclass(frozen=True)
 class FluxRole(momapy.sbgn.core.SBGNRole):
     element: EntityPool
@@ -247,7 +243,6 @@ class TagReference(momapy.sbgn.core.SBGNRole):
     element: typing.Union[EntityPool, Compartment] = None
 
 
-############PROCESSES###################
 @dataclasses.dataclass(frozen=True)
 class Process(momapy.sbgn.core.SBGNModelElement):
     pass
@@ -291,7 +286,6 @@ class Phenotype(Process):
     label: typing.Optional[str] = None
 
 
-############OPERATORS###################
 @dataclasses.dataclass(frozen=True)
 class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
@@ -322,7 +316,6 @@ class EquivalenceOperator(momapy.sbgn.core.SBGNModelElement):
     output: typing.Optional[EquivalenceOperatorOutput] = None
 
 
-############MODULATIONS###################
 @dataclasses.dataclass(frozen=True)
 class Modulation(momapy.sbgn.core.SBGNModelElement):
     source: typing.Optional[typing.Union[EntityPool, LogicalOperator]] = None
@@ -349,7 +342,6 @@ class NecessaryStimulation(Stimulation):
     pass
 
 
-############SUBMAP###################
 @dataclasses.dataclass(frozen=True)
 class Terminal(momapy.sbgn.core.SBGNModelElement):
     label: typing.Optional[str] = None
@@ -370,7 +362,6 @@ class Submap(momapy.sbgn.core.SBGNModelElement):
     )
 
 
-############MODELS###################
 @dataclasses.dataclass(frozen=True)
 class SBGNPDModel(momapy.sbgn.core.SBGNModel):
     entity_pools: frozenset[EntityPool] = dataclasses.field(
@@ -451,39 +442,6 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
         )
 
 
-############MAP###################
-@dataclasses.dataclass(frozen=True)
-class SBGNPDMap(momapy.sbgn.core.SBGNMap):
-    model: typing.Optional[SBGNPDModel] = None
-
-
-############BUILDERS###################
-SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
-
-
-def sbgnpd_map_builder_new_model(self, *args, **kwargs):
-    return SBGNPDModelBuilder(*args, **kwargs)
-
-
-def sbgnpd_map_builder_new_layout(self, *args, **kwargs):
-    return momapy.core.MapLayoutBuilder(*args, **kwargs)
-
-
-def sbgnpd_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
-
-
-SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
-    SBGNPDMap,
-    builder_namespace={
-        "new_model": sbgnpd_map_builder_new_model,
-        "new_layout": sbgnpd_map_builder_new_layout,
-        "new_model_layout_mapping": sbgnpd_map_builder_new_model_layout_mapping,
-    },
-)
-
-
-############GLYPHS###################
 @dataclasses.dataclass(frozen=True)
 class StateVariableLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
@@ -960,3 +918,33 @@ class LogicArcLayout(momapy.arcs.PolyLine):
 class EquivalenceArcLayout(momapy.arcs.PolyLine):
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
+
+
+@dataclasses.dataclass(frozen=True)
+class SBGNPDMap(momapy.sbgn.core.SBGNMap):
+    model: typing.Optional[SBGNPDModel] = None
+
+
+SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
+
+
+def _sbgnpd_map_builder_new_model(self, *args, **kwargs):
+    return SBGNPDModelBuilder(*args, **kwargs)
+
+
+def _sbgnpd_map_builder_new_layout(self, *args, **kwargs):
+    return momapy.core.MapLayoutBuilder(*args, **kwargs)
+
+
+def _sbgnpd_map_builder_new_model_layout_mapping(self, *args, **kwargs):
+    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
+
+
+SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
+    SBGNPDMap,
+    builder_namespace={
+        "new_model": _sbgnpd_map_builder_new_model,
+        "new_layout": _sbgnpd_map_builder_new_layout,
+        "new_model_layout_mapping": _sbgnpd_map_builder_new_model_layout_mapping,
+    },
+)

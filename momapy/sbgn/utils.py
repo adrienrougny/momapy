@@ -5,17 +5,25 @@ import momapy.builder
 
 
 def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
-    compartment_entity_pools_mapping = collections.defaultdict(list)
+    compartment_entities_mapping = collections.defaultdict(list)
     model = map_builder.model
-    for entity_pool in model.entity_pools:
-        compartment = entity_pool.compartment
-        if compartment is not None:
-            compartment_entity_pools_mapping[compartment].append(entity_pool)
-    for compartment in compartment_entity_pools_mapping:
+    if momapy.builder.isinstance_or_builder(
+        map_builder, momapy.sbgn.pd.SBGNPDMap
+    ):
+        for entity_pool in model.entity_pools:
+            compartment = entity_pool.compartment
+            if compartment is not None:
+                compartment_entities_mapping[compartment].append(entity_pool)
+    else:
+        for activity in model.activities:
+            compartment = activity.compartment
+            if compartment is not None:
+                compartment_entities_mapping[compartment].append(activity)
+    for compartment in compartment_entities_mapping:
         for compartment_layout in map_builder.model_layout_mapping[compartment]:
             elements = []
-            for entity_pool in compartment_entity_pools_mapping[compartment]:
-                elements += map_builder.model_layout_mapping[entity_pool]
+            for entity in compartment_entities_mapping[compartment]:
+                elements += map_builder.model_layout_mapping[entity]
             momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
                 compartment_layout.label.position = compartment_layout.position
@@ -195,6 +203,24 @@ def set_auxilliary_units_to_borders(map_builder):
                     momapy.builder.get_or_make_builder_cls(
                         momapy.sbgn.pd.UnitOfInformationLayout
                     ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout
+                    ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.MacromoleculeUnitOfInformationLayout
+                    ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout
+                    ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.ComplexUnitOfInformationLayout
+                    ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout
+                    ),
+                    momapy.builder.get_or_make_builder_cls(
+                        momapy.sbgn.af.PerturbationUnitOfInformationLayout
+                    ),
                 ),
             ) and isinstance(layout_element, momapy.core.NodeLayoutBuilder):
                 position = layout_element.self_border(child.position)
@@ -225,7 +251,12 @@ def tidy(
 ):
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_auxilliary_units_to_borders(map_builder)
-    set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
+    if momapy.builder.isinstance_or_builder(
+        map_builder, momapy.sbgn.pd.SBGNPDMap
+    ):
+        set_complexes_to_fit_content(
+            map_builder, complexes_xsep, complexes_ysep
+        )
     set_submaps_to_fit_content(map_builder, 0, 0)
     set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_auxilliary_units_to_borders(map_builder)

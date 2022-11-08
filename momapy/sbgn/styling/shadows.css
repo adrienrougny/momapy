@@ -122,3 +122,36 @@ TagLayout {
 SubmapTerminalLayout {
     stroke: none;
 }
+
+MacromoleculeUnitOfInformationLayout {
+    stroke: none;
+}
+
+UnspecifiedEntityUnitOfInformationLayout {
+    stroke: none;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout {
+    stroke: none;
+}
+
+ComplexUnitOfInformationLayout {
+    stroke: none;
+}
+
+SimpleChemicalUnitOfInformationLayout {
+    stroke: none;
+}
+
+PerturbationUnitOfInformationLayout {
+    stroke: none;
+}
+
+DelayOperatorLayout {
+    filter: drop-shadow(3.0 3.0);
+}
+
+BiologicalActivityLayout {
+    stroke: none;
+    filter: drop-shadow(3.0 3.0);
+}
