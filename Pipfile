@@ -12,6 +12,7 @@ momapy = {editable = true, path = "."}
 ffmpeg-python = "*"
 numpy = "*"
 pyparsing = "*"
+skia-python = "*"
 
 [dev-packages]
 
