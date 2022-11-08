@@ -570,6 +570,22 @@ class SVGNativeRenderer(Renderer):
             filter_effect, momapy.drawing.DropShadowEffect
         ):
             return self._render_drop_shadow_effect
+        elif momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.CompositeEffect
+        ):
+            return self._render_composite_effect
+        elif momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.OffsetEffect
+        ):
+            return self._render_offset_effect
+        elif momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.GaussianBlurEffect
+        ):
+            return self._render_gaussian_blur_effect
+        elif momapy.builder.isinstance_or_builder(
+            filter_effect, momapy.drawing.FloodEffect
+        ):
+            return self._render_flood_effect
 
     def _get_path_action_render_function(self, path_action):
         if momapy.builder.isinstance_or_builder(
@@ -654,6 +670,10 @@ class SVGNativeRenderer(Renderer):
         svg_dx = self._render_svg_attribute("dx", filter_effect.dx)
         svg_dy = self._render_svg_attribute("dy", filter_effect.dy)
         svg_attributes = [svg_dx, svg_dy]
+        if filter_effect.result is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("result", filter_effect.result)
+            )
         if filter_effect.std_deviation is not None:
             svg_attributes.append(
                 self._render_svg_attribute(
@@ -671,6 +691,80 @@ class SVGNativeRenderer(Renderer):
                 self._render_svg_attribute(
                     "flood-color", self._render_color(filter_effect.flood_color)
                 )
+            )
+        value = None
+        svg_subelements = []
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements
+        )
+
+    def _render_composite_effect(self, filter_effect):
+        name = "feComposite"
+        svg_in = self._render_svg_attribute("in", filter_effect.in_)
+        svg_in2 = self._render_svg_attribute("in2", filter_effect.in2)
+        svg_operator = self._render_svg_attribute(
+            "operator", filter_effect.operator
+        )
+        svg_attributes = [svg_in, svg_in2, svg_operator]
+        if filter_effect.result is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("result", filter_effect.result)
+            )
+        value = None
+        svg_subelements = []
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements
+        )
+
+    def _render_flood_effect(self, filter_effect):
+        name = "feFlood"
+        svg_flood_opacity = self._render_svg_attribute(
+            "flood-opacity", filter_effect.flood_opacity
+        )
+        svg_flood_color = self._render_svg_attribute(
+            "flood-color", self._render_color(filter_effect.flood_color)
+        )
+        svg_attributes = [svg_flood_opacity, svg_flood_color]
+        if filter_effect.result is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("result", filter_effect.result)
+            )
+        value = None
+        svg_subelements = []
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements
+        )
+
+    def _render_gaussian_blur_effect(self, filter_effect):
+        name = "feGaussianBlur"
+        svg_in = self._render_svg_attribute("in", filter_effect.in_)
+        svg_std_deviation = self._render_svg_attribute(
+            "stdDeviation", filter_effect.std_deviation
+        )
+        svg_attributes = [svg_in, svg_std_deviation]
+        if filter_effect.edge_mode is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("edgeMode", filter_effect.edge_mode)
+            )
+        if filter_effect.result is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("result", filter_effect.result)
+            )
+        value = None
+        svg_subelements = []
+        return self._render_svg_element(
+            name, svg_attributes, value, svg_subelements
+        )
+
+    def _render_offset_effect(self, filter_effect):
+        name = "feOffset"
+        svg_in = self._render_svg_attribute("in", filter_effect.in_)
+        svg_dx = self._render_svg_attribute("dx", filter_effect.dx)
+        svg_dy = self._render_svg_attribute("dy", filter_effect.dy)
+        svg_attributes = [svg_in, svg_dx, svg_dy]
+        if filter_effect.result is not None:
+            svg_attributes.append(
+                self._render_svg_attribute("result", filter_effect.result)
             )
         value = None
         svg_subelements = []
@@ -696,7 +790,6 @@ class SVGNativeRenderer(Renderer):
             svg_width,
             svg_height,
         ]
-        # svg_attributes = [svg_id_attribute, svg_filter_units]
         value = None
         svg_subelements = [
             self._render_filter_effect(fe) for fe in filter.effects
@@ -864,6 +957,14 @@ class SVGNativeRenderer(Renderer):
         return name, svg_attributes, value, svg_subelements
 
 
+@dataclass
+class SVGNativeCompatRenderer(SVGNativeRenderer):
+    def _render_filter(self, filter_):
+        filter_ = filter_.to_compat()
+        return super()._render_filter(filter_)
+
+
 register_renderer("cairo", CairoRenderer)
 register_renderer("svg-native", SVGNativeRenderer)
+register_renderer("svg-native-compat", SVGNativeCompatRenderer)
 register_renderer("gtk-cairo", GTKCairoRenderer)

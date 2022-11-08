@@ -8,6 +8,7 @@ import frozendict
 
 import momapy.coloring
 import momapy.drawing
+import momapy.core
 
 
 class StyleCollection(frozendict.frozendict):
@@ -151,9 +152,14 @@ _css_int_value = pp.Word(pp.nums)
 _css_drop_shadow_filter_value = (
     pp.Literal("drop-shadow(")
     + _css_float_value
+    + pp.Literal(",")
     + _css_float_value
-    + pp.Optional(_css_float_value)
-    + pp.Optional(_css_color_value)
+    + pp.Literal(",")
+    + _css_float_value
+    + pp.Literal(",")
+    + _css_float_value
+    + pp.Literal(",")
+    + _css_color_value
     + pp.Literal(")")
 )
 _css_filter_value = _css_drop_shadow_filter_value
@@ -233,7 +239,13 @@ def _resolve_css_color_name_value(results):
 def _resolve_css_drop_shadow_filter_value(results):
     filter_effect = momapy.builder.get_or_make_builder_cls(
         momapy.drawing.DropShadowEffect
-    )(results[1], results[2])
+    )(
+        dx=results[1],
+        dy=results[3],
+        std_deviation=results[5],
+        flood_opacity=results[7],
+        flood_color=results[9],
+    )
     filter = momapy.builder.get_or_make_builder_cls(momapy.drawing.Filter)(
         effects=momapy.core.TupleBuilder([filter_effect])
     )

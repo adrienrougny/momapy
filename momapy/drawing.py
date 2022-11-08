@@ -20,16 +20,75 @@ NoneValue = NoneValueType()
 
 @dataclass(frozen=True)
 class FilterEffect(ABC):
-    pass
+    result: Optional[str] = None
 
 
 @dataclass(frozen=True)
 class DropShadowEffect(FilterEffect):
-    dx: float
-    dy: float
-    std_deviation: float = 2.0
-    flood_opacity: float = 0.5
+    dx: float = 0.0
+    dy: float = 0.0
+    std_deviation: float = 0.0
+    flood_opacity: float = 1.0
     flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+
+    def to_compat(self):
+        flood_effect = FloodEffect(
+            result="flood",
+            flood_opacity=self.flood_opacity,
+            flood_color=self.flood_color,
+        )
+        composite_effect1 = CompositeEffect(
+            in_="flood", in2="SourceGraphic", operator="in", result="composite1"
+        )
+        gaussian_blur_effect = GaussianBlurEffect(
+            in_="composite1",
+            std_deviation=self.std_deviation,
+            result="gaussian_blur",
+        )
+        offset_effect = OffsetEffect(
+            in_="gaussian_blur", dx=self.dx, dy=self.dy, result="offset"
+        )
+        composite_effect2 = CompositeEffect(
+            in_="SourceGraphic",
+            in2="offset",
+            operator="over",
+            result=self.result,
+        )
+        effects = [
+            flood_effect,
+            composite_effect1,
+            gaussian_blur_effect,
+            offset_effect,
+            composite_effect2,
+        ]
+        return effects
+
+
+@dataclass(frozen=True)
+class CompositeEffect(FilterEffect):
+    in_: Optional[str] = None
+    in2: Optional[str] = None
+    operator: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class FloodEffect(FilterEffect):
+    flood_opacity: float = 1.0
+    flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+
+
+@dataclass(frozen=True)
+class GaussianBlurEffect(FilterEffect):
+    in_: Optional[str] = None
+    std_deviation: float = 0
+    edge_mode: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class OffsetEffect(FilterEffect):
+    in_: Optional[str] = None
+    dx: float = 0
+    dy: float = 0
 
 
 @dataclass(frozen=True)
@@ -39,6 +98,15 @@ class Filter(object):
     )
     filter_units: str = "objectBoundingBox"
     effects: tuple[FilterEffect] = field(default_factory=tuple)
+
+    def to_compat(self):
+        effects = []
+        for effect in self.effects:
+            if hasattr(effect, "to_compat"):
+                effects += effect.to_compat()
+            else:
+                effects.append(effect)
+        return replace(self, effects=effects)
 
 
 @dataclass(frozen=True)

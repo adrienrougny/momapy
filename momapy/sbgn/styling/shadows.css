@@ -1,109 +1,109 @@
 SubmapLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 CompartmentLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 GenericProcessLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 UncertainProcessLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 OmittedProcessLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 AssociationLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 DissociationLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 PhenotypeLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 AndOperatorLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 OrOperatorLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 NotOperatorLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 EquivalenceOperatorLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 UnspecifiedEntityLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 MacromoleculeLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 MacromoleculeMultimerLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
-    subunits_filter: none, drop-shadow(1.0 1.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 ComplexLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 ComplexMultimerLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
-    subunits_filter: none, drop-shadow(1.0 1.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 SimpleChemicalLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 SimpleChemicalMultimerLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
-    subunits_filter: none, drop-shadow(1.0 1.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 NucleicAcidFeatureLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 NucleicAcidFeatureMultimerLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
-    subunits_filter: none, drop-shadow(1.0 1.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 EmptySetLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 PerturbingAgentLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 StateVariableLayout {
@@ -116,7 +116,7 @@ UnitOfInformationLayout {
 
 TagLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 SubmapTerminalLayout {
@@ -148,10 +148,10 @@ PerturbationUnitOfInformationLayout {
 }
 
 DelayOperatorLayout {
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
 
 BiologicalActivityLayout {
     stroke: none;
-    filter: drop-shadow(3.0 3.0);
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
 }
