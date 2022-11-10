@@ -240,8 +240,8 @@ def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
 
 def tidy(
     map_builder,
-    nodes_xsep=3,
-    nodes_ysep=3,
+    nodes_xsep=5,
+    nodes_ysep=5,
     complexes_xsep=15,
     complexes_ysep=15,
     compartments_xsep=15,

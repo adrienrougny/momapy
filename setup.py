@@ -14,6 +14,7 @@ setup(
         "pygobject",
         "numpy",
         "pyparsing",
+        "skia-python",
     ],
     package_data={"": ["*.css"]},
     include_package_data=True,
