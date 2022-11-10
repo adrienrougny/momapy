@@ -3,719 +3,243 @@ import momapy.builder
 import momapy.shapes
 import momapy.arcs
 import momapy.coloring
-import momapy.sbgn.core
-import momapy.sbgn.pd
-import momapy.sbgn.af
 
+import momapy.celldesigner.core
+import momapy.celldesigner.parser
 
-import libsbgnpy.libsbgn as libsbgn
+import xsdata.formats.dataclass.context
+import xsdata.formats.dataclass.parsers
+import xsdata.formats.dataclass.parsers.config
 
-LibSBGNDisambiguationArcMapping = {
-    "equivalence arc": {
-        "source_or_target": "target",
-        "keys": {
-            momapy.sbgn.pd.Tag: "equivalence arc to tag",
-            momapy.sbgn.pd.Terminal: "equivalence arc to terminal"
-        }
-    },
-    "logic arc": {
-        "source_or_target": "target",
-        "keys": {
-            momapy.sbgn.pd.EntityPool: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.EmptySet: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.PerturbingAgent: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.UnspecifiedEntity: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.Macromolecule: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.NucleicAcidFeature: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.SimpleChemical: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.Complex: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.Multimer: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.MacromoleculeMultimer: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.NucleicAcidFeatureMultimer: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.SimpleChemicalMultimer: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.ComplexMultimer: \
-                "logic arc from equivalence operator",
-            momapy.sbgn.pd.EquivalenceOperator: \
-                "logic arc to equivalence operator",
-            momapy.sbgn.pd.LogicalOperator: "logic arc to logical operator",
-            momapy.sbgn.pd.AndOperator: "logic arc to logical operator",
-            momapy.sbgn.pd.OrOperator: "logic arc to logical operator",
-            momapy.sbgn.pd.NotOperator: "logic arc to logical operator",
-        }
-    }
+_CellDesignerSpeciesReferenceTypeMapping = {
+    (
+        momapy.celldesigner.parser.ProteinType.GENERIC
+    ): momapy.celldesigner.core.GenericProteinReference,
+    (
+        momapy.celldesigner.parser.ProteinType.RECEPTOR
+    ): momapy.celldesigner.core.ReceptorReference,
+    (
+        momapy.celldesigner.parser.ProteinType.ION_CHANNEL
+    ): momapy.celldesigner.core.IonChannelReference,
+    (
+        momapy.celldesigner.parser.ProteinType.TRUNCATED
+    ): momapy.celldesigner.core.TruncatedProteinReference,
+    (
+        momapy.celldesigner.parser.AntisenseRnaType.ANTISENSE_RNA
+    ): momapy.celldesigner.core.AntisensRNAReference,
+    (
+        momapy.celldesigner.parser.RnaType.RNA
+    ): momapy.celldesigner.core.RNAReference,
+    (
+        momapy.celldesigner.parser.GeneType.GENE
+    ): momapy.celldesigner.core.GeneReference,
 }
 
-LibSBGNDisambiguationGlyphMapping = {
-    "unspecified entity": "unspecified entity subunit",
-    "macromolecule": "macromolecule subunit",
-    "nucleic acid feature": "nucleic acid feature subunit",
-    "simple chemical": "simple chemical subunit",
-    "complex": "complex subunit",
-    "macromolecule multimer": "macromolecule multimer subunit",
-    "nucleic acid feature multimer": "nucleic acid feature multimer subunit",
-    "simple chemical multimer": "simple chemical multimer subunit",
-    "complex multimer": "complex multimer subunit",
+_CellDesignerSpeciesTypeMapping = {
+    (
+        momapy.celldesigner.parser.ClassValue.PROTEIN,
+        momapy.celldesigner.core.GenericProteinReference,
+    ): momapy.celldesigner.core.GenericProtein,
+    (
+        momapy.celldesigner.parser.ClassValue.PROTEIN,
+        momapy.celldesigner.core.ReceptorReference,
+    ): momapy.celldesigner.core.Receptor,
+    (
+        momapy.celldesigner.parser.ClassValue.PROTEIN,
+        momapy.celldesigner.core.IonChannelReference,
+    ): momapy.celldesigner.core.IonChannel,
+    (
+        momapy.celldesigner.parser.ClassValue.PROTEIN,
+        momapy.celldesigner.core.TruncatedProteinReference,
+    ): momapy.celldesigner.core.TruncatedProtein,
+    (
+        momapy.celldesigner.parser.ClassValue.GENE,
+        momapy.celldesigner.core.GeneReference,
+    ): momapy.celldesigner.core.Gene,
+    (
+        momapy.celldesigner.parser.ClassValue.RNA,
+        momapy.celldesigner.core.RNAReference,
+    ): momapy.celldesigner.core.RNA,
+    (
+        momapy.celldesigner.parser.ClassValue.ANTISENSE_RNA,
+        momapy.celldesigner.core.AntisensRNAReference,
+    ): momapy.celldesigner.core.AntisensRNA,
+    (
+        momapy.celldesigner.parser.ClassValue.PHENOTYPE,
+        None,
+    ): momapy.celldesigner.core.Phenotype,
+    (
+        momapy.celldesigner.parser.ClassValue.ION,
+        None,
+    ): momapy.celldesigner.core.Ion,
+    (
+        momapy.celldesigner.parser.ClassValue.SIMPLE_MOLECULE,
+        None,
+    ): momapy.celldesigner.core.SimpleMolecule,
 }
 
-LibSBGNMapMapping = {
-    "process description": momapy.sbgn.pd.SBGNPDMap,
-    "activity flow": momapy.sbgn.af.SBGNAFMap,
-    "entity relationship": None
-}
 
-LibSBGNGlyphMapping = {
-    "state variable": {
-        "model_class": momapy.sbgn.pd.StateVariable,
-        "layout_class": momapy.sbgn.pd.StateVariableLayout,
-        "font_description": "Arial 8",
-        "has_connectors": False
-    },
-    "unit of information": {
-        "model_class": momapy.sbgn.pd.UnitOfInformation,
-        "layout_class": momapy.sbgn.pd.UnitOfInformationLayout,
-        "font_description": "Arial 8",
-        "has_connectors": False
-    },
-    "unspecified entity subunit": {
-        "model_class": momapy.sbgn.pd.UnspecifiedEntitySubunit,
-        "layout_class": momapy.sbgn.pd.UnspecifiedEntityLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "macromolecule subunit": {
-        "model_class": momapy.sbgn.pd.MacromoleculeSubunit,
-        "layout_class": momapy.sbgn.pd.MacromoleculeLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "nucleic acid feature subunit": {
-        "model_class": momapy.sbgn.pd.NucleicAcidFeatureSubunit,
-        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "simple chemical subunit": {
-        "model_class": momapy.sbgn.pd.SimpleChemicalSubunit,
-        "layout_class": momapy.sbgn.pd.SimpleChemicalLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "complex subunit": {
-        "model_class": momapy.sbgn.pd.ComplexSubunit,
-        "layout_class": momapy.sbgn.pd.ComplexLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "macromolecule multimer subunit": {
-        "model_class": momapy.sbgn.pd.MacromoleculeMultimerSubunit,
-        "layout_class": momapy.sbgn.pd.MacromoleculeMultimerLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "nucleic acid feature multimer subunit": {
-        "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "simple chemical multimer subunit": {
-        "model_class": momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "complex multimer subunit": {
-        "model_class": momapy.sbgn.pd.ComplexMultimerSubunit,
-        "layout_class": momapy.sbgn.pd.ComplexMultimerLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "compartment": {
-        "model_class": momapy.sbgn.pd.Compartment,
-        "layout_class": momapy.sbgn.pd.CompartmentLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "empty set": {
-        "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "source and sink": {
-        "model_class": momapy.sbgn.pd.EmptySet,
-        "layout_class": momapy.sbgn.pd.CircleWithDiagonalBar,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "perturbing agent": {
-        "model_class": momapy.sbgn.pd.PerturbingAgent,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "unspecified entity": {
-        "model_class": momapy.sbgn.pd.UnspecifiedEntity,
-        "layout_class": momapy.sbgn.pd.UnspecifiedEntityLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "macromolecule": {
-        "model_class": momapy.sbgn.pd.Macromolecule,
-        "layout_class": momapy.sbgn.pd.MacromoleculeLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "nucleic acid feature": {
-        "model_class": momapy.sbgn.pd.NucleicAcidFeature,
-        "layout_class": momapy.sbgn.pd.NucleicAcidFeatureLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "simple chemical": {
-        "model_class": momapy.sbgn.pd.SimpleChemical,
-        "layout_class": momapy.sbgn.pd.SimpleChemicalLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "complex": {
-        "model_class": momapy.sbgn.pd.Complex,
-        "layout_class": momapy.sbgn.pd.ComplexLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "macromolecule multimer": {
-        "model_class": momapy.sbgn.pd.MacromoleculeMultimer,
-        "layout_class": momapy.sbgn.pd.MacromoleculeMultimerLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "nucleic acid feature multimer": {
-        "model_class": momapy.sbgn.pd.NucleicAcidFeatureMultimer,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "simple chemical multimer": {
-        "model_class": momapy.sbgn.pd.SimpleChemicalMultimer,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "complex multimer": {
-        "model_class": momapy.sbgn.pd.ComplexMultimer,
-        "layout_class": momapy.sbgn.pd.ComplexMultimerLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "process": {
-        "model_class": momapy.sbgn.pd.GenericProcess,
-        "layout_class": momapy.sbgn.pd.GenericProcessLayout,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "uncertain process": {
-        "model_class": momapy.sbgn.pd.UncertainProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "association": {
-        "model_class": momapy.sbgn.pd.Association,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "dissociation": {
-        "model_class": momapy.sbgn.pd.Dissociation,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "omitted process": {
-        "model_class": momapy.sbgn.pd.OmittedProcess,
-        "layout_class": momapy.shapes.RectangleWithConnectors,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "phenotype": {
-        "model_class": momapy.sbgn.pd.Phenotype,
-        "layout_class": momapy.sbgn.pd.PhenotypeLayout,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "or": {
-        "model_class": momapy.sbgn.pd.OrOperator,
-        "layout_class": momapy.sbgn.pd.OrOperatorLayout,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "and": {
-        "model_class": momapy.sbgn.pd.AndOperator,
-        "layout_class": momapy.sbgn.pd.AndOperatorLayout,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "not": {
-        "model_class": momapy.sbgn.pd.NotOperator,
-        "layout_class": momapy.sbgn.pd.NotOperatorLayout,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "equivalence": {
-        "model_class": momapy.sbgn.pd.EquivalenceOperator,
-        "layout_class": momapy.sbgn.pd.EquivalenceOperator,
-        "font_description": "Arial 12",
-        "has_connectors": True
-    },
-    "terminal": {
-        "model_class": momapy.sbgn.pd.Terminal,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "tag": {
-        "model_class": momapy.sbgn.pd.Tag,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-    "submap": {
-        "model_class": momapy.sbgn.pd.Submap,
-        "layout_class": momapy.shapes.Rectangle,
-        "font_description": "Arial 12",
-        "has_connectors": False
-    },
-}
-
-LibSBGNArcMapping = {
-    "consumption": {
-        "model_class": momapy.sbgn.pd.Reactant,
-        "layout_class": momapy.sbgn.pd.ConsumptionLayout,
-        "role": {
-            "source_or_target": "source",
-            "attribute": "reactants"
-        }
-    },
-    "production": {
-        "model_class": momapy.sbgn.pd.Product,
-        "layout_class": momapy.sbgn.pd.ProductionLayout,
-        "role": {
-            "source_or_target": "target",
-            "attribute": "products"
-        }
-    },
-    "logic arc to logical operator": {
-        "model_class": momapy.sbgn.pd.LogicalOperatorInput,
-        "layout_class": momapy.sbgn.pd.LogicArcLayout,
-        "role": {
-            "source_or_target": "source",
-            "attribute": "inputs"
-        }
-    },
-    "logic arc to equivalence operator": {
-        "model_class": momapy.sbgn.pd.EquivalenceOperatorInput,
-        "layout_class": momapy.sbgn.pd.LogicArcLayout,
-        "role": {
-            "source_or_target": "source",
-            "attribute": "inputs"
-        }
-    },
-    "logic arc from equivalence operator": {
-        "model_class": momapy.sbgn.pd.EquivalenceOperatorOutput,
-        "layout_class": momapy.sbgn.pd.LogicArcLayout,
-        "role": {
-            "source_or_target": "target",
-            "attribute": "output"
-        }
-    },
-    "equivalence arc to terminal": {
-        "model_class": momapy.sbgn.pd.TerminalReference,
-        "layout_class": momapy.sbgn.pd.EquivalenceArcLayout,
-        "role": {
-            "source_or_target": "source",
-            "attribute": "refers_to"
-        }
-    },
-    "equivalence arc to tag": {
-        "model_class": momapy.sbgn.pd.TagReference,
-        "layout_class": momapy.sbgn.pd.EquivalenceArcLayout,
-        "role": {
-            "source_or_target": "source",
-            "attribute": "refers_to"
-        }
-    },
-    "modulation": {
-        "model_class": momapy.sbgn.pd.Modulation,
-        "layout_class": momapy.sbgn.pd.ModulationLayout,
-    },
-    "inhibition": {
-        "model_class": momapy.sbgn.pd.Inhibition,
-        "layout_class": momapy.sbgn.pd.InhibitionLayout,
-    },
-    "stimulation": {
-        "model_class": momapy.sbgn.pd.Stimulation,
-        "layout_class": momapy.sbgn.pd.StimulationLayout
-    },
-    "catalysis": {
-        "model_class": momapy.sbgn.pd.Catalysis,
-        "layout_class": momapy.sbgn.pd.CatalysisLayout,
-    },
-    "necessary stimulation": {
-        "model_class": momapy.sbgn.pd.NecessaryStimulation,
-        "layout_class": momapy.sbgn.pd.NecessaryStimulationLayout,
-    },
-}
-
-def read_file(file_name, return_builder=False):
-    libsbgn_sbgn = libsbgn.parse(file_name, silence=True)
-    libsbgn_map = libsbgn_sbgn.get_map()
-    language = libsbgn_map.get_language()
-    builder = momapy.builder.new_object(LibSBGNMapMapping[language.value])
-    model = builder.new_model()
-    layout = builder.new_layout()
-    model_layout_mapping = builder.new_model_layout_mapping()
-    builder.model = model
-    builder.layout = layout
-    builder.model_layout_mapping = model_layout_mapping
+def read_file(filename):
+    config = xsdata.formats.dataclass.parsers.config.ParserConfig(
+        fail_on_unknown_properties=False
+    )
+    parser = xsdata.formats.dataclass.parsers.XmlParser(
+        config=config, context=xsdata.formats.dataclass.context.XmlContext()
+    )
+    sbml = parser.parse(filename, momapy.celldesigner.parser.Sbml)
     d_model_elements_ids = {}
-    d_layout_elements_ids = {}
-    builder.layout.width, builder.layout.height = _get_libsbgn_map_dimensions(
-        libsbgn_map)
-    libsbgn_compartments = []
-    libsbgn_other_glyphs = []
-    for glyph in libsbgn_map.get_glyph():
-        if glyph.get_class() == libsbgn.GlyphClass.COMPARTMENT:
-            libsbgn_compartments.append(glyph)
-        else:
-            libsbgn_other_glyphs.append(glyph)
-    libsbgn_compartments = sorted(
-        libsbgn_compartments,
-        key=lambda compartment: compartment.get_compartmentOrder() if \
-            compartment.get_compartmentOrder() is not None else 0
-    )
-    for glyph in libsbgn_compartments + libsbgn_other_glyphs:
-        _make_and_add_map_elements_from_glyph(
-            glyph, builder, d_model_elements_ids, d_layout_elements_ids)
-    for arc in libsbgn_map.get_arc():
-        _make_and_add_map_elements_from_arc(
-            arc, builder, d_model_elements_ids, d_layout_elements_ids)
-    if return_builder:
-        return builder
-    return builder.build()
-
-
-def _make_and_add_map_elements_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph=False, super_model_element=None,
-        super_layout_element=None, order=None
+    builder = momapy.celldesigner.core.CellDesignerMapBuilder()
+    builder.model = builder.new_model()
+    builder.layout = builder.new_layout()
+    builder.model_layout_mapping = builder.new_model_layout_mapping()
+    for species_reference in (
+        sbml.model.annotation.extension.list_of_antisense_rnas.antisense_rna
+        + sbml.model.annotation.extension.list_of_rnas.rna
+        + sbml.model.annotation.extension.list_of_genes.gene
+        + sbml.model.annotation.extension.list_of_proteins.protein
     ):
-    model_element, layout_element = _make_map_elements_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph, order
-    )
-    if not is_subglyph:
+        model_element = _species_reference_to_model_element(
+            species_reference, builder, d_model_elements_ids
+        )
         builder.add_model_element(model_element)
-        builder.add_layout_element(layout_element)
-    else:
-        super_model_element.add_element(model_element)
-        super_layout_element.add_element(layout_element)
-    builder.add_layout_element_to_model_element(layout_element, model_element)
-    d_model_elements_ids[model_element.id] = model_element
-    d_layout_elements_ids[layout_element.id] = layout_element
-    libsbgn_no_var_svs = []
-    libsbgn_other_subglyphs = []
-    for subglyph in glyph.get_glyph():
-        if subglyph.get_class() == libsbgn.GlyphClass.STATE_VARIABLE:
-            libsbgn_state = subglyph.get_state()
-            if libsbgn_state is not None:
-                if subglyph.get_state().get_variable() is None:
-                    libsbgn_no_var_svs.append(subglyph)
-                else:
-                    libsbgn_other_subglyphs.append(subglyph)
-            else:
-                libsbgn_state =  libsbgn.stateType()
-                subglyph.set_state(libsbgn_state)
-                libsbgn_no_var_svs.append(subglyph)
-        else:
-            libsbgn_other_subglyphs.append(subglyph)
-    if libsbgn_no_var_svs:
-        libsbgn_glyph_pos = _get_position_from_libsbgn_bbox(glyph.get_bbox())
-        libsbgn_no_var_svs = sorted(
-            libsbgn_no_var_svs,
-            key=lambda sv: momapy.geometry.get_angle_of_line(
-                momapy.geometry.Line(
-                    libsbgn_glyph_pos,
-                    _get_position_from_libsbgn_bbox(sv.get_bbox())
+        d_model_elements_ids[model_element.id] = model_element
+    for species in sbml.model.list_of_species.species:
+        model_element = _species_to_model_element(
+            species, builder, d_model_elements_ids
+        )
+        builder.add_model_element(model_element)
+        d_model_elements_ids[model_element.id] = model_element
+
+
+def _species_reference_to_model_element(
+    species_reference, builder, d_model_elements_ids
+):
+    id_ = species_reference.id
+    name = species_reference.name
+    type_ = species_reference.type
+    cls = _CellDesignerSpeciesReferenceTypeMapping[type_]
+    model_element = builder.new_model_element(cls)
+    model_element.id = id_
+    model_element.name = name
+    if hasattr(species_reference, "list_of_modification_residues"):
+        list_of_modification_residues = (
+            species_reference.list_of_modification_residues
+        )
+        if list_of_modification_residues is not None:
+            for (
+                modification_residue
+            ) in list_of_modification_residues.modification_residue:
+                child_model_element = _modification_residue_to_model_element(
+                    modification_residue,
+                    builder,
+                    model_element,
+                    d_model_elements_ids,
                 )
-            )
-        )
-        for i, subglyph in enumerate(libsbgn_no_var_svs):
-            _make_and_add_map_elements_from_glyph(
-                subglyph, builder, d_model_elements_ids, d_layout_elements_ids,
-                is_subglyph=True, super_model_element=model_element,
-                super_layout_element=layout_element, order=i
-            )
-    for subglyph in libsbgn_other_subglyphs:
-        _make_and_add_map_elements_from_glyph(
-            subglyph, builder, d_model_elements_ids, d_layout_elements_ids,
-            is_subglyph=True, super_model_element=model_element,
-            super_layout_element=layout_element, order=None
-        )
-    for port in glyph.get_port():
-        d_model_elements_ids[port.get_id()] = model_element
-        d_layout_elements_ids[port.get_id()] = layout_element
-
-
-def _disambiguate_arc(arc, d_model_elements_ids):
-    disambiguation_key = arc.get_class().value
-    disambiguation = LibSBGNDisambiguationArcMapping.get(disambiguation_key)
-    if disambiguation is not None:
-        source_or_target = disambiguation["source_or_target"]
-        if source_or_target == "source":
-            disambiguation_element_id = arc.get_source()
-        else:
-            disambiguation_element_id = arc.get_target()
-        disambiguation_element = d_model_elements_ids[
-            disambiguation_element_id]
-        disambiguation_key = disambiguation["keys"][
-            type(disambiguation_element)._cls_to_build]
-    return disambiguation_key
-
-
-def _make_and_add_map_elements_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids):
-    model_element, layout_element = _make_map_elements_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids)
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    role = LibSBGNArcMapping[arc_key].get("role")
-    if role is not None:
-        source_or_target = role["source_or_target"]
-        if source_or_target == "target":
-            super_element_id = arc.get_source()
-        else:
-            super_element_id = arc.get_target()
-        super_model_element = d_model_elements_ids[super_element_id]
-        attribute = getattr(super_model_element, role["attribute"])
-        if hasattr(attribute, "append"):
-            attribute.append(model_element)
-        elif hasattr(attribute, "add"):
-            attribute.add(model_element)
-        else:
-            setattr(super_model_element, role["attribute"], model_element)
-        super_layout_element = d_layout_elements_ids[super_element_id]
-        super_layout_element.add_element(layout_element)
-    else:
-        builder.add_model_element(model_element)
-        builder.add_layout_element(layout_element)
-    builder.add_layout_element_to_model_element(layout_element, model_element)
-    d_model_elements_ids[model_element.id] = model_element
-    d_layout_elements_ids[layout_element.id] = layout_element
-    for subglyph in arc.get_glyph():
-        _make_and_add_map_elements_from_subglyph(
-            subglyph, model_element, builder, d_model_elements_ids,
-            d_layout_elements_ids)
-    for port in arc.get_port():
-        d_model_elements_ids[port.get_id()] = model_element
-        d_layout_elements_ids[port.get_id()] = layout_element
-
-
-def _make_map_elements_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph=False, order=None
-    ):
-    model_element = _make_model_element_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph, order
-    )
-    layout_element = _make_layout_element_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph, order
-    )
-    return model_element, layout_element
-
-def _disambiguate_subglyph(subglyph):
-    disambiguation_key = subglyph.get_class().value
-    if disambiguation_key in LibSBGNDisambiguationGlyphMapping:
-        disambiguation_key = \
-                LibSBGNDisambiguationGlyphMapping[disambiguation_key]
-    return disambiguation_key
-
-
-def _make_model_element_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph=False, order=None):
-    if is_subglyph:
-        glyph_key = _disambiguate_subglyph(glyph)
-    else:
-        glyph_key = glyph.get_class().value
-    model_element_class = LibSBGNGlyphMapping[glyph_key]["model_class"]
-    model_element = builder.new_model_element(model_element_class)
-    model_element.id = glyph.get_id()
-    if (glyph.get_label() is not None
-            and glyph.get_label().get_text() is not None):
-        if glyph_key == "unit of information":
-            label = glyph.get_label().get_text()
-            l = label.split(":")
-            model_element.value = l[-1]
-            if len(l) > 1:
-                model_element.prefix = l[0]
-        else:
-            model_element.label = glyph.get_label().get_text()
-    if (glyph.get_compartmentRef() is not None
-            and hasattr(model_element, "compartment")):
-        model_element.compartment = d_model_elements_ids[
-            glyph.get_compartmentRef()]
-    if glyph.get_state() is not None:
-        model_element.value = glyph.get_state().get_value()
-        libsbgn_variable = glyph.get_state().get_variable()
-        if libsbgn_variable is None:
-            variable = momapy.sbgn.pd.UndefinedVariable(order=order)
-        else:
-            variable = libsbgn_variable
-        model_element.variable = variable
+                model_element.add_element(child_model_element)
+                d_model_elements_ids[
+                    (model_element.id, child_model_element.id)
+                ] = child_model_element
     return model_element
 
-def _make_layout_element_from_glyph(
-        glyph, builder, d_model_elements_ids, d_layout_elements_ids,
-        is_subglyph=False, order=None
-    ):
-    if is_subglyph:
-        glyph_key = _disambiguate_subglyph(glyph)
-    else:
-        glyph_key = glyph.get_class().value
-    layout_element_class = LibSBGNGlyphMapping[glyph_key]["layout_class"]
-    layout_element = builder.new_layout_element(layout_element_class)
-    layout_element.id = glyph.get_id()
-    layout_element.width = glyph.get_bbox().get_w()
-    layout_element.height = glyph.get_bbox().get_h()
-    layout_element.position = _get_position_from_libsbgn_bbox(glyph.get_bbox())
-    libsbgn_state = glyph.get_state()
-    libsbgn_label = glyph.get_label()
-    libsbgn_label_bbox = glyph.get_bbox()
-    if (libsbgn_label is not None and libsbgn_label.get_text() is not None
-            or libsbgn_state is not None):
-        if libsbgn_state is not None:
-            libsbgn_variable = libsbgn_state.get_variable()
-            libsbgn_value = libsbgn_state.get_value()
-            value_text = libsbgn_value if libsbgn_value is not None else ""
-            if libsbgn_variable is not None:
-                text = f"{value_text}@{libsbgn_variable}"
-            else:
-                text = value_text
-        else:
-            text = libsbgn_label.get_text()
-            if libsbgn_label.get_bbox() is not None:
-                libsbgn_label_bbox = libsbgn_label.get_bbox()
-        label_element = builder.new_layout_element(
-            momapy.core.NodeLayoutElementLabel)
-        label_element.text = text
-        label_element.position = _get_position_from_libsbgn_bbox(
-            libsbgn_label_bbox)
-        label_element.width = libsbgn_label_bbox.get_w()
-        label_element.height = libsbgn_label_bbox.get_h()
-        label_element.font_description = LibSBGNGlyphMapping[glyph_key][
-            "font_description"]
-        layout_element.label = label_element
-    if LibSBGNGlyphMapping[glyph_key]["has_connectors"]:
-        for libsbgn_port in glyph.get_port():
-            if libsbgn_port.get_x() < glyph.get_bbox().get_x(): #LEFT
-                layout_element.left_connector_length = (
-                    glyph.get_bbox().get_x() - libsbgn_port.get_x())
-                layout_element.direction = momapy.core.Direction.HORIZONTAL
-            elif libsbgn_port.get_y() < glyph.get_bbox().get_y(): #UP
-                layout_element.left_connector_length = (
-                    glyph.get_bbox().get_y() - libsbgn_port.get_y())
-                layout_element.direction = momapy.core.Direction.VERTICAL
-            elif (libsbgn_port.get_x() >= glyph.get_bbox().get_x()
-                    + glyph.get_bbox().get_w()): #RIGHT
-                layout_element.right_connector_length = (
-                    libsbgn_port.get_x()
-                    - glyph.get_bbox().get_x()
-                    - glyph.get_bbox().get_w()
-                )
-                layout_element.direction = momapy.core.Direction.HORIZONTAL
-            elif (libsbgn_port.get_y() >= glyph.get_bbox().get_y()
-                    + glyph.get_bbox().get_h()): #DOWN
-                layout_element.right_connector_length = (
-                    libsbgn_port.get_y()
-                    - glyph.get_bbox().get_y()
-                    - glyph.get_bbox().get_h()
-                )
-                layout_element.direction = momapy.core.Direction.VERTICAL
-    return layout_element
 
-
-def _make_map_elements_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids):
-    model_element = _make_model_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids)
-    layout_element = _make_layout_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids)
-    return model_element, layout_element
-
-def _make_model_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids):
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    model_element_class = LibSBGNArcMapping[arc_key]["model_class"]
-    model_element = builder.new_model_element(model_element_class)
-    model_element.id = arc.get_id()
-    role = LibSBGNArcMapping[arc_key].get("role")
-    if role is not None:
-        source_or_target = role["source_or_target"]
-        if source_or_target == "source":
-            role_element_id = arc.get_source()
-        else:
-            role_element_id = arc.get_target()
-        model_element.element = d_model_elements_ids[role_element_id]
-    else:
-        model_element.source = d_model_elements_ids[arc.get_source()]
-        model_element.target = d_model_elements_ids[arc.get_target()]
+def _modification_residue_to_model_element(
+    modification_residue, builder, parent_model_element, d_model_elements_ids
+):
+    id_ = modification_residue.id
+    name = modification_residue.name
+    model_element = builder.new_model_element(
+        momapy.celldesigner.core.ModificationResidue
+    )
+    model_element.id = id_
+    model_element.name = name
     return model_element
 
-def _make_layout_element_from_arc(
-        arc, builder, d_model_elements_ids, d_layout_elements_ids):
-    arc_key = _disambiguate_arc(arc, d_model_elements_ids)
-    layout_element_class = LibSBGNArcMapping[arc_key]["layout_class"]
-    layout_element = builder.new_layout_element(layout_element_class)
-    layout_element.id = arc.get_id()
-    role = LibSBGNArcMapping[arc_key].get("role")
-    if role is not None:
-        source_or_target = role["source_or_target"]
-        if source_or_target == "source":
-            layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_source()])
-        else:
-            layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-                d_layout_elements_ids[arc.get_target()])
-    else:
-        layout_element.source = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_source()])
-        layout_element.target = momapy.builder.PhantomLayoutElementBuilder(
-            d_layout_elements_ids[arc.get_target()])
-    for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
-        layout_element.points.append(
-            momapy.builder.PointBuilder(
-                libsbgn_point.get_x(),
-                libsbgn_point.get_y()
-            )
+
+def _modification_to_model_element(
+    modification, builder, parent_model_element, d_model_elements_ids
+):
+    residue = d_model_elements_ids[
+        (parent_model_element.reference.id, modification.residue)
+    ]
+    state = modification.state
+    model_element = builder.new_model_element(
+        momapy.celldesigner.core.Modification
+    )
+    model_element.residue = residue
+    model_element.state = momapy.celldesigner.core.ModificationState[state.name]
+    return model_element
+
+
+def _species_to_model_element(species, builder, d_model_elements_ids):
+    annotation = species.annotation
+    extension = annotation.extension
+    identity = extension.species_identity
+    state = identity.state
+    type_ = identity.class_value
+    has_reference = False
+    for species_reference_type in [
+        "protein_reference",
+        "rna_reference",
+        "gene_reference",
+        "antisenserna_reference",
+    ]:
+        if getattr(identity, species_reference_type) is not None:
+            has_reference = True
+            break
+    if has_reference:
+        species_reference = d_model_elements_ids[
+            getattr(identity, species_reference_type)
+        ]
+        type_ = (
+            type_,
+            type(species_reference)._cls_to_build,
         )
-    return layout_element
+    else:
+        type_ = (
+            type_,
+            None,
+        )
+    print(species, "\n")
+    cls = _CellDesignerSpeciesTypeMapping[type_]
+    model_element = builder.new_model_element(cls)
+    model_element.id = species.id
+    model_element.name = species.name
+    if has_reference:
+        model_element.reference = species_reference
+    if state is not None:
+        homodimer = state.homodimer
+        if homodimer is not None:
+            model_element.homodimer = homodimer
+        list_of_modifications = state.list_of_modifications
+        if list_of_modifications is not None:
+            for modification in list_of_modifications.modification:
+                child_model_element = _modification_to_model_element(
+                    modification, builder, model_element, d_model_elements_ids
+                )
+                model_element.add_element(child_model_element)
+                d_model_elements_ids[
+                    child_model_element.id
+                ] = child_model_element
+        list_of_structural_states = state.list_of_structural_states
+        if list_of_structural_states is not None:
+            for structural_state in list_of_structural_states.structural_state:
+                child_model_element = _structural_state_to_model_element(
+                    structural_state,
+                    builder,
+                    model_element,
+                    d_model_elements_ids,
+                )
+                model_element.add_element(child_model_element)
+                d_model_elements_ids[
+                    child_model_element.id
+                ] = child_model_element
+
+    return model_element
+
 
 def _get_libsbgn_map_dimensions(libsbgn_map):
     return _get_libsbgn_map_max_x_and_y(libsbgn_map)
+
 
 def _get_glyph_max_x_and_y(glyph):
     max_x = glyph.get_bbox().get_x() + glyph.get_bbox().get_w()
@@ -727,6 +251,7 @@ def _get_glyph_max_x_and_y(glyph):
         if sub_max_y > max_y:
             max_y = sub_max_y
     return max_x, max_y
+
 
 def _get_arc_max_x_and_y(arc):
     max_x = 0
@@ -744,6 +269,7 @@ def _get_arc_max_x_and_y(arc):
             max_y = glyph_max_y
     return max_x, max_y
 
+
 def _get_arcgroup_max_x_and_y(arcgroup):
     max_x = 0
     max_y = 0
@@ -760,6 +286,7 @@ def _get_arcgroup_max_x_and_y(arcgroup):
         if arc_max_y > max_y:
             max_y = arc_max_y
     return max_x, max_y
+
 
 def _get_libsbgn_map_max_x_and_y(libsbgn_map):
     max_x = 0
@@ -787,6 +314,5 @@ def _get_libsbgn_map_max_x_and_y(libsbgn_map):
 
 def _get_position_from_libsbgn_bbox(bbox):
     return momapy.builder.PointBuilder(
-        bbox.get_x() + bbox.get_w() / 2,
-        bbox.get_y() + bbox.get_h() / 2
+        bbox.get_x() + bbox.get_w() / 2, bbox.get_y() + bbox.get_h() / 2
     )

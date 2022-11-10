@@ -13,6 +13,7 @@ ffmpeg-python = "*"
 numpy = "*"
 pyparsing = "*"
 skia-python = "*"
+xsdata = {extras = ["cli", "lxml", "soap"], version = "*"}
 
 [dev-packages]
 
