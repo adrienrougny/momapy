@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 284.0 450.0">
+<defs>
+</defs>
+<g fill-opacity="1.0" fill="rgb(255, 255, 255)">
+<path d="M 0.0 0.0 L 284.0 0.0 L 284.0 450.0 L 0.0 450.0 Z">
+</path>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<g>
+<rect x="176.0" y="135.0" width="108.0" height="60.0" rx="10" ry="10">
+</rect>
+</g>
+</g>
+<text x="224.0" y="172.0" font-size="20" font-family="Arial" stroke="none" fill-opacity="1.0" fill="rgb(0, 0, 0)">
+A
+</text>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<g>
+<path d="M 257.0 185.0 L 257.0 185.0 A 10.0 10.0 0 0 1 257.0 205.0 L 257.0 205.0 A 10.0 10.0 0 0 1 257.0 185.0 Z">
+</path>
+</g>
+</g>
+<text x="257.0" y="198.0" font-size="8" font-family="Arial" stroke="none" fill-opacity="1.0" fill="rgb(0, 0, 0)">
+
+</text>
+</g>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<g>
+<rect x="176.0" y="380.0" width="108.0" height="60.0" rx="10" ry="10">
+</rect>
+</g>
+</g>
+<text x="224.0" y="417.0" font-size="20" font-family="Arial" stroke="none" fill-opacity="1.0" fill="rgb(0, 0, 0)">
+A
+</text>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<g>
+<path d="M 255.0 430.0 L 259.0 430.0 A 10.0 10.0 0 0 1 259.0 450.0 L 255.0 450.0 A 10.0 10.0 0 0 1 255.0 430.0 Z">
+</path>
+</g>
+</g>
+<text x="255.0" y="443.0" font-size="8" font-family="Arial" stroke="none" fill-opacity="1.0" fill="rgb(0, 0, 0)">
+P
+</text>
+</g>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<g>
+<rect x="21.0" y="240.0" width="108.0" height="60.0" rx="10" ry="10">
+</rect>
+</g>
+</g>
+<text x="69.0" y="277.0" font-size="20" font-family="Arial" stroke="none" fill-opacity="1.0" fill="rgb(0, 0, 0)">
+B
+</text>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<g>
+<path d="M 230.0 258.0 L 230.0 246.0">
+</path>
+<path d="M 230.0 282.0 L 230.0 294.0">
+</path>
+<g>
+<rect x="218.0" y="258.0" width="24.0" height="24.0" rx="0" ry="0">
+</rect>
+</g>
+</g>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" stroke-width="1">
+<path d="M 230.0 195.0 L 230.0 246.0">
+</path>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(0, 0, 0)" stroke-width="1">
+<path d="M 230.0 294.0 L 230.0 368.0">
+</path>
+<path d="M 230.0 368.0 L 230.0 362.0 L 242.0 368.0 L 230.0 374.0 Z" transform="rotate(90.0 230.0 368.0)">
+</path>
+</g>
+<g stroke-opacity="1.0" stroke="rgb(0, 0, 0)" fill-opacity="1.0" fill="rgb(255, 255, 255)" stroke-width="1">
+<path d="M 129.0 270.0 L 207.0 270.0">
+</path>
+<ellipse cx="212.5" cy="270.0" rx="5.5" ry="5.5" transform="rotate(0.0 207.0 270.0)">
+</ellipse>
+</g>
+</g>
+</svg>

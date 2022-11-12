@@ -6,4 +6,5 @@ build/
 momapy.egg-info/
 __pycache__/
 Pipfile.lock
+Pipfile
 .idea/

@@ -506,6 +506,7 @@ class MapLayout(GroupLayout):
     position: Optional[momapy.geometry.Point] = None
     width: Optional[float] = None
     height: Optional[float] = None
+    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
 
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
