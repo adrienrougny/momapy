@@ -72,7 +72,7 @@ def set_submaps_to_fit_content(map_builder, xsep=0, ysep=0):
 
 
 def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
-    for layout_element in map_builder.layout.flatten():
+    for layout_element in map_builder.layout.descendants():
         if (
             isinstance(layout_element, momapy.core.NodeLayoutBuilder)
             and layout_element.label is not None
@@ -90,7 +90,7 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
 
 
 def set_arcs_to_borders(map_builder):
-    for layout_element in map_builder.layout.flatten():
+    for layout_element in map_builder.layout.descendants():
         if isinstance(layout_element, momapy.core.ArcLayoutBuilder):
             source = layout_element.source
             target = layout_element.target

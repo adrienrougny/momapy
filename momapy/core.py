@@ -5,6 +5,8 @@ from typing import Optional
 from uuid import uuid4
 from enum import Enum
 import math
+import collections
+import copy
 
 import cairo
 import gi
@@ -64,14 +66,76 @@ class LayoutElement(MapElement):
     def children(self) -> list["LayoutElement"]:
         pass
 
+    @abstractmethod
+    def translated(self, tx, ty) -> list["LayoutElement"]:
+        pass
+
+    @abstractmethod
+    def childless(self) -> "LayoutElement":
+        pass
+
     def descendants(self) -> list["LayoutElement"]:
         descendants = []
         for child in self.children():
-            descendants += child.flatten()
+            descendants.append(child)
+            descendants += child.descendants()
         return descendants
 
-    def flatten(self) -> list["LayoutElement"]:
-        return [self] + self.descendants()
+    def flattened(self) -> list["LayoutElement"]:
+        flattened = [self.childless()]
+        for child in self.children():
+            flattened += child.flattened()
+        return flattened
+
+    def equals(self, other, flattened=False, unordered=False):
+        if type(self) is type(other):
+            if not flattened:
+                return self == other
+            else:
+                if not unordered:
+                    return self.flattened() == other.flattened()
+                else:
+                    return set(self.flattened()) == set(other.flattened())
+        return False
+
+    def contains(self, other):
+        return other in self.descendants()
+
+    def is_sublayout(self, other, flattened=False, unordered=False):
+        def _is_sublist(list1, list2, unordered=False) -> bool:
+            if not unordered:
+                i = 0
+                for elem2 in list2:
+                    elem1 = list1[i]
+                    while elem1 != elem2 and i < len(list1) - 1:
+                        i += 1
+                        elem1 = list1[i]
+                    if not elem1 == elem2:
+                        return False
+                    i += 1
+            else:
+                dlist1 = collections.defaultdict(int)
+                dlist2 = collections.defaultdict(int)
+                for elem1 in list1:
+                    dlist1[elem1] += 1
+                for elem2 in list2:
+                    dlist2[elem2] += 1
+                for elem2 in dlist2:
+                    if dlist1[elem2] < dlist2[elem2]:
+                        return False
+            return True
+
+        if self.childless() != other.childless():
+            return False
+        if not flattened:
+            return _is_sublist(
+                self.children(), other.children(), unordered=unordered
+            )
+        else:
+            return _is_sublist(
+                self.flattened()[1:], other.flattened()[1:], unordered=unordered
+            )
+        return False
 
 
 @dataclass(frozen=True)
@@ -206,6 +270,12 @@ class TextLayout(LayoutElement):
     def children(self):
         return []
 
+    def childless(self):
+        return copy.deepcopy(self)
+
+    def translated(self, tx, ty):
+        return replace(self, position=self.position + (tx, ty))
+
 
 @dataclass(frozen=True)
 class GroupLayout(LayoutElement):
@@ -252,6 +322,15 @@ class GroupLayout(LayoutElement):
             [self.self_bbox()] + self.descendants()
         )
         return momapy.geometry.Bbox(position, width, height)
+
+    def childless(self):
+        return replace(self, layout_elements=None)
+
+    def translated(self, tx, ty):
+        layout_elements = type(self.layout_elements)(
+            [le.translated(tx, ty) for le in self.layout_elements]
+        )
+        return replace(self, layout_elements=layout_elements)
 
 
 @dataclass(frozen=True)
@@ -386,6 +465,19 @@ class NodeLayout(GroupLayout):
         point = self._make_point_for_angle(angle, units)
         return self.border(point)
 
+    def childless(self):
+        return replace(self, label=None, layout_elements=None)
+
+    def translated(self, tx, ty):
+        if self.label is not None:
+            label = replace(label, position=label.position + (tx, ty))
+        else:
+            label = None
+        layout_elements = type(self.layout_elements)(
+            [le.translated(tx, ty) for le in self.layout_elements]
+        )
+        return replace(self, label=label, layout_elements=layout_elements)
+
 
 @dataclass(frozen=True)
 class ArcLayout(GroupLayout):
@@ -495,10 +587,23 @@ class ArcLayout(GroupLayout):
             layout_elements.append(self.target)
         return layout_elements
 
+    def childless(self):
+        return replace(self, source=None, target=None, layout_elements=None)
+
+    def translated(self, tx, ty):
+        points = type(self.points)([point + (tx, ty) for point in self.points])
+
+        layout_elements = type(self.layout_elements)(
+            [le.translated(tx, ty) for le in self.layout_elements]
+        )
+        return replace(self, points=points, layout_elements=layout_elements)
+
 
 @dataclass(frozen=True)
 class Model(MapElement):
-    pass
+    @abstractmethod
+    def is_submodel(self, other):
+        pass
 
 
 @dataclass(frozen=True)
@@ -525,6 +630,12 @@ class MapLayout(GroupLayout):
     def self_children(self):
         return []
 
+    def childless(self):
+        return replace(self, layout_elements=None)
+
+    def translated(self, tx, ty):
+        return replace(self, position=self.position + (tx, ty))
+
 
 @dataclass(frozen=True)
 class PhantomLayout(LayoutElement):
@@ -538,6 +649,12 @@ class PhantomLayout(LayoutElement):
 
     def children(self):
         return []
+
+    def childless(self):
+        return copy.deepcopy(self)
+
+    def translated(self):
+        return copy.deepcopy(self)
 
     def __getattr__(self, name):
         if hasattr(self, name):
@@ -560,6 +677,11 @@ class Map(MapElement):
     model_layout_mapping: ModelLayoutMapping = field(
         default_factory=ModelLayoutMapping
     )
+
+    def is_submap(self, other):
+        return self.model.is_submodel(other.model) and self.layout.is_sublayout(
+            other.layout
+        )
 
 
 class FrozensetBuilder(set, momapy.builder.Builder):

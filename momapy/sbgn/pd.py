@@ -429,16 +429,16 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
 
         return _check_entities(self.entity_pools)
 
-    def contains(self, other):
+    def is_submodel(self, other):
         return (
-            other.entity_pools.issubset(self.entity_pools)
-            and other.processes.issubset(self.processes)
-            and other.compartments.issubset(self.compartments)
-            and other.modulations.issubset(self.modulations)
-            and other.logical_operators.issubset(self.logical_operators)
-            and other.equivalence_operators.issubset(self.equivalence_operators)
-            and other.submaps.issubset(self.submaps)
-            and other.tags.issubset(self.tags)
+            self.entity_pools.issubset(other.entity_pools)
+            and self.processes.issubset(other.processes)
+            and self.compartments.issubset(other.compartments)
+            and self.modulations.issubset(other.modulations)
+            and self.logical_operators.issubset(other.logical_operators)
+            and self.equivalence_operators.issubset(other.equivalence_operators)
+            and self.submaps.issubset(other.submaps)
+            and self.tags.issubset(other.tags)
         )
 
 
