@@ -78,7 +78,7 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
             and layout_element.label is not None
         ):
             position, width, height = momapy.positioning.fit(
-                [layout_element.label.ink_bbox()], xsep, ysep
+                [layout_element.label.bbox()], xsep, ysep
             )
             if width > layout_element.width:
                 layout_element.width = width
