@@ -939,11 +939,11 @@ class CrossPoint(momapy.core.NodeLayout):
         horizontal_path = momapy.drawing.Path()
         horizontal_path += momapy.drawing.move_to(
             self.position - (self.width / 2, 0)
-        ) + momapy.drawing.move_to(self.position + (self.width / 2, 0))
+        ) + momapy.drawing.line_to(self.position + (self.width / 2, 0))
         vertical_path = momapy.drawing.Path()
         vertical_path += momapy.drawing.move_to(
             self.position - (0, self.height / 2, 0)
-        ) + momapy.drawing.move_to(self.position + (0, self.height / 2))
+        ) + momapy.drawing.line_to(self.position + (0, self.height / 2))
         elements = (horizontal_path, vertical_path)
         group = momapy.drawing.Group(elements=elements)
         return group
