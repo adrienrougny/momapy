@@ -902,3 +902,18 @@ class Pointer(momapy.core.NodeLayout):
             + momapy.drawing.close()
         )
         return path
+
+
+class CrossPoint(momapy.core.NodeLayout):
+    def border_drawing_element(self):
+        horizontal_path = momapy.drawing.Path()
+        horizontal_path += momapy.drawing.move_to(
+            self.position - (self.width / 2, 0)
+        ) + momapy.drawing.move_to(self.position + (self.width / 2, 0))
+        vertical_path = momapy.drawing.Path()
+        vertical_path += momapy.drawing.move_to(
+            self.position - (0, self.height / 2, 0)
+        ) + momapy.drawing.move_to(self.position + (0, self.height / 2))
+        elements = (horizontal_path, vertical_path)
+        group = momapy.drawing.Group(elements=elements)
+        return group
