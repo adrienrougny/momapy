@@ -115,18 +115,16 @@ def apply_style_collection(layout_element, style_collection, strict=True):
                 )
 
 
-def apply_style_sheet(
-    layout_element, style_sheet, strict=True, descendants=None
-):
+def apply_style_sheet(layout_element, style_sheet, strict=True, ancestors=None):
     if style_sheet is not None:
-        if descendants is None:
-            descendants = []
+        if ancestors is None:
+            ancestors = []
         for selector, style_collection in style_sheet.items():
-            if selector.select(layout_element, descendants):
+            if selector.select(layout_element, ancestors):
                 apply_style_collection(layout_element, style_collection, strict)
-        descendants = descendants + [layout_element]
+        ancestors = ancestors + [layout_element]
         for child in layout_element.children():
-            apply_style_sheet(child, style_sheet, strict, descendants)
+            apply_style_sheet(child, style_sheet, strict, ancestors)
 
 
 def read_string(s):
