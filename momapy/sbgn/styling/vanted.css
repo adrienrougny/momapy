@@ -171,7 +171,7 @@ ComplexLayout {
     cut_corners: 10.0;
 }
 
-ComplexLayout > TextLayoutElement {
+ComplexLayout > TextLayout {
     font_size: 14.0;
 }
 
@@ -288,23 +288,23 @@ TerminalLayout {
     angle: 60.0;
 }
 
-TagLayout > TextLayoutElement {
+TagLayout > TextLayout {
     font_size: 12.0;
 }
 
-SubmapTerminalLayout > TextLayoutElement {
+SubmapTerminalLayout > TextLayout {
     font_size: 12.0;
 }
 
-StateVariableLayout > TextLayoutElement {
+StateVariableLayout > TextLayout {
     font_size: 10.0;
 }
 
-UnitOfInformationLayout > TextLayoutElement {
+UnitOfInformationLayout > TextLayout {
     font_size: 10.0;
 }
 
-CardinalityLayout > TextLayoutElement {
+CardinalityLayout > TextLayout {
     font_size: 12.0;
 }
 
