@@ -905,6 +905,36 @@ class Pointer(momapy.core.NodeLayout):
 
 
 class CrossPoint(momapy.core.NodeLayout):
+    def north_west(self):
+        return momapy.core.NodeLayout.north_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def north(self):
+        return momapy.core.NodeLayout.north(self)
+
+    def center(self):
+        return momapy.core.NodeLayout.center(self)
+
+    def label_center(self):
+        return momapy.core.NodeLayout.label_center(self)
+
     def border_drawing_element(self):
         horizontal_path = momapy.drawing.Path()
         horizontal_path += momapy.drawing.move_to(
