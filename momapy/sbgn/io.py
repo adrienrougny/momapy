@@ -1034,14 +1034,24 @@ def _make_layout_element_from_glyph(
     layout_element.position = _get_position_from_libsbgn_bbox(glyph.get_bbox())
     libsbgn_state = glyph.get_state()
     libsbgn_label = glyph.get_label()
-    label_position = layout_element.label_center()
-    libsbgn_label_bbox = glyph.get_bbox()
-    if (
-        libsbgn_label is not None
-        and libsbgn_label.get_text() is not None
-        or libsbgn_state is not None
-    ):
-        if libsbgn_state is not None:
+    if libsbgn_label is not None or libsbgn_state is not None:
+        if libsbgn_label is not None:
+            libsbgn_label_bbox = libsbgn_label.get_bbox()
+            if libsbgn_label_bbox is not None:
+                label_position = _get_position_from_libsbgn_bbox(
+                    libsbgn_label_bbox
+                )
+                label_width = libsbgn_label_bbox.get_w()
+                label_height = libsbgn_label_bbox.get_h()
+            else:
+                label_position = layout_element.label_center()
+                label_width = None
+                label_height = None
+            text = libsbgn_label.get_text()
+        elif libsbgn_state is not None:
+            label_position = layout_element.label_center()
+            label_width = None
+            label_height = None
             libsbgn_variable = libsbgn_state.get_variable()
             libsbgn_value = libsbgn_state.get_value()
             value_text = libsbgn_value if libsbgn_value is not None else ""
@@ -1049,18 +1059,11 @@ def _make_layout_element_from_glyph(
                 text = f"{value_text}@{libsbgn_variable}"
             else:
                 text = value_text
-        else:
-            text = libsbgn_label.get_text()
-            if libsbgn_label.get_bbox() is not None:
-                libsbgn_label_bbox = libsbgn_label.get_bbox()
-                label_position = _get_position_from_libsbgn_bbox(
-                    libsbgn_label_bbox
-                )
         label_element = builder.new_layout_element(momapy.core.TextLayout)
         label_element.text = text
         label_element.position = label_position
-        label_element.width = libsbgn_label_bbox.get_w()
-        label_element.height = libsbgn_label_bbox.get_h()
+        label_element.width = label_width
+        label_element.height = label_height
         label_element.font_family = glyph_mapping[glyph_key]["font_family"]
         label_element.font_size = glyph_mapping[glyph_key]["font_size"]
         label_element.horizontal_alignment = momapy.core.HAlignment.CENTER
