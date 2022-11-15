@@ -297,7 +297,7 @@ SubmapTerminalLayout > TextLayout {
 }
 
 StateVariableLayout > TextLayout {
-    font_size: 20.0;
+    font_size: 9.0;
 }
 
 UnitOfInformationLayout > TextLayout {
