@@ -101,42 +101,6 @@ class LayoutElement(MapElement):
     def contains(self, other):
         return other in self.descendants()
 
-    def is_sublayout(self, other, flattened=False, unordered=False):
-        def _is_sublist(list1, list2, unordered=False) -> bool:
-            if not unordered:
-                i = 0
-                for elem2 in list2:
-                    elem1 = list1[i]
-                    while elem1 != elem2 and i < len(list1) - 1:
-                        i += 1
-                        elem1 = list1[i]
-                    if not elem1 == elem2:
-                        return False
-                    i += 1
-            else:
-                dlist1 = collections.defaultdict(int)
-                dlist2 = collections.defaultdict(int)
-                for elem1 in list1:
-                    dlist1[elem1] += 1
-                for elem2 in list2:
-                    dlist2[elem2] += 1
-                for elem2 in dlist2:
-                    if dlist1[elem2] < dlist2[elem2]:
-                        return False
-            return True
-
-        if self.childless() != other.childless():
-            return False
-        if not flattened:
-            return _is_sublist(
-                self.children(), other.children(), unordered=unordered
-            )
-        else:
-            return _is_sublist(
-                self.flattened()[1:], other.flattened()[1:], unordered=unordered
-            )
-        return False
-
 
 @dataclass(frozen=True)
 class TextLayout(LayoutElement):
@@ -635,6 +599,42 @@ class MapLayout(GroupLayout):
 
     def translated(self, tx, ty):
         return replace(self, position=self.position + (tx, ty))
+
+    def is_sublayout(self, other, flattened=False, unordered=False):
+        def _is_sublist(list1, list2, unordered=False) -> bool:
+            if not unordered:
+                i = 0
+                for elem2 in list2:
+                    elem1 = list1[i]
+                    while elem1 != elem2 and i < len(list1) - 1:
+                        i += 1
+                        elem1 = list1[i]
+                    if not elem1 == elem2:
+                        return False
+                    i += 1
+            else:
+                dlist1 = collections.defaultdict(int)
+                dlist2 = collections.defaultdict(int)
+                for elem1 in list1:
+                    dlist1[elem1] += 1
+                for elem2 in list2:
+                    dlist2[elem2] += 1
+                for elem2 in dlist2:
+                    if dlist1[elem2] < dlist2[elem2]:
+                        return False
+            return True
+
+        if self.childless() != other.childless():
+            return False
+        if not flattened:
+            return _is_sublist(
+                self.children(), other.children(), unordered=unordered
+            )
+        else:
+            return _is_sublist(
+                self.flattened()[1:], other.flattened()[1:], unordered=unordered
+            )
+        return False
 
 
 @dataclass(frozen=True)
