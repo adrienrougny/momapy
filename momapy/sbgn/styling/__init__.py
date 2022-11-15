@@ -11,6 +11,7 @@ default_colorscheme = momapy.styling.read_file(
 vanted = momapy.styling.read_file(
     pathlib.Path(__file__).with_name("./vanted.css")
 )
+newt = momapy.styling.read_file(pathlib.Path(__file__).with_name("./newt.css"))
 shadows = momapy.styling.read_file(
     pathlib.Path(__file__).with_name("./shadows.css")
 )

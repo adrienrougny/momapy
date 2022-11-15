@@ -169,6 +169,16 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
     submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
     tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
+    def is_submodel(self, other):
+        return (
+            self.activities.issubset(other.activities)
+            and self.compartments.issubset(other.compartments)
+            and self.influences.issubset(other.influences)
+            and self.logical_operators.issubset(other.logical_operators)
+            and self.submaps(other.submaps)
+            and self.tags.issubset(other.tags)
+        )
+
 
 @dataclasses.dataclass(frozen=True)
 class MacromoleculeUnitOfInformationLayout(momapy.sbgn.pd.MacromoleculeLayout):
