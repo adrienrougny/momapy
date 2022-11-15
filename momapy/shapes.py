@@ -9,46 +9,50 @@ import momapy.geometry
 @dataclass(frozen=True)
 class Rectangle(momapy.core.NodeLayout):
     def north_west(self):
-        return momapy.geometry.Point(
-            self.x - self.width / 2, self.y - self.height / 2
-        )
-
-    def west(self):
-        return momapy.geometry.Point(self.x - self.width / 2, self.y)
-
-    def south_west(self):
-        return momapy.geometry.Point(
-            self.x - self.width / 2, self.y + self.height / 2
-        )
-
-    def south(self):
-        return momapy.geometry.Point(self.x, self.y + self.height / 2)
-
-    def south_east(self):
-        return momapy.geometry.Point(
-            self.x + self.width / 2, self.y + self.height / 2
-        )
-
-    def east(self):
-        return momapy.geometry.Point(self.x + self.width / 2, self.y)
-
-    def north_east(self):
-        return momapy.geometry.Point(
-            self.x + self.width / 2, self.y - self.height / 2
-        )
+        return momapy.core.NodeLayout.north_west(self)
 
     def north(self):
-        return momapy.geometry.Point(self.x, self.y - self.height / 2)
+        return momapy.core.NodeLayout.north(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
 
     def center(self):
-        return momapy.geometry.Point(self.x, self.y)
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
-        return self.center()
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
+        return self.position - (self.width / 2, self.height / 2)
+
+    def joint2(self):
+        return self.position + (self.width / 2, -self.height / 2)
+
+    def joint3(self):
+        return self.position + (self.width / 2, self.height / 2)
+
+    def joint4(self):
+        return self.position - (self.width / 2, -self.height / 2)
 
     def border_drawing_element(self):
         rectangle = momapy.drawing.Rectangle(
-            point=self.north_west(),
+            point=self.joint1(),
             height=self.height,
             width=self.width,
             rx=0,
@@ -62,40 +66,86 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 10
 
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return self.self_bbox().center()
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
-        return self.center()
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
+        return self.position - (
+            self.width / 2 - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint7(self):
+        return self.position - (
+            self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint8(self):
+        return self.position - (
+            self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
 
     def border_drawing_element(self):
         rectangle = momapy.drawing.Rectangle(
-            point=momapy.geometry.Point(
-                self.x - self.width / 2, self.y - self.height / 2
-            ),
+            point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
             width=self.width,
             rx=self.rounded_corners,
@@ -107,28 +157,28 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayout):
 @dataclass(frozen=True)
 class Ellipse(momapy.core.NodeLayout):
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
         return momapy.geometry.Point(self.x, self.y)
@@ -148,70 +198,94 @@ class RectangleWithCutCorners(momapy.core.NodeLayout):
     cut_corners: float = 0
 
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.position - (self.width / 2, 0)
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.position + (0, self.height / 2)
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.position + (self.width / 2, 0)
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.position - (0, self.height / 2)
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return self.position
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
-        return self.center()
+        return momapy.core.NodeLayout.label_center(self)
 
-    def north_north_west(self):
-        return self.north() + (self.cut_corners - self.width / 2, 0)
+    def joint1(self):
+        return self.position - (
+            self.width / 2 - self.cut_corners,
+            self.height / 2,
+        )
 
-    def north_north_east(self):
-        return self.north() + (self.width / 2 - self.cut_corners, 0)
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.cut_corners,
+            -self.height / 2,
+        )
 
-    def east_north_east(self):
-        return self.east() + (0, self.cut_corners - self.height / 2, 0)
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            self.cut_corners - self.height / 2,
+        )
 
-    def east_south_east(self):
-        return self.east() + (0, self.height / 2 - self.cut_corners)
+    def joint4(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.cut_corners,
+        )
 
-    def south_south_east(self):
-        return self.south() + (self.width / 2 - self.cut_corners, 0)
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.cut_corners,
+            self.height / 2,
+        )
 
-    def south_south_west(self):
-        return self.south() + (self.cut_corners - self.width / 2, 0)
+    def joint6(self):
+        return self.position + (
+            self.cut_corners - self.width / 2,
+            self.height / 2,
+        )
 
-    def west_south_west(self):
-        return self.west() + (0, self.height / 2 - self.cut_corners, 0)
+    def joint7(self):
+        return self.position - (
+            self.width / 2,
+            self.cut_corners - self.height / 2,
+        )
 
-    def west_north_west(self):
-        return self.west() + (0, self.cut_corners - self.height / 2, 0)
+    def joint8(self):
+        return self.position - (
+            self.width / 2,
+            self.height / 2 - self.cut_corners,
+        )
 
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_north_west())
-            + momapy.drawing.line_to(self.north_north_east())
-            + momapy.drawing.line_to(self.east_north_east())
-            + momapy.drawing.line_to(self.east_south_east())
-            + momapy.drawing.line_to(self.south_south_east())
-            + momapy.drawing.line_to(self.south_south_west())
-            + momapy.drawing.line_to(self.west_south_west())
-            + momapy.drawing.line_to(self.west_north_west())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint6())
+            + momapy.drawing.line_to(self.joint7())
+            + momapy.drawing.line_to(self.joint8())
             + momapy.drawing.close()
         )
         return path
@@ -220,46 +294,80 @@ class RectangleWithCutCorners(momapy.core.NodeLayout):
 @dataclass(frozen=True)
 class Stadium(momapy.core.NodeLayout):
     def north_west(self):
-        return self.self_bbox().north_west() + (self.height / 2, 0)
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west() + (self.height / 2, 0)
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east() - (self.height / 2, 0)
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east() - (self.height / 2, 0)
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return momapy.geometry.Point(self.x, self.y)
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
-        return self.center()
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
+        return self.position + (
+            self.height / 2 - self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.height / 2,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2 - self.height / 2,
+            self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.height / 2 - self.width / 2,
+            self.height / 2,
+        )
 
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_west())
-            + momapy.drawing.line_to(self.north_east())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
             + momapy.drawing.elliptical_arc(
-                self.south_east(), self.height / 2, self.height / 2, 0, 0, 1
+                self.joint3(),
+                self.height / 2,
+                self.height / 2,
+                0,
+                0,
+                1,
             )
-            + momapy.drawing.line_to(self.south_west())
+            + momapy.drawing.line_to(self.joint4())
             + momapy.drawing.elliptical_arc(
-                self.north_west(), self.height / 2, self.height / 2, 0, 0, 1
+                self.joint1(),
+                self.height / 2,
+                self.height / 2,
+                0,
+                0,
+                1,
             )
             + momapy.drawing.close()
         )
@@ -271,64 +379,88 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
     rounded_corners: float = 0
 
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
-
-    def east_south_east(self):
-        return self.south_east() - (0, self.rounded_corners)
-
-    def south_south_east(self):
-        return self.south_east() - (self.rounded_corners, 0)
-
-    def south_south_west(self):
-        return self.south_west() + (self.rounded_corners, 0)
-
-    def west_south_west(self):
-        return self.south_west() - (0, self.rounded_corners)
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return self.self_bbox().center()
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
         return self.center()
 
+    def joint1(self):
+        return self.position - (
+            self.width / 2,
+            self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position - (
+            self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_west())
-            + momapy.drawing.line_to(self.north_east())
-            + momapy.drawing.line_to(self.east_south_east())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
             + momapy.drawing.elliptical_arc(
-                self.south_south_east(),
+                self.joint4(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
                 0,
                 1,
             )
-            + momapy.drawing.line_to(self.south_south_west())
+            + momapy.drawing.line_to(self.joint5())
             + momapy.drawing.elliptical_arc(
-                self.west_south_west(),
+                self.joint6(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
@@ -343,31 +475,31 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
 @dataclass(frozen=True)
 class CircleWithDiagonalBar(momapy.core.NodeLayout):
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return self.self_bbox().center()
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
         return self.center()
@@ -378,8 +510,10 @@ class CircleWithDiagonalBar(momapy.core.NodeLayout):
         )
         bar = momapy.drawing.Path()
         bar += momapy.drawing.move_to(
-            self.self_bbox().south_west()
-        ) + momapy.drawing.line_to(self.self_bbox().north_east())
+            self.position - (self.width / 2, -self.height / 2)
+        ) + momapy.drawing.line_to(
+            self.position + (self.width / 2, -self.height / 2)
+        )
         elements = (circle, bar)
         group = momapy.drawing.Group(elements=elements)
         return group
@@ -393,68 +527,86 @@ class Hexagon(momapy.core.NodeLayout):
     bottom_right_angle: float = 50.0
 
     def north_west(self):
+        return momapy.core.NodeLayout.north_west(self)
+
+    def north(self):
+        return momapy.core.NodeLayout.north(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
+
+    def center(self):
+        return momapy.core.NodeLayout.center(self)
+
+    def label_center(self):
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
         angle = math.radians(self.top_left_angle)
         side_length = abs(self.height / (2 * math.sin(angle)))
         p = momapy.geometry.Point(
-            self.west().x + side_length * math.cos(angle),
-            self.west().y - self.height / 2,
+            self.joint6().x + side_length * math.cos(angle),
+            self.joint6().y - self.height / 2,
         )
         return p
 
-    def west(self):
-        return self.position - (self.width / 2, 0)
-
-    def south_west(self):
-        angle = math.radians(self.bottom_left_angle)
-        side_length = self.height / (2 * math.sin(angle))
-        p = momapy.geometry.Point(
-            self.west().x + side_length * math.cos(angle),
-            self.west().y + self.height / 2,
-        )
-        return p
-
-    def south(self):
-        return self.position + (0, self.height / 2)
-
-    def south_east(self):
-        angle = math.radians(self.bottom_right_angle)
-        side_length = self.height / (2 * math.sin(angle))
-        p = momapy.geometry.Point(
-            self.east().x - side_length * math.cos(angle),
-            self.east().y + self.height / 2,
-        )
-        return p
-
-    def east(self):
-        return self.position + (self.width / 2, 0)
-
-    def north_east(self):
+    def joint2(self):
         angle = math.radians(self.top_right_angle)
         side_length = self.height / (2 * math.sin(angle))
         p = momapy.geometry.Point(
-            self.east().x - side_length * math.cos(angle),
-            self.east().y - self.height / 2,
+            self.joint3().x - side_length * math.cos(angle),
+            self.joint3().y - self.height / 2,
         )
         return p
 
-    def north(self):
-        return self.position - (0, self.height / 2)
+    def joint3(self):
+        return self.position + (self.width / 2, 0)
 
-    def center(self):
-        return self.position
+    def joint4(self):
+        angle = math.radians(self.bottom_right_angle)
+        side_length = self.height / (2 * math.sin(angle))
+        p = momapy.geometry.Point(
+            self.joint3().x - side_length * math.cos(angle),
+            self.joint3().y + self.height / 2,
+        )
+        return p
 
-    def label_center(self):
-        return self.center()
+    def joint5(self):
+        angle = math.radians(self.bottom_left_angle)
+        side_length = self.height / (2 * math.sin(angle))
+        p = momapy.geometry.Point(
+            self.joint6().x + side_length * math.cos(angle),
+            self.joint6().y + self.height / 2,
+        )
+        return p
+
+    def joint6(self):
+        return self.position - (self.width / 2, 0)
 
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_west())
-            + momapy.drawing.line_to(self.north_east())
-            + momapy.drawing.line_to(self.east())
-            + momapy.drawing.line_to(self.south_east())
-            + momapy.drawing.line_to(self.south_west())
-            + momapy.drawing.line_to(self.west())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint6())
             + momapy.drawing.close()
         )
         return path
@@ -467,39 +619,54 @@ class InvertedHexagon(momapy.core.NodeLayout):
     bottom_left_angle: float = 50.0
     bottom_right_angle: float = 50.0
 
-    def inner_left(self):
-        d = 100
-        top_left_angle = math.radians(self.top_left_angle)
-        bottom_left_angle = math.radians(self.bottom_left_angle)
-        top_left_line = momapy.geometry.Line(
-            self.north_west(),
-            self.north_west()
-            + (d * math.cos(top_left_angle), d * math.sin(top_left_angle)),
-        )
-        bottom_left_line = momapy.geometry.Line(
-            self.south_west(),
-            self.south_west()
-            + (
-                d * math.cos(bottom_left_angle),
-                -d * math.sin(bottom_left_angle),
-            ),
-        )
-        return momapy.geometry.get_intersection_of_lines(
-            top_left_line, bottom_left_line
-        )[0]
+    def north_west(self):
+        return momapy.core.NodeLayout.north_west(self)
 
-    def inner_right(self):
+    def north(self):
+        return momapy.core.NodeLayout.north(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
+
+    def center(self):
+        return momapy.core.NodeLayout.center(self)
+
+    def label_center(self):
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
+        return self.position - (self.width / 2, self.height / 2)
+
+    def joint2(self):
+        return self.position + (self.width / 2, -self.height / 2)
+
+    def joint3(self):
         d = 100
         top_right_angle = math.radians(self.top_right_angle)
         bottom_right_angle = math.radians(self.bottom_right_angle)
         top_right_line = momapy.geometry.Line(
-            self.north_east(),
-            self.north_east()
+            self.joint2(),
+            self.joint2()
             + (-d * math.cos(top_right_angle), d * math.sin(top_right_angle)),
         )
         bottom_right_line = momapy.geometry.Line(
-            self.south_east(),
-            self.south_east()
+            self.joint4(),
+            self.joint4()
             - (
                 d * math.cos(bottom_right_angle),
                 d * math.sin(bottom_right_angle),
@@ -509,45 +676,42 @@ class InvertedHexagon(momapy.core.NodeLayout):
             top_right_line, bottom_right_line
         )[0]
 
-    def north_west(self):
-        return self.position - (self.width / 2, self.height / 2)
-
-    def west(self):
-        return self.position - (self.width / 2, 0)
-
-    def south_west(self):
-        return self.position + (-self.width / 2, self.height / 2)
-
-    def south(self):
-        return self.position + (0, self.height / 2)
-
-    def south_east(self):
+    def joint4(self):
         return self.position + (self.width / 2, self.height / 2)
 
-    def east(self):
-        return self.position + (self.width / 2, 0)
+    def joint5(self):
+        return self.position + (-self.width / 2, self.height / 2)
 
-    def north_east(self):
-        return self.position + (self.width / 2, -self.height / 2)
-
-    def north(self):
-        return self.position - (0, self.height / 2)
-
-    def center(self):
-        return self.position
-
-    def label_center(self):
-        return self.center()
+    def joint6(self):
+        d = 100
+        top_left_angle = math.radians(self.top_left_angle)
+        bottom_left_angle = math.radians(self.bottom_left_angle)
+        top_left_line = momapy.geometry.Line(
+            self.joint1(),
+            self.joint1()
+            + (d * math.cos(top_left_angle), d * math.sin(top_left_angle)),
+        )
+        bottom_left_line = momapy.geometry.Line(
+            self.joint5(),
+            self.joint5()
+            + (
+                d * math.cos(bottom_left_angle),
+                -d * math.sin(bottom_left_angle),
+            ),
+        )
+        return momapy.geometry.get_intersection_of_lines(
+            top_left_line, bottom_left_line
+        )[0]
 
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_west())
-            + momapy.drawing.line_to(self.north_east())
-            + momapy.drawing.line_to(self.inner_right())
-            + momapy.drawing.line_to(self.south_east())
-            + momapy.drawing.line_to(self.south_west())
-            + momapy.drawing.line_to(self.inner_left())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint6())
             + momapy.drawing.close()
         )
         return path
@@ -558,34 +722,34 @@ class CircleWithInsideCircle(momapy.core.NodeLayout):
     sep: float = 2
 
     def north_west(self):
-        return self.self_bbox().north_west()
+        return momapy.core.NodeLayout.north_west(self)
 
     def west(self):
-        return self.self_bbox().west()
+        return momapy.core.NodeLayout.west(self)
 
     def south_west(self):
-        return self.self_bbox().south_west()
+        return momapy.core.NodeLayout.south_west(self)
 
     def south(self):
-        return self.self_bbox().south()
+        return momapy.core.NodeLayout.south(self)
 
     def south_east(self):
-        return self.self_bbox().south_east()
+        return momapy.core.NodeLayout.south_east(self)
 
     def east(self):
-        return self.self_bbox().east()
+        return momapy.core.NodeLayout.east(self)
 
     def north_east(self):
-        return self.self_bbox().north_east()
+        return momapy.core.NodeLayout.north_east(self)
 
     def north(self):
-        return self.self_bbox().north()
+        return momapy.core.NodeLayout.north(self)
 
     def center(self):
-        return self.position
+        return momapy.core.NodeLayout.center(self)
 
     def label_center(self):
-        return self.center()
+        return momapy.core.NodeLayout.label_center(self)
 
     def border_drawing_element(self):
         outer_circle = momapy.drawing.Ellipse(
@@ -608,13 +772,38 @@ class Pointer(momapy.core.NodeLayout):
     bottom_angle: float = 50.0
 
     def north_west(self):
+        return momapy.core.NodeLayout.north_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def north(self):
+        return momapy.core.NodeLayout.north(self)
+
+    def center(self):
+        return momapy.core.NodeLayout.center(self)
+
+    def label_center(self):
+        return momapy.core.NodeLayout.label_center(self)
+
+    def joint1(self):
         if self.direction == momapy.core.Direction.UP:
-            angle = math.radians(self.top_angle)
-            side_length = abs(self.width / (2 * math.sin(angle)))
-            return self.position + (
-                -self.width / 2,
-                -self.height / 2 + side_length * math.cos(angle),
-            )
+            return self.position - (0, self.height / 2)
         elif self.direction == momapy.core.Direction.LEFT:
             angle = math.radians(self.top_angle)
             side_length = abs(self.height / (2 * math.sin(angle)))
@@ -622,58 +811,10 @@ class Pointer(momapy.core.NodeLayout):
                 -self.width / 2 + side_length * math.cos(angle),
                 -self.height / 2,
             )
-        else:
+        else:  # case down, right, or ill defined
             return self.position - (self.width / 2, self.height / 2)
 
-    def west(self):
-        return momapy.geometry.Point(self.x - self.width / 2, self.y)
-
-    def south_west(self):
-        if self.direction == momapy.core.Direction.DOWN:
-            angle = math.radians(self.bottom_angle)
-            side_length = abs(self.width / (2 * math.sin(angle)))
-            return self.position + (
-                -self.width / 2,
-                +self.height / 2 - side_length * math.cos(angle),
-            )
-        elif self.direction == momapy.core.Direction.LEFT:
-            angle = math.radians(self.bottom_angle)
-            side_length = abs(self.height / (2 * math.sin(angle)))
-            return self.position + (
-                -self.width / 2 + side_length * math.cos(angle),
-                self.height / 2,
-            )
-        else:
-            return self.position + (-self.width / 2, self.height / 2)
-
-    def south(self):
-        return momapy.geometry.Point(self.x, self.y + self.height / 2)
-
-    def south_east(self):
-        if self.direction == momapy.core.Direction.DOWN:
-            angle = math.radians(self.bottom_angle)
-            side_length = abs(self.width / (2 * math.sin(angle)))
-            return self.position + (
-                self.width / 2,
-                self.height / 2 - side_length * math.cos(angle),
-            )
-        elif (
-            self.direction == momapy.core.Direction.UP
-            or self.direction == momapy.core.Direction.LEFT
-        ):
-            return self.position + (self.width / 2, self.height / 2)
-        else:
-            angle = math.radians(self.bottom_angle)
-            side_length = abs(self.height / (2 * math.sin(angle)))
-            return self.position + (
-                self.width / 2 - side_length * math.cos(angle),
-                self.height / 2,
-            )
-
-    def east(self):
-        return momapy.geometry.Point(self.x + self.width / 2, self.y)
-
-    def north_east(self):
+    def joint2(self):
         if self.direction == momapy.core.Direction.UP:
             angle = math.radians(self.top_angle)
             side_length = abs(self.width / (2 * math.sin(angle)))
@@ -686,7 +827,7 @@ class Pointer(momapy.core.NodeLayout):
             or self.direction == momapy.core.Direction.LEFT
         ):
             return self.position + (self.width / 2, -self.height / 2)
-        else:
+        else:  # case right or ill defined
             angle = math.radians(self.top_angle)
             side_length = abs(self.height / (2 * math.sin(angle)))
             return self.position + (
@@ -694,26 +835,70 @@ class Pointer(momapy.core.NodeLayout):
                 -self.height / 2,
             )
 
-    def north(self):
-        return momapy.geometry.Point(self.x, self.y - self.height / 2)
+    def joint3(self):
+        if (
+            self.direction == momapy.core.Direction.UP
+            or self.direction == momapy.core.Direction.LEFT
+        ):
+            return self.position + (self.width / 2, self.height / 2)
+        elif self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2,
+                self.height / 2 - side_length * math.cos(angle),
+            )
+        else:  # case right or ill defined
+            return self.position + (self.width / 2, 0)
 
-    def center(self):
-        return self.position
+    def joint4(self):
+        if self.direction == momapy.core.Direction.UP:
+            return self.position + (-self.width / 2, self.height / 2)
+        elif self.direction == momapy.core.Direction.DOWN:
+            return self.position + (0, self.height / 2)
+        elif self.direction == momapy.core.Direction.LEFT:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2 + side_length * math.cos(angle),
+                self.height / 2,
+            )
+        else:  # case right or ill defined
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2 - side_length * math.cos(angle),
+                self.height / 2,
+            )
 
-    def label_center(self):
-        return self.center()
+    def joint5(self):
+        if self.direction == momapy.core.Direction.UP:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                -self.height / 2 + side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                +self.height / 2 - side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.LEFT:
+            return self.position + (-self.width / 2, 0)
+        else:  # case right or ill defined
+            return self.position + (-self.width / 2, self.height / 2)
 
     def border_drawing_element(self):
         path = momapy.drawing.Path()
         path += (
-            momapy.drawing.move_to(self.north_west())
-            + momapy.drawing.line_to(self.north())
-            + momapy.drawing.line_to(self.north_east())
-            + momapy.drawing.line_to(self.east())
-            + momapy.drawing.line_to(self.south_east())
-            + momapy.drawing.line_to(self.south())
-            + momapy.drawing.line_to(self.south_west())
-            + momapy.drawing.line_to(self.west())
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
             + momapy.drawing.close()
         )
         return path

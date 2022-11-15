@@ -64,6 +64,36 @@ class _SBGNShapeBase(momapy.core.NodeLayout):
         position, width, height = momapy.positioning.fit(bboxes)
         return momapy.geometry.Bbox(position, width, height)
 
+    def north_west(self):
+        return momapy.core.NodeLayout.north_west(self)
+
+    def north(self):
+        return momapy.core.NodeLayout.north(self)
+
+    def north_east(self):
+        return momapy.core.NodeLayout.north_east(self)
+
+    def east(self):
+        return momapy.core.NodeLayout.east(self)
+
+    def south_east(self):
+        return momapy.core.NodeLayout.south_east(self)
+
+    def south(self):
+        return momapy.core.NodeLayout.south(self)
+
+    def south_west(self):
+        return momapy.core.NodeLayout.south_west(self)
+
+    def west(self):
+        return momapy.core.NodeLayout.west(self)
+
+    def center(self):
+        return momapy.core.NodeLayout.center(self)
+
+    def label_center(self):
+        return momapy.core.NodeLayout.label_center(self)
+
 
 @dataclass(frozen=True)
 class _SBGNMixinBase(object):
@@ -143,17 +173,25 @@ class _ConnectorsMixin(_SBGNMixinBase):
         if obj.direction == momapy.core.Direction.VERTICAL:
             path_left += momapy.drawing.move_to(
                 obj.base_left_connector()
-            ) + momapy.drawing.line_to(obj.north())
+            ) + momapy.drawing.line_to(
+                obj.base_left_connector() - (0, obj.left_connector_length)
+            )
             path_right += momapy.drawing.move_to(
                 obj.base_right_connector()
-            ) + momapy.drawing.line_to(obj.south())
+            ) + momapy.drawing.line_to(
+                obj.base_right_connector() + (0, obj.right_connector_length)
+            )
         else:
             path_left += momapy.drawing.move_to(
                 obj.base_left_connector()
-            ) + momapy.drawing.line_to(obj.west())
+            ) + momapy.drawing.line_to(
+                obj.base_left_connector() - (obj.left_connector_length, 0)
+            )
             path_right += momapy.drawing.move_to(
                 obj.base_right_connector()
-            ) + momapy.drawing.line_to(obj.east())
+            ) + momapy.drawing.line_to(
+                obj.base_right_connector() + (obj.right_connector_length, 0)
+            )
         return [path_left, path_right]
 
     @classmethod
@@ -172,36 +210,6 @@ class _ConnectorsMixin(_SBGNMixinBase):
 class _SimpleMixin(_SBGNMixinBase):
     _shape_cls: ClassVar[type]
     _arg_names_mapping: ClassVar[dict[str, str]]
-
-    def north(self):
-        return self._make_shape().north()
-
-    def east(self):
-        return self._make_shape().east()
-
-    def south(self):
-        return self._make_shape().south()
-
-    def west(self):
-        return self._make_shape().west()
-
-    def north_east(self):
-        return self._make_shape().north_east()
-
-    def south_east(self):
-        return self._make_shape().south_east()
-
-    def south_west(self):
-        return self._make_shape().south_west()
-
-    def north_west(self):
-        return self._make_shape().north_west()
-
-    def center(self):
-        return self._make_shape().center()
-
-    def label_center(self):
-        return self._make_shape().label_center()
 
     def _get_shape_initialization_arguments(self) -> dict[str, Any]:
         kwargs = {}
@@ -235,36 +243,6 @@ class _MultiMixin(_SBGNMixinBase):
     subunits_stroke_width: tuple[float] = field(default_factory=tuple)
     subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
     subunits_filter: tuple[momapy.drawing.Filter] = field(default_factory=tuple)
-
-    def north(self):
-        return self.self_bbox().north()
-
-    def east(self):
-        return self.self_bbox().east()
-
-    def south(self):
-        return self.self_bbox().south()
-
-    def west(self):
-        return self.self_bbox().west()
-
-    def north_east(self):
-        return self.self_bbox().north_east()
-
-    def south_east(self):
-        return self.self_bbox().south_east()
-
-    def south_west(self):
-        return self.self_bbox().south_west()
-
-    def north_west(self):
-        return self.self_bbox().north_west()
-
-    def center(self):
-        return self.self_bbox().center()
-
-    def label_center(self):
-        return self._make_subunit(self._n - 1).label_center()
 
     def _get_subunit_width(self):
         width = self.width - self.offset * (self._n - 1)
@@ -322,6 +300,9 @@ class _MultiMixin(_SBGNMixinBase):
     @classmethod
     def _mixin_bbox(cls, obj):
         return momapy.geometry.Bbox(obj.position, obj.width, obj.height)
+
+    def label_center(self):
+        return self._make_subunit(self._n - 1).label_center()
 
 
 @dataclass(frozen=True)

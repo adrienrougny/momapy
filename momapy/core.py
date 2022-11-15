@@ -292,43 +292,59 @@ class NodeLayout(GroupLayout):
 
     @abstractmethod
     def east(self) -> momapy.geometry.Point:
-        pass
+        return self.self_angle(0)
 
     @abstractmethod
     def north_east(self) -> momapy.geometry.Point:
-        pass
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 2, -self.height / 2)
+        )
+        angle = momapy.geometry.get_angle_of_line(Line)
+        return self.self_angle(angle, unit="radians")
 
     @abstractmethod
     def north(self) -> momapy.geometry.Point:
-        pass
+        return self.self_angle(90)
 
     @abstractmethod
     def north_west(self) -> momapy.geometry.Point:
-        pass
+        line = momapy.geometry.Line(
+            self.center(), self.center() - (self.width / 2, self.height / 2)
+        )
+        angle = momapy.geometry.get_angle_of_line(Line)
+        return self.self_angle(angle, unit="radians")
 
     @abstractmethod
     def west(self) -> momapy.geometry.Point:
-        pass
+        return self.self_angle(180)
 
     @abstractmethod
     def south_west(self) -> momapy.geometry.Point:
-        pass
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (-self.width / 2, self.height / 2)
+        )
+        angle = momapy.geometry.get_angle_of_line(Line)
+        return self.self_angle(angle, unit="radians")
 
     @abstractmethod
     def south(self) -> momapy.geometry.Point:
-        pass
+        return self.self_angle(270)
 
     @abstractmethod
     def south_east(self) -> momapy.geometry.Point:
-        pass
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 2, self.height / 2)
+        )
+        angle = momapy.geometry.get_angle_of_line(Line)
+        return self.self_angle(angle, unit="radians")
 
     @abstractmethod
     def center(self) -> momapy.geometry.Point:
-        pass
+        return self.position
 
     @abstractmethod
     def label_center(self) -> momapy.geometry.Point:
-        pass
+        return self.position
 
     def _border_from_drawing_elements(self, drawing_elements, point):
         line = momapy.geometry.Line(self.center(), point)
