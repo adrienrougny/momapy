@@ -603,6 +603,11 @@ class ArcLayout(GroupLayout):
         )
         return replace(self, points=points, layout_elements=layout_elements)
 
+    def fraction(self, fraction):
+        import momapy.positioning
+
+        return momapy.positioning.fraction_of(self, fraction)
+
 
 @dataclass(frozen=True)
 class Model(MapElement):
