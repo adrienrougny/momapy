@@ -448,6 +448,8 @@ class StateVariableLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -459,6 +461,8 @@ class UnitOfInformationLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -472,6 +476,8 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
         "bottom_angle": "angle",
         "direction": "direction",
     }
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -490,6 +496,8 @@ class CardinalityLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -505,6 +513,8 @@ class CompartmentLayout(
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
+    width: float = 80
+    height: float = 80
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 4
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -517,6 +527,8 @@ class UnspecifiedEntityLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -532,6 +544,8 @@ class MacromoleculeLayout(
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -549,6 +563,8 @@ class MacromoleculeMultimerLayout(
         "rounded_corners": "rounded_corners"
     }
     _n: int = 2
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -562,6 +578,8 @@ class SimpleChemicalLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -574,6 +592,8 @@ class SimpleChemicalMultimerLayout(
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     _n: int = 2
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -588,6 +608,8 @@ class ComplexLayout(
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "cut_corners": "cut_corners"
     }
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -603,6 +625,8 @@ class ComplexMultimerLayout(
         "cut_corners": "cut_corners"
     }
     _n: int = 2
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -621,6 +645,8 @@ class NucleicAcidFeatureLayout(
         "rounded_corners": "rounded_corners"
     }
     _n: int = 2
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -638,6 +664,8 @@ class NucleicAcidFeatureMultimerLayout(
         "rounded_corners": "rounded_corners"
     }
     _n: int = 2
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -651,6 +679,8 @@ class EmptySetLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithDiagonalBar
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -667,6 +697,8 @@ class PerturbingAgentLayout(
         "bottom_left_angle": "angle",
         "bottom_right_angle": "angle",
     }
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -689,6 +721,8 @@ class _LogicalOperatorLayout(
     _font_color: typing.ClassVar[
         momapy.coloring.Color
     ] = momapy.coloring.colors.black
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1.0
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -725,6 +759,8 @@ class GenericProcessLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -742,6 +778,8 @@ class OmittedProcessLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -767,6 +805,8 @@ class UncertainProcessLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -791,6 +831,8 @@ class AssociationLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.black
@@ -807,6 +849,8 @@ class DissociationLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithInsideCircle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {"sep": "sep"}
+    width: float = 20
+    height: float = 20
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -828,6 +872,8 @@ class PhenotypeLayout(
         "bottom_left_angle": "angle",
         "bottom_right_angle": "angle",
     }
+    width: float = 60
+    height: float = 30
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
@@ -841,6 +887,8 @@ class SubmapLayout(
 ):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 80
+    height: float = 80
     stroke: momapy.coloring.Color = momapy.coloring.colors.black
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
