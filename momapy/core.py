@@ -467,7 +467,7 @@ class NodeLayout(GroupLayout):
         return self.self_border(point)
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
-        point = self._make_point_for_angle(angle, units)
+        point = self._make_point_for_angle(angle, unit)
         return self.border(point)
 
     def childless(self):
