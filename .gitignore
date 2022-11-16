@@ -9,3 +9,4 @@ Pipfile.lock
 Pipfile
 .idea/
 demo/*.svg
+demo/*.css
