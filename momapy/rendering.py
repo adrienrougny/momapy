@@ -965,6 +965,7 @@ class SVGNativeCompatRenderer(SVGNativeRenderer):
         return super()._render_filter(filter_)
 
 
+@dataclass
 class SkiaRenderer(Renderer):
     _canvas: Optional[skia.Canvas] = None
     _document: Optional[skia.Document] = None
