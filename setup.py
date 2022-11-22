@@ -12,6 +12,7 @@ setup(
         "momapy.sbgn.styling",
         "momapy.celldesigner",
         "momapy.sbml",
+        "momapy.rendering",
     ],
     install_requires=[
         "libsbgnpy",
