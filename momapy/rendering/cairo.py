@@ -15,7 +15,7 @@ import momapy.rendering.core
 
 @dataclasses.dataclass
 class CairoRenderer(momapy.rendering.core.Renderer):
-    formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png"]
+    formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
         momapy.drawing.Path: "_render_path",
@@ -38,6 +38,7 @@ class CairoRenderer(momapy.rendering.core.Renderer):
     }
     context: cairo.Context
     config: dict = dataclasses.field(default_factory=dict)
+    _pango_font_descriptions: dict = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
@@ -198,11 +199,21 @@ class CairoRenderer(momapy.rendering.core.Renderer):
 
     def _render_text(self, text):
         pango_layout = gi.repository.PangoCairo.create_layout(self.context)
-        pango_font_description = gi.repository.Pango.FontDescription()
-        pango_font_description.set_family(text.font_family)
-        pango_font_description.set_absolute_size(
-            gi.repository.Pango.units_from_double(text.font_size)
+        pango_font_description = self._pango_font_descriptions.get(
+            (
+                text.font_family,
+                text.font_size,
+            )
         )
+        if pango_font_description is None:
+            pango_font_description = gi.repository.Pango.FontDescription()
+            pango_font_description.set_family(text.font_family)
+            pango_font_description.set_absolute_size(
+                gi.repository.Pango.units_from_double(text.font_size)
+            )
+            self._pango_font_descriptions[
+                (text.font_family, text.font_size)
+            ] = pango_font_description
         pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
         pos = pango_layout.index_to_pos(0)
