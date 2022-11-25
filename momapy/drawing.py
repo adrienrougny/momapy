@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import Union, Optional
 from uuid import UUID, uuid4
+import math
+import copy
 
 import momapy.geometry
 import momapy.coloring
@@ -146,6 +148,11 @@ class MoveTo(PathAction):
     def y(self):
         return self.point.y
 
+    def transformed(self, transformation, current_point):
+        return MoveTo(
+            momapy.geometry.transform_point(self.point, transformation)
+        )
+
 
 @dataclass(frozen=True)
 class LineTo(PathAction):
@@ -158,6 +165,11 @@ class LineTo(PathAction):
     @property
     def y(self):
         return self.point.y
+
+    def transformed(self, transformation, current_point):
+        return LineTo(
+            momapy.geometry.transform_point(self.point, transformation)
+        )
 
 
 @dataclass(frozen=True)
@@ -193,10 +205,68 @@ class EllipticalArc(PathAction):
     def y(self):
         return self.point.y
 
+    def transformed(self, transformation, current_point):
+        x1, y1 = current_point.x, current_point.y
+        sigma = self.x_axis_rotation
+        x2, y2 = self.point.x, self.point.y
+        rx = self.rx
+        ry = self.ry
+        fa = self.arc_flag
+        fs = self.sweep_flag
+        x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * (
+            (y1 - y2) / 2
+        )
+        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
+            (y1 - y2) / 2
+        )
+        l = x1p**2 / rx**2 + y1p**2 / ry**2
+        if l > 1:
+            rx = math.sqrt(l) * rx
+            ry = math.sqrt(l) * ry
+        r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
+        if r < 0:  # imprecision
+            r = 0
+        a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
+        if fa == fs:
+            a = -a
+        cxp = a * rx * y1p / ry
+        cyp = -a * ry * x1p / rx
+        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
+        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
+        center = momapy.geometry.Point(cx, cy)
+        east = center + (math.cos(sigma) * rx, math.sin(sigma) * rx)
+        north = center + (math.cos(sigma) * ry, math.sin(sigma) * ry)
+        new_center = momapy.geometry.transform_point(center, transformation)
+        new_east = momapy.geometry.transform_point(east, transformation)
+        new_north = momapy.geometry.transform_point(north, transformation)
+        new_rx = momapy.geometry.Segment(new_center, new_east).length()
+        new_ry = momapy.geometry.Segment(new_center, new_north).length()
+        new_start_point = momapy.geometry.transform_point(
+            current_point, transformation
+        )
+        new_end_point = momapy.geometry.transform_point(
+            self.point, transformation
+        )
+        new_x_axis_rotation = math.degrees(
+            momapy.geometry.get_angle_of_line(
+                momapy.geometry.Line(new_center, new_east)
+            )
+        )
+        return EllipticalArc(
+            new_end_point,
+            new_rx,
+            new_ry,
+            new_x_axis_rotation,
+            self.arc_flag,
+            self.sweep_flag,
+        )
+
 
 @dataclass(frozen=True)
 class Close(PathAction):
-    pass
+
+    def transformed(self, transformation, current_point):
+        return Close()
 
 
 @dataclass
@@ -263,6 +333,20 @@ class Path(DrawingElement):
                 current_point = first_point  # should not be necessary
         return objects
 
+    def transformed(self, transformation):
+        actions = []
+        current_point = None
+        for path_action in self.actions:
+            new_path_action = path_action.transformed(
+                transformation, current_point
+            )
+            actions.append(new_path_action)
+            if hasattr(path_action, "point"):
+                current_point = path_action.point
+            else:
+                current_point = None
+        return replace(self, actions=tuple(actions))
+
 
 @dataclass(frozen=True)
 class Text(DrawingElement):
@@ -281,6 +365,9 @@ class Text(DrawingElement):
 
     def to_geometry(self):
         return [self.position]
+
+    def transformed(self):
+        return copy.deepcopy(self)
 
 
 @dataclass(frozen=True)
@@ -303,6 +390,12 @@ class Group(DrawingElement):
             objects += element.to_geometry()
         return objects
 
+    def transformed(self, transformation):
+        elements = []
+        for layout_element in self.elements:
+            elements.append(layout_element.transformed(transformation))
+        return replace(self, elements=tuple(elements)
+
 
 @dataclass(frozen=True)
 class Ellipse(DrawingElement):
@@ -320,6 +413,26 @@ class Ellipse(DrawingElement):
 
     def to_geometry(self):
         return [momapy.geometry.Ellipse(self.point, self.rx, self.ry)]
+
+    def to_path(self):
+        west = self.point - (self.rx, 0)
+        east = self.point + (self.rx, 0)
+        path = Path(
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            filter=self.filter,
+        )
+        path += move_to(west)
+        path += elliptical_arc(east, self.rx, self.ry, 0, 1, 0)
+        path += elliptical_arc(west, self.rx, self.ry, 0, 1, 0)
+        path += close()
+        return path
+
+    def transformed(self, transformation):
+        path = self.to_path()
+        return path.transformed(transformation)
 
 
 @dataclass(frozen=True)
@@ -344,6 +457,7 @@ class Rectangle(DrawingElement):
             stroke=self.stroke,
             fill=self.fill,
             transform=self.transform,
+            filter=self.filter,
         )
         x = self.point.x
         y = self.point.y
@@ -383,6 +497,10 @@ class Rectangle(DrawingElement):
     def to_geometry(self):
         path = self.to_path()
         return path.to_geometry()
+
+    def transformed(self, transformation):
+        path = self.to_path()
+        return path.transformed(transformation)
 
 
 def move_to(point):
