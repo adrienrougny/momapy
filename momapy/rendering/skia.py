@@ -23,7 +23,6 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.MoveTo: "_add_move_to",
         momapy.drawing.LineTo: "_add_line_to",
         momapy.drawing.Close: "_add_close",
-        momapy.drawing.Arc: "_add_arc",
         momapy.drawing.EllipticalArc: "_add_elliptical_arc",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
