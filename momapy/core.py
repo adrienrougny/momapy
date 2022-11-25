@@ -575,11 +575,9 @@ class ArcLayout(GroupLayout):
         if arrowhead_drawing_element is not None:
             last_segment = self.segments()[-1]
             angle = momapy.geometry.get_angle_of_line(last_segment)
-            transform = tuple(
-                [momapy.geometry.Rotation(angle, self.arrowhead_base())]
-            )
-            arrowhead_drawing_element = replace(
-                arrowhead_drawing_element, transform=transform
+            rotation = momapy.geometry.Rotation(angle, self.arrowhead_base())
+            arrowhead_drawing_element = arrowhead_drawing_element.transformed(
+                rotation
             )
             drawing_elements.append(arrowhead_drawing_element)
         return drawing_elements
