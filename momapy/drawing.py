@@ -248,7 +248,6 @@ class EllipticalArc(PathAction):
 
 @dataclass(frozen=True)
 class Close(PathAction):
-
     def transformed(self, transformation, current_point):
         return Close()
 
@@ -369,7 +368,7 @@ class Group(DrawingElement):
         elements = []
         for layout_element in self.elements:
             elements.append(layout_element.transformed(transformation))
-        return replace(self, elements=tuple(elements)
+        return replace(self, elements=tuple(elements))
 
 
 @dataclass(frozen=True)
