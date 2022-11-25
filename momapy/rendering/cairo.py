@@ -27,7 +27,6 @@ class CairoRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.MoveTo: "_render_move_to",
         momapy.drawing.LineTo: "_render_line_to",
         momapy.drawing.Close: "_render_close",
-        momapy.drawing.Arc: "_render_arc",
         momapy.drawing.EllipticalArc: "_render_elliptical_arc",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
@@ -253,11 +252,6 @@ class CairoRenderer(momapy.rendering.core.Renderer):
     def _render_close(self, close):
         self.context.close_path()
 
-    def _render_arc(self, arc):
-        self.context.arc(
-            arc.x, arc.y, arc.radius, arc.start_angle, arc.end_angle
-        )
-
     def _render_elliptical_arc(self, elliptical_arc):
         obj = momapy.geometry.EllipticalArc(
             momapy.geometry.Point(
@@ -272,12 +266,11 @@ class CairoRenderer(momapy.rendering.core.Renderer):
             elliptical_arc.sweep_flag,
         )
         arc, transformation = obj.to_arc_and_transformation()
-        arc = momapy.drawing.Arc(
-            arc.point, arc.radius, arc.start_angle, arc.end_angle
-        )
         self.context.save()
         self._add_transformation(transformation)
-        self._render_path_action(arc)
+        self.context.arc(
+            arc.x, arc.y, arc.radius, arc.start_angle, arc.end_angle
+        )
         self.context.restore()
 
     def _add_translation(self, translation):

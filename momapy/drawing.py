@@ -173,22 +173,6 @@ class LineTo(PathAction):
 
 
 @dataclass(frozen=True)
-class Arc(PathAction):
-    point: momapy.geometry.Point
-    radius: float
-    start_angle: float
-    end_angle: float
-
-    @property
-    def x(self):
-        return self.point.x
-
-    @property
-    def y(self):
-        return self.point.y
-
-
-@dataclass(frozen=True)
 class EllipticalArc(PathAction):
     point: momapy.geometry.Point
     rx: float
@@ -306,15 +290,6 @@ class Path(DrawingElement):
                 segment = momapy.geometry.Segment(current_point, action.point)
                 objects.append(segment)
                 current_point = action.point
-            elif isinstance(action, Arc):
-                arc = momapy.geometry.Arc(
-                    action.point,
-                    action.radius,
-                    action.start_angle,
-                    action.end_angle,
-                )
-                objects.append(arc)
-                current_point = arc.end_point()
             elif isinstance(action, EllipticalArc):
                 elliptical_arc = momapy.geometry.EllipticalArc(
                     current_point,
@@ -509,10 +484,6 @@ def move_to(point):
 
 def line_to(point):
     return LineTo(point)
-
-
-def arc(point, radius, start_angle, end_angle):
-    return Arc(point, radius, start_angle, end_angle)
 
 
 def elliptical_arc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag):
