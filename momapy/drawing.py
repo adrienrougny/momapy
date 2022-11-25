@@ -190,37 +190,17 @@ class EllipticalArc(PathAction):
         return self.point.y
 
     def transformed(self, transformation, current_point):
-        x1, y1 = current_point.x, current_point.y
-        sigma = self.x_axis_rotation
-        x2, y2 = self.point.x, self.point.y
-        rx = self.rx
-        ry = self.ry
-        fa = self.arc_flag
-        fs = self.sweep_flag
-        x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * (
-            (y1 - y2) / 2
+        east = momapy.geometry.Point(
+            math.cos(self.x_axis_rotation) * self.rx,
+            math.sin(self.x_axis_rotation) * self.rx,
         )
-        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
-            (y1 - y2) / 2
+        north = momapy.geometry.Point(
+            math.cos(self.x_axis_rotation) * self.ry,
+            math.sin(self.x_axis_rotation) * self.ry,
         )
-        l = x1p**2 / rx**2 + y1p**2 / ry**2
-        if l > 1:
-            rx = math.sqrt(l) * rx
-            ry = math.sqrt(l) * ry
-        r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
-        if r < 0:  # imprecision
-            r = 0
-        a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
-        if fa == fs:
-            a = -a
-        cxp = a * rx * y1p / ry
-        cyp = -a * ry * x1p / rx
-        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
-        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
-        center = momapy.geometry.Point(cx, cy)
-        east = center + (math.cos(sigma) * rx, math.sin(sigma) * rx)
-        north = center + (math.cos(sigma) * ry, math.sin(sigma) * ry)
-        new_center = momapy.geometry.transform_point(center, transformation)
+        new_center = momapy.geometry.transform_point(
+            momapy.geometry.Point(0, 0), transformation
+        )
         new_east = momapy.geometry.transform_point(east, transformation)
         new_north = momapy.geometry.transform_point(north, transformation)
         new_rx = momapy.geometry.Segment(new_center, new_east).length()
