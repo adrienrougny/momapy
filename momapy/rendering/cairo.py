@@ -269,7 +269,7 @@ class CairoRenderer(momapy.rendering.core.Renderer):
         self.context.save()
         self._add_transformation(transformation)
         self.context.arc(
-            arc.x, arc.y, arc.radius, arc.start_angle, arc.end_angle
+            arc.point.x, arc.point.y, arc.radius, arc.start_angle, arc.end_angle
         )
         self.context.restore()
 
