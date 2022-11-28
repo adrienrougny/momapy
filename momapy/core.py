@@ -486,7 +486,9 @@ class NodeLayout(GroupLayout):
 
 @dataclass(frozen=True)
 class ArcLayout(GroupLayout):
-    points: tuple[momapy.geometry.Point] = field(default_factory=tuple)
+    segments: tuple[
+        momapy.geometry.Segment, momapy.geometry.BezierCurve
+    ] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
     arrowhead_stroke: Optional[momapy.coloring.Color] = None
@@ -494,21 +496,21 @@ class ArcLayout(GroupLayout):
     arrowhead_fill: Optional[momapy.coloring.Color] = None
     shorten: float = 0
 
-    def segments(self) -> list[momapy.geometry.Segment]:
-        segments = []
-        for i in range(len(self.points))[1:]:
-            segments.append(
-                momapy.geometry.Segment(self.points[i - 1], self.points[i])
-            )
-        return segments
+    def points(self) -> list[momapy.geometry.Point]:
+        points = []
+        for i, segment in enumerate(self.segments):
+            if i == 0:
+                points.append(segment.p1)
+            points.append(segment.p2)
+        return points
 
     def length(self):
-        return sum([segment.length() for segment in self.segments()])
+        return sum([segment.length() for segment in self.segments])
 
     def self_bbox(self):
         import momapy.positioning
 
-        elements = list(self.points) + [self.arrowhead_bbox()]
+        elements = list(self.points()) + [self.arrowhead_bbox()]
         if self.source is not None:
             elements.append(self.source)
         if self.target is not None:
@@ -517,13 +519,13 @@ class ArcLayout(GroupLayout):
         return momapy.geometry.Bbox(position, width, height)
 
     def start_point(self) -> momapy.geometry.Point:
-        return self.points[0]
+        return self.points()[0]
 
     def end_point(self) -> momapy.geometry.Point:
-        return self.points[-1]
+        return self.points()[-1]
 
     def arrowhead_base(self) -> momapy.geometry.Point:
-        last_segment = self.segments()[-1]
+        last_segment = self.segments[-1]
         if last_segment.length() == 0:
             return self.arrowhead_tip() - (self.arrowhead_length(), 0)
         fraction = (
@@ -535,7 +537,7 @@ class ArcLayout(GroupLayout):
         return p
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
-        last_segment = self.segments()[-1]
+        last_segment = self.segments[-1]
         if last_segment.length() == 0:
             return last_segment.p2
         fraction = 1 - self.shorten / last_segment.length()
@@ -559,22 +561,49 @@ class ArcLayout(GroupLayout):
         pass
 
     def self_drawing_elements(self):
-        def _get_path_from_points(arc_layout) -> momapy.drawing.Path:
+        def _make_path_action_from_segment(segment):
+            if momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.Segment
+            ):
+                path_action = momapy.drawing.line_to(segment.p2)
+            elif momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.BezierCurve
+            ):
+                if len(segment.control_points) >= 2:
+                    path_action = momapy.drawing.curve_to(
+                        segment.p2,
+                        segment.control_points[0],
+                        segment.control_points[1],
+                    )
+                else:
+                    path_action = momapy.drawing.quadratic_curve_to(
+                        segment.p2, segment.control_points[0]
+                    )
+            return path_action
+
+        def _make_path_from_segments(arc_layout) -> momapy.drawing.Path:
             path = momapy.drawing.Path()
             path += momapy.drawing.move_to(arc_layout.start_point())
-            for segment in arc_layout.segments()[:-1]:
-                path += momapy.drawing.line_to(segment.p2)
+            for segment in arc_layout.segments[:-1]:
+                path_action = _make_path_action_from_segment(segment)
+                path += path_action
+            last_segment = self.segments[-1]
+            length = self.shorten
             if arc_layout.arrowhead_drawing_element() is not None:
-                path += momapy.drawing.line_to(arc_layout.arrowhead_base())
-            else:
-                path += momapy.drawing.line_to(arc_layout.arrowhead_tip())
+                length += self.arrowhead_length()
+            if length > 0:
+                last_segment = last_segment.shortened(length)
+            path_action = _make_path_action_from_segment(last_segment)
+            path += path_action
             return path
 
-        drawing_elements = [_get_path_from_points(self)]
+        drawing_elements = [_make_path_from_segments(self)]
         arrowhead_drawing_element = self.arrowhead_drawing_element()
         if arrowhead_drawing_element is not None:
-            last_segment = self.segments()[-1]
-            angle = momapy.geometry.get_angle_of_line(last_segment)
+            line = momapy.geometry.Line(
+                self.arrowhead_base(), self.arrowhead_tip()
+            )
+            angle = momapy.geometry.get_angle_of_line(line)
             rotation = momapy.geometry.Rotation(angle, self.arrowhead_base())
             arrowhead_drawing_element = arrowhead_drawing_element.transformed(
                 rotation

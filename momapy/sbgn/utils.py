@@ -104,8 +104,8 @@ def set_arcs_to_borders(map_builder):
                     (target, -1, -1, source),
                 ]:
                     if main is not None:
-                        if len(layout_element.points) > 2:
-                            reference_point = layout_element.points[
+                        if len(layout_element.segments) >= 2:
+                            reference_point = layout_element.points()[
                                 index + increment
                             ]
                         elif other is not None:
@@ -146,8 +146,8 @@ def set_arcs_to_borders(map_builder):
                                         reference_point = other.south()
                             else:
                                 reference_point = other.center()
-                        elif len(layout_element.points) >= 2:
-                            reference_point = layout_elements.points[
+                        else:
+                            reference_point = layout_elements.points()[
                                 index - increment
                             ]
                         if hasattr(
@@ -188,7 +188,9 @@ def set_arcs_to_borders(map_builder):
                         else:
                             point = main.border(reference_point)
                         if point is not None:
-                            layout_element.points[index] = point
+                            segment = layout_element.segments[index]
+                            attr_name = f"p{[1, 2][index]}"
+                            setattr(segment, attr_name, point)
 
 
 def set_auxilliary_units_to_borders(map_builder):

@@ -1184,12 +1184,19 @@ def _make_layout_element_from_arc(
     layout_element.target = momapy.core.PhantomLayoutBuilder(
         layout_element=d_layout_elements_ids[arc.get_target()]
     )
-    for libsbgn_point in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
-        layout_element.points.append(
-            momapy.geometry.PointBuilder(
-                libsbgn_point.get_x(), libsbgn_point.get_y()
-            )
+    libsbgn_points = [arc.get_start()] + arc.get_next() + [arc.get_end()]
+    for i, libsbgn_current_point in enumerate(libsbgn_points[1:]):
+        libsbgn_previous_point = libsbgn_points[i - 1]
+        current_point = momapy.geometry.PointBuilder(
+            libsbgn_current_point.get_x(), libsbgn_current_point.get_y()
         )
+        previous_point = momapy.geometry.PointBuilder(
+            libsbgn_previous_point.get_x(), libsbgn_previous_point.get_y()
+        )
+        segment = momapy.builder.get_or_make_builder_cls(
+            momapy.geometry.Segment
+        )(previous_point, current_point)
+        layout_element.segments.append(segment)
     return layout_element
 
 

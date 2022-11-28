@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, Any, Callable, Union
 from abc import ABC, abstractmethod
 
@@ -7,6 +7,8 @@ import numpy
 import decimal
 
 import momapy.builder
+
+import bezier.curve
 
 ROUNDING = 2
 decimal.getcontext().prec = ROUNDING
@@ -32,6 +34,9 @@ class Point(object):
             xy = (xy.x, xy.y)
         return Point(self.x - xy[0], self.y - xy[1])
 
+    def __mul__(self, scalar):
+        return Point(self.x * scalar, self.y * scalar)
+
     def __iter__(self):
         yield self.x
         yield self.y
@@ -42,6 +47,13 @@ class Point(object):
 
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_point(line, self)
+
+    def get_angle(self):
+        line = Line(Point(0, 0), self)
+        return line.get_angle()
+
+    def transformed(self, transformation):
+        return transform_point(self, transformation)
 
 
 @dataclass(frozen=True)
@@ -146,6 +158,23 @@ def transform_line(line, transformation):
     )
 
 
+def transform_segment(segment, transformation):
+    return Segment(
+        transform_point(segment.p1, transformation),
+        transform_point(segment.p2, transformation),
+    )
+
+
+def transform_bezier_curve(bezier_curve, transformation):
+    return BezierCurve(
+        transform_point(bezier_curve.p1),
+        transform_point(bezier_curve.p2),
+        tuple(
+            [transform_point(point) for point in bezier_curve.control_points]
+        ),
+    )
+
+
 @dataclass(frozen=True)
 class Bbox(object):
     position: Point
@@ -207,7 +236,7 @@ class Line(object):
         if self.slope() is not None:
             return self.p1.y - self.slope() * self.p1.x
         else:
-            None
+            return None
 
     def get_angle(self):
         return get_angle_of_line(self)
@@ -223,6 +252,9 @@ class Line(object):
             return point.y == self.slope() * point.x + self.intercept()
         else:
             return self.p1.x == point.x
+
+    def transformed(self, transformation):
+        return transform_line(self, transformation)
 
 
 @dataclass(frozen=True)
@@ -245,8 +277,59 @@ class Segment(object):
             and line.has_point(point)
         )
 
+    def get_angle(self):
+        return get_angle_of_line(self)
+
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_segment(line, self)
+
+    def shortened(self, length):
+        fraction = 1 - length / self.length()
+        p, _ = get_position_and_angle_at_fraction(self, fraction)
+        return Segment(self.p1, p)
+
+    def transformed(self, transformation):
+        return transform_segment(self, transformation)
+
+
+@dataclass(frozen=True)
+class BezierCurve(object):
+    p1: Point
+    p2: Point
+    control_points: tuple[Point] = field(default_factory=tuple)
+
+    def _to_bezier(self):
+        x = []
+        y = []
+        x.append(self.p1.x)
+        y.append(self.p1.y)
+        for point in self.control_points:
+            x.append(point.x)
+            y.append(point.y)
+        x.append(self.p2.x)
+        y.append(self.p2.y)
+        nodes = [x, y]
+        return bezier.curve.Curve.from_nodes(nodes)
+
+    @classmethod
+    def _from_bezier(cls, bezier_curve):
+        points = [Point(e[0], e[1]) for e in bezier_curve.nodes.T]
+        return cls(points[0], points[-1], points[1:-1])
+
+    def length(self):
+        return self._to_bezier().length
+
+    def get_intersection_with_line(self, line):
+        return get_intersection_of_line_and_bezier_curve(line, self)
+
+    def shortened(self, length):
+        fraction = 1 - length / self.length()
+        bezier_curve = self._to_bezier()
+        shortened_bezier_curve = bezier_curve.specialize(0, fraction)
+        return BezierCurve._from_bezier(shortened_bezier_curve)
+
+    def transformed(self, transformation):
+        return transform_bezier_curve(self, transformation)
 
 
 @dataclass(frozen=True)
@@ -491,6 +574,13 @@ def get_intersection_of_line_and_segment(line, segment):
     return None
 
 
+def get_intersection_of_line_and_bezier_curve(line, bezier_curve):
+    bezier_curve = bezier_curve._to_bezier()
+    line = bezier.curve.Curve([line.p1, line.p2])
+    intersection = bezier_curve.intersect(line).T
+    return [Point(x, y) for x, y in intersection]
+
+
 # angle in radians
 def get_angle_of_line(line):
     x1 = line.p1.x
@@ -499,6 +589,20 @@ def get_angle_of_line(line):
     y2 = line.p2.y
     angle = math.atan2(y2 - y1, x2 - x1)
     return get_normalized_angle(angle)
+
+
+# angle in radians
+def get_angle_of_bezier_curve(bezier_curve, s):
+    nodes = (
+        [bezier_curve.p1]
+        + list(bezier_curve.control_points)
+        + [bezier_curve.p2]
+    )
+    bezier_curve = bezier_curve._to_bezier()
+    hodograph = bezier_curve.evaluate_hodograph(s)
+    point = Point(hodograph[0][0], hodograph[1][0])
+    line = Line(Point(0, 0), point)
+    return get_angle_of_line(line)
 
 
 def are_lines_parallel(line1, line2):
@@ -512,6 +616,7 @@ def is_angle_in_sector(angle, center, point1, point2):
     return is_angle_between(angle, angle1, angle2)
 
 
+# angles in radians
 def is_angle_between(angle, start_angle, end_angle):
     angle = get_normalized_angle(angle)
     start_angle = get_normalized_angle(start_angle)
@@ -538,18 +643,24 @@ def get_normalized_angle(angle):
     return angle
 
 
-def get_position_and_angle_at_fraction(segment: Segment, fraction: float):
-    px = segment.p1.x + fraction * (segment.p2.x - segment.p1.x)
-    py = segment.p1.y + fraction * (segment.p2.y - segment.p1.y)
-    angle = get_angle_of_line(segment)
-    return Point(px, py), angle
-
-
-# angle in radians
-def rotate_point(point, angle):
-    px = point.x * math.cos(angle) + point.y * math.sin(angle)
-    py = -point.x * math.sin(angle) + point.y * math.cos(angle)
-    return Point(px, py)
+def get_position_and_angle_at_fraction(segment_or_bezier_curve, fraction):
+    if momapy.builder.isinstance_or_builder(segment_or_bezier_curve, Segment):
+        px = segment_or_bezier_curve.p1.x + fraction * (
+            segment_or_bezier_curve.p2.x - segment_or_bezier_curve.p1.x
+        )
+        py = segment_or_bezier_curve.p1.y + fraction * (
+            segment_or_bezier_curve.p2.y - segment_or_bezier_curve.p1.y
+        )
+        point = Point(px, py)
+        angle = get_angle_of_line(segment_or_bezier_curve)
+    elif momapy.builder.isinstance_or_builder(
+        segment_or_bezier_curve, BezierCurve
+    ):
+        bezier_curve = segment_or_bezier_curve._to_bezier()
+        evaluation = bezier_curve.evaluate(fraction)
+        point = Point(evaluation[0][0], evaluation[1][0])
+        angle = get_angle_of_bezier_curve(segment_or_bezier_curve, fraction)
+    return point, angle
 
 
 # angle is in radians between -pi and pi
@@ -582,6 +693,10 @@ def _point_builder_sub(self, xy):
     return PointBuilder(self.x - xy[0], self.y - xy[1])
 
 
+def _point_builder_mul(self, scalar):
+    return PointBuilder(self.x * scalar, self.y * scalar)
+
+
 def _point_builder_iter(self):
     yield self.x
     yield self.y
@@ -592,6 +707,7 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
     builder_namespace={
         "__add__": _point_builder_add,
         "__sub__": _point_builder_sub,
+        "__mul__": _point_builder_mul,
         "__iter__": _point_builder_iter,
     },
 )

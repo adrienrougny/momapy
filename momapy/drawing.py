@@ -227,6 +227,55 @@ class EllipticalArc(PathAction):
 
 
 @dataclass(frozen=True)
+class CurveTo(PathAction):
+    point: momapy.geometry.Point
+    control_point1: momapy.geometry.Point
+    control_point2: momapy.geometry.Point
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
+    def transformed(self, transformation, current_point):
+        return CurveTo(
+            momapy.geometry.transform_point(self.point),
+            momapy.geometry.transform_point(self.control_point1),
+            momapy.geometry.transform_point(self.control_point2),
+        )
+
+
+@dataclass(frozen=True)
+class QuadraticCurveTo(PathAction):
+    point: momapy.geometry.Point
+    control_point: momapy.geometry.Point
+
+    @property
+    def x(self):
+        return self.point.x
+
+    @property
+    def y(self):
+        return self.point.y
+
+    def transformed(self, transformation, current_point):
+        return CurveTo(
+            momapy.geometry.transform_point(self.point),
+            momapy.geometry.transform_point(self.control_point),
+        )
+
+    def to_cubic(self, current_point):
+        p1 = current_point
+        p2 = self.point
+        control_point1 = p1 + (self.control_point - p1) * (2 / 3)
+        control_point2 = p2 + (self.control_point - p2) * (2 / 3)
+        return CurveTo(p2, control_point1, control_point2)
+
+
+@dataclass(frozen=True)
 class Close(PathAction):
     def transformed(self, transformation, current_point):
         return Close()
@@ -281,6 +330,21 @@ class Path(DrawingElement):
                 )
                 objects.append(elliptical_arc)
                 current_point = elliptical_arc.end_point
+            elif isinstance(action, CurveTo):
+                bezier_curve = momapy.geometry.BezierCurve(
+                    current_point,
+                    self.point,
+                    (
+                        self.control_point1,
+                        self.control_point2,
+                    ),
+                )
+            elif isinstance(action, QuadraticCurveTo):
+                bezier_curve = momapy.geometry.BezierCurve(
+                    current_point,
+                    self.point,
+                    (self.control_point,),
+                )
             elif isinstance(action, Close):
                 segment = momapy.geometry.Segment(current_point, first_point)
                 objects.append(segment)
@@ -467,6 +531,14 @@ def line_to(point):
 
 def elliptical_arc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag):
     return EllipticalArc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag)
+
+
+def curve_to(point, control_point1, control_point2):
+    return CurveTo(point, control_point1, control_point2)
+
+
+def quadratic_curve_to(point, control_point):
+    return QuadraticCurveTo(point, control_point)
 
 
 def close():

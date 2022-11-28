@@ -26,6 +26,8 @@ class CairoRenderer(momapy.rendering.core.Renderer):
     _pa_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.MoveTo: "_render_move_to",
         momapy.drawing.LineTo: "_render_line_to",
+        momapy.drawing.CurveTo: "_render_curve_to",
+        momapy.drawing.QuadraticCurveTo: "_render_quadratic_curve_to",
         momapy.drawing.Close: "_render_close",
         momapy.drawing.EllipticalArc: "_render_elliptical_arc",
     }
@@ -248,6 +250,24 @@ class CairoRenderer(momapy.rendering.core.Renderer):
 
     def _render_line_to(self, line_to):
         self.context.line_to(line_to.x, line_to.y)
+
+    def _render_curve_to(self, curve_to):
+        self.context.curve_to(
+            curve_to.control_point1.x,
+            curve_to.control_point2.y,
+            curve_to.control_point2.x,
+            curve_to.control_point2.y,
+            curve_to.x,
+            curve_to.y,
+        )
+
+    def _render_quadratic_curve_to(self, quadratic_curve_to):
+        cairo_current_point = self.context.get_current_point()
+        current_point = momapy.geometry.Point(
+            cairo_current_point[0], cairo_current_point[1]
+        )
+        curve_to = quadratic_curve_to.to_cubic(current_point)
+        self._render_curve_to(curve_to)
 
     def _render_close(self, close):
         self.context.close_path()
