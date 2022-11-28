@@ -23,6 +23,7 @@ setup(
         "pyparsing",
         "skia-python",
         "xsdata[cli, lxml, soap]",
+        "bezier",
     ],
     package_data={"": ["*.css"]},
     include_package_data=True,
