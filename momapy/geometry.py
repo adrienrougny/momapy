@@ -14,11 +14,6 @@ ROUNDING = 2
 decimal.getcontext().prec = ROUNDING
 
 
-def anchorpoint(anchor_func):
-    anchor_func.__anchor__ = True
-    return property(anchor_func)
-
-
 @dataclass(frozen=True)
 class Point(object):
     x: Optional[float] = None
@@ -36,6 +31,9 @@ class Point(object):
 
     def __mul__(self, scalar):
         return Point(self.x * scalar, self.y * scalar)
+
+    def __div__(self, scalar):
+        return Point(self.x / scalar, self.y / scalar)
 
     def __iter__(self):
         yield self.x
@@ -593,11 +591,6 @@ def get_angle_of_line(line):
 
 # angle in radians
 def get_angle_of_bezier_curve(bezier_curve, s):
-    nodes = (
-        [bezier_curve.p1]
-        + list(bezier_curve.control_points)
-        + [bezier_curve.p2]
-    )
     bezier_curve = bezier_curve._to_bezier()
     hodograph = bezier_curve.evaluate_hodograph(s)
     point = Point(hodograph[0][0], hodograph[1][0])
@@ -697,6 +690,10 @@ def _point_builder_mul(self, scalar):
     return PointBuilder(self.x * scalar, self.y * scalar)
 
 
+def _point_builder_div(self, scalar):
+    return PointBuilder(self.x / scalar, self.y / scalar)
+
+
 def _point_builder_iter(self):
     yield self.x
     yield self.y
@@ -708,6 +705,7 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
         "__add__": _point_builder_add,
         "__sub__": _point_builder_sub,
         "__mul__": _point_builder_mul,
+        "__div__": _point_builder_div,
         "__iter__": _point_builder_iter,
     },
 )
