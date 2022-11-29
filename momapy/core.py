@@ -54,9 +54,15 @@ class ModelElement(MapElement):
 
 @dataclass(frozen=True)
 class LayoutElement(MapElement):
-    @abstractmethod
     def bbox(self) -> momapy.geometry.Bbox:
-        pass
+        bounds = self.to_shapely().bounds
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(
+                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
+            ),
+            bounds[2] - bounds[0],
+            bounds[3] - bounds[1],
+        )
 
     @abstractmethod
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
@@ -100,6 +106,12 @@ class LayoutElement(MapElement):
 
     def contains(self, other):
         return other in self.descendants()
+
+    def to_shapely(self):
+        geom_collection = []
+        for drawing_element in self.drawing_elements():
+            geom_collection += drawing_element.to_shapely().geoms
+        return shapely.GeometryCollection(geom_collection)
 
 
 @dataclass(frozen=True)
@@ -201,9 +213,6 @@ class TextLayout(LayoutElement):
         pango_layout_extents, _ = pango_layout.get_pixel_extents()
         return self._get_bbox(pango_layout, pango_layout_extents)
 
-    def bbox(self):
-        return self.logical_bbox()
-
     def drawing_elements(self):
         drawing_elements = []
         pango_layout = self._make_pango_layout()
@@ -274,9 +283,21 @@ class GroupLayout(LayoutElement):
     transform: Optional[tuple[momapy.geometry.Transformation]] = None
     filter: Optional[momapy.drawing.Filter] = None
 
-    @abstractmethod
+    def self_to_shapely(self):
+        geom_collection = []
+        for drawing_element in self.self_drawing_elements():
+            geom_collection += drawing_element.to_shapely().geoms
+        return shapely.GeometryCollection(geom_collection)
+
     def self_bbox(self) -> momapy.geometry.Bbox:
-        pass
+        bounds = self.self_to_shapely().bounds
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(
+                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
+            ),
+            bounds[2] - bounds[0],
+            bounds[3] - bounds[1],
+        )
 
     @abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
@@ -303,14 +324,6 @@ class GroupLayout(LayoutElement):
     def children(self):
         return self.self_children() + list(self.layout_elements)
 
-    def bbox(self):
-        import momapy.positioning
-
-        position, width, height = momapy.positioning.fit(
-            [self.self_bbox()] + self.descendants()
-        )
-        return momapy.geometry.Bbox(position, width, height)
-
     def childless(self):
         return replace(self, layout_elements=None)
 
@@ -335,9 +348,6 @@ class NodeLayout(GroupLayout):
     @property
     def y(self):
         return self.position.y
-
-    def self_bbox(self):
-        return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     @abstractmethod
     def border_drawing_element(self) -> Optional[momapy.drawing.DrawingElement]:
@@ -507,17 +517,6 @@ class ArcLayout(GroupLayout):
     def length(self):
         return sum([segment.length() for segment in self.segments])
 
-    def self_bbox(self):
-        import momapy.positioning
-
-        elements = list(self.points()) + [self.arrowhead_bbox()]
-        if self.source is not None:
-            elements.append(self.source)
-        if self.target is not None:
-            elements.append(self.target)
-        position, width, height = momapy.positioning.fit(elements)
-        return momapy.geometry.Bbox(position, width, height)
-
     def start_point(self) -> momapy.geometry.Point:
         return self.points()[0]
 
@@ -556,9 +555,30 @@ class ArcLayout(GroupLayout):
     ) -> Optional[momapy.drawing.DrawingElement]:
         pass
 
-    @abstractmethod
+    def _make_rotated_arrowhead_drawing_element(self):
+        line = momapy.geometry.Line(self.arrowhead_base(), self.arrowhead_tip())
+        angle = momapy.geometry.get_angle_of_line(line)
+        rotation = momapy.geometry.Rotation(angle, self.arrowhead_base())
+        arrowhead_drawing_element = (
+            self.arrowhead_drawing_element().transformed(rotation)
+        )
+        return arrowhead_drawing_element
+
     def arrowhead_bbox(self) -> momapy.geometry.Bbox:
-        pass
+        if self.arrowhead_drawing_element() is not None:
+            arrowhead_drawing_element = (
+                self._make_rotated_arrowhead_drawing_element()
+            )
+            bounds = arrowhead_drawing_element.to_shapely().bounds
+        else:
+            bounds = self.arrowhead_tip().to_shapely().bounds
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(
+                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
+            ),
+            bounds[2] - bounds[0],
+            bounds[3] - bounds[1],
+        )
 
     def self_drawing_elements(self):
         def _make_path_action_from_segment(segment):
@@ -598,15 +618,9 @@ class ArcLayout(GroupLayout):
             return path
 
         drawing_elements = [_make_path_from_segments(self)]
-        arrowhead_drawing_element = self.arrowhead_drawing_element()
-        if arrowhead_drawing_element is not None:
-            line = momapy.geometry.Line(
-                self.arrowhead_base(), self.arrowhead_tip()
-            )
-            angle = momapy.geometry.get_angle_of_line(line)
-            rotation = momapy.geometry.Rotation(angle, self.arrowhead_base())
-            arrowhead_drawing_element = arrowhead_drawing_element.transformed(
-                rotation
+        if self.arrowhead_drawing_element() is not None:
+            arrowhead_drawing_element = (
+                self._make_rotated_arrowhead_drawing_element()
             )
             drawing_elements.append(arrowhead_drawing_element)
         return drawing_elements

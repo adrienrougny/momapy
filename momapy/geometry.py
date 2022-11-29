@@ -6,6 +6,8 @@ import math
 import numpy
 import decimal
 
+import shapely.geometry
+
 import momapy.builder
 
 import bezier.curve
@@ -43,6 +45,12 @@ class Point(object):
         m = numpy.array([[self.x], [self.y], [1]], dtype=float)
         return m
 
+    def to_tuple(self):
+        return (
+            self.x,
+            self.y,
+        )
+
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_point(line, self)
 
@@ -52,6 +60,9 @@ class Point(object):
 
     def transformed(self, transformation):
         return transform_point(self, transformation)
+
+    def to_shapely(self):
+        return shapely.geometry.Point(self.x, self.y)
 
 
 @dataclass(frozen=True)
@@ -289,6 +300,11 @@ class Segment(object):
     def transformed(self, transformation):
         return transform_segment(self, transformation)
 
+    def to_shapely(self):
+        return shapely.geometry.LineString(
+            [self.p1.to_tuple(), self.p2.to_tuple()]
+        )
+
 
 @dataclass(frozen=True)
 class BezierCurve(object):
@@ -317,6 +333,14 @@ class BezierCurve(object):
     def length(self):
         return self._to_bezier().length
 
+    def evaluate(self, s):
+        evaluation = self._to_bezier().evaluate(s)
+        return Point(evaluation[0][0], evaluation[1][0])
+
+    def evaluate_multi(self, s):
+        evaluations = self._to_bezier().evaluate_multi(s).T
+        return [Point(x, y) for x, y in evaluations]
+
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_bezier_curve(line, self)
 
@@ -329,45 +353,13 @@ class BezierCurve(object):
     def transformed(self, transformation):
         return transform_bezier_curve(self, transformation)
 
-
-@dataclass(frozen=True)
-class Circle(object):
-    point: Point
-    radius: float
-
-    def get_intersection_with_line(self, line):
-        return get_intersection_of_line_and_circle(line, self)
-
-
-@dataclass(frozen=True)
-class Arc(object):
-    point: Point
-    radius: float
-    start_angle: float
-    end_angle: float
-
-    def start_point(self):
-        px = self.point.x + math.cos(self.start_angle) * self.radius
-        py = self.point.y + math.sin(self.start_angle) * self.radius
-        return Point(px, py)
-
-    def end_point(self):
-        px = self.point.x + math.cos(self.end_angle) * self.radius
-        py = self.point.y + math.sin(self.end_angle) * self.radius
-        return Point(px, py)
-
-    def get_intersection_with_line(self, line):
-        return get_intersection_of_line_and_arc(line, self)
-
-
-@dataclass(frozen=True)
-class Ellipse(object):
-    point: Point
-    rx: float
-    ry: float
-
-    def get_intersection_with_line(self, line):
-        return get_intersection_of_line_and_ellipse(line, self)
+    def to_shapely(self, n_segs=50):
+        points = self.evaluate_multi(
+            numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
+        )
+        return shapely.geometry.LineString(
+            [point.to_tuple() for point in points]
+        )
 
 
 @dataclass(frozen=True)
