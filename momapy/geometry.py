@@ -323,8 +323,8 @@ class BezierCurve(object):
         return get_intersection_of_line_and_bezier_curve(line, self)
 
     def shortened(self, length):
-        fraction = 1 - length / self.length()
         bezier_curve = self._to_bezier()
+        fraction = 1 - length / bezier_curve.length
         shortened_bezier_curve = bezier_curve.specialize(0, fraction)
         return BezierCurve._from_bezier(shortened_bezier_curve)
 
