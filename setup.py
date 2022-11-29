@@ -24,6 +24,7 @@ setup(
         "skia-python",
         "xsdata[cli, lxml, soap]",
         "bezier",
+        "shapely",
     ],
     package_data={"": ["*.css"]},
     include_package_data=True,
