@@ -56,13 +56,7 @@ class ModelElement(MapElement):
 class LayoutElement(MapElement):
     def bbox(self) -> momapy.geometry.Bbox:
         bounds = self.to_shapely().bounds
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(
-                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            ),
-            bounds[2] - bounds[0],
-            bounds[3] - bounds[1],
-        )
+        return momapy.geometry.Bbox.from_bounds(bounds)
 
     @abstractmethod
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
@@ -291,13 +285,7 @@ class GroupLayout(LayoutElement):
 
     def self_bbox(self) -> momapy.geometry.Bbox:
         bounds = self.self_to_shapely().bounds
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(
-                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            ),
-            bounds[2] - bounds[0],
-            bounds[3] - bounds[1],
-        )
+        return momapy.geometry.Bbox.from_bounds(bounds)
 
     @abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
@@ -497,7 +485,9 @@ class NodeLayout(GroupLayout):
 @dataclass(frozen=True)
 class ArcLayout(GroupLayout):
     segments: tuple[
-        momapy.geometry.Segment, momapy.geometry.BezierCurve
+        momapy.geometry.Segment,
+        momapy.geometry.BezierCurve,
+        momapy.geometry.EllipticalArc,
     ] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
@@ -530,20 +520,14 @@ class ArcLayout(GroupLayout):
         fraction = (
             1 - (self.arrowhead_length() + self.shorten) / last_segment.length()
         )
-        p, _ = momapy.geometry.get_position_and_angle_at_fraction(
-            last_segment, fraction
-        )
-        return p
+        return last_segment.get_position_at_fraction(fraction)
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
         last_segment = self.segments[-1]
         if last_segment.length() == 0:
             return last_segment.p2
         fraction = 1 - self.shorten / last_segment.length()
-        p, _ = momapy.geometry.get_position_and_angle_at_fraction(
-            last_segment, fraction
-        )
-        return p
+        return last_segment.get_position_at_fraction(fraction)
 
     @abstractmethod
     def arrowhead_length(self) -> float:
@@ -572,13 +556,7 @@ class ArcLayout(GroupLayout):
             bounds = arrowhead_drawing_element.to_shapely().bounds
         else:
             bounds = self.arrowhead_tip().to_shapely().bounds
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(
-                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            ),
-            bounds[2] - bounds[0],
-            bounds[3] - bounds[1],
-        )
+        return momapy.geometry.Bbox.from_bounds(bounds)
 
     def self_drawing_elements(self):
         def _make_path_action_from_segment(segment):
@@ -599,6 +577,17 @@ class ArcLayout(GroupLayout):
                     path_action = momapy.drawing.quadratic_curve_to(
                         segment.p2, segment.control_points[0]
                     )
+            elif momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.EllipticalArc
+            ):
+                path_action = momapy.drawing.EllipticalArc(
+                    segment.p2,
+                    segment.rx,
+                    segment.ry,
+                    segment.x_axis_rotation,
+                    segment.arc_flag,
+                    segment.seep_flag,
+                )
             return path_action
 
         def _make_path_from_segments(arc_layout) -> momapy.drawing.Path:
