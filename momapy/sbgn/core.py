@@ -60,60 +60,12 @@ class _SBGNShapeBase(momapy.core.NodeLayout):
         group = momapy.drawing.Group(elements=drawing_elements)
         return group
 
-    def self_bbox(self):
-        bboxes = []
-        for base in type(self).__bases__:
-            if (
-                momapy.builder.issubclass_or_builder(base, _SBGNMixinBase)
-                and base is not _SBGNMixinBase
-                and base
-                is not momapy.builder.get_or_make_builder_cls(_SBGNMixinBase)
-            ):
-                bboxes.append(getattr(base, "_mixin_bbox")(self))
-        position, width, height = momapy.positioning.fit(bboxes)
-        return momapy.geometry.Bbox(position, width, height)
-
-    def north_west(self):
-        return momapy.core.NodeLayout.north_west(self)
-
-    def north(self):
-        return momapy.core.NodeLayout.north(self)
-
-    def north_east(self):
-        return momapy.core.NodeLayout.north_east(self)
-
-    def east(self):
-        return momapy.core.NodeLayout.east(self)
-
-    def south_east(self):
-        return momapy.core.NodeLayout.south_east(self)
-
-    def south(self):
-        return momapy.core.NodeLayout.south(self)
-
-    def south_west(self):
-        return momapy.core.NodeLayout.south_west(self)
-
-    def west(self):
-        return momapy.core.NodeLayout.west(self)
-
-    def center(self):
-        return momapy.core.NodeLayout.center(self)
-
-    def label_center(self):
-        return momapy.core.NodeLayout.label_center(self)
-
 
 @dataclass(frozen=True)
 class _SBGNMixinBase(object):
     @classmethod
     @abstractmethod
     def _mixin_drawing_elements(cls, obj):
-        pass
-
-    @classmethod
-    @abstractmethod
-    def _mixin_bbox(cls, obj):
         pass
 
 
@@ -201,17 +153,6 @@ class _ConnectorsMixin(_SBGNMixinBase):
             )
         return [path_left, path_right]
 
-    @classmethod
-    def _mixin_bbox(cls, obj):
-        position = obj.position
-        if obj.direction == Direction.VERTICAL:
-            width = obj.width
-            height = obj.east().y - obj.west().y
-        else:
-            width = obj.east().x - obj.west().x
-            height = obj.height
-        return momapy.geometry.Bbox(position, width, height)
-
 
 @dataclass(frozen=True)
 class _SimpleMixin(_SBGNMixinBase):
@@ -234,10 +175,6 @@ class _SimpleMixin(_SBGNMixinBase):
     @classmethod
     def _mixin_drawing_elements(cls, obj):
         return obj._make_shape().drawing_elements()
-
-    @classmethod
-    def _mixin_bbox(cls, obj):
-        return momapy.geometry.Bbox(obj.position, obj.width, obj.height)
 
 
 @dataclass(frozen=True)
@@ -304,10 +241,6 @@ class _MultiMixin(_SBGNMixinBase):
             drawing_elements += subunit.drawing_elements()
         return drawing_elements
 
-    @classmethod
-    def _mixin_bbox(cls, obj):
-        return momapy.geometry.Bbox(obj.position, obj.width, obj.height)
-
     def label_center(self):
         return self._make_subunit(self._n - 1).label_center()
 
@@ -332,7 +265,3 @@ class _TextMixin(_SBGNMixinBase):
     @classmethod
     def _mixin_drawing_elements(cls, obj):
         return obj._make_text_layout().drawing_elements()
-
-    @classmethod
-    def _mixin_bbox(cls, obj):
-        return obj._make_text_layout().bbox()

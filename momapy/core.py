@@ -348,23 +348,6 @@ class NodeLayout(GroupLayout):
     def size(self):
         return (self.width, self.height)
 
-    @abstractmethod
-    def east(self) -> momapy.geometry.Point:
-        return self.self_angle(0)
-
-    @abstractmethod
-    def north_east(self) -> momapy.geometry.Point:
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 2, -self.height / 2)
-        )
-        angle = -momapy.geometry.get_angle_of_line(line)
-        return self.self_angle(angle, unit="radians")
-
-    @abstractmethod
-    def north(self) -> momapy.geometry.Point:
-        return self.self_angle(90)
-
-    @abstractmethod
     def north_west(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 2)
@@ -372,23 +355,19 @@ class NodeLayout(GroupLayout):
         angle = -momapy.geometry.get_angle_of_line(line)
         return self.self_angle(angle, unit="radians")
 
-    @abstractmethod
-    def west(self) -> momapy.geometry.Point:
-        return self.self_angle(180)
+    def north(self) -> momapy.geometry.Point:
+        return self.self_angle(90)
 
-    @abstractmethod
-    def south_west(self) -> momapy.geometry.Point:
+    def north_east(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
-            self.center(), self.center() + (-self.width / 2, self.height / 2)
+            self.center(), self.center() + (self.width / 2, -self.height / 2)
         )
         angle = -momapy.geometry.get_angle_of_line(line)
         return self.self_angle(angle, unit="radians")
 
-    @abstractmethod
-    def south(self) -> momapy.geometry.Point:
-        return self.self_angle(270)
+    def east(self) -> momapy.geometry.Point:
+        return self.self_angle(0)
 
-    @abstractmethod
     def south_east(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 2)
@@ -396,11 +375,22 @@ class NodeLayout(GroupLayout):
         angle = -momapy.geometry.get_angle_of_line(line)
         return self.self_angle(angle, unit="radians")
 
-    @abstractmethod
+    def south(self) -> momapy.geometry.Point:
+        return self.self_angle(270)
+
+    def south_west(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (-self.width / 2, self.height / 2)
+        )
+        angle = -momapy.geometry.get_angle_of_line(line)
+        return self.self_angle(angle, unit="radians")
+
+    def west(self) -> momapy.geometry.Point:
+        return self.self_angle(180)
+
     def center(self) -> momapy.geometry.Point:
         return self.position
 
-    @abstractmethod
     def label_center(self) -> momapy.geometry.Point:
         return self.position
 
