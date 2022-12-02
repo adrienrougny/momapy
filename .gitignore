@@ -8,6 +8,4 @@ __pycache__/
 Pipfile.lock
 Pipfile
 .idea/
-demo/*.svg
-demo/*.css
-demo/.ipynb_checkpoints/*
+momapy/demo/.ipynb_checkpoints/*
