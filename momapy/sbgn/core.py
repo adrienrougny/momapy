@@ -6,6 +6,15 @@ import momapy.core
 import momapy.geometry
 
 
+class Direction(Enum):
+    HORIZONTAL = 1
+    VERTICAL = 2
+    UP = 3
+    RIGHT = 4
+    DOWN = 5
+    LEFT = 6
+
+
 @dataclass(frozen=True)
 class Annotation(momapy.core.ModelElement):
     pass
@@ -114,24 +123,22 @@ class _ConnectorsMixin(_SBGNMixinBase):
     right_connector_length: Optional[float] = None
     left_connector_stroke_width: Optional[float] = None
     right_connector_stroke_width: Optional[float] = None
-    direction: Optional[
-        momapy.core.Direction
-    ] = momapy.core.Direction.HORIZONTAL
+    direction: Optional[Direction] = Direction.HORIZONTAL
 
     def base_left_connector(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(self.x, self.y - self.height / 2)
         else:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
 
     def base_right_connector(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(self.x, self.y + self.height / 2)
         else:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
 
     def west(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
         else:
             return momapy.geometry.Point(
@@ -139,7 +146,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
             )
 
     def south(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y + self.height / 2 + self.right_connector_length
             )
@@ -147,7 +154,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
             return momapy.geometry.Point(self.x, self.y + self.height / 2)
 
     def east(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
         else:
             return momapy.geometry.Point(
@@ -155,7 +162,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
             )
 
     def north(self):
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y - self.height / 2 - self.left_connector_length
             )
@@ -170,7 +177,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
         path_right = momapy.drawing.Path(
             stroke_width=obj.right_connector_stroke_width
         )
-        if obj.direction == momapy.core.Direction.VERTICAL:
+        if obj.direction == Direction.VERTICAL:
             path_left += momapy.drawing.move_to(
                 obj.base_left_connector()
             ) + momapy.drawing.line_to(
@@ -197,7 +204,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
     @classmethod
     def _mixin_bbox(cls, obj):
         position = obj.position
-        if obj.direction == momapy.core.Direction.VERTICAL:
+        if obj.direction == Direction.VERTICAL:
             width = obj.width
             height = obj.east().y - obj.west().y
         else:

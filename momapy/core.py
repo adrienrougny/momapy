@@ -23,15 +23,6 @@ import momapy.coloring
 import momapy.builder
 
 
-class Direction(Enum):
-    HORIZONTAL = 1
-    VERTICAL = 2
-    UP = 3
-    RIGHT = 4
-    DOWN = 5
-    LEFT = 6
-
-
 class HAlignment(Enum):
     LEFT = 1
     CENTER = 2
