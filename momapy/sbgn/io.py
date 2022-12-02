@@ -1186,7 +1186,7 @@ def _make_layout_element_from_arc(
     )
     libsbgn_points = [arc.get_start()] + arc.get_next() + [arc.get_end()]
     for i, libsbgn_current_point in enumerate(libsbgn_points[1:]):
-        libsbgn_previous_point = libsbgn_points[i - 1]
+        libsbgn_previous_point = libsbgn_points[i]
         current_point = momapy.geometry.PointBuilder(
             libsbgn_current_point.get_x(), libsbgn_current_point.get_y()
         )
