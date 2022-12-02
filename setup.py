@@ -13,6 +13,7 @@ setup(
         "momapy.celldesigner",
         "momapy.sbml",
         "momapy.rendering",
+        "momapy.demo",
     ],
     install_requires=[
         "libsbgnpy",
@@ -24,7 +25,8 @@ setup(
         "skia-python",
         "xsdata[cli, lxml, soap]",
         "bezier",
-        "shapely",
+        "shapely~=2.0rc1",
+        "ipykernel",
     ],
     package_data={"": ["*.css"]},
     include_package_data=True,
