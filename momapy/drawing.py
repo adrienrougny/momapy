@@ -380,7 +380,7 @@ class Path(DrawingElement):
                 current_point = None
         return replace(self, actions=tuple(actions))
 
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         current_point = momapy.geometry.Point(
             0, 0
         )  # in case the path does not start with a move_to command;
@@ -412,6 +412,8 @@ class Path(DrawingElement):
                 line_strings.append(line_string)
                 polygons = shapely.ops.polygonize(line_strings)
                 for polygon in polygons:
+                    if not to_polygons:
+                        polygon = polygon.boundary
                     geom_collection.append(polygon)
                 current_point = initial_point
             else:

@@ -8,6 +8,8 @@ import math
 import collections
 import copy
 
+import shapely
+
 import cairo
 import gi
 
@@ -411,21 +413,23 @@ class NodeLayout(GroupLayout):
     def label_center(self) -> momapy.geometry.Point:
         return self.position
 
-    def _border_from_drawing_elements(self, drawing_elements, point):
+    def _border_from_shapely(self, shapely_obj, point):
         line = momapy.geometry.Line(self.center(), point)
-        objects = []
-        for drawing_element in drawing_elements:
-            objects += drawing_element.to_geometry()
-        intersection = []
-        for obj in objects:
-            obj_intersection = obj.get_intersection_with_line(line)
-            if obj_intersection is not None:
-                intersection += obj_intersection
+        intersection = momapy.geometry.get_intersection_of_object_and_line(
+            shapely_obj, line
+        )
+        candidate_points = []
+        for intersection_obj in intersection:
+            if isinstance(intersection_obj, momapy.geometry.Segment):
+                candidate_points.append(intersection_obj.p1)
+                candidate_points.append(intersection_obj.p2)
+            elif isinstance(intersection_obj, momapy.geometry.Point):
+                candidate_points.append(intersection_obj)
         intersection_point = None
         max_d = -1
         ok_direction_exists = False
         d1 = momapy.geometry.get_distance_between_points(point, self.center())
-        for candidate_point in intersection:
+        for candidate_point in candidate_points:
             d2 = momapy.geometry.get_distance_between_points(
                 candidate_point, point
             )
@@ -443,14 +447,10 @@ class NodeLayout(GroupLayout):
         return intersection_point
 
     def self_border(self, point) -> momapy.geometry.Point:
-        return self._border_from_drawing_elements(
-            self.self_drawing_elements(), point
-        )
+        return self._border_from_shapely(self.self_to_shapely(), point)
 
     def border(self, point) -> momapy.geometry.Point:
-        return self._border_from_drawing_elements(
-            self.drawing_elements(), point
-        )
+        return self._border_from_shapely(self.to_shapely(), point)
 
     def _make_point_for_angle(self, angle, unit="degrees"):
         if unit == "degrees":
@@ -634,9 +634,16 @@ class ArcLayout(GroupLayout):
         return replace(self, points=points, layout_elements=layout_elements)
 
     def fraction(self, fraction):
-        import momapy.positioning
-
-        return momapy.positioning.fraction_of(self, fraction)
+        current_length = 0
+        length_to_reach = fraction * self.length()
+        for segment in self.segments:
+            current_length += segment.length()
+            if current_length >= length_to_reach:
+                break
+        position, angle = momapy.geometry.get_position_and_angle_at_fraction(
+            segment, fraction
+        )
+        return position, angle
 
 
 @dataclass(frozen=True)

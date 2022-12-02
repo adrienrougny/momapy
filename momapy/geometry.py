@@ -7,8 +7,7 @@ import numpy
 import decimal
 import copy
 
-import shapely.geometry
-import shapely.ops
+import shapely
 
 import momapy.builder
 
@@ -71,7 +70,7 @@ class Point(GeometryObject):
         return transform_point(self, transformation)
 
     def to_shapely(self):
-        return shapely.geometry.Point(self.x, self.y)
+        return shapely.Point(self.x, self.y)
 
     def to_fortranarray(self):
         return numpy.asfortranarray([[self.x], [self.y]])
@@ -80,7 +79,7 @@ class Point(GeometryObject):
         return Bbox(copy.deepcopy(self), 0, 0)
 
     @classmethod
-    def from_shapely(cls, point: shapely.geometry.Point):
+    def from_shapely(cls, point: shapely.Point):
         return cls(point.x, point.y)
 
     @classmethod
@@ -116,6 +115,9 @@ class Line(GeometryObject):
     def is_parallel_to_line(self, line):
         return are_lines_parallel(self, line)
 
+    def is_coincident_to_line(self, line):
+        return are_lines_coincident(self, line)
+
     def get_intersection_with_line(self, line):
         return get_intersection_of_object_and_line(self, line)
 
@@ -129,9 +131,7 @@ class Line(GeometryObject):
         return transform_line(self, transformation)
 
     def to_shapely(self):
-        return shapely.geometry.LineString(
-            self.p1.to_tuple(), self.p2.to_tuple()
-        )
+        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
 
 @dataclass(frozen=True)
@@ -178,18 +178,17 @@ class Segment(GeometryObject):
         return transform_segment(self, transformation)
 
     def to_shapely(self):
-        return shapely.geometry.LineString(
-            [self.p1.to_tuple(), self.p2.to_tuple()]
-        )
+        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     @classmethod
-    def from_shapely(cls, line_string: shapely.geometry.LineString):
-        boundary = line_string.boundary
+    def from_shapely(cls, line_string: shapely.LineString):
+        shapely_points = line_string.boundary.geoms
         return cls(
-            Point.from_shapely(boundary[0]), Point.from_shapely(boundary[1])
+            Point.from_shapely(shapely_points[0]),
+            Point.from_shapely(shapely_points[1]),
         )
 
 
@@ -251,7 +250,6 @@ class BezierCurve(GeometryObject):
             point - (5, 0), point + (5, 0)
         )._to_bezier()
         s = bezier_curve.intersect(horizontal_line)[0][0]
-        # s = bezier_curve.locate(point.to_fortranarray())
         shortened_bezier_curve = bezier_curve.specialize(0, s)
         return BezierCurve._from_bezier(shortened_bezier_curve)
 
@@ -262,9 +260,7 @@ class BezierCurve(GeometryObject):
         points = self.evaluate_multi(
             numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
         )
-        return shapely.geometry.LineString(
-            [point.to_tuple() for point in points]
-        )
+        return shapely.LineString([point.to_tuple() for point in points])
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
@@ -341,9 +337,7 @@ class EllipticalArc(GeometryObject):
         return get_position_and_angle_at_fraction(self, fraction)
 
     def to_shapely(self):
-        return shapely.geometry.LineString(
-            [self.p1.to_tuple(), self.p2.to_tuple()]
-        )
+        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
@@ -533,31 +527,20 @@ def get_intersection_of_object_and_line(
         GeometryObject,
         "momapy.core.LayoutElement",
         "momapy.drawing.DrawingElement",
+        shapely.Geometry,
     ],
     line: Line,
 ):
     if isinstance(obj, Line):
-        if line.slope() is None:
-            if obj.slope() is None:
-                if line.p1.x == obj.p2.x:
-                    return [line]
-                return []
-            else:
-                return [
-                    Point(line.p1.x, obj.slope() * line.p1.x + obj.intercept())
-                ]
+        if line.is_coincident_to_line(obj):
+            return [obj]
+        elif line.is_parallel_to_line(obj):
+            return []
+        elif line.slope() is None:
+            return [Point(line.p1.x, obj.slope() * line.p1.x + obj.intercept())]
+        elif obj.slope() is None:
+            return [Point(obj.p1.x, line.slope() * obj.p1.x + line.intercept())]
         else:
-            if obj.slope() is None:
-                return [
-                    Point(obj.p1.x, line.slope() * obj.p1.x + line.intercept())
-                ]
-            if (
-                line.slope() == obj.slope()
-                and line.intercept() == obj.intercept()
-            ):
-                return [line]
-            elif are_lines_parallel(line, obj):
-                return []
             d = (line.p1.x - line.p2.x) * (obj.p1.y - obj.p2.y) - (
                 line.p1.y - line.p2.y
             ) * (obj.p1.x - obj.p2.x)
@@ -574,17 +557,23 @@ def get_intersection_of_object_and_line(
                 * (obj.p1.x * obj.p2.y - obj.p1.y * obj.p2.x)
             ) / d
             return [Point(px, py)]
-    bbox = obj.bbox()
+        return []
+    if isinstance(obj, shapely.Geometry):
+        bbox = Bbox.from_bounds(obj.bounds)
+    else:
+        bbox = obj.bbox()
+        obj = obj.to_shapely()
     points = []
     anchors = ["north_west", "north_east", "south_east", "south_west"]
     line_string = None
+    intersection = []
     for i, current_anchor in enumerate(anchors):
         if i < len(anchors) - 1:
             next_anchor = anchors[i + 1]
         else:
             next_anchor = anchors[0]
         bbox_line = Line(
-            getattr(bbox, current_anchor), getattr(bbox, next_anchor)
+            getattr(bbox, current_anchor)(), getattr(bbox, next_anchor)()
         )
         bbox_line_intersection = line.get_intersection_with_line(bbox_line)
         if (
@@ -600,13 +589,17 @@ def get_intersection_of_object_and_line(
                 points.append(bbox_line_intersection)
     if line_string is None:
         points = sorted([point.to_tuple() for point in points])
-        line_string = shapely.geometry.LineString(points)
-    shapely_intersection = line_string.intersection(obj.to_shapely())
+        line_string = shapely.LineString(points)
+    shapely_intersection = line_string.intersection(obj)
     intersection = []
+    if not hasattr(shapely_intersection, "geoms"):
+        shapely_intersection = [shapely_intersection]
+    else:
+        shapely_intersection = shapely_intersection.geoms
     for shapely_obj in shapely_intersection:
-        if isinstance(shapely_obj, shapely.geometry.point):
+        if isinstance(shapely_obj, shapely.Point):
             intersection_obj = Point.from_shapely(shapely_obj)
-        elif isinstance(shapely_obj, shapely.geometry.LineString):
+        elif isinstance(shapely_obj, shapely.LineString):
             intersection_obj = Segment.from_shapely(shapely_obj)
         intersection.append(intersection_obj)
     return intersection
@@ -624,6 +617,16 @@ def get_angle_of_line(line):
 
 def are_lines_parallel(line1, line2):
     return line1.slope() == line2.slope()
+
+
+def are_lines_coincident(line1, line2):
+    return (
+        line1.slope() is None
+        and line2.slope() is None
+        and line1.p1.x == line2.p1.x
+        or line1.slope() == line2.slope()
+        and line1.intercept() == line2.intercept()
+    )
 
 
 # angle in radians
