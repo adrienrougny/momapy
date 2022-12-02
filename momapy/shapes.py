@@ -672,7 +672,7 @@ class InvertedHexagon(momapy.core.NodeLayout):
                 d * math.sin(bottom_right_angle),
             ),
         )
-        return momapy.geometry.get_intersection_of_lines(
+        return momapy.geometry.get_intersection_of_object_and_line(
             top_right_line, bottom_right_line
         )[0]
 
@@ -699,7 +699,7 @@ class InvertedHexagon(momapy.core.NodeLayout):
                 -d * math.sin(bottom_left_angle),
             ),
         )
-        return momapy.geometry.get_intersection_of_lines(
+        return momapy.geometry.get_intersection_of_object_and_line(
             top_left_line, bottom_left_line
         )[0]
 
