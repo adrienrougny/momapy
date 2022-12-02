@@ -126,7 +126,7 @@ class DrawingElement(ABC):
     filter: Optional[Filter] = None
 
     @abstractmethod
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         pass
 
     def bbox(self):
@@ -444,7 +444,7 @@ class Text(DrawingElement):
     def transformed(self):
         return copy.deepcopy(self)
 
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         return shapely.geometry.GeometryCollection([self.position.to_shapely()])
 
 
@@ -468,10 +468,10 @@ class Group(DrawingElement):
             elements.append(layout_element.transformed(transformation))
         return replace(self, elements=tuple(elements))
 
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         geom_collection = []
         for element in self.elements:
-            geom_collection += element.to_shapely().geoms
+            geom_collection += element.to_shapely(to_polygons=to_polygons).geoms
         return shapely.geometry.GeometryCollection(geom_collection)
 
 
@@ -509,10 +509,12 @@ class Ellipse(DrawingElement):
         path = self.to_path()
         return path.transformed(transformation)
 
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         point = self.point.to_shapely()
         circle = point.buffer(1)
         ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
+        if not to_polygons:
+            ellipse = ellipse.boundary
         return shapely.geometry.GeometryCollection([ellipse])
 
 
@@ -579,8 +581,8 @@ class Rectangle(DrawingElement):
         path = self.to_path()
         return path.transformed(transformation)
 
-    def to_shapely(self):
-        return self.to_path().to_shapely()
+    def to_shapely(self, to_polygons=False):
+        return self.to_path().to_shapely(to_polygons=to_polygons)
 
 
 def move_to(point):

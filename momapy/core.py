@@ -103,10 +103,12 @@ class LayoutElement(MapElement):
     def contains(self, other):
         return other in self.descendants()
 
-    def to_shapely(self):
+    def to_shapely(self, to_polygons=False):
         geom_collection = []
         for drawing_element in self.drawing_elements():
-            geom_collection += drawing_element.to_shapely().geoms
+            geom_collection += drawing_element.to_shapely(
+                to_polygons=to_polygons
+            ).geoms
         return shapely.GeometryCollection(geom_collection)
 
 
@@ -279,10 +281,12 @@ class GroupLayout(LayoutElement):
     transform: Optional[tuple[momapy.geometry.Transformation]] = None
     filter: Optional[momapy.drawing.Filter] = None
 
-    def self_to_shapely(self):
+    def self_to_shapely(self, to_polygons=False):
         geom_collection = []
         for drawing_element in self.self_drawing_elements():
-            geom_collection += drawing_element.to_shapely().geoms
+            geom_collection += drawing_element.to_shapely(
+                to_polygons=to_polygons
+            ).geoms
         return shapely.GeometryCollection(geom_collection)
 
     def self_bbox(self) -> momapy.geometry.Bbox:
