@@ -244,15 +244,7 @@ def fraction_of(
     ],
     fraction: float,
 ):
-    current_length = 0
-    length_to_reach = fraction * arc_layout_element.length()
-    for segment in arc_layout_element.segments():
-        current_length += segment.length()
-        if current_length >= length_to_reach:
-            break
-    position, angle = momapy.geometry.get_position_and_angle_at_fraction(
-        segment, fraction
-    )
+    position, angle = arc_layout_element.fraction(fraction)
     transform = tuple([momapy.geometry.Rotation(angle, position)])
     return position, transform
 
