@@ -482,7 +482,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
     stroke_width: float = 1
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     angle: float = 50.0
-    direction: momapy.sbgn.core.Direction = momapy.sbgn.core.Direction.RIGHT
+    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
 
 @dataclasses.dataclass(frozen=True)
@@ -728,9 +728,7 @@ class _LogicalOperatorLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     left_connector_length: float = 10.0
     right_connector_length: float = 10.0
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
@@ -768,9 +766,7 @@ class GenericProcessLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     left_connector_length: float = 10
     right_connector_length: float = 10
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
@@ -789,9 +785,7 @@ class OmittedProcessLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     left_connector_length: float = 10
     right_connector_length: float = 10
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     _text: typing.ClassVar[str] = "\\\\"
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_size_func: typing.ClassVar[typing.Callable] = (
@@ -818,9 +812,7 @@ class UncertainProcessLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     left_connector_length: float = 10
     right_connector_length: float = 10
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     _text: typing.ClassVar[str] = "?"
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_size_func: typing.ClassVar[typing.Callable] = (
@@ -846,9 +838,7 @@ class AssociationLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.black
     left_connector_length: float = 10
     right_connector_length: float = 10
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
 
 
 @dataclasses.dataclass(frozen=True)
@@ -866,9 +856,7 @@ class DissociationLayout(
     fill: momapy.coloring.Color = momapy.coloring.colors.white
     left_connector_length: float = 10
     right_connector_length: float = 10
-    direction: momapy.sbgn.core.Direction = (
-        momapy.sbgn.core.Direction.HORIZONTAL
-    )
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     sep: float = 3.5
 
 
