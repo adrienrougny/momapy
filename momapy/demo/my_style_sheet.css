@@ -5,6 +5,6 @@
     }
     
     StateVariableLayout > TextLayout {
-        font_color: green;
+        font_size: 20.0;
     }
     

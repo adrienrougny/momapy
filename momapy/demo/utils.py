@@ -49,6 +49,16 @@ def show_room(cls, type_="anchor"):
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
+    if m.width is None:
+        m.width = 50
+    if m.height is None:
+        m.height = 50
+    if m.fill is None:
+        m.fill = momapy.coloring.colors.white
+    if m.stroke is None:
+        m.stroke = momapy.coloring.colors.black
+    if m.stroke_width is None:
+        m.stroke_width = 1.0
     m.position = POSITION
     m.width = m.width * SCALE
     m.height = m.height * SCALE
