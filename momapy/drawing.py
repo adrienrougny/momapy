@@ -187,10 +187,11 @@ class LineTo(PathAction):
             momapy.geometry.transform_point(self.point, transformation)
         )
 
+    def to_geometry(self, current_point):
+        return momapy.geometry.Segment(current_point, self.point)
+
     def to_shapely(self, current_point):
-        return shapely.geometry.LineString(
-            [current_point.to_tuple(), self.point.to_tuple()]
-        )
+        return self.to_geometry(current_point).to_shapely()
 
 
 @dataclass(frozen=True)
@@ -246,10 +247,20 @@ class EllipticalArc(PathAction):
             self.sweep_flag,
         )
 
-    def to_shapely(self, current_point):
-        return shapely.geometry.LineString(
-            [current_point.to_tuple(), self.point.to_tuple()]
+    def to_geometry(self, current_point):
+        return momapy.geometry.EllipticalArc(
+            current_point,
+            self.point,
+            self.rx,
+            self.ry,
+            self.x_axis_rotation,
+            self.arc_flag,
+            self.sweep_flag,
         )
+
+    def to_shapely(self, current_point):
+        s = self.to_geometry(current_point).to_shapely()
+        return self.to_geometry(current_point).to_shapely()
 
 
 @dataclass(frozen=True)
@@ -273,7 +284,7 @@ class CurveTo(PathAction):
             momapy.geometry.transform_point(self.control_point2),
         )
 
-    def to_bezier(self, current_point):
+    def to_geometry(self, current_point):
         return momapy.geometry.BezierCurve(
             current_point,
             self.point,
@@ -281,13 +292,8 @@ class CurveTo(PathAction):
         )
 
     def to_shapely(self, current_point, n_segs=50):
-        bezier_curve = self.to_bezier(current_point)
-        points = bezier_curve.evaluate_multi(
-            numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
-        )
-        return shapely.geometry.LineString(
-            [point.to_tuple() for point in points]
-        )
+        bezier_curve = self.to_geometry(current_point)
+        return bezier_curve.to_shapely()
 
 
 @dataclass(frozen=True)
@@ -316,7 +322,7 @@ class QuadraticCurveTo(PathAction):
         control_point2 = p2 + (self.control_point - p2) * (2 / 3)
         return CurveTo(p2, control_point1, control_point2)
 
-    def to_bezier(self, current_point):
+    def to_geometry(self, current_point):
         return momapy.geometry.BezierCurve(
             current_point,
             self.point,
@@ -324,13 +330,8 @@ class QuadraticCurveTo(PathAction):
         )
 
     def to_shapely(self, current_point, n_segs=50):
-        bezier_curve = self.to_bezier(current_point)
-        points = bezier_curve.evaluate_multi(
-            numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
-        )
-        return shapely.geometry.LineString(
-            [point.to_tuple() for point in points]
-        )
+        bezier_curve = self.to_geometry(current_point)
+        return bezier_curve.to_shapely()
 
 
 @dataclass(frozen=True)
@@ -406,10 +407,11 @@ class Path(DrawingElement):
                     geom_collection.append(line_string)
                 line_strings = []
             elif isinstance(current_action, Close):
-                line_string = shapely.geometry.LineString(
-                    [current_point.to_tuple(), initial_point.to_tuple()]
-                )
-                line_strings.append(line_string)
+                if current_point != initial_point:
+                    line_string = shapely.geometry.LineString(
+                        [current_point.to_tuple(), initial_point.to_tuple()]
+                    )
+                    line_strings.append(line_string)
                 polygons = shapely.ops.polygonize(line_strings)
                 for polygon in polygons:
                     if not to_polygons:
@@ -417,7 +419,8 @@ class Path(DrawingElement):
                     geom_collection.append(polygon)
                 current_point = initial_point
             else:
-                line_strings.append(current_action.to_shapely(current_point))
+                line_string = current_action.to_shapely(current_point)
+                line_strings.append(line_string)
                 current_point = current_action.point
         if not isinstance(current_action, (MoveTo, Close)):
             multi_linestring = shapely.geometry.MultiLineString(line_strings)

@@ -144,15 +144,11 @@ class Segment(GeometryObject):
             (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
         )
 
-    def has_point(self, point):
-        d1 = get_distance_between_points(self.p1, point)
-        d2 = get_distance_between_points(self.p2, point)
-        line = Line(self.p1, self.p2)
-        return (
-            d1 <= self.length()
-            and d2 <= self.length()
-            and line.has_point(point)
-        )
+    def contains(self, point, max_distance=0.01):
+        distance = self.to_shapely().distance(point.to_shapely())
+        if distance <= max_distance:
+            return True
+        return False
 
     def get_angle(self):
         return get_angle_of_line(self)
@@ -327,6 +323,36 @@ class EllipticalArc(GeometryObject):
         arc = Arc(Point(0, 0), 1, theta1, theta2)
         return arc, transformation
 
+    def center(self):
+        x1, y1 = self.p1.x, self.p1.y
+        sigma = self.x_axis_rotation
+        x2, y2 = self.p2.x, self.p2.y
+        rx = self.rx
+        ry = self.ry
+        fa = self.arc_flag
+        fs = self.sweep_flag
+        x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * (
+            (y1 - y2) / 2
+        )
+        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
+            (y1 - y2) / 2
+        )
+        l = x1p**2 / rx**2 + y1p**2 / ry**2
+        if l > 1:
+            rx = math.sqrt(l) * rx
+            ry = math.sqrt(l) * ry
+        r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
+        if r < 0:  # dure to imprecision? to fix later
+            r = 0
+        a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
+        if fa == fs:
+            a = -a
+        cxp = a * rx * y1p / ry
+        cyp = -a * ry * x1p / rx
+        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
+        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
+        return Point(cx, cy)
+
     def get_position_at_fraction(self, fraction):
         return get_position_at_fraction(self, fraction)
 
@@ -337,7 +363,70 @@ class EllipticalArc(GeometryObject):
         return get_position_and_angle_at_fraction(self, fraction)
 
     def to_shapely(self):
-        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
+        def _split_line_string(
+            line_string: shapely.LineString,
+            point: Point,
+            max_distance: float = 0.01,
+        ):
+            left_coords = []
+            right_coords = []
+            passed = False
+            left_coords.append(line_string.coords[0])
+            for i, current_coord in enumerate(line_string.coords[1:]):
+                previous_coord = line_string.coords[i]
+                if not passed:
+                    previous_point = Point.from_tuple(previous_coord)
+                    current_point = Point.from_tuple(current_coord)
+                    segment = Segment(previous_point, current_point)
+                    if segment.contains(point, max_distance):
+                        left_coords.append(previous_coord)
+                        left_coords.append(point.to_tuple())
+                        right_coords.append(point.to_tuple())
+                        right_coords.append(current_coord)
+                        passed = True
+                    else:
+                        left_coords.append(current_coord)
+                else:
+                    right_coords.append(current_coord)
+            if right_coords:
+                return shapely.GeometryCollection(
+                    [
+                        shapely.LineString(left_coords),
+                        shapely.LineString(right_coords),
+                    ]
+                )
+            else:
+                return line_string
+
+        origin = shapely.Point(0, 0)
+        circle = origin.buffer(1.0).boundary
+        ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
+        ellipse = shapely.affinity.rotate(ellipse, self.x_axis_rotation)
+        center = self.center()
+        ellipse = shapely.affinity.translate(ellipse, center.x, center.y)
+        if self.p1 != Point.from_tuple(ellipse.coords[0]):
+            first_point = self.p1
+            second_point = self.p2
+        else:
+            first_point = self.p2
+            second_point = self.p1
+        first_split = _split_line_string(ellipse, first_point)
+        if second_point == Point.from_tuple(first_split.geoms[0].coords[0]):
+            arcs = first_split
+        else:
+            multi_line = shapely.MultiLineString(
+                [first_split.geoms[1], first_split.geoms[0]]
+            )
+            line_string = shapely.ops.linemerge(multi_line)
+            arcs = _split_line_string(line_string, second_point)
+        arcs = sorted(list(arcs.geoms), key=lambda arc: arc.length)
+        if arcs[0].length == arcs[1].length:
+            print(arcs[0], arcs[1])
+            print(self.p1, Point.from_tuple(arcs[0].coords[0]))
+            if self.p1 == Point.from_tuple(arcs[0].coords[0]):
+                return arcs[0]
+            return arcs[1]
+        return arcs[self.arc_flag]
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
