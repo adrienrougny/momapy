@@ -340,7 +340,7 @@ CardinalityLayout > TextLayout {
 
 ConsumptionLayout {
     stroke: black;
-    stroke_width: 1.5;
+    stroke_width: 1.25;
     fill: none;
     shorten: 0.0;
     filter: none;
@@ -348,14 +348,14 @@ ConsumptionLayout {
 
 ProductionLayout {
     stroke: black;
-    stroke_width: 1.5;
+    stroke_width: 1.25;
     fill: none;
     arrowhead_stroke: black;
-    arrowhead_stroke_width: 1.5;
+    arrowhead_stroke_width: 1.25;
     arrowhead_fill: black;
     shorten: 1.0;
-    width: 15.0;
-    height: 15.0;
+    width: 10.0;
+    height: 10.0;
     filter: none;
 }
 
@@ -387,14 +387,14 @@ StimulationLayout {
 
 CatalysisLayout {
     stroke: black;
-    stroke_width: 1.5;
+    stroke_width: 1.25;
     fill: none;
     arrowhead_stroke: black;
-    arrowhead_stroke_width: 1.5;
+    arrowhead_stroke_width: 1.25;
     arrowhead_fill: white;
-    shorten: 4.0;
-    width: 13.0;
-    height: 13.0;
+    shorten: 1.0;
+    width: 12.0;
+    height: 12.0;
     filter: none;
 }
 
