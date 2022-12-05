@@ -419,11 +419,12 @@ class EllipticalArc(GeometryObject):
             )
             line_string = shapely.ops.linemerge(multi_line)
             arcs = _split_line_string(line_string, second_point)
-        arcs = sorted(list(arcs.geoms), key=lambda arc: arc.length)
+        arcs = list(arcs.geoms)
         if arcs[0].length == arcs[1].length:
-            if self.p1 == Point.from_tuple(arcs[0].coords[0]):
-                return arcs[0]
-            return arcs[1]
+            if first_point == self.p1:
+                return arcs[self.sweep_flag]
+            return arcs[abs(self.sweep_flag - 1)]
+        arcs.sort(key=lambda arc: arc.length)
         return arcs[self.arc_flag]
 
     def bbox(self):
