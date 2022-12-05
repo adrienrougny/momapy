@@ -198,30 +198,14 @@ class Stadium(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.elliptical_arc(
-                self.joint3(),
-                self.height / 2,
-                self.height / 2,
-                0,
-                1,
-                1,
-            )
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.elliptical_arc(
-                self.joint1(),
-                self.height / 2,
-                self.height / 2,
-                0,
-                1,
-                1,
-            )
-            + momapy.drawing.close()
+        rectangle = momapy.drawing.Rectangle(
+            point=self.position - (self.width / 2, self.height / 2),
+            height=self.height,
+            width=self.width,
+            rx=self.height / 2,
+            ry=self.height / 2,
         )
-        return path
+        return rectangle
 
 
 @dataclass(frozen=True)
