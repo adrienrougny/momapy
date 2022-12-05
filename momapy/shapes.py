@@ -207,7 +207,7 @@ class Stadium(momapy.core.NodeLayout):
                 self.height / 2,
                 self.height / 2,
                 0,
-                0,
+                1,
                 1,
             )
             + momapy.drawing.line_to(self.joint4())
@@ -216,7 +216,7 @@ class Stadium(momapy.core.NodeLayout):
                 self.height / 2,
                 self.height / 2,
                 0,
-                0,
+                1,
                 1,
             )
             + momapy.drawing.close()
