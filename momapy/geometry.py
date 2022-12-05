@@ -624,7 +624,8 @@ def are_lines_coincident(line1, line2):
         line1.slope() is None
         and line2.slope() is None
         and line1.p1.x == line2.p1.x
-        or line1.slope() == line2.slope()
+        or line1.slope() is not None
+        and line1.slope() == line2.slope()
         and line1.intercept() == line2.intercept()
     )
 
