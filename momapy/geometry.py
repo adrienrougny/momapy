@@ -421,8 +421,6 @@ class EllipticalArc(GeometryObject):
             arcs = _split_line_string(line_string, second_point)
         arcs = sorted(list(arcs.geoms), key=lambda arc: arc.length)
         if arcs[0].length == arcs[1].length:
-            print(arcs[0], arcs[1])
-            print(self.p1, Point.from_tuple(arcs[0].coords[0]))
             if self.p1 == Point.from_tuple(arcs[0].coords[0]):
                 return arcs[0]
             return arcs[1]
