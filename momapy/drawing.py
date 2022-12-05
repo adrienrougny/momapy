@@ -106,6 +106,10 @@ class Filter(object):
     )
     filter_units: str = "objectBoundingBox"
     effects: tuple[FilterEffect] = field(default_factory=tuple)
+    width: Union[float, str] = "120%"
+    height: Union[float, str] = "120%"
+    x: Union[float, str] = "-10%"
+    y: Union[float, str] = "-10%"
 
     def to_compat(self):
         effects = []
@@ -137,6 +141,37 @@ class DrawingElement(ABC):
             ),
             bounds[2] - bounds[0],
             bounds[3] - bounds[1],
+        )
+
+    def get_filter_region(self):
+        if self.filter is None or self.filter is NoneValue:
+            return None
+        bbox = self.bbox()
+        north_west = bbox.north_west()
+        if isinstance(self.filter.x, float):
+            x = self.filter.x
+        else:
+            x = (
+                north_west.x
+                + north_west.x * float(self.filter.x.rstrip("%")) / 100
+            )
+        if isinstance(self.filter.y, float):
+            y = self.filter.y
+        else:
+            y = (
+                north_west.y
+                + north_west.y * float(self.filter.y.rstrip("%")) / 100
+            )
+        if isinstance(self.filter.width, float):
+            width = self.filter.width
+        else:
+            width = bbox.width * float(self.filter.width.rstrip("%")) / 100
+        if isinstance(self.filter.height, float):
+            height = self.filter.height
+        else:
+            height = bbox.height * float(self.filter.height.rstrip("%")) / 100
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(bbox.x, bbox.y), width, height
         )
 
 
@@ -412,11 +447,14 @@ class Path(DrawingElement):
                         [current_point.to_tuple(), initial_point.to_tuple()]
                     )
                     line_strings.append(line_string)
-                polygons = shapely.ops.polygonize(line_strings)
-                for polygon in polygons:
-                    if not to_polygons:
-                        polygon = polygon.boundary
-                    geom_collection.append(polygon)
+                if not to_polygons:
+                    multi_line = shapely.MultiLineString(line_strings)
+                    line_string = shapely.ops.linemerge(multi_line)
+                    geom_collection.append(line_string)
+                else:
+                    polygons = shapely.ops.polygonize(line_strings)
+                    for polygon in polygons:
+                        geom_collection.append(polygon)
                 current_point = initial_point
             else:
                 line_string = current_action.to_shapely(current_point)
