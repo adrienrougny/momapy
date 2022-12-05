@@ -202,13 +202,6 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
     #     skia_paint = skia.Paint(ImageFilter=skia_filter)
     #     return skia_paint
 
-    def _render_path_action(self, path_action):
-        class_ = type(path_action)
-        if issubclass(class_, momapy.builder.Builder):
-            class_ = class_._cls_to_build
-        pa_func = getattr(self, self._pa_class_func_mapping[class_])
-        pa_func(path_action)
-
     def _add_transform_from_drawing_element(self, drawing_element):
         if drawing_element.transform is not None:
             for transformation in drawing_element.transform:
