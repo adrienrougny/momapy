@@ -33,6 +33,10 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         momapy.geometry.Scaling: "_add_scaling",
         momapy.geometry.MatrixTransformation: "_add_matrix_transformation",
     }
+    _fe_class_func_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.DropShadowEffect: "_make_drop_shadow_effect",
+    }
+
     canvas: skia.Canvas
     config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
@@ -173,34 +177,34 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         )
         return skia_paint
 
-    # def _make_filter_paints_from_filter(self, filter_):
-    #     skia_paints = []
-    #     for filter_effect in filter_.effects:
-    #         render_function = self._get_filter_effect_render_function(
-    #             filter_effect
-    #         )
-    #         skia_paint = render_function(filter_effect)
-    #         skia_paints.append(skia_paint)
-    #     return skia_paints
-    #
-    # def _get_filter_effect_render_function(self, filter_effect):
-    #     if momapy.builder.isinstance_or_builder(
-    #         filter_effect, momapy.drawing.DropShadowEffect
-    #     ):
-    #         return self._render_drop_shadow_effect
-    #
-    # def _render_drop_shadow_effect(self, filter_effect):
-    #     skia_filter = skia.ImageFilters.DropShadow(
-    #         dx=filter_effect.dx,
-    #         dy=filter_effect.dy,
-    #         sigmaX=filter_effect.std_deviation,
-    #         sigmaY=filter_effect.std_deviation,
-    #         color=skia.Color4f(
-    #             filter_effect.flood_color.to_rgba(rgba_range=(0, 1))
-    #         ),
-    #     )
-    #     skia_paint = skia.Paint(ImageFilter=skia_filter)
-    #     return skia_paint
+    def _make_filter_paint(self, filter_, filter_region):
+        for filter_effect in filter_.effects:
+            class_ = type(filter_effect)
+            if issubclass(class_, momapy.builder.Builder):
+                class_ = class_._cls_to_build
+            fe_func = getattr(self, self._fe_class_func_mapping[class_])
+            skia_filter = fe_func(filter_effect, filter_region)
+        skia_paint = skia.Paint(ImageFilter=skia_filter)
+        return skia_paint
+
+    def _make_drop_shadow_effect(self, filter_effect, filter_region):
+        skia_filter = skia.ImageFilters.DropShadow(
+            dx=filter_effect.dx,
+            dy=filter_effect.dy,
+            sigmaX=filter_effect.std_deviation,
+            sigmaY=filter_effect.std_deviation,
+            color=skia.Color4f(
+                *filter_effect.flood_color.to_rgb(rgb_range=(0, 1)),
+                filter_effect.flood_opacity,
+            ),
+            cropRect=skia.IRect.MakeXYWH(
+                round(filter_region.north_west().x),
+                round(filter_region.north_west().y),
+                round(filter_region.width),
+                round(filter_region.height),
+            ),
+        )
+        return skia_filter
 
     def _add_transform_from_drawing_element(self, drawing_element):
         if drawing_element.transform is not None:
@@ -211,31 +215,35 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         class_ = type(transformation)
         if issubclass(class_, momapy.builder.Builder):
             class_ = class_._cls_to_build
-        tr_func = getattr(
-            self, self._tr_class_func_mapping[type(transformation)]
-        )
+        tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
     def _render_group(self, group):
-        for drawing_element in group.elements:
-            self.render_drawing_element(drawing_element)
-        # savedcanvas = self.canvas
-        # recorder = skia.PictureRecorder()
-        # canvas = recorder.beginRecording(skia.Rect(self.width, self.height))
-        # self.canvas = canvas
-        # for drawing_element in group.elements:
-        #     self.render_drawing_element(drawing_element)
-        # picture = recorder.finishRecordingAsPicture()
-        # if (
-        #     group.filter is not None
-        #     and group.filter != momapy.drawing.NoneValue
-        # ):
-        #     skia_paints = self._make_filter_paints_from_filter(group.filter)
-        # else:
-        #     skia_paints = [None]
-        # self.canvas = savedcanvas
-        # for skia_paint in skia_paints:
-        #     self.canvas.drawPicture(picture, paint=skia_paint)
+        filter_ = group.filter
+        if filter_ is not None and filter_ is not momapy.drawing.NoneValue:
+            bbox = group.bbox()
+            saved_canvas = self.canvas
+            recorder = skia.PictureRecorder()
+            canvas = recorder.beginRecording(
+                skia.Rect.MakeXYWH(
+                    bbox.north_west().x,
+                    bbox.north_west().y,
+                    bbox.width,
+                    bbox.height,
+                )
+            )
+            self.canvas = canvas
+            for drawing_element in group.elements:
+                self.render_drawing_element(drawing_element)
+            picture = recorder.finishRecordingAsPicture()
+            skia_paint = self._make_filter_paint(
+                group.filter, group.get_filter_region()
+            )
+            self.canvas = saved_canvas
+            self.canvas.drawPicture(picture, paint=skia_paint)
+        else:
+            for drawing_element in group.elements:
+                self.render_drawing_element(drawing_element)
 
     def _add_path_action_to_skia_path(self, skia_path, path_action):
         class_ = type(path_action)
