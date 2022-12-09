@@ -4,6 +4,7 @@ from typing import Union, Optional
 from uuid import UUID, uuid4
 import math
 import copy
+from enum import Enum
 
 import numpy
 
@@ -99,12 +100,17 @@ class OffsetEffect(FilterEffect):
     dy: float = 0
 
 
+class FilterUnits(Enum):
+    USER_SPACE_ON_USE = 1
+    OBJECT_BOUNDING_BOX = 2
+
+
 @dataclass(frozen=True)
 class Filter(object):
     id: Union[str, UUID] = field(
         hash=False, compare=False, default_factory=uuid4
     )
-    filter_units: str = "objectBoundingBox"
+    filter_units: FilterUnits = FilterUnits.OBJECT_BOUNDING_BOX
     effects: tuple[FilterEffect] = field(default_factory=tuple)
     width: Union[float, str] = "120%"
     height: Union[float, str] = "120%"
@@ -146,33 +152,52 @@ class DrawingElement(ABC):
     def get_filter_region(self):
         if self.filter is None or self.filter is NoneValue:
             return None
-        bbox = self.bbox()
-        north_west = bbox.north_west()
-        if isinstance(self.filter.x, float):
-            x = self.filter.x
-        else:
-            x = (
-                north_west.x
-                + north_west.x * float(self.filter.x.rstrip("%")) / 100
+        if (
+            self.filter.filter_units == FilterUnits.OBJECT_BOUNDING_BOX
+        ):  # only percentages or fraction values
+            bbox = self.bbox()
+            north_west = bbox.north_west()
+            if isinstance(self.filter.x, float):
+                sx = self.filter.x
+            else:
+                sx = float(self.filter.x.rstrip("%")) / 100
+            px = north_west.x + bbox.width * sx
+            if isinstance(self.filter.y, float):
+                sy = self.filter.y
+            else:
+                sy = float(self.filter.y.rstrip("%")) / 100
+            py = north_west.y + bbox.height * sy
+            if isinstance(self.filter.width, float):
+                swidth = self.filter.width
+            else:
+                swidth = float(self.filter.width.rstrip("%")) / 100
+            width = bbox.width * swidth
+            if isinstance(self.filter.height, float):
+                sheight = self.filter.height
+            else:
+                sheight = float(self.filter.height.rstrip("%")) / 100
+            height = bbox.height * sheight
+            filter_region = momapy.geometry.Bbox(
+                momapy.geometry.Point(px + width / 2, py + height / 2),
+                width,
+                height,
             )
-        if isinstance(self.filter.y, float):
-            y = self.filter.y
-        else:
-            y = (
-                north_west.y
-                + north_west.y * float(self.filter.y.rstrip("%")) / 100
+        else:  # only absolute values
+            filter_regions = momapy.geometry.Bbox(
+                momapy.geometry.Point(
+                    self.filter.x + self.filter.width / 2,
+                    self.filter.y + self.filter.height / 2,
+                ),
+                self.filter.width,
+                self.filter.height,
             )
-        if isinstance(self.filter.width, float):
-            width = self.filter.width
-        else:
-            width = bbox.width * float(self.filter.width.rstrip("%")) / 100
-        if isinstance(self.filter.height, float):
-            height = self.filter.height
-        else:
-            height = bbox.height * float(self.filter.height.rstrip("%")) / 100
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(bbox.x, bbox.y), width, height
+        print(
+            bbox.north_west(),
+            bbox.south_east(),
+            filter_region.north_west(),
+            filter_region.south_east(),
         )
+        return filter_region
 
 
 @dataclass(frozen=True)
