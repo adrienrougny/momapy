@@ -193,12 +193,6 @@ class DrawingElement(ABC):
                 self.filter.width,
                 self.filter.height,
             )
-        print(
-            bbox.north_west(),
-            bbox.south_east(),
-            filter_region.north_west(),
-            filter_region.south_east(),
-        )
         return filter_region
 
 
