@@ -26,6 +26,8 @@ class Arrow(momapy.core.ArcLayout):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
         )
         path += (
@@ -58,6 +60,8 @@ class Circle(momapy.core.ArcLayout):
         ellipse = momapy.drawing.Ellipse(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
             point=self.arrowhead_base() + (self.width / 2, 0),
             rx=self.width / 2,
@@ -82,6 +86,8 @@ class Bar(momapy.core.ArcLayout):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
         )
         path += momapy.drawing.move_to(
@@ -143,6 +149,8 @@ class BarArrow(momapy.core.ArcLayout):
         group = momapy.drawing.Group(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
             elements=elements,
         )
@@ -165,6 +173,8 @@ class Diamond(momapy.core.ArcLayout):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
         )
         path += (

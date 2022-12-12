@@ -132,6 +132,8 @@ class DrawingElement(ABC):
     stroke_width: Optional[float] = None
     stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
     fill: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
+    stroke_dasharray: Optional[tuple[float]] = None
+    stroke_dashoffset: Optional[float] = None
     transform: Optional[tuple[momapy.geometry.Transformation]] = None
     filter: Optional[Filter] = None
 

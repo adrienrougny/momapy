@@ -1,7 +1,7 @@
 from dataclasses import dataclass, InitVar
 from copy import deepcopy
 from abc import ABC, abstractmethod
-from typing import ClassVar, Optional, Collection
+from typing import ClassVar, Optional, Collection, Union
 import cairo
 import gi
 import skia
@@ -93,8 +93,12 @@ def render_maps(
 
 @dataclass
 class Renderer(ABC):
+    default_stroke: ClassVar[
+        Union[momapy.coloring.Color, momapy.drawing.NoneValueType]
+    ] = (momapy.drawing.NoneValue,)
     default_stroke_width: ClassVar[float] = 1.0
     default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.colors.black
+    default_stroke_dashoffset: ClassVar[float] = 0.0
 
     @abstractmethod
     def begin_session(self):

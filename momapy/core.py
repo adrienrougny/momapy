@@ -278,6 +278,8 @@ class GroupLayout(LayoutElement):
     stroke: Optional[momapy.coloring.Color] = None
     stroke_width: Optional[float] = None
     fill: Optional[momapy.coloring.Color] = None
+    stroke_dasharray: Optional[tuple[float]] = None
+    stroke_dashoffset: Optional[float] = None
     transform: Optional[tuple[momapy.geometry.Transformation]] = None
     filter: Optional[momapy.drawing.Filter] = None
 
@@ -309,6 +311,8 @@ class GroupLayout(LayoutElement):
             elements=drawing_elements,
             stroke=self.stroke,
             stroke_width=self.stroke_width,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_dashoffset=self.stroke_dashoffset,
             fill=self.fill,
             transform=self.transform,
             filter=self.filter,
@@ -488,6 +492,8 @@ class ArcLayout(GroupLayout):
     arrowhead_stroke: Optional[momapy.coloring.Color] = None
     arrowhead_stroke_width: Optional[float] = None
     arrowhead_fill: Optional[momapy.coloring.Color] = None
+    arrowhead_stroke_dasharray: Optional[tuple[float]] = None
+    arrowhead_stroke_dashoffset: Optional[float] = None
     shorten: float = 0
 
     def points(self) -> list[momapy.geometry.Point]:

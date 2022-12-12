@@ -72,6 +72,8 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         self._stroke = None
         self._fill = self.default_fill
         self._stroke_width = self.default_stroke_width
+        self._stroke_dasharray = None
+        self._stroke_dashoffset = self.default_stroke_dashoffset
 
     def end_session(self):
         self.canvas.flush()
@@ -123,6 +125,8 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             "stroke": self._stroke,
             "fill": self._fill,
             "stroke_width": self._stroke_width,
+            "stroke_dasharray": self._stroke_dasharray,
+            "stroke_dashoffset": self._stroke_dashoffset,
         }
         self._states.append(state)
         self.canvas.save()
@@ -155,16 +159,31 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             drawing_element.stroke_width is not None
         ):  # not sure, need to check svg spec
             state["stroke_width"] = drawing_element.stroke_width
+        if drawing_element.stroke_dasharray is momapy.drawing.NoneValue:
+            state["stroke_dasharray"] = None
+        elif drawing_element.stroke_dasharray is not None:
+            state["stroke_dasharray"] = drawing_element.stroke_dasharray
+        if drawing_element.stroke_dashoffset is momapy.drawing.NoneValue:
+            state["stroke_dashoffset"] = None
+        elif drawing_element.stroke_dashoffset is not None:
+            state["stroke_dashoffset"] = drawing_element.stroke_dashoffset
         return state
 
     def _set_new_path(self):
         pass
 
     def _make_stroke_paint(self):
+        if self._stroke_dasharray is not None:
+            skia_path_effect = skia.DashPathEffect.Make(
+                list(self._stroke_dasharray), self._stroke_dashoffset
+            )
+        else:
+            skia_path_effect = None
         skia_paint = skia.Paint(
             AntiAlias=True,
             Color4f=skia.Color4f(self._stroke.to_rgba(rgba_range=(0, 1))),
             StrokeWidth=self._stroke_width,
+            PathEffect=skia_path_effect,
             Style=skia.Paint.kStroke_Style,
         )
         return skia_paint
