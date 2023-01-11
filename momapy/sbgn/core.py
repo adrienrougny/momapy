@@ -247,7 +247,7 @@ class _TextMixin(_SBGNMixinBase):
 
     def _make_text_layout(self):
         text_layout = momapy.core.TextLayout(
-            position=self.position,
+            position=self.label_center(),
             text=self._text,
             font_family=self._font_family,
             font_size=self._font_size_func(),
