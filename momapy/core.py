@@ -709,15 +709,13 @@ class MapLayout(GroupLayout):
 
         if self.childless() != other.childless():
             return False
-        if not flattened:
-            return _is_sublist(
-                self.children(), other.children(), unordered=unordered
-            )
-        else:
+        if flattened:
             return _is_sublist(
                 self.flattened()[1:], other.flattened()[1:], unordered=unordered
             )
-        return False
+        return _is_sublist(
+            self.children(), other.children(), unordered=unordered
+        )
 
 
 @dataclass(frozen=True)
@@ -750,7 +748,13 @@ class PhantomLayout(LayoutElement):
 
 
 class ModelLayoutMapping(frozendict):
-    pass
+    def is_submapping(self, other):
+        for model_element in self:
+            if model_element not in other or not self[model_element].issubset(
+                other[model_element]
+            ):
+                return False
+        return True
 
 
 @dataclass(frozen=True)
@@ -762,8 +766,12 @@ class Map(MapElement):
     )
 
     def is_submap(self, other):
-        return self.model.is_submodel(other.model) and self.layout.is_sublayout(
-            other.layout
+        return (
+            self.model.is_submodel(other.model)
+            and self.layout.is_sublayout(other.layout)
+            and self.model_layout_mapping.is_submapping(
+                other.model_layout_mapping
+            )
         )
 
 
