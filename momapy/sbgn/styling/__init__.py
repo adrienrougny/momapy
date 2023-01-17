@@ -8,6 +8,9 @@ default = momapy.styling.read_file(
 default_colorscheme = momapy.styling.read_file(
     pathlib.Path(__file__).with_name("./default_colorscheme.css")
 )
+white_colorscheme = momapy.styling.read_file(
+    pathlib.Path(__file__).with_name("./white_colorscheme.css")
+)
 vanted = momapy.styling.read_file(
     pathlib.Path(__file__).with_name("./vanted.css")
 )
