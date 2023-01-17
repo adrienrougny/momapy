@@ -38,13 +38,26 @@ class TypeSelector(Selector):
     class_name: str = None
 
     def select(self, obj, ancestors):
-        obj_class = type(obj).__name__
-        if not self.class_name.endswith("Builder"):
-            return (
-                obj_class == self.class_name
-                or obj_class == f"{self.class_name}Builder"
-            )
-        return obj_class == self.class_name
+        obj_cls_name = type(obj).__name__
+        return (
+            obj_cls_name == self.class_name
+            or obj_cls_name == f"{self.class_name}Builder"
+        )
+
+
+@dataclasses.dataclass(frozen=True)
+class ClassSelector(Selector):
+    class_name: str = None
+
+    def select(self, obj, ancestors):
+        for cls in type(obj).__mro__:
+            cls_name = cls.__name__
+            if (
+                cls_name == self.class_name
+                or cls_name == f"{self.class_name}Builder"
+            ):
+                return True
+        return False
 
 
 @dataclasses.dataclass(frozen=True)
@@ -183,8 +196,12 @@ _css_style_collection = (
 )
 _css_id = pp.Word(pp.printables)
 _css_id_selector = pp.Literal("#") + _css_id
-_css_type_selector = pp.Word(pp.alphas + "_", pp.alphanums + "_")
-_css_elementary_selector = _css_type_selector | _css_id_selector
+_css_class_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
+_css_type_selector = _css_class_name
+_css_class_selector = pp.Literal(".") + _css_class_name
+_css_elementary_selector = (
+    _css_class_selector | _css_type_selector | _css_id_selector
+)
 _css_child_selector = (
     _css_elementary_selector + pp.Literal(">") + _css_elementary_selector
 )
@@ -293,9 +310,19 @@ def _resolve_id_selector(results):
     return IdSelector(results[1])
 
 
+@_css_class_name.set_parse_action
+def _resolve_css_class_name(results):
+    return results[0]
+
+
 @_css_type_selector.set_parse_action
 def _resolve_css_type_selector(results):
     return TypeSelector(results[0])
+
+
+@_css_class_selector.set_parse_action
+def _resolve_css_class_selector(results):
+    return ClassSelector(results[1])
 
 
 @_css_elementary_selector.set_parse_action
