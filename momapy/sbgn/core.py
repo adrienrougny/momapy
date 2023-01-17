@@ -117,10 +117,10 @@ class _ConnectorsMixin(_SBGNMixinBase):
     @classmethod
     def _mixin_drawing_elements(cls, obj):
         path_left = momapy.drawing.Path(
-            stroke_width=obj.left_connector_stroke_width
+            stroke_width=obj.left_connector_stroke_width,
         )
         path_right = momapy.drawing.Path(
-            stroke_width=obj.right_connector_stroke_width
+            stroke_width=obj.right_connector_stroke_width,
         )
         if obj.direction == momapy.core.Direction.VERTICAL:
             path_left += momapy.drawing.move_to(
