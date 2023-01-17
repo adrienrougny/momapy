@@ -42,25 +42,31 @@ class DropShadowEffect(FilterEffect):
 
     def to_compat(self):
         flood_effect = FloodEffect(
-            result="flood",
+            result=str(uuid4()),
             flood_opacity=self.flood_opacity,
             flood_color=self.flood_color,
         )
         composite_effect1 = CompositeEffect(
-            in_="flood", in2="SourceGraphic", operator="in", result="composite1"
+            in_=flood_effect.result,
+            in2=FilterEffectInput.SOURCE_GRAPHIC,
+            operator=CompositionOperator.IN,
+            result=str(uuid4()),
         )
         gaussian_blur_effect = GaussianBlurEffect(
-            in_="composite1",
+            in_=composite_effect1.result,
             std_deviation=self.std_deviation,
-            result="gaussian_blur",
+            result=str(uuid4()),
         )
         offset_effect = OffsetEffect(
-            in_="gaussian_blur", dx=self.dx, dy=self.dy, result="offset"
+            in_=gaussian_blur_effect.result,
+            dx=self.dx,
+            dy=self.dy,
+            result=str(uuid4()),
         )
         composite_effect2 = CompositeEffect(
-            in_="SourceGraphic",
-            in2="offset",
-            operator="over",
+            in_=FilterEffectInput.SOURCE_GRAPHIC,
+            in2=offset_effect.result,
+            operator=CompositionOperator.OVER,
             result=self.result,
         )
         effects = [
@@ -73,11 +79,30 @@ class DropShadowEffect(FilterEffect):
         return effects
 
 
+class FilterEffectInput(Enum):
+    SOURCE_GRAPHIC = "SourceGraphic"
+    SOURCE_ALPHA = "SourceAlpha"
+    BACKGROUND_IMAGE = "BackgroundImage"
+    BACKGROUND_ALPHA = "BackgroundAlpha"
+    FILL_PAINT = "FillPaint"
+    STROKE_PAINT = "StrokePaint"
+
+
+class CompositionOperator(Enum):
+    OVER = "over"
+    IN = "in"
+    OUT = "out"
+    ATOP = "atop"
+    XOR = "xor"
+    LIGHTER = "lighter"
+    ARTIHMETIC = "arithmetic"
+
+
 @dataclass(frozen=True)
 class CompositeEffect(FilterEffect):
-    in_: Optional[str] = None
-    in2: Optional[str] = None
-    operator: Optional[str] = None
+    in_: Optional[Union[FilterEffectInput, str]] = None
+    in2: Optional[Union[FilterEffectInput, str]] = None
+    operator: Optional[CompositionOperator] = CompositionOperator.OVER
 
 
 @dataclass(frozen=True)
@@ -86,16 +111,21 @@ class FloodEffect(FilterEffect):
     flood_color: momapy.coloring.Color = momapy.coloring.colors.black
 
 
+class EdgeMode(Enum):
+    DUPLICATE = "duplicate"
+    WRAP = "wrap"
+
+
 @dataclass(frozen=True)
 class GaussianBlurEffect(FilterEffect):
-    in_: Optional[str] = None
+    in_: Optional[Union[FilterEffectInput, str]] = None
     std_deviation: float = 0
-    edge_mode: Optional[str] = None
+    edge_mode: Optional[EdgeMode] = None
 
 
 @dataclass(frozen=True)
 class OffsetEffect(FilterEffect):
-    in_: Optional[str] = None
+    in_: Optional[Union[FilterEffectInput, str]] = None
     dx: float = 0
     dy: float = 0
 
@@ -124,7 +154,7 @@ class Filter(object):
                 effects += effect.to_compat()
             else:
                 effects.append(effect)
-        return replace(self, effects=effects)
+        return replace(self, effects=tuple(effects))
 
 
 @dataclass(frozen=True)
