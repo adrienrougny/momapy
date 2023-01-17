@@ -35,12 +35,29 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
     }
     _fe_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.DropShadowEffect: "_make_drop_shadow_effect",
+        momapy.drawing.CompositeEffect: "_make_composite_effect",
+        momapy.drawing.GaussianBlurEffect: "_make_gaussian_blur_effect",
+        momapy.drawing.OffsetEffect: "_make_offset_effect",
+        momapy.drawing.FloodEffect: "_make_flood_effect",
     }
-
+    _fe_composite_comp_op_blendmode_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.CompositionOperator.OVER: skia.BlendMode.kSrcOver,
+        momapy.drawing.CompositionOperator.IN: skia.BlendMode.kSrcIn,
+        momapy.drawing.CompositionOperator.OUT: skia.BlendMode.kSrcOut,
+        momapy.drawing.CompositionOperator.ATOP: skia.BlendMode.kSrcATop,
+        momapy.drawing.CompositionOperator.XOR: skia.BlendMode.kXor,
+        momapy.drawing.CompositionOperator.LIGHTER: skia.BlendMode.kLighten,
+        momapy.drawing.CompositionOperator.ARTIHMETIC: None,
+    }
+    _fe_gaussian_blur_edgemode_tilemode_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.EdgeMode.WRAP: skia.TileMode.kMirror,
+        momapy.drawing.EdgeMode.DUPLICATE: skia.TileMode.kClamp,
+        None: skia.TileMode.kDecal,
+    }
     canvas: skia.Canvas
-    config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
     _skia_fonts: dict = dataclasses.field(default_factory=dict)
+    config: dict = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
@@ -197,16 +214,45 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         return skia_paint
 
     def _make_filter_paint(self, filter_, filter_region):
+        dskia_filters = {}
+        filter_ = filter_.to_compat()
         for filter_effect in filter_.effects:
             class_ = type(filter_effect)
             if issubclass(class_, momapy.builder.Builder):
                 class_ = class_._cls_to_build
             fe_func = getattr(self, self._fe_class_func_mapping[class_])
-            skia_filter = fe_func(filter_effect, filter_region)
+            skia_filter = fe_func(filter_effect, filter_region, dskia_filters)
+            if filter_effect.result is not None:
+                dskia_filters[filter_effect.result] = skia_filter
         skia_paint = skia.Paint(ImageFilter=skia_filter)
         return skia_paint
 
-    def _make_drop_shadow_effect(self, filter_effect, filter_region):
+    def _make_crop_rect_from_filter_region(self, filter_region):
+        crop_rect = skia.IRect.MakeXYWH(
+            round(filter_region.north_west().x),
+            round(filter_region.north_west().y),
+            round(filter_region.width),
+            round(filter_region.height),
+        )
+        return crop_rect
+
+    def _make_input_filter_from_reference(
+        self, dskia_filters, filter_reference
+    ):
+        if isinstance(filter_reference, momapy.drawing.FilterEffectInput):
+            return None  # all SVG options default to source bitmap in skia
+        in_skia_filter = dskia_filters.get(filter_reference)
+        if in_skia_filter is None:  # if no reference or bad reference
+            if (
+                dskia_filters
+            ):  # we take the last filter effect primitive if it exists, otherwise remains None (source Bitmap)
+                in_skia_filter = dskia_filters[list(dskia_filters.keys())[-1]]
+        return in_skia_filter
+
+    def _make_drop_shadow_effect(
+        self, filter_effect, filter_region, dskia_filters
+    ):
+        crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         skia_filter = skia.ImageFilters.DropShadow(
             dx=filter_effect.dx,
             dy=filter_effect.dy,
@@ -216,12 +262,76 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                 *filter_effect.flood_color.to_rgb(rgb_range=(0, 1)),
                 filter_effect.flood_opacity,
             ),
-            cropRect=skia.IRect.MakeXYWH(
-                round(filter_region.north_west().x),
-                round(filter_region.north_west().y),
-                round(filter_region.width),
-                round(filter_region.height),
+            cropRect=crop_rect,
+        )
+        return skia_filter
+
+    def _make_composite_effect(
+        self, filter_effect, filter_region, dskia_filters
+    ):
+        crop_rect = self._make_crop_rect_from_filter_region(filter_region)
+        in_skia_filter = self._make_input_filter_from_reference(
+            dskia_filters, filter_effect.in_
+        )
+        in2_skia_filter = self._make_input_filter_from_reference(
+            dskia_filters, filter_effect.in2
+        )
+        blend_mode = self._fe_composite_comp_op_blendmode_mapping[
+            filter_effect.operator
+        ]  # TODO: arithmetic operator
+        skia_filter = skia.ImageFilters.Xfermode(
+            mode=blend_mode,
+            background=in2_skia_filter,
+            foreground=in_skia_filter,
+            cropRect=crop_rect,
+        )
+        return skia_filter
+
+    def _make_flood_effect(self, filter_effect, filter_region, dskia_filters):
+        crop_rect = self._make_crop_rect_from_filter_region(filter_region)
+        skia_paint = skia.Paint(
+            AntiAlias=True,
+            Color4f=skia.Color4f(
+                *filter_effect.flood_color.to_rgb(rgb_range=(0, 1)),
+                filter_effect.flood_opacity,
             ),
+            Style=skia.Paint.kFill_Style,
+        )
+        skia_filter = skia.ImageFilters.Paint(
+            paint=skia_paint,
+            cropRect=crop_rect,
+        )
+        return skia_filter
+
+    def _make_gaussian_blur_effect(
+        self, filter_effect, filter_region, dskia_filters
+    ):
+        crop_rect = self._make_crop_rect_from_filter_region(filter_region)
+        in_skia_filter = self._make_input_filter_from_reference(
+            dskia_filters, filter_effect.in_
+        )
+        tile_mode = self._fe_gaussian_blur_edgemode_tilemode_mapping[
+            filter_effect.edge_mode
+        ]
+        skia_filter = skia.ImageFilters.Blur(
+            sigmaX=filter_effect.std_deviation,
+            sigmaY=filter_effect.std_deviation,
+            tileMode=tile_mode,
+            input=in_skia_filter,
+            cropRect=crop_rect,
+        )
+        return skia_filter
+
+    def _make_offset_effect(self, filter_effect, filter_region, dskia_filters):
+        crop_rect = self._make_crop_rect_from_filter_region(filter_region)
+        in_skia_filter = self._make_input_filter_from_reference(
+            dskia_filters, filter_effect.in_
+        )
+        skia_filter = skia.ImageFilters.Offset(
+            dx=filter_effect.dx,
+            dy=filter_effect.dy,
+            input=in_skia_filter,
+            cropRect=crop_rect,
         )
         return skia_filter
 
