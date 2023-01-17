@@ -109,6 +109,7 @@ def read_file(filename):
         )
         builder.add_model_element(model_element)
         d_model_elements_ids[model_element.id] = model_element
+    return builder
 
 
 def _species_reference_to_model_element(
@@ -235,84 +236,3 @@ def _species_to_model_element(species, builder, d_model_elements_ids):
                 ] = child_model_element
 
     return model_element
-
-
-def _get_libsbgn_map_dimensions(libsbgn_map):
-    return _get_libsbgn_map_max_x_and_y(libsbgn_map)
-
-
-def _get_glyph_max_x_and_y(glyph):
-    max_x = glyph.get_bbox().get_x() + glyph.get_bbox().get_w()
-    max_y = glyph.get_bbox().get_y() + glyph.get_bbox().get_h()
-    for subglyph in glyph.get_glyph():
-        sub_max_x, sub_max_y = _get_glyph_max_x_and_y(subglyph)
-        if sub_max_x > max_x:
-            max_x = sub_max_x
-        if sub_max_y > max_y:
-            max_y = sub_max_y
-    return max_x, max_y
-
-
-def _get_arc_max_x_and_y(arc):
-    max_x = 0
-    max_y = 0
-    for p in [arc.get_start()] + arc.get_next() + [arc.get_end()]:
-        if p.get_x() > max_x:
-            max_x = p.get_x()
-        if p.get_y() > max_y:
-            max_y = p.get_y()
-    for glyph in arc.get_glyph():
-        glyph_max_x, glyph_max_y = _get_glyph_max_x_and_y(glyph)
-        if glyph_max_x > max_x:
-            max_x = glyph_max_x
-        if glyph_max_y > max_y:
-            max_y = glyph_max_y
-    return max_x, max_y
-
-
-def _get_arcgroup_max_x_and_y(arcgroup):
-    max_x = 0
-    max_y = 0
-    for glyph in arcgroup.get_glyph():
-        glyph_max_x, glyph_max_y = _get_glyph_max_x_and_y(glyph)
-        if glyph_max_x > max_x:
-            max_x = glyph_max_x
-        if glyph_max_y > max_y:
-            max_y = glyph_max_y
-    for arc in arcgroup.get_arc():
-        arc_max_x, arc_max_y = _get_arc_max_x_and_y(arc)
-        if arc_max_x > max_x:
-            max_x = arc_max_x
-        if arc_max_y > max_y:
-            max_y = arc_max_y
-    return max_x, max_y
-
-
-def _get_libsbgn_map_max_x_and_y(libsbgn_map):
-    max_x = 0
-    max_y = 0
-    for glyph in libsbgn_map.get_glyph():
-        glyph_max_x, glyph_max_y = _get_glyph_max_x_and_y(glyph)
-        if glyph_max_x > max_x:
-            max_x = glyph_max_x
-        if glyph_max_y > max_y:
-            max_y = glyph_max_y
-    for arc in libsbgn_map.get_arc():
-        arc_max_x, arc_max_y = _get_arc_max_x_and_y(arc)
-        if arc_max_x > max_x:
-            max_x = arc_max_x
-        if arc_max_y > max_y:
-            max_y = arc_max_y
-    for arcgroup in libsbgn_map.get_arcgroup():
-        arcgroup_max_x, arcgroup_max_y = _get_arcgroup_max_x_and_y(arcgroup)
-        if arcgroup_max_x > max_x:
-            max_x = arcgroup_max_x
-        if arcgroup_max_y > max_y:
-            max_y = arcgroup_max_y
-    return max_x, max_y
-
-
-def _get_position_from_libsbgn_bbox(bbox):
-    return momapy.builder.PointBuilder(
-        bbox.get_x() + bbox.get_w() / 2, bbox.get_y() + bbox.get_h() / 2
-    )
