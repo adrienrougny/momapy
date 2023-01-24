@@ -70,7 +70,7 @@ _CellDesignerReactionTypeMapping = {
 _CellDesignerModifierTypeMapping = {
     (
         momapy.celldesigner.parser.ModificationType.MODULATION
-    ): momapy.celldesigner.core.Modifier,
+    ): momapy.celldesigner.core.Modulator,
     (
         momapy.celldesigner.parser.ModificationType.CATALYSIS
     ): momapy.celldesigner.core.Catalyzer,
@@ -85,7 +85,7 @@ _CellDesignerModifierTypeMapping = {
     ): momapy.celldesigner.core.UnknownInhibitor,
     (
         momapy.celldesigner.parser.ModificationType.PHYSICAL_STIMULATION
-    ): momapy.celldesigner.core.PhysicalStimulation,
+    ): momapy.celldesigner.core.PhysicalStimulator,
     (
         momapy.celldesigner.parser.ModificationType.TRIGGER
     ): momapy.celldesigner.core.Trigger,

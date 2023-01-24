@@ -292,7 +292,27 @@ class Modifier(
 
 
 @dataclasses.dataclass(frozen=True)
-class Catalyzer(Modifier):
+class Modulator(Modifier):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Inhibitor(Modulator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PhysicalStimulatior(Modulator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Catalyzer(PhysicalStimulator):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Trigger(Modulator):
     pass
 
 
@@ -302,22 +322,7 @@ class UnknownCatalyzer(Modifier):
 
 
 @dataclasses.dataclass(frozen=True)
-class Inhibitor(Modifier):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
 class UnknownInhibitor(Modifier):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class PhysicalStimulation(Modifier):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class Trigger(Modifier):
     pass
 
 
