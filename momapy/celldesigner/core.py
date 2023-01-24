@@ -285,39 +285,39 @@ class UnknownGate(BooleanLogicGate):
 
 
 @dataclasses.dataclass(frozen=True)
-class Modulator(
+class Modifier(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
     species: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
 
 
 @dataclasses.dataclass(frozen=True)
-class Catalyzer(Modulator):
+class Catalyzer(Modifier):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownCatalyzer(Modulator):
+class UnknownCatalyzer(Modifier):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class Inhibitor(Modulator):
+class Inhibitor(Modifier):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownInhibitor(Modulator):
+class UnknownInhibitor(Modifier):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class PhysicalStimulation(Modulator):
+class PhysicalStimulation(Modifier):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class Trigger(Modulator):
+class Trigger(Modifier):
     pass
 
 
@@ -327,10 +327,10 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
-    modulators: frozenset[Modulator] = dataclasses.field(
+    modulators: frozenset[Modifier] = dataclasses.field(
         default_factory=frozenset
     )
-    ungrouped_modulators: frozenset[Modulator] = dataclasses.field(
+    ungrouped_modulators: frozenset[Modifier] = dataclasses.field(
         default_factory=frozenset
     )
 
