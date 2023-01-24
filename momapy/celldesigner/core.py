@@ -327,10 +327,10 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
-    modulators: frozenset[Modifier] = dataclasses.field(
+    modifiers: frozenset[Modifier] = dataclasses.field(
         default_factory=frozenset
     )
-    ungrouped_modulators: frozenset[Modifier] = dataclasses.field(
+    ungrouped_modifiers: frozenset[Modifier] = dataclasses.field(
         default_factory=frozenset
     )
 
