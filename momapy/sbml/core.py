@@ -40,28 +40,28 @@ class Species(SBase):
 
 
 @dataclasses.dataclass(frozen=True)
-class SpeciesReference(SBase):
+class SimpleSpeciesReference(SBase):
     species: typing.Optional[Species] = None
 
 
 @dataclasses.dataclass(frozen=True)
-class SimpleSpeciesReference(SpeciesReference):
-    stoichiometry: typing.Optional[int] = None
+class ModifierSpeciesReference(SimpleSpeciesReference):
+    pass
 
 
 @dataclasses.dataclass(frozen=True)
-class ModifierSpeciesReference(SpeciesReference):
-    pass
+class SpeciesReference(SimpleSpeciesReference):
+    stoichiometry: typing.Optional[int] = None
 
 
 @dataclasses.dataclass(frozen=True)
 class Reaction(SBase):
     reversible: bool = False
     compartment: typing.Optional[Compartment] = None
-    reactants: frozenset[SimpleSpeciesReference] = dataclasses.field(
+    reactants: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
-    products: frozenset[SimpleSpeciesReference] = dataclasses.field(
+    products: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
     modulators: frozenset[ModifierSpeciesReference] = dataclasses.field(
