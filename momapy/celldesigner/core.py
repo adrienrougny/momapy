@@ -302,7 +302,7 @@ class Inhibitor(Modulator):
 
 
 @dataclasses.dataclass(frozen=True)
-class PhysicalStimulatior(Modulator):
+class PhysicalStimulator(Modulator):
     pass
 
 
