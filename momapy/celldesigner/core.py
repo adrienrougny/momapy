@@ -260,10 +260,35 @@ class Product(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
 
 
 @dataclasses.dataclass(frozen=True)
+class BooleanLogicGate(CellDesignerModelElement):
+    inputs: frozenset[Species] = dataclasses.field(default_factory=frozenset)
+
+
+@dataclasses.dataclass(frozen=True)
+class AndGate(BooleanLogicGate):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class OrGate(BooleanLogicGate):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class NotGate(BooleanLogicGate):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownGate(BooleanLogicGate):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
 class Modulator(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
-    pass
+    species: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -303,6 +328,9 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
     modulators: frozenset[Modulator] = dataclasses.field(
+        default_factory=frozenset
+    )
+    ungrouped_modulators: frozenset[Modulator] = dataclasses.field(
         default_factory=frozenset
     )
 
@@ -357,6 +385,12 @@ class CellDesignerModel(momapy.sbml.core.Model):
     species_references: frozenset[
         CellDesignerSpeciesReference
     ] = dataclasses.field(default_factory=frozenset)
+    boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
+        default_factory=frozenset
+    )
+
+    def is_submodel(self, other):
+        pass
 
 
 @dataclasses.dataclass(frozen=True)
