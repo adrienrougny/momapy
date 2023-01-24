@@ -69,14 +69,26 @@ _CellDesignerReactionTypeMapping = {
 
 _CellDesignerModifierTypeMapping = {
     (
+        momapy.celldesigner.parser.ModificationType.MODULATION
+    ): momapy.celldesigner.core.Modifier,
+    (
         momapy.celldesigner.parser.ModificationType.CATALYSIS
     ): momapy.celldesigner.core.Catalyzer,
+    (
+        momapy.celldesigner.parser.ModificationType.UNKNOWN_CATALYSIS
+    ): momapy.celldesigner.core.UnknownCatalyzer,
     (
         momapy.celldesigner.parser.ModificationType.INHIBITION
     ): momapy.celldesigner.core.Inhibitor,
     (
+        momapy.celldesigner.parser.ModificationType.UNKNOWN_INHIBITION
+    ): momapy.celldesigner.core.UnknownInhibitor,
+    (
         momapy.celldesigner.parser.ModificationType.PHYSICAL_STIMULATION
     ): momapy.celldesigner.core.PhysicalStimulation,
+    (
+        momapy.celldesigner.parser.ModificationType.TRIGGER
+    ): momapy.celldesigner.core.Trigger,
 }
 
 _CellDesignerBooleanLogicGateTypeMapping = {
