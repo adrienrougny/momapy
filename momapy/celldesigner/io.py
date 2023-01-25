@@ -95,6 +95,15 @@ _CellDesignerBooleanLogicGateTypeMapping = {
     (
         momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_AND
     ): momapy.celldesigner.core.AndGate,
+    (
+        momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_OR
+    ): momapy.celldesigner.core.AndGate,
+    (
+        momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT
+    ): momapy.celldesigner.core.AndGate,
+    (
+        momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN
+    ): momapy.celldesigner.core.AndGate,
 }
 
 _CellDesignerSpeciesTypeMapping = {
@@ -138,6 +147,10 @@ _CellDesignerSpeciesTypeMapping = {
         momapy.celldesigner.parser.ClassValue.SIMPLE_MOLECULE,
         None,
     ): momapy.celldesigner.core.SimpleMolecule,
+    (
+        momapy.celldesigner.parser.ClassValue.COMPLEX,
+        None,
+    ): momapy.celldesigner.core.Complex,
 }
 
 
@@ -161,6 +174,12 @@ def read_file(filename):
     builder.model = builder.new_model()
     builder.layout = builder.new_layout()
     builder.model_layout_mapping = builder.new_model_layout_mapping()
+    for compartment in sbml.model.list_of_compartments.compartment:
+        compartment_me = _compartment_to_model_element(
+            compartment, builder, d_id_me_mapping
+        )
+        builder.model.add_element(compartment_me)
+        d_id_me_mapping[compartment_me.id] = compartment_me
     for species_reference in (
         sbml.model.annotation.extension.list_of_antisense_rnas.antisense_rna
         + sbml.model.annotation.extension.list_of_rnas.rna
@@ -184,7 +203,30 @@ def read_file(filename):
         )
         builder.add_model_element(reaction_me)
         d_id_me_mapping[reaction_me.id] = reaction_me
+    for (
+        species
+    ) in sbml.model.annotation.extension.list_of_included_species.species:
+        species_me = _species_to_model_element(
+            species, builder, d_id_me_mapping, included_species=True
+        )
+        complex_id = species.annotation.complex_species
+        complex_ = d_id_me_mapping[complex_id]
+        complex_.add_element(species_me)
+        d_id_me_mapping[species_me.id] = species_me
     return builder
+
+
+def _compartment_to_model_element(compartment, builder, d_id_me_mapping):
+    id_ = compartment.id
+    name = compartment.name
+    metaid = compartment.metaid
+    compartment_me = builder.new_model_element(
+        momapy.celldesigner.core.Compartment
+    )
+    compartment_me.id = id_
+    compartment_me.name = name
+    compartment_me.metaid = metaid
+    return compartment_me
 
 
 def _species_reference_to_model_element(
@@ -228,6 +270,10 @@ def _modification_residue_to_model_element(
     modification_residue_me = builder.new_model_element(
         momapy.celldesigner.core.ModificationResidue
     )
+    # Defaults ids for modification residues are simple in CellDesigner (e.g.,
+    # "rs1") and might be shared between residues of different species.
+    # However we want a unique id, so we build it using the id of the
+    # species as well.
     modification_residue_me.id = f"{species_reference_me.id}_{id_}"
     modification_residue_me.name = name
     return modification_residue_me
@@ -267,10 +313,19 @@ def _structural_state_to_model_element(
     return structural_state_me
 
 
-def _species_to_model_element(species, builder, d_id_me_mapping):
-    annotation = species.annotation
-    extension = annotation.extension
-    identity = extension.species_identity
+def _species_to_model_element(
+    species, builder, d_id_me_mapping, included_species=False
+):
+    id_ = species.id
+    name = species.name
+    compartment_id = species.compartment
+    if included_species is False:
+        annotation = species.annotation
+        extension = annotation.extension
+        identity = extension.species_identity
+    else:
+        annotation = species.annotation
+        identity = annotation.species_identity
     state = identity.state
     type_ = identity.class_value
     has_reference = False
@@ -283,6 +338,10 @@ def _species_to_model_element(species, builder, d_id_me_mapping):
         if getattr(identity, species_reference_type) is not None:
             has_reference = True
             break
+    # The type of the species is given by its class value, but also by the type
+    # of its species reference, if it has one. We use the species reference
+    # model elements rather than the parsed objects since the former are readily
+    # accessible from the d_id_me_mapping dictionary.
     if has_reference:
         species_reference = d_id_me_mapping[
             getattr(identity, species_reference_type)
@@ -298,8 +357,10 @@ def _species_to_model_element(species, builder, d_id_me_mapping):
         )
     species_me_cls = _CellDesignerSpeciesTypeMapping[type_]
     species_me = builder.new_model_element(species_me_cls)
-    species_me.id = species.id
-    species_me.name = species.name
+    species_me.id = id_
+    species_me.name = name
+    if compartment_id is not None:
+        species_me.compartment = d_id_me_mapping[compartment_id]
     if has_reference:
         species_me.reference = species_reference
     if state is not None:
