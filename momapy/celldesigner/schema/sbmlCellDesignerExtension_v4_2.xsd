@@ -1736,6 +1736,7 @@
         <xs:enumeration value="TRANSLATION"/>
         <!-- Added by A. Rougny -->
         <xs:enumeration value="BOOLEAN_LOGIC_GATE"/>
+        <xs:enumeration value="PHYSICAL_STIMULATION"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
