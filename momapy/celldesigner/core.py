@@ -341,7 +341,7 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
         default_factory=frozenset
     )
     ungrouped_modifiers: frozenset[Modifier] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset, compare=False, hash=False
     )
 
 
@@ -387,6 +387,47 @@ class Dissociation(Reaction):
 
 @dataclasses.dataclass(frozen=True)
 class Truncation(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ModificationReaction(CellDesignerModelElement):
+    source: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
+    target: typing.Optional[Species] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class Modulation(ModificationReaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Inhibiton(Modulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PhysicalStimulation(Modulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Catalysis(PhysicalStimulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Trigger(Modulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownCatalysis(ModificationReaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownInhibition(ModificationReaction):
     pass
 
 
