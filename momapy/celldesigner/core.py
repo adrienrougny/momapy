@@ -144,6 +144,11 @@ class StructuralState(CellDesignerModelElement):
 
 
 @dataclasses.dataclass(frozen=True)
+class Compartment(momapy.sbml.core.Compartment, CellDesignerModelElement):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
 class Species(momapy.sbml.core.Species, CellDesignerModelElement):
     reference: typing.Optional[CellDesignerSpeciesReference] = None
     active: typing.Optional[bool] = None
