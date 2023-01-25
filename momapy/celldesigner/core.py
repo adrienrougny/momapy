@@ -402,7 +402,7 @@ class Modulation(ModificationReaction):
 
 
 @dataclasses.dataclass(frozen=True)
-class Inhibiton(Modulation):
+class Inhibition(Modulation):
     pass
 
 
@@ -417,7 +417,7 @@ class Catalysis(PhysicalStimulation):
 
 
 @dataclasses.dataclass(frozen=True)
-class Trigger(Modulation):
+class Triggering(Modulation):
     pass
 
 
