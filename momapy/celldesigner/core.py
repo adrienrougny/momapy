@@ -391,13 +391,53 @@ class Truncation(Reaction):
 
 
 @dataclasses.dataclass(frozen=True)
-class ModificationReaction(CellDesignerModelElement):
+class ModulationReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class InhibitionReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class PhysicalStimulationReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class CatalysisReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class TriggeringReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownCatalysisReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownInhibitionReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class BooleanLogicGateReaction(Reaction):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class ReactionModification(CellDesignerModelElement):
     source: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
     target: typing.Optional[Species] = None
 
 
 @dataclasses.dataclass(frozen=True)
-class Modulation(ModificationReaction):
+class Modulation(ReactionModification):
     pass
 
 
@@ -422,12 +462,12 @@ class Triggering(Modulation):
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownCatalysis(ModificationReaction):
+class UnknownCatalysis(ReactionModification):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownInhibition(ModificationReaction):
+class UnknownInhibition(ReactionModification):
     pass
 
 
@@ -436,7 +476,13 @@ class CellDesignerModel(momapy.sbml.core.Model):
     species_references: frozenset[
         CellDesignerSpeciesReference
     ] = dataclasses.field(default_factory=frozenset)
+    sbml_reactions: frozenset[Reaction] = dataclasses.field(
+        default_factory=frozenset
+    )
     boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
+        default_factory=frozenset
+    )
+    modulations: frozenset[ReactionModification] = dataclasses.field(
         default_factory=frozenset
     )
 

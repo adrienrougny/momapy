@@ -65,6 +65,30 @@ _CellDesignerReactionTypeMapping = {
     (
         momapy.celldesigner.parser.ReactionTypeValue.TRUNCATION
     ): momapy.celldesigner.core.Truncation,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.MODULATION
+    ): momapy.celldesigner.core.ModulationReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.CATALYSIS
+    ): momapy.celldesigner.core.CatalysisReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.UNKNOWN_CATALYSIS
+    ): momapy.celldesigner.core.UnknownCatalysisReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.INHIBITION
+    ): momapy.celldesigner.core.InhibitionReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.UNKNOWN_INHIBITION
+    ): momapy.celldesigner.core.UnknownInhibitionReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.PHYSICAL_STIMULATION
+    ): momapy.celldesigner.core.PhysicalStimulationReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.TRIGGER
+    ): momapy.celldesigner.core.TriggeringReaction,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.BOOLEAN_LOGIC_GATE
+    ): momapy.celldesigner.core.BooleanLogicGateReaction,
 }
 
 _CellDesignerModifierTypeMapping = {
@@ -89,6 +113,30 @@ _CellDesignerModifierTypeMapping = {
     (
         momapy.celldesigner.parser.ModificationType.TRIGGER
     ): momapy.celldesigner.core.Trigger,
+}
+
+_CellDesignerModificationReactionTypeMapping = {
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.MODULATION
+    ): momapy.celldesigner.core.Modulation,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.CATALYSIS
+    ): momapy.celldesigner.core.Catalysis,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.UNKNOWN_CATALYSIS
+    ): momapy.celldesigner.core.UnknownCatalysis,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.INHIBITION
+    ): momapy.celldesigner.core.Inhibition,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.UNKNOWN_INHIBITION
+    ): momapy.celldesigner.core.UnknownInhibition,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.PHYSICAL_STIMULATION
+    ): momapy.celldesigner.core.PhysicalStimulation,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.TRIGGER
+    ): momapy.celldesigner.core.Triggering,
 }
 
 _CellDesignerBooleanLogicGateTypeMapping = {
@@ -198,11 +246,20 @@ def read_file(filename):
         builder.add_model_element(species_me)
         d_id_me_mapping[species_me.id] = species_me
     for reaction in sbml.model.list_of_reactions.reaction:
+        annotation = reaction.annotation
+        extension = annotation.extension
+        reaction_type = extension.reaction_type
+        # Modulations between species or between Boolean logical gates and
+        # species are stored as reactions in CellDesigner. We store all
+        # reactions in the sbml_reactions attribute. True reactions are
+        # additionally stored in the reactions attribute. Reactions that are
+        # modulations are additionally stored in the modulations attribute, as
+        # modulations (and not as reactions).
         reaction_me = _reaction_to_model_element(
             reaction, builder, d_id_me_mapping
         )
-        builder.add_model_element(reaction_me)
-        d_id_me_mapping[reaction_me.id] = reaction_me
+        # builder.add_model_element(reaction_me)
+        # d_id_me_mapping[reaction_me.id] = reaction_me
     for (
         species
     ) in sbml.model.annotation.extension.list_of_included_species.species:
@@ -319,6 +376,9 @@ def _species_to_model_element(
     id_ = species.id
     name = species.name
     compartment_id = species.compartment
+    # Included species are subunits of complexes. They are treated as normal
+    # species in CellDesigner, but the structure of the XML is not exactly
+    # the same as for normal species.
     if included_species is False:
         annotation = species.annotation
         extension = annotation.extension
