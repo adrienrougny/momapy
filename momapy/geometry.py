@@ -166,8 +166,11 @@ class Segment(GeometryObject):
         return get_position_and_angle_at_fraction(self, fraction)
 
     def shortened(self, length):
-        fraction = 1 - length / self.length()
-        point = self.get_position_at_fraction(fraction)
+        if self.length() > 0:
+            fraction = 1 - length / self.length()
+            point = self.get_position_at_fraction(fraction)
+        else:
+            point = self.p2
         return Segment(self.p1, point)
 
     def transformed(self, transformation):
