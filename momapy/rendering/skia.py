@@ -82,7 +82,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         config["width"] = width
         config["height"] = height
         config["format"] = format_
-        return cls(canvas, config)
+        return cls(canvas=canvas, config=config)
 
     def begin_session(self):
         self._states = []
@@ -215,7 +215,6 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
 
     def _make_filter_paint(self, filter_, filter_region):
         dskia_filters = {}
-        filter_ = filter_.to_compat()
         for filter_effect in filter_.effects:
             class_ = type(filter_effect)
             if issubclass(class_, momapy.builder.Builder):
@@ -224,7 +223,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             skia_filter = fe_func(filter_effect, filter_region, dskia_filters)
             if filter_effect.result is not None:
                 dskia_filters[filter_effect.result] = skia_filter
-        skia_paint = skia.Paint(ImageFilter=skia_filter)
+        skia_paint = skia.Paint(AntiAlias=True, ImageFilter=skia_filter)
         return skia_paint
 
     def _make_crop_rect_from_filter_region(self, filter_region):
