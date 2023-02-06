@@ -182,19 +182,19 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
 
 @dataclasses.dataclass(frozen=True)
 class MacromoleculeUnitOfInformationLayout(momapy.sbgn.pd.MacromoleculeLayout):
-    pass
+    rounded_corners: float = 3.0
 
 
 @dataclasses.dataclass(frozen=True)
 class NucleicAcidFeatureUnitOfInformationLayout(
     momapy.sbgn.pd.NucleicAcidFeatureLayout
 ):
-    pass
+    rounded_corners: float = 3.0
 
 
 @dataclasses.dataclass(frozen=True)
 class ComplexUnitOfInformationLayout(momapy.sbgn.pd.ComplexLayout):
-    pass
+    cut_corners: float = 3.0
 
 
 @dataclasses.dataclass(frozen=True)
