@@ -55,9 +55,9 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         None: skia.TileMode.kDecal,
     }
     canvas: skia.Canvas
+    config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
     _skia_fonts: dict = dataclasses.field(default_factory=dict)
-    config: dict = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
