@@ -172,6 +172,11 @@ NucleicAcidFeatureLayout > UnitOfInformationLayout {
     fill: mediumseagreen;
 }
 
+LogicArcLayout {
+    stroke: black;
+    fill: none;
+}
+
 ConsumptionLayout {
     stroke: black;
     fill: none;
