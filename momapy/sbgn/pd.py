@@ -405,7 +405,7 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
                         [sv.variable for sv in entity.state_variables]
                     )
                     attributes = []
-                    for field in fields(entity):
+                    for field in dataclasses.fields(entity):
                         if field.name != "state_variables":
                             attributes.append(field.name)
                     args = {attr: getattr(entity, attr) for attr in attributes}
