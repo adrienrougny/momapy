@@ -184,7 +184,7 @@ _css_simple_value = (
 )
 _css_list_value = pp.Group(pp.delimited_list(_css_simple_value, ",", min=2))
 _css_attribute_value = _css_list_value | _css_simple_value
-_css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
+_css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_" + "-")
 _css_style = (
     _css_attribute_name
     + pp.Literal(":")
@@ -284,7 +284,7 @@ def _resolve_css_attribute_value(results):
 
 @_css_attribute_name.set_parse_action
 def _resolve_css_attribute_name(results):
-    return results[0]
+    return results[0].replace("-", "_")
 
 
 @_css_style.set_parse_action

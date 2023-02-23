@@ -1,10 +1,10 @@
 TextLayout {
-    font_color: black;
+    font-color: black;
 }
 
 MapLayout {
     stroke: none;
-    stroke_width: 1.0;
+    stroke-width: 1.0;
     fill: white;
 }
 
@@ -164,42 +164,42 @@ ConsumptionLayout {
 ProductionLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: black;
+    arrowhead-stroke: black;
+    arrowhead-fill: black;
 }
 
 ModulationLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 StimulationLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 CatalysisLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 NecessaryStimulationLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 InhibitionLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
+    arrowhead-stroke: black;
 }
 
 MacromoleculeUnitOfInformationLayout {
@@ -240,29 +240,29 @@ DelayOperatorLayout {
 UnknownInfluenceLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 PositiveInfluenceLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 NecessaryStimulationLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: white;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
 }
 
 NegativeInfluenceLayout {
     stroke: black;
     fill: none;
-    arrowhead_stroke: black;
-    arrowhead_fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: none;
 }
 
 BiologicalActivityLayout {

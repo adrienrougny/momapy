@@ -61,7 +61,7 @@ MacromoleculeLayout {
 MacromoleculeMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
-    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 ComplexLayout {
@@ -72,7 +72,7 @@ ComplexLayout {
 ComplexMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
-    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 SimpleChemicalLayout {
@@ -83,7 +83,7 @@ SimpleChemicalLayout {
 SimpleChemicalMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
-    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 NucleicAcidFeatureLayout {
@@ -94,7 +94,7 @@ NucleicAcidFeatureLayout {
 NucleicAcidFeatureMultimerLayout {
     stroke: none;
     filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
-    subunits_filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
 }
 
 EmptySetLayout {
