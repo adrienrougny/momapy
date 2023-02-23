@@ -1,4 +1,7 @@
+import os
 from distutils.core import setup
+
+os.system("export BEZIER_NO_EXTENSION=True")
 
 setup(
     name="momapy",

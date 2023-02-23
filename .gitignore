@@ -5,7 +5,5 @@ testing/*
 build/
 momapy.egg-info/
 __pycache__/
-Pipfile.lock
-Pipfile
 .idea/
 momapy/demo/.ipynb_checkpoints/*
