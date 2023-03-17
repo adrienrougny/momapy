@@ -5,7 +5,7 @@ import momapy.drawing
 import momapy.geometry
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class PolyLine(momapy.core.ArcLayout):
     def arrowhead_drawing_element(self):
         return None
@@ -17,11 +17,8 @@ class PolyLine(momapy.core.ArcLayout):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Arrow(momapy.core.ArcLayout):
-    width: float = 10
-    height: float = 10
-
     def arrowhead_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
@@ -51,11 +48,8 @@ class Arrow(momapy.core.ArcLayout):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Circle(momapy.core.ArcLayout):
-    width: float = 10
-    height: float = 10
-
     def arrowhead_drawing_element(self):
         ellipse = momapy.drawing.Ellipse(
             stroke=self.arrowhead_stroke,
@@ -77,11 +71,8 @@ class Circle(momapy.core.ArcLayout):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.ArcLayout):
-    width: float = 1
-    height: float = 10
-
     def arrowhead_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
@@ -105,13 +96,11 @@ class Bar(momapy.core.ArcLayout):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class BarArrow(momapy.core.ArcLayout):
-    bar_width: float = 1
-    bar_height: float = 10
-    width: float = 10
-    height: float = 10
-    sep: float = 5
+    bar_width: float
+    bar_height: float
+    sep: float
 
     def arrowhead_drawing_element(self):
         bar = momapy.drawing.Path(stroke_width=self.bar_width)
@@ -164,11 +153,8 @@ class BarArrow(momapy.core.ArcLayout):
         return momapy.geometry.Bbox(self.arrowhead_tip(), 0, 0)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Diamond(momapy.core.ArcLayout):
-    width: float = 10
-    height: float = 10
-
     def arrowhead_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,

@@ -1,6 +1,7 @@
 import abc
 import dataclasses
 import typing
+import types
 import inspect
 
 import momapy.geometry
@@ -22,25 +23,28 @@ class Builder(abc.ABC):
 builders = {}
 
 
-def transform_type(type_):
-    o_type = typing.get_origin(type_)
+def transform_type(type_, make_optional=False):
+    o_type = typing.get_origin(type_)  # returns None if not supported
     if o_type is not None:
-        if isinstance(o_type, type):  # o_type is a class
-            new_o_type = get_or_make_builder_cls(o_type)
-            if new_o_type is None:
-                new_o_type = type_
-        else:
+        if isinstance(o_type, type):  # o_type is a type
+            if o_type == types.UnionType:  # from t1 | t2 syntax
+                new_o_type = typing.Union
+            else:
+                new_o_type = get_or_make_builder_cls(o_type)
+        else:  # an object from typing
             new_o_type = o_type
         new_type = new_o_type[
             tuple([transform_type(a_type) for a_type in typing.get_args(type_)])
         ]
     else:
-        if isinstance(type_, type):  # type_ is a class
+        if isinstance(type_, type):  # type_ is a type
             new_type = get_or_make_builder_cls(type_)
             if new_type is None:
                 new_type = type_
         else:
             new_type = type_
+        if make_optional:
+            new_type = typing.Optional[new_type]
     return new_type
 
 
@@ -88,13 +92,18 @@ def make_builder_cls(
         field_name = field_.name
         if field_name not in builder_field_names:
             field_dict = {}
-            field_type = transform_type(field_.type)
+            field_type = transform_type(field_.type, make_optional=True)
+            has_default = False
             if field_.default_factory != dataclasses.MISSING:
                 field_dict["default_factory"] = transform_type(
                     field_.default_factory
                 )
+                has_default = True
             if field_.default != dataclasses.MISSING:
                 field_dict["default"] = field_.default
+                has_default = True
+            if not has_default:
+                field_dict["default"] = None
             builder_fields.append(
                 (field_name, field_type, dataclasses.field(**field_dict))
             )
@@ -126,11 +135,7 @@ def make_builder_cls(
     for member in inspect.getmembers(cls):
         func_name = member[0]
         func = member[1]
-        # if (
-        #     (isinstance(func, typing.Callable) or isinstance(func, property))
-        #     and not func_name.startswith("__")
-        #     and not func_name == "_cls_to_build"
-        # ):
+
         if not func_name.startswith("__") and not func_name == "_cls_to_build":
 
             builder_namespace[func_name] = func
@@ -156,6 +161,7 @@ def make_builder_cls(
         bases=builder_bases,
         namespace=builder_namespace,
         eq=False,
+        kw_only=False,
     )
     return builder
 

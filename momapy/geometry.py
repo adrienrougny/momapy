@@ -26,8 +26,8 @@ class GeometryObject(ABC):
 
 @dataclass(frozen=True)
 class Point(GeometryObject):
-    x: Optional[float] = None
-    y: Optional[float] = None
+    x: float
+    y: float
 
     def __add__(self, xy):
         if momapy.builder.isinstance_or_builder(xy, Point):

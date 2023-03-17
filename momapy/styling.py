@@ -35,7 +35,7 @@ class Selector(object):
 
 @dataclasses.dataclass(frozen=True)
 class TypeSelector(Selector):
-    class_name: str = None
+    class_name: str
 
     def select(self, obj, ancestors):
         obj_cls_name = type(obj).__name__
@@ -47,7 +47,7 @@ class TypeSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class ClassSelector(Selector):
-    class_name: str = None
+    class_name: str
 
     def select(self, obj, ancestors):
         for cls in type(obj).__mro__:

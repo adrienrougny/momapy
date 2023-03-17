@@ -6,31 +6,36 @@ import momapy.core
 import momapy.geometry
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(momapy.core.ModelElement):
     annotations: frozenset[Annotation] = field(default_factory=frozenset)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
-    element: Optional[SBGNModelElement] = None
+    element: SBGNModelElement
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class SBGNModel(momapy.core.Model):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
+class SBGNLayout(momapy.core.MapLayout):
+    pass
+
+
+@dataclass(frozen=True, kw_only=True)
 class SBGNMap(momapy.core.Map):
-    model: Optional[SBGNModel] = None
-    layout: Optional[momapy.core.MapLayout] = None
-    model_layout_mapping: Optional[momapy.core.ModelLayoutMapping] = None
+    model: SBGNModel
+    layout: SBGNLayout
+    model_layout_mapping: momapy.core.ModelLayoutMapping
 
 
 @dataclass(frozen=True)
@@ -62,10 +67,10 @@ class _SBGNMixinBase(object):
 
 @dataclass(frozen=True)
 class _ConnectorsMixin(_SBGNMixinBase):
-    left_connector_length: Optional[float] = None
-    right_connector_length: Optional[float] = None
-    left_connector_stroke_width: Optional[float] = None
-    right_connector_stroke_width: Optional[float] = None
+    left_connector_length: float
+    right_connector_length: float
+    left_connector_stroke_width: float
+    right_connector_stroke_width: float
     direction: Optional[
         momapy.core.Direction
     ] = momapy.core.Direction.HORIZONTAL
@@ -176,8 +181,21 @@ class _MultiMixin(_SBGNMixinBase):
     _shape_cls: ClassVar[momapy.core.NodeLayout]
     _arg_names_mapping: ClassVar[dict[str, str]]
     offset: int = 10
-    subunits_stroke: tuple[momapy.coloring.Color] = field(default_factory=tuple)
-    subunits_stroke_width: tuple[float] = field(default_factory=tuple)
+    subunits_stroke: Optional[
+        momapy.drawing.NoneValueType
+        | tuple[
+            Optional[momapy.drawing.NoneValueType | momapy.coloring.Color], ...
+        ]
+    ] = None
+    subunits_stroke_width: Optional[
+        momapy.drawing.NoneValueType
+        | tuple[Optional[momapy.drawing.NoneValueType | float], ...]
+    ] = None
+    subunits_stroke_dasharray: Optional[
+        momapy.drawing.NoneValueType
+        | tuple[Optional[momapy.drawing.NoneValueType | tuple[float, ...]], ...]
+    ] = None
+    subunits_stroke_dashoffset: Optional[tuple[Optional[float], ...]] = None
     subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
     subunits_filter: tuple[momapy.drawing.Filter] = field(default_factory=tuple)
 
@@ -205,9 +223,17 @@ class _MultiMixin(_SBGNMixinBase):
         for arg_name in self._arg_names_mapping:
             kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
         if self._n > 1:
-            for arg_name in ["stroke", "stroke_width", "fill", "filter"]:
+            for arg_name in [
+                "stroke",
+                "stroke_width",
+                "stroke_dasharray",
+                "stroke_dashoffset",
+                "fill",
+                "filter",
+            ]:
                 if arg_name not in self._arg_names_mapping:
-                    if len(getattr(self, f"subunits_{arg_name}")) > order:
+                    arg_value = getattr(self, f"subunits_{arg_name}")
+                    if arg_value is not None and len(arg_value) > order:
                         kwargs[arg_name] = getattr(
                             self, f"subunits_{arg_name}"
                         )[order]

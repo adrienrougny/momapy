@@ -32,7 +32,7 @@ class FilterEffect(ABC):
     result: Optional[str] = None
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DropShadowEffect(FilterEffect):
     dx: float = 0.0
     dy: float = 0.0
@@ -98,17 +98,17 @@ class CompositionOperator(Enum):
     ARTIHMETIC = "arithmetic"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CompositeEffect(FilterEffect):
     in_: Optional[Union[FilterEffectInput, str]] = None
     in2: Optional[Union[FilterEffectInput, str]] = None
     operator: Optional[CompositionOperator] = CompositionOperator.OVER
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class FloodEffect(FilterEffect):
-    flood_opacity: float = 1.0
     flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+    flood_opacity: float = 1.0
 
 
 class EdgeMode(Enum):
@@ -116,18 +116,18 @@ class EdgeMode(Enum):
     WRAP = "wrap"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class GaussianBlurEffect(FilterEffect):
     in_: Optional[Union[FilterEffectInput, str]] = None
-    std_deviation: float = 0
-    edge_mode: Optional[EdgeMode] = None
+    std_deviation: float = 0.0
+    edge_mode: Union[EdgeMode, NoneValueType] = NoneValue
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class OffsetEffect(FilterEffect):
     in_: Optional[Union[FilterEffectInput, str]] = None
-    dx: float = 0
-    dy: float = 0
+    dx: float = 0.0
+    dy: float = 0.0
 
 
 class FilterUnits(Enum):
@@ -135,7 +135,7 @@ class FilterUnits(Enum):
     OBJECT_BOUNDING_BOX = 2
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Filter(object):
     id: Union[str, UUID] = field(
         hash=False, compare=False, default_factory=uuid4
@@ -157,7 +157,7 @@ class Filter(object):
         return replace(self, effects=tuple(effects))
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class DrawingElement(ABC):
     stroke_width: Optional[float] = None
     stroke: Optional[Union[momapy.coloring.Color, NoneValueType]] = None
@@ -440,7 +440,7 @@ class PathActionList(object):
         return PathActionList(actions=actions)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Path(DrawingElement):
     actions: tuple[PathAction] = field(default_factory=tuple)
 
@@ -518,12 +518,12 @@ class Path(DrawingElement):
         return shapely.geometry.GeometryCollection(geom_collection)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Text(DrawingElement):
-    text: Optional[str] = None
-    font_family: Optional[str] = None
-    font_size: Optional[str] = None
-    position: Optional[momapy.geometry.Point] = None
+    text: str
+    font_family: str
+    font_size: str
+    position: momapy.geometry.Point
 
     @property
     def x(self):
@@ -540,7 +540,7 @@ class Text(DrawingElement):
         return shapely.geometry.GeometryCollection([self.position.to_shapely()])
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Group(DrawingElement):
     elements: tuple[DrawingElement] = field(default_factory=tuple)
 
@@ -567,11 +567,11 @@ class Group(DrawingElement):
         return shapely.geometry.GeometryCollection(geom_collection)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Ellipse(DrawingElement):
-    point: Optional[momapy.geometry.Point] = None
-    rx: Optional[float] = None
-    ry: Optional[float] = None
+    point: momapy.geometry.Point
+    rx: float
+    ry: float
 
     @property
     def x(self):
@@ -610,13 +610,13 @@ class Ellipse(DrawingElement):
         return shapely.geometry.GeometryCollection([ellipse])
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Rectangle(DrawingElement):
-    point: Optional[momapy.geometry.Point] = None
-    width: Optional[float] = None
-    height: Optional[float] = None
-    rx: Optional[float] = 0
-    ry: Optional[float] = 0
+    point: momapy.geometry.Point
+    width: float
+    height: float
+    rx: float
+    ry: float
 
     @property
     def x(self):
@@ -678,7 +678,7 @@ class Rectangle(DrawingElement):
 
 
 def move_to(point):
-    return MoveTo(point)
+    return MoveTo(point=point)
 
 
 def line_to(point):

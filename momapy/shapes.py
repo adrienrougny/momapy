@@ -6,7 +6,7 @@ import momapy.drawing
 import momapy.geometry
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Rectangle(momapy.core.NodeLayout):
     def joint1(self):
         return self.position - (self.width / 2, self.height / 2)
@@ -31,9 +31,9 @@ class Rectangle(momapy.core.NodeLayout):
         return rectangle
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class RectangleWithRoundedCorners(momapy.core.NodeLayout):
-    rounded_corners: float = 10
+    rounded_corners: float
 
     def joint1(self):
         return self.position - (
@@ -94,7 +94,7 @@ class RectangleWithRoundedCorners(momapy.core.NodeLayout):
         return rectangle
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Ellipse(momapy.core.NodeLayout):
     def border_drawing_element(self):
         ellipse = momapy.drawing.Ellipse(
@@ -103,9 +103,9 @@ class Ellipse(momapy.core.NodeLayout):
         return ellipse
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class RectangleWithCutCorners(momapy.core.NodeLayout):
-    cut_corners: float = 0
+    cut_corners: float
 
     def joint1(self):
         return self.position - (
@@ -171,7 +171,7 @@ class RectangleWithCutCorners(momapy.core.NodeLayout):
         return path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Stadium(momapy.core.NodeLayout):
     def joint1(self):
         return self.position + (
@@ -208,9 +208,9 @@ class Stadium(momapy.core.NodeLayout):
         return rectangle
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
-    rounded_corners: float = 0
+    rounded_corners: float
 
     def joint1(self):
         return self.position - (
@@ -276,7 +276,7 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
         return path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CircleWithDiagonalBar(momapy.core.NodeLayout):
     def border_drawing_element(self):
         circle = momapy.drawing.Ellipse(
@@ -293,12 +293,12 @@ class CircleWithDiagonalBar(momapy.core.NodeLayout):
         return group
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Hexagon(momapy.core.NodeLayout):
-    top_left_angle: float = 50.0
-    top_right_angle: float = 50.0
-    bottom_left_angle: float = 50.0
-    bottom_right_angle: float = 50.0
+    top_left_angle: float
+    top_right_angle: float
+    bottom_left_angle: float
+    bottom_right_angle: float
 
     def joint1(self):
         angle = math.radians(self.top_left_angle)
@@ -356,12 +356,12 @@ class Hexagon(momapy.core.NodeLayout):
         return path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class InvertedHexagon(momapy.core.NodeLayout):
-    top_left_angle: float = 50.0
-    top_right_angle: float = 50.0
-    bottom_left_angle: float = 50.0
-    bottom_right_angle: float = 50.0
+    top_left_angle: float
+    top_right_angle: float
+    bottom_left_angle: float
+    bottom_right_angle: float
 
     def joint1(self):
         return self.position - (self.width / 2, self.height / 2)
@@ -431,9 +431,9 @@ class InvertedHexagon(momapy.core.NodeLayout):
         return path
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class CircleWithInsideCircle(momapy.core.NodeLayout):
-    sep: float = 2
+    sep: float
 
     def border_drawing_element(self):
         outer_circle = momapy.drawing.Ellipse(
@@ -449,11 +449,11 @@ class CircleWithInsideCircle(momapy.core.NodeLayout):
         return group
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Pointer(momapy.core.NodeLayout):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
-    top_angle: float = 50.0
-    bottom_angle: float = 50.0
+    top_angle: float
+    bottom_angle: float
 
     def joint1(self):
         if self.direction == momapy.core.Direction.UP:
@@ -558,6 +558,7 @@ class Pointer(momapy.core.NodeLayout):
         return path
 
 
+@dataclass(frozen=True, kw_only=True)
 class CrossPoint(momapy.core.NodeLayout):
     def border_drawing_element(self):
         horizontal_path = momapy.drawing.Path()

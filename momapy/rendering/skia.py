@@ -335,7 +335,10 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         return skia_filter
 
     def _add_transform_from_drawing_element(self, drawing_element):
-        if drawing_element.transform is not None:
+        if (
+            drawing_element.transform is not None
+            and drawing_element.transform != momapy.drawing.NoneValue
+        ):
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
 

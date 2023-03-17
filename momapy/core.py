@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from frozendict import frozendict
-from typing import Optional
+from typing import Optional, Union
 from uuid import uuid4
 from enum import Enum
 import math
@@ -11,6 +11,7 @@ import copy
 import shapely
 
 import cairo
+
 import gi
 
 gi.require_version("Pango", "1.0")
@@ -44,17 +45,17 @@ class VAlignment(Enum):
     BOTTOM = 3
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MapElement(ABC):
     id: str = field(hash=False, compare=False, default_factory=uuid4)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ModelElement(MapElement):
     pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class LayoutElement(MapElement):
     def bbox(self) -> momapy.geometry.Bbox:
         bounds = self.to_shapely().bounds
@@ -112,17 +113,17 @@ class LayoutElement(MapElement):
         return shapely.GeometryCollection(geom_collection)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
-    text: Optional[str] = None
-    font_size: Optional[float] = None
-    font_family: Optional[str] = None
-    font_color: Optional[momapy.coloring.Color] = momapy.coloring.colors.black
-    position: Optional[momapy.geometry.Point] = None
+    text: str
+    position: momapy.geometry.Point
+    font_size: float
+    font_family: str
+    font_color: momapy.coloring.Color = momapy.coloring.colors.black
     width: Optional[float] = None
     height: Optional[float] = None
-    horizontal_alignment: Optional[HAlignment] = HAlignment.LEFT
-    vertical_alignment: Optional[VAlignment] = VAlignment.TOP
+    horizontal_alignment: HAlignment = HAlignment.LEFT
+    vertical_alignment: VAlignment = VAlignment.TOP
     justify: Optional[bool] = False
 
     @property
@@ -134,7 +135,7 @@ class TextLayout(LayoutElement):
         return self.position.y
 
     def _make_pango_layout(self):
-        cairo_surface = cairo.RecordingSurface(cairo.Content.COLOR_ALPHA, None)
+        cairo_surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
         cairo_context = cairo.Context(cairo_surface)
         pango_layout = PangoCairo.create_layout(cairo_context)
         pango_layout.set_alignment(
@@ -272,16 +273,28 @@ class TextLayout(LayoutElement):
         return self.bbox().west()
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
-    stroke: Optional[momapy.coloring.Color] = None
-    stroke_width: Optional[float] = None
-    fill: Optional[momapy.coloring.Color] = None
-    stroke_dasharray: Optional[tuple[float]] = None
-    stroke_dashoffset: Optional[float] = None
-    transform: Optional[tuple[momapy.geometry.Transformation]] = None
-    filter: Optional[momapy.drawing.Filter] = None
+    stroke: Optional[
+        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = None  # inherited
+    stroke_width: Optional[float] = None  # inherited
+    stroke_dasharray: Optional[
+        Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = None  # inherited
+    stroke_dashoffset: Optional[float] = None  # inherited
+    fill: Optional[
+        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = None  # inherited
+    transform: Optional[
+        Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = None  # not inherited
+    filter: Optional[
+        Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = None  # not inherited
 
     def self_to_shapely(self, to_polygons=False):
         geom_collection = []
@@ -332,11 +345,11 @@ class GroupLayout(LayoutElement):
         return replace(self, layout_elements=layout_elements)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class NodeLayout(GroupLayout):
-    position: Optional[momapy.geometry.Point] = None
-    width: Optional[float] = None
-    height: Optional[float] = None
+    position: momapy.geometry.Point
+    width: float
+    height: float
     label: Optional[TextLayout] = None
 
     @property
@@ -480,7 +493,7 @@ class NodeLayout(GroupLayout):
         return replace(self, label=label, layout_elements=layout_elements)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class ArcLayout(GroupLayout):
     segments: tuple[
         momapy.geometry.Segment,
@@ -489,12 +502,19 @@ class ArcLayout(GroupLayout):
     ] = field(default_factory=tuple)
     source: Optional[LayoutElement] = None
     target: Optional[LayoutElement] = None
-    arrowhead_stroke: Optional[momapy.coloring.Color] = None
+    arrowhead_stroke: Optional[
+        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = None
     arrowhead_stroke_width: Optional[float] = None
-    arrowhead_fill: Optional[momapy.coloring.Color] = None
-    arrowhead_stroke_dasharray: Optional[tuple[float]] = None
+    arrowhead_stroke_dasharray: Optional[
+        Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = None
     arrowhead_stroke_dashoffset: Optional[float] = None
-    shorten: float = 0
+
+    arrowhead_fill: Optional[
+        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = None
+    shorten: float = 0.0
 
     def points(self) -> list[momapy.geometry.Point]:
         points = []
@@ -646,19 +666,18 @@ class ArcLayout(GroupLayout):
         return position, angle
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Model(MapElement):
     @abstractmethod
     def is_submodel(self, other):
         pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class MapLayout(GroupLayout):
-    position: Optional[momapy.geometry.Point] = None
-    width: Optional[float] = None
-    height: Optional[float] = None
-    fill: Optional[momapy.coloring.Color] = momapy.coloring.colors.white
+    position: momapy.geometry.Point
+    width: float
+    height: float
 
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
@@ -718,9 +737,9 @@ class MapLayout(GroupLayout):
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class PhantomLayout(LayoutElement):
-    layout_element: Optional[LayoutElement] = None
+    layout_element: LayoutElement
 
     def bbox(self):
         return self.layout_element.bbox()
@@ -757,13 +776,11 @@ class ModelLayoutMapping(frozendict):
         return True
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
-    model: Optional[Model] = None
-    layout: Optional[MapLayout] = None
-    model_layout_mapping: ModelLayoutMapping = field(
-        default_factory=ModelLayoutMapping
-    )
+    model: Model
+    layout: MapLayout
+    model_layout_mapping: ModelLayoutMapping
 
     def is_submap(self, other):
         return (
