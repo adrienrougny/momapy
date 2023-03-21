@@ -446,7 +446,7 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
 class SBGNPDLayout(momapy.sbgn.core.SBGNLayout):
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -459,7 +459,7 @@ class StateVariableLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -467,7 +467,7 @@ class StateVariableLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -488,7 +488,7 @@ class UnitOfInformationLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -496,7 +496,7 @@ class UnitOfInformationLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -521,7 +521,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -529,7 +529,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -548,7 +548,7 @@ class TerminalLayout(TagLayout):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -556,7 +556,7 @@ class TerminalLayout(TagLayout):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -577,7 +577,7 @@ class CardinalityLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -585,7 +585,7 @@ class CardinalityLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -611,7 +611,7 @@ class CompartmentLayout(
     rounded_corners: float = 10.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 4.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -619,7 +619,7 @@ class CompartmentLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -640,7 +640,7 @@ class UnspecifiedEntityLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -648,7 +648,7 @@ class UnspecifiedEntityLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -674,7 +674,7 @@ class MacromoleculeLayout(
     rounded_corners: float = 10.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -682,7 +682,7 @@ class MacromoleculeLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -710,7 +710,7 @@ class MacromoleculeMultimerLayout(
     offset: float = 2.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -718,7 +718,7 @@ class MacromoleculeMultimerLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -739,7 +739,7 @@ class SimpleChemicalLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -747,7 +747,7 @@ class SimpleChemicalLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -770,7 +770,7 @@ class SimpleChemicalMultimerLayout(
     offset: float = 2.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -778,7 +778,7 @@ class SimpleChemicalMultimerLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -802,7 +802,7 @@ class ComplexLayout(
     cut_corners: float = 10.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -810,7 +810,7 @@ class ComplexLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -836,7 +836,7 @@ class ComplexMultimerLayout(
     offset: float = 2.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -844,7 +844,7 @@ class ComplexMultimerLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -871,7 +871,7 @@ class NucleicAcidFeatureLayout(
     rounded_corners: float = 10.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -879,7 +879,7 @@ class NucleicAcidFeatureLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -907,7 +907,7 @@ class NucleicAcidFeatureMultimerLayout(
     offset: float = 2.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -915,7 +915,7 @@ class NucleicAcidFeatureMultimerLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -936,7 +936,7 @@ class EmptySetLayout(
     height: float = 30.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -944,7 +944,7 @@ class EmptySetLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -971,7 +971,7 @@ class PerturbingAgentLayout(
     angle: float = 50.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -979,7 +979,7 @@ class PerturbingAgentLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1005,7 +1005,7 @@ class _LogicalOperatorLayout(
     )
     _font_color: typing.ClassVar[
         momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1020,7 +1020,7 @@ class AndOperatorLayout(_LogicalOperatorLayout):
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1028,7 +1028,7 @@ class AndOperatorLayout(_LogicalOperatorLayout):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1051,7 +1051,7 @@ class OrOperatorLayout(_LogicalOperatorLayout):
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1059,7 +1059,7 @@ class OrOperatorLayout(_LogicalOperatorLayout):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1082,7 +1082,7 @@ class NotOperatorLayout(_LogicalOperatorLayout):
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1090,7 +1090,7 @@ class NotOperatorLayout(_LogicalOperatorLayout):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1113,7 +1113,7 @@ class EquivalenceOperatorLayout(_LogicalOperatorLayout):
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1121,7 +1121,7 @@ class EquivalenceOperatorLayout(_LogicalOperatorLayout):
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1149,7 +1149,7 @@ class GenericProcessLayout(
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1157,7 +1157,7 @@ class GenericProcessLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1184,7 +1184,7 @@ class OmittedProcessLayout(
     )
     _font_color: typing.ClassVar[
         momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     width: float = 20.0
     height: float = 20.0
     left_connector_length: float = 10.0
@@ -1194,7 +1194,7 @@ class OmittedProcessLayout(
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1202,7 +1202,7 @@ class OmittedProcessLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1229,7 +1229,7 @@ class UncertainProcessLayout(
     )
     _font_color: typing.ClassVar[
         momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     width: float = 20.0
     height: float = 20.0
     left_connector_length: float = 10.0
@@ -1239,7 +1239,7 @@ class UncertainProcessLayout(
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1247,7 +1247,7 @@ class UncertainProcessLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1275,7 +1275,7 @@ class AssociationLayout(
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1283,7 +1283,7 @@ class AssociationLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1312,7 +1312,7 @@ class DissociationLayout(
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1320,7 +1320,7 @@ class DissociationLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1348,7 +1348,7 @@ class PhenotypeLayout(
     angle: float = 50.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1356,7 +1356,7 @@ class PhenotypeLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1378,7 +1378,7 @@ class SubmapLayout(
     height: float = 80.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: typing.Optional[float] = 1.0
     stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1386,7 +1386,7 @@ class SubmapLayout(
     stroke_dashoffset: typing.Optional[float] = 0.0
     fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
     transform: typing.Optional[
         typing.Union[
             momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
@@ -1404,7 +1404,7 @@ class ConsumptionLayout(momapy.arcs.PolyLine):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1430,7 +1430,7 @@ class ProductionLayout(momapy.arcs.Arrow):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1438,7 +1438,7 @@ class ProductionLayout(momapy.arcs.Arrow):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1446,7 +1446,7 @@ class ProductionLayout(momapy.arcs.Arrow):
     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
     arrowhead_fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1456,7 +1456,7 @@ class StimulationLayout(momapy.arcs.Arrow):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1464,7 +1464,7 @@ class StimulationLayout(momapy.arcs.Arrow):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1472,7 +1472,7 @@ class StimulationLayout(momapy.arcs.Arrow):
     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
     arrowhead_fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1482,7 +1482,7 @@ class CatalysisLayout(momapy.arcs.Circle):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1490,7 +1490,7 @@ class CatalysisLayout(momapy.arcs.Circle):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1498,7 +1498,7 @@ class CatalysisLayout(momapy.arcs.Circle):
     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
     arrowhead_fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1508,7 +1508,7 @@ class InhibitionLayout(momapy.arcs.Bar):
     shorten: float = 2.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1516,7 +1516,7 @@ class InhibitionLayout(momapy.arcs.Bar):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1537,7 +1537,7 @@ class NecessaryStimulationLayout(momapy.arcs.BarArrow):
     shorten: float = 2.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1545,7 +1545,7 @@ class NecessaryStimulationLayout(momapy.arcs.BarArrow):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1553,7 +1553,7 @@ class NecessaryStimulationLayout(momapy.arcs.BarArrow):
     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
     arrowhead_fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1563,7 +1563,7 @@ class ModulationLayout(momapy.arcs.Diamond):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1571,7 +1571,7 @@ class ModulationLayout(momapy.arcs.Diamond):
     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
     arrowhead_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     arrowhead_stroke_width: typing.Optional[float] = 1.0
     arrowhead_stroke_dasharray: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
@@ -1579,7 +1579,7 @@ class ModulationLayout(momapy.arcs.Diamond):
     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
     arrowhead_fill: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.colors.white
+    ] = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1589,7 +1589,7 @@ class LogicArcLayout(momapy.arcs.PolyLine):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]
@@ -1615,7 +1615,7 @@ class EquivalenceArcLayout(momapy.arcs.PolyLine):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.colors.black
+    ] = momapy.coloring.black
     stroke_width: float = 1.0
     stroke_dasharray: typing.Union[
         momapy.drawing.NoneValueType, tuple[float]

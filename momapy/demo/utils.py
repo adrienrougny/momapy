@@ -54,9 +54,9 @@ def show_room(cls, type_="anchor"):
     if m.height is None:
         m.height = 50
     if m.fill is None:
-        m.fill = momapy.coloring.colors.white
+        m.fill = momapy.coloring.white
     if m.stroke is None:
-        m.stroke = momapy.coloring.colors.black
+        m.stroke = momapy.coloring.black
     if m.stroke_width is None:
         m.stroke_width = 1.0
     m.position = POSITION
@@ -112,7 +112,7 @@ def show_room(cls, type_="anchor"):
             height=CROSS_SIZE,
             position=position,
             stroke_width=1.5,
-            stroke=momapy.coloring.colors.red,
+            stroke=momapy.coloring.red,
             label=momapy.core.TextLayoutBuilder(
                 text=text,
                 font_family="Arial",

@@ -119,7 +119,7 @@ class TextLayout(LayoutElement):
     position: momapy.geometry.Point
     font_size: float
     font_family: str
-    font_color: momapy.coloring.Color = momapy.coloring.colors.black
+    font_color: momapy.coloring.Color = momapy.coloring.black
     width: Optional[float] = None
     height: Optional[float] = None
     horizontal_alignment: HAlignment = HAlignment.LEFT

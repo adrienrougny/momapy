@@ -245,9 +245,9 @@ def _resolve_css_int_value(results):
 
 @_css_color_name_value.set_parse_action
 def _resolve_css_color_name_value(results):
-    if not momapy.coloring.colors.has_color(results[0]):
+    if not momapy.coloring.has_color(results[0]):
         raise ValueError(f"{results[0]} is not a valid color name")
-    return getattr(momapy.coloring.colors, results[0])
+    return getattr(momapy.coloring, results[0])
 
 
 @_css_drop_shadow_filter_value.set_parse_action

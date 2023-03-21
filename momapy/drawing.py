@@ -38,7 +38,7 @@ class DropShadowEffect(FilterEffect):
     dy: float = 0.0
     std_deviation: float = 0.0
     flood_opacity: float = 1.0
-    flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+    flood_color: momapy.coloring.Color = momapy.coloring.black
 
     def to_compat(self):
         flood_effect = FloodEffect(
@@ -107,7 +107,7 @@ class CompositeEffect(FilterEffect):
 
 @dataclass(frozen=True, kw_only=True)
 class FloodEffect(FilterEffect):
-    flood_color: momapy.coloring.Color = momapy.coloring.colors.black
+    flood_color: momapy.coloring.Color = momapy.coloring.black
     flood_opacity: float = 1.0
 
 

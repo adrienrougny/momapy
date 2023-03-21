@@ -97,7 +97,7 @@ class Renderer(ABC):
         Union[momapy.coloring.Color, momapy.drawing.NoneValueType]
     ] = (momapy.drawing.NoneValue,)
     default_stroke_width: ClassVar[float] = 1.0
-    default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.colors.black
+    default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.black
     default_stroke_dashoffset: ClassVar[float] = 0.0
 
     @abstractmethod
