@@ -670,10 +670,10 @@ def read_file(file_name, return_builder=False, tidy=False, style_sheet=None):
     ]
     model = builder.new_model()
     layout = builder.new_layout()
-    model_layout_mapping = builder.new_model_layout_mapping()
+    layout_model_mapping = builder.new_layout_model_mapping()
     builder.model = model
     builder.layout = layout
-    builder.model_layout_mapping = model_layout_mapping
+    builder.layout_model_mapping = layout_model_mapping
     d_model_elements_ids = {}
     d_layout_elements_ids = {}
     libsbgn_map_dimensions = _get_libsbgn_map_dimensions(libsbgn_map)
@@ -775,8 +775,12 @@ def _make_and_add_map_elements_from_glyph(
     if momapy.builder.isinstance_or_builder(
         model_element, momapy.core.ModelElement
     ):
-        builder.add_layout_element_to_model_element(
-            layout_element, model_element
+        if is_subglyph:
+            nm_model_element = super_model_element
+        else:
+            nm_model_element = None
+        builder.map_model_element_to_layout_element(
+            layout_element, model_element, nm_model_element
         )
         d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
@@ -891,7 +895,7 @@ def _make_and_add_map_elements_from_arc(
     else:
         builder.add_model_element(model_element)
     builder.add_layout_element(layout_element)
-    builder.add_layout_element_to_model_element(layout_element, model_element)
+    builder.map_model_element_to_layout_element(layout_element, model_element)
     d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
     for subglyph in arc.get_glyph():

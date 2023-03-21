@@ -803,15 +803,10 @@ def _sbgnaf_map_builder_new_layout(self, *args, **kwargs):
     return SBGNAFLayoutBuilder(*args, **kwargs)
 
 
-def _sbgnaf_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
-
-
 SBGNAFMapBuilder = momapy.builder.get_or_make_builder_cls(
     SBGNAFMap,
     builder_namespace={
         "new_model": _sbgnaf_map_builder_new_model,
         "new_layout": _sbgnaf_map_builder_new_layout,
-        "new_model_layout_mapping": _sbgnaf_map_builder_new_model_layout_mapping,
     },
 )

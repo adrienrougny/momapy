@@ -494,7 +494,6 @@ class CellDesignerModel(momapy.sbml.core.Model):
 class CellDesignerMap(momapy.core.Map):
     model: typing.Optional[CellDesignerModel] = None
     layout: typing.Optional[momapy.core.MapLayout] = None
-    model_layout_mapping: typing.Optional[momapy.core.ModelLayoutMapping] = None
 
 
 CellDesignerModelBuilder = momapy.builder.get_or_make_builder_cls(
@@ -510,15 +509,10 @@ def _celldesigner_map_builder_new_layout(self, *args, **kwargs):
     return momapy.core.MapLayoutBuilder(*args, **kwargs)
 
 
-def _celldesigner_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
-
-
 CellDesignerMapBuilder = momapy.builder.get_or_make_builder_cls(
     CellDesignerMap,
     builder_namespace={
         "new_model": _celldesigner_map_builder_new_model,
         "new_layout": _celldesigner_map_builder_new_layout,
-        "new_model_layout_mapping": _celldesigner_map_builder_new_model_layout_mapping,
     },
 )

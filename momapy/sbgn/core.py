@@ -35,7 +35,6 @@ class SBGNLayout(momapy.core.MapLayout):
 class SBGNMap(momapy.core.Map):
     model: SBGNModel
     layout: SBGNLayout
-    model_layout_mapping: momapy.core.ModelLayoutMapping
 
 
 @dataclass(frozen=True)

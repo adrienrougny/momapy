@@ -1652,15 +1652,10 @@ def _sbgnpd_map_builder_new_layout(self, *args, **kwargs):
     return SBGNPDLayoutBuilder(*args, **kwargs)
 
 
-def _sbgnpd_map_builder_new_model_layout_mapping(self, *args, **kwargs):
-    return momapy.core.ModelLayoutMappingBuilder(*args, **kwargs)
-
-
 SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
     SBGNPDMap,
     builder_namespace={
         "new_model": _sbgnpd_map_builder_new_model,
         "new_layout": _sbgnpd_map_builder_new_layout,
-        "new_model_layout_mapping": _sbgnpd_map_builder_new_model_layout_mapping,
     },
 )

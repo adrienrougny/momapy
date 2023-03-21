@@ -221,7 +221,7 @@ def read_file(filename):
     builder = momapy.celldesigner.core.CellDesignerMapBuilder()
     builder.model = builder.new_model()
     builder.layout = builder.new_layout()
-    builder.model_layout_mapping = builder.new_model_layout_mapping()
+    builder.layout_model_mapping = builder.new_layout_model_mapping()
     for compartment in sbml.model.list_of_compartments.compartment:
         compartment_me = _compartment_to_model_element(
             compartment, builder, d_id_me_mapping

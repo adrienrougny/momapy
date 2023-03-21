@@ -766,12 +766,14 @@ class PhantomLayout(LayoutElement):
                 raise AttributeError
 
 
-class ModelLayoutMapping(frozendict):
+class LayoutModelMapping(
+    frozendict
+):  # frozendict[LayoutElement, tuple[ModelElement, None | ModelElement]]
     def is_submapping(self, other):
-        for model_element in self:
-            if model_element not in other or not self[model_element].issubset(
-                other[model_element]
-            ):
+        for layout_element in self:
+            mapping = self[layout_element]
+            other_mapping = other.get(layout_element)
+            if mapping != other_mapping:
                 return False
         return True
 
@@ -780,14 +782,14 @@ class ModelLayoutMapping(frozendict):
 class Map(MapElement):
     model: Model
     layout: MapLayout
-    model_layout_mapping: ModelLayoutMapping
+    layout_model_mapping: LayoutModelMapping
 
     def is_submap(self, other):
         return (
             self.model.is_submodel(other.model)
             and self.layout.is_sublayout(other.layout)
-            and self.model_layout_mapping.is_submapping(
-                other.model_layout_mapping
+            and self.layout_model_mapping.is_submapping(
+                other.layout_model_mapping
             )
         )
 
@@ -898,17 +900,12 @@ class ListBuilder(list, momapy.builder.Builder):
         return cls([momapy.builder.builder_from_object(elem) for elem in obj])
 
 
-class ModelLayoutMappingBuilder(FrozendictBuilder):
-    _cls_to_build = ModelLayoutMapping
-
-
 momapy.builder.register_builder(FrozensetBuilder)
 momapy.builder.register_builder(SetBuilder)
 momapy.builder.register_builder(TupleBuilder)
 momapy.builder.register_builder(DictBuilder)
 momapy.builder.register_builder(FrozendictBuilder)
 momapy.builder.register_builder(ListBuilder)
-momapy.builder.register_builder(ModelLayoutMappingBuilder)
 
 
 def _map_element_builder_hash(self):
@@ -962,6 +959,18 @@ MapLayoutBuilder = momapy.builder.get_or_make_builder_cls(
 )
 
 
+class LayoutModelMappingBuilder(
+    FrozendictBuilder
+):  # dict[LayoutElementBuilder, tuple[ModelElementBuilder, None | ModelElementBuilder]]
+    def is_submapping(self, other):
+        for layout_element in self:
+            mapping = self[layout_element]
+            other_mapping = other.get(layout_element)
+            if mapping != other_mapping:
+                return False
+        return True
+
+
 @abstractmethod
 def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
     pass
@@ -972,11 +981,8 @@ def _map_builder_new_layout(self, *args, **kwargs) -> MapLayoutBuilder:
     pass
 
 
-@abstractmethod
-def _map_builder_new_model_layout_mapping(
-    self, *args, **kwargs
-) -> ModelLayoutMappingBuilder:
-    pass
+def _map_builder_new_layout_model_mapping(self) -> LayoutModelMappingBuilder:
+    return LayoutModelMappingBuilder()
 
 
 def _map_builder_new_model_element(
@@ -1001,16 +1007,18 @@ def _map_builder_add_layout_element(self, layout_element):
     self.layout.add_element(layout_element)
 
 
-def _map_builder_add_layout_element_to_model_element(
-    self, layout_element, model_element
+def _map_builder_map_model_element_to_layout_element(
+    self,
+    layout_element: LayoutElementBuilder,
+    model_element: ModelElementBuilder,
+    nm_model_element: None | ModelElementBuilder = None,
 ):
-    if model_element not in self.model_layout_mapping:
-        self.model_layout_mapping[model_element] = FrozensetBuilder()
-    self.model_layout_mapping[model_element].add(layout_element)
-
-
-def _map_builder_get_layout_elements(self, model_element):
-    return self.model_layout_mapping[model_element]
+    self.layout_model_mapping[layout_element] = TupleBuilder(
+        [
+            model_element,
+            nm_model_element,
+        ]
+    )
 
 
 MapBuilder = momapy.builder.get_or_make_builder_cls(
@@ -1018,13 +1026,12 @@ MapBuilder = momapy.builder.get_or_make_builder_cls(
     builder_namespace={
         "new_model": _map_builder_new_model,
         "new_layout": _map_builder_new_layout,
-        "new_model_layout_mapping": _map_builder_new_model_layout_mapping,
+        "new_layout_model_mapping": _map_builder_new_layout_model_mapping,
         "new_model_element": _map_builder_new_model_element,
         "new_layout_element": _map_builder_new_layout_element,
         "add_model_element": _map_builder_add_model_element,
         "add_layout_element": _map_builder_add_layout_element,
-        "add_layout_element_to_model_element": _map_builder_add_layout_element_to_model_element,
-        "get_layout_elements": _map_builder_get_layout_elements,
+        "map_model_element_to_layout_element": _map_builder_map_model_element_to_layout_element,
     },
 )
 
