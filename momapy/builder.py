@@ -11,12 +11,16 @@ class Builder(abc.ABC):
     _cls_to_build: typing.ClassVar[type]
 
     @abc.abstractmethod
-    def build(self):
+    def build(
+        self, builder_object_mapping: dict[int, typing.Any] | None = None
+    ):
         pass
 
     @classmethod
     @abc.abstractmethod
-    def from_object(cls, obj):
+    def from_object(
+        cls, obj, object_builder_mapping: dict[int, "Builder"] | None = None
+    ):
         pass
 
 
@@ -31,39 +35,63 @@ def transform_type(type_, make_optional=False):
                 new_o_type = typing.Union
             else:
                 new_o_type = get_or_make_builder_cls(o_type)
-        else:  # an object from typing
+        else:  # o_type is an object from typing
             new_o_type = o_type
         new_type = new_o_type[
             tuple([transform_type(a_type) for a_type in typing.get_args(type_)])
         ]
-    else:
+    else:  # type_ has no origin
         if isinstance(type_, type):  # type_ is a type
             new_type = get_or_make_builder_cls(type_)
             if new_type is None:
                 new_type = type_
         else:
             new_type = type_
-        if make_optional:
-            new_type = typing.Optional[new_type]
+    if make_optional:
+        new_type = typing.Optional[new_type]
     return new_type
 
 
 def make_builder_cls(
     cls, builder_fields=None, builder_bases=None, builder_namespace=None
 ):
-    def _builder_build(self):
+    def _builder_build(
+        self, builder_object_mapping: dict[int, typing.Any] | None = None
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
         args = {}
         for field_ in dataclasses.fields(self):
             attr_value = getattr(self, field_.name)
-            args[field_.name] = object_from_builder(attr_value)
-        return self._cls_to_build(**args)
+            args[field_.name] = object_from_builder(
+                attr_value, builder_object_mapping
+            )
+        obj = self._cls_to_build(**args)
+        builder_object_mapping[id(self)] = obj
+        return obj
 
-    def _builder_from_object(cls, obj):
+    def _builder_from_object(
+        cls, obj, object_builder_mapping: dict[int, "Builder"] | None = None
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
         args = {}
         for field_ in dataclasses.fields(obj):
             attr_value = getattr(obj, field_.name)
-            args[field_.name] = builder_from_object(attr_value)
-        return cls(**args)
+            args[field_.name] = builder_from_object(
+                attr_value, object_builder_mapping
+            )
+        builder = cls(**args)
+        object_builder_mapping[id(obj)] = builder
+        return builder
 
     def _builder_add_element(self, element, fields_for_add_element):
         added = False
@@ -92,7 +120,6 @@ def make_builder_cls(
         field_name = field_.name
         if field_name not in builder_field_names:
             field_dict = {}
-            field_type = transform_type(field_.type, make_optional=True)
             has_default = False
             if field_.default_factory != dataclasses.MISSING:
                 field_dict["default_factory"] = transform_type(
@@ -104,6 +131,9 @@ def make_builder_cls(
                 has_default = True
             if not has_default:
                 field_dict["default"] = None
+            field_type = transform_type(
+                field_.type, make_optional=not has_default
+            )
             builder_fields.append(
                 (field_name, field_type, dataclasses.field(**field_dict))
             )
@@ -166,17 +196,34 @@ def make_builder_cls(
     return builder
 
 
-def object_from_builder(obj):
-    if issubclass(type(obj), Builder):
-        return obj.build()
+def object_from_builder(
+    builder, builder_object_mapping: dict[int, typing.Any] | None = None
+):
+    if builder_object_mapping is not None:
+        if id(builder) in builder_object_mapping:
+            return builder_object_mapping[id(builder)]
     else:
+        builder_object_mapping = {}
+    if isinstance(builder, Builder):
+        obj = builder.build(builder_object_mapping)
+        builder_object_mapping[id(builder)] = obj
         return obj
+    else:
+        return builder
 
 
-def builder_from_object(obj):
+def builder_from_object(
+    obj, object_builder_mapping: dict[int, "Builder"] | None = None
+):
+    if object_builder_mapping is not None:
+        builder = object_builder_mapping.get(id(obj))
+        if builder is not None:
+            return builder
+    else:
+        object_builder_mapping = {}
     cls = get_or_make_builder_cls(type(obj))
     if issubclass(cls, Builder):
-        return cls.from_object(obj)
+        return cls.from_object(obj, object_builder_mapping)
     else:
         return obj
 

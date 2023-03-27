@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from frozendict import frozendict
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from uuid import uuid4
 from enum import Enum
 import math
@@ -794,118 +794,292 @@ class Map(MapElement):
         )
 
 
-class FrozensetBuilder(set, momapy.builder.Builder):
-    _cls_to_build = frozenset
+class ListBuilder(list, momapy.builder.Builder):
+    _cls_to_build = list
 
-    def build(self):
-        return self._cls_to_build(
-            [momapy.builder.object_from_builder(elem) for elem in self]
+    def build(
+        self,
+        builder_object_mapping: dict[momapy.builder.Builder, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
+            [
+                momapy.builder.object_from_builder(elem, builder_object_mapping)
+                for elem in self
+            ]
         )
+        return obj
 
     @classmethod
-    def from_object(cls, obj):
-        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
-
-
-class SetBuilder(set, momapy.builder.Builder):
-    _cls_to_build = set
-
-    def build(self):
-        return self._cls_to_build(
-            [momapy.builder.object_from_builder(elem) for elem in self]
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
+            [
+                momapy.builder.builder_from_object(elem, object_builder_mapping)
+                for elem in obj
+            ]
         )
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+        return builder
 
 
 class TupleBuilder(list, momapy.builder.Builder):
     _cls_to_build = tuple
 
-    def build(self):
-        return self._cls_to_build(
-            [momapy.builder.object_from_builder(elem) for elem in self]
+    def build(
+        self,
+        builder_object_mapping: dict[momapy.builder.Builder, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
+            [
+                momapy.builder.object_from_builder(elem, builder_object_mapping)
+                for elem in self
+            ]
         )
+        return obj
 
     @classmethod
-    def from_object(cls, obj):
-        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
+            [
+                momapy.builder.builder_from_object(elem, object_builder_mapping)
+                for elem in obj
+            ]
+        )
+        return builder
+
+
+class SetBuilder(set, momapy.builder.Builder):
+    _cls_to_build = set
+
+    def build(
+        self,
+        builder_object_mapping: dict[momapy.builder.Builder, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
+            [
+                momapy.builder.object_from_builder(elem, builder_object_mapping)
+                for elem in self
+            ]
+        )
+        return obj
+
+    @classmethod
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
+            [
+                momapy.builder.builder_from_object(elem, object_builder_mapping)
+                for elem in obj
+            ]
+        )
+        return builder
+
+
+class FrozensetBuilder(set, momapy.builder.Builder):
+    _cls_to_build = frozenset
+
+    def build(
+        self,
+        builder_object_mapping: dict[int, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
+            [
+                momapy.builder.object_from_builder(elem, builder_object_mapping)
+                for elem in self
+            ]
+        )
+        return obj
+
+    @classmethod
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
+            [
+                momapy.builder.builder_from_object(elem, object_builder_mapping)
+                for elem in obj
+            ]
+        )
+        return builder
 
 
 class DictBuilder(dict, momapy.builder.Builder):
     _cls_to_build = dict
 
-    def build(self):
-        return self._cls_to_build(
+    def build(
+        self,
+        builder_object_mapping: dict[momapy.builder.Builder, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
             [
                 (
-                    momapy.builder.object_from_builder(key),
-                    momapy.builder.object_from_builder(val),
+                    momapy.builder.object_from_builder(
+                        key, builder_object_mapping
+                    ),
+                    momapy.builder.object_from_builder(
+                        val, builder_object_mapping
+                    ),
                 )
                 for key, val in self.items()
             ]
         )
+        return obj
 
     @classmethod
-    def from_object(cls, obj):
-        return cls(
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
             [
                 (
-                    momapy.builder.builder_from_object(key),
-                    momapy.builder.builder_from_object(val),
+                    momapy.builder.builder_from_object(
+                        key, object_builder_mapping
+                    ),
+                    momapy.builder.builder_from_object(
+                        val, object_builder_mapping
+                    ),
                 )
                 for key, val in obj.items()
             ]
         )
+        return builder
 
 
 class FrozendictBuilder(dict, momapy.builder.Builder):
     _cls_to_build = frozendict
 
-    def build(self):
-        return self._cls_to_build(
+    def build(
+        self,
+        builder_object_mapping: dict[momapy.builder.Builder, Any] | None = None,
+    ):
+        if builder_object_mapping is not None:
+            obj = builder_object_mapping.get(id(self))
+            if obj is not None:
+                return obj
+        else:
+            builder_object_mapping = {}
+        obj = self._cls_to_build(
             [
                 (
-                    momapy.builder.object_from_builder(key),
-                    momapy.builder.object_from_builder(val),
+                    momapy.builder.object_from_builder(
+                        key, builder_object_mapping
+                    ),
+                    momapy.builder.object_from_builder(
+                        val, builder_object_mapping
+                    ),
                 )
                 for key, val in self.items()
             ]
         )
+        return obj
 
     @classmethod
-    def from_object(cls, obj):
-        return cls(
+    def from_object(
+        cls,
+        obj,
+        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+    ):
+        if object_builder_mapping is not None:
+            builder = object_builder_mapping.get(id(obj))
+            if builder is not None:
+                return builder
+        else:
+            object_builder_mapping = {}
+        builder = cls(
             [
                 (
-                    momapy.builder.builder_from_object(key),
-                    momapy.builder.builder_from_object(val),
+                    momapy.builder.builder_from_object(
+                        key, object_builder_mapping
+                    ),
+                    momapy.builder.builder_from_object(
+                        val, object_builder_mapping
+                    ),
                 )
                 for key, val in obj.items()
             ]
         )
+        return builder
 
 
-class ListBuilder(list, momapy.builder.Builder):
-    _cls_to_build = list
-
-    def build(self):
-        return self._cls_to_build(
-            [momapy.builder.object_from_builder(elem) for elem in self]
-        )
-
-    @classmethod
-    def from_object(cls, obj):
-        return cls([momapy.builder.builder_from_object(elem) for elem in obj])
-
-
-momapy.builder.register_builder(FrozensetBuilder)
-momapy.builder.register_builder(SetBuilder)
+momapy.builder.register_builder(ListBuilder)
 momapy.builder.register_builder(TupleBuilder)
+momapy.builder.register_builder(SetBuilder)
+momapy.builder.register_builder(FrozensetBuilder)
 momapy.builder.register_builder(DictBuilder)
 momapy.builder.register_builder(FrozendictBuilder)
-momapy.builder.register_builder(ListBuilder)
 
 
 def _map_element_builder_hash(self):
