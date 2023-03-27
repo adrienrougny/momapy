@@ -1,6 +1,7 @@
 import IPython.display
 import skia
 
+import momapy.rendering.skia
 import momapy.geometry
 import momapy.builder
 import momapy.core
