@@ -2,7 +2,13 @@ TextLayout {
     font-color: black;
 }
 
-MapLayout {
+SBGNPDLayout {
+    stroke: none;
+    stroke-width: 1.0;
+    fill: white;
+}
+
+SBGNAFLayout {
     stroke: none;
     stroke-width: 1.0;
     fill: white;
