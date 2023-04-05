@@ -9,6 +9,8 @@ import momapy.coloring
 import momapy.celldesigner.core
 import momapy.celldesigner.parser
 
+import momapy.sbgn.pd
+
 import xsdata.formats.dataclass.context
 import xsdata.formats.dataclass.parsers
 import xsdata.formats.dataclass.parsers.config
@@ -145,13 +147,13 @@ _CellDesignerBooleanLogicGateTypeMapping = {
     ): momapy.celldesigner.core.AndGate,
     (
         momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_OR
-    ): momapy.celldesigner.core.AndGate,
+    ): momapy.celldesigner.core.OrGate,
     (
         momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT
-    ): momapy.celldesigner.core.AndGate,
+    ): momapy.celldesigner.core.NotGate,
     (
         momapy.celldesigner.parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN
-    ): momapy.celldesigner.core.AndGate,
+    ): momapy.celldesigner.core.UnknownGate,
 }
 
 _CellDesignerSpeciesTypeMapping = {
@@ -199,6 +201,36 @@ _CellDesignerSpeciesTypeMapping = {
         momapy.celldesigner.parser.ClassValue.COMPLEX,
         None,
     ): momapy.celldesigner.core.Complex,
+    (
+        momapy.celldesigner.parser.ClassValue.UNKNOWN,
+        None,
+    ): momapy.celldesigner.core.Unknown,
+    (
+        momapy.celldesigner.parser.ClassValue.DRUG,
+        None,
+    ): momapy.celldesigner.core.Drug,
+    (
+        momapy.celldesigner.parser.ClassValue.DEGRADED,
+        None,
+    ): momapy.celldesigner.core.Degraded,
+}
+
+
+_CellDesignerSpeciesLayoutTypeMapping = {
+    momapy.celldesigner.core.GenericProtein: momapy.celldesigner.core.GenericProteinLayout,
+    momapy.celldesigner.core.Receptor: momapy.celldesigner.core.ReceptorLayout,
+    momapy.celldesigner.core.IonChannel: momapy.celldesigner.core.IonChannelLayout,
+    momapy.celldesigner.core.TruncatedProtein: momapy.celldesigner.core.TruncatedProteinLayout,
+    momapy.celldesigner.core.Gene: momapy.celldesigner.core.GeneLayout,
+    momapy.celldesigner.core.RNA: momapy.celldesigner.core.RNALayout,
+    momapy.celldesigner.core.AntisensRNA: momapy.celldesigner.core.AntisensRNALayout,
+    momapy.celldesigner.core.Phenotype: momapy.celldesigner.core.PhenotypeLayout,
+    momapy.celldesigner.core.Ion: momapy.celldesigner.core.IonLayout,
+    momapy.celldesigner.core.SimpleMolecule: momapy.celldesigner.core.SimpleMoleculeLayout,
+    momapy.celldesigner.core.Complex: momapy.celldesigner.core.ComplexLayout,
+    momapy.celldesigner.core.Drug: momapy.celldesigner.core.DrugLayout,
+    momapy.celldesigner.core.Unknown: momapy.celldesigner.core.UnknownLayout,
+    momapy.celldesigner.core.Degraded: momapy.celldesigner.core.DegradedLayout,
 }
 
 
@@ -218,6 +250,7 @@ def read_file(filename):
     )
     sbml = parser.parse(filename, momapy.celldesigner.parser.Sbml)
     d_id_me_mapping = {}
+    d_id_le_mapping = {}
     builder = momapy.celldesigner.core.CellDesignerMapBuilder()
     builder.model = builder.new_model()
     builder.layout = builder.new_layout()
@@ -261,15 +294,55 @@ def read_file(filename):
         # builder.add_model_element(reaction_me)
         # d_id_me_mapping[reaction_me.id] = reaction_me
     for (
-        species
+        included_species
     ) in sbml.model.annotation.extension.list_of_included_species.species:
-        species_me = _species_to_model_element(
-            species, builder, d_id_me_mapping, included_species=True
+        included_species_me = _species_to_model_element(
+            included_species, builder, d_id_me_mapping, included_species=True
         )
-        complex_id = species.annotation.complex_species
-        complex_ = d_id_me_mapping[complex_id]
-        complex_.add_element(species_me)
-        d_id_me_mapping[species_me.id] = species_me
+        complex_me_id = included_species.annotation.complex_species
+        complex_me = d_id_me_mapping[complex_me_id]
+        complex_me.add_element(included_species_me)
+        d_id_me_mapping[included_species_me.id] = included_species_me
+    # Layouts: we build a layout element for each CellDesigner alias
+    for (
+        complex_species_alias
+    ) in (
+        sbml.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
+    ):
+        complex_species_le = _species_alias_to_layout_element(
+            complex_species_alias, builder, d_id_le_mapping, d_id_me_mapping
+        )
+        builder.add_layout_element(complex_species_le)
+        d_id_le_mapping[complex_species_le.id] = complex_species_le
+        complex_species_me = d_id_me_mapping[complex_species_alias.species]
+        builder.map_model_element_to_layout_element(
+            complex_species_le, complex_species_me
+        )
+    # Species aliases also include aliases for included species.
+    # If the species is included in a complex, it has a complex species alias
+    # that is not None.
+    for (
+        species_alias
+    ) in sbml.model.annotation.extension.list_of_species_aliases.species_alias:
+        species_le = _species_alias_to_layout_element(
+            species_alias, builder, d_id_le_mapping, d_id_me_mapping
+        )
+        d_id_le_mapping[species_le.id] = species_le
+        species_me = d_id_me_mapping[species_alias.species]
+        if species_alias.complex_species_alias is not None:
+            complex_le_id = species_alias.complex_species_alias
+            complex_le = d_id_le_mapping[complex_le_id]
+            complex_le.add_element(species_le)
+            complex_me = builder.layout_model_mapping[complex_le][0]
+            nm_model_element = complex_me
+        else:
+            builder.add_layout_element(species_le)
+            nm_model_element = None
+        builder.map_model_element_to_layout_element(
+            species_le, species_me, nm_model_element
+        )
+    momapy.positioning.set_fit(builder.layout, builder.layout.layout_elements)
+    builder.layout.fill = momapy.coloring.white
     return builder
 
 
@@ -502,7 +575,7 @@ def _reaction_to_model_element(reaction, builder, d_id_me_mapping):
                 builder.model.add_element(gate_me)
                 gates_me.add(gate_me)
                 # We remember all species that are inputs of Boolean logical
-                # gates since they also apear individually in
+                # gates since they also appear individually in
                 # the list of modifications and the list of modifiers
                 for input_ in gate_me.inputs:
                     in_group_modifier_species_ids.add(input_.id)
@@ -593,3 +666,48 @@ def _modifier_to_model_element(
     modifier_me.metaid = modifier.metaid
     modifier_me.species = d_id_me_mapping[modifier.species]
     return modifier_me
+
+
+def _species_alias_to_layout_element(
+    species_alias, builder, d_id_le_mapping, d_id_me_mapping
+):
+    species = d_id_me_mapping[species_alias.species]
+
+    species_le_cls = _CellDesignerSpeciesLayoutTypeMapping[
+        type(species)._cls_to_build
+    ]
+    species_le = builder.new_layout_element(species_le_cls)
+    species_le.id = species_alias.id
+    species_le.n = species.homodimer
+    bounds = species_alias.bounds
+    width = float(bounds.w)
+    height = float(bounds.h)
+    position = momapy.geometry.PointBuilder(
+        float(bounds.x) + width / 2, float(bounds.y) + height / 2
+    )
+    species_le.position = position
+    species_le.width = width
+    species_le.height = height
+    usual_view = species_alias.usual_view
+    fill = momapy.coloring.Color.from_hexa(
+        usual_view.paint.color[2:] + usual_view.paint.color[:2]
+    )
+    species_le.fill = fill
+    stroke_width = float(usual_view.single_line.width)
+    species_le.stroke_width = stroke_width
+    label = builder.new_layout_element(momapy.core.TextLayout)
+    label.text = species.name
+    label.position = species_le.label_center()
+    label.font_size = float(species_alias.font.size)
+    label.font_family = "Dialog"
+    species_le.label = label
+    # _print(species)
+    return species_le
+
+
+def _print(obj, indent=0):
+    if hasattr(obj, "__dict__"):
+        for key, val in vars(obj).items():
+            if not key.startswith("__"):
+                print(f"{'  '*indent}{key}: {val}")
+                _print(val, indent=indent + 1)

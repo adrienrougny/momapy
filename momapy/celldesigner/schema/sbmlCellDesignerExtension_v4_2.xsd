@@ -543,6 +543,11 @@
     <xs:sequence>
       <xs:element ref="celldesigner:activity"/>
       <xs:element name="bounds" type="celldesigner:bounds"/>
+      <xs:element name="font"> <!-- Added by A. Rougny-->
+        <xs:complexType>
+          <xs:attribute name="size" type="xs:int"/>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="view" type="celldesigner:view"/>
       <xs:element name="backupSize">
         <xs:complexType>
@@ -592,6 +597,11 @@
     <xs:sequence>
       <xs:element ref="celldesigner:activity"/>
       <xs:element name="bounds" type="celldesigner:bounds"/>
+      <xs:element name="font"> <!-- Added by A. Rougny-->
+        <xs:complexType>
+          <xs:attribute name="size" type="xs:int"/>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="view" type="celldesigner:view"/>
       <xs:element name="structuralState" type="celldesigner:structuralStateAngle" minOccurs="0"/>
       <xs:element name="usualView" type="celldesigner:usualView"/>
@@ -1734,7 +1744,7 @@
         <xs:enumeration value="TRANSLATIONAL_INHIBITION"/>
         <xs:enumeration value="TRANSCRIPTION"/>
         <xs:enumeration value="TRANSLATION"/>
-        <!-- Added by A. Rougny -->
+        <!-- Added by A. Rougny: -->
         <xs:enumeration value="BOOLEAN_LOGIC_GATE"/>
         <xs:enumeration value="PHYSICAL_STIMULATION"/>
         <xs:enumeration value="MODULATION"/>

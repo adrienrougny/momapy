@@ -4,6 +4,7 @@ import enum
 
 import momapy.core
 import momapy.sbml.core
+import momapy.sbgn.core
 
 
 @dataclasses.dataclass(frozen=True)
@@ -472,6 +473,463 @@ class UnknownInhibition(ReactionModification):
 
 
 @dataclasses.dataclass(frozen=True)
+class _CellDesignerShapeBase(momapy.sbgn.core._SBGNShapeBase):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class _CellDesignerMultiMixin(momapy.sbgn.core._MultiMixin):
+    n: int = 1
+
+    @property
+    def _n(self):
+        return self.n
+
+
+@dataclasses.dataclass(frozen=True)
+class GenericProteinLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.RectangleWithRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners"
+    }
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class IonChannelLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = (
+        momapy.shapes.RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners
+    )
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners",
+        "right_rectangle_width": "right_rectangle_width",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
+    right_rectangle_width: float = 20.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class ComplexLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "cut_corners": "cut_corners"
+    }
+    width: float = 60.0
+    height: float = 30.0
+    cut_corners: float = 6.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 2.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+    def label_center(self):
+        return self.south() - (0, 12)
+
+
+@dataclasses.dataclass(frozen=True)
+class SimpleMoleculeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60.0
+    height: float = 30.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class IonLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 30.0
+    height: float = 30.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 30.0
+    height: float = 30.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.drawing.NoneValue
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.gray
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class DegradedLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithDiagonalBar
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 30.0
+    height: float = 30.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
+class GeneLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 60.0
+    height: float = 30.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class PhenotypeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Hexagon
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "top_left_angle": "angle",
+        "top_right_angle": "angle",
+        "bottom_left_angle": "angle",
+        "bottom_right_angle": "angle",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    angle: float = 45.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class RNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Parallelogram
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "angle": "angle",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    angle: float = 45.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class AntisensRNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.InvertedParallelogram
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "angle": "angle",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    angle: float = 45.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TruncatedProteinLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.TruncatedRectangleWithLeftRoundedCorners
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "rounded_corners": "rounded_corners",
+        "vertical_truncation": "vertical_truncation",
+        "horizontal_truncation": "horizontal_truncation",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 8.0
+    vertical_truncation: float = 0.40
+    horizontal_truncation: float = 0.20
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ReceptorLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.FoxHead
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "vertical_truncation": "vertical_truncation",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    vertical_truncation: float = 0.20
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class DrugLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[
+        type
+    ] = momapy.shapes.StadiumWithEllipsesWithInsideStadiumWithEllipses
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "horizontal_proportion": "horizontal_proportion",
+        "sep": "sep",
+    }
+    width: float = 60.0
+    height: float = 30.0
+    horizontal_proportion: float = 0.20
+    sep: float = 4.0
+    offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True)
 class CellDesignerModel(momapy.sbml.core.Model):
     species_references: frozenset[
         CellDesignerSpeciesReference
@@ -491,13 +949,21 @@ class CellDesignerModel(momapy.sbml.core.Model):
 
 
 @dataclasses.dataclass(frozen=True)
+class CellDesignerLayout(momapy.core.MapLayout):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
 class CellDesignerMap(momapy.core.Map):
     model: typing.Optional[CellDesignerModel] = None
-    layout: typing.Optional[momapy.core.MapLayout] = None
+    layout: typing.Optional[CellDesignerLayout] = None
 
 
 CellDesignerModelBuilder = momapy.builder.get_or_make_builder_cls(
     CellDesignerModel
+)
+CellDesignerLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+    CellDesignerLayout
 )
 
 
@@ -506,7 +972,7 @@ def _celldesigner_map_builder_new_model(self, *args, **kwargs):
 
 
 def _celldesigner_map_builder_new_layout(self, *args, **kwargs):
-    return momapy.core.MapLayoutBuilder(*args, **kwargs)
+    return CellDesignerLayoutBuilder(*args, **kwargs)
 
 
 CellDesignerMapBuilder = momapy.builder.get_or_make_builder_cls(

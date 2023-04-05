@@ -4385,6 +4385,14 @@ class ComplexSpeciesAlias:
             "required": True,
         }
     )
+    font: Optional["ComplexSpeciesAlias.Font"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
     view: Optional[View] = field(
         default=None,
         metadata={
@@ -4477,6 +4485,15 @@ class ComplexSpeciesAlias:
             "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
         }
     )
+
+    @dataclass
+    class Font:
+        size: Optional[int] = field(
+            default=None,
+            metadata={
+                "type": "Attribute",
+            }
+        )
 
     @dataclass
     class BackupSize:
@@ -4766,6 +4783,14 @@ class SpeciesAlias:
             "required": True,
         }
     )
+    font: Optional["SpeciesAlias.Font"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
     view: Optional[View] = field(
         default=None,
         metadata={
@@ -4848,6 +4873,15 @@ class SpeciesAlias:
             "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
         }
     )
+
+    @dataclass
+    class Font:
+        size: Optional[int] = field(
+            default=None,
+            metadata={
+                "type": "Attribute",
+            }
+        )
 
 
 @dataclass

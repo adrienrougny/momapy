@@ -432,6 +432,70 @@ class InvertedHexagon(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
+class Parallelogram(momapy.core.NodeLayout):
+    angle: float
+
+    def joint1(self):
+        angle = math.radians(self.angle)
+        offset = abs(self.height / math.tan(angle))
+        return self.position + (offset - self.width / 2, -self.height / 2)
+
+    def joint2(self):
+        return self.position + (self.width / 2, -self.height / 2)
+
+    def joint3(self):
+        angle = math.radians(self.angle)
+        offset = abs(self.height / math.tan(angle))
+        return self.position + (self.width / 2 - offset, self.height / 2)
+
+    def joint4(self):
+        return self.position + (-self.width / 2, self.height / 2)
+
+    def border_drawing_element(self):
+        path = momapy.drawing.Path()
+        path += (
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.close()
+        )
+        return path
+
+
+@dataclass(frozen=True, kw_only=True)
+class InvertedParallelogram(momapy.core.NodeLayout):
+    angle: float
+
+    def joint1(self):
+        return self.position - (self.width / 2, self.height / 2)
+
+    def joint2(self):
+        angle = math.radians(self.angle)
+        offset = abs(self.height / math.tan(angle))
+        return self.position + (self.width / 2 - offset, -self.height / 2)
+
+    def joint3(self):
+        return self.position + (self.width / 2, self.height / 2)
+
+    def joint4(self):
+        angle = math.radians(self.angle)
+        offset = abs(self.height / math.tan(angle))
+        return self.position + (offset - self.width / 2, self.height / 2)
+
+    def border_drawing_element(self):
+        path = momapy.drawing.Path()
+        path += (
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.close()
+        )
+        return path
+
+
+@dataclass(frozen=True, kw_only=True)
 class CircleWithInsideCircle(momapy.core.NodeLayout):
     sep: float
 
@@ -556,6 +620,356 @@ class Pointer(momapy.core.NodeLayout):
             + momapy.drawing.close()
         )
         return path
+
+
+@dataclass(frozen=True, kw_only=True)
+class RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners(
+    momapy.core.NodeLayout
+):
+    rounded_corners: float
+    right_rectangle_width: float
+
+    def joint1(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width - self.rounded_corners,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint7(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint8(self):
+        return self.position + (
+            -self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint9(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width + self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint10(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            -self.height / 2,
+        )
+
+    def joint11(self):
+        return self.position + (
+            self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint12(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint13(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint14(self):
+        return self.position + (
+            self.rounded_corners + self.width / 2 - self.right_rectangle_width,
+            self.height / 2,
+        )
+
+    def joint15(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint16(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def border_drawing_element(self):
+        left_rectangle = momapy.drawing.Rectangle(
+            point=self.position - (self.width / 2, self.height / 2),
+            height=self.height,
+            width=self.width - self.right_rectangle_width,
+            rx=self.rounded_corners,
+            ry=self.rounded_corners,
+        )
+        right_rectangle = momapy.drawing.Rectangle(
+            point=self.position
+            + (self.width / 2 - self.right_rectangle_width, -self.height / 2),
+            height=self.height,
+            width=self.right_rectangle_width,
+            rx=self.rounded_corners,
+            ry=self.rounded_corners,
+        )
+        group = momapy.drawing.Group(elements=(left_rectangle, right_rectangle))
+        return group
+
+    def label_center(self):
+        return self.position - (self.right_rectangle_width / 2, 0)
+
+
+@dataclass(frozen=True, kw_only=True)
+class TruncatedRectangleWithLeftRoundedCorners(momapy.core.NodeLayout):
+    rounded_corners: float
+    vertical_truncation: float  # proportion of total height, number in ]0, 1[
+    horizontal_truncation: float  # proportion of total width number in ]0, 1[
+
+    def joint1(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_truncation * self.width,
+            self.vertical_truncation * self.height - self.height / 2,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_truncation * self.width,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint7(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint8(self):
+        return self.position + (
+            -self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def border_drawing_element(self):
+        path = momapy.drawing.Path()
+        path += (
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint6())
+            + momapy.drawing.elliptical_arc(
+                self.joint7(),
+                self.rounded_corners,
+                self.rounded_corners,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.line_to(self.joint8())
+            + momapy.drawing.elliptical_arc(
+                self.joint1(),
+                self.rounded_corners,
+                self.rounded_corners,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.close()
+        )
+        return path
+
+
+@dataclass(frozen=True, kw_only=True)
+class FoxHead(momapy.core.NodeLayout):
+    vertical_truncation: float  # proportion of total height, number in ]0, 1[
+
+    def joint1(self):
+        return self.position + (
+            -self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            0,
+            self.vertical_truncation * self.height - self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def joint5(self):
+        return self.position + (0, self.height / 2)
+
+    def joint6(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def border_drawing_element(self):
+        path = momapy.drawing.Path()
+        path += (
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.line_to(self.joint3())
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint5())
+            + momapy.drawing.line_to(self.joint6())
+            + momapy.drawing.close()
+        )
+        return path
+
+
+@dataclass(frozen=True, kw_only=True)
+class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.NodeLayout):
+    horizontal_proportion: float  # ]0, 0.5[
+    sep: float
+
+    def joint1(self):
+        return self.position + (
+            -self.width / 2 + self.horizontal_proportion * self.width,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_proportion * self.width,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_proportion * self.width,
+            self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            -self.width / 2 + self.horizontal_proportion * self.width,
+            self.height / 2,
+        )
+
+    def border_drawing_element(self):
+        outer_stadium = momapy.drawing.Path()
+        outer_stadium += (
+            momapy.drawing.move_to(self.joint1())
+            + momapy.drawing.line_to(self.joint2())
+            + momapy.drawing.elliptical_arc(
+                self.joint3(),
+                self.horizontal_proportion * self.width,
+                self.height / 2,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.line_to(self.joint4())
+            + momapy.drawing.elliptical_arc(
+                self.joint1(),
+                self.horizontal_proportion * self.width,
+                self.height / 2,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.close()
+        )
+        inner_joint1 = self.joint1() + (0, self.sep)
+        inner_joint2 = self.joint2() + (0, self.sep)
+        inner_joint3 = self.joint3() + (0, -self.sep)
+        inner_joint4 = self.joint4() + (0, -self.sep)
+        inner_rx = self.horizontal_proportion * self.width - self.sep
+        inner_ry = self.height / 2 - self.sep
+        inner_stadium = momapy.drawing.Path()
+        inner_stadium += (
+            momapy.drawing.move_to(inner_joint1)
+            + momapy.drawing.line_to(inner_joint2)
+            + momapy.drawing.elliptical_arc(
+                inner_joint3,
+                inner_rx,
+                inner_ry,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.line_to(inner_joint4)
+            + momapy.drawing.elliptical_arc(
+                inner_joint1,
+                inner_rx,
+                inner_ry,
+                0,
+                0,
+                1,
+            )
+            + momapy.drawing.close()
+        )
+        group = momapy.drawing.Group(elements=(outer_stadium, inner_stadium))
+        return group
 
 
 @dataclass(frozen=True, kw_only=True)
