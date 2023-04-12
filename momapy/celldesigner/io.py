@@ -1,5 +1,7 @@
 import dataclasses
 
+import math
+
 import momapy.core
 import momapy.builder
 import momapy.shapes
@@ -240,6 +242,11 @@ _CellDesignerStructuralStateMapping = {
     "empty": momapy.celldesigner.core.StructuralStateValue.EMPTY,
 }
 
+_CellDesignerCompartmentLayoutTypeMapping = {
+    momapy.celldesigner.parser.ClassValue.SQUARE: momapy.celldesigner.core.SquareCompartmentLayout,
+    momapy.celldesigner.parser.ClassValue.OVAL: momapy.celldesigner.core.OvalCompartmentLayout,
+}
+
 
 def read_file(filename):
     config = xsdata.formats.dataclass.parsers.config.ParserConfig(
@@ -248,6 +255,7 @@ def read_file(filename):
     parser = xsdata.formats.dataclass.parsers.XmlParser(
         config=config, context=xsdata.formats.dataclass.context.XmlContext()
     )
+    print("PARSING FILE...")
     sbml = parser.parse(filename, momapy.celldesigner.parser.Sbml)
     d_id_me_mapping = {}
     d_id_le_mapping = {}
@@ -255,12 +263,17 @@ def read_file(filename):
     builder.model = builder.new_model()
     builder.layout = builder.new_layout()
     builder.layout_model_mapping = builder.new_layout_model_mapping()
+    print("BUILDING MODEL...")
     for compartment in sbml.model.list_of_compartments.compartment:
         compartment_me = _compartment_to_model_element(
             compartment, builder, d_id_me_mapping
         )
         builder.model.add_element(compartment_me)
         d_id_me_mapping[compartment_me.id] = compartment_me
+    # Angles of modifications of species are stored in the modification residue,
+    # not in the each species alias. Hence we use a dictionary to store them and
+    # use them when we make the layouts for the modifications
+    d_modification_residue_me_id_angle_mapping = {}
     for species_reference in (
         sbml.model.annotation.extension.list_of_antisense_rnas.antisense_rna
         + sbml.model.annotation.extension.list_of_rnas.rna
@@ -268,7 +281,10 @@ def read_file(filename):
         + sbml.model.annotation.extension.list_of_proteins.protein
     ):
         species_reference_me = _species_reference_to_model_element(
-            species_reference, builder, d_id_me_mapping
+            species_reference,
+            builder,
+            d_id_me_mapping,
+            d_modification_residue_me_id_angle_mapping,
         )
         builder.add_model_element(species_reference_me)
         d_id_me_mapping[species_reference_me.id] = species_reference_me
@@ -303,14 +319,37 @@ def read_file(filename):
         complex_me = d_id_me_mapping[complex_me_id]
         complex_me.add_element(included_species_me)
         d_id_me_mapping[included_species_me.id] = included_species_me
+    print("BUILDING LAYOUT...")
     # Layouts: we build a layout element for each CellDesigner alias
+    for (
+        compartment_alias
+    ) in (
+        sbml.model.annotation.extension.list_of_compartment_aliases.compartment_alias
+    ):
+        _print(compartment_alias)
+        compartment_le = _compartment_alias_to_layout_element(
+            compartment_alias,
+            builder,
+            d_id_le_mapping,
+            d_id_me_mapping,
+        )
+        builder.add_layout_element(compartment_le)
+        d_id_le_mapping[compartment_le.id] = compartment_le
+        compartment_me = d_id_me_mapping[compartment_alias.compartment]
+        builder.map_model_element_to_layout_element(
+            compartment_le, compartment_me
+        )
     for (
         complex_species_alias
     ) in (
         sbml.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
     ):
         complex_species_le = _species_alias_to_layout_element(
-            complex_species_alias, builder, d_id_le_mapping, d_id_me_mapping
+            complex_species_alias,
+            builder,
+            d_id_le_mapping,
+            d_id_me_mapping,
+            d_modification_residue_me_id_angle_mapping,
         )
         builder.add_layout_element(complex_species_le)
         d_id_le_mapping[complex_species_le.id] = complex_species_le
@@ -325,7 +364,11 @@ def read_file(filename):
         species_alias
     ) in sbml.model.annotation.extension.list_of_species_aliases.species_alias:
         species_le = _species_alias_to_layout_element(
-            species_alias, builder, d_id_le_mapping, d_id_me_mapping
+            species_alias,
+            builder,
+            d_id_le_mapping,
+            d_id_me_mapping,
+            d_modification_residue_me_id_angle_mapping,
         )
         d_id_le_mapping[species_le.id] = species_le
         species_me = d_id_me_mapping[species_alias.species]
@@ -341,6 +384,7 @@ def read_file(filename):
         builder.map_model_element_to_layout_element(
             species_le, species_me, nm_model_element
         )
+    print("FITTING LAYOUT TO CONTENT...")
     momapy.positioning.set_fit(builder.layout, builder.layout.layout_elements)
     builder.layout.fill = momapy.coloring.white
     return builder
@@ -360,7 +404,10 @@ def _compartment_to_model_element(compartment, builder, d_id_me_mapping):
 
 
 def _species_reference_to_model_element(
-    species_reference, builder, d_id_me_mapping
+    species_reference,
+    builder,
+    d_id_me_mapping,
+    d_modification_residue_me_id_angle_mapping,
 ):
     id_ = species_reference.id
     name = species_reference.name
@@ -389,11 +436,17 @@ def _species_reference_to_model_element(
                 d_id_me_mapping[
                     modification_residue_me.id
                 ] = modification_residue_me
+                d_modification_residue_me_id_angle_mapping[
+                    modification_residue_me.id
+                ] = modification_residue.angle
     return species_reference_me
 
 
 def _modification_residue_to_model_element(
-    modification_residue, builder, species_reference_me, d_id_me_mapping
+    modification_residue,
+    builder,
+    species_reference_me,
+    d_id_me_mapping,
 ):
     id_ = modification_residue.id
     name = modification_residue.name
@@ -668,17 +721,64 @@ def _modifier_to_model_element(
     return modifier_me
 
 
-def _species_alias_to_layout_element(
-    species_alias, builder, d_id_le_mapping, d_id_me_mapping
+def _compartment_alias_to_layout_element(
+    compartment_alias,
+    builder,
+    d_id_le_mapping,
+    d_id_me_mapping,
 ):
-    species = d_id_me_mapping[species_alias.species]
+    compartment_me = d_id_me_mapping[compartment_alias.compartment]
+    compartment_le_cls = _CellDesignerCompartmentLayoutTypeMapping[
+        compartment_alias.class_value
+    ]
+    compartment_le = builder.new_layout_element(compartment_le_cls)
+    compartment_le.id = compartment_alias.id
+    bounds = compartment_alias.bounds
+    width = float(bounds.w)
+    height = float(bounds.h)
+    position = momapy.geometry.PointBuilder(
+        float(bounds.x) + width / 2, float(bounds.y) + height / 2
+    )
+    compartment_le.position = position
+    compartment_le.width = width
+    compartment_le.height = height
+    double_line = compartment_alias.double_line
+    compartment_le.outer_width = float(double_line.outer_width)
+    compartment_le.inner_width = float(double_line.inner_width)
+    compartment_le.sep = float(double_line.thickness)
+    stroke = momapy.coloring.Color.from_hexa(
+        compartment_alias.paint.color[2:] + compartment_alias.paint.color[:2]
+    )
+    compartment_le.outer_stroke = stroke
+    compartment_le.inner_stroke = stroke
+    compartment_le.outer_fill = stroke.with_alpha(0.25)
+    label = builder.new_layout_element(momapy.core.TextLayout)
+    label.text = compartment_me.name
+    label.position = momapy.geometry.PointBuilder(
+        float(compartment_alias.name_point.x),
+        float(compartment_alias.name_point.y),
+    )
+    label.font_size = 12.0
+    label.font_family = "Dialog"
+    compartment_le.label = label
+    return compartment_le
+
+
+def _species_alias_to_layout_element(
+    species_alias,
+    builder,
+    d_id_le_mapping,
+    d_id_me_mapping,
+    d_modification_residue_me_id_angle_mapping,
+):
+    species_me = d_id_me_mapping[species_alias.species]
 
     species_le_cls = _CellDesignerSpeciesLayoutTypeMapping[
-        type(species)._cls_to_build
+        type(species_me)._cls_to_build
     ]
     species_le = builder.new_layout_element(species_le_cls)
     species_le.id = species_alias.id
-    species_le.n = species.homodimer
+    species_le.n = species_me.homodimer
     bounds = species_alias.bounds
     width = float(bounds.w)
     height = float(bounds.h)
@@ -696,13 +796,165 @@ def _species_alias_to_layout_element(
     stroke_width = float(usual_view.single_line.width)
     species_le.stroke_width = stroke_width
     label = builder.new_layout_element(momapy.core.TextLayout)
-    label.text = species.name
+    label.text = species_me.name
     label.position = species_le.label_center()
     label.font_size = float(species_alias.font.size)
     label.font_family = "Dialog"
     species_le.label = label
+    if hasattr(species_me, "structural_states"):
+        for structural_state_me in species_me.structural_states:
+            structural_state_le = _structural_state_to_layout_element(
+                structural_state_me,
+                builder,
+                species_le,
+                species_alias,
+                d_id_le_mapping,
+                d_id_me_mapping,
+            )
+            species_le.add_element(structural_state_le)
+            builder.map_model_element_to_layout_element(
+                structural_state_le, structural_state_me, species_le
+            )
+    if hasattr(species_me, "modifications"):
+        # When a modification residue of a species is not filled with a value,
+        # it has no corresponding modification, but it is represented
+        # by an empty circle. Hence we track those that have no corresponding
+        # modification
+        residues_ids = set(
+            [
+                modification_residue_me.id
+                for modification_residue_me in species_me.reference.modification_residues
+            ]
+        )
+        residues_with_modification_ids = set([])
+        for modification_me in species_me.modifications:
+            modification_les = _modification_or_residue_id_to_layout_elements(
+                modification_me,
+                builder,
+                species_le,
+                d_id_le_mapping,
+                d_id_me_mapping,
+                d_modification_residue_me_id_angle_mapping,
+            )
+            for modification_le in modification_les:
+                species_le.add_element(modification_le)
+                builder.map_model_element_to_layout_element(
+                    modification_le, modification_me, species_le
+                )
+            residues_with_modification_ids.add(modification_me.residue.id)
+        # We make an empty modification layout for each residue that has no
+        # corresponding modification
+        for residue_id in residues_ids.difference(
+            residues_with_modification_ids
+        ):
+            modification_les = _modification_or_residue_id_to_layout_elements(
+                residue_id,
+                builder,
+                species_le,
+                d_id_le_mapping,
+                d_id_me_mapping,
+                d_modification_residue_me_id_angle_mapping,
+            )
+            for modification_le in modification_les:
+                species_le.add_element(modification_le)
     # _print(species)
     return species_le
+
+
+def _structural_state_to_layout_element(
+    structural_state_me,
+    builder,
+    species_le,
+    species_alias,
+    d_id_le_mapping,
+    d_id_me_mapping,
+):
+    structural_state_le = builder.new_layout_element(
+        momapy.celldesigner.core.StructuralStateLayout
+    )
+    angle = species_alias.structural_state.angle
+    subunit_le = species_le._make_subunit(species_le.n - 1)
+    structural_state_le.position = subunit_le.self_angle(angle, unit="radians")
+    label = builder.new_layout_element(momapy.core.TextLayout)
+    structural_state_value = structural_state_me.value
+    if isinstance(structural_state_value, str):
+        text = structural_state_value
+    else:
+        text = structural_state_value.name.lower()
+    label.text = text
+    label.position = structural_state_le.label_center()
+    label.font_size = 9.0
+    label.font_family = "sans-serif"
+    structural_state_le.label = label
+    if structural_state_le.width > subunit_le.width:
+        structural_state_le.width = subunit_le.width
+    else:
+        ink_bbox = label.ink_bbox()
+        if ink_bbox.width > subunit_le.width:
+            structural_state_le.width = subunit_le.width
+        elif ink_bbox.width > structural_state_le.width:
+            structural_state_le.width = ink_bbox.width
+    return structural_state_le
+
+
+def _modification_or_residue_id_to_layout_elements(
+    modification_me_or_residue_id,
+    builder,
+    species_le,
+    d_id_le_mapping,
+    d_id_me_mapping,
+    d_modification_residue_me_id_angle_mapping,
+):
+    modification_les = []
+    for i in range(species_le.n):
+        modification_le = builder.new_layout_element(
+            momapy.celldesigner.core.ModificationLayout
+        )
+        if momapy.builder.isinstance_or_builder(
+            modification_me_or_residue_id, momapy.celldesigner.core.Modification
+        ):
+            residue_id = modification_me_or_residue_id.residue.id
+        else:
+            residue_id = modification_me_or_residue_id
+        angle = d_modification_residue_me_id_angle_mapping[residue_id]
+        subunit_le = species_le._make_subunit(i)
+        p = momapy.geometry.Point(
+            subunit_le.width * math.cos(angle),
+            subunit_le.height * math.sin(angle),
+        )
+        angle = math.atan2(p.y, p.x)
+        modification_le.position = subunit_le.self_angle(angle, unit="radians")
+        if momapy.builder.isinstance_or_builder(
+            modification_me_or_residue_id, momapy.celldesigner.core.Modification
+        ):
+            label = builder.new_layout_element(momapy.core.TextLayout)
+            label.text = modification_me_or_residue_id.state.value
+            label.position = modification_le.label_center()
+            label.font_size = 9.0
+            label.font_family = "sans-serif"
+            modification_le.label = label
+        modification_les.append(modification_le)
+    residue = d_id_me_mapping[residue_id]
+    if residue.name is not None:
+        subunit_le = species_le._make_subunit(species_le.n - 1)
+        label_name = builder.new_layout_element(momapy.core.TextLayout)
+        label_name.text = residue.name
+        segment = momapy.geometry.Segment(
+            modification_les[-1].center(), subunit_le.center()
+        )
+        label_name.position = modification_le.position
+        label_name.font_size = 9.0
+        label_name.font_family = "sans-serif"
+        ink_bbox = label_name.ink_bbox()
+        length = 9.5 + math.sqrt(
+            (math.cos(angle) * ink_bbox.width / 2) ** 2
+            + (math.sin(angle) * ink_bbox.height / 2) ** 2
+        )
+        label_name.position = segment.get_position_at_fraction(
+            length / segment.length()
+        )
+        modification_les[-1].add_element(label_name)
+    return modification_les
 
 
 def _print(obj, indent=0):

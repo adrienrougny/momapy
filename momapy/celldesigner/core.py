@@ -19,7 +19,7 @@ class ModificationResidue(CellDesignerModelElement):
 
 class ModificationState(enum.Enum):
     PHOSPHORYLATED = "P"
-    UBIQUINATED = "Ub"
+    UBIQUITINATED = "Ub"
     METHYLATED = "M"
     HYDROXYLATED = "OH"
     GLYCOSYLATED = "G"
@@ -28,7 +28,7 @@ class ModificationState(enum.Enum):
     PRENYLATED = "Pr"
     PROTONATED = "H"
     SULFATED = "S"
-    DONT_CARE = "*"
+    DON_T_CARE = "*"
     UNKNOWN = "?"
 
 
@@ -246,7 +246,9 @@ class Unknown(Species):
 @dataclasses.dataclass(frozen=True)
 class Complex(Species):
     name: typing.Optional[str] = None
-    structural_state: typing.Optional[StructuralState] = None
+    structural_states: frozenset[StructuralState] = dataclasses.field(
+        default_factory=frozenset
+    )
     subunits: frozenset[Species] = dataclasses.field(default_factory=frozenset)
 
 
@@ -478,6 +480,11 @@ class _CellDesignerShapeBase(momapy.sbgn.core._SBGNShapeBase):
 
 
 @dataclasses.dataclass(frozen=True)
+class _CellDesignerSimpleMixin(momapy.sbgn.core._SimpleMixin):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
 class _CellDesignerMultiMixin(momapy.sbgn.core._MultiMixin):
     n: int = 1
 
@@ -587,7 +594,7 @@ class ComplexLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     ] = momapy.drawing.NoneValue
 
     def label_center(self):
-        return self.south() - (0, 12)
+        return self._make_subunit(self.n - 1).south() - (0, 12)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -908,6 +915,259 @@ class DrugLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     horizontal_proportion: float = 0.20
     sep: float = 4.0
     offset: float = 6.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class StructuralStateLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 50.0
+    height: float = 16.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ModificationLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 16.0
+    height: float = 16.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _OvalCompartmentShape(momapy.core.NodeLayout):
+    outer_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_stroke_width: typing.Optional[float] = 2.0
+    outer_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke_width: typing.Optional[float] = 1.0
+    inner_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    sep: float = 12.0
+
+    def border_drawing_element(self):
+        outer_oval = momapy.drawing.Ellipse(
+            stroke_width=self.outer_stroke_width,
+            stroke=self.outer_stroke,
+            fill=self.outer_fill,
+            point=self.position,
+            rx=self.width / 2,
+            ry=self.height / 2,
+        )
+        inner_oval = momapy.drawing.Ellipse(
+            stroke_width=self.inner_stroke_width,
+            stroke=self.inner_stroke,
+            fill=self.inner_fill,
+            point=self.position,
+            rx=self.width / 2 - self.sep,
+            ry=self.height / 2 - self.sep,
+        )
+        group = momapy.drawing.Group(
+            elements=(
+                outer_oval,
+                inner_oval,
+            )
+        )
+        return group
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class OvalCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = _OvalCompartmentShape
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "outer_stroke": "outer_stroke",
+        "outer_stroke_width": "outer_stroke_width",
+        "outer_fill": "outer_fill",
+        "inner_stroke": "inner_stroke",
+        "inner_stroke_width": "inner_stroke_width",
+        "inner_fill": "inner_fill",
+        "sep": "sep",
+    }
+    width: float = 16.0
+    height: float = 16.0
+    outer_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_stroke_width: typing.Optional[float] = 2.0
+    outer_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke_width: typing.Optional[float] = 1.0
+    inner_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    sep: float = 12.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _SquareCompartmentShape(momapy.core.NodeLayout):
+    outer_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_stroke_width: typing.Optional[float] = 2.0
+    outer_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_rounded_corners: float = 20.0
+    inner_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke_width: typing.Optional[float] = 1.0
+    inner_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    inner_rounded_corners: float = 20.0
+    sep: float = 12.0
+
+    def border_drawing_element(self):
+        outer_square = momapy.drawing.Rectangle(
+            stroke_width=self.outer_stroke_width,
+            stroke=self.outer_stroke,
+            fill=self.outer_fill,
+            point=self.position - (self.width / 2, self.height / 2),
+            width=self.width,
+            height=self.height,
+            rx=self.outer_rounded_corners,
+            ry=self.outer_rounded_corners,
+        )
+        inner_square = momapy.drawing.Rectangle(
+            stroke_width=self.inner_stroke_width,
+            stroke=self.inner_stroke,
+            fill=self.inner_fill,
+            point=self.position
+            + (self.sep - self.width / 2, self.sep - self.height / 2),
+            width=self.width - self.sep * 2,
+            height=self.height - self.sep * 2,
+            rx=self.inner_rounded_corners,
+            ry=self.inner_rounded_corners,
+        )
+        group = momapy.drawing.Group(
+            elements=(
+                outer_square,
+                inner_square,
+            )
+        )
+        return group
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class SquareCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = _SquareCompartmentShape
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
+        "outer_stroke": "outer_stroke",
+        "outer_stroke_width": "outer_stroke_width",
+        "outer_fill": "outer_fill",
+        "outer_rounded_corners": "outer_rounded_corners",
+        "inner_stroke": "inner_stroke",
+        "inner_stroke_width": "inner_stroke_width",
+        "inner_fill": "inner_fill",
+        "inner_rounded_corners": "inner_rounded_corners",
+        "sep": "sep",
+    }
+    width: float = 16.0
+    height: float = 16.0
+    outer_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_stroke_width: typing.Optional[float] = 2.0
+    outer_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    outer_rounded_corners: float = 20.0
+    inner_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    inner_stroke_width: typing.Optional[float] = 1.0
+    inner_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    inner_rounded_corners: float = 15.0
+    sep: float = 12.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
     ] = momapy.coloring.black
