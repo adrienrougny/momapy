@@ -319,7 +319,8 @@ class GroupLayout(LayoutElement):
     def drawing_elements(self):
         drawing_elements = self.self_drawing_elements()
         for child in self.children():
-            drawing_elements += child.drawing_elements()
+            if child is not None:
+                drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
             elements=drawing_elements,
             stroke=self.stroke,
