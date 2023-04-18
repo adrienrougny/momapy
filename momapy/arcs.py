@@ -19,6 +19,9 @@ class PolyLine(momapy.core.ArcLayout):
 
 @dataclass(frozen=True, kw_only=True)
 class Arrow(momapy.core.ArcLayout):
+    width: float = 10.0
+    height: float = 10.0
+
     def arrowhead_drawing_element(self):
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
