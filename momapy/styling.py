@@ -4,6 +4,7 @@ import typing
 import uuid
 import pyparsing as pp
 import frozendict
+import copy
 
 
 import momapy.coloring
@@ -17,7 +18,7 @@ class StyleCollection(dict):
 
 class StyleSheet(dict):
     def __or__(self, other):
-        d = dict(self)
+        d = copy.deepcopy(self)
         for key, value in other.items():
             if key in d:
                 d[key] |= value
