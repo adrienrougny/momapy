@@ -1059,7 +1059,7 @@ def _make_layout_element_from_glyph(
             libsbgn_variable = libsbgn_state.get_variable()
             libsbgn_value = libsbgn_state.get_value()
             value_text = libsbgn_value if libsbgn_value is not None else ""
-            if libsbgn_variable is not None:
+            if libsbgn_variable is not None and len(libsbgn_variable) > 0:
                 text = f"{value_text}@{libsbgn_variable}"
             else:
                 text = value_text
