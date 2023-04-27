@@ -4,8 +4,6 @@ import typing
 import types
 import inspect
 
-import momapy.geometry
-
 
 class Builder(abc.ABC):
     _cls_to_build: typing.ClassVar[type]
