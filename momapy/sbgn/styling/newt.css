@@ -203,10 +203,10 @@ ComplexMultimerLayout {
 }
 
 SimpleChemicalLayout {
-    width: 60;
-    height: 60;
+    width: 30;
+    height: 30;
     stroke: black;
-    stroke-width: 2.0;
+    stroke-width: 1.25;
     fill: white;
     filter: none;
 }
