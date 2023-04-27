@@ -11,11 +11,11 @@ import momapy.drawing
 import momapy.core
 
 
-class StyleCollection(frozendict.frozendict):
+class StyleCollection(dict):
     pass
 
 
-class StyleSheet(frozendict.frozendict):
+class StyleSheet(dict):
     def __or__(self, other):
         d = dict(self)
         for key, value in other.items():
