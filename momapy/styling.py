@@ -195,7 +195,7 @@ _css_style = (
 _css_style_collection = (
     pp.Literal("{") + pp.Group(_css_style[1, ...]) + pp.Literal("}")
 )
-_css_id = pp.Word(pp.printables)
+_css_id = pp.Word(pp.printables, exclude_chars=",")
 _css_id_selector = pp.Literal("#") + _css_id
 _css_class_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
 _css_type_selector = _css_class_name
