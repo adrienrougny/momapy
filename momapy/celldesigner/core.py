@@ -1189,6 +1189,145 @@ class SquareCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
     ] = momapy.drawing.NoneValue
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ReactionNodeLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
+    width: float = 12.0
+    height: float = 12.0
+    stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    stroke_width: typing.Optional[float] = 1.0
+    stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    stroke_dashoffset: typing.Optional[float] = 0.0
+    fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.white
+    transform: typing.Optional[
+        typing.Union[
+            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
+        ]
+    ] = momapy.drawing.NoneValue
+    filter: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
+    ] = momapy.drawing.NoneValue
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ReactionLayout(momapy.arcs.Arrow):
+    reaction_node: ReactionNodeLayout
+
+    def self_children(self):
+        layout_elements = momapy.arcs.Arrow.self_children(self)
+        layout_elements.append(self.reaction_node)
+        return layout_elements
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class StateTransitionLayout(ReactionLayout):
+    width: float = 14.0
+    height: float = 10.0
+    shorten: float = 2.0
+    stroke: typing.Union[
+        momapy.drawing.NoneValueType, momapy.coloring.Color
+    ] = momapy.coloring.black
+    stroke_width: float = 1.0
+    stroke_dasharray: typing.Union[
+        momapy.drawing.NoneValueType, tuple[float]
+    ] = momapy.drawing.NoneValue
+    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
+    arrowhead_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    arrowhead_stroke_width: typing.Optional[float] = 1.0
+    arrowhead_stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
+    arrowhead_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TranscriptionLayout(ReactionLayout):
+    width: float = 12.0
+    height: float = 12.0
+    shorten: float = 2.0
+    stroke: typing.Union[
+        momapy.drawing.NoneValueType, momapy.coloring.Color
+    ] = momapy.coloring.black
+    stroke_width: float = 1.0
+    stroke_dasharray: typing.Union[
+        momapy.drawing.NoneValueType, tuple[float]
+    ] = (10, 3, 2, 3, 2, 3)
+    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
+    arrowhead_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    arrowhead_stroke_width: typing.Optional[float] = 1.0
+    arrowhead_stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
+    arrowhead_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ConsumptionLayout(momapy.arcs.PolyLine):
+    shorten: float = 0.0
+    stroke: typing.Union[
+        momapy.drawing.NoneValueType, momapy.coloring.Color
+    ] = momapy.coloring.black
+    stroke_width: float = 1.0
+    stroke_dasharray: typing.Union[
+        momapy.drawing.NoneValueType, tuple[float]
+    ] = momapy.drawing.NoneValue
+    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
+    arrowhead_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    arrowhead_stroke_width: typing.Optional[float] = 1.0
+    arrowhead_stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
+    arrowhead_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ProductionLayout(momapy.arcs.Arrow):
+    width: float = 14.0
+    height: float = 10.0
+    shorten: float = 2.0
+    stroke: typing.Union[
+        momapy.drawing.NoneValueType, momapy.coloring.Color
+    ] = momapy.coloring.black
+    stroke_width: float = 1.0
+    stroke_dasharray: typing.Union[
+        momapy.drawing.NoneValueType, tuple[float]
+    ] = momapy.drawing.NoneValue
+    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
+    arrowhead_stroke: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+    arrowhead_stroke_width: typing.Optional[float] = 1.0
+    arrowhead_stroke_dasharray: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
+    ] = momapy.drawing.NoneValue
+    arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
+    arrowhead_fill: typing.Optional[
+        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
+    ] = momapy.coloring.black
+
+
 @dataclasses.dataclass(frozen=True)
 class CellDesignerModel(momapy.sbml.core.Model):
     species_references: frozenset[

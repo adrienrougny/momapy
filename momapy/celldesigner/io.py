@@ -247,6 +247,38 @@ _CellDesignerCompartmentLayoutTypeMapping = {
     momapy.celldesigner.parser.ClassValue.OVAL: momapy.celldesigner.core.OvalCompartmentLayout,
 }
 
+_CellDesignerReactionLayoutTypeMapping = {
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.STATE_TRANSITION
+    ): momapy.celldesigner.core.StateTransitionLayout,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.TRANSCRIPTION
+    ): momapy.celldesigner.core.TranscriptionLayout,
+    (
+        momapy.celldesigner.parser.ReactionTypeValue.TRANSLATION
+    ): momapy.celldesigner.core.StateTransitionLayout,
+}
+
+
+_CellDesignerPositionAnchorMapping = {
+    momapy.celldesigner.parser.LinkAnchorPosition.NW: "north_west",
+    momapy.celldesigner.parser.LinkAnchorPosition.NNW: "north_west",
+    momapy.celldesigner.parser.LinkAnchorPosition.N: "north",
+    momapy.celldesigner.parser.LinkAnchorPosition.NNE: "north_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.NE: "north_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.ENE: "north_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.E: "east",
+    momapy.celldesigner.parser.LinkAnchorPosition.ESE: "south_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.SE: "south_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.SSE: "south_east",
+    momapy.celldesigner.parser.LinkAnchorPosition.S: "south",
+    momapy.celldesigner.parser.LinkAnchorPosition.SSW: "south_west",
+    momapy.celldesigner.parser.LinkAnchorPosition.SW: "south_west",
+    momapy.celldesigner.parser.LinkAnchorPosition.WSW: "south_west",
+    momapy.celldesigner.parser.LinkAnchorPosition.W: "west",
+    momapy.celldesigner.parser.LinkAnchorPosition.WNW: "north_west",
+}
+
 
 def read_file(filename):
     config = xsdata.formats.dataclass.parsers.config.ParserConfig(
@@ -307,18 +339,22 @@ def read_file(filename):
         reaction_me = _reaction_to_model_element(
             reaction, builder, d_id_me_mapping
         )
-        # builder.add_model_element(reaction_me)
-        # d_id_me_mapping[reaction_me.id] = reaction_me
-    for (
-        included_species
-    ) in sbml.model.annotation.extension.list_of_included_species.species:
-        included_species_me = _species_to_model_element(
-            included_species, builder, d_id_me_mapping, included_species=True
-        )
-        complex_me_id = included_species.annotation.complex_species
-        complex_me = d_id_me_mapping[complex_me_id]
-        complex_me.add_element(included_species_me)
-        d_id_me_mapping[included_species_me.id] = included_species_me
+        builder.add_model_element(reaction_me)
+        d_id_me_mapping[reaction_me.id] = reaction_me
+    if sbml.model.annotation.extension.list_of_included_species is not None:
+        for (
+            included_species
+        ) in sbml.model.annotation.extension.list_of_included_species.species:
+            included_species_me = _species_to_model_element(
+                included_species,
+                builder,
+                d_id_me_mapping,
+                included_species=True,
+            )
+            complex_me_id = included_species.annotation.complex_species
+            complex_me = d_id_me_mapping[complex_me_id]
+            complex_me.add_element(included_species_me)
+            d_id_me_mapping[included_species_me.id] = included_species_me
     print("BUILDING LAYOUT...")
     # Layouts: we build a layout element for each CellDesigner alias
     for (
@@ -326,7 +362,6 @@ def read_file(filename):
     ) in (
         sbml.model.annotation.extension.list_of_compartment_aliases.compartment_alias
     ):
-        _print(compartment_alias)
         compartment_le = _compartment_alias_to_layout_element(
             compartment_alias,
             builder,
@@ -384,6 +419,14 @@ def read_file(filename):
         builder.map_model_element_to_layout_element(
             species_le, species_me, nm_model_element
         )
+    for reaction in sbml.model.list_of_reactions.reaction:
+        annotation = reaction.annotation
+        extension = annotation.extension
+        reaction_le = _reaction_to_layout_element(
+            reaction, builder, d_id_le_mapping, d_id_me_mapping
+        )
+        if reaction_le is not None:
+            builder.layout.add_element(reaction_le)
     print("FITTING LAYOUT TO CONTENT...")
     momapy.positioning.set_fit(builder.layout, builder.layout.layout_elements)
     builder.layout.fill = momapy.coloring.white
@@ -857,7 +900,6 @@ def _species_alias_to_layout_element(
             )
             for modification_le in modification_les:
                 species_le.add_element(modification_le)
-    # _print(species)
     return species_le
 
 
@@ -955,6 +997,132 @@ def _modification_or_residue_id_to_layout_elements(
         )
         modification_les[-1].add_element(label_name)
     return modification_les
+
+
+def _reaction_to_layout_element(
+    reaction, builder, d_id_le_mapping, d_id_me_mapping
+):
+    annotation = reaction.annotation
+    extension = annotation.extension
+    reaction_type = extension.reaction_type
+    if reaction_type in _CellDesignerReactionLayoutTypeMapping:
+        points = []
+        reaction_le_cls = _CellDesignerReactionLayoutTypeMapping[reaction_type]
+        reaction_le = builder.new_layout_element(reaction_le_cls)
+        index = int(extension.connect_scheme.rectangle_index)
+        for base_reactant in extension.base_reactants.base_reactant:
+            base_reactant_le = d_id_le_mapping[base_reactant.alias]
+            position = base_reactant.link_anchor.position
+            anchor = _CellDesignerPositionAnchorMapping[position]
+            start_point = getattr(base_reactant_le, anchor)()
+        for base_product in extension.base_products.base_product:
+            base_product_le = d_id_le_mapping[base_product.alias]
+            position = base_product.link_anchor.position
+            anchor = _CellDesignerPositionAnchorMapping[position]
+            end_point = getattr(base_product_le, anchor)()
+        if extension.edit_points is not None:
+            for edit_point in extension.edit_points.value:
+                segment = momapy.geometry.Segment(start_point, end_point)
+                fractions = [
+                    float(fraction) for fraction in edit_point.split(",")
+                ]
+                point = segment.p1 + (
+                    fractions[0] * segment.length(),
+                    fractions[1] * segment.length(),
+                )
+                angle = segment.get_angle()
+                rotation = momapy.geometry.Rotation(angle, segment.p1)
+                point = momapy.geometry.transform_point(point, rotation)
+                points.append(point)
+        points = [start_point] + points + [end_point]
+        for i, point in enumerate(points[1:]):
+            previous_point = points[i]
+            segment = momapy.builder.get_or_make_builder_cls(
+                momapy.geometry.Segment
+            )(previous_point, point)
+            reaction_le.segments.append(segment)
+        reaction_node_le = builder.new_layout_element(
+            momapy.celldesigner.core.ReactionNodeLayout
+        )
+        position, angle = reaction_le.segments[
+            index
+        ].get_position_and_angle_at_fraction(0.5)
+        reaction_node_le.position = position
+        rotation = momapy.geometry.Rotation(angle, position)
+        if (
+            reaction_node_le.transform is None
+            or reaction_node_le.transform == momapy.drawing.NoneValue
+        ):
+            reaction_node_le.transform = momapy.core.TupleBuilder()
+        reaction_node_le.transform.append(rotation)
+        reaction_le.reaction_node = reaction_node_le
+        if extension.list_of_reactant_links is not None:
+            for reactant_link in extension.list_of_reactant_links.reactant_link:
+                _print(reactant_link)
+                consumption_le = builder.new_layout_element(
+                    momapy.celldesigner.core.ConsumptionLayout
+                )
+                reactant_le = d_id_le_mapping[reactant_link.alias]
+                if reactant_link is not None:
+                    for edit_point in reactant_link.edit_points.value:
+                        segment = momapy.geometry.Segment(
+                            start_point, end_point
+                        )
+                        fractions = [
+                            float(fraction)
+                            for fraction in edit_point.split(",")
+                        ]
+                        point = segment.p1 + (
+                            fractions[0] * segment.length(),
+                            fractions[1] * segment.length(),
+                        )
+                        angle = segment.get_angle()
+                        rotation = momapy.geometry.Rotation(angle, segment.p1)
+                        point = momapy.geometry.transform_point(point, rotation)
+                        points.append(point)
+                points = [start_point] + points + [end_point]
+                for i, point in enumerate(points[1:]):
+                    previous_point = points[i]
+                    segment = momapy.builder.get_or_make_builder_cls(
+                        momapy.geometry.Segment
+                    )(previous_point, point)
+                    reaction_le.segments.append(segment)
+
+                points = []
+                position = reactant_link.link_anchor.position
+                anchor = _CellDesignerPositionAnchorMapping[position]
+                start_point = getattr(reactant_le, anchor)()
+                points.append(start_point)
+                end_point = reaction_le.segments[
+                    index
+                ].get_position_at_fraction(0.35)
+                points.append(end_point)
+                segment = momapy.geometry.Segment(points[0], points[1])
+                consumption_le.segments.append(segment)
+                reaction_le.add_element(consumption_le)
+
+        if extension.list_of_product_links is not None:
+            for product_link in extension.list_of_product_links.product_link:
+                production_le = builder.new_layout_element(
+                    momapy.celldesigner.core.ProductionLayout
+                )
+                product_le = d_id_le_mapping[product_link.alias]
+                points = []
+                index = 0  # targetLineIndex?
+                start_point = reaction_le.segments[
+                    index
+                ].get_position_at_fraction(0.65)
+                points.append(start_point)
+                position = product_link.link_anchor.position
+                anchor = _CellDesignerPositionAnchorMapping[position]
+                end_point = getattr(product_le, anchor)()
+                points.append(end_point)
+                segment = momapy.geometry.Segment(points[0], points[1])
+                production_le.segments.append(segment)
+                reaction_le.add_element(production_le)
+    else:
+        reaction_le = None
+    return reaction_le
 
 
 def _print(obj, indent=0):
