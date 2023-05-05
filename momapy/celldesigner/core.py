@@ -1193,8 +1193,8 @@ class SquareCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 class ReactionNodeLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
-    width: float = 12.0
-    height: float = 12.0
+    width: float = 8.0
+    height: float = 8.0
     stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
     ] = momapy.coloring.black
