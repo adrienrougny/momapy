@@ -1796,81 +1796,6 @@
       <xs:element name="baseProduct" type="celldesigner:baseProduct" maxOccurs="2"/>
     </xs:sequence>
   </xs:complexType>
-  <xs:complexType name="reactantLink">
-    <xs:annotation>
-      <xs:documentation>Reactant link type.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="linkAnchor" type="celldesigner:linkAnchor" minOccurs="0"/>
-      <xs:element name="line" type="celldesigner:lineType2"/>
-    </xs:sequence>
-    <xs:attribute name="alias" use="required">
-      <xs:simpleType>
-        <xs:restriction base="celldesigner:SId"/>
-      </xs:simpleType>
-    </xs:attribute>
-    <xs:attribute name="reactant" type="celldesigner:SId" use="required"/>
-    <xs:attribute name="targetLineIndex" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:pattern value="-?[0-9]+,[0-9]+"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="listOfReactantLinks">
-    <xs:annotation>
-      <xs:documentation>List of reactant link types.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="reactantLink" type="celldesigner:reactantLink" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="productLink">
-    <xs:annotation>
-      <xs:documentation>Product link type.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="linkAnchor" type="celldesigner:linkAnchor" minOccurs="0"/>
-      <xs:element name="line" type="celldesigner:lineType2"/>
-    </xs:sequence>
-    <xs:attribute name="alias" use="required">
-      <xs:simpleType>
-        <xs:restriction base="celldesigner:SId"/>
-      </xs:simpleType>
-    </xs:attribute>
-    <xs:attribute name="product" type="celldesigner:SId" use="required"/>
-    <xs:attribute name="targetLineIndex" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:pattern value="-?[0-9]+,[0-9]+"/>
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:complexType>
-  <xs:complexType name="listOfProductLinks">
-    <xs:annotation>
-      <xs:documentation>List of product link types.</xs:documentation>
-    </xs:annotation>
-    <xs:sequence>
-      <xs:element name="productLink" type="celldesigner:productLink" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="offset">
-    <xs:annotation>
-      <xs:documentation>Offset of a link from default position(center to center).</xs:documentation>
-    </xs:annotation>
-    <xs:attribute name="x" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:decimal"/>
-      </xs:simpleType>
-    </xs:attribute>
-    <xs:attribute name="y" use="required">
-      <xs:simpleType>
-        <xs:restriction base="xs:decimal"/>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:complexType>
   <xs:complexType name="editPoints">
     <xs:annotation>
       <xs:documentation>Edit points.</xs:documentation>
@@ -1914,6 +1839,84 @@
         </xs:attribute>
       </xs:extension>
     </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="reactantLink">
+    <xs:annotation>
+      <xs:documentation>Reactant link type.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="linkAnchor" type="celldesigner:linkAnchor" minOccurs="0"/>
+      <xs:element name="editPoints" type="celldesigner:editPoints" minOccurs="0"/>
+      <xs:element name="line" type="celldesigner:lineType2"/>
+    </xs:sequence>
+    <xs:attribute name="alias" use="required">
+      <xs:simpleType>
+        <xs:restriction base="celldesigner:SId"/>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="reactant" type="celldesigner:SId" use="required"/>
+    <xs:attribute name="targetLineIndex" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="-?[0-9]+,[0-9]+"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="listOfReactantLinks">
+    <xs:annotation>
+      <xs:documentation>List of reactant link types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="reactantLink" type="celldesigner:reactantLink" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="productLink">
+    <xs:annotation>
+      <xs:documentation>Product link type.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="linkAnchor" type="celldesigner:linkAnchor" minOccurs="0"/>
+      <xs:element name="editPoints" type="celldesigner:editPoints" minOccurs="0"/>
+      <xs:element name="line" type="celldesigner:lineType2"/>
+    </xs:sequence>
+    <xs:attribute name="alias" use="required">
+      <xs:simpleType>
+        <xs:restriction base="celldesigner:SId"/>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="product" type="celldesigner:SId" use="required"/>
+    <xs:attribute name="targetLineIndex" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="-?[0-9]+,[0-9]+"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="listOfProductLinks">
+    <xs:annotation>
+      <xs:documentation>List of product link types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="productLink" type="celldesigner:productLink" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="offset">
+    <xs:annotation>
+      <xs:documentation>Offset of a link from default position(center to center).</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="x" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal"/>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="y" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal"/>
+      </xs:simpleType>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="linkTarget">
     <xs:annotation>

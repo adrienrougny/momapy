@@ -257,6 +257,9 @@ _CellDesignerReactionLayoutTypeMapping = {
     (
         momapy.celldesigner.parser.ReactionTypeValue.TRANSLATION
     ): momapy.celldesigner.core.StateTransitionLayout,
+    # (
+    #     momapy.celldesigner.parser.ReactionTypeValue.HETERODIMER_ASSOCIATION
+    # ): momapy.celldesigner.core.StateTransitionLayout,
 }
 
 
@@ -1058,12 +1061,19 @@ def _reaction_to_layout_element(
         reaction_le.reaction_node = reaction_node_le
         if extension.list_of_reactant_links is not None:
             for reactant_link in extension.list_of_reactant_links.reactant_link:
+                points = []
                 _print(reactant_link)
                 consumption_le = builder.new_layout_element(
                     momapy.celldesigner.core.ConsumptionLayout
                 )
                 reactant_le = d_id_le_mapping[reactant_link.alias]
-                if reactant_link is not None:
+                position = reactant_link.link_anchor.position
+                anchor = _CellDesignerPositionAnchorMapping[position]
+                start_point = getattr(reactant_le, anchor)()
+                end_point = reaction_le.segments[
+                    index
+                ].get_position_at_fraction(0.40)
+                if reactant_link.edit_points is not None:
                     for edit_point in reactant_link.edit_points.value:
                         segment = momapy.geometry.Segment(
                             start_point, end_point
@@ -1086,40 +1096,47 @@ def _reaction_to_layout_element(
                     segment = momapy.builder.get_or_make_builder_cls(
                         momapy.geometry.Segment
                     )(previous_point, point)
-                    reaction_le.segments.append(segment)
-
-                points = []
-                position = reactant_link.link_anchor.position
-                anchor = _CellDesignerPositionAnchorMapping[position]
-                start_point = getattr(reactant_le, anchor)()
-                points.append(start_point)
-                end_point = reaction_le.segments[
-                    index
-                ].get_position_at_fraction(0.35)
-                points.append(end_point)
-                segment = momapy.geometry.Segment(points[0], points[1])
-                consumption_le.segments.append(segment)
+                    consumption_le.segments.append(segment)
                 reaction_le.add_element(consumption_le)
-
         if extension.list_of_product_links is not None:
             for product_link in extension.list_of_product_links.product_link:
-                production_le = builder.new_layout_element(
+                points = []
+                _print(product_link)
+                consumption_le = builder.new_layout_element(
                     momapy.celldesigner.core.ProductionLayout
                 )
-                product_le = d_id_le_mapping[product_link.alias]
-                points = []
-                index = 0  # targetLineIndex?
                 start_point = reaction_le.segments[
                     index
-                ].get_position_at_fraction(0.65)
-                points.append(start_point)
+                ].get_position_at_fraction(0.60)
+                product_le = d_id_le_mapping[product_link.alias]
                 position = product_link.link_anchor.position
                 anchor = _CellDesignerPositionAnchorMapping[position]
                 end_point = getattr(product_le, anchor)()
-                points.append(end_point)
-                segment = momapy.geometry.Segment(points[0], points[1])
-                production_le.segments.append(segment)
-                reaction_le.add_element(production_le)
+                if product_link.edit_points is not None:
+                    for edit_point in product_link.edit_points.value:
+                        segment = momapy.geometry.Segment(
+                            start_point, end_point
+                        )
+                        fractions = [
+                            float(fraction)
+                            for fraction in edit_point.split(",")
+                        ]
+                        point = segment.p1 + (
+                            fractions[0] * segment.length(),
+                            fractions[1] * segment.length(),
+                        )
+                        angle = segment.get_angle()
+                        rotation = momapy.geometry.Rotation(angle, segment.p1)
+                        point = momapy.geometry.transform_point(point, rotation)
+                        points.append(point)
+                points = [start_point] + points + [end_point]
+                for i, point in enumerate(points[1:]):
+                    previous_point = points[i]
+                    segment = momapy.builder.get_or_make_builder_cls(
+                        momapy.geometry.Segment
+                    )(previous_point, point)
+                    consumption_le.segments.append(segment)
+                reaction_le.add_element(consumption_le)
     else:
         reaction_le = None
     return reaction_le

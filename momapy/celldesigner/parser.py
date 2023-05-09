@@ -3299,6 +3299,14 @@ class ProductLink:
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
         }
     )
+    edit_points: Optional[EditPoints] = field(
+        default=None,
+        metadata={
+            "name": "editPoints",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
     line: Optional[LineType2] = field(
         default=None,
         metadata={
@@ -3411,6 +3419,14 @@ class ReactantLink:
         default=None,
         metadata={
             "name": "linkAnchor",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    edit_points: Optional[EditPoints] = field(
+        default=None,
+        metadata={
+            "name": "editPoints",
             "type": "Element",
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
         }
