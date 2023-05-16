@@ -124,8 +124,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         if self._filter_elements:
             defs = SVGElement(name="defs", elements=self._filter_elements)
             self.svg.add_element(defs)
-        with open(self.config["output_file"], "w") as f:
-            f.write(str(self.svg))
+        if config.get("output_file") is not None:
+            with open(self.config["output_file"], "w") as f:
+                f.write(str(self.svg))
 
     def new_page(self, width, height):
         pass
