@@ -18,13 +18,19 @@ class StyleCollection(dict):
 
 class StyleSheet(dict):
     def __or__(self, other):
+        print("WWWW")
         d = copy.deepcopy(self)
         for key, value in other.items():
             if key in d:
+                print("BBB")
                 d[key] |= value
             else:
+                print("CCC")
                 d[key] = value
         return StyleSheet(d)
+
+    def __ior__(self, other):
+        return self.__or__(other)
 
 
 @dataclasses.dataclass(frozen=True)
