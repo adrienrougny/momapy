@@ -85,7 +85,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     }
     _fe_filter_unit_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.FilterUnits.USER_SPACE_ON_USE: "UserSpaceOnUse",
-        momapy.drawing.FilterUnits.OBJECT_BOUNDING_BOX: "ObjectBoundingBox",
+        momapy.drawing.FilterUnits.OBJECT_BOUNDING_BOX: "objectBoundingBox",
     }
     _fe_input_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.FilterEffectInput.SOURCE_GRAPHIC: "SourceGraphic",
