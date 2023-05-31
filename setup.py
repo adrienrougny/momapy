@@ -1,6 +1,7 @@
 import os
 from distutils.core import setup
 
+os.system("echo 'Setting BEZIER_NO_EXTENSION=True'")
 os.system("export BEZIER_NO_EXTENSION=True")
 
 setup(
@@ -30,6 +31,7 @@ setup(
         "bezier",
         "shapely~=2.0rc1",
         "ipykernel",
+        "pyparsing",
     ],
     package_data={"": ["*.css"]},
     include_package_data=True,
