@@ -749,7 +749,6 @@ def _make_and_add_map_elements_from_glyph(
     super_layout_element=None,
     order=None,
 ):
-
     model_element, layout_element = _make_map_elements_from_glyph(
         glyph,
         builder,
@@ -779,9 +778,7 @@ def _make_and_add_map_elements_from_glyph(
             nm_model_element = super_model_element
         else:
             nm_model_element = None
-        builder.map_model_element_to_layout_element(
-            layout_element, model_element, nm_model_element
-        )
+        builder.add_mapping(layout_element, (model_element, nm_model_element))
         d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
     libsbgn_no_var_svs = []
@@ -895,7 +892,7 @@ def _make_and_add_map_elements_from_arc(
     else:
         builder.add_model_element(model_element)
     builder.add_layout_element(layout_element)
-    builder.map_model_element_to_layout_element(layout_element, model_element)
+    builder.add_mapping(layout_element, model_element)
     d_model_elements_ids[model_element.id] = model_element
     d_layout_elements_ids[layout_element.id] = layout_element
     for subglyph in arc.get_glyph():
@@ -926,7 +923,6 @@ def _make_map_elements_from_glyph(
     is_subglyph=False,
     order=None,
 ):
-
     model_element = _make_model_element_from_glyph(
         glyph,
         builder,

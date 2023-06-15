@@ -3,6 +3,9 @@ import dataclasses
 import typing
 import types
 import inspect
+import collections.abc
+
+import frozendict
 
 
 class Builder(abc.ABC):
@@ -10,14 +13,20 @@ class Builder(abc.ABC):
 
     @abc.abstractmethod
     def build(
-        self, builder_object_mapping: dict[int, typing.Any] | None = None
+        self,
+        inside_collections: bool = True,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         pass
 
     @classmethod
     @abc.abstractmethod
     def from_object(
-        cls, obj, object_builder_mapping: dict[int, "Builder"] | None = None
+        cls,
+        obj,
+        inside_collections: bool = True,
+        omit_keys: bool = True,
+        object_builder_mapping: dict[int, "Builder"] | None = None,
     ):
         pass
 
@@ -54,7 +63,9 @@ def make_builder_cls(
     cls, builder_fields=None, builder_bases=None, builder_namespace=None
 ):
     def _builder_build(
-        self, builder_object_mapping: dict[int, typing.Any] | None = None
+        self,
+        inside_collections: bool = True,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         if builder_object_mapping is not None:
             obj = builder_object_mapping.get(id(self))
@@ -66,14 +77,20 @@ def make_builder_cls(
         for field_ in dataclasses.fields(self):
             attr_value = getattr(self, field_.name)
             args[field_.name] = object_from_builder(
-                attr_value, builder_object_mapping
+                builder=attr_value,
+                inside_collections=inside_collections,
+                builder_object_mapping=builder_object_mapping,
             )
         obj = self._cls_to_build(**args)
         builder_object_mapping[id(self)] = obj
         return obj
 
     def _builder_from_object(
-        cls, obj, object_builder_mapping: dict[int, "Builder"] | None = None
+        cls,
+        obj,
+        inside_collections: bool = True,
+        omit_keys: bool = True,
+        object_builder_mapping: dict[int, "Builder"] | None = None,
     ):
         if object_builder_mapping is not None:
             builder = object_builder_mapping.get(id(obj))
@@ -85,7 +102,10 @@ def make_builder_cls(
         for field_ in dataclasses.fields(obj):
             attr_value = getattr(obj, field_.name)
             args[field_.name] = builder_from_object(
-                attr_value, object_builder_mapping
+                obj=attr_value,
+                inside_collections=inside_collections,
+                omit_keys=omit_keys,
+                object_builder_mapping=object_builder_mapping,
             )
         builder = cls(**args)
         object_builder_mapping[id(obj)] = builder
@@ -165,7 +185,6 @@ def make_builder_cls(
         func = member[1]
 
         if not func_name.startswith("__") and not func_name == "_cls_to_build":
-
             builder_namespace[func_name] = func
 
     cls_bases = [
@@ -195,7 +214,9 @@ def make_builder_cls(
 
 
 def object_from_builder(
-    builder, builder_object_mapping: dict[int, typing.Any] | None = None
+    builder,
+    inside_collections=True,
+    builder_object_mapping: dict[int, typing.Any] | None = None,
 ):
     if builder_object_mapping is not None:
         if id(builder) in builder_object_mapping:
@@ -203,15 +224,50 @@ def object_from_builder(
     else:
         builder_object_mapping = {}
     if isinstance(builder, Builder):
-        obj = builder.build(builder_object_mapping)
+        obj = builder.build(
+            inside_collections=inside_collections,
+            builder_object_mapping=builder_object_mapping,
+        )
         builder_object_mapping[id(builder)] = obj
         return obj
-    else:
-        return builder
+    if inside_collections:
+        if isinstance(builder, (list, tuple, set, frozenset)):
+            return type(builder)(
+                [
+                    object_from_builder(
+                        builder=e,
+                        inside_collections=inside_collections,
+                        builder_object_mapping=builder_object_mapping,
+                    )
+                    for e in builder
+                ]
+            )
+        elif isinstance(builder, (dict, frozendict.frozendict)):
+            return type(builder)(
+                [
+                    (
+                        object_from_builder(
+                            builder=k,
+                            inside_collections=inside_collections,
+                            builder_object_mapping=builder_object_mapping,
+                        ),
+                        object_from_builder(
+                            builder=v,
+                            inside_collections=inside_collections,
+                            builder_object_mapping=builder_object_mapping,
+                        ),
+                    )
+                    for k, v in builder.items()
+                ]
+            )
+    return builder
 
 
 def builder_from_object(
-    obj, object_builder_mapping: dict[int, "Builder"] | None = None
+    obj,
+    inside_collections=True,
+    omit_keys=True,
+    object_builder_mapping: dict[int, "Builder"] | None = None,
 ):
     if object_builder_mapping is not None:
         builder = object_builder_mapping.get(id(obj))
@@ -221,9 +277,56 @@ def builder_from_object(
         object_builder_mapping = {}
     cls = get_or_make_builder_cls(type(obj))
     if issubclass(cls, Builder):
-        return cls.from_object(obj, object_builder_mapping)
-    else:
-        return obj
+        return cls.from_object(
+            obj=obj,
+            inside_collections=inside_collections,
+            omit_keys=omit_keys,
+            object_builder_mapping=object_builder_mapping,
+        )
+    if inside_collections:
+        if isinstance(obj, (list, tuple, set, frozenset)):
+            return type(obj)(
+                [
+                    builder_from_object(
+                        obj=e,
+                        inside_collections=inside_collections,
+                        omit_keys=omit_keys,
+                        object_builder_mapping=object_builder_mapping,
+                    )
+                    for e in obj
+                ]
+            )
+        elif isinstance(obj, (dict, frozendict.frozendict)):
+            return type(obj)(
+                [
+                    (
+                        builder_from_object(
+                            obj=k,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                        builder_from_object(
+                            obj=v,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                    )
+                    if not omit_keys
+                    else (
+                        k,
+                        builder_from_object(
+                            obj=v,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                    )
+                    for k, v in obj.items()
+                ]
+            )
+    return obj
 
 
 def new_builder(cls, *args, **kwargs):
