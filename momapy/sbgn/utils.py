@@ -21,14 +21,11 @@ def set_compartments_to_fit_content(map_builder, xsep=0, ysep=0):
                 compartment_entities_mapping[compartment].append(activity)
     for compartment in compartment_entities_mapping:
         for compartment_layout in map_builder.layout_model_mapping[compartment]:
-            (
-                compartment_layout,
-                _,
-            ) = compartment_layout  # unpacking the frozenset
+            compartment_layout, *_ = compartment_layout
             elements = []
             for entity in compartment_entities_mapping[compartment]:
                 for entity_layout in map_builder.layout_model_mapping[entity]:
-                    entity_layout, _ = entity_layout
+                    entity_layout, *_ = entity_layout
                     elements.append(entity_layout)
             momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
@@ -44,12 +41,14 @@ def set_complexes_to_fit_content(map_builder, xsep=0, ysep=0):
             momapy.builder.get_or_make_builder_cls(momapy.sbgn.pd.Complex),
         ):
             for complex_layout in map_builder.layout_model_mapping[entity_pool]:
-                complex_layout, _ = complex_layout
+                complex_layout, *_ = complex_layout
                 elements = []
                 for subunit in entity_pool.subunits:
-                    subunit_layouts = map_builder.layout_model_mapping[subunit]
+                    subunit_layouts = map_builder.layout_model_mapping[
+                        (subunit, entity_pool)
+                    ]
                     for subunit_layout in subunit_layouts:
-                        subunit_layout, _ = subunit_layout
+                        subunit_layout, *_ = subunit_layout
                         if subunit_layout in complex_layout.layout_elements:
                             elements.append(subunit_layout)
                 if len(elements) > 0:
@@ -65,12 +64,14 @@ def set_complexes_to_fit_content(map_builder, xsep=0, ysep=0):
 def set_submaps_to_fit_content(map_builder, xsep=0, ysep=0):
     for submap in map_builder.model.submaps:
         for submap_layout in map_builder.layout_model_mapping[submap]:
-            submap_layout, _ = submap_layout
+            submap_layout, *_ = submap_layout
             elements = []
             for terminal in submap.terminals:
-                terminal_layouts = map_builder.model_layout_mapping[terminal]
+                terminal_layouts = map_builder.layout_model_mapping[
+                    (terminal, submap)
+                ]
                 for terminal_layout in terminal_layouts:
-                    terminal_layout, _ = terminal_layout
+                    terminal_layout, *_ = terminal_layout
                     if terminal_layout in submap_layout.layout_elements:
                         elements.append(terminal_layout)
             if len(elements) > 0:
