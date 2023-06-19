@@ -86,6 +86,26 @@ class _ConnectorsMixin(_SBGNMixinBase):
         else:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
 
+    def tip_left_connector(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(
+                self.x, self.y - self.height / 2 - self.left_connector_length
+            )
+        else:
+            return momapy.geometry.Point(
+                self.x - self.width / 2 - self.left_connector_length, self.y
+            )
+
+    def tip_right_connector(self):
+        if self.direction == momapy.core.Direction.VERTICAL:
+            return momapy.geometry.Point(
+                self.x, self.y + self.height / 2 + self.right_connector_length
+            )
+        else:
+            return momapy.geometry.Point(
+                self.x + self.width / 2 + self.right_connector_length, self.y
+            )
+
     def west(self):
         if self.direction == momapy.core.Direction.VERTICAL:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
