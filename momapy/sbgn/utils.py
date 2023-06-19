@@ -121,7 +121,7 @@ def set_arcs_to_borders(map_builder):
                             ]
                         elif other is not None:
                             if hasattr(
-                                other, "base_left_connector"
+                                other, "left_connector_base"
                             ) and not isinstance(
                                 layout_element,
                                 (
@@ -162,7 +162,7 @@ def set_arcs_to_borders(map_builder):
                                 index - increment
                             ]
                         if hasattr(
-                            main, "base_left_connector"
+                            main, "left_connector_base"
                         ) and not isinstance(
                             layout_element,
                             (
