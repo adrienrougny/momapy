@@ -45,25 +45,24 @@ class Color(object):
         return cls(red, green, blue)
 
     @classmethod
-    def from_hex(cls, string):
-        string.lstrip("#")
-        if len(string) != 6:
-            raise ValueError("invalid hexadecimal RBG value")
-        red = int(string[:2], 16)
-        green = int(string[2:4], 16)
-        blue = int(string[4:6], 16)
+    def from_hex(cls, color_str):
+        color_str = color_str.lstrip("#")
+        if len(color_str) != 6:
+            raise ValueError(f"invalid hexadecimal RBG value {color_str}")
+        red = int(color_str[:2], 16)
+        green = int(color_str[2:4], 16)
+        blue = int(color_str[4:6], 16)
         return cls(red, green, blue)
 
     @classmethod
-    def from_hexa(cls, string):
-        if string.startswith("#"):
-            string = string[1:]
-        if len(string) != 8:
-            raise ValueError("invalid hexadecimal RBGA value")
-        red = int(string[:2], 16)
-        green = int(string[2:4], 16)
-        blue = int(string[4:6], 16)
-        alpha = int(string[6:], 16) / 255
+    def from_hexa(cls, color_str):
+        color_str = color_str.lstrip("#")
+        if len(color_str) != 8:
+            raise ValueError(f"invalid hexadecimal RBGA value {color_str}")
+        red = int(color_str[:2], 16)
+        green = int(color_str[2:4], 16)
+        blue = int(color_str[4:6], 16)
+        alpha = int(color_str[6:], 16) / 255
         return cls(red, green, blue, alpha)
 
 
