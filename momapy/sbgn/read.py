@@ -50,6 +50,10 @@ def _map_from_sbgn_map(sbgn_map):
         map_ = momapy.sbgn.pd.SBGNPDMapBuilder()
     elif sbgn_map.language.name == "ACTIVITY_FLOW":
         map_ = momapy.sbgn.af.SBGNAFMapBuilder()
+    elif sbgn_map.language.name == "ENTITY_RELATIONSHIP":
+        raise TypeError("entity relationship maps are not yet supported")
+    else:
+        raise TypeError(f"unknown language {sbgn_map.language.value}")
     map_.model = map_.new_model()
     map_.layout = map_.new_layout()
     map_.layout_model_mapping = map_.new_layout_model_mapping()
@@ -63,7 +67,15 @@ def _map_from_sbgn_map(sbgn_map):
         model_element, layout_element = _map_elements_from_sbgnml_element(
             arc, map_, d_model_element_ids, d_layout_element_ids
         )
-    momapy.positioning.set_fit(map_.layout, map_.layout.layout_elements)
+    if sbgn_map.bbox is not None:
+        map_.layout.position = momapy.geometry.PointBuilder(
+            sbgn_map.bbox.x + sbgn_map.bbox.w / 2,
+            sbgn_map.bbox.y + sbgn_map.bbox.h / 2,
+        )
+        map_.layout.width = sbgn_map.w
+        map_.layout.height = sbgn_map.h
+    else:
+        momapy.positioning.set_fit(map_.layout, map_.layout.layout_elements)
     return map_
 
 
