@@ -123,7 +123,9 @@ def make_builder_cls(
                     attr.add(element)
                     added = True
         if not added:
-            raise TypeError(f"unsupported type {type(element)}")
+            raise TypeError(
+                f"unsupported type {type(element)} for add_element of class {type(self)}"
+            )
 
     cls_fields = dataclasses.fields(cls)
     if builder_fields is None:
