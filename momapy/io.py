@@ -30,10 +30,13 @@ def read(file_path, reader=None, **options):
 
 
 class MapReader(abc.ABC):
-    @staticmethod
+    @classmethod
     @abc.abstractmethod
-    def read(file_path, **options) -> momapy.core.Map | momapy.core.MapBuilder:
+    def read(
+        cls, file_path, **options
+    ) -> momapy.core.Map | momapy.core.MapBuilder:
         pass
 
-    def check_file(file_path) -> bool:
+    @classmethod
+    def check_file(cls, file_path) -> bool:
         pass
