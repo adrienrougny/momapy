@@ -8,9 +8,9 @@ import momapy.coloring
 import momapy.positioning
 import momapy.builder
 import momapy.styling
-import momapy.sbgn._sbgnml_parser
 import momapy.sbgn.pd
 import momapy.sbgn.af
+import momapy.sbgn.io._sbgnml_parser
 
 
 class SBGNMLReader(momapy.io.MapReader):
@@ -18,61 +18,61 @@ class SBGNMLReader(momapy.io.MapReader):
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_COLOR = momapy.coloring.black
     _SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING = {
-        "COMPARTMENT": _compartment_elements_from_glyph,
-        "SUBMAP": _submap_elements_from_glyph,
-        "BIOLOGICAL_ACTIVITY": _biological_activity_from_glyph,
-        "UNSPECIFIED_ENTITY": _unspecified_entity_elements_from_glyph,
-        "MACROMOLECULE": _macromolecule_elements_from_glyph,
-        "MACROMOLECULE_MULTIMER": _macromolecule_multimer_elements_from_glyph,
-        "SIMPLE_CHEMICAL": _simple_chemical_elements_from_glyph,
-        "SIMPLE_CHEMICAL_MULTIMER": _simple_chemical_multimer_elements_from_glyph,
-        "NUCLEIC_ACID_FEATURE": _nucleic_acid_feature_elements_from_glyph,
-        "NUCLEIC_ACID_FEATURE_MULTIMER": _nucleic_acid_feature_multimer_elements_from_glyph,
-        "COMPLEX": _complex_elements_from_glyph,
-        "COMPLEX_MULTIMER": _complex_multimer_elements_from_glyph,
-        "SOURCE_AND_SINK": _empty_set_elements_from_glyph,
-        "PERTURBING_AGENT": _perturbing_agent_elements_from_glyph,
-        "PROCESS": _generic_process_elements_from_glyph,
-        "ASSOCIATION": _association_elements_from_glyph,
-        "DISSOCIATION": _dissociation_elements_from_glyph,
-        "UNCERTAIN_PROCESS": _uncertain_process_elements_from_glyph,
-        "OMITTED_PROCESS": _omitted_process_elements_from_glyph,
-        "PHENOTYPE": _phenotype_elements_from_glyph,
-        "STATE_VARIABLE": _state_variable_elements_from_glyph,
-        "UNIT_OF_INFORMATION": _unit_of_information_elements_from_glyph,
-        "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": _unit_of_information_unspecified_entity_elements_from_glyph,
-        "UNIT_OF_INFORMATION_MACROMOLECULE": _unit_of_information_macromolecule_elements_from_glyph,
-        "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": _unit_of_information_simple_chemical_elements_from_glyph,
-        "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": _unit_of_information_nucleic_acid_feature_elements_from_glyph,
-        "UNIT_OF_INFORMATION_COMPLEX": _unit_of_information_complex_elements_from_glyph,
-        "UNIT_OF_INFORMATION_PERTURBATION": _unit_of_information_perturbation_elements_from_glyph,
-        "TERMINAL": _terminal_elements_from_glyph,
-        "TAG": _tag_elements_from_glyph,
-        "UNSPECIFIED_ENTITY_SUBUNIT": _unspecified_entity_subunit_elements_from_glyph,
-        "MACROMOLECULE_SUBUNIT": _macromolecule_subunit_elements_from_glyph,
-        "MACROMOLECULE_MULTIMER_SUBUNIT": _macromolecule_multimer_subunit_elements_from_glyph,
-        "SIMPLE_CHEMICAL_SUBUNIT": _simple_chemical_subunit_elements_from_glyph,
-        "SIMPLE_CHEMICAL_MULTIMER_SUBUNIT": _simple_chemical_multimer_subunit_elements_from_glyph,
-        "NUCLEIC_ACID_FEATURE_SUBUNIT": _nucleic_acid_feature_subunit_elements_from_glyph,
-        "NUCLEIC_ACID_FEATURE_MULTIMER_SUBUNIT": _nucleic_acid_feature_multimer_subunit_elements_from_glyph,
-        "COMPLEX_SUBUNIT": _complex_subunit_elements_from_glyph,
-        "COMPLEX_MULTIMER_SUBUNIT": _complex_multimer_subunit_elements_from_glyph,
-        "AND": _and_operator_elements_from_glyph,
-        "OR": _or_operator_elements_from_glyph,
-        "NOT": _not_operator_elements_from_glyph,
-        "DELAY": _delay_operator_elements_from_glyph,
-        "CONSUMPTION": _consumption_elements_from_arc,
-        "PRODUCTION": _production_elements_from_arc,
-        "MODULATION": _modulation_elements_from_arc,
-        "STIMULATION": _stimulation_elements_from_arc,
-        "CATALYSIS": _catalysis_elements_from_arc,
-        "NECESSARY_STIMULATION": _necessary_stimulation_elements_from_arc,
-        "INHIBITION": _inhibition_elements_from_arc,
-        "POSITIVE_INFLUENCE": _positive_influence_elements_from_arc,
-        "NEGATIVE_INFLUENCE": _negative_influence_elements_from_arc,
-        "UNKNOWN_INFLUENCE": _unknown_influence_elements_from_arc,
-        "LOGIC_ARC": _logical_arc_elements_from_arc,
-        "EQUIVALENCE_ARC": _equivalence_arc_elements_from_arc,
+        "COMPARTMENT": "_compartment_elements_from_glyph",
+        "SUBMAP": "_submap_elements_from_glyph",
+        "BIOLOGICAL_ACTIVITY": "_biological_activity_from_glyph",
+        "UNSPECIFIED_ENTITY": "_unspecified_entity_elements_from_glyph",
+        "MACROMOLECULE": "_macromolecule_elements_from_glyph",
+        "MACROMOLECULE_MULTIMER": "_macromolecule_multimer_elements_from_glyph",
+        "SIMPLE_CHEMICAL": "_simple_chemical_elements_from_glyph",
+        "SIMPLE_CHEMICAL_MULTIMER": "_simple_chemical_multimer_elements_from_glyph",
+        "NUCLEIC_ACID_FEATURE": "_nucleic_acid_feature_elements_from_glyph",
+        "NUCLEIC_ACID_FEATURE_MULTIMER": "_nucleic_acid_feature_multimer_elements_from_glyph",
+        "COMPLEX": "_complex_elements_from_glyph",
+        "COMPLEX_MULTIMER": "_complex_multimer_elements_from_glyph",
+        "SOURCE_AND_SINK": "_empty_set_elements_from_glyph",
+        "PERTURBING_AGENT": "_perturbing_agent_elements_from_glyph",
+        "PROCESS": "_generic_process_elements_from_glyph",
+        "ASSOCIATION": "_association_elements_from_glyph",
+        "DISSOCIATION": "_dissociation_elements_from_glyph",
+        "UNCERTAIN_PROCESS": "_uncertain_process_elements_from_glyph",
+        "OMITTED_PROCESS": "_omitted_process_elements_from_glyph",
+        "PHENOTYPE": "_phenotype_elements_from_glyph",
+        "STATE_VARIABLE": "_state_variable_elements_from_glyph",
+        "UNIT_OF_INFORMATION": "_unit_of_information_elements_from_glyph",
+        "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": "_unit_of_information_unspecified_entity_elements_from_glyph",
+        "UNIT_OF_INFORMATION_MACROMOLECULE": "_unit_of_information_macromolecule_elements_from_glyph",
+        "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": "_unit_of_information_simple_chemical_elements_from_glyph",
+        "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": "_unit_of_information_nucleic_acid_feature_elements_from_glyph",
+        "UNIT_OF_INFORMATION_COMPLEX": "_unit_of_information_complex_elements_from_glyph",
+        "UNIT_OF_INFORMATION_PERTURBATION": "_unit_of_information_perturbation_elements_from_glyph",
+        "TERMINAL": "_terminal_elements_from_glyph",
+        "TAG": "_tag_elements_from_glyph",
+        "UNSPECIFIED_ENTITY_SUBUNIT": "_unspecified_entity_subunit_elements_from_glyph",
+        "MACROMOLECULE_SUBUNIT": "_macromolecule_subunit_elements_from_glyph",
+        "MACROMOLECULE_MULTIMER_SUBUNIT": "_macromolecule_multimer_subunit_elements_from_glyph",
+        "SIMPLE_CHEMICAL_SUBUNIT": "_simple_chemical_subunit_elements_from_glyph",
+        "SIMPLE_CHEMICAL_MULTIMER_SUBUNIT": "_simple_chemical_multimer_subunit_elements_from_glyph",
+        "NUCLEIC_ACID_FEATURE_SUBUNIT": "_nucleic_acid_feature_subunit_elements_from_glyph",
+        "NUCLEIC_ACID_FEATURE_MULTIMER_SUBUNIT": "_nucleic_acid_feature_multimer_subunit_elements_from_glyph",
+        "COMPLEX_SUBUNIT": "_complex_subunit_elements_from_glyph",
+        "COMPLEX_MULTIMER_SUBUNIT": "_complex_multimer_subunit_elements_from_glyph",
+        "AND": "_and_operator_elements_from_glyph",
+        "OR": "_or_operator_elements_from_glyph",
+        "NOT": "_not_operator_elements_from_glyph",
+        "DELAY": "_delay_operator_elements_from_glyph",
+        "CONSUMPTION": "_consumption_elements_from_arc",
+        "PRODUCTION": "_production_elements_from_arc",
+        "MODULATION": "_modulation_elements_from_arc",
+        "STIMULATION": "_stimulation_elements_from_arc",
+        "CATALYSIS": "_catalysis_elements_from_arc",
+        "NECESSARY_STIMULATION": "_necessary_stimulation_elements_from_arc",
+        "INHIBITION": "_inhibition_elements_from_arc",
+        "POSITIVE_INFLUENCE": "_positive_influence_elements_from_arc",
+        "NEGATIVE_INFLUENCE": "_negative_influence_elements_from_arc",
+        "UNKNOWN_INFLUENCE": "_unknown_influence_elements_from_arc",
+        "LOGIC_ARC": "_logical_arc_elements_from_arc",
+        "EQUIVALENCE_ARC": "_equivalence_arc_elements_from_arc",
     }
 
     @classmethod
@@ -83,7 +83,7 @@ class SBGNMLReader(momapy.io.MapReader):
         parser = xsdata.formats.dataclass.parsers.XmlParser(
             config=config, context=xsdata.formats.dataclass.context.XmlContext()
         )
-        sbgn = parser.parse(file_path, momapy.sbgn.parser.Sbgn)
+        sbgn = parser.parse(file_path, momapy.sbgn.io._sbgnml_parser.Sbgn)
         sbgn_map = sbgn.map
         map_ = cls._map_from_sbgn_map(sbgn_map)
         if sbgn_map.extension.render_information is not None:
@@ -118,7 +118,10 @@ class SBGNMLReader(momapy.io.MapReader):
         d_model_element_ids = {}
         d_layout_element_ids = {}
         for glyph in sbgn_map.glyph:
-            model_element, layout_element = _map_elements_from_sbgnml_element(
+            (
+                model_element,
+                layout_element,
+            ) = cls._map_elements_from_sbgnml_element(
                 glyph,
                 map_,
                 d_model_element_ids,
@@ -127,7 +130,10 @@ class SBGNMLReader(momapy.io.MapReader):
                 map_.layout,
             )
         for arc in sbgn_map.arc:
-            model_element, layout_element = _map_elements_from_sbgnml_element(
+            (
+                model_element,
+                layout_element,
+            ) = cls._map_elements_from_sbgnml_element(
                 arc,
                 map_,
                 d_model_element_ids,
@@ -232,8 +238,11 @@ class SBGNMLReader(momapy.io.MapReader):
             and class_str == "TAG"
         ):
             class_str = "TERMINAL"
-        return SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING.get(
-            class_str
+        return getattr(
+            cls,
+            cls._SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING.get(
+                class_str
+            ),
         )
 
     @classmethod
@@ -246,7 +255,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        transformation_func = _get_transformation_func_from_sbgnml_element(
+        transformation_func = cls._get_transformation_func_from_sbgnml_element(
             sbgnml_element, super_model_element
         )
         if transformation_func is not None:
@@ -300,9 +309,9 @@ class SBGNMLReader(momapy.io.MapReader):
                 text_layout = momapy.core.TextLayoutBuilder()
                 text_layout.position = layout_element.position
                 text_layout.text = glyph.label.text
-                text_layout.font_family = _DEFAULT_FONT_FAMILY
-                text_layout.font_size = _DEFAULT_FONT_SIZE
-                text_layout.font_color = _DEFAULT_FONT_COLOR
+                text_layout.font_family = cls._DEFAULT_FONT_FAMILY
+                text_layout.font_size = cls._DEFAULT_FONT_SIZE
+                text_layout.font_color = cls._DEFAULT_FONT_COLOR
                 layout_element.label = text_layout
         if make_connectors:
             for port in glyph.port:
@@ -329,7 +338,7 @@ class SBGNMLReader(momapy.io.MapReader):
                 (
                     sub_model_element,
                     sub_layout_element,
-                ) = _map_elements_from_sbgnml_element(
+                ) = cls._map_elements_from_sbgnml_element(
                     sub_glyph,
                     map_,
                     d_model_element_ids,
@@ -363,7 +372,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        return _node_elements_from_glyph_and_cls(
+        return cls._node_elements_from_glyph_and_cls(
             glyph,
             model_cls,
             layout_cls,
@@ -392,7 +401,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        return _node_elements_from_glyph_and_cls(
+        return cls._node_elements_from_glyph_and_cls(
             glyph,
             model_cls,
             layout_cls,
@@ -421,7 +430,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        return _node_elements_from_glyph_and_cls(
+        return cls._node_elements_from_glyph_and_cls(
             glyph,
             model_cls,
             layout_cls,
@@ -449,7 +458,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        return _node_elements_from_glyph_and_cls(
+        return cls._node_elements_from_glyph_and_cls(
             glyph,
             model_cls,
             layout_cls,
@@ -477,7 +486,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        return _node_elements_from_glyph_and_cls(
+        return cls._node_elements_from_glyph_and_cls(
             glyph,
             model_cls,
             layout_cls,
@@ -530,7 +539,7 @@ class SBGNMLReader(momapy.io.MapReader):
                 (
                     sub_model_element,
                     sub_layout_element,
-                ) = _map_elements_from_sbgnml_element(
+                ) = cls._map_elements_from_sbgnml_element(
                     sub_glyph,
                     map_,
                     d_model_element_ids,
@@ -564,7 +573,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _arc_elements_from_arc_and_cls(
+        model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
             layout_cls,
@@ -591,7 +600,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _arc_elements_from_arc_and_cls(
+        model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
             layout_cls,
@@ -623,10 +632,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).Compartment,
-            _get_module_from_map(map_).CompartmentLayout,
+            cls._get_module_from_map(map_).Compartment,
+            cls._get_module_from_map(map_).CompartmentLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -648,10 +657,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).Submap,
-            _get_module_from_map(map_).SubmapLayout,
+            cls._get_module_from_map(map_).Submap,
+            cls._get_module_from_map(map_).SubmapLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -673,7 +682,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.BiologicalActivity,
             momapy.sbgn.af.BiologicalActivityLayout,
@@ -698,7 +707,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.UnspecifiedEntity,
             momapy.sbgn.pd.UnspecifiedEntityLayout,
@@ -723,7 +732,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.Macromolecule,
             momapy.sbgn.pd.MacromoleculeLayout,
@@ -748,7 +757,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.MacromoleculeMultimer,
             momapy.sbgn.pd.MacromoleculeMultimerLayout,
@@ -773,7 +782,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.SimpleChemical,
             momapy.sbgn.pd.SimpleChemicalLayout,
@@ -798,7 +807,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.SimpleChemicalMultimer,
             momapy.sbgn.pd.SimpleChemicalMultimerLayout,
@@ -823,7 +832,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.NucleicAcidFeature,
             momapy.sbgn.pd.NucleicAcidFeatureLayout,
@@ -848,7 +857,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.NucleicAcidFeatureMultimer,
             momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
@@ -873,7 +882,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.Complex,
             momapy.sbgn.pd.ComplexLayout,
@@ -898,7 +907,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.ComplexMultimer,
             momapy.sbgn.pd.ComplexMultimerLayout,
@@ -923,7 +932,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.EmptySet,
             momapy.sbgn.pd.EmptySetLayout,
@@ -948,7 +957,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.PerturbingAgent,
             momapy.sbgn.pd.PerturbingAgentLayout,
@@ -973,7 +982,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _process_node_elements_from_glyph_and_cls(
+        ) = cls._process_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.GenericProcess,
             momapy.sbgn.pd.GenericProcessLayout,
@@ -998,7 +1007,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _process_node_elements_from_glyph_and_cls(
+        ) = cls._process_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.Association,
             momapy.sbgn.pd.AssociationLayout,
@@ -1023,7 +1032,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _process_node_elements_from_glyph_and_cls(
+        ) = cls._process_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.Dissociation,
             momapy.sbgn.pd.DissociationLayout,
@@ -1048,7 +1057,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _process_node_elements_from_glyph_and_cls(
+        ) = cls._process_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.UncertainProcess,
             momapy.sbgn.pd.UncertainProcessLayout,
@@ -1073,7 +1082,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _process_node_elements_from_glyph_and_cls(
+        ) = cls._process_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.OmittedProcess,
             momapy.sbgn.pd.OmittedProcessLayout,
@@ -1098,10 +1107,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).Phenotype,
-            _get_module_from_map(map_).PhenotypeLayout,
+            cls._get_module_from_map(map_).Phenotype,
+            cls._get_module_from_map(map_).PhenotypeLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1123,10 +1132,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _operator_node_elements_from_glyph_and_cls(
+        ) = cls._operator_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).AndOperator,
-            _get_module_from_map(map_).AndOperatorLayout,
+            cls._get_module_from_map(map_).AndOperator,
+            cls._get_module_from_map(map_).AndOperatorLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1148,10 +1157,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _operator_node_elements_from_glyph_and_cls(
+        ) = cls._operator_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).OrOperator,
-            _get_module_from_map(map_).OrOperatorLayout,
+            cls._get_module_from_map(map_).OrOperator,
+            cls._get_module_from_map(map_).OrOperatorLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1173,10 +1182,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _operator_node_elements_from_glyph_and_cls(
+        ) = cls._operator_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).NotOperator,
-            _get_module_from_map(map_).NotOperatorLayout,
+            cls._get_module_from_map(map_).NotOperator,
+            cls._get_module_from_map(map_).NotOperatorLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1198,10 +1207,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _operator_node_elements_from_glyph_and_cls(
+        ) = cls._operator_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).DelayOperator,
-            _get_module_from_map(map_).DelayOperatorLayout,
+            cls._get_module_from_map(map_).DelayOperator,
+            cls._get_module_from_map(map_).DelayOperatorLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1223,7 +1232,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _auxiliary_node_no_model_label_elements_from_glyph_and_cls(
+        ) = cls._auxiliary_node_no_model_label_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.StateVariable,
             momapy.sbgn.pd.StateVariableLayout,
@@ -1257,9 +1266,9 @@ class SBGNMLReader(momapy.io.MapReader):
         text_layout = momapy.core.TextLayoutBuilder()
         text_layout.position = layout_element.position
         text_layout.text = text
-        text_layout.font_family = _DEFAULT_FONT_FAMILY
+        text_layout.font_family = cls._DEFAULT_FONT_FAMILY
         text_layout.font_size = 8.0
-        text_layout.font_color = _DEFAULT_FONT_COLOR
+        text_layout.font_color = cls._DEFAULT_FONT_COLOR
         layout_element.label = text_layout
         return model_element, layout_element
 
@@ -1276,7 +1285,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _auxiliary_node_no_model_label_elements_from_glyph_and_cls(
+        ) = cls._auxiliary_node_no_model_label_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.UnitOfInformation,
             momapy.sbgn.pd.UnitOfInformationLayout,
@@ -1307,7 +1316,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.UnspecifiedEntityUnitOfInformation,
             momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
@@ -1332,7 +1341,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.MacromoleculeUnitOfInformation,
             momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
@@ -1357,7 +1366,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.SimpleChemicalUnitOfInformation,
             momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
@@ -1382,7 +1391,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation,
             momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
@@ -1407,7 +1416,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.ComplexUnitOfInformation,
             momapy.sbgn.af.ComplexUnitOfInformationLayout,
@@ -1432,7 +1441,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.af.PerturbationUnitOfInformation,
             momapy.sbgn.af.PerturbationUnitOfInformationLayout,
@@ -1457,10 +1466,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _entity_pool_node_elements_from_glyph_and_cls(
+        ) = cls._entity_pool_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).Tag,
-            _get_module_from_map(map_).TagLayout,
+            cls._get_module_from_map(map_).Tag,
+            cls._get_module_from_map(map_).TagLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1482,10 +1491,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
-            _get_module_from_map(map_).Terminal,
-            _get_module_from_map(map_).TerminalLayout,
+            cls._get_module_from_map(map_).Terminal,
+            cls._get_module_from_map(map_).TerminalLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1508,7 +1517,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.UnspecifiedEntitySubunit,
             momapy.sbgn.pd.UnspecifiedEntityLayout,
@@ -1533,7 +1542,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.MacromoleculeSubunit,
             momapy.sbgn.pd.MacromoleculeLayout,
@@ -1558,7 +1567,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.MacromoleculeMultimerSubunit,
             momapy.sbgn.pd.MacromoleculeMultimerLayout,
@@ -1583,7 +1592,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.SimpleChemicalSubunit,
             momapy.sbgn.pd.SimpleChemicalLayout,
@@ -1608,7 +1617,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
             momapy.sbgn.pd.SimpleChemicalMultimerLayout,
@@ -1633,7 +1642,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.NucleicAcidFeatureSubunit,
             momapy.sbgn.pd.NucleicAcidFeatureLayout,
@@ -1658,7 +1667,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
             momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
@@ -1683,7 +1692,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.ComplexSubunit,
             momapy.sbgn.pd.ComplexLayout,
@@ -1708,7 +1717,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _subunit_node_elements_from_glyph_and_cls(
+        ) = cls._subunit_node_elements_from_glyph_and_cls(
             glyph,
             momapy.sbgn.pd.ComplexMultimerSubunit,
             momapy.sbgn.pd.ComplexMultimerLayout,
@@ -1730,7 +1739,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _flux_arc_elements_from_arc_and_cls(
+        model_element, layout_element = cls._flux_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Reactant,
             momapy.sbgn.pd.ConsumptionLayout,
@@ -1756,7 +1765,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _flux_arc_elements_from_arc_and_cls(
+        model_element, layout_element = cls._flux_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Product,
             momapy.sbgn.pd.ProductionLayout,
@@ -1785,7 +1794,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Modulation,
             momapy.sbgn.pd.ModulationLayout,
@@ -1810,7 +1819,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Stimulation,
             momapy.sbgn.pd.StimulationLayout,
@@ -1835,7 +1844,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Catalysis,
             momapy.sbgn.pd.CatalysisLayout,
@@ -1860,10 +1869,10 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
-            _get_module_from_map(map_).NecessaryStimulation,
-            _get_module_from_map(map_).NecessaryStimulationLayout,
+            cls._get_module_from_map(map_).NecessaryStimulation,
+            cls._get_module_from_map(map_).NecessaryStimulationLayout,
             map_,
             d_model_element_ids,
             d_layout_element_ids,
@@ -1885,7 +1894,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Inhibition,
             momapy.sbgn.pd.InhibitionLayout,
@@ -1910,7 +1919,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.PositiveInfluence,
             momapy.sbgn.af.PositiveInfluenceLayout,
@@ -1935,7 +1944,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.NegativeInfluence,
             momapy.sbgn.af.NegativeInfluenceLayout,
@@ -1960,7 +1969,7 @@ class SBGNMLReader(momapy.io.MapReader):
         (
             model_element,
             layout_element,
-        ) = _modulation_arc_elements_from_arc_and_cls(
+        ) = cls._modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.UnknownInfluence,
             momapy.sbgn.af.UnknownInfluenceLayout,
@@ -1994,13 +2003,13 @@ class SBGNMLReader(momapy.io.MapReader):
                 momapy.sbgn.af.DelayOperator,
             ),
         ):
-            model_cls = _get_module_from_map(map_).LogicalOperatorInput
+            model_cls = cls._get_module_from_map(map_).LogicalOperatorInput
         elif momapy.builder.isinstance_or_builder(
             d_model_element_ids[arc.target], momapy.sbgn.pd.EquivalenceOperator
         ):
             model_cls = momapy.sbgn.pd.EquivalenceOperatorInput
-        layout_cls = _get_module_from_map(map_).LogicArcLayout
-        model_element, layout_element = _arc_elements_from_arc_and_cls(
+        layout_cls = cls._get_module_from_map(map_).LogicArcLayout
+        model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
             layout_cls,
@@ -2033,13 +2042,13 @@ class SBGNMLReader(momapy.io.MapReader):
             d_model_element_ids[arc.target],
             (momapy.sbgn.pd.Terminal,),
         ):
-            model_cls = _get_module_from_map(map_).TerminalReference
+            model_cls = cls._get_module_from_map(map_).TerminalReference
         elif momapy.builder.isinstance_or_builder(
-            d_model_element_ids[arc.target], _get_module_from_map(map_).Tag
+            d_model_element_ids[arc.target], cls._get_module_from_map(map_).Tag
         ):
-            model_cls = _get_module_from_map(map_).TagReference
-        layout_cls = _get_module_from_map(map_).EquivalenceArcLayout
-        model_element, layout_element = _arc_elements_from_arc_and_cls(
+            model_cls = cls._get_module_from_map(map_).TagReference
+        layout_cls = cls._get_module_from_map(map_).EquivalenceArcLayout
+        model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
             layout_cls,
@@ -2069,7 +2078,7 @@ class SBGNMLReader(momapy.io.MapReader):
             config=config, context=xsdata.formats.dataclass.context.XmlContext()
         )
         try:
-            sbgn = parser.parse(file_path, momapy.sbgn.parser.Sbgn)
+            sbgn = parser.parse(file_path, momapy.sbgn.io._sbgnml_parser.Sbgn)
         except:
             return False
         return True

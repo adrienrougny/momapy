@@ -11,14 +11,14 @@ def register_reader(name, reader_cls):
 
 def read(file_path, reader=None, **options):
     reader_cls = None
-    if format_ is not None:
+    if reader is not None:
         reader_cls = readers.get(reader)
         if reader_cls is None:
             raise ValueError(f"no registered reader named '{reader}'")
     else:
         for candidate_reader_cls in readers.values():
-            if reader.check_file(file_path):
-                reader_cls = candidate_reader
+            if candidate_reader_cls.check_file(file_path):
+                reader_cls = candidate_reader_cls
                 break
     if reader_cls is not None:
         map_ = reader_cls.read(file_path, **options)
