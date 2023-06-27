@@ -7,9 +7,7 @@ import momapy.coloring
 import momapy.positioning
 import momapy.builder
 import momapy.styling
-import momapy.rendering.core
-import momapy.rendering.skia
-import momapy.sbgn.parser
+import momapy.sbgn._sbgnml_parser
 import momapy.sbgn.pd
 import momapy.sbgn.af
 
@@ -18,7 +16,7 @@ _DEFAULT_FONT_SIZE = 14.0
 _DEFAULT_FONT_COLOR = momapy.coloring.black
 
 
-def read_file(file_path, return_builder=False):
+def read(file_path, return_builder=False):
     config = xsdata.formats.dataclass.parsers.config.ParserConfig(
         fail_on_unknown_properties=False
     )
@@ -1968,10 +1966,3 @@ SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING = {
     "LOGIC_ARC": _logical_arc_elements_from_arc,
     "EQUIVALENCE_ARC": _equivalence_arc_elements_from_arc,
 }
-
-if __name__ == "__main__":
-    file_path = "test.sbgn"
-    map_ = read_file(file_path)
-    momapy.rendering.core.render_map(
-        map_, "test.pdf", format_="pdf", renderer="skia", to_top_left=True
-    )
