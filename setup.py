@@ -14,6 +14,7 @@ setup(
         "momapy",
         "momapy.sbgn",
         "momapy.sbgn.styling",
+        "momapy.sbgn.io",
         "momapy.celldesigner",
         "momapy.sbml",
         "momapy.rendering",
