@@ -499,6 +499,7 @@
                       <xsd:enumeration value="macromolecule"/>
                       <xsd:enumeration value="nucleic acid feature"/>
                       <xsd:enumeration value="complex"/>
+                      <xsd:enumeration value="perturbation"/>
                     </xsd:restriction>
                   </xsd:simpleType>
                 </xsd:attribute>

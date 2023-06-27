@@ -32,6 +32,7 @@ class EntityName(Enum):
     MACROMOLECULE = "macromolecule"
     NUCLEIC_ACID_FEATURE = "nucleic acid feature"
     COMPLEX = "complex"
+    PERTURBATION = "perturbation"
 
 
 class GlyphClass(Enum):
