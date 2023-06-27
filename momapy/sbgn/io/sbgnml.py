@@ -12,8 +12,8 @@ import momapy.sbgn._sbgnml_parser
 import momapy.sbgn.pd
 import momapy.sbgn.af
 
-def SBGNMLReader(momapy.io.MapReader):
 
+class SBGNMLReader(momapy.io.MapReader):
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_COLOR = momapy.coloring.black
@@ -75,8 +75,8 @@ def SBGNMLReader(momapy.io.MapReader):
         "EQUIVALENCE_ARC": _equivalence_arc_elements_from_arc,
     }
 
-
-    def read(file_path, return_builder=False):
+    @classmethod
+    def read(cls, file_path, return_builder=False):
         config = xsdata.formats.dataclass.parsers.config.ParserConfig(
             fail_on_unknown_properties=False
         )
@@ -85,9 +85,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         sbgn = parser.parse(file_path, momapy.sbgn.parser.Sbgn)
         sbgn_map = sbgn.map
-        map_ = _map_from_sbgn_map(sbgn_map)
+        map_ = cls._map_from_sbgn_map(sbgn_map)
         if sbgn_map.extension.render_information is not None:
-            style_sheet = _style_sheet_from_render_information(
+            style_sheet = cls._style_sheet_from_render_information(
                 sbgn_map.extension.render_information
             )
             momapy.styling.apply_style_sheet(map_.layout, style_sheet)
@@ -95,15 +95,15 @@ def SBGNMLReader(momapy.io.MapReader):
             map_ = momapy.builder.object_from_builder(map_)
         return map_
 
-
-    def _get_module_from_map(map_):
+    @classmethod
+    def _get_module_from_map(cls, map_):
         if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
             return momapy.sbgn.pd
         else:
             return momapy.sbgn.af
 
-
-    def _map_from_sbgn_map(sbgn_map):
+    @classmethod
+    def _map_from_sbgn_map(cls, sbgn_map):
         if sbgn_map.language.name == "PROCESS_DESCRIPTION":
             map_ = momapy.sbgn.pd.SBGNPDMapBuilder()
         elif sbgn_map.language.name == "ACTIVITY_FLOW":
@@ -146,8 +146,8 @@ def SBGNMLReader(momapy.io.MapReader):
             momapy.positioning.set_fit(map_.layout, map_.layout.layout_elements)
         return map_
 
-
-    def _style_sheet_from_render_information(render_information):
+    @classmethod
+    def _style_sheet_from_render_information(cls, render_information):
         style_sheet = momapy.styling.StyleSheet()
         d_colors = {}
         for (
@@ -192,15 +192,15 @@ def SBGNMLReader(momapy.io.MapReader):
                 if color_str is not None:
                     if color_str == "#000":
                         color_str = "#000000"
-                    label_style_collection[attr] = momapy.coloring.Color.from_hex(
-                        color_str
-                    )
+                    label_style_collection[
+                        attr
+                    ] = momapy.coloring.Color.from_hex(color_str)
             style_sheet[label_selector] = label_style_collection
         return style_sheet
 
-
+    @classmethod
     def _get_transformation_func_from_sbgnml_element(
-        sbgnml_element, super_model_element=None
+        cls, sbgnml_element, super_model_element=None
     ):
         class_str = sbgnml_element.class_value.name
         if (
@@ -226,15 +226,19 @@ def SBGNMLReader(momapy.io.MapReader):
             class_str = f"{class_str}_SUBUNIT"
         elif (
             momapy.builder.isinstance_or_builder(
-                super_model_element, (momapy.sbgn.pd.Submap, momapy.sbgn.af.Submap)
+                super_model_element,
+                (momapy.sbgn.pd.Submap, momapy.sbgn.af.Submap),
             )
             and class_str == "TAG"
         ):
             class_str = "TERMINAL"
-        return SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING.get(class_str)
+        return SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING.get(
+            class_str
+        )
 
-
+    @classmethod
     def _map_elements_from_sbgnml_element(
+        cls,
         sbgnml_element,
         map_,
         d_model_element_ids,
@@ -262,8 +266,9 @@ def SBGNMLReader(momapy.io.MapReader):
             layout_element = None
         return model_element, layout_element
 
-
+    @classmethod
     def _node_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -346,8 +351,9 @@ def SBGNMLReader(momapy.io.MapReader):
         d_layout_element_ids[glyph.id] = layout_element
         return model_element, layout_element
 
-
+    @classmethod
     def _entity_pool_node_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -374,8 +380,9 @@ def SBGNMLReader(momapy.io.MapReader):
             add_mapping_to_map=True,
         )
 
-
+    @classmethod
     def _subunit_node_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -402,8 +409,9 @@ def SBGNMLReader(momapy.io.MapReader):
             add_mapping_to_map=True,
         )
 
-
+    @classmethod
     def _auxiliary_node_no_model_label_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -429,8 +437,9 @@ def SBGNMLReader(momapy.io.MapReader):
             add_mapping_to_map=True,
         )
 
-
+    @classmethod
     def _process_node_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -456,8 +465,9 @@ def SBGNMLReader(momapy.io.MapReader):
             add_mapping_to_map=True,
         )
 
-
+    @classmethod
     def _operator_node_elements_from_glyph_and_cls(
+        cls,
         glyph,
         model_cls,
         layout_cls,
@@ -483,8 +493,9 @@ def SBGNMLReader(momapy.io.MapReader):
             add_mapping_to_map=True,
         )
 
-
+    @classmethod
     def _arc_elements_from_arc_and_cls(
+        cls,
         arc,
         model_cls,
         layout_cls,
@@ -541,8 +552,9 @@ def SBGNMLReader(momapy.io.MapReader):
         d_layout_element_ids[arc.id] = layout_element
         return model_element, layout_element
 
-
+    @classmethod
     def _flux_arc_elements_from_arc_and_cls(
+        cls,
         arc,
         model_cls,
         layout_cls,
@@ -567,8 +579,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _modulation_arc_elements_from_arc_and_cls(
+        cls,
         arc,
         model_cls,
         layout_cls,
@@ -597,8 +610,9 @@ def SBGNMLReader(momapy.io.MapReader):
         layout_element.target = d_layout_element_ids[arc.target]
         return model_element, layout_element
 
-
+    @classmethod
     def _compartment_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -621,8 +635,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _submap_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -645,8 +660,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _biological_activity_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -669,8 +685,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unspecified_entity_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -693,8 +710,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _macromolecule_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -717,8 +735,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _macromolecule_multimer_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -741,8 +760,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _simple_chemical_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -765,8 +785,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _simple_chemical_multimer_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -789,8 +810,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _nucleic_acid_feature_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -813,8 +835,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _nucleic_acid_feature_multimer_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -837,8 +860,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _complex_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -861,8 +885,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _complex_multimer_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -885,8 +910,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _empty_set_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -909,8 +935,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _perturbing_agent_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -933,8 +960,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _generic_process_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -957,8 +985,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _association_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -981,8 +1010,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _dissociation_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1005,8 +1035,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _uncertain_process_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1029,8 +1060,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _omitted_process_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1053,8 +1085,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _phenotype_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1077,8 +1110,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _and_operator_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1101,8 +1135,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _or_operator_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1125,8 +1160,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _not_operator_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1149,8 +1185,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _delay_operator_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1173,8 +1210,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _state_variable_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1225,8 +1263,9 @@ def SBGNMLReader(momapy.io.MapReader):
         layout_element.label = text_layout
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1255,8 +1294,9 @@ def SBGNMLReader(momapy.io.MapReader):
             layout_element.label.font_size = 8.0
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_unspecified_entity_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1279,8 +1319,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_macromolecule_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1303,8 +1344,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_simple_chemical_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1327,8 +1369,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_nucleic_acid_feature_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1351,8 +1394,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_complex_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1375,8 +1419,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unit_of_information_perturbation_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1399,8 +1444,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _tag_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1423,8 +1469,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _terminal_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1448,8 +1495,9 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element.add_element(model_element)
         return model_element, layout_element
 
-
+    @classmethod
     def _unspecified_entity_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1472,8 +1520,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _macromolecule_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1496,8 +1545,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _macromolecule_multimer_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1520,8 +1570,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _simple_chemical_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1544,8 +1595,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _simple_chemical_multimer_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1568,8 +1620,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _nucleic_acid_feature_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1592,8 +1645,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _nucleic_acid_feature_multimer_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1616,8 +1670,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _complex_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1640,8 +1695,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _complex_multimer_subunit_elements_from_glyph(
+        cls,
         glyph,
         map_,
         d_model_element_ids,
@@ -1664,8 +1720,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _consumption_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1689,8 +1746,9 @@ def SBGNMLReader(momapy.io.MapReader):
         ]  # the source becomes the target: in momapy flux arcs go from the process to the entity pool node; this way reversible consumptions can be represented with production layouts. Also, no source (the process layout) is set for the flux arc, so that we do not have a circular definition that would be problematic when building the object.
         return model_element, layout_element
 
-
+    @classmethod
     def _production_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1714,8 +1772,9 @@ def SBGNMLReader(momapy.io.MapReader):
         ]  # no source (the process layout) is set for the flux arc, so that we do not have a circular definition that would be problematic when building the object.
         return model_element, layout_element
 
-
+    @classmethod
     def _modulation_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1723,7 +1782,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Modulation,
             momapy.sbgn.pd.ModulationLayout,
@@ -1735,8 +1797,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _stimulation_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1744,7 +1807,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Stimulation,
             momapy.sbgn.pd.StimulationLayout,
@@ -1756,8 +1822,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _catalysis_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1765,7 +1832,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Catalysis,
             momapy.sbgn.pd.CatalysisLayout,
@@ -1777,8 +1847,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _necessary_stimulation_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1786,7 +1857,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             _get_module_from_map(map_).NecessaryStimulation,
             _get_module_from_map(map_).NecessaryStimulationLayout,
@@ -1798,8 +1872,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _inhibition_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1807,7 +1882,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.pd.Inhibition,
             momapy.sbgn.pd.InhibitionLayout,
@@ -1819,8 +1897,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _positive_influence_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1828,7 +1907,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.PositiveInfluence,
             momapy.sbgn.af.PositiveInfluenceLayout,
@@ -1840,8 +1922,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _negative_influence_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1849,7 +1932,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.NegativeInfluence,
             momapy.sbgn.af.NegativeInfluenceLayout,
@@ -1861,8 +1947,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _unknown_influence_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1870,7 +1957,10 @@ def SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
-        model_element, layout_element = _modulation_arc_elements_from_arc_and_cls(
+        (
+            model_element,
+            layout_element,
+        ) = _modulation_arc_elements_from_arc_and_cls(
             arc,
             momapy.sbgn.af.UnknownInfluence,
             momapy.sbgn.af.UnknownInfluenceLayout,
@@ -1882,8 +1972,9 @@ def SBGNMLReader(momapy.io.MapReader):
         )
         return model_element, layout_element
 
-
+    @classmethod
     def _logical_arc_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1928,8 +2019,9 @@ def SBGNMLReader(momapy.io.MapReader):
         ]  # the source becomes the target: in momapy logic arcs go from the operator to the input. Also, no source (the operator layout) is set for the logic arc, so that we do not have a circular definition that would be problematic when building the object.
         return model_element, layout_element
 
-
+    @classmethod
     def _equivalence_arc_elements_from_arc(
+        cls,
         arc,
         map_,
         d_model_element_ids,
@@ -1968,5 +2060,19 @@ def SBGNMLReader(momapy.io.MapReader):
         d_layout_element_ids[arc.target].add_element(layout_element)
         return model_element, layout_element
 
+    @classmethod
+    def check_file(cls, file_path):
+        config = xsdata.formats.dataclass.parsers.config.ParserConfig(
+            fail_on_unknown_properties=False
+        )
+        parser = xsdata.formats.dataclass.parsers.XmlParser(
+            config=config, context=xsdata.formats.dataclass.context.XmlContext()
+        )
+        try:
+            sbgn = parser.parse(file_path, momapy.sbgn.parser.Sbgn)
+        except:
+            return False
+        return True
 
 
+momapy.io.register_reader("sbgnml", SBGNMLReader)
