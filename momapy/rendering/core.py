@@ -25,7 +25,7 @@ def render_map(
     map_,
     output_file,
     format_="pdf",
-    renderer="cairo",
+    renderer="skia",
     style_sheet=None,
     to_top_left=False,
 ):
@@ -37,7 +37,7 @@ def render_maps(
     maps,
     output_file,
     format_="pdf",
-    renderer="cairo",
+    renderer="skia",
     style_sheet=None,
     to_top_left=False,
     multi_pages=True,
