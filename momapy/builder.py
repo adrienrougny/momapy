@@ -7,8 +7,10 @@ import collections.abc
 
 import frozendict
 
+import momapy.monitoring
 
-class Builder(abc.ABC):
+
+class Builder(abc.ABC, momapy.monitoring.Monitored):
     _cls_to_build: typing.ClassVar[type]
 
     @abc.abstractmethod
