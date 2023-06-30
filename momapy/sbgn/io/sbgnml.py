@@ -516,12 +516,16 @@ class SBGNMLReader(momapy.io.MapReader):
         make_sub_elements=True,
         add_elements_to_super_elements=False,
         add_mapping_to_map=True,
+        reverse_points_order=False,
     ):
         model_element = map_.new_model_element(model_cls)
         model_element.id = arc.id
         layout_element = map_.new_layout_element(layout_cls)
         layout_element.id = arc.id
-        sbgnml_points = [arc.start] + arc.next + [arc.end]
+        if reverse_points_order:
+            sbgnml_points = [arc.end] + arc.next[::-1] + [arc.start]
+        else:
+            sbgnml_points = [arc.start] + arc.next + [arc.end]
         for i, sbgnml_current_point in enumerate(sbgnml_points[1:]):
             sbgnml_previous_point = sbgnml_points[i]
             current_point = momapy.geometry.PointBuilder(
@@ -572,6 +576,7 @@ class SBGNMLReader(momapy.io.MapReader):
         d_layout_element_ids,
         super_model_element=None,
         super_layout_element=None,
+        reverse_points_order=False,
     ):
         model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
@@ -585,6 +590,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            reverse_points_order=reverse_points_order,
         )
         return model_element, layout_element
 
@@ -1748,6 +1754,7 @@ class SBGNMLReader(momapy.io.MapReader):
             d_layout_element_ids,
             d_model_element_ids[arc.target],
             d_layout_element_ids[arc.target],
+            reverse_points_order=True,
         )
         model_element.element = d_model_element_ids[arc.source]
         layout_element.target = d_layout_element_ids[
