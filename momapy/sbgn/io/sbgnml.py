@@ -86,7 +86,10 @@ class SBGNMLReader(momapy.io.MapReader):
         sbgn = parser.parse(file_path, momapy.sbgn.io._sbgnml_parser.Sbgn)
         sbgn_map = sbgn.map
         map_ = cls._map_from_sbgn_map(sbgn_map)
-        if sbgn_map.extension.render_information is not None:
+        if (
+            sbgn_map.extension is not None
+            and sbgn_map.extension.render_information is not None
+        ):
             style_sheet = cls._style_sheet_from_render_information(
                 sbgn_map.extension.render_information
             )
