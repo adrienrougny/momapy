@@ -254,6 +254,7 @@ class StoichiometricProcess(Process):
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
+    reversible: bool = False
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -384,7 +385,6 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
     tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
     def is_ovav(self):
-
         subunit_cls_entity_pool_cls_mapping = {
             MacromoleculeSubunit: Macromolecule,
             NucleicAcidFeatureSubunit: NucleicAcidFeature,
@@ -1003,9 +1003,7 @@ class _LogicalOperatorLayout(
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 3
     )
-    _font_color: typing.ClassVar[
-        momapy.coloring.Color
-    ] = momapy.coloring.black
+    _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1182,9 +1180,7 @@ class OmittedProcessLayout(
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 1.5
     )
-    _font_color: typing.ClassVar[
-        momapy.coloring.Color
-    ] = momapy.coloring.black
+    _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     width: float = 20.0
     height: float = 20.0
     left_connector_length: float = 10.0
@@ -1227,9 +1223,7 @@ class UncertainProcessLayout(
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 1.5
     )
-    _font_color: typing.ClassVar[
-        momapy.coloring.Color
-    ] = momapy.coloring.black
+    _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     width: float = 20.0
     height: float = 20.0
     left_connector_length: float = 10.0
