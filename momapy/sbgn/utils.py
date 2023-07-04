@@ -100,108 +100,125 @@ def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
             )
 
 
-def set_arcs_to_borders(map_builder):
-    for layout_element in map_builder.layout.descendants():
-        if isinstance(layout_element, momapy.core.ArcLayoutBuilder):
-            source = layout_element.source
-            target = layout_element.target
-            if isinstance(source, momapy.core.PhantomLayoutBuilder):
-                source = source.layout_element
-            if isinstance(target, momapy.core.PhantomLayoutBuilder):
-                target = target.layout_element
-            if source is not None or target is not None:
-                for main, index, increment, other in [
-                    (source, 0, 1, target),
-                    (target, -1, -1, source),
-                ]:
-                    if main is not None:
-                        if len(layout_element.segments) >= 2:
-                            reference_point = layout_element.points()[
-                                index + increment
-                            ]
-                        elif other is not None:
-                            if hasattr(
-                                other, "left_connector_base"
-                            ) and not isinstance(
-                                layout_element,
-                                (
-                                    momapy.builder.get_or_make_builder_cls(
-                                        momapy.sbgn.pd.ModulationLayout
-                                    ),
-                                    momapy.builder.get_or_make_builder_cls(
-                                        momapy.sbgn.pd.StimulationLayout
-                                    ),
-                                    momapy.builder.get_or_make_builder_cls(
-                                        momapy.sbgn.pd.InhibitionLayout
-                                    ),
-                                    momapy.builder.get_or_make_builder_cls(
-                                        momapy.sbgn.pd.NecessaryStimulationLayout
-                                    ),
-                                    momapy.builder.get_or_make_builder_cls(
-                                        momapy.sbgn.pd.CatalysisLayout
-                                    ),
-                                ),
-                            ):
-                                if (
-                                    other.direction
-                                    == momapy.core.Direction.HORIZONTAL
-                                ):
-                                    if main.center().x < other.center().x:
-                                        reference_point = other.west()
-                                    else:
-                                        reference_point = other.east()
-                                else:
-                                    if main.center().y < other.center().y:
-                                        reference_point = other.north()
-                                    else:
-                                        reference_point = other.south()
-                            else:
-                                reference_point = other.center()
-                        else:
-                            reference_point = layout_elements.points()[
-                                index - increment
-                            ]
-                        if hasattr(
-                            main, "left_connector_base"
-                        ) and not isinstance(
-                            layout_element,
+def set_arcs_to_borders(map_):
+    def _get_arcs(map_):
+        arcs = []
+        for layout_element in map_.layout.layout_elements:
+            if momapy.builder.isinstance_or_builder(
+                layout_element, (momapy.sbgn.pd.GenericProcessLayout)
+            ):
+                for sub_layout_element in layout_element.layout_elements:
+                    if momapy.builder.isinstance_or_builder(
+                        sub_layout_element, (momapy.sbgn.pd.ConsumptionLayout)
+                    ):
+                        arcs.append(
                             (
-                                momapy.builder.get_or_make_builder_cls(
-                                    momapy.sbgn.pd.ModulationLayout
-                                ),
-                                momapy.builder.get_or_make_builder_cls(
-                                    momapy.sbgn.pd.StimulationLayout
-                                ),
-                                momapy.builder.get_or_make_builder_cls(
-                                    momapy.sbgn.pd.InhibitionLayout
-                                ),
-                                momapy.builder.get_or_make_builder_cls(
-                                    momapy.sbgn.pd.NecessaryStimulationLayout
-                                ),
-                                momapy.builder.get_or_make_builder_cls(
-                                    momapy.sbgn.pd.CatalysisLayout
-                                ),
-                            ),
-                        ):
-                            if (
-                                main.direction
-                                == momapy.core.Direction.HORIZONTAL
-                            ):
-                                if reference_point.x < main.center().x:
-                                    point = main.west()
-                                else:
-                                    point = main.east()
-                            else:
-                                if reference_point.y < main.center().y:
-                                    point = main.north()
-                                else:
-                                    point = main.south()
+                                sub_layout_element,
+                                layout_element,
+                                sub_layout_element.target,
+                            )
+                        )
+        return arcs
+
+    def _get_process_direction(layout_element):
+        consumption_layout = None
+        production_layout = None
+        for sub_layout_element in layout_element.layout_elements:
+            if momapy.builder.isinstance_or_builder(
+                sub_layout_element, (momapy.sbgn.pd.ConsumptionLayout)
+            ):
+                consumption_layout = sub_layout_element
+            elif momapy.builder.isinstance_or_builder(
+                sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
+            ):
+                production_layout = sub_layout_element
+            if consumption_layout is not None and production_layout is not None:
+                break
+        if consumption_layout is not None and production_layout is not None:
+            if layout_element.direction == momapy.core.Direction.HORIZONTAL:
+                if (
+                    consumption_layout.points()[-1].x
+                    < production_layout.points()[-1].x
+                ):
+                    direction = "lr"
+                else:
+                    direction = "rl"
+            else:
+                if (
+                    consumption_layout.points()[-1].y
+                    < production_layout.points()[-1].y
+                ):
+                    direction = "lr"
+                else:
+                    direction = "rl"
+        else:
+            direction = None
+        return direction
+
+    for layout_element in map_.layout.layout_elements:
+        if momapy.builder.isinstance_or_builder(
+            layout_element, (momapy.sbgn.pd.GenericProcessLayout)
+        ):
+            direction = _get_process_direction(layout_element)
+            if direction is None:
+                direction = "lr"
+            for sub_layout_element in layout_element.layout_elements:
+                if momapy.builder.isinstance_or_builder(
+                    sub_layout_element, (momapy.sbgn.pd.ConsumptionLayout)
+                ):
+                    points = sub_layout_element.points()
+                    if len(sub_layout_element.segments) > 1:
+                        reference_point = points[-2]
+                    else:
+                        if direction == "lr":
+                            reference_point = (
+                                layout_element.left_connector_tip()
+                            )
                         else:
-                            point = main.border(reference_point)
-                        if point is not None:
-                            segment = layout_element.segments[index]
-                            attr_name = f"p{[1, 2][index]}"
-                            setattr(segment, attr_name, point)
+                            reference_point = (
+                                layout_element.right_connector_tip()
+                            )
+                    end_point = sub_layout_element.target.self_border(
+                        reference_point
+                    )
+                    sub_layout_element.segments[
+                        -1
+                    ].p2 = momapy.builder.builder_from_object(end_point)
+                    if direction == "lr":
+                        start_point = layout_element.left_connector_tip()
+                    else:
+                        start_point = layout_element.right_connector_tip()
+                    sub_layout_element.segments[
+                        0
+                    ].p1 = momapy.builder.builder_from_object(start_point)
+                elif momapy.builder.isinstance_or_builder(
+                    sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
+                ):
+                    points = sub_layout_element.points()
+                    if len(sub_layout_element.segments) > 1:
+                        reference_point = points[-2]
+                    else:
+                        if direction == "lr":
+                            reference_point = (
+                                layout_element.right_connector_tip()
+                            )
+                        else:
+                            reference_point = (
+                                layout_element.left_connector_tip()
+                            )
+                    end_point = sub_layout_element.target.self_border(
+                        reference_point
+                    )
+                    sub_layout_element.segments[
+                        -1
+                    ].p2 = momapy.builder.builder_from_object(end_point)
+                    if direction == "lr":
+                        start_point = layout_element.right_connector_tip()
+                    else:
+                        start_point = layout_element.left_connector_tip()
+                    sub_layout_element.segments[
+                        0
+                    ].p1 = momapy.builder.builder_from_object(start_point)
 
 
 def set_auxilliary_units_to_borders(map_builder):
