@@ -637,12 +637,7 @@ class ArcLayout(GroupLayout):
         return drawing_elements
 
     def self_children(self):
-        layout_elements = []
-        if self.source is not None:
-            layout_elements.append(self.source)
-        if self.target is not None:
-            layout_elements.append(self.target)
-        return layout_elements
+        return []
 
     def childless(self):
         return replace(self, source=None, target=None, layout_elements=None)
