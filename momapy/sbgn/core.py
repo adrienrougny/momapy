@@ -73,6 +73,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
     direction: Optional[
         momapy.core.Direction
     ] = momapy.core.Direction.HORIZONTAL
+    left_to_right: bool = True
 
     def left_connector_base(self):
         if self.direction == momapy.core.Direction.VERTICAL:
