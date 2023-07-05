@@ -96,8 +96,8 @@ PhenotypeLayout {
 }
 
 AndOperatorLayout {
-    width: 42;
-    height: 42;
+    width: 30;
+    height: 30;
     stroke: black;
     stroke-width: 2;
     fill: white;
@@ -109,8 +109,8 @@ AndOperatorLayout {
 }
 
 OrOperatorLayout {
-    width: 42;
-    height: 42;
+    width: 30;
+    height: 30;
     stroke: black;
     stroke-width: 2;
     fill: white;
@@ -122,7 +122,7 @@ OrOperatorLayout {
 }
 
 NotOperatorLayout {
-    width: 42;
+    width: 30;
     height: 42;
     stroke: black;
     stroke-width: 2;
@@ -135,8 +135,8 @@ NotOperatorLayout {
 }
 
 EquivalenceOperatorLayout {
-    width: 42;
-    height: 42;
+    width: 30;
+    height: 30;
     stroke: black;
     stroke-width: 2;
     fill: white;
@@ -514,8 +514,8 @@ PerturbationUnitOfInformationLayout > TextLayout {
 }
 
 DelayOperatorLayout {
-    width: 42;
-    height: 42;
+    width: 30;
+    height: 30;
     stroke: black;
     stroke-width: 2;
     fill: white;
