@@ -1914,7 +1914,7 @@ class SBGNMLReader(momapy.io.MapReader):
                 else:
                     model_element_cls = momapy.sbgn.pd.Reactant
             else:
-                if start_y > process_layout.x:
+                if start_y > process_layout.y:
                     model_element_cls = momapy.sbgn.pd.Product
                 else:
                     model_element_cls = momapy.sbgn.pd.Reactant
