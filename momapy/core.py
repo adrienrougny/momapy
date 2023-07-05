@@ -812,6 +812,7 @@ class LayoutModelMapping(collections.abc.Mapping):
         self,
         key: ModelElement | _MappingElementType | _MappingKeyType,
         expand: bool = True,
+        unpack: bool = False,
     ):
         if (
             isinstance(key, ModelElement)
@@ -829,6 +830,17 @@ class LayoutModelMapping(collections.abc.Mapping):
         value = set([])
         for key in keys:
             value |= self._set_to_set_mapping[key]
+        if unpack:
+            if len(value) == 0:
+                raise ValueError(f"could not unpack '{value}': result is empty")
+            for element in value:
+                break
+            if len(element) == 0:
+                raise ValueError(f"could not unpack '{value}': result is empty")
+            for sub_element in element:
+                break
+            return sub_element
+
         return value
 
     def is_submapping(self, other):
@@ -1459,6 +1471,17 @@ def _map_builder_add_mapping(
     reverse: bool = True,
 ):
     self.layout_model_mapping.add_mapping(key=key, value=value, reverse=reverse)
+
+
+def _map_builder_get_mapping(
+    self,
+    key: ModelElement | _MappingElementType | _MappingKeyType,
+    expand: bool = True,
+    unpack: bool = False,
+):
+    return self.layout_model_mapping.get_mapping(
+        key=key, expand=expand, unpack=unpack
+    )
 
 
 MapBuilder = momapy.builder.get_or_make_builder_cls(
