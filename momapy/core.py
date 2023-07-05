@@ -874,7 +874,9 @@ class Map(MapElement):
         expand: bool = True,
         unpack: bool = False,
     ):
-        return self.layout_model_mapping(key=ley, expand=expand, unpack=unpack)
+        return self.layout_model_mapping.get_mapping(
+            key=key, expand=expand, unpack=unpack
+        )
 
 
 class TupleBuilder(list, momapy.builder.Builder):
