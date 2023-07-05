@@ -868,6 +868,14 @@ class Map(MapElement):
             )
         )
 
+    def get_mapping(
+        self,
+        key: ModelElement | _MappingElementType | _MappingKeyType,
+        expand: bool = True,
+        unpack: bool = False,
+    ):
+        return self.layout_model_mapping(key=ley, expand=expand, unpack=unpack)
+
 
 class TupleBuilder(list, momapy.builder.Builder):
     _cls_to_build = tuple
@@ -1215,6 +1223,7 @@ class LayoutModelMappingBuilder(
         | _MappingElementBuilderType
         | _MappingKeyBuilderType,
         expand: bool = True,
+        unpack: bool = True,
     ):
         if (
             momapy.builder.isinstance_or_builder(key, ModelElement)
@@ -1234,6 +1243,16 @@ class LayoutModelMappingBuilder(
         value = set([])
         for key in keys:
             value |= self._set_to_set_mapping[key]
+        if unpack:
+            if len(value) == 0:
+                raise ValueError(f"could not unpack '{value}': result is empty")
+            for element in value:
+                break
+            if len(element) == 0:
+                raise ValueError(f"could not unpack '{value}': result is empty")
+            for sub_element in element:
+                break
+            return sub_element
 
         return value
 
@@ -1475,9 +1494,12 @@ def _map_builder_add_mapping(
 
 def _map_builder_get_mapping(
     self,
-    key: ModelElement | _MappingElementType | _MappingKeyType,
+    key: ModelElement
+    | ModelElementBuilder
+    | _MappingElementBuilderType
+    | _MappingKeyBuilderType,
     expand: bool = True,
-    unpack: bool = False,
+    unpack: bool = True,
 ):
     return self.layout_model_mapping.get_mapping(
         key=key, expand=expand, unpack=unpack
