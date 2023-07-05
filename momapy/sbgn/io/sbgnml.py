@@ -106,6 +106,59 @@ class SBGNMLReader(momapy.io.MapReader):
             return momapy.sbgn.af
 
     @classmethod
+    def _is_process_layout_left_to_right(cls, layout_element):
+        consumption_layout = None
+        production_layout = None
+        for sub_layout_element in layout_element.layout_elements:
+            if momapy.builder.isinstance_or_builder(
+                sub_layout_element, (momapy.sbgn.pd.ConsumptionLayout)
+            ):
+                consumption_layout = sub_layout_element
+            elif momapy.builder.isinstance_or_builder(
+                sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
+            ):
+                production_layout = sub_layout_element
+            if consumption_layout is not None and production_layout is not None:
+                break
+        if consumption_layout is not None and production_layout is not None:
+            if layout_element.direction == momapy.core.Direction.HORIZONTAL:
+                if (
+                    consumption_layout.points()[-1].x
+                    < production_layout.points()[-1].x
+                ):
+                    return True
+                else:
+                    return False
+            else:
+                if (
+                    consumption_layout.points()[-1].y
+                    < production_layout.points()[-1].y
+                ):
+                    return True
+                else:
+                    return False
+        return True
+
+    @classmethod
+    def _is_operator_layout_left_to_right(cls, layout_element):
+        for sub_layout_element in layout_element.layout_elements:
+            if momapy.builder.isinstance_or_builder(
+                sub_layout_element,
+                (momapy.sbgn.pd.LogicArcLayout, momapy.sbgn.af.LogicArcLayout),
+            ):
+                if layout_element.direction == momapy.core.Direction.HORIZONTAL:
+                    if sub_layout_element.points()[-1].x < layout_element.x:
+                        return True
+                    else:
+                        return False
+                else:
+                    if sub_layout_element.points()[-1].y < layout_element.y:
+                        return True
+                    else:
+                        return False
+        return True
+
+    @classmethod
     def _map_from_sbgn_map(cls, sbgn_map):
         if sbgn_map.language.name == "PROCESS_DESCRIPTION":
             map_ = momapy.sbgn.pd.SBGNPDMapBuilder()
@@ -132,7 +185,41 @@ class SBGNMLReader(momapy.io.MapReader):
                 map_.model,
                 map_.layout,
             )
+        d_processes = {}
+        sbgnml_flux_arcs = []
         for arc in sbgn_map.arc:
+            # We collect flux arcs to set the reversibility of the processes
+            # they belong to. A process is reversible if it only has production
+            # arcs.
+            if arc.class_value.name == "CONSUMPTION":
+                process = d_model_element_ids[arc.target]
+                d_processes[process] = False
+                sbgnml_flux_arcs.append(arc)
+            elif arc.class_value.name == "PRODUCTION":
+                process = d_model_element_ids[arc.source]
+                if process not in d_processes:
+                    d_processes[process] = True
+                sbgnml_flux_arcs.append(arc)
+            # If the arc is not a flux arc, we transform it immediately. If it
+            # is a flux arc, we transform it after we set the reversibily of the
+            # processes.
+            else:
+                (
+                    model_element,
+                    layout_element,
+                ) = cls._map_elements_from_sbgnml_element(
+                    arc,
+                    map_,
+                    d_model_element_ids,
+                    d_layout_element_ids,
+                    map_.model,
+                    map_.layout,
+                )
+        # We set the reversibility of the processes.
+        for process in d_processes:
+            process.reversible = d_processes[process]
+        # We transform the flux arcs we collected previously.
+        for arc in sbgnml_flux_arcs:
             (
                 model_element,
                 layout_element,
@@ -144,6 +231,38 @@ class SBGNMLReader(momapy.io.MapReader):
                 map_.model,
                 map_.layout,
             )
+        # We set the direction (left-to-right or right-to-left) of the process
+        # layouts. By default, process layouts are left-to-right.
+        for process in map_.model.processes:
+            for process_layout in map_.get_mapping(process):
+                process_layout, *_ = process_layout
+                process_layout.left_to_right = (
+                    cls._is_process_layout_left_to_right(process_layout)
+                )
+        # We set the direction (left-to-right or right-to-left) of the logical
+        # operator layouts. By default, logical operator layouts are
+        # left-to-right.
+        for logical_operator in map_.model.logical_operators:
+            for logical_operator_layout in map_.get_mapping(logical_operator):
+                logical_operator_layout, *_ = logical_operator_layout
+                logical_operator_layout.left_to_right = (
+                    cls._is_operator_layout_left_to_right(
+                        logical_operator_layout
+                    )
+                )
+        # We set the direction (left-to-right or right-to-left) of the equivalence
+        # operator layouts. By default, equivalence operator layouts are
+        # left-to-right.
+        for equivalence_operator in map_.model.equivalence_operators:
+            for equivalence_operator_layout in map_.get_mapping(
+                equivalence_operator
+            ):
+                equivalence_operator_layout, *_ = equivalence_operator_layout
+                equivalence_operator_layout.left_to_right = (
+                    cls._is_operator_layout_left_to_right(
+                        equivalence_operator_layout
+                    )
+                )
         if sbgn_map.bbox is not None:
             map_.layout.position = momapy.geometry.PointBuilder(
                 sbgn_map.bbox.x + sbgn_map.bbox.w / 2,
@@ -295,6 +414,7 @@ class SBGNMLReader(momapy.io.MapReader):
         make_sub_elements=True,
         add_elements_to_super_elements=False,
         add_mapping_to_map=True,
+        add_super_model_element_to_mapping=False,
     ):
         model_element = map_.new_model_element(model_cls)
         model_element.id = glyph.id
@@ -353,12 +473,12 @@ class SBGNMLReader(momapy.io.MapReader):
             super_model_element.add_element(model_element)
             super_layout_element.add_element(layout_element)
         if add_mapping_to_map:
-            if super_model_element is None:
-                map_.add_mapping(model_element, layout_element)
-            else:
+            if add_super_model_element_to_mapping:
                 map_.add_mapping(
                     (model_element, super_model_element), layout_element
                 )
+            else:
+                map_.add_mapping(model_element, layout_element)
         d_model_element_ids[glyph.id] = model_element
         d_layout_element_ids[glyph.id] = layout_element
         return model_element, layout_element
@@ -390,6 +510,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=False,
         )
 
     @classmethod
@@ -419,6 +540,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=True,
         )
 
     @classmethod
@@ -447,6 +569,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=True,
         )
 
     @classmethod
@@ -475,6 +598,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=False,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=False,
         )
 
     @classmethod
@@ -503,6 +627,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=False,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=False,
         )
 
     @classmethod
@@ -519,6 +644,7 @@ class SBGNMLReader(momapy.io.MapReader):
         make_sub_elements=True,
         add_elements_to_super_elements=False,
         add_mapping_to_map=True,
+        add_super_model_element_to_mapping=False,
         reverse_points_order=False,
     ):
         model_element = map_.new_model_element(model_cls)
@@ -558,12 +684,12 @@ class SBGNMLReader(momapy.io.MapReader):
             super_model_element.add_element(model_element)
             super_layout_element.add_element(layout_element)
         if add_mapping_to_map:
-            if super_model_element is None:
-                map_.add_mapping(model_element, layout_element)
-            else:
+            if add_super_model_element_to_mapping:
                 map_.add_mapping(
                     (model_element, super_model_element), layout_element
                 )
+            else:
+                map_.add_mapping(model_element, layout_element)
         d_model_element_ids[arc.id] = model_element
         d_layout_element_ids[arc.id] = layout_element
         return model_element, layout_element
@@ -593,6 +719,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=True,
             reverse_points_order=reverse_points_order,
         )
         return model_element, layout_element
@@ -621,6 +748,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=False,
         )
         model_element.source = d_model_element_ids[arc.source]
         model_element.target = d_model_element_ids[arc.target]
@@ -1775,9 +1903,26 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
     ):
+        process = d_model_element_ids[arc.source]
+        start_x = arc.start.x
+        start_y = arc.start.y
+        if process.reversible:
+            process_layout = map_.get_mapping(process, unpack=True)
+            if process_layout.direction == momapy.core.Direction.HORIZONTAL:
+                if start_x > process_layout.x:
+                    model_element_cls = momapy.sbgn.pd.Product
+                else:
+                    model_element_cls = momapy.sbgn.pd.Reactant
+            else:
+                if start_y > process_layout.x:
+                    model_element_cls = momapy.sbgn.pd.Product
+                else:
+                    model_element_cls = momapy.sbgn.pd.Reactant
+        else:
+            model_element_cls = momapy.sbgn.pd.Product
         model_element, layout_element = cls._flux_arc_elements_from_arc_and_cls(
             arc,
-            momapy.sbgn.pd.Product,
+            model_element_cls,
             momapy.sbgn.pd.ProductionLayout,
             map_,
             d_model_element_ids,
@@ -2031,6 +2176,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=True,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=True,
         )
         model_element.element = d_model_element_ids[arc.source]
         layout_element.target = d_layout_element_ids[
@@ -2070,6 +2216,7 @@ class SBGNMLReader(momapy.io.MapReader):
             make_sub_elements=True,
             add_elements_to_super_elements=False,
             add_mapping_to_map=True,
+            add_super_model_element_to_mapping=True,
         )
         model_element.element = d_model_element_ids[arc.source]
         layout_element.target = d_layout_element_ids[
