@@ -82,19 +82,43 @@ def set_submaps_to_fit_content(map_builder, xsep=0, ysep=0):
                     submap_layout.label.height = submap_layout.height
 
 
-def set_nodes_to_fit_labels(map_builder, xsep=0, ysep=0):
+def set_nodes_to_fit_labels(
+    map_builder,
+    xsep=0,
+    ysep=0,
+    omit_width=False,
+    omit_height=False,
+    restrict_to=None,
+    exclude=None,
+):
+    if restrict_to is None:
+        restrict_to = []
+    if len(restrict_to) == 0:
+        restrict_to = [momapy.core.NodeLayout]
+    if exclude is None:
+        exclude = []
+    exclude = tuple(exclude)
+    restrict_to = tuple(restrict_to)
+    if omit_width and omit_height:
+        return
     for layout_element in map_builder.layout.descendants():
         if (
-            isinstance(layout_element, momapy.core.NodeLayoutBuilder)
+            momapy.builder.isinstance_or_builder(layout_element, restrict_to)
+            and not momapy.builder.isinstance_or_builder(
+                layout_element, exclude
+            )
+            and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
             position, width, height = momapy.positioning.fit(
                 [layout_element.label.logical_bbox()], xsep, ysep
             )
-            if width > layout_element.width:
-                layout_element.width = width
-            if height > layout_element.height:
-                layout_element.height = height
+            if not omit_width:
+                if width > layout_element.width:
+                    layout_element.width = width
+            if not omit_height:
+                if height > layout_element.height:
+                    layout_element.height = height
             momapy.positioning.set_position(
                 layout_element, position, anchor="label_center"
             )
@@ -119,7 +143,7 @@ def set_arcs_to_borders(map_):
                     start_reference_point = target.left_connector_tip()
                 else:
                     start_reference_point = target.right_connector_tip()
-            start_point = source.self_border(start_reference_point)
+            start_point = source.border(start_reference_point)
         if target_type == "left":
             end_point = target.left_connector_tip()
         elif target_type == "right":
@@ -134,7 +158,7 @@ def set_arcs_to_borders(map_):
                     end_reference_point = source.left_connector_tip()
                 else:
                     end_reference_point = source.right_connector_tip()
-            end_point = target.self_border(end_reference_point)
+            end_point = target.border(end_reference_point)
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )
@@ -331,17 +355,41 @@ def set_layout_to_fit_content(map_builder, xsep=0, ysep=0):
 
 def tidy(
     map_builder,
-    nodes_xsep=5,
-    nodes_ysep=5,
-    complexes_xsep=15,
-    complexes_ysep=15,
-    compartments_xsep=15,
-    compartments_ysep=15,
-    layout_xsep=15,
-    layout_ysep=15,
+    auxiliary_units_omit_width=False,
+    auxiliary_units_omit_height=False,
+    nodes_xsep=0,
+    nodes_ysep=0,
+    auxiliary_units_xsep=0,
+    auxiliary_units_ysep=0,
+    complexes_xsep=0,
+    complexes_ysep=0,
+    compartments_xsep=0,
+    compartments_ysep=0,
+    layout_xsep=0,
+    layout_ysep=0,
 ):
-    set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
+    set_nodes_to_fit_labels(
+        map_builder,
+        xsep=nodes_xsep,
+        ysep=nodes_ysep,
+        exclude=[
+            momapy.sbgn.pd.StateVariableLayout,
+            momapy.sbgn.pd.UnitOfInformationLayout,
+            momapy.sbgn.pd.ComplexLayout,
+        ],
+    )
     set_auxilliary_units_to_borders(map_builder)
+    set_nodes_to_fit_labels(
+        map_builder,
+        xsep=auxiliary_units_xsep,
+        ysep=auxiliary_units_ysep,
+        omit_width=auxiliary_units_omit_width,
+        omit_height=auxiliary_units_omit_height,
+        restrict_to=[
+            momapy.sbgn.pd.StateVariableLayout,
+            momapy.sbgn.pd.UnitOfInformationLayout,
+        ],
+    )
     if momapy.builder.isinstance_or_builder(
         map_builder, momapy.sbgn.pd.SBGNPDMap
     ):
@@ -349,11 +397,44 @@ def tidy(
             map_builder, complexes_xsep, complexes_ysep
         )
     set_submaps_to_fit_content(map_builder, 0, 0)
-    set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
-    set_auxilliary_units_to_borders(map_builder)
     set_compartments_to_fit_content(
         map_builder, compartments_xsep, compartments_ysep
     )
-    set_nodes_to_fit_labels(map_builder, nodes_xsep, nodes_ysep)
     set_arcs_to_borders(map_builder)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
+
+
+def vanted_tidy(map_builder):
+    return tidy(
+        map_builder,
+        auxiliary_units_omit_width=False,
+        auxiliary_units_omit_height=True,
+        nodes_xsep=0,
+        nodes_ysep=0,
+        auxiliary_units_xsep=10,
+        auxiliary_units_ysep=0,
+        complexes_xsep=5,
+        complexes_ysep=5,
+        compartments_xsep=10,
+        compartments_ysep=10,
+        layout_xsep=0,
+        layout_ysep=0,
+    )
+
+
+def newt_tidy(map_builder):
+    return tidy(
+        map_builder,
+        auxiliary_units_omit_width=False,
+        auxiliary_units_omit_height=True,
+        nodes_xsep=0,
+        nodes_ysep=0,
+        auxiliary_units_xsep=1,
+        auxiliary_units_ysep=0,
+        complexes_xsep=10,
+        complexes_ysep=10,
+        compartments_xsep=14,
+        compartments_ysep=14,
+        layout_xsep=0,
+        layout_ysep=0,
+    )
