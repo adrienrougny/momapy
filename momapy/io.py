@@ -3,10 +3,15 @@ import abc
 import momapy.core
 
 readers = {}
+writers = {}
 
 
 def register_reader(name, reader_cls):
     readers[name] = reader_cls
+
+
+def register_writer(name, writer_cls):
+    writers[name] = writer_cls
 
 
 def read(file_path, reader=None, **options):
@@ -29,6 +34,15 @@ def read(file_path, reader=None, **options):
     return map_
 
 
+def write(map_, file_path, writer, **options):
+    writer_cls = None
+    writer_cls = writers.get(writer)
+    if writer_cls is None:
+        raise ValueError(f"no registered writer named '{writer}'")
+    writer_cls.write(map_, file_path, **options)
+    return map_
+
+
 class MapReader(abc.ABC):
     @classmethod
     @abc.abstractmethod
@@ -39,4 +53,16 @@ class MapReader(abc.ABC):
 
     @classmethod
     def check_file(cls, file_path) -> bool:
+        pass
+
+
+class MapWriter(abc.ABC):
+    @classmethod
+    @abc.abstractmethod
+    def write(
+        cls,
+        map_: momapy.core.Map | momapy.core.MapBuilder,
+        file_path,
+        **options,
+    ):
         pass
