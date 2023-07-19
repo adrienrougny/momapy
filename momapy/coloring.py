@@ -32,6 +32,14 @@ class Color(object):
         blue = rgb_range[0] + (self.blue / 255) * width
         return (red, green, blue)
 
+    def to_hex(self):
+        color_str = f"{hex(self.red)}{hex(self.green)}{hex(self.blue)}"
+        return color_str
+
+    def to_hexa(self):
+        color_str = f"{self.to_hex()}{hex(self.alpha * 255)}"
+        return color_str
+
     def with_alpha(self, alpha, alpha_range=(0, 1)):
         alpha_width = alpha_range[1] - alpha_range[0]
         return replace(self, alpha=alpha_range[0] + alpha * alpha_width)
