@@ -33,11 +33,11 @@ class Color(object):
         return (red, green, blue)
 
     def to_hex(self):
-        color_str = f"{hex(self.red)}{hex(self.green)}{hex(self.blue)}"
+        color_str = f"{format(self.red, 'x')}{format(self.green, 'x')}{format(self.blue, 'x')}"
         return color_str
 
     def to_hexa(self):
-        color_str = f"{self.to_hex()}{hex(int(self.alpha * 255))}"
+        color_str = f"{self.to_hex()}{format(int(self.alpha * 255), 'x')}"
         return color_str
 
     def with_alpha(self, alpha, alpha_range=(0, 1)):
