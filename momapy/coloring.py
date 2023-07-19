@@ -37,7 +37,7 @@ class Color(object):
         return color_str
 
     def to_hexa(self):
-        color_str = f"{self.to_hex()}{hex(self.alpha * 255)}"
+        color_str = f"{self.to_hex()}{hex(int(self.alpha * 255))}"
         return color_str
 
     def with_alpha(self, alpha, alpha_range=(0, 1)):
