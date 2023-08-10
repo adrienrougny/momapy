@@ -261,6 +261,33 @@ class RenderInformationType:
         name = "renderInformationType"
         target_namespace = "http://www.sbml.org/sbml/level3/version1/render/version1"
 
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    program_name: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "program-name",
+            "type": "Attribute",
+        }
+    )
+    program_version: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "program-version",
+            "type": "Attribute",
+        }
+    )
+    background_color: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "background-color",
+            "type": "Attribute",
+        }
+    )
     list_of_color_definitions: Optional[ListOfColorDefinitionsType] = field(
         default=None,
         metadata={
@@ -342,26 +369,26 @@ class Sbgnbase:
 
 @dataclass
 class Bbox(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The bbox element describes a
-    rectangle.
-
-    This rectangle is defined by: <ns1:ul><ns1:li> PointAttributes
-    corresponding to the 2D coordinates of the top left corner,
-    </ns1:li><ns1:li>width and height
-    attributes.</ns1:li></ns1:ul></ns1:p> <ns1:p xmlns:ns1="
-    http://sbgn.org/libsbgn/0.2">
-     The rectangle corresponds to the outer bounding box of a shape. The
-    shape itself can be irregular (for instance in the case of some
-    compartments). </ns1:p> <ns1:p xmlns:ns1="
-    http://sbgn.org/libsbgn/0.2">
-     In the case of process nodes, the bounding box only concerns the
-    central glyph (square, or circle), the input/output ports are not
-    included, and neither are the lines connecting them to the central
-    glyph. </ns1:p> <ns1:p xmlns:ns1="
-    http://sbgn.org/libsbgn/0.2">
-    A bbox is required for all glyphs, and is optional for labels.
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The bbox element describes a rectangle. This rectangle is defined by:
+    <ns1:ul><ns1:li>
+    PointAttributes corresponding to the 2D coordinates of the top left
+    corner,
+    </ns1:li><ns1:li>width and height attributes.</ns1:li></ns1:ul></ns1:p>
+    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The rectangle corresponds to the outer bounding box of a shape.
+    The shape itself can be irregular
+    (for instance in the case of some compartments).
     </ns1:p>
-    """
+    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    In the case of process nodes,
+    the bounding box only concerns the central glyph (square, or circle),
+    the input/output ports are not included, and neither are the lines connecting
+    them to the central glyph.
+    </ns1:p>
+    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    A bbox is required for all glyphs, and is optional for labels.
+    </ns1:p>"""
     class Meta:
         name = "bbox"
         namespace = "http://sbgn.org/libsbgn/0.2"
@@ -398,11 +425,9 @@ class Bbox(Sbgnbase):
 
 @dataclass
 class Point(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The point element is
-    characterized by PointAttributes, which describe absolute 2D cartesian
-    coordinates.
-
-    Namely:
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The point element is characterized by PointAttributes,
+    which describe absolute 2D cartesian coordinates. Namely:
     <ns1:ul><ns1:li>x (horizontal, from left to right),</ns1:li><ns1:li>y (vertical, from top to bottom).</ns1:li></ns1:ul></ns1:p>
     <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
     The origin is located in the top-left corner of the map.
@@ -410,8 +435,7 @@ class Point(Sbgnbase):
     proportions must be preserved, but the maps can be drawn at any scale.
     In the test files examples, to obtain a drawing similar to the reference
     *.png file, values in the corresponding *.sbgn file should be read as pixels.
-    </ns1:p>
-    """
+    </ns1:p>"""
     class Meta:
         name = "point"
         namespace = "http://sbgn.org/libsbgn/0.2"
@@ -434,13 +458,11 @@ class Point(Sbgnbase):
 
 @dataclass
 class Port(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The port element describes
-    an anchor point which arcs can refer to as a source or target.
-
-    It consists in: <ns1:ul><ns1:li>absolute 2D cartesian coordinates
-    (PointAttribute),</ns1:li><ns1:li>a unique id
-    attribute.</ns1:li></ns1:ul></ns1:p> <ns1:p xmlns:ns1="
-    http://sbgn.org/libsbgn/0.2">
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The port element describes an anchor point which arcs can refer to
+    as a source or target. It consists in:
+    <ns1:ul><ns1:li>absolute 2D cartesian coordinates (PointAttribute),</ns1:li><ns1:li>a unique id attribute.</ns1:li></ns1:ul></ns1:p>
+    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
     Two port elements are required for process nodes. They represent
     the extremity of the two "arms" which protrude on both sides of the
     core of the glyph (= square or circle shape).
@@ -485,12 +507,12 @@ class Port(Sbgnbase):
 
 @dataclass
 class Label(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The label element describes
-    the text accompanying a glyph.
-
-    The text attribute is mandatory. Its position can be specified by a
-    bbox (optional). Tools are free to display the text in any style
-    (font, font-size, etc.) </ns1:p>
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The label element describes the text accompanying a glyph.
+    The text attribute is mandatory.
+    Its position can be specified by a bbox (optional).
+    Tools are free to display the text in any style (font, font-size, etc.)
+    </ns1:p>
 
     :ivar bbox:
     :ivar text: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> Multi-
@@ -518,13 +540,12 @@ class Label(Sbgnbase):
 
 @dataclass
 class Glyph(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The glyph element is:
-
-    <ns1:ul><ns1:li>either a stand-alone, high-level SBGN glyph (EPN,
-    PN, compartment, etc),</ns1:li><ns1:li>or a sub-glyph (state
-    variable, unit of information, inside of a complex,
-    ...)</ns1:li></ns1:ul></ns1:p> <ns1:p xmlns:ns1="
-    http://sbgn.org/libsbgn/0.2">
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The glyph element is:
+    <ns1:ul><ns1:li>either a stand-alone, high-level SBGN glyph
+    (EPN, PN, compartment, etc),</ns1:li><ns1:li>or a sub-glyph
+    (state variable, unit of information, inside of a complex, ...)</ns1:li></ns1:ul></ns1:p>
+    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
     In the first case, it appears directly in the glyph list of the map.
     In the second case, it is a child of another glyph element.
     </ns1:p>
@@ -779,15 +800,11 @@ class Glyph(Sbgnbase):
 
 @dataclass
 class Arc(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The arc element describes an
-    SBGN arc between two SBGN nodes.
-
-    It contains: <ns1:ul><ns1:li>For PD: an optional stoichiometry
-    marker,</ns1:li><ns1:li>For ER: an optional cardinality marker, zero
-    or more ports (influence targets), and zero or more
-    outcomes,</ns1:li><ns1:li>a mandatory source and target (glyph or
-    port),</ns1:li><ns1:li>a geometric description of its whole path,
-    from start to end.</ns1:li></ns1:ul><ns1:p> </ns1:p></ns1:p>
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The arc element describes an SBGN arc between two SBGN nodes. It contains:
+    <ns1:ul><ns1:li>For PD: an optional stoichiometry marker,</ns1:li><ns1:li>For ER: an optional cardinality marker,
+    zero or more ports (influence targets), and zero or more outcomes,</ns1:li><ns1:li>a mandatory source and target (glyph or port),</ns1:li><ns1:li>a geometric description of its whole path, from start to end.</ns1:li></ns1:ul><ns1:p>
+    </ns1:p></ns1:p>
 
     :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In PD,
         an arc can contain a single optional sub-glyph. This glyph must
@@ -975,12 +992,11 @@ class Arc(Sbgnbase):
 
 @dataclass
 class Arcgroup(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The arc group describes a
-    set of arcs and glyphs that together have a relation.
-
-    For example <ns1:ul><ns1:li>For ER: interaction arcs around an
-    interaction glyph,</ns1:li><ns1:li>...</ns1:li></ns1:ul> Note that,
-    in spite of the name, an arcgroup contains both arcs and glyphs.
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The arc group describes a set of arcs and glyphs that together have a relation.
+    For example
+    <ns1:ul><ns1:li>For ER: interaction arcs around an interaction glyph,</ns1:li><ns1:li>...</ns1:li></ns1:ul>
+    Note that, in spite of the name, an arcgroup contains both arcs and glyphs.
     </ns1:p>
 
     :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> An
@@ -1021,11 +1037,11 @@ class Arcgroup(Sbgnbase):
 
 @dataclass
 class Map(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The map element describes a
-    single SBGN PD map.
-
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The map element describes a single SBGN PD map.
     It contains a list of glyph elements and a list of arc elements.
-    These lists can be of any size (possibly empty). </ns1:p>
+    These lists can be of any size (possibly empty).
+    </ns1:p>
 
     :ivar bbox: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The bbox
         element on a map is not mandatory, it allows the application to
@@ -1082,12 +1098,10 @@ class Map(Sbgnbase):
 
 @dataclass
 class Sbgn(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The sbgn element is the root
-    of any SBGNML document.
-
+    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    The sbgn element is the root of any SBGNML document.
     Currently each document must contain exactly one map element.
-    </ns1:p>
-    """
+    </ns1:p>"""
     class Meta:
         name = "sbgn"
         namespace = "http://sbgn.org/libsbgn/0.2"
