@@ -2375,7 +2375,7 @@ class SBGNMLWriter(momapy.io.MapWriter):
         if with_render_information:
             render_information = cls._render_information_from_styles(dstyles)
             render_information.id = str(uuid.uuid4())
-            render_information.program_name = "momapy"
+            render_information.program_name = momapy.__about__.__name__
             render_information.program_version = momapy.__about__.__version__
             render_information.background_color = map_.layout.fill.to_hexa()
             extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
