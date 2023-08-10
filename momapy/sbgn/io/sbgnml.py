@@ -83,7 +83,9 @@ class SBGNMLReader(momapy.io.MapReader):
     }
 
     @classmethod
-    def read(cls, file_path, return_builder=False):
+    def read(
+        cls, file_path, with_render_information=True, return_builder=False
+    ):
         config = xsdata.formats.dataclass.parsers.config.ParserConfig(
             fail_on_unknown_properties=False
         )
@@ -94,7 +96,8 @@ class SBGNMLReader(momapy.io.MapReader):
         sbgn_map = sbgn.map
         map_ = cls._map_from_sbgn_map(sbgn_map)
         if (
-            sbgn_map.extension is not None
+            with_render_information
+            and sbgn_map.extension is not None
             and sbgn_map.extension.render_information is not None
         ):
             style_sheet = cls._style_sheet_from_render_information(
@@ -2325,8 +2328,10 @@ class SBGNMLWriter(momapy.io.MapWriter):
     }
 
     @classmethod
-    def write(cls, map_, file_path):
-        sbgnml_map = cls._sbgnml_map_from_map(map_)
+    def write(cls, map_, file_path, with_render_information=True):
+        sbgnml_map = cls._sbgnml_map_from_map(
+            map_, with_render_information=with_render_information
+        )
         config = xsdata.formats.dataclass.serializers.config.SerializerConfig(
             pretty_print=True
         )
@@ -2338,7 +2343,7 @@ class SBGNMLWriter(momapy.io.MapWriter):
             f.write(xml)
 
     @classmethod
-    def _sbgnml_map_from_map(cls, map_):
+    def _sbgnml_map_from_map(cls, map_, with_render_information=True):
         if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
             sbgnml_language = (
                 momapy.sbgn.io._sbgnml_parser.MapLanguage.PROCESS_DESCRIPTION
@@ -2367,14 +2372,15 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 cls._add_sub_sbgnml_element_to_sbgnml_element(
                     sbgnml_element, sbgnml_map
                 )
-        render_information = cls._render_information_from_styles(dstyles)
-        render_information.id = str(uuid.uuid4())
-        render_information.program_name = "momapy"
-        render_information.program_version = momapy.__about__.__version__
-        render_information.background_color = map_.layout.fill.to_hexa()
-        extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
-        extension.render_information = render_information
-        sbgnml_map.extension = extension
+        if with_render_information:
+            render_information = cls._render_information_from_styles(dstyles)
+            render_information.id = str(uuid.uuid4())
+            render_information.program_name = "momapy"
+            render_information.program_version = momapy.__about__.__version__
+            render_information.background_color = map_.layout.fill.to_hexa()
+            extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
+            extension.render_information = render_information
+            sbgnml_map.extension = extension
         return sbgnml_sbgn
 
     @classmethod
