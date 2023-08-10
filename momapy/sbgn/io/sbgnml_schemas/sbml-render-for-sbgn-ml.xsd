@@ -41,6 +41,10 @@
     </xs:complexType>
 
     <xs:complexType name="renderInformationType">
+        <xs:attribute name="id" type="xs:string"/>
+        <xs:attribute name="program-name" type="xs:string"/>
+        <xs:attribute name="program-version" type="xs:string"/>
+        <xs:attribute name="background-color" type="xs:string"/>
         <xs:sequence>
             <xs:element name="listOfColorDefinitions" type="render:listOfColorDefinitionsType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="listOfStyles" type="render:listOfStylesType" minOccurs="0" maxOccurs="1"/>
