@@ -19,6 +19,7 @@
 	</xsd:annotation>
 
     <xsd:import schemaLocation="sbml-render-for-sbgn-ml.xsd" namespace="http://www.sbml.org/sbml/level3/version1/render/version1"/>
+    <xsd:import schemaLocation="sbml-annotation-for-sbgn-ml.xsd"/>
 
 <!-- COMMON TYPES AND ELEMENTS - COMMON TYPES AND ELEMENTS - COMMON TYPES AND ELEMENTS -->
 
@@ -45,7 +46,8 @@
       <xsd:element name="extension" minOccurs="0">
         <xsd:complexType>
           <xsd:sequence>
-              <xsd:element ref="render:renderInformation" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="render:renderInformation" minOccurs="0" maxOccurs="1"/>
+            <xsd:element ref="annotation" minOccurs="0" maxOccurs="1"/>
             <xsd:any processContents="skip"
                      minOccurs="0" maxOccurs="unbounded"/>
           </xsd:sequence>
@@ -54,7 +56,6 @@
     </xsd:sequence>
   </xsd:complexType>
 
-  
 <!-- PointAttributes attribute group -->
 	<xsd:attributeGroup name="PointAttributes">
 		<xsd:annotation>

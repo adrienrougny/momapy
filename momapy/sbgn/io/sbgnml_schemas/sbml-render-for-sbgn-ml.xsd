@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1">
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1">
 
-    <xs:complexType name="colorDefinitionType">
-        <xs:attribute name="id" type="xs:string"/>
-        <xs:attribute name="value" type="xs:string"/>
-    </xs:complexType>
+    <xsd:complexType name="colorDefinitionType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="value" type="xsd:string"/>
+    </xsd:complexType>
 
-    <xs:complexType name="gType">
-        <xs:attribute name="id" type="xs:string"/>
-        <xs:attribute name="font-family" type="xs:string"/>
-        <xs:attribute name="font-size" type="xs:float"/>
-        <xs:attribute name="font-weight" type="xs:string"/>
-        <xs:attribute name="font-style" type="xs:string"/>
-        <xs:attribute name="font-color" type="xs:string"/>
-        <xs:attribute name="stroke" type="xs:string"/>
-        <xs:attribute name="stroke-width" type="xs:float"/>
-        <xs:attribute name="background-image-opacity" type="xs:string"/>
-        <xs:attribute name="background-opacity" type="xs:string"/>
-        <xs:attribute name="fill" type="xs:string"/>
-    </xs:complexType>
+    <xsd:complexType name="gType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="font-family" type="xsd:string"/>
+        <xsd:attribute name="font-size" type="xsd:float"/>
+        <xsd:attribute name="font-weight" type="xsd:string"/>
+        <xsd:attribute name="font-style" type="xsd:string"/>
+        <xsd:attribute name="font-color" type="xsd:string"/>
+        <xsd:attribute name="stroke" type="xsd:string"/>
+        <xsd:attribute name="stroke-width" type="xsd:float"/>
+        <xsd:attribute name="background-image-opacity" type="xsd:string"/>
+        <xsd:attribute name="background-opacity" type="xsd:string"/>
+        <xsd:attribute name="fill" type="xsd:string"/>
+    </xsd:complexType>
 
-    <xs:complexType name="styleType">
-        <xs:attribute name="id" type="xs:string"/>
-        <xs:attribute name="idList" type="xs:string"/>
-        <xs:sequence>
-            <xs:element name="g" type="render:gType"/>
-        </xs:sequence>
-    </xs:complexType>
+    <xsd:complexType name="styleType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="idList" type="xsd:string"/>
+        <xsd:sequence>
+            <xsd:element name="g" type="render:gType"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
-    <xs:complexType name="listOfColorDefinitionsType">
-        <xs:sequence minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="colorDefinition" type="render:colorDefinitionType"/>
-        </xs:sequence>
-    </xs:complexType>
+    <xsd:complexType name="listOfColorDefinitionsType">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="colorDefinition" type="render:colorDefinitionType"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
-    <xs:complexType name="listOfStylesType">
-        <xs:sequence minOccurs="0" maxOccurs="unbounded">
-            <xs:element name="style" type="render:styleType"/>
-        </xs:sequence>
-    </xs:complexType>
+    <xsd:complexType name="listOfStylesType">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="style" type="render:styleType"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
-    <xs:complexType name="renderInformationType">
-        <xs:attribute name="id" type="xs:string"/>
-        <xs:attribute name="program-name" type="xs:string"/>
-        <xs:attribute name="program-version" type="xs:string"/>
-        <xs:attribute name="background-color" type="xs:string"/>
-        <xs:sequence>
-            <xs:element name="listOfColorDefinitions" type="render:listOfColorDefinitionsType" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="listOfStyles" type="render:listOfStylesType" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
+    <xsd:complexType name="renderInformationType">
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="program-name" type="xsd:string"/>
+        <xsd:attribute name="program-version" type="xsd:string"/>
+        <xsd:attribute name="background-color" type="xsd:string"/>
+        <xsd:sequence>
+            <xsd:element name="listOfColorDefinitions" type="render:listOfColorDefinitionsType" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="listOfStyles" type="render:listOfStylesType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+    </xsd:complexType>
 
-    <xs:element name="renderInformation" type="render:renderInformationType"/>
+    <xsd:element name="renderInformation" type="render:renderInformationType"/>
 
-</xs:schema>
+</xsd:schema>

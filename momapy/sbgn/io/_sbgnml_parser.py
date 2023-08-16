@@ -196,6 +196,21 @@ class GType:
 
 
 @dataclass
+class LiType:
+    class Meta:
+        name = "liType"
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    resource: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
 class ListOfColorDefinitionsType:
     class Meta:
         name = "listOfColorDefinitionsType"
@@ -241,6 +256,20 @@ class StyleType:
 
 
 @dataclass
+class BagType:
+    class Meta:
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    li: List[LiType] = field(
+        default_factory=list,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
 class ListOfStylesType:
     class Meta:
         name = "listOfStylesType"
@@ -251,6 +280,300 @@ class ListOfStylesType:
         metadata={
             "type": "Element",
             "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
+        }
+    )
+
+
+@dataclass
+class Bag(BagType):
+    class Meta:
+        namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+
+@dataclass
+class EncodesType:
+    class Meta:
+        name = "encodesType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasPartType:
+    class Meta:
+        name = "hasPartType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasPropertyType:
+    class Meta:
+        name = "hasPropertyType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasTaxonType:
+    class Meta:
+        name = "hasTaxonType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasVersionType:
+    class Meta:
+        name = "hasVersionType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDescribedByType1:
+    class Meta:
+        name = "isDescribedByType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsEncodedByType:
+    class Meta:
+        name = "isEncodedByType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsHomologToType:
+    class Meta:
+        name = "isHomologToType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsPartOfType:
+    class Meta:
+        name = "isPartOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsPropertyOfType:
+    class Meta:
+        name = "isPropertyOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsType1:
+    class Meta:
+        name = "isType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsVersionOfType:
+    class Meta:
+        name = "isVersionOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class OccursInType:
+    class Meta:
+        name = "occursInType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasInstanceType:
+    class Meta:
+        name = "hasInstanceType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDerivedFromType:
+    class Meta:
+        name = "isDerivedFromType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDescribedByType2:
+    class Meta:
+        name = "isDescribedByType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsInstanceOfType:
+    class Meta:
+        name = "isInstanceOfType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsType2:
+    class Meta:
+        name = "isType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         }
     )
 
@@ -307,10 +630,346 @@ class RenderInformationType:
 
 
 @dataclass
+class Encodes(EncodesType):
+    class Meta:
+        name = "encodes"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasPart(HasPartType):
+    class Meta:
+        name = "hasPart"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasProperty(HasPropertyType):
+    class Meta:
+        name = "hasProperty"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasTaxon(HasTaxonType):
+    class Meta:
+        name = "hasTaxon"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasVersion(HasVersionType):
+    class Meta:
+        name = "hasVersion"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsDescribedBy1(IsDescribedByType1):
+    class Meta:
+        name = "isDescribedBy"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsEncodedBy(IsEncodedByType):
+    class Meta:
+        name = "isEncodedBy"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsHomologTo(IsHomologToType):
+    class Meta:
+        name = "isHomologTo"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsPartOf(IsPartOfType):
+    class Meta:
+        name = "isPartOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsPropertyOf(IsPropertyOfType):
+    class Meta:
+        name = "isPropertyOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsVersionOf(IsVersionOfType):
+    class Meta:
+        name = "isVersionOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class Is1(IsType1):
+    class Meta:
+        name = "is"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class OccursIn(OccursInType):
+    class Meta:
+        name = "occursIn"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasInstance(HasInstanceType):
+    class Meta:
+        name = "hasInstance"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsDerivedFrom(IsDerivedFromType):
+    class Meta:
+        name = "isDerivedFrom"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsDescribedBy2(IsDescribedByType2):
+    class Meta:
+        name = "isDescribedBy"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsInstanceOf(IsInstanceOfType):
+    class Meta:
+        name = "isInstanceOf"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class Is2(IsType2):
+    class Meta:
+        name = "is"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
 class RenderInformation(RenderInformationType):
     class Meta:
         name = "renderInformation"
         namespace = "http://www.sbml.org/sbml/level3/version1/render/version1"
+
+
+@dataclass
+class DescriptionType:
+    class Meta:
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    about: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+    encodes: Optional[Encodes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_part: Optional[HasPart] = field(
+        default=None,
+        metadata={
+            "name": "hasPart",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_property: Optional[HasProperty] = field(
+        default=None,
+        metadata={
+            "name": "hasProperty",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_version: Optional[HasVersion] = field(
+        default=None,
+        metadata={
+            "name": "hasVersion",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_value: Optional[Is1] = field(
+        default=None,
+        metadata={
+            "name": "is",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_described_by: Optional[IsDescribedBy1] = field(
+        default=None,
+        metadata={
+            "name": "isDescribedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_encoded_by: Optional[IsEncodedBy] = field(
+        default=None,
+        metadata={
+            "name": "isEncodedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_homolog_to: Optional[IsHomologTo] = field(
+        default=None,
+        metadata={
+            "name": "isHomologTo",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_part_of: Optional[IsPartOf] = field(
+        default=None,
+        metadata={
+            "name": "isPartOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_property_of: Optional[IsPropertyOf] = field(
+        default=None,
+        metadata={
+            "name": "isPropertyOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_version_of: Optional[IsVersionOf] = field(
+        default=None,
+        metadata={
+            "name": "isVersionOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    occurs_in: Optional[OccursIn] = field(
+        default=None,
+        metadata={
+            "name": "occursIn",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_taxon: Optional[HasTaxon] = field(
+        default=None,
+        metadata={
+            "name": "hasTaxon",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_instance: Optional[HasInstance] = field(
+        default=None,
+        metadata={
+            "name": "hasInstance",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    biomodels_net_model_qualifiers_is: Optional[Is2] = field(
+        default=None,
+        metadata={
+            "name": "is",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    is_derived_from: Optional[IsDerivedFrom] = field(
+        default=None,
+        metadata={
+            "name": "isDerivedFrom",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    biomodels_net_model_qualifiers_is_described_by: Optional[IsDescribedBy2] = field(
+        default=None,
+        metadata={
+            "name": "isDescribedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    is_instance_of: Optional[IsInstanceOf] = field(
+        default=None,
+        metadata={
+            "name": "isInstanceOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    any_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "##any",
+        }
+    )
+
+
+@dataclass
+class Rdftype:
+    class Meta:
+        name = "RDFType"
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    description: Optional[DescriptionType] = field(
+        default=None,
+        metadata={
+            "name": "Description",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class Rdf(Rdftype):
+    class Meta:
+        name = "RDF"
+        namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+
+@dataclass
+class AnnotationType:
+    class Meta:
+        name = "annotationType"
+        target_namespace = "http://sbgn.org/libsbgn/0.2"
+
+    rdf: Optional[Rdf] = field(
+        default=None,
+        metadata={
+            "name": "RDF",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class Annotation(AnnotationType):
+    class Meta:
+        name = "annotation"
+        namespace = "http://sbgn.org/libsbgn/0.2"
 
 
 @dataclass
@@ -356,6 +1015,13 @@ class Sbgnbase:
                 "name": "renderInformation",
                 "type": "Element",
                 "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
+            }
+        )
+        annotation: Optional[Annotation] = field(
+            default=None,
+            metadata={
+                "type": "Element",
+                "namespace": "http://sbgn.org/libsbgn/0.2",
             }
         )
         any_element: List[object] = field(
@@ -804,7 +1470,10 @@ class Arc(Sbgnbase):
     The arc element describes an SBGN arc between two SBGN nodes. It contains:
     <ns1:ul><ns1:li>For PD: an optional stoichiometry marker,</ns1:li><ns1:li>For ER: an optional cardinality marker,
     zero or more ports (influence targets), and zero or more outcomes,</ns1:li><ns1:li>a mandatory source and target (glyph or port),</ns1:li><ns1:li>a geometric description of its whole path, from start to end.</ns1:li></ns1:ul><ns1:p>
-    </ns1:p></ns1:p>
+    </ns1:p>
+    This path can involve any number of straight lines or quadratic/cubic Bezier
+    curves.
+    </ns1:p>
 
     :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In PD,
         an arc can contain a single optional sub-glyph. This glyph must

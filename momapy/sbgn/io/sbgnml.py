@@ -81,6 +81,26 @@ class SBGNMLReader(momapy.io.MapReader):
         "LOGIC_ARC": "_logical_arc_elements_from_arc",
         "EQUIVALENCE_ARC": "_equivalence_arc_elements_from_arc",
     }
+    _SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER_MAPPING = {
+        "encodes": momapy.sbgn.core.BQBiol.ENCODES,
+        "has_part": momapy.sbgn.core.BQBiol.HAS_PART,
+        "has_property": momapy.sbgn.core.BQBiol.HAS_PROPERTY,
+        "has_version": momapy.sbgn.core.BQBiol.HAS_VERSION,
+        "is_value": momapy.sbgn.core.BQBiol.IS,
+        "is_described_by": momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY,
+        "is_encoded_by": momapy.sbgn.core.BQBiol.IS_ENCODED_BY,
+        "is_homolog_to": momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO,
+        "is_part_of": momapy.sbgn.core.BQBiol.IS_PART_OF,
+        "is_property_of": momapy.sbgn.core.BQBiol.IS_PROPERTY_OF,
+        "is_version_of": momapy.sbgn.core.BQBiol.IS_VERSION_OF,
+        "occurs_in": momapy.sbgn.core.BQBiol.OCCURS_IN,
+        "has_taxon": momapy.sbgn.core.BQBiol.HAS_TAXON,
+        "has_instance": momapy.sbgn.core.BQModel.HAS_INSTANCE,
+        "biomodels_net_model_qualifiers_is": momapy.sbgn.core.BQModel.IS,
+        "is_derived_from": momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
+        "biomodels_net_model_qualifiers_is_described_by": momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
+        "is_instance_of": momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
+    }
 
     @classmethod
     def read(
@@ -95,15 +115,22 @@ class SBGNMLReader(momapy.io.MapReader):
         sbgn = parser.parse(file_path, momapy.sbgn.io._sbgnml_parser.Sbgn)
         sbgn_map = sbgn.map
         map_ = cls._map_from_sbgn_map(sbgn_map)
-        if (
-            with_render_information
-            and sbgn_map.extension is not None
-            and sbgn_map.extension.render_information is not None
-        ):
-            style_sheet = cls._style_sheet_from_render_information(
-                sbgn_map.extension.render_information, map_
-            )
-            momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+        if sbgn_map.extension is not None:
+            if (
+                with_render_information
+                and sbgn_map.extension.render_information is not None
+            ):
+                style_sheet = cls._style_sheet_from_render_information(
+                    sbgn_map.extension.render_information, map_
+                )
+                momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+            if sbgn_map.extension.annotation is not None:
+                annotations = cls._annotations_from_annotation_element(
+                    sbgn_map.extension.annotation, map_
+                )
+                for annotation in annotations:
+                    model_element.add_element(annotation)
+
         if not return_builder:
             map_ = momapy.builder.object_from_builder(map_)
         return map_
@@ -351,6 +378,33 @@ class SBGNMLReader(momapy.io.MapReader):
         return style_sheet
 
     @classmethod
+    def _annotations_from_annotation_element(cls, annotation_element, map_):
+        annotations = []
+        if annotation_element.rdf is not None:
+            if annotation_element.rdf.description is not None:
+                for (
+                    qualifier_attribute
+                ) in (
+                    cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER_MAPPING
+                ):
+                    annotation_value = getattr(
+                        annotation_element.rdf.description, qualifier_attribute
+                    )
+                    if annotation_value is not None:
+                        annotation_bag = annotation_value.bag
+                        for li in annotation_bag.li:
+                            resource = li.resource
+                            annotation = map_.new_model_element(
+                                momapy.sbgn.core.Annotation
+                            )
+                            annotation.qualifier = cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER_MAPPING[
+                                qualifier_attribute
+                            ]
+                            annotation.resource = resource
+                            annotations.append(annotation)
+        return annotations
+
+    @classmethod
     def _get_transformation_func_from_sbgnml_element(
         cls, sbgnml_element, super_model_element=None
     ):
@@ -413,6 +467,15 @@ class SBGNMLReader(momapy.io.MapReader):
                 super_model_element,
                 super_layout_element,
             )
+            if (
+                sbgnml_element.extension is not None
+                and sbgnml_element.extension.annotation is not None
+            ):
+                annotations = cls._annotations_from_annotation_element(
+                    sbgnml_element.extension.annotation, map_
+                )
+                for annotation in annotations:
+                    model_element.add_element(annotation)
         else:
             print(
                 f"object {sbgnml_element.id}: unknown class value '{sbgnml_element.class_value}' for transformation"
