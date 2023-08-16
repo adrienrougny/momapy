@@ -51,7 +51,9 @@ class SBGNRole(SBGNModelElement):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNModel(momapy.core.Model):
-    pass
+    annotations: frozenset[Annotation] = field(
+        default_factory=frozenset, compare=False
+    )
 
 
 @dataclass(frozen=True, kw_only=True)
