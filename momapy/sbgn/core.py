@@ -1,3 +1,4 @@
+from enum import Enum
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from typing import TypeVar, Union, Optional, ClassVar, Callable, Any
@@ -6,14 +7,41 @@ import momapy.core
 import momapy.geometry
 
 
+class BQModel(Enum):
+    HAS_INSTANCE = 0
+    IS = 1
+    IS_DERIVED_FROM = 2
+    IS_DESCRIBED_BY = 3
+    IS_INSTANCE_OF = 4
+
+
+class BQBiol(Enum):
+    ENCODES = 0
+    HAS_PART = 1
+    HAS_PROPERTY = 2
+    HAS_VERSION = 3
+    IS = 4
+    IS_DESCRIBED_BY = 5
+    IS_ENCODED_BY = 6
+    IS_HOMOLOG_TO = 7
+    IS_PART_OF = 8
+    IS_PROPERTY_OF = 9
+    IS_VERSION_OF = 10
+    OCCURS_IN = 11
+    HAS_TAXON = 12
+
+
 @dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
-    pass
+    qualifier: Union[BQModel, BQBiol]
+    resource: str
 
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(momapy.core.ModelElement):
-    annotations: frozenset[Annotation] = field(default_factory=frozenset)
+    annotations: frozenset[Annotation] = field(
+        default_factory=frozenset, compare=False
+    )
 
 
 @dataclass(frozen=True, kw_only=True)
