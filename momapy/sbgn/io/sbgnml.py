@@ -2389,6 +2389,80 @@ class SBGNMLWriter(momapy.io.MapWriter):
         momapy.sbgn.af.LogicArcLayout: "_logic_arc_to_arc",
         momapy.sbgn.af.EquivalenceArcLayout: "_equivalence_arc_to_arc",
     }
+    _SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE_MAPPING = {
+        momapy.sbgn.core.BQBiol.ENCODES: (
+            "encodes",
+            momapy.sbgn.io._sbgnml_parser.Encodes,
+        ),
+        momapy.sbgn.core.BQBiol.HAS_PART: (
+            "has_part",
+            momapy.sbgn.io._sbgnml_parser.HasPart,
+        ),
+        momapy.sbgn.core.BQBiol.HAS_PROPERTY: (
+            "has_property",
+            momapy.sbgn.io._sbgnml_parser.HasProperty,
+        ),
+        momapy.sbgn.core.BQBiol.HAS_VERSION: (
+            "has_version",
+            momapy.sbgn.io._sbgnml_parser.HasVersion,
+        ),
+        momapy.sbgn.core.BQBiol.IS: (
+            "is_value",
+            momapy.sbgn.io._sbgnml_parser.Is1,
+        ),
+        momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY: (
+            "is_described_by",
+            momapy.sbgn.io._sbgnml_parser.IsDescribedBy1,
+        ),
+        momapy.sbgn.core.BQBiol.IS_ENCODED_BY: (
+            "is_encoded_by",
+            momapy.sbgn.io._sbgnml_parser.IsEncodedBy,
+        ),
+        momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO: (
+            "is_homolog_to",
+            momapy.sbgn.io._sbgnml_parser.IsHomologTo,
+        ),
+        momapy.sbgn.core.BQBiol.IS_PART_OF: (
+            "is_part_of",
+            momapy.sbgn.io._sbgnml_parser.IsPartOf,
+        ),
+        momapy.sbgn.core.BQBiol.IS_PROPERTY_OF: (
+            "is_property_of",
+            momapy.sbgn.io._sbgnml_parser.IsPropertyOf,
+        ),
+        momapy.sbgn.core.BQBiol.IS_VERSION_OF: (
+            "is_version_of",
+            momapy.sbgn.io._sbgnml_parser.IsVersionOf,
+        ),
+        momapy.sbgn.core.BQBiol.OCCURS_IN: (
+            "occurs_in",
+            momapy.sbgn.io._sbgnml_parser.OccursIn,
+        ),
+        momapy.sbgn.core.BQBiol.HAS_TAXON: (
+            "has_taxon",
+            momapy.sbgn.io._sbgnml_parser.HasTaxon,
+        ),
+        momapy.sbgn.core.BQModel.HAS_INSTANCE: (
+            "has_instance",
+            momapy.sbgn.io._sbgnml_parser.HasInstance,
+        ),
+        momapy.sbgn.core.BQModel.IS: (
+            "biomodels_net_model_qualifiers_is",
+            momapy.sbgn.io._sbgnml_parser.Is2,
+        ),
+        momapy.sbgn.core.BQModel.IS_DERIVED_FROM: (
+            "is_derived_from",
+            momapy.sbgn.io._sbgnml_parser.IsDerivedFrom,
+        ),
+        momapy.sbgn.core.BQModel.IS_DESCRIBED_BY: (
+            "biomodels_net_model_qualifiers_is_described_by",
+            momapy.sbgn.io._sbgnml_parser.IsDescribedBy2,
+        ),
+        momapy.sbgn.core.BQModel.IS_INSTANCE_OF: (
+            "is_instance_of",
+            momapy.sbgn.io._sbgnml_parser.IsInstanceOf,
+        ),
+    }
 
     @classmethod
     def write(cls, map_, file_path, with_render_information=True):
@@ -2401,7 +2475,16 @@ class SBGNMLWriter(momapy.io.MapWriter):
         serializer = xsdata.formats.dataclass.serializers.XmlSerializer(
             config=config
         )
-        xml = serializer.render(sbgnml_map)
+        xml = serializer.render(
+            sbgnml_map,
+            ns_map={
+                "sbgn": "http://sbgn.org/libsbgn/0.2",
+                "render": "http://www.sbml.org/sbml/level3/version1/render/version1",
+                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                "bqbiol": "http://biomodels.net/biology-qualifiers/",
+                "bqmodel": "http://biomodels.net/model-qualifiers/",
+            },
+        )
         with open(file_path, "w") as f:
             f.write(xml)
 
@@ -2444,6 +2527,17 @@ class SBGNMLWriter(momapy.io.MapWriter):
             extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
             extension.render_information = render_information
             sbgnml_map.extension = extension
+        if len(map_.model.annotations) != 0:
+            annotation_sbgnml_element = (
+                cls._annotation_element_from_annotations(
+                    map_.model.annotations, model_element.id
+                )
+            )
+            if sbgnml_map.extension is None:
+                extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
+                sbgnml_map.extension = extension
+            extension.annotation = annotation_sbgnml_element
+
         return sbgnml_sbgn
 
     @classmethod
@@ -2457,6 +2551,16 @@ class SBGNMLWriter(momapy.io.MapWriter):
             sbgnml_elements = transformation_func(
                 layout_element, map_, dstyles, super_layout_element
             )
+            model_element = map_.get_mapping(layout_element, unpack=True)[0]
+            if len(model_element.annotations) != 0:
+                annotation_sbgnml_element = (
+                    cls._annotation_element_from_annotations(
+                        model_element.annotations, layout_element.id
+                    )
+                )
+                extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
+                extension.annotation = annotation_sbgnml_element
+                sbgnml_elements[0].extension = extension
         else:
             print(
                 f"object {layout_element.id}: unknown class value '{type(layout_element)}' for transformation"
@@ -2546,6 +2650,36 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 color_definition
             )
         return render_information
+
+    @classmethod
+    def _annotation_element_from_annotations(cls, annotations, element_id):
+        annotation_element = momapy.sbgn.io._sbgnml_parser.Annotation()
+        rdf = momapy.sbgn.io._sbgnml_parser.Rdf()
+        annotation_element.rdf = rdf
+        description = momapy.sbgn.io._sbgnml_parser.DescriptionType()
+        description.about = element_id
+        rdf.description = description
+        d_annotations = {}
+        for annotation in annotations:
+            if annotation.qualifier not in d_annotations:
+                d_annotations[annotation.qualifier] = []
+            d_annotations[annotation.qualifier].append(annotation.resource)
+        for qualifier_member, resources in d_annotations.items():
+            (
+                qualifier_attribute,
+                qualifier_cls,
+            ) = cls._SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE_MAPPING[
+                qualifier_member
+            ]
+            qualifier_element = qualifier_cls()
+            bag = momapy.sbgn.io._sbgnml_parser.Bag()
+            qualifier_element.bag = bag
+            for resource in resources:
+                li = momapy.sbgn.io._sbgnml_parser.LiType()
+                li.resource = resource
+                bag.li.append(li)
+            setattr(description, qualifier_attribute, qualifier_element)
+        return annotation_element
 
     @classmethod
     def _node_layout_to_sbgnml_elements(
