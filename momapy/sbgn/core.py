@@ -39,6 +39,7 @@ class Annotation(momapy.core.ModelElement):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(momapy.core.ModelElement):
+    notes: str | None = None
     annotations: frozenset[Annotation] = field(
         default_factory=frozenset, compare=False
     )
@@ -51,6 +52,7 @@ class SBGNRole(SBGNModelElement):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNModel(momapy.core.Model):
+    notes: str | None = None
     annotations: frozenset[Annotation] = field(
         default_factory=frozenset, compare=False
     )
@@ -65,6 +67,10 @@ class SBGNLayout(momapy.core.MapLayout):
 class SBGNMap(momapy.core.Map):
     model: SBGNModel
     layout: SBGNLayout
+    notes: str | None = None
+    annotations: frozenset[Annotation] = field(
+        default_factory=frozenset, compare=False
+    )
 
 
 @dataclass(frozen=True)
