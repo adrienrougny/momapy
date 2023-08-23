@@ -196,6 +196,21 @@ class GType:
 
 
 @dataclass
+class ListOfBackgroundImagesType:
+    class Meta:
+        name = "listOfBackgroundImagesType"
+        target_namespace = "http://www.sbml.org/sbml/level3/version1/render/version1"
+
+    any_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "##any",
+        }
+    )
+
+
+@dataclass
 class LiType:
     class Meta:
         name = "liType"
@@ -627,6 +642,14 @@ class RenderInformationType:
             "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
+    list_of_background_images: Optional[ListOfBackgroundImagesType] = field(
+        default=None,
+        metadata={
+            "name": "listOfBackgroundImages",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
+        }
+    )
 
 
 @dataclass
@@ -922,6 +945,7 @@ class DescriptionType:
         metadata={
             "type": "Wildcard",
             "namespace": "##any",
+            "process_contents": "skip",
         }
     )
 
@@ -1029,6 +1053,7 @@ class Sbgnbase:
             metadata={
                 "type": "Wildcard",
                 "namespace": "##any",
+                "process_contents": "skip",
             }
         )
 

@@ -108,18 +108,17 @@ class SBGNMLReader(momapy.io.MapReader):
         file_path,
         with_render_information=True,
         with_annotations=True,
+        with_notes=True,
         return_builder=False,
     ):
-        config = xsdata.formats.dataclass.parsers.config.ParserConfig(
-            fail_on_unknown_properties=False
-        )
+        config = xsdata.formats.dataclass.parsers.config.ParserConfig()
         parser = xsdata.formats.dataclass.parsers.XmlParser(
             config=config, context=xsdata.formats.dataclass.context.XmlContext()
         )
         sbgn = parser.parse(file_path, momapy.sbgn.io._sbgnml_parser.Sbgn)
         sbgn_map = sbgn.map
         map_ = cls._map_from_sbgn_map(
-            sbgn_map, with_render_information, with_annotations
+            sbgn_map, with_render_information, with_annotations, with_notes
         )
         if not return_builder:
             map_ = momapy.builder.object_from_builder(map_)
@@ -187,7 +186,11 @@ class SBGNMLReader(momapy.io.MapReader):
 
     @classmethod
     def _map_from_sbgn_map(
-        cls, sbgn_map, with_render_information=True, with_annotations=True
+        cls,
+        sbgn_map,
+        with_render_information=True,
+        with_annotations=True,
+        with_notes=True,
     ):
         if sbgn_map.language.name == "PROCESS_DESCRIPTION":
             map_ = momapy.sbgn.pd.SBGNPDMapBuilder()
@@ -214,6 +217,7 @@ class SBGNMLReader(momapy.io.MapReader):
                 map_.model,
                 map_.layout,
                 with_annotations,
+                with_notes,
             )
         d_processes = {}
         sbgnml_flux_arcs = []
@@ -244,6 +248,8 @@ class SBGNMLReader(momapy.io.MapReader):
                     d_layout_element_ids,
                     map_.model,
                     map_.layout,
+                    with_annotations,
+                    with_notes,
                 )
         # We set the reversibility of the processes.
         for process in d_processes:
@@ -260,6 +266,8 @@ class SBGNMLReader(momapy.io.MapReader):
                 d_layout_element_ids,
                 map_.model,
                 map_.layout,
+                with_annotations,
+                with_notes,
             )
         if sbgn_map.language.name == "PROCESS_DESCRIPTION":
             # We set the direction (left-to-right or right-to-left) of the process
@@ -308,22 +316,28 @@ class SBGNMLReader(momapy.io.MapReader):
             map_.layout.height = sbgn_map.h
         else:
             momapy.positioning.set_fit(map_.layout, map_.layout.layout_elements)
-        if sbgn_map.extension is not None:
+        if with_render_information:
             if (
-                with_render_information
+                sbgn_map.extension is not None
                 and sbgn_map.extension.render_information is not None
             ):
                 style_sheet = cls._style_sheet_from_render_information(
                     sbgn_map.extension.render_information, map_
                 )
                 momapy.styling.apply_style_sheet(map_.layout, style_sheet)
-            if with_annotations and sbgn_map.extension.annotation is not None:
+        if with_annotations:
+            if (
+                sbgn_map.extension is not None
+                and sbgn_map.extension.annotation is not None
+            ):
                 annotations = cls._annotations_from_annotation_element(
                     sbgn_map.extension.annotation, map_
                 )
                 for annotation in annotations:
-                    model_element.add_element(annotation)
-
+                    map_.model.add_element(annotation)
+        if with_notes and sbgn_map.notes is not None:
+            notes = cls._notes_from_notes_element(sbgn_map.notes)
+            map_.notes = notes
         return map_
 
     @classmethod
@@ -414,6 +428,20 @@ class SBGNMLReader(momapy.io.MapReader):
         return annotations
 
     @classmethod
+    def _notes_from_notes_element(cls, notes_element):
+        config = xsdata.formats.dataclass.serializers.config.SerializerConfig(
+            pretty_print=True
+        )
+        serializer = xsdata.formats.dataclass.serializers.XmlSerializer(
+            config=config
+        )
+        notes = serializer.render(
+            notes_element,
+        )
+        notes = "\n".join(notes.split("\n")[2:-2])
+        return notes
+
+    @classmethod
     def _get_transformation_func_from_sbgnml_element(
         cls, sbgnml_element, super_model_element=None
     ):
@@ -464,6 +492,7 @@ class SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         with_annotations=True,
+        with_notes=True,
     ):
         transformation_func = cls._get_transformation_func_from_sbgnml_element(
             sbgnml_element, super_model_element
@@ -478,15 +507,18 @@ class SBGNMLReader(momapy.io.MapReader):
                 super_layout_element,
             )
             if (
-                sbgnml_element.extension is not None
+                with_annotations
+                and sbgnml_element.extension is not None
                 and sbgnml_element.extension.annotation is not None
-                and with_annotations
             ):
                 annotations = cls._annotations_from_annotation_element(
                     sbgnml_element.extension.annotation, map_
                 )
                 for annotation in annotations:
                     model_element.add_element(annotation)
+            if with_notes and sbgnml_element.notes is not None:
+                notes = cls._notes_from_notes_element(sbgnml_element.notes)
+                model_element.notes = notes
         else:
             print(
                 f"object {sbgnml_element.id}: unknown class value '{sbgnml_element.class_value}' for transformation"
@@ -2482,11 +2514,13 @@ class SBGNMLWriter(momapy.io.MapWriter):
         file_path,
         with_render_information=True,
         with_annotations=True,
+        with_notes=True,
     ):
         sbgnml_map = cls._sbgnml_map_from_map(
             map_,
             with_render_information=with_render_information,
             with_annotations=with_annotations,
+            with_notes=with_notes,
         )
         config = xsdata.formats.dataclass.serializers.config.SerializerConfig(
             pretty_print=True
@@ -2504,12 +2538,19 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 "bqmodel": "http://biomodels.net/model-qualifiers/",
             },
         )
+        # for notes since processContents=strict is not currently taken into account
+        xml = xml.replace("&lt;", "<")
+        xml = xml.replace("&gt;", ">")
         with open(file_path, "w") as f:
             f.write(xml)
 
     @classmethod
     def _sbgnml_map_from_map(
-        cls, map_, with_render_information=True, with_annotations=True
+        cls,
+        map_,
+        with_render_information=True,
+        with_annotations=True,
+        with_notes=True,
     ):
         if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
             sbgnml_language = (
@@ -2535,6 +2576,7 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 dstyles,
                 map_.layout,
                 with_annotations,
+                with_notes,
             )
             for sbgnml_element in sbgnml_elements:
                 cls._add_sub_sbgnml_element_to_sbgnml_element(
@@ -2559,7 +2601,9 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
                 sbgnml_map.extension = extension
             extension.annotation = annotation_sbgnml_element
-
+        if with_notes and map_.notes is not None:
+            notes_element = cls._notes_element_from_notes(map_.notes)
+            sbgnml_map.notes = notes_element
         return sbgnml_sbgn
 
     @classmethod
@@ -2570,6 +2614,7 @@ class SBGNMLWriter(momapy.io.MapWriter):
         dstyles,
         super_layout_element,
         with_annotations=True,
+        with_notes=True,
     ):
         transformation_func = cls._get_transformation_func_from_layout_element(
             layout_element
@@ -2589,6 +2634,13 @@ class SBGNMLWriter(momapy.io.MapWriter):
                     extension = momapy.sbgn.io._sbgnml_parser.Map.Extension()
                     extension.annotation = annotation_sbgnml_element
                     sbgnml_elements[0].extension = extension
+            if with_notes:
+                model_element = map_.get_mapping(layout_element, unpack=True)[0]
+                if model_element.notes is not None:
+                    notes_element = cls._notes_element_from_notes(
+                        model_element.notes
+                    )
+                    sbgnml_element[0].notes = notes
         else:
             print(
                 f"object {layout_element.id}: unknown class value '{type(layout_element)}' for transformation"
@@ -2708,6 +2760,12 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 bag.li.append(li)
             setattr(description, qualifier_attribute, qualifier_element)
         return annotation_element
+
+    @classmethod
+    def _notes_element_from_notes(cls, notes):
+        notes_element = momapy.sbgn.io._sbgnml_parser.Map.Notes()
+        notes_element.w3_org_1999_xhtml_element.append(notes)
+        return notes_element
 
     @classmethod
     def _node_layout_to_sbgnml_elements(
