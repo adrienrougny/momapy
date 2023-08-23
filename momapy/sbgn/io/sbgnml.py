@@ -1509,15 +1509,22 @@ class SBGNMLReader(momapy.io.MapReader):
             super_model_element,
             super_layout_element,
         )
-        if glyph.state.value is not None:
-            text = glyph.state.value
-            model_element.value = glyph.state.value
-        else:
+        has_undefined_variable = False
+        if glyph.state is None:
             text = ""
-        if glyph.state.variable is not None and glyph.state.variable != "":
-            text += f"@{glyph.state.variable}"
-            model_element.variable = glyph.state.variable
+            has_undefined_variable = True
         else:
+            if glyph.state.value is not None:
+                text = glyph.state.value
+                model_element.value = glyph.state.value
+            else:
+                text = ""
+            if glyph.state.variable is not None and glyph.state.variable != "":
+                text += f"@{glyph.state.variable}"
+                model_element.variable = glyph.state.variable
+            else:
+                has_undefined_variable = True
+        if has_undefined_variable:
             variable = momapy.sbgn.pd.UndefinedVariable(
                 order=len(
                     [
