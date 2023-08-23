@@ -1630,8 +1630,8 @@ class EquivalenceArcLayout(momapy.arcs.PolyLine):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNPDMap(momapy.sbgn.core.SBGNMap):
-    model: typing.Optional[SBGNPDModel] = None
-    layout: typing.Optional[SBGNPDLayout] = None
+    model: SBGNPDModel
+    layout: SBGNPDLayout
 
 
 SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
