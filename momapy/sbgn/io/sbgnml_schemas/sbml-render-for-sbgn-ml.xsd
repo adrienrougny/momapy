@@ -40,6 +40,13 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:complexType name="listOfBackgroundImagesType">
+        <xsd:sequence minOccurs="0" maxOccurs="unbounded">
+            <xsd:any/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+
     <xsd:complexType name="renderInformationType">
         <xsd:attribute name="id" type="xsd:string"/>
         <xsd:attribute name="program-name" type="xsd:string"/>
@@ -48,6 +55,7 @@
         <xsd:sequence>
             <xsd:element name="listOfColorDefinitions" type="render:listOfColorDefinitionsType" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="listOfStyles" type="render:listOfStylesType" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="listOfBackgroundImages" type="render:listOfBackgroundImagesType" minOccurs="0" maxOccurs="1"/>
         </xsd:sequence>
     </xsd:complexType>
 
