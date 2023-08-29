@@ -312,8 +312,8 @@ class SBGNMLReader(momapy.io.MapReader):
                 sbgn_map.bbox.x + sbgn_map.bbox.w / 2,
                 sbgn_map.bbox.y + sbgn_map.bbox.h / 2,
             )
-            map_.layout.width = sbgn_map.w
-            map_.layout.height = sbgn_map.h
+            map_.layout.width = sbgn_map.bbox.w
+            map_.layout.height = sbgn_map.bbox.h
         else:
             momapy.positioning.set_fit(map_.layout, map_.layout.layout_elements)
         if with_render_information:
@@ -2589,6 +2589,12 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 cls._add_sub_sbgnml_element_to_sbgnml_element(
                     sbgnml_element, sbgnml_map
                 )
+        bbox = momapy.sbgn.io._sbgnml_parser.Bbox()
+        bbox.x = map_.layout.position.x - map_.layout.width / 2
+        bbox.y = map_.layout.position.y - map_.layout.height / 2
+        bbox.w = map_.layout.width
+        bbox.h = map_.layout.height
+        sbgnml_map.bbox = bbox
         if with_render_information:
             render_information = cls._render_information_from_styles(dstyles)
             render_information.id = str(uuid.uuid4())
