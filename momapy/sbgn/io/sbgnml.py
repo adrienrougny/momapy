@@ -2900,8 +2900,15 @@ class SBGNMLWriter(momapy.io.MapWriter):
         cls, layout_element, map_, dstyles, super_layout_element
     ):
         class_value = momapy.sbgn.io._sbgnml_parser.GlyphClass.COMPARTMENT
-        sbgnml_elements = cls._entity_node_layout_to_sbgnml_elements(
-            layout_element, class_value, map_, dstyles
+        sbgnml_elements = cls._node_layout_to_sbgnml_elements(
+            layout_element,
+            class_value,
+            map_,
+            dstyles,
+            make_label=True,
+            make_sub_elements=True,
+            add_sub_elements_to_element=True,
+            add_sub_elements_to_return=False,
         )
         return sbgnml_elements
 
@@ -2910,11 +2917,15 @@ class SBGNMLWriter(momapy.io.MapWriter):
         cls, layout_element, map_, dstyles, super_layout_element
     ):
         class_value = momapy.sbgn.io._sbgnml_parser.GlyphClass.SUBMAP
-        sbgnml_elements = cls._entity_node_layout_to_sbgnml_elements(
+        sbgnml_elements = cls._node_layout_to_sbgnml_elements(
             layout_element,
             class_value,
             map_,
             dstyles,
+            make_label=True,
+            make_sub_elements=True,
+            add_sub_elements_to_element=True,
+            add_sub_elements_to_return=False,
         )
         return sbgnml_elements
 
