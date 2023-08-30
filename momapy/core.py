@@ -845,7 +845,7 @@ class LayoutModelMapping(collections.abc.Mapping):
 
     def is_submapping(self, other):
         for left_element, right_elements in self._set_to_set_mapping.items():
-            other_right_elements = other._set_to_set_mappin.get(left_element)
+            other_right_elements = other._set_to_set_mapping.get(left_element)
             if other_right_elements is None or not right_elements.issubset(
                 other_right_elements
             ):
