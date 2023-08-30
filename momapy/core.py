@@ -703,12 +703,12 @@ class MapLayout(GroupLayout):
         def _is_sublist(list1, list2, unordered=False) -> bool:
             if not unordered:
                 i = 0
-                for elem2 in list2:
-                    elem1 = list1[i]
-                    while elem1 != elem2 and i < len(list1) - 1:
+                for elem1 in list1:
+                    elem2 = list2[i]
+                    while elem2 != elem1 and i < len(list2) - 1:
                         i += 1
-                        elem1 = list1[i]
-                    if not elem1 == elem2:
+                        elem2 = list2[i]
+                    if not elem2 == elem1:
                         return False
                     i += 1
             else:
@@ -718,8 +718,8 @@ class MapLayout(GroupLayout):
                     dlist1[elem1] += 1
                 for elem2 in list2:
                     dlist2[elem2] += 1
-                for elem2 in dlist2:
-                    if dlist1[elem2] < dlist2[elem2]:
+                for elem in dlist1:
+                    if dlist1[elem] > dlist2[elem]:
                         return False
             return True
 
