@@ -40,7 +40,6 @@ def write(map_, file_path, writer, **options):
     if writer_cls is None:
         raise ValueError(f"no registered writer named '{writer}'")
     writer_cls.write(map_, file_path, **options)
-    return map_
 
 
 class MapReader(abc.ABC):
