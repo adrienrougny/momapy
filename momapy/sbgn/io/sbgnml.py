@@ -205,20 +205,43 @@ class SBGNMLReader(momapy.io.MapReader):
         map_.layout_model_mapping = map_.new_layout_model_mapping()
         d_model_element_ids = {}
         d_layout_element_ids = {}
+        # We must make compartments first
         for glyph in sbgn_map.glyph:
-            (
-                model_element,
-                layout_element,
-            ) = cls._map_elements_from_sbgnml_element(
-                glyph,
-                map_,
-                d_model_element_ids,
-                d_layout_element_ids,
-                map_.model,
-                map_.layout,
-                with_annotations,
-                with_notes,
-            )
+            if (
+                glyph.class_value
+                == momapy.sbgn.io._sbgnml_parser.GlyphClass.COMPARTMENT
+            ):
+                (
+                    model_element,
+                    layout_element,
+                ) = cls._map_elements_from_sbgnml_element(
+                    glyph,
+                    map_,
+                    d_model_element_ids,
+                    d_layout_element_ids,
+                    map_.model,
+                    map_.layout,
+                    with_annotations,
+                    with_notes,
+                )
+        for glyph in sbgn_map.glyph:
+            if (
+                glyph.class_value
+                != momapy.sbgn.io._sbgnml_parser.GlyphClass.COMPARTMENT
+            ):
+                (
+                    model_element,
+                    layout_element,
+                ) = cls._map_elements_from_sbgnml_element(
+                    glyph,
+                    map_,
+                    d_model_element_ids,
+                    d_layout_element_ids,
+                    map_.model,
+                    map_.layout,
+                    with_annotations,
+                    with_notes,
+                )
         d_processes = {}
         sbgnml_flux_arcs = []
         for arc in sbgn_map.arc:
@@ -566,6 +589,10 @@ class SBGNMLReader(momapy.io.MapReader):
                 text_layout.font_size = cls._DEFAULT_FONT_SIZE
                 text_layout.font_color = cls._DEFAULT_FONT_COLOR
                 layout_element.label = text_layout
+        if glyph.compartment_ref is not None:
+            model_element.compartment = d_model_element_ids[
+                glyph.compartment_ref
+            ]
         if make_connectors:
             for port in glyph.port:
                 if port.x < glyph.bbox.x:  # LEFT
@@ -2861,6 +2888,11 @@ class SBGNMLWriter(momapy.io.MapWriter):
             add_sub_elements_to_element=True,
             add_sub_elements_to_return=False,
         )
+        glyph = sbgnml_elements[0]
+        model_element = map_.get_mapping(layout_element, unpack=True)[0]
+        if model_element.compartment is not None:
+            compartment_id = model_element.compartment.id
+            glyph.compartment_ref = compartment_id
         return sbgnml_elements
 
     @classmethod
