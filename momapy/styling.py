@@ -133,6 +133,8 @@ def apply_style_collection(layout_element, style_collection, strict=True):
 
 
 def apply_style_sheet(layout_element, style_sheet, strict=True, ancestors=None):
+    if isinstance(layout_element, momapy.core.MapBuilder):
+        layout_element = layout_element.layout
     if style_sheet is not None:
         if ancestors is None:
             ancestors = []
