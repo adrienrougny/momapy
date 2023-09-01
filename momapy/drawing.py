@@ -493,7 +493,10 @@ class Path(DrawingElement):
                     geom_collection.append(line_string)
                 line_strings = []
             elif isinstance(current_action, Close):
-                if current_point != initial_point:
+                if (
+                    current_point.x != initial_point.x
+                    or current_point.y != initial_point.y
+                ):
                     line_string = shapely.geometry.LineString(
                         [current_point.to_tuple(), initial_point.to_tuple()]
                     )
