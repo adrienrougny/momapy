@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 momapy = {editable = true, path = "."}
+colorama = "*"
 
 [dev-packages]
 

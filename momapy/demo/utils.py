@@ -1,3 +1,5 @@
+import copy
+
 import IPython.display
 import skia
 
@@ -6,6 +8,7 @@ import momapy.geometry
 import momapy.builder
 import momapy.core
 import momapy.drawing
+import momapy.shapes
 
 
 def display(obj, width=600, height=450):
@@ -22,6 +25,91 @@ def display(obj, width=600, height=450):
     image = surface.makeImageSnapshot()
     renderer.end_session()
     IPython.display.display(image)
+
+
+def display_at(obj, positions, width=600, height=450):
+    obj = copy.deepcopy(obj)
+    cp_builder_cls = momapy.builder.get_or_make_builder_cls(
+        momapy.shapes.CrossPoint
+    )
+    if momapy.builder.isinstance_or_builder(positions, momapy.geometry.Point):
+        positions = [positions]
+    for position in positions:
+        cp = cp_builder_cls(
+            width=12.0,
+            height=12.0,
+            stroke_width=1.5,
+            stroke=momapy.coloring.red,
+            position=position,
+        )
+        obj.add_element(cp)
+    display(obj, width, height)
+
+
+def make_toy_node(
+    cls,
+    position,
+    scale,
+    make_auxiliary=False,
+    auxiliary_unit_width=19,
+    auxiliary_unit_height=8,
+):
+    if not issubclass(cls, momapy.builder.Builder):
+        cls = momapy.builder.get_or_make_builder_cls(cls)
+    m = cls()
+    if m.width is None:
+        m.width = 50
+    if m.height is None:
+        m.height = 50
+    if m.fill is None:
+        m.fill = momapy.coloring.white
+    if m.stroke is None:
+        m.stroke = momapy.coloring.black
+    if m.stroke_width is None:
+        m.stroke_width = 1.0
+    m.position = position
+    m.width = m.width * scale
+    m.height = m.height * scale
+    for attr in [
+        "offset",
+        "left_connector_length",
+        "right_connector_length",
+    ]:
+        if hasattr(m, attr):
+            setattr(m, attr, getattr(m, attr) * scale)
+    for attr in [
+        "rounded_corners",
+        "cut_corners",
+    ]:
+        if hasattr(m, attr):
+            setattr(m, attr, getattr(m, attr) * scale / 2)
+
+    if make_auxiliary:
+        StateVariableLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+            momapy.sbgn.pd.StateVariableLayout
+        )
+        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+            momapy.sbgn.pd.UnitOfInformationLayout
+        )
+        s1 = StateVariableLayoutBuilder(
+            width=auxiliary_unit_width * scale,
+            height=auxiliary_unit_height * scale,
+            position=m.self_angle(130),
+        )
+        m.add_element(s1)
+        s2 = StateVariableLayoutBuilder(
+            width=auxiliary_unit_width * scale,
+            height=auxiliary_unit_height * scale,
+            position=m.self_angle(50),
+        )
+        m.add_element(s2)
+        u1 = UnitOfInformationLayoutBuilder(
+            width=auxiliary_unit_width * scale,
+            height=auxiliary_unit_height * scale,
+            position=m.south(),
+        )
+        m.add_element(u1)
+    return m
 
 
 def show_room(cls, type_="anchor"):
@@ -45,52 +133,22 @@ def show_room(cls, type_="anchor"):
         "label_center": "label_center",
     }
     ANGLE_STEP = 15
-    AUXILLIARY_UNIT_WIDTH = 18
-    AUXILLIARY_UNIT_HEIGHT = 9
-    if not issubclass(cls, momapy.builder.Builder):
-        cls = momapy.builder.get_or_make_builder_cls(cls)
-    m = cls()
-    if m.width is None:
-        m.width = 50
-    if m.height is None:
-        m.height = 50
-    if m.fill is None:
-        m.fill = momapy.coloring.white
-    if m.stroke is None:
-        m.stroke = momapy.coloring.black
-    if m.stroke_width is None:
-        m.stroke_width = 1.0
-    m.position = POSITION
-    m.width = m.width * SCALE
-    m.height = m.height * SCALE
-    for attr in ["offset", "left_connector_length", "right_connector_length"]:
-        if hasattr(m, attr):
-            setattr(m, attr, getattr(m, attr) * SCALE)
-    if type_ == "angle":
-        StateVariableLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.StateVariableLayout
-        )
-        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.UnitOfInformationLayout
-        )
-        s1 = StateVariableLayoutBuilder(
-            width=AUXILLIARY_UNIT_WIDTH * SCALE,
-            height=AUXILLIARY_UNIT_HEIGHT * SCALE,
-            position=m.self_angle(130),
-        )
-        m.add_element(s1)
-        s2 = StateVariableLayoutBuilder(
-            width=AUXILLIARY_UNIT_WIDTH * SCALE,
-            height=AUXILLIARY_UNIT_HEIGHT * SCALE,
-            position=m.self_angle(50),
-        )
-        m.add_element(s2)
-        u1 = UnitOfInformationLayoutBuilder(
-            width=AUXILLIARY_UNIT_WIDTH * SCALE,
-            height=AUXILLIARY_UNIT_HEIGHT * SCALE,
-            position=m.south(),
-        )
-        m.add_element(u1)
+    AUXILIARY_UNIT_WIDTH = 18
+    AUXILIARY_UNIT_HEIGHT = 9
+    if cls in [
+        momapy.sbgn.pd.MacromoleculeLayout,
+        momapy.sbgn.pd.SimpleChemicalLayout,
+        momapy.sbgn.pd.ComplexLayout,
+        momapy.sbgn.pd.NucleicAcidFeatureLayout,
+        momapy.sbgn.pd.MacromoleculeMultimerLayout,
+        momapy.sbgn.pd.SimpleChemicalMultimerLayout,
+        momapy.sbgn.pd.ComplexMultimerLayout,
+        momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
+    ]:
+        make_auxiliary = True
+    else:
+        make_auxiliary = False
+    m = make_toy_node(cls, POSITION, SCALE, make_auxiliary)
     CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
         momapy.shapes.CrossPoint
     )
@@ -147,3 +205,23 @@ def show_room(cls, type_="anchor"):
         )
         m.add_element(cross)
     display(m)
+
+
+def macromolecule_toy():
+    m = make_toy_node(
+        momapy.sbgn.pd.MacromoleculeLayout,
+        momapy.geometry.Point(225, 150),
+        5,
+        True,
+    )
+    return m
+
+
+def complex_multimer_toy():
+    m = make_toy_node(
+        momapy.sbgn.pd.ComplexMultimerLayout,
+        momapy.geometry.Point(225, 150),
+        5,
+        True,
+    )
+    return m

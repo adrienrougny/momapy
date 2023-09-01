@@ -1,10 +1,10 @@
 
-    MacromoleculeLayout {
-        stroke-width: 3;
-        fill: blue;
+    SBGNPDLayout {
+        stroke: red;
+        fill: lightyellow;
     }
     
-    StateVariableLayout > TextLayout {
-        font-size: 20.0;
+    MacromoleculeLayout {
+        fill: green;
     }
     

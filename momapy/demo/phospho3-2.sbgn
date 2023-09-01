@@ -2,29 +2,35 @@
 <sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.2" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
   <sbgn:map language="process description">
     <sbgn:extension>
-      <render:renderInformation id="73df25e1-d60a-4d1b-9cdb-77993d701d33" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
+      <render:renderInformation id="14c3cddb-8454-4eb2-a583-f2fa21364388" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
         <render:listOfColorDefinitions>
-          <render:colorDefinition id="c660a674-6b90-4084-b321-38ca3f58eb33" value="#000000ff"/>
-          <render:colorDefinition id="5eaf6060-8361-4121-bde4-48ff50b49bc4" value="#ffffffff"/>
+          <render:colorDefinition id="2cf53259-d75c-4538-8512-821316037dd9" value="#000000ff"/>
+          <render:colorDefinition id="abe316a3-f466-4fcd-8d91-36b96609a7fa" value="#ffffffff"/>
         </render:listOfColorDefinitions>
         <render:listOfStyles>
-          <render:style id="b0fac2ed-4cbd-43f8-9b41-5fa9a25f306d" idList="glyph2a glyph1a">
-            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="c660a674-6b90-4084-b321-38ca3f58eb33" stroke-width="1.0" fill="5eaf6060-8361-4121-bde4-48ff50b49bc4"/>
+          <render:style id="cb428ec3-3da6-48d6-94dc-442dfb05a6d1" idList="glyph5">
+            <render:g stroke="2cf53259-d75c-4538-8512-821316037dd9" stroke-width="4.0" fill="abe316a3-f466-4fcd-8d91-36b96609a7fa"/>
           </render:style>
-          <render:style id="d8c39c5f-bef3-4593-813f-b7f7b03077e4" idList="glyph2 glyph1 glyph3">
-            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="c660a674-6b90-4084-b321-38ca3f58eb33" stroke-width="1.0" fill="5eaf6060-8361-4121-bde4-48ff50b49bc4"/>
+          <render:style id="fe3b2afc-3040-4d7f-9965-7f655e2639a6" idList="glyph2a glyph1a">
+            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="2cf53259-d75c-4538-8512-821316037dd9" stroke-width="1.0" fill="abe316a3-f466-4fcd-8d91-36b96609a7fa"/>
           </render:style>
-          <render:style id="a8ed985a-91bf-45bd-b886-4377056bf3e4" idList="arc1 arc2 arc3">
-            <render:g stroke="c660a674-6b90-4084-b321-38ca3f58eb33" stroke-width="1.0"/>
+          <render:style id="e1ca42e7-e387-4748-8138-acabd131cd1a" idList="glyph2 glyph1 glyph3">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="2cf53259-d75c-4538-8512-821316037dd9" stroke-width="1.0" fill="abe316a3-f466-4fcd-8d91-36b96609a7fa"/>
           </render:style>
-          <render:style id="b01a6e5d-e47c-43ca-8d6c-195568a19035" idList="glyph4">
-            <render:g stroke="c660a674-6b90-4084-b321-38ca3f58eb33" stroke-width="1.0" fill="5eaf6060-8361-4121-bde4-48ff50b49bc4"/>
+          <render:style id="8044f89e-3360-4ce9-b444-9ef8a46331ab" idList="arc1 arc2 arc3">
+            <render:g stroke="2cf53259-d75c-4538-8512-821316037dd9" stroke-width="1.0"/>
+          </render:style>
+          <render:style id="c2dc994f-be82-4fc1-86fc-b208e414ba2f" idList="glyph4">
+            <render:g stroke="2cf53259-d75c-4538-8512-821316037dd9" stroke-width="1.0" fill="abe316a3-f466-4fcd-8d91-36b96609a7fa"/>
           </render:style>
         </render:listOfStyles>
       </render:renderInformation>
     </sbgn:extension>
     <sbgn:bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph2">
+    <sbgn:glyph class="compartment" orientation="horizontal" id="glyph5">
+      <sbgn:bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph2" compartmentRef="glyph5">
       <sbgn:label text="A">
         <sbgn:bbox x="80.5" y="262.5" w="10" h="11"/>
       </sbgn:label>
@@ -34,7 +40,7 @@
         <sbgn:bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
       </sbgn:glyph>
     </sbgn:glyph>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph1">
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph1" compartmentRef="glyph5">
       <sbgn:label text="A">
         <sbgn:bbox x="385.5" y="262.5" w="10" h="11"/>
       </sbgn:label>
@@ -44,7 +50,7 @@
         <sbgn:bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
       </sbgn:glyph>
     </sbgn:glyph>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph3">
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph3" compartmentRef="glyph5">
       <sbgn:label text="B">
         <sbgn:bbox x="226.5" y="127.5" w="8" h="11"/>
       </sbgn:label>
