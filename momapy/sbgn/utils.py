@@ -404,7 +404,7 @@ def tidy(
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
 
 
-def vanted_tidy(map_builder):
+def sbgned_tidy(map_builder):
     return tidy(
         map_builder,
         auxiliary_units_omit_width=False,
