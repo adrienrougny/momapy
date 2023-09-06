@@ -173,6 +173,10 @@ class RectangleWithCutCorners(momapy.core.NodeLayout):
 
 @dataclass(frozen=True, kw_only=True)
 class Stadium(momapy.core.NodeLayout):
+    def __post_init__(self):
+        if self.width < self.height:
+            object.__setattr__(self, "width", self.height)
+
     def joint1(self):
         return self.position + (
             self.height / 2 - self.width / 2,
