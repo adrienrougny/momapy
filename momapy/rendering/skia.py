@@ -24,7 +24,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.LineTo: "_add_line_to",
         momapy.drawing.CurveTo: "_add_curve_to",
         momapy.drawing.QuadraticCurveTo: "_add_quadratic_curve_to",
-        momapy.drawing.Close: "_add_close",
+        momapy.drawing.ClosePath: "_add_close_path",
         momapy.drawing.EllipticalArc: "_add_elliptical_arc",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
@@ -385,8 +385,8 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
 
     def _make_skia_path(self, path):
         skia_path = skia.Path()
-        for path_action in path.actions:
-            self._add_path_action_to_skia_path(skia_path, path_action)
+        for action in path.actions:
+            self._add_path_action_to_skia_path(skia_path, action)
         return skia_path
 
     def _render_path(self, path):
@@ -496,9 +496,9 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             skia_current_point.fx, skia_current_point.fy
         )
         curve_to = quadratic_curve_to.to_cubic(current_point)
-        self._render_curve_to(curve_to)
+        self._render_CurveTo(curve_to)
 
-    def _add_close(self, skia_path, close):
+    def _add_close_path(self, skia_path, close_path):
         skia_path.close()
 
     def _add_elliptical_arc(self, skia_path, elliptical_arc):

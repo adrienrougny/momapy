@@ -242,17 +242,17 @@ class CairoRenderer(momapy.rendering.core.Renderer):
         self._stroke_and_fill()
 
     def _render_rectangle(self, rectangle):
-        path = rectangle.to_path()
+        actions.append(rectangle.to_path()
         self._render_path(path)
 
-    def _render_move_to(self, move_to):
-        self.context.move_to(move_to.x, move_to.y)
+    def _render_MoveTo(self, move_to):
+        self.context.MoveTo(move_to.x, move_to.y)
 
-    def _render_line_to(self, line_to):
-        self.context.line_to(line_to.x, line_to.y)
+    def _render_LineTo(self, line_to):
+        self.context.LineTo(line_to.x, line_to.y)
 
-    def _render_curve_to(self, curve_to):
-        self.context.curve_to(
+    def _render_CurveTo(self, curve_to):
+        self.context.CurveTo(
             curve_to.control_point1.x,
             curve_to.control_point2.y,
             curve_to.control_point2.x,
@@ -261,18 +261,18 @@ class CairoRenderer(momapy.rendering.core.Renderer):
             curve_to.y,
         )
 
-    def _render_quadratic_curve_to(self, quadratic_curve_to):
+    def _render_QuadraticCurveTo(self, quadratic_curve_to):
         cairo_current_point = self.context.get_current_point()
         current_point = momapy.geometry.Point(
             cairo_current_point[0], cairo_current_point[1]
         )
         curve_to = quadratic_curve_to.to_cubic(current_point)
-        self._render_curve_to(curve_to)
+        self._render_CurveTo(curve_to)
 
-    def _render_close(self, close):
+    def _render_ClosePath(self, close):
         self.context.close_path()
 
-    def _render_elliptical_arc(self, elliptical_arc):
+    def _render_EllipticalArc(self, elliptical_arc):
         obj = momapy.geometry.EllipticalArc(
             momapy.geometry.Point(
                 self.context.get_current_point()[0],

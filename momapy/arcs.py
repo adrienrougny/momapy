@@ -23,23 +23,20 @@ class Arrow(momapy.core.ArcLayout):
     height: float = 10.0
 
     def arrowhead_drawing_element(self):
+        actions = [
+            momapy.drawing.MoveTo(self.arrowhead_base()),
+            momapy.drawing.LineTo(self.arrowhead_base() - (0, self.height / 2)),
+            momapy.drawing.LineTo(self.arrowhead_base() + (self.width, 0)),
+            momapy.drawing.LineTo(self.arrowhead_base() + (0, self.height / 2)),
+            momapy.drawing.ClosePath(),
+        ]
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
             stroke_dasharray=self.arrowhead_stroke_dasharray,
             stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
-        )
-        path += (
-            momapy.drawing.move_to(self.arrowhead_base())
-            + momapy.drawing.line_to(
-                self.arrowhead_base() - (0, self.height / 2)
-            )
-            + momapy.drawing.line_to(self.arrowhead_base() + (self.width, 0))
-            + momapy.drawing.line_to(
-                self.arrowhead_base() + (0, self.height / 2)
-            )
-            + momapy.drawing.close()
+            actions=actions,
         )
         return path
 
@@ -77,18 +74,23 @@ class Circle(momapy.core.ArcLayout):
 @dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.ArcLayout):
     def arrowhead_drawing_element(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                self.arrowhead_base() + (self.width / 2, self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.arrowhead_base() + (self.width / 2, -self.height / 2)
+            ),
+        ]
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
             stroke_dasharray=self.arrowhead_stroke_dasharray,
             stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
+            actions=actions,
         )
-        path += momapy.drawing.move_to(
-            self.arrowhead_base() + (self.width / 2, self.height / 2)
-        ) + momapy.drawing.line_to(
-            self.arrowhead_base() + (self.width / 2, -self.height / 2)
-        )
+
         return path
 
     def arrowhead_length(self):
@@ -106,37 +108,43 @@ class BarArrow(momapy.core.ArcLayout):
     sep: float
 
     def arrowhead_drawing_element(self):
-        bar = momapy.drawing.Path(stroke_width=self.bar_width)
-        bar += momapy.drawing.move_to(
-            self.arrowhead_base() + (self.bar_width / 2, self.bar_height / 2)
-        ) + momapy.drawing.line_to(
-            self.arrowhead_base() + (self.bar_width / 2, -self.bar_height / 2)
-        )
-        sep = momapy.drawing.Path()
-        sep += momapy.drawing.move_to(
-            self.arrowhead_base() + (self.bar_width, 0)
-        ) + momapy.drawing.line_to(
-            self.arrowhead_base() + (self.bar_width + self.sep, 0)
-        )
-        arrow = momapy.drawing.Path()
-        arrow += (
-            momapy.drawing.move_to(
+        actions = [
+            momapy.drawing.MoveTo(
+                self.arrowhead_base()
+                + (self.bar_width / 2, self.bar_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.arrowhead_base()
+                + (self.bar_width / 2, -self.bar_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(stroke_width=self.bar_width, actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(self.arrowhead_base() + (self.bar_width, 0)),
+            momapy.drawing.LineTo(
                 self.arrowhead_base() + (self.bar_width + self.sep, 0)
-            )
-            + momapy.drawing.line_to(
+            ),
+        ]
+        sep = momapy.drawing.Path(actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(
+                self.arrowhead_base() + (self.bar_width + self.sep, 0)
+            ),
+            momapy.drawing.LineTo(
                 self.arrowhead_base()
                 + (self.bar_width + self.sep, -self.height / 2)
-            )
-            + momapy.drawing.line_to(
+            ),
+            momapy.drawing.LineTo(
                 self.arrowhead_base()
                 + (self.bar_width + self.sep + self.width, 0)
-            )
-            + momapy.drawing.line_to(
+            ),
+            momapy.drawing.LineTo(
                 self.arrowhead_base()
                 + (self.bar_width + self.sep, self.height / 2)
-            )
-            + momapy.drawing.close()
-        )
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        arrow = momapy.drawing.Path(actions=actions)
         elements = (bar, sep, arrow)
         group = momapy.drawing.Group(
             stroke=self.arrowhead_stroke,
@@ -159,23 +167,24 @@ class BarArrow(momapy.core.ArcLayout):
 @dataclass(frozen=True, kw_only=True)
 class Diamond(momapy.core.ArcLayout):
     def arrowhead_drawing_element(self):
+        actions = [
+            momapy.drawing.MoveTo(self.arrowhead_base()),
+            momapy.drawing.LineTo(
+                self.arrowhead_base() + (self.width / 2, -self.height / 2)
+            ),
+            momapy.drawing.LineTo(self.arrowhead_base() + (self.width, 0)),
+            momapy.drawing.LineTo(
+                self.arrowhead_base() + (self.width / 2, self.height / 2)
+            ),
+            momapy.drawing.ClosePath(),
+        ]
         path = momapy.drawing.Path(
             stroke=self.arrowhead_stroke,
             stroke_width=self.arrowhead_stroke_width,
             stroke_dasharray=self.arrowhead_stroke_dasharray,
             stroke_dashoffset=self.arrowhead_stroke_dashoffset,
             fill=self.arrowhead_fill,
-        )
-        path += (
-            momapy.drawing.move_to(self.arrowhead_base())
-            + momapy.drawing.line_to(
-                self.arrowhead_base() + (self.width / 2, -self.height / 2)
-            )
-            + momapy.drawing.line_to(self.arrowhead_base() + (self.width, 0))
-            + momapy.drawing.line_to(
-                self.arrowhead_base() + (self.width / 2, self.height / 2)
-            )
-            + momapy.drawing.close()
+            actions=actions,
         )
         return path
 

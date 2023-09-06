@@ -177,34 +177,39 @@ class _ConnectorsMixin(_SBGNMixinBase):
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
+        if obj.direction == momapy.core.Direction.VERTICAL:
+            left_actions = [
+                momapy.drawing.MoveTo(obj.left_connector_base()),
+                momapy.drawing.LineTo(
+                    obj.left_connector_base() - (0, obj.left_connector_length)
+                ),
+            ]
+            right_actions = [
+                momapy.drawing.MoveTo(obj.right_connector_base()),
+                momapy.drawing.LineTo(
+                    obj.right_connector_base() + (0, obj.right_connector_length)
+                ),
+            ]
+        else:
+            left_actions = [
+                momapy.drawing.MoveTo(obj.left_connector_base()),
+                momapy.drawing.LineTo(
+                    obj.left_connector_base() - (obj.left_connector_length, 0)
+                ),
+            ]
+            right_actions = [
+                momapy.drawing.MoveTo(obj.right_connector_base()),
+                momapy.drawing.LineTo(
+                    obj.right_connector_base() + (obj.right_connector_length, 0)
+                ),
+            ]
         path_left = momapy.drawing.Path(
-            stroke_width=obj.left_connector_stroke_width,
+            stroke_width=obj.left_connector_stroke_width, actions=left_actions
         )
         path_right = momapy.drawing.Path(
-            stroke_width=obj.right_connector_stroke_width,
+            stroke_width=obj.right_connector_stroke_width, actions=right_actions
         )
-        if obj.direction == momapy.core.Direction.VERTICAL:
-            path_left += momapy.drawing.move_to(
-                obj.left_connector_base()
-            ) + momapy.drawing.line_to(
-                obj.left_connector_base() - (0, obj.left_connector_length)
-            )
-            path_right += momapy.drawing.move_to(
-                obj.right_connector_base()
-            ) + momapy.drawing.line_to(
-                obj.right_connector_base() + (0, obj.right_connector_length)
-            )
-        else:
-            path_left += momapy.drawing.move_to(
-                obj.left_connector_base()
-            ) + momapy.drawing.line_to(
-                obj.left_connector_base() - (obj.left_connector_length, 0)
-            )
-            path_right += momapy.drawing.move_to(
-                obj.right_connector_base()
-            ) + momapy.drawing.line_to(
-                obj.right_connector_base() + (obj.right_connector_length, 0)
-            )
+
         return [path_left, path_right]
 
 

@@ -585,18 +585,18 @@ class ArcLayout(GroupLayout):
             if momapy.builder.isinstance_or_builder(
                 segment, momapy.geometry.Segment
             ):
-                path_action = momapy.drawing.line_to(segment.p2)
+                path_action = momapy.drawing.LineTo(segment.p2)
             elif momapy.builder.isinstance_or_builder(
                 segment, momapy.geometry.BezierCurve
             ):
                 if len(segment.control_points) >= 2:
-                    path_action = momapy.drawing.curve_to(
+                    path_action = momapy.drawing.CurveTo(
                         segment.p2,
                         segment.control_points[0],
                         segment.control_points[1],
                     )
                 else:
-                    path_action = momapy.drawing.quadratic_curve_to(
+                    path_action = momapy.drawing.QuadraticCurveTo(
                         segment.p2, segment.control_points[0]
                     )
             elif momapy.builder.isinstance_or_builder(
@@ -613,19 +613,19 @@ class ArcLayout(GroupLayout):
             return path_action
 
         def _make_path_from_segments(arc_layout) -> momapy.drawing.Path:
-            path = momapy.drawing.Path()
-            path += momapy.drawing.move_to(arc_layout.start_point())
+            actions = [momapy.drawing.MoveTo(arc_layout.start_point())]
             for segment in arc_layout.segments[:-1]:
-                path_action = _make_path_action_from_segment(segment)
-                path += path_action
+                action = _make_path_action_from_segment(segment)
+                actions.append(action)
             last_segment = self.segments[-1]
             length = self.shorten
             if arc_layout.arrowhead_drawing_element() is not None:
                 length += self.arrowhead_length()
             if length > 0:
                 last_segment = last_segment.shortened(length)
-            path_action = _make_path_action_from_segment(last_segment)
-            path += path_action
+            action = _make_path_action_from_segment(last_segment)
+            actions.append(action)
+            path = momapy.drawing.Path(actions=actions)
             return path
 
         drawing_elements = [_make_path_from_segments(self)]
@@ -680,14 +680,14 @@ class MapLayout(GroupLayout):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
     def self_drawing_elements(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.self_bbox().north_west())
-            + momapy.drawing.line_to(self.self_bbox().north_east())
-            + momapy.drawing.line_to(self.self_bbox().south_east())
-            + momapy.drawing.line_to(self.self_bbox().south_west())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.self_bbox().north_west()),
+            momapy.drawing.LineTo(self.self_bbox().north_east()),
+            momapy.drawing.LineTo(self.self_bbox().south_east()),
+            momapy.drawing.LineTo(self.self_bbox().south_west()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return [path]
 
     def self_children(self):

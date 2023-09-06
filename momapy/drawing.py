@@ -228,14 +228,7 @@ class DrawingElement(ABC):
 
 @dataclass(frozen=True)
 class PathAction(ABC):
-    def __add__(self, action):
-        if isinstance(action, PathAction):
-            actions = [self, action]
-        elif isinstance(action, PathActionList):
-            actions = [self] + action.actions
-        else:
-            raise TypeError
-        return PathActionList(actions=actions)
+    pass
 
 
 @dataclass(frozen=True)
@@ -345,8 +338,8 @@ class EllipticalArc(PathAction):
         )
 
     def to_shapely(self, current_point):
-        s = self.to_geometry(current_point).to_shapely()
-        return self.to_geometry(current_point).to_shapely()
+        elliptical_arc = self.to_geometry(current_point)
+        return elliptical_arc.to_shapely()
 
 
 @dataclass(frozen=True)
@@ -365,9 +358,13 @@ class CurveTo(PathAction):
 
     def transformed(self, transformation, current_point):
         return CurveTo(
-            momapy.geometry.transform_point(self.point),
-            momapy.geometry.transform_point(self.control_point1),
-            momapy.geometry.transform_point(self.control_point2),
+            momapy.geometry.transform_point(self.point, transformation),
+            momapy.geometry.transform_point(
+                self.control_point1, transformation
+            ),
+            momapy.geometry.transform_point(
+                self.control_point2, transformation
+            ),
         )
 
     def to_geometry(self, current_point):
@@ -396,9 +393,9 @@ class QuadraticCurveTo(PathAction):
         return self.point.y
 
     def transformed(self, transformation, current_point):
-        return CurveTo(
-            momapy.geometry.transform_point(self.point),
-            momapy.geometry.transform_point(self.control_point),
+        return QuadraticCurveTo(
+            momapy.geometry.transform_point(self.point, transformation),
+            momapy.geometry.transform_point(self.control_point, transformation),
         )
 
     def to_curve_to(self, current_point):
@@ -421,48 +418,23 @@ class QuadraticCurveTo(PathAction):
 
 
 @dataclass(frozen=True)
-class Close(PathAction):
+class ClosePath(PathAction):
     def transformed(self, transformation, current_point):
-        return Close()
-
-
-@dataclass
-class PathActionList(object):
-    actions: list[PathAction] = field(default_factory=list)
-
-    def __add__(self, other):
-        if isinstance(other, PathAction):
-            actions = self.actions + [other]
-        elif isinstance(other, PathActionList):
-            actions = self.actions + other.actions
-        else:
-            raise TypeError
-        return PathActionList(actions=actions)
+        return ClosePath()
 
 
 @dataclass(frozen=True, kw_only=True)
 class Path(DrawingElement):
     actions: tuple[PathAction] = field(default_factory=tuple)
 
-    def __add__(self, other):
-        if isinstance(other, PathAction):
-            actions = (other,)
-        elif isinstance(other, PathActionList):
-            actions = tuple(other.actions)
-        else:
-            raise TypeError
-        return replace(self, actions=self.actions + actions)
-
     def transformed(self, transformation):
         actions = []
         current_point = None
-        for path_action in self.actions:
-            new_path_action = path_action.transformed(
-                transformation, current_point
-            )
-            actions.append(new_path_action)
-            if hasattr(path_action, "point"):
-                current_point = path_action.point
+        for action in self.actions:
+            new_action = action.transformed(transformation, current_point)
+            actions.append(new_action)
+            if hasattr(action, "point"):
+                current_point = action.point
             else:
                 current_point = None
         return replace(self, actions=tuple(actions))
@@ -483,7 +455,7 @@ class Path(DrawingElement):
                 current_point = current_action.point
                 initial_point = current_point
                 if (
-                    not isinstance(previous_action, Close)
+                    not isinstance(previous_action, ClosePath)
                     and previous_action is not None
                 ):
                     multi_linestring = shapely.geometry.MultiLineString(
@@ -492,7 +464,7 @@ class Path(DrawingElement):
                     line_string = shapely.ops.linemerge(multi_linestring)
                     geom_collection.append(line_string)
                 line_strings = []
-            elif isinstance(current_action, Close):
+            elif isinstance(current_action, ClosePath):
                 if (
                     current_point.x != initial_point.x
                     or current_point.y != initial_point.y
@@ -514,7 +486,7 @@ class Path(DrawingElement):
                 line_string = current_action.to_shapely(current_point)
                 line_strings.append(line_string)
                 current_point = current_action.point
-        if not isinstance(current_action, (MoveTo, Close)):
+        if not isinstance(current_action, (MoveTo, ClosePath)):
             multi_linestring = shapely.geometry.MultiLineString(line_strings)
             line_string = shapely.ops.linemerge(multi_linestring)
             geom_collection.append(line_string)
@@ -547,20 +519,10 @@ class Text(DrawingElement):
 class Group(DrawingElement):
     elements: tuple[DrawingElement] = field(default_factory=tuple)
 
-    def __add__(self, element):
-        return Group(
-            stroke=self.stroke,
-            stroke_width=self.stroke_width,
-            fill=self.fill,
-            filter=self.filter,
-            transform=self.transform,
-            elements=self.elements + type(self.elements)([element]),
-        )
-
     def transformed(self, transformation):
         elements = []
-        for layout_element in self.elements:
-            elements.append(layout_element.transformed(transformation))
+        for element in self.elements:
+            elements.append(element.transformed(transformation))
         return replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False):
@@ -587,17 +549,21 @@ class Ellipse(DrawingElement):
     def to_path(self):
         west = self.point - (self.rx, 0)
         east = self.point + (self.rx, 0)
+        actions = [
+            MoveTo(west),
+            EllipticalArc(east, self.rx, self.ry, 0, 1, 0),
+            EllipticalArc(west, self.rx, self.ry, 0, 1, 0),
+            ClosePath(),
+        ]
         path = Path(
             stroke_width=self.stroke_width,
             stroke=self.stroke,
             fill=self.fill,
             transform=self.transform,
             filter=self.filter,
+            actions=actions,
         )
-        path += move_to(west)
-        path += elliptical_arc(east, self.rx, self.ry, 0, 1, 0)
-        path += elliptical_arc(west, self.rx, self.ry, 0, 1, 0)
-        path += close()
+
         return path
 
     def transformed(self, transformation):
@@ -630,46 +596,58 @@ class Rectangle(DrawingElement):
         return self.point.y
 
     def to_path(self):
-        path = Path(
-            stroke_width=self.stroke_width,
-            stroke=self.stroke,
-            fill=self.fill,
-            transform=self.transform,
-            filter=self.filter,
-        )
         x = self.point.x
         y = self.point.y
         rx = self.rx
         ry = self.ry
         width = self.width
         height = self.height
-        path += move_to(momapy.geometry.Point(x + rx, y))
-        path += line_to(momapy.geometry.Point(x + width - rx, y))
+        actions = [
+            MoveTo(momapy.geometry.Point(x + rx, y)),
+            LineTo(momapy.geometry.Point(x + width - rx, y)),
+        ]
         if rx > 0 and ry > 0:
-            path += elliptical_arc(
-                momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 0, 1
+            actions.append(
+                EllipticalArc(
+                    momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 0, 1
+                )
             )
-        path += line_to(momapy.geometry.Point(x + width, y + height - ry))
+        actions.append(
+            LineTo(momapy.geometry.Point(x + width, y + height - ry))
+        )
         if rx > 0 and ry > 0:
-            path += elliptical_arc(
-                momapy.geometry.Point(x + width - rx, y + height),
-                rx,
-                ry,
-                0,
-                0,
-                1,
+            actions.append(
+                EllipticalArc(
+                    momapy.geometry.Point(x + width - rx, y + height),
+                    rx,
+                    ry,
+                    0,
+                    0,
+                    1,
+                )
             )
-        path += line_to(momapy.geometry.Point(x + rx, y + height))
+        actions.append(LineTo(momapy.geometry.Point(x + rx, y + height)))
         if rx > 0 and ry > 0:
-            path += elliptical_arc(
-                momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 0, 1
+            actions.append(
+                EllipticalArc(
+                    momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 0, 1
+                )
             )
-        path += line_to(momapy.geometry.Point(x, y + ry))
+        actions.append(LineTo(momapy.geometry.Point(x, y + ry)))
         if rx > 0 and ry > 0:
-            path += elliptical_arc(
-                momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1
+            actions.append(
+                EllipticalArc(momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1)
             )
-        path += close()
+        actions.append(ClosePath())
+        path = Path(
+            stroke_width=self.stroke_width,
+            stroke=self.stroke,
+            fill=self.fill,
+            transform=self.transform,
+            filter=self.filter,
+            actions=actions,
+        )
+
         return path
 
     def transformed(self, transformation):
@@ -678,27 +656,3 @@ class Rectangle(DrawingElement):
 
     def to_shapely(self, to_polygons=False):
         return self.to_path().to_shapely(to_polygons=to_polygons)
-
-
-def move_to(point):
-    return MoveTo(point=point)
-
-
-def line_to(point):
-    return LineTo(point)
-
-
-def elliptical_arc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag):
-    return EllipticalArc(point, rx, ry, x_axis_rotation, arc_flag, sweep_flag)
-
-
-def curve_to(point, control_point1, control_point2):
-    return CurveTo(point, control_point1, control_point2)
-
-
-def quadratic_curve_to(point, control_point):
-    return QuadraticCurveTo(point, control_point)
-
-
-def close():
-    return Close()

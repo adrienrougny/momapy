@@ -156,18 +156,18 @@ class RectangleWithCutCorners(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint6())
-            + momapy.drawing.line_to(self.joint7())
-            + momapy.drawing.line_to(self.joint8())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.LineTo(self.joint7()),
+            momapy.drawing.LineTo(self.joint8()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -249,30 +249,30 @@ class RectangleWithBottomRoundedCorners(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.elliptical_arc(
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.EllipticalArc(
                 self.joint4(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.elliptical_arc(
+            ),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.EllipticalArc(
                 self.joint6(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.close()
-        )
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -282,12 +282,15 @@ class CircleWithDiagonalBar(momapy.core.NodeLayout):
         circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
-        bar = momapy.drawing.Path()
-        bar += momapy.drawing.move_to(
-            self.position - (self.width / 2, -self.height / 2)
-        ) + momapy.drawing.line_to(
-            self.position + (self.width / 2, -self.height / 2)
-        )
+        actions = [
+            momapy.drawing.MoveTo(
+                self.position - (self.width / 2, -self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.position + (self.width / 2, -self.height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
         elements = (circle, bar)
         group = momapy.drawing.Group(elements=elements)
         return group
@@ -343,16 +346,16 @@ class Hexagon(momapy.core.NodeLayout):
         return self.position - (self.width / 2, 0)
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint6())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -418,16 +421,16 @@ class InvertedHexagon(momapy.core.NodeLayout):
         )[0]
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint6())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -452,14 +455,14 @@ class Parallelogram(momapy.core.NodeLayout):
         return self.position + (-self.width / 2, self.height / 2)
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -484,14 +487,14 @@ class InvertedParallelogram(momapy.core.NodeLayout):
         return self.position + (offset - self.width / 2, self.height / 2)
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -610,15 +613,15 @@ class Pointer(momapy.core.NodeLayout):
             return self.position + (-self.width / 2, self.height / 2)
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -803,34 +806,34 @@ class TruncatedRectangleWithLeftRoundedCorners(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint6())
-            + momapy.drawing.elliptical_arc(
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.EllipticalArc(
                 self.joint7(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.line_to(self.joint8())
-            + momapy.drawing.elliptical_arc(
+            ),
+            momapy.drawing.LineTo(self.joint8()),
+            momapy.drawing.EllipticalArc(
                 self.joint1(),
                 self.rounded_corners,
                 self.rounded_corners,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.close()
-        )
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -872,17 +875,17 @@ class FoxHead(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        path = momapy.drawing.Path()
-        path += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.line_to(self.joint3())
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint5())
-            + momapy.drawing.line_to(self.joint6())
-            + momapy.drawing.close()
-        )
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.ClosePath(),
+        ]
+        path = momapy.drawing.Path(actions=actions)
         return path
 
 
@@ -916,58 +919,58 @@ class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.NodeLayout):
         )
 
     def border_drawing_element(self):
-        outer_stadium = momapy.drawing.Path()
-        outer_stadium += (
-            momapy.drawing.move_to(self.joint1())
-            + momapy.drawing.line_to(self.joint2())
-            + momapy.drawing.elliptical_arc(
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.EllipticalArc(
                 self.joint3(),
                 self.horizontal_proportion * self.width,
                 self.height / 2,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.line_to(self.joint4())
-            + momapy.drawing.elliptical_arc(
+            ),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.EllipticalArc(
                 self.joint1(),
                 self.horizontal_proportion * self.width,
                 self.height / 2,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.close()
-        )
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        outer_stadium = momapy.drawing.Path(actions=actions)
         inner_joint1 = self.joint1() + (0, self.sep)
         inner_joint2 = self.joint2() + (0, self.sep)
         inner_joint3 = self.joint3() + (0, -self.sep)
         inner_joint4 = self.joint4() + (0, -self.sep)
         inner_rx = self.horizontal_proportion * self.width - self.sep
         inner_ry = self.height / 2 - self.sep
-        inner_stadium = momapy.drawing.Path()
-        inner_stadium += (
-            momapy.drawing.move_to(inner_joint1)
-            + momapy.drawing.line_to(inner_joint2)
-            + momapy.drawing.elliptical_arc(
+        actions = [
+            momapy.drawing.MoveTo(inner_joint1),
+            momapy.drawing.LineTo(inner_joint2),
+            momapy.drawing.EllipticalArc(
                 inner_joint3,
                 inner_rx,
                 inner_ry,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.line_to(inner_joint4)
-            + momapy.drawing.elliptical_arc(
+            ),
+            momapy.drawing.LineTo(inner_joint4),
+            momapy.drawing.EllipticalArc(
                 inner_joint1,
                 inner_rx,
                 inner_ry,
                 0,
                 0,
                 1,
-            )
-            + momapy.drawing.close()
-        )
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        inner_stadium = momapy.drawing.Path(actions=actions)
         group = momapy.drawing.Group(elements=(outer_stadium, inner_stadium))
         return group
 
@@ -975,14 +978,16 @@ class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.NodeLayout):
 @dataclass(frozen=True, kw_only=True)
 class CrossPoint(momapy.core.NodeLayout):
     def border_drawing_element(self):
-        horizontal_path = momapy.drawing.Path()
-        horizontal_path += momapy.drawing.move_to(
-            self.position - (self.width / 2, 0)
-        ) + momapy.drawing.line_to(self.position + (self.width / 2, 0))
-        vertical_path = momapy.drawing.Path()
-        vertical_path += momapy.drawing.move_to(
-            self.position - (0, self.height / 2, 0)
-        ) + momapy.drawing.line_to(self.position + (0, self.height / 2))
+        actions = [
+            momapy.drawing.MoveTo(self.position - (self.width / 2, 0)),
+            momapy.drawing.LineTo(self.position + (self.width / 2, 0)),
+        ]
+        horizontal_path = momapy.drawing.Path(actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(self.position - (0, self.height / 2, 0)),
+            momapy.drawing.LineTo(self.position + (0, self.height / 2)),
+        ]
+        vertical_path = momapy.drawing.Path(actions=actions)
         elements = (horizontal_path, vertical_path)
         group = momapy.drawing.Group(elements=elements)
         return group
