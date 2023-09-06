@@ -2890,7 +2890,10 @@ class SBGNMLWriter(momapy.io.MapWriter):
         )
         glyph = sbgnml_elements[0]
         model_element = map_.get_mapping(layout_element, unpack=True)[0]
-        if model_element.compartment is not None:
+        if (
+            hasattr(model_element, "compartment")
+            and model_element.compartment is not None
+        ):
             compartment_id = model_element.compartment.id
             glyph.compartment_ref = compartment_id
         return sbgnml_elements
