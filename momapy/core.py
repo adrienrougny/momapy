@@ -733,6 +733,33 @@ class MapLayout(GroupLayout):
             self.children(), other.children(), unordered=unordered
         )
 
+    def north_west(self):
+        return self.bbox().north_west()
+
+    def north(self):
+        return self.bbox().north()
+
+    def north_east(self):
+        return self.bbox().north_east()
+
+    def east(self):
+        return self.bbox().east()
+
+    def south_east(self):
+        return self.bbox().south_east()
+
+    def south(self):
+        return self.bbox().south()
+
+    def south_west(self):
+        return self.bbox().south_west()
+
+    def west(self):
+        return self.bbox().west()
+
+    def center(self):
+        return self.bbox().center()
+
 
 @dataclass(frozen=True, kw_only=True)
 class PhantomLayout(LayoutElement):
