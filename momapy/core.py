@@ -671,7 +671,7 @@ class Model(MapElement):
 
 
 @dataclass(frozen=True, kw_only=True)
-class MapLayout(GroupLayout):
+class Layout(GroupLayout):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -883,7 +883,7 @@ class LayoutModelMapping(collections.abc.Mapping):
 @dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
     model: Model
-    layout: MapLayout
+    layout: Layout
     layout_model_mapping: LayoutModelMapping
 
     def is_submap(self, other):
@@ -1141,8 +1141,8 @@ def _layout_builder_new_element(self, element_cls, *args, **kwargs):
     return momapy.builder.new_builder(element_cls, *args, **kwargs)
 
 
-MapLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-    MapLayout,
+LayoutBuilder = momapy.builder.get_or_make_builder_cls(
+    Layout,
     builder_namespace={"new_element": _layout_builder_new_element},
 )
 
@@ -1476,7 +1476,7 @@ def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
 
 
 @abstractmethod
-def _map_builder_new_layout(self, *args, **kwargs) -> MapLayoutBuilder:
+def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
     pass
 
 

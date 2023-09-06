@@ -1348,7 +1348,7 @@ class CellDesignerModel(momapy.sbml.core.Model):
 
 
 @dataclasses.dataclass(frozen=True)
-class CellDesignerLayout(momapy.core.MapLayout):
+class CellDesignerLayout(momapy.core.Layout):
     pass
 
 

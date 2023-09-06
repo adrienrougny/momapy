@@ -8,7 +8,7 @@ import momapy.rendering
 
 @dataclass
 class Animator(object):
-    layout: momapy.core.MapLayout
+    layout: momapy.core.Layout
     fps: int = 60
 
     def __post_init__(self):

@@ -59,7 +59,7 @@ class SBGNModel(momapy.core.Model):
 
 
 @dataclass(frozen=True, kw_only=True)
-class SBGNLayout(momapy.core.MapLayout):
+class SBGNLayout(momapy.core.Layout):
     pass
 
 
