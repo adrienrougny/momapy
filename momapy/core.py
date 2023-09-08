@@ -676,6 +676,14 @@ class Layout(GroupLayout):
     width: float
     height: float
 
+    @property
+    def x(self):
+        return self.position.x
+
+    @property
+    def y(self):
+        return self.position.y
+
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
