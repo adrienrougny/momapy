@@ -376,7 +376,7 @@ class CurveTo(PathAction):
 
     def to_shapely(self, current_point, n_segs=50):
         bezier_curve = self.to_geometry(current_point)
-        return bezier_curve.to_shapely()
+        return bezier_curve.to_shapely(n_segs)
 
 
 @dataclass(frozen=True)
