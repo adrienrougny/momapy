@@ -174,7 +174,7 @@ class Segment(GeometryObject):
         return get_position_and_angle_at_fraction(self, fraction)
 
     def shortened(self, length, start_or_end="end"):
-        return shorten_segment(self, start_or_end)
+        return shorten_segment(self, length, start_or_end)
 
     def transformed(self, transformation):
         return transform_segment(self, transformation)
@@ -245,7 +245,7 @@ class BezierCurve(GeometryObject):
         return get_position_and_angle_at_fraction(self, fraction)
 
     def shortened(self, length, start_or_end="end"):
-        return shorten_bezier_curve(self, start_or_end)
+        return shorten_bezier_curve(self, length, start_or_end)
 
     def transformed(self, transformation):
         return transform_bezier_curve(self, transformation)
@@ -432,7 +432,7 @@ class EllipticalArc(GeometryObject):
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     def shortened(self, length, start_or_end="end"):
-        return shorten_elliptical_arc(self, start_or_end)
+        return shorten_elliptical_arc(self, length, start_or_end)
 
     def transformed(self, transformation):
         return transform_elliptical_arc(self, transformation)
@@ -683,7 +683,7 @@ def shorten_segment(segment, length, start_or_end="end"):
         shortened_segment = copy.deepcopy(segment)
     else:
         if start_or_end == "start":
-            shortened_segment = segment.inverted().shortened(length).inverted()
+            shortened_segment = segment.reversed().shortened(length).reversed()
         else:
             fraction = 1 - length / segment.length()
             point = segment.get_position_at_fraction(fraction)
@@ -697,7 +697,7 @@ def shorten_bezier_curve(bezier_curve, start_or_end="end"):
     else:
         if start_or_end == "start":
             shortened_bezier_curve = (
-                bezier_curve.inverted().shortened(length).inverted()
+                bezier_curve.reversed().shortened(length).reversed()
             )
         else:
             lib_bezier_curve_ = bezier_curve._to_bezier()
@@ -723,7 +723,7 @@ def shorten_elliptical_arc(elliptical_arc, start_or_end="end"):
     else:
         if start_or_end == "start":
             shortened_elliptical_arc = (
-                elliptical_arc.inverted().shortened(length).inverted()
+                elliptical_arc.reversed().shortened(length).reversed()
             )
         else:
             fraction = 1 - length / elliptical_arc.length()
