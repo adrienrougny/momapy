@@ -395,7 +395,7 @@ class NodeLayout(GroupLayout):
             filter=self.border_filter,
             elements=elements,
         )
-        return [group]
+        return [border]
 
     def self_children(self):
         if self.label is not None:
@@ -591,10 +591,9 @@ class ArcLayout(GroupLayout):
 
     def points(self) -> list[momapy.geometry.Point]:
         points = []
-        if len(self.segments) > 0:
-            points.append(self.segments[0].p1)
-        for segment in self.segments[1:]:
-            points.append(segment.p2)
+        for segment in self.segments:
+            points.append(segment.p1)
+        points.append(segment.p2)
         return points
 
     def length(self):
@@ -651,7 +650,7 @@ class ArcLayout(GroupLayout):
         return self._get_arrowhead_tip("start")
 
     def end_arrowhead_base(self) -> momapy.geometry.Point:
-        return self._get_arrowhead_base("start")
+        return self._get_arrowhead_base("end")
 
     def end_arrowhead_tip(self) -> momapy.geometry.Point:
         return self._get_arrowhead_tip("end")
@@ -683,16 +682,18 @@ class ArcLayout(GroupLayout):
             "fill",
         ]:
             arrowhead_attr_name = f"{start_or_end}_arrowhead_{group_attr_name}"
-            kwargs[group_attr_name] = getattr(self, arrowhwead_attr_name)
+            kwargs[group_attr_name] = getattr(self, arrowhead_attr_name)
         group = momapy.drawing.Group(**kwargs)
         return group
 
     def _make_rotated_arrowhead_drawing_element(self, start_or_end: str):
         drawing_element = self._make_arrowhead_drawing_element(start_or_end)
-        line = momapy.geometry.Line(self.start_point(), self.end_point())
-        angle = momapy.geometry.get_angle_of_line(line)
+        points = self.points()
         if start_or_end == "start":
-            angle = angle - math.pi
+            line = momapy.geometry.Line(points[1], points[0])
+        else:
+            line = momapy.geometry.Line(points[-2], points[-1])
+        angle = momapy.geometry.get_angle_of_line(line)
         arrowhead_length = drawing_element.bbox().width
         arrowhead_base = self._get_arrowhead_base(
             start_or_end, arrowhead_length
@@ -718,7 +719,9 @@ class ArcLayout(GroupLayout):
     def end_arrowhead_bbox(self):
         return self._get_arrowhead_bbox("end")
 
-    def _make_path(self) -> momapy.drawing.Path:
+    def _make_path(
+        self, start_arrowhead_length, end_arrowhead_length
+    ) -> momapy.drawing.Path:
         def _make_path_action_from_segment(segment):
             if momapy.builder.isinstance_or_builder(
                 segment, momapy.geometry.Segment
@@ -755,8 +758,10 @@ class ArcLayout(GroupLayout):
         elif len(self.segments) == 1:
             segment = (
                 self.segments[0]
-                .shortened(self.path_shorten_start, "start")
-                .shortened(self.path_shorten_end, "end")
+                .shortened(
+                    self.path_shorten_start + start_arrowhead_length, "start"
+                )
+                .shortened(self.path_shorten_end + end_arrowhead_length, "end")
             )
             actions = [
                 momapy.drawing.MoveTo(segment.p1),
@@ -764,16 +769,16 @@ class ArcLayout(GroupLayout):
             ]
         else:
             first_segment = self.segments[0].shortened(
-                self.path_shorten_start, "start"
+                self.path_shorten_start + start_arrowhead_length, "start"
             )
             last_segment = self.segments[-1].shortened(
-                self.path_shorten_end, "end"
+                self.path_shorten_end + end_arrowhead_length, "end"
             )
             actions = [
                 momapy.drawing.MoveTo(first_segment.p1),
                 _make_path_action_from_segment(first_segment),
             ]
-            for segment in arc_layout.segments[1:-1]:
+            for segment in self.segments[1:-1]:
                 action = _make_path_action_from_segment(segment)
                 actions.append(action)
             actions.append(_make_path_action_from_segment(last_segment))
@@ -790,8 +795,20 @@ class ArcLayout(GroupLayout):
         return path
 
     def self_drawing_elements(self):
+        start_arrowhead_drawing_element = self._make_arrowhead_drawing_element(
+            "start"
+        )
+        end_arrowhead_drawing_element = self._make_arrowhead_drawing_element(
+            "end"
+        )
+        start_arrowhead_length = start_arrowhead_drawing_element.bbox().width
+        if math.isnan(start_arrowhead_length):
+            start_arrowhead_length = 0
+        end_arrowhead_length = end_arrowhead_drawing_element.bbox().width
+        if math.isnan(end_arrowhead_length):
+            end_arrowhead_length = 0
         drawing_elements = [
-            self._make_path(),
+            self._make_path(start_arrowhead_length, end_arrowhead_length),
             self._make_rotated_arrowhead_drawing_element("start"),
             self._make_rotated_arrowhead_drawing_element("end"),
         ]
