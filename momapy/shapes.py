@@ -20,7 +20,7 @@ class Rectangle(momapy.core.NodeLayout):
     def joint4(self):
         return self.position - (self.width / 2, -self.height / 2)
 
-    def border_drawing_element(self):
+    def border_drawing_elements(self):
         rectangle = momapy.drawing.Rectangle(
             point=self.joint1(),
             height=self.height,
@@ -28,7 +28,7 @@ class Rectangle(momapy.core.NodeLayout):
             rx=0,
             ry=0,
         )
-        return rectangle
+        return [rectangle]
 
 
 @dataclass(frozen=True, kw_only=True)
