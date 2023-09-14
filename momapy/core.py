@@ -688,16 +688,16 @@ class ArcLayout(GroupLayout):
 
     def _make_rotated_arrowhead_drawing_element(self, start_or_end: str):
         drawing_element = self._make_arrowhead_drawing_element(start_or_end)
-        points = self.points()
-        if start_or_end == "start":
-            line = momapy.geometry.Line(points[1], points[0])
-        else:
-            line = momapy.geometry.Line(points[-2], points[-1])
-        angle = momapy.geometry.get_angle_of_line(line)
         arrowhead_length = drawing_element.bbox().width
         arrowhead_base = self._get_arrowhead_base(
             start_or_end, arrowhead_length
         )
+        points = self.points()
+        if start_or_end == "start":
+            line = momapy.geometry.Line(arrowhead_base, points[0])
+        else:
+            line = momapy.geometry.Line(arrowhead_base, points[-1])
+        angle = momapy.geometry.get_angle_of_line(line)
         translation = momapy.geometry.Translation(
             arrowhead_base.x, arrowhead_base.y
         )
