@@ -493,7 +493,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
     def _add_quadratic_curve_to(self, skia_path, quadratic_curve_to):
         skia_current_point = skia_path.getPoint(skia_path.countPoints() - 1)
         current_point = momapy.geometry.Point(
-            skia_current_point.fx, skia_current_point.fy
+            skia_current_point.fX, skia_current_point.fY
         )
         curve_to = quadratic_curve_to.to_cubic(current_point)
         self._render_CurveTo(curve_to)
