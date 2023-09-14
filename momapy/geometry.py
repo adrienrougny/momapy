@@ -691,7 +691,7 @@ def shorten_segment(segment, length, start_or_end="end"):
     return shortened_segment
 
 
-def shorten_bezier_curve(bezier_curve, start_or_end="end"):
+def shorten_bezier_curve(bezier_curve, length, start_or_end="end"):
     if length == 0:
         shortened_bezier_curve = copy.deepcopy(bezier_curve)
     else:
@@ -700,7 +700,7 @@ def shorten_bezier_curve(bezier_curve, start_or_end="end"):
                 bezier_curve.reversed().shortened(length).reversed()
             )
         else:
-            lib_bezier_curve_ = bezier_curve._to_bezier()
+            lib_bezier_curve = bezier_curve._to_bezier()
             total_length = lib_bezier_curve.length
             if length > total_length:
                 length = total_length
@@ -717,7 +717,7 @@ def shorten_bezier_curve(bezier_curve, start_or_end="end"):
     return shortened_bezier_curve
 
 
-def shorten_elliptical_arc(elliptical_arc, start_or_end="end"):
+def shorten_elliptical_arc(elliptical_arc, length, start_or_end="end"):
     if length == 0:
         shortened_elliptical_arc = copy.deepcopy(elliptical_arc)
     else:
