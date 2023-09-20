@@ -552,6 +552,220 @@ class ArcLayout(GroupLayout):
     path_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
         None  # not inherited
     )
+
+    def points(self) -> list[momapy.geometry.Point]:
+        points = []
+        for segment in self.segments:
+            points.append(segment.p1)
+        points.append(segment.p2)
+        return points
+
+    def length(self):
+        return sum([segment.length() for segment in self.segments])
+
+    def start_point(self) -> momapy.geometry.Point:
+        return self.points()[0]
+
+    def end_point(self) -> momapy.geometry.Point:
+        return self.points()[-1]
+
+    def self_children(self):
+        return []
+
+    def childless(self):
+        return replace(self, layout_elements=None)
+
+    def translated(self, tx, ty):
+        transformation = momapy.geometry.Translation(tx, ty)
+        segments = [
+            segment.transformed(transformation) for segment in self.segments
+        ]
+        layout_elements = type(self.layout_elements)(
+            [le.translated(tx, ty) for le in self.layout_elements]
+        )
+        return replace(self, segments=segments, layout_elements=layout_elements)
+
+    def fraction(self, fraction):
+        current_length = 0
+        length_to_reach = fraction * self.length()
+        for segment in self.segments:
+            current_length += segment.length()
+            if current_length >= length_to_reach:
+                break
+        position, angle = momapy.geometry.get_position_and_angle_at_fraction(
+            segment, fraction
+        )
+        return position, angle
+
+
+@dataclass(frozen=True, kw_only=True)
+class SingleHeadedArcLayout(ArcLayout):
+    path_shorten: float = 0.0
+    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    arrowhead_stroke_width: float | None = None
+    arrowhead_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None
+    arrowhead_stroke_dashoffset: float | None = None
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    arrowhead_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None  # not inherited
+    arrowhead_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None  # not inherited
+    )
+
+    def _get_arrowhead_tip(self):
+        segment = self.segments[-1]
+        if segment.length() == 0:
+            return segment.p2
+        fraction = 1 - self.path_shorten / segment.length()
+        return segment.get_position_at_fraction(fraction)
+
+    def _get_arrowhead_base(self, arrowhead_length: float | None = None):
+        if arrowhead_length is None:
+            drawing_element = self._make_arrowhead_drawing_element()
+            bbox = drawing_element.bbox()
+            arrowhead_length = bbox.width
+        if math.isnan(arrowhead_length):
+            return self.end_point()
+        segment = self.segments[-1]
+        if segment.length() == 0:
+            return self.arrowhead_tip() - (arrowhead_length, 0)
+        fraction = 1 - (arrowhead_length + self.path_shorten) / segment.length()
+        return segment.get_position_at_fraction(fraction)
+
+    def arrowhead_base(self) -> momapy.geometry.Point:
+        return self._get_arrowhead_base()
+
+    def arrowhead_tip(self) -> momapy.geometry.Point:
+        return self._get_arrowhead_tip()
+
+    @abstractmethod
+    def arrowhead_drawing_elements(
+        self,
+    ) -> list[momapy.drawing.DrawingElement]:
+        pass
+
+    def _make_arrowhead_drawing_element(self):
+        elements = self.arrowhead_drawing_elements()
+        group = momapy.drawing.Group(
+            stroke=self.arrowhead_stroke,
+            stroke_width=self.arrowhead_stroke_width,
+            stroke_dasharray=self.arrowhead_stroke_dasharray,
+            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
+            fill=self.arrowhead_fill,
+            transform=self.arrowhead_transform,
+            filter=self.arrowhead_filter,
+            elements=elements,
+        )
+        return group
+
+    def _make_rotated_arrowhead_drawing_element(self):
+        drawing_element = self._make_arrowhead_drawing_element()
+        arrowhead_length = drawing_element.bbox().width
+        arrowhead_base = self._get_arrowhead_base(arrowhead_length)
+        points = self.points()
+        line = momapy.geometry.Line(arrowhead_base, points[-1])
+        angle = momapy.geometry.get_angle_of_line(line)
+        translation = momapy.geometry.Translation(
+            arrowhead_base.x, arrowhead_base.y
+        )
+        rotation = momapy.geometry.Rotation(angle, arrowhead_base)
+        drawing_element = drawing_element.transformed(translation).transformed(
+            rotation
+        )
+        return drawing_element
+
+    def arrowhead_bbox(self):
+        drawing_element = self._make_rotated_arrowhead_drawing_element()
+        return drawing_element.bbox()
+
+    def _make_path(self, arrowhead_length) -> momapy.drawing.Path:
+        def _make_path_action_from_segment(segment):
+            if momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.Segment
+            ):
+                path_action = momapy.drawing.LineTo(segment.p2)
+            elif momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.BezierCurve
+            ):
+                if len(segment.control_points) >= 2:
+                    path_action = momapy.drawing.CurveTo(
+                        segment.p2,
+                        segment.control_points[0],
+                        segment.control_points[1],
+                    )
+                else:
+                    path_action = momapy.drawing.QuadraticCurveTo(
+                        segment.p2, segment.control_points[0]
+                    )
+            elif momapy.builder.isinstance_or_builder(
+                segment, momapy.geometry.EllipticalArc
+            ):
+                path_action = momapy.drawing.EllipticalArc(
+                    segment.p2,
+                    segment.rx,
+                    segment.ry,
+                    segment.x_axis_rotation,
+                    segment.arc_flag,
+                    segment.seep_flag,
+                )
+            return path_action
+
+        if len(self.segments) == 0:
+            raise ValueError(f"{self}'s segments cannot be empty")
+        elif len(self.segments) == 1:
+            segment = self.segments[0].shortened(
+                self.path_shorten + arrowhead_length, "end"
+            )
+            actions = [
+                momapy.drawing.MoveTo(segment.p1),
+                _make_path_action_from_segment(segment),
+            ]
+        else:
+            first_segment = self.segments[0]
+            actions = [
+                momapy.drawing.MoveTo(first_segment.p1),
+                _make_path_action_from_segment(first_segment),
+            ]
+            for segment in self.segments[1:-1]:
+                action = _make_path_action_from_segment(segment)
+                actions.append(action)
+            last_segment = self.segments[-1].shortened(
+                self.path_shorten_end + end_arrowhead_length, "end"
+            )
+            actions.append(_make_path_action_from_segment(last_segment))
+        path = momapy.drawing.Path(
+            stroke=self.path_stroke,
+            stroke_width=self.path_stroke_width,
+            stroke_dasharray=self.path_stroke_dasharray,
+            stroke_dashoffset=self.path_stroke_dasharray,
+            fill=self.path_fill,
+            transform=self.path_transform,
+            filter=self.path_filter,
+            actions=actions,
+        )
+        return path
+
+    def self_drawing_elements(self):
+        arrowhead_drawing_element = self._make_arrowhead_drawing_element()
+        arrowhead_length = arrowhead_drawing_element.bbox().width
+        if math.isnan(arrowhead_length):
+            arrowhead_length = 0
+        drawing_elements = [
+            self._make_path(arrowhead_length),
+            self._make_rotated_arrowhead_drawing_element(),
+        ]
+        return drawing_elements
+
+
+@dataclass(frozen=True, kw_only=True)
+class DoubleHeadedArcLayout(ArcLayout):
     path_shorten_start: float = 0.0
     path_shorten_end: float = 0.0
     start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -589,29 +803,13 @@ class ArcLayout(GroupLayout):
         None  # not inherited
     )
 
-    def points(self) -> list[momapy.geometry.Point]:
-        points = []
-        for segment in self.segments:
-            points.append(segment.p1)
-        points.append(segment.p2)
-        return points
-
-    def length(self):
-        return sum([segment.length() for segment in self.segments])
-
-    def start_point(self) -> momapy.geometry.Point:
-        return self.points()[0]
-
-    def end_point(self) -> momapy.geometry.Point:
-        return self.points()[-1]
-
     def _get_arrowhead_tip(self, start_or_end: str):
         if start_or_end == "start":
             segment = self.segments[0]
+            segment = momapy.geometry.Segment(segment.p2, segment.p1)
             shorten = self.path_shorten_start
         else:
             segment = self.segments[-1]
-            segment = momapy.geometry.Segment(segment.p2, segment.p1)
             shorten = self.path_shorten_end
         if segment.length() == 0:
             return segment.p2
@@ -813,34 +1011,6 @@ class ArcLayout(GroupLayout):
             self._make_rotated_arrowhead_drawing_element("end"),
         ]
         return drawing_elements
-
-    def self_children(self):
-        return []
-
-    def childless(self):
-        return replace(self, layout_elements=None)
-
-    def translated(self, tx, ty):
-        transformation = momapy.geometry.Translation(tx, ty)
-        segments = [
-            segment.transformed(transformation) for segment in self.segments
-        ]
-        layout_elements = type(self.layout_elements)(
-            [le.translated(tx, ty) for le in self.layout_elements]
-        )
-        return replace(self, segments=segments, layout_elements=layout_elements)
-
-    def fraction(self, fraction):
-        current_length = 0
-        length_to_reach = fraction * self.length()
-        for segment in self.segments:
-            current_length += segment.length()
-            if current_length >= length_to_reach:
-                break
-        position, angle = momapy.geometry.get_position_and_angle_at_fraction(
-            segment, fraction
-        )
-        return position, angle
 
 
 @dataclass(frozen=True, kw_only=True)

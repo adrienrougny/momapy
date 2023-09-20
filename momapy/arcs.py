@@ -1,173 +1,127 @@
 from dataclasses import dataclass
 
 import momapy.core
+import momapy.nodes
 import momapy.drawing
 import momapy.geometry
 
 
 @dataclass(frozen=True, kw_only=True)
-class PolyLine(momapy.core.ArcLayout):
-    def arrowhead_drawing_element(self):
-        return None
-
-    def arrowhead_length(self):
-        return 0.0
+class PolyLine(momapy.core.SingleHeadedArcLayout):
+    def arrowhead_drawing_elements(self):
+        return []
 
 
 @dataclass(frozen=True, kw_only=True)
-class Arrow(momapy.core.ArcLayout):
-    width: float = 10.0
-    height: float = 10.0
+class Triangle(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
 
-    def arrowhead_drawing_element(self):
-        actions = [
-            momapy.drawing.MoveTo(self.arrowhead_base()),
-            momapy.drawing.LineTo(self.arrowhead_base() - (0, self.height / 2)),
-            momapy.drawing.LineTo(self.arrowhead_base() + (self.width, 0)),
-            momapy.drawing.LineTo(self.arrowhead_base() + (0, self.height / 2)),
-            momapy.drawing.ClosePath(),
-        ]
-        path = momapy.drawing.Path(
-            stroke=self.arrowhead_stroke,
-            stroke_width=self.arrowhead_stroke_width,
-            stroke_dasharray=self.arrowhead_stroke_dasharray,
-            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
-            fill=self.arrowhead_fill,
-            actions=actions,
+    def arrowhead_drawing_elements(self):
+        triangle = momapy.nodes.Trianlge(
+            position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
+            width=self.arrowhead_height,
+            height=self.arrowhead_width,
+            direction=momapy.core.Direction.RIGHT,
         )
-        return path
-
-    def arrowhead_length(self):
-        return self.width
+        return triangle.border_drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class Circle(momapy.core.ArcLayout):
-    def arrowhead_drawing_element(self):
-        ellipse = momapy.drawing.Ellipse(
-            stroke=self.arrowhead_stroke,
-            stroke_width=self.arrowhead_stroke_width,
-            stroke_dasharray=self.arrowhead_stroke_dasharray,
-            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
-            fill=self.arrowhead_fill,
-            point=self.arrowhead_base() + (self.width / 2, 0),
-            rx=self.width / 2,
-            ry=self.height / 2,
-        )
-        return ellipse
+class ReversedTriangle(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
 
-    def arrowhead_length(self):
-        return self.width
+    def arrowhead_drawing_elements(self):
+        triangle = momapy.nodes.Trianlge(
+            position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
+            width=self.arrowhead_height,
+            height=self.arrowhead_width,
+            direction=momapy.core.Direction.LEFT,
+        )
+        return triangle.border_drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class Bar(momapy.core.ArcLayout):
-    def arrowhead_drawing_element(self):
-        actions = [
-            momapy.drawing.MoveTo(
-                self.arrowhead_base() + (self.width / 2, self.height / 2)
-            ),
-            momapy.drawing.LineTo(
-                self.arrowhead_base() + (self.width / 2, -self.height / 2)
-            ),
-        ]
-        path = momapy.drawing.Path(
-            stroke=self.arrowhead_stroke,
-            stroke_width=self.arrowhead_stroke_width,
-            stroke_dasharray=self.arrowhead_stroke_dasharray,
-            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
-            fill=self.arrowhead_fill,
-            actions=actions,
+class Rectangle(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
+
+    def arrowhead_drawing_elements(self):
+        rectangle = momapy.nodes.Rectangle(
+            position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
         )
-
-        return path
-
-    def arrowhead_length(self):
-        return self.width
+        return rectangle.border_drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class BarArrow(momapy.core.ArcLayout):
-    bar_width: float
-    bar_height: float
-    sep: float
+class Ellipse(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
 
-    def arrowhead_drawing_element(self):
-        actions = [
-            momapy.drawing.MoveTo(
-                self.arrowhead_base()
-                + (self.bar_width / 2, self.bar_height / 2)
-            ),
-            momapy.drawing.LineTo(
-                self.arrowhead_base()
-                + (self.bar_width / 2, -self.bar_height / 2)
-            ),
-        ]
-        bar = momapy.drawing.Path(stroke_width=self.bar_width, actions=actions)
-        actions = [
-            momapy.drawing.MoveTo(self.arrowhead_base() + (self.bar_width, 0)),
-            momapy.drawing.LineTo(
-                self.arrowhead_base() + (self.bar_width + self.sep, 0)
-            ),
-        ]
-        sep = momapy.drawing.Path(actions=actions)
-        actions = [
-            momapy.drawing.MoveTo(
-                self.arrowhead_base() + (self.bar_width + self.sep, 0)
-            ),
-            momapy.drawing.LineTo(
-                self.arrowhead_base()
-                + (self.bar_width + self.sep, -self.height / 2)
-            ),
-            momapy.drawing.LineTo(
-                self.arrowhead_base()
-                + (self.bar_width + self.sep + self.width, 0)
-            ),
-            momapy.drawing.LineTo(
-                self.arrowhead_base()
-                + (self.bar_width + self.sep, self.height / 2)
-            ),
-            momapy.drawing.ClosePath(),
-        ]
-        arrow = momapy.drawing.Path(actions=actions)
-        elements = (bar, sep, arrow)
-        group = momapy.drawing.Group(
-            stroke=self.arrowhead_stroke,
-            stroke_width=self.arrowhead_stroke_width,
-            stroke_dasharray=self.arrowhead_stroke_dasharray,
-            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
-            fill=self.arrowhead_fill,
-            elements=elements,
+    def arrowhead_drawing_elements(self):
+        ellipse = momapy.nodes.Ellipse(
+            position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
         )
-        return group
-
-    def arrowhead_length(self):
-        return self.bar_width + self.sep + self.width
+        return ellipse.border_drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class Diamond(momapy.core.ArcLayout):
-    def arrowhead_drawing_element(self):
-        actions = [
-            momapy.drawing.MoveTo(self.arrowhead_base()),
-            momapy.drawing.LineTo(
-                self.arrowhead_base() + (self.width / 2, -self.height / 2)
-            ),
-            momapy.drawing.LineTo(self.arrowhead_base() + (self.width, 0)),
-            momapy.drawing.LineTo(
-                self.arrowhead_base() + (self.width / 2, self.height / 2)
-            ),
-            momapy.drawing.ClosePath(),
-        ]
-        path = momapy.drawing.Path(
-            stroke=self.arrowhead_stroke,
-            stroke_width=self.arrowhead_stroke_width,
-            stroke_dasharray=self.arrowhead_stroke_dasharray,
-            stroke_dashoffset=self.arrowhead_stroke_dashoffset,
-            fill=self.arrowhead_fill,
-            actions=actions,
-        )
-        return path
+class Diamond(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
 
-    def arrowhead_length(self):
-        return self.width
+    def arrowhead_drawing_elements(self):
+        diamond = momapy.nodes.Diamond(
+            position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
+        )
+        return diamond.border_drawing_elements()
+
+
+@dataclass(frozen=True, kw_only=True)
+class Bar(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
+
+    def arrowhead_drawing_elements(self):
+        bar = momapy.drawing.Rectangle(
+            stroke_width=0.0,
+            point=momapy.geometry.Point(0, -self.arrowhead_height / 2),
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
+            rx=0.0,
+            ry=0.0,
+        )
+        return [bar]
+
+
+@dataclass(frozen=True, kw_only=True)
+class DoubleTriangle(momapy.core.DoubleHeadedArcLayout):
+    start_arrowhead_width: float
+    start_arrowhead_height: float
+    end_arrowhead_width: float
+    end_arrowhead_height: float
+
+    def start_arrowhead_drawing_elements(self):
+        triangle = momapy.nodes.Trianlge(
+            position=momapy.geometry.Point(self.start_arrowhead_width / 2, 0),
+            width=self.start_arrowhead_height,
+            height=self.start_arrowhead_width,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return triangle.border_drawing_elements()
+
+    def end_arrowhead_drawing_elements(self):
+        triangle = momapy.nodes.Trianlge(
+            position=momapy.geometry.Point(self.end_arrowhead_width / 2, 0),
+            width=self.end_arrowhead_height,
+            height=self.end_arrowhead_width,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return triangle.border_drawing_elements()
