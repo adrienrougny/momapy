@@ -547,12 +547,16 @@ class Ellipse(DrawingElement):
         return self.point.y
 
     def to_path(self):
-        west = self.point - (self.rx, 0)
+        north = self.point + (0, -self.ry)
         east = self.point + (self.rx, 0)
+        south = self.point + (0, self.ry)
+        west = self.point - (self.rx, 0)
         actions = [
-            MoveTo(west),
-            EllipticalArc(east, self.rx, self.ry, 0, 1, 0),
-            EllipticalArc(west, self.rx, self.ry, 0, 1, 0),
+            MoveTo(north),
+            EllipticalArc(east, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(south, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(west, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(north, self.rx, self.ry, 0, 0, 1),
             ClosePath(),
         ]
         path = Path(
