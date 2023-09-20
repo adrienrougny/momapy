@@ -497,7 +497,7 @@ class _CellDesignerMultiMixin(momapy.sbgn.core._MultiMixin):
 class GenericProteinLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithRoundedCorners
+    ] = momapy.nodes.RectangleWithRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -531,7 +531,7 @@ class IonChannelLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[
         type
     ] = (
-        momapy.shapes.RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners
+        momapy.nodes.RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners
     )
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners",
@@ -565,7 +565,7 @@ class IonChannelLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class ComplexLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.RectangleWithCutCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "cut_corners": "cut_corners"
     }
@@ -599,7 +599,7 @@ class ComplexLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class SimpleMoleculeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -627,7 +627,7 @@ class SimpleMoleculeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class IonLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 30.0
     height: float = 30.0
@@ -655,7 +655,7 @@ class IonLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class UnknownLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 30.0
     height: float = 30.0
@@ -683,7 +683,7 @@ class UnknownLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class DegradedLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithDiagonalBar
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.CircleWithDiagonalBar
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 30.0
     height: float = 30.0
@@ -711,7 +711,7 @@ class DegradedLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True)
 class GeneLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -739,7 +739,7 @@ class GeneLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Hexagon
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Hexagon
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "top_left_angle": "angle",
         "top_right_angle": "angle",
@@ -773,7 +773,7 @@ class PhenotypeLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Parallelogram
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Parallelogram
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "angle": "angle",
     }
@@ -804,7 +804,7 @@ class RNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisensRNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.InvertedParallelogram
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.InvertedParallelogram
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "angle": "angle",
     }
@@ -837,7 +837,7 @@ class AntisensRNALayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 class TruncatedProteinLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.TruncatedRectangleWithLeftRoundedCorners
+    ] = momapy.nodes.TruncatedRectangleWithLeftRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners",
         "vertical_truncation": "vertical_truncation",
@@ -872,7 +872,7 @@ class TruncatedProteinLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReceptorLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.FoxHead
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.FoxHead
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "vertical_truncation": "vertical_truncation",
     }
@@ -905,7 +905,7 @@ class ReceptorLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 class DrugLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.StadiumWithEllipsesWithInsideStadiumWithEllipses
+    ] = momapy.nodes.StadiumWithEllipsesWithInsideStadiumWithEllipses
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "horizontal_proportion": "horizontal_proportion",
         "sep": "sep",
@@ -938,7 +938,7 @@ class DrugLayout(_CellDesignerMultiMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StructuralStateLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 50.0
     height: float = 16.0
@@ -965,7 +965,7 @@ class StructuralStateLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 16.0
     height: float = 16.0
@@ -1191,7 +1191,7 @@ class SquareCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionNodeLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 8.0
     height: float = 8.0
@@ -1381,3 +1381,351 @@ CellDesignerMapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout": _celldesigner_map_builder_new_layout,
     },
 )
+
+
+@dataclass(frozen=True, kw_only=True)
+class RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners(
+    momapy.core.NodeLayout
+):
+    rounded_corners: float
+    right_rectangle_width: float
+
+    def joint1(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width - self.rounded_corners,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint7(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint8(self):
+        return self.position + (
+            -self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint9(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width + self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint10(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            -self.height / 2,
+        )
+
+    def joint11(self):
+        return self.position + (
+            self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def joint12(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint13(self):
+        return self.position + (
+            self.width / 2 - self.rounded_corners,
+            self.height / 2,
+        )
+
+    def joint14(self):
+        return self.position + (
+            self.rounded_corners + self.width / 2 - self.right_rectangle_width,
+            self.height / 2,
+        )
+
+    def joint15(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint16(self):
+        return self.position + (
+            self.width / 2 - self.right_rectangle_width,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def border_drawing_element(self):
+        left_rectangle = momapy.drawing.Rectangle(
+            point=self.position - (self.width / 2, self.height / 2),
+            height=self.height,
+            width=self.width - self.right_rectangle_width,
+            rx=self.rounded_corners,
+            ry=self.rounded_corners,
+        )
+        right_rectangle = momapy.drawing.Rectangle(
+            point=self.position
+            + (self.width / 2 - self.right_rectangle_width, -self.height / 2),
+            height=self.height,
+            width=self.right_rectangle_width,
+            rx=self.rounded_corners,
+            ry=self.rounded_corners,
+        )
+        return [left_rectangle, right_rectangle]
+
+    def label_center(self):
+        return self.position - (self.right_rectangle_width / 2, 0)
+
+
+@dataclass(frozen=True, kw_only=True)
+class TruncatedRectangleWithLeftRoundedCorners(momapy.core.NodeLayout):
+    rounded_corners: float
+    vertical_truncation: float  # proportion of total height, number in ]0, 1[
+    horizontal_truncation: float  # proportion of total width number in ]0, 1[
+
+    def joint1(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_truncation * self.width,
+            self.vertical_truncation * self.height - self.height / 2,
+        )
+
+    def joint5(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_truncation * self.width,
+            self.height / 2,
+        )
+
+    def joint6(self):
+        return self.position + (
+            self.rounded_corners - self.width / 2,
+            self.height / 2,
+        )
+
+    def joint7(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.rounded_corners,
+        )
+
+    def joint8(self):
+        return self.position + (
+            -self.width / 2,
+            self.rounded_corners - self.height / 2,
+        )
+
+    def border_drawing_element(self):
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.EllipticalArc(
+                self.joint7(),
+                self.rounded_corners,
+                self.rounded_corners,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.LineTo(self.joint8()),
+            momapy.drawing.EllipticalArc(
+                self.joint1(),
+                self.rounded_corners,
+                self.rounded_corners,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        border = momapy.drawing.Path(actions=actions)
+        return [border]
+
+
+@dataclass(frozen=True, kw_only=True)
+class FoxHead(momapy.core.NodeLayout):
+    vertical_truncation: float  # proportion of total height, number in ]0, 1[
+
+    def joint1(self):
+        return self.position + (
+            -self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            0,
+            self.vertical_truncation * self.height - self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2,
+            -self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def joint5(self):
+        return self.position + (0, self.height / 2)
+
+    def joint6(self):
+        return self.position + (
+            -self.width / 2,
+            self.height / 2 - self.vertical_truncation * self.height,
+        )
+
+    def border_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.LineTo(self.joint6()),
+            momapy.drawing.ClosePath(),
+        ]
+        border = momapy.drawing.Path(actions=actions)
+        return [border]
+
+
+@dataclass(frozen=True, kw_only=True)
+class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.NodeLayout):
+    horizontal_proportion: float  # ]0, 0.5[
+    sep: float
+
+    def joint1(self):
+        return self.position + (
+            -self.width / 2 + self.horizontal_proportion * self.width,
+            -self.height / 2,
+        )
+
+    def joint2(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_proportion * self.width,
+            -self.height / 2,
+        )
+
+    def joint3(self):
+        return self.position + (
+            self.width / 2 - self.horizontal_proportion * self.width,
+            self.height / 2,
+        )
+
+    def joint4(self):
+        return self.position + (
+            -self.width / 2 + self.horizontal_proportion * self.width,
+            self.height / 2,
+        )
+
+    def border_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.EllipticalArc(
+                self.joint3(),
+                self.horizontal_proportion * self.width,
+                self.height / 2,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.EllipticalArc(
+                self.joint1(),
+                self.horizontal_proportion * self.width,
+                self.height / 2,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        outer_stadium = momapy.drawing.Path(actions=actions)
+        inner_joint1 = self.joint1() + (0, self.sep)
+        inner_joint2 = self.joint2() + (0, self.sep)
+        inner_joint3 = self.joint3() + (0, -self.sep)
+        inner_joint4 = self.joint4() + (0, -self.sep)
+        inner_rx = self.horizontal_proportion * self.width - self.sep
+        inner_ry = self.height / 2 - self.sep
+        actions = [
+            momapy.drawing.MoveTo(inner_joint1),
+            momapy.drawing.LineTo(inner_joint2),
+            momapy.drawing.EllipticalArc(
+                inner_joint3,
+                inner_rx,
+                inner_ry,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.LineTo(inner_joint4),
+            momapy.drawing.EllipticalArc(
+                inner_joint1,
+                inner_rx,
+                inner_ry,
+                0,
+                0,
+                1,
+            ),
+            momapy.drawing.ClosePath(),
+        ]
+        inner_stadium = momapy.drawing.Path(actions=actions)
+        return [outer_stadium, inner_stadium]

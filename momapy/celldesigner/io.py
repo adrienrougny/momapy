@@ -4,7 +4,7 @@ import math
 
 import momapy.core
 import momapy.builder
-import momapy.shapes
+import momapy.nodes
 import momapy.arcs
 import momapy.coloring
 

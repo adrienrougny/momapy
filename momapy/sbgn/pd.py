@@ -4,7 +4,7 @@ import typing
 import momapy.sbgn.core
 import momapy.builder
 import momapy.arcs
-import momapy.shapes
+import momapy.nodes
 import momapy.coloring
 
 
@@ -453,7 +453,7 @@ class SBGNPDLayout(momapy.sbgn.core.SBGNLayout):
 class StateVariableLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -482,7 +482,7 @@ class StateVariableLayout(
 class UnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -509,7 +509,7 @@ class UnitOfInformationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Pointer
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Pointer
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "top_angle": "angle",
         "bottom_angle": "angle",
@@ -571,7 +571,7 @@ class TerminalLayout(TagLayout):
 class CardinalityLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -602,7 +602,7 @@ class CompartmentLayout(
 ):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithRoundedCorners
+    ] = momapy.nodes.RectangleWithRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -634,7 +634,7 @@ class CompartmentLayout(
 class UnspecifiedEntityLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -665,7 +665,7 @@ class MacromoleculeLayout(
 ):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithRoundedCorners
+    ] = momapy.nodes.RectangleWithRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -699,7 +699,7 @@ class MacromoleculeMultimerLayout(
 ):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithRoundedCorners
+    ] = momapy.nodes.RectangleWithRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -733,7 +733,7 @@ class MacromoleculeMultimerLayout(
 class SimpleChemicalLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -762,7 +762,7 @@ class SimpleChemicalLayout(
 class SimpleChemicalMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Stadium
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Stadium
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     _n: int = 2
     width: float = 60.0
@@ -793,7 +793,7 @@ class SimpleChemicalMultimerLayout(
 class ComplexLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.RectangleWithCutCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "cut_corners": "cut_corners"
     }
@@ -825,7 +825,7 @@ class ComplexLayout(
 class ComplexMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.RectangleWithCutCorners
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.RectangleWithCutCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "cut_corners": "cut_corners"
     }
@@ -861,7 +861,7 @@ class NucleicAcidFeatureLayout(
 ):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithBottomRoundedCorners
+    ] = momapy.nodes.RectangleWithBottomRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -896,7 +896,7 @@ class NucleicAcidFeatureMultimerLayout(
 ):
     _shape_cls: typing.ClassVar[
         type
-    ] = momapy.shapes.RectangleWithBottomRoundedCorners
+    ] = momapy.nodes.RectangleWithBottomRoundedCorners
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "rounded_corners": "rounded_corners"
     }
@@ -930,7 +930,7 @@ class NucleicAcidFeatureMultimerLayout(
 class EmptySetLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithDiagonalBar
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.CircleWithDiagonalBar
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
@@ -959,7 +959,7 @@ class EmptySetLayout(
 class PerturbingAgentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.InvertedHexagon
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.InvertedHexagon
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "top_left_angle": "angle",
         "top_right_angle": "angle",
@@ -997,7 +997,7 @@ class _LogicalOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_size_func: typing.ClassVar[typing.Callable] = (
@@ -1136,7 +1136,7 @@ class GenericProcessLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 20.0
     height: float = 20.0
@@ -1173,7 +1173,7 @@ class OmittedProcessLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     _text: typing.ClassVar[str] = "\\\\"
     _font_family: typing.ClassVar[str] = "Cantarell"
@@ -1216,7 +1216,7 @@ class UncertainProcessLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     _text: typing.ClassVar[str] = "?"
     _font_family: typing.ClassVar[str] = "Cantarell"
@@ -1258,7 +1258,7 @@ class AssociationLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Ellipse
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Ellipse
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 20.0
     height: float = 20.0
@@ -1294,7 +1294,7 @@ class DissociationLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.CircleWithInsideCircle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.CircleWithInsideCircle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {"sep": "sep"}
     width: float = 20.0
     height: float = 20.0
@@ -1330,7 +1330,7 @@ class PhenotypeLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Hexagon
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Hexagon
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
         "top_left_angle": "angle",
         "top_right_angle": "angle",
@@ -1366,7 +1366,7 @@ class SubmapLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNShapeBase,
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 80.0
     height: float = 80.0
@@ -1653,3 +1653,132 @@ SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout": _sbgnpd_map_builder_new_layout,
     },
 )
+
+
+@dataclass(frozen=True, kw_only=True)
+class CircleWithDiagonalBar(momapy.core.NodeLayout):
+    def border_drawing_element(self):
+        circle = momapy.drawing.Ellipse(
+            point=self.position, rx=self.width / 2, ry=self.height / 2
+        )
+        actions = [
+            momapy.drawing.MoveTo(
+                self.position - (self.width / 2, -self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.position + (self.width / 2, -self.height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
+        elements = (circle, bar)
+        group = momapy.drawing.Group(elements=elements)
+        return group
+
+
+@dataclass(frozen=True, kw_only=True)
+class Pointer(momapy.core.NodeLayout):
+    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    top_angle: float  # degrees
+    bottom_angle: float
+
+    def joint1(self):
+        if self.direction == momapy.core.Direction.UP:
+            return self.position - (0, self.height / 2)
+        elif self.direction == momapy.core.Direction.LEFT:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2 + side_length * math.cos(angle),
+                -self.height / 2,
+            )
+        else:  # case down, right, or ill defined
+            return self.position - (self.width / 2, self.height / 2)
+
+    def joint2(self):
+        if self.direction == momapy.core.Direction.UP:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2,
+                -self.height / 2 + side_length * math.cos(angle),
+            )
+        elif (
+            self.direction == momapy.core.Direction.DOWN
+            or self.direction == momapy.core.Direction.LEFT
+        ):
+            return self.position + (self.width / 2, -self.height / 2)
+        else:  # case right or ill defined
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2 - side_length * math.cos(angle),
+                -self.height / 2,
+            )
+
+    def joint3(self):
+        if (
+            self.direction == momapy.core.Direction.UP
+            or self.direction == momapy.core.Direction.LEFT
+        ):
+            return self.position + (self.width / 2, self.height / 2)
+        elif self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2,
+                self.height / 2 - side_length * math.cos(angle),
+            )
+        else:  # case right or ill defined
+            return self.position + (self.width / 2, 0)
+
+    def joint4(self):
+        if self.direction == momapy.core.Direction.UP:
+            return self.position + (-self.width / 2, self.height / 2)
+        elif self.direction == momapy.core.Direction.DOWN:
+            return self.position + (0, self.height / 2)
+        elif self.direction == momapy.core.Direction.LEFT:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2 + side_length * math.cos(angle),
+                self.height / 2,
+            )
+        else:  # case right or ill defined
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.height / (2 * math.sin(angle)))
+            return self.position + (
+                self.width / 2 - side_length * math.cos(angle),
+                self.height / 2,
+            )
+
+    def joint5(self):
+        if self.direction == momapy.core.Direction.UP:
+            angle = math.radians(self.top_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                -self.height / 2 + side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.DOWN:
+            angle = math.radians(self.bottom_angle)
+            side_length = abs(self.width / (2 * math.sin(angle)))
+            return self.position + (
+                -self.width / 2,
+                +self.height / 2 - side_length * math.cos(angle),
+            )
+        elif self.direction == momapy.core.Direction.LEFT:
+            return self.position + (-self.width / 2, 0)
+        else:  # case right or ill defined
+            return self.position + (-self.width / 2, self.height / 2)
+
+    def border_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(self.joint1()),
+            momapy.drawing.LineTo(self.joint2()),
+            momapy.drawing.LineTo(self.joint3()),
+            momapy.drawing.LineTo(self.joint4()),
+            momapy.drawing.LineTo(self.joint5()),
+            momapy.drawing.ClosePath(),
+        ]
+        border = momapy.drawing.Path(actions=actions)
+        return [border]

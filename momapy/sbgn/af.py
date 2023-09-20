@@ -349,7 +349,7 @@ class SimpleChemicalUnitOfInformationLayout(
 class BiologicalActivityLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNShapeBase
 ):
-    _shape_cls: typing.ClassVar[type] = momapy.shapes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 60.0
     height: float = 30.0
