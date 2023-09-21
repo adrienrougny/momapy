@@ -367,7 +367,7 @@ class EllipticalArc(GeometryObject):
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
-            max_distance: float = 0.01,
+            max_distance: float = 0.02,
         ):
             left_coords = []
             right_coords = []
