@@ -86,19 +86,103 @@ class Diamond(momapy.core.SingleHeadedArcLayout):
 
 @dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.SingleHeadedArcLayout):
+    arrowhead_height: float
+
+    def arrowhead_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(0, -self.arrowhead_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(0, self.arrowhead_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
+        return [bar]
+
+
+@dataclass(frozen=True, kw_only=True)
+class ArcBarb(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+
+    def arrowhead_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, -self.arrowhead_width
+                )
+            ),
+            momapy.drawing.EllipticalArc(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, self.arrowhead_width
+                ),
+                self.arrowhead_width,
+                self.arrowhead_width,
+                0,
+                1,
+                1,
+            ),
+        ]
+        arc_barb = momapy.drawing.Path(actions=actions)
+        return [arc_barb]
+
+
+@dataclass(frozen=True, kw_only=True)
+class StraightBarb(momapy.core.SingleHeadedArcLayout):
     arrowhead_width: float
     arrowhead_height: float
 
     def arrowhead_drawing_elements(self):
-        bar = momapy.drawing.Rectangle(
-            stroke_width=0.0,
-            point=momapy.geometry.Point(0, -self.arrowhead_height / 2),
-            width=self.arrowhead_width,
-            height=self.arrowhead_height,
-            rx=0.0,
-            ry=0.0,
-        )
-        return [bar]
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, -self.arrowhead_height / 2
+                )
+            ),
+            momapy.drawing.LineTo(momapy.geometry.Point(0, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, self.arrowhead_height / 2
+                )
+            ),
+        ]
+        straight_barb = momapy.drawing.Path(actions=actions)
+        return [straight_barb]
+
+
+@dataclass(frozen=True, kw_only=True)
+class To(momapy.core.SingleHeadedArcLayout):
+    arrowhead_width: float
+    arrowhead_height: float
+
+    def arrowhead_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, -self.arrowhead_height / 2
+                )
+            ),
+            momapy.drawing.EllipticalArc(
+                momapy.geometry.Point(0, 0),
+                self.arrowhead_width,
+                self.arrowhead_height / 2,
+                0,
+                0,
+                0,
+            ),
+            momapy.drawing.EllipticalArc(
+                momapy.geometry.Point(
+                    -self.arrowhead_width, self.arrowhead_height / 2
+                ),
+                self.arrowhead_width,
+                self.arrowhead_height / 2,
+                0,
+                0,
+                0,
+            ),
+        ]
+        to = momapy.drawing.Path(actions=actions)
+        return [to]
 
 
 @dataclass(frozen=True, kw_only=True)
