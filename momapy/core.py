@@ -277,25 +277,23 @@ class TextLayout(LayoutElement):
 @dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
-    stroke: Optional[
-        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = None  # inherited
-    stroke_width: Optional[float] = None  # inherited
-    stroke_dasharray: Optional[
-        Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = None  # inherited
-    stroke_dashoffset: Optional[float] = None  # inherited
-    fill: Optional[
-        Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = None  # inherited
-    transform: Optional[
-        Union[
-            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
-        ]
-    ] = None  # not inherited
-    filter: Optional[
-        Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
-    ] = None  # not inherited
+    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    stroke_width: float | None = None  # inherited
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None  # inherited
+    stroke_dashoffset: float | None = None  # inherited
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None  # not inherited
+    filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None  # not inherited
+    )
 
     def self_to_shapely(self, to_polygons=False):
         geom_collection = []
