@@ -74,8 +74,8 @@ class SBGNMap(momapy.core.Map):
 
 
 @dataclass(frozen=True)
-class _SBGNShapeBase(momapy.core.NodeLayout):
-    def border_drawing_element(self):
+class _SBGNNodeBase(momapy.core.NodeLayout):
+    def border_drawing_elements(self):
         drawing_elements = []
         for base in type(self).__mro__:
             if (
@@ -88,8 +88,7 @@ class _SBGNShapeBase(momapy.core.NodeLayout):
                 drawing_elements += getattr(base, "_mixin_drawing_elements")(
                     self
                 )
-        group = momapy.drawing.Group(elements=drawing_elements)
-        return group
+        return drawing_elements
 
 
 @dataclass(frozen=True)
@@ -215,114 +214,97 @@ class _ConnectorsMixin(_SBGNMixinBase):
 
 @dataclass(frozen=True)
 class _SimpleMixin(_SBGNMixinBase):
-    _shape_cls: ClassVar[type]
-    _arg_names_mapping: ClassVar[dict[str, str]]
-
-    def _get_shape_initialization_arguments(self) -> dict[str, Any]:
-        kwargs = {}
-        for arg_name in self._arg_names_mapping:
-            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
-        kwargs["position"] = self.position
-        kwargs["width"] = self.width
-        kwargs["height"] = self.height
-        return kwargs
-
-    def _make_shape(self):
-        kwargs = self._get_shape_initialization_arguments()
-        return self._shape_cls(**kwargs)
+    @abstractmethod
+    def _make_node(self, position, width, height):
+        pass
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        return obj._make_shape().drawing_elements()
+        node = obj._make_node(obj.position, obj.width, obj.height)
+        drawing_elements = node.border_drawing_elements()
+        return drawing_elements
 
 
 @dataclass(frozen=True)
 class _MultiMixin(_SBGNMixinBase):
     _n: ClassVar[int]
-    _shape_cls: ClassVar[momapy.core.NodeLayout]
-    _arg_names_mapping: ClassVar[dict[str, str]]
-    offset: int = 10
-    subunits_stroke: Optional[
+    offset: float = 10.0
+    subunits_stroke: tuple[
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_width: tuple[
+        momapy.drawing.NoneValueType | float | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_dasharray: tuple[
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_dashoffset: tuple[float | None] = field(
+        default_factory=tuple
+    )
+    subunits_fill: tuple[
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ] = field(default_factory=tuple)
+    subunits_transform: tuple[
         momapy.drawing.NoneValueType
-        | tuple[
-            Optional[momapy.drawing.NoneValueType | momapy.coloring.Color], ...
-        ]
-    ] = None
-    subunits_stroke_width: Optional[
-        momapy.drawing.NoneValueType
-        | tuple[Optional[momapy.drawing.NoneValueType | float], ...]
-    ] = None
-    subunits_stroke_dasharray: Optional[
-        momapy.drawing.NoneValueType
-        | tuple[Optional[momapy.drawing.NoneValueType | tuple[float, ...]], ...]
-    ] = None
-    subunits_stroke_dashoffset: Optional[tuple[Optional[float], ...]] = None
-    subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
-    subunits_filter: tuple[momapy.drawing.Filter] = field(default_factory=tuple)
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ] = field(default_factory=tuple)
+    subunits_filter: tuple[
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ] = field(default_factory=tuple)
 
-    def _get_subunit_width(self):
-        width = self.width - self.offset * (self._n - 1)
-        return width
+    def _make_subunit_node(
+        self,
+        position,
+        width,
+        height,
+        border_stroke=None,
+        border_stroke_width=None,
+        border_stroke_dasharray=None,
+        border_stroke_dashoffset=None,
+        border_fill=None,
+        border_transform=None,
+        border_filter=None,
+    ):
+        pass
 
-    def _get_subunit_height(self):
-        height = self.height - self.offset * (self._n - 1)
-        return height
-
-    def _get_subunit_position(self, order=0):
-        position = self.position + (
-            +self.width / 2
-            - self._get_subunit_width() / 2
-            - order * self.offset,
-            +self.height / 2
-            - self._get_subunit_height() / 2
-            - order * self.offset,
-        )
-        return position
-
-    def _get_subunit_initialization_arguments(self, order=0) -> dict[str, Any]:
-        kwargs = {}
-        for arg_name in self._arg_names_mapping:
-            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
-        if self._n > 1:
-            for arg_name in [
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        drawing_elements = []
+        width = obj.width - obj.offset * (obj._n - 1)
+        height = obj.height - obj.offset * (obj._n - 1)
+        for i in range(obj._n):
+            kwargs = {"width": width, "height": height}
+            kwargs["position"] = obj.position + (
+                obj.width / 2 - width / 2 - i * obj.offset,
+                obj.height / 2 - height / 2 - i * obj.offset,
+            )
+            for attr_name in [
                 "stroke",
                 "stroke_width",
                 "stroke_dasharray",
                 "stroke_dashoffset",
                 "fill",
+                "transform",
                 "filter",
             ]:
-                if arg_name not in self._arg_names_mapping:
-                    arg_value = getattr(self, f"subunits_{arg_name}")
-                    if arg_value is not None and len(arg_value) > order:
-                        kwargs[arg_name] = getattr(
-                            self, f"subunits_{arg_name}"
-                        )[order]
-        kwargs["position"] = self._get_subunit_position(order)
-        kwargs["width"] = self._get_subunit_width()
-        kwargs["height"] = self._get_subunit_height()
-        return kwargs
-
-    def _make_subunit(self, order=0):
-        kwargs = self._get_subunit_initialization_arguments(order)
-        return self._shape_cls(**kwargs)
-
-    def _make_subunits(self):
-        subunits = []
-        for i in range(self._n):
-            subunit = self._make_subunit(i)
-            subunits.append(subunit)
-        return subunits
-
-    @classmethod
-    def _mixin_drawing_elements(cls, obj):
-        drawing_elements = []
-        for subunit in obj._make_subunits():
-            drawing_elements += subunit.drawing_elements()
+                attr_value = getattr(obj, f"subunits_{attr_name}")
+                if len(attr_value) > i:
+                    kwargs[f"border_{attr_name}"] = attr_value[i]
+            subunit_node = obj._make_subunit_node(**kwargs)
+            drawing_elements += subunit_node.self_drawing_elements()
         return drawing_elements
 
     def label_center(self):
-        return self._make_subunit(self._n - 1).label_center()
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2 - (self._n - 1) * self.offset,
+            self.height / 2 - height / 2 - (self._n - 1) * self.offset,
+        )
+        return self._make_subunit_node(
+            position=position, width=width, height=height
+        ).label_center()
 
 
 @dataclass(frozen=True)
