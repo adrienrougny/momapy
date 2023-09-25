@@ -846,7 +846,7 @@ def get_angle_of_line(line):
 
 def are_lines_parallel(line1, line2):
     slope1 = line1.slope()
-    slope1 = line2.slope()
+    slope2 = line2.slope()
     if math.isnan(slope1) and math.isnan(slope2):
         return True
     return slope1 == slope2
