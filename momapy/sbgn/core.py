@@ -99,15 +99,45 @@ class _SBGNMixinBase(object):
         pass
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, kw_only=True)
 class _ConnectorsMixin(_SBGNMixinBase):
     left_connector_length: float
+    left_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    left_connector_stroke_width: float | None = None  # inherited
+    left_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None  # inherited
+    left_connector_stroke_dashoffset: float | None = None  # inherited
+    left_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    left_connector_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
+    left_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None
+    )
     right_connector_length: float
-    left_connector_stroke_width: float
-    right_connector_stroke_width: float
-    direction: Optional[
-        momapy.core.Direction
-    ] = momapy.core.Direction.HORIZONTAL
+    right_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    right_connector_stroke_width: float | None = None  # inherited
+    right_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None  # inherited
+    right_connector_stroke_dashoffset: float | None = None  # inherited
+    right_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None  # inherited
+    )
+    right_connector_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
+    right_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None
+    )
+    direction: momapy.core.Direction | None = momapy.core.Direction.HORIZONTAL
     left_to_right: bool = True
 
     def left_connector_base(self):
@@ -203,12 +233,25 @@ class _ConnectorsMixin(_SBGNMixinBase):
                 ),
             ]
         path_left = momapy.drawing.Path(
-            stroke_width=obj.left_connector_stroke_width, actions=left_actions
+            stroke=obj.left_connector_stroke,
+            stroke_width=obj.left_connector_stroke_width,
+            stroke_dasharray=obj.left_connector_stroke_dasharray,
+            stroke_dashoffset=obj.left_connector_stroke_dashoffset,
+            fill=obj.left_connector_fill,
+            transform=obj.left_connector_transform,
+            filter=obj.left_connector_filter,
+            actions=left_actions,
         )
         path_right = momapy.drawing.Path(
-            stroke_width=obj.right_connector_stroke_width, actions=right_actions
+            stroke=obj.right_connector_stroke,
+            stroke_width=obj.right_connector_stroke_width,
+            stroke_dasharray=obj.right_connector_stroke_dasharray,
+            stroke_dashoffset=obj.right_connector_stroke_dashoffset,
+            fill=obj.right_connector_fill,
+            transform=obj.right_connector_transform,
+            filter=obj.right_connector_filter,
+            actions=right_actions,
         )
-
         return [path_left, path_right]
 
 
@@ -228,7 +271,7 @@ class _SimpleMixin(_SBGNMixinBase):
 @dataclass(frozen=True)
 class _MultiMixin(_SBGNMixinBase):
     _n: ClassVar[int]
-    offset: float = 10.0
+    offset: float
     subunits_stroke: tuple[
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ] = field(default_factory=tuple)
