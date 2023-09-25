@@ -101,7 +101,10 @@ class _SBGNMixinBase(object):
 
 @dataclass(frozen=True, kw_only=True)
 class _ConnectorsMixin(_SBGNMixinBase):
+    direction: momapy.core.Direction
     left_connector_length: float
+    right_connector_length: float
+    left_to_right: bool = True
     left_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None  # inherited
     )
@@ -119,7 +122,6 @@ class _ConnectorsMixin(_SBGNMixinBase):
     left_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
         None
     )
-    right_connector_length: float
     right_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None  # inherited
     )
@@ -137,8 +139,6 @@ class _ConnectorsMixin(_SBGNMixinBase):
     right_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
         None
     )
-    direction: momapy.core.Direction | None = momapy.core.Direction.HORIZONTAL
-    left_to_right: bool = True
 
     def left_connector_base(self):
         if self.direction == momapy.core.Direction.VERTICAL:
