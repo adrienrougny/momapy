@@ -935,7 +935,7 @@ def get_normalized_angle(angle):
 
 
 def _get_position_at_fraction(segment_or_curve, fraction):
-    line_string = segment.to_shapely()
+    line_string = segment_or_curve.to_shapely()
     shapely_point = line_string.interpolate(fraction, normalized=True)
     return Point.from_shapely(shapely_point)
 
@@ -951,14 +951,14 @@ def get_position_at_fraction_of_bezier_curve(
     bezier_curve,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_position_at_fraction(segment, fraction)
+    return _get_position_at_fraction(bezier_curve, fraction)
 
 
 def get_position_at_fraction_of_elliptical_arc(
     elliptical_arc,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_position_at_fraction(segment, fraction)
+    return _get_position_at_fraction(elliptical_arc, fraction)
 
 
 def _get_angle_at_fraction(
