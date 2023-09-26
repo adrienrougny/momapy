@@ -313,7 +313,7 @@ class EllipticalArc(PathAction):
             self.point, transformation
         )
         new_x_axis_rotation = math.degrees(
-            momapy.geometry.get_angle_of_line(
+            momapy.geometry.get_angle_to_horizontal_of_line(
                 momapy.geometry.Line(new_center, new_east)
             )
         )
