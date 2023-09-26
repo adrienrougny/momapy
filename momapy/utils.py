@@ -113,6 +113,20 @@ def render_nodes_testing(
     node_objs = []
     for node_config in node_configs:
         node_cls = node_config[0]
+        node_obj = momapy.nodes.Rectangle(
+            position=momapy.geometry.Point(0, 0),
+            width=node_width,
+            height=node_height,
+            stroke_width=0.0,
+            fill=momapy.drawing.NoneValue,
+            label=momapy.core.TextLayout(
+                position=momapy.geometry.Point(0, 0),
+                text=node_cls.__name__,
+                font_size=10,
+                font_family="Cantarell",
+            ),
+        )
+        node_objs.append(node_obj)
         kwargs = node_config[1]
         if "width" not in kwargs:
             kwargs["width"] = node_width
@@ -127,29 +141,52 @@ def render_nodes_testing(
             kwargs["border_fill"] = border_fill
         node_obj = node_cls(**kwargs)
         node_objs.append(node_obj)
+
         anchor_cross_points = []
         for anchor_name in [
             "north_west",
             "north",
-            # "north_east",
-            # "east",
-            # "south_east",
-            # "south",
-            # "south_west",
-            # "west",
+            "north_east",
+            "east",
+            "south_east",
+            "south",
+            "south_west",
+            "west",
+            "center",
+            "label_center",
         ]:
             p = getattr(node_obj, anchor_name)()
             cross_point = momapy.nodes.CrossPoint(
-                position=p, width=10.0, height=10.0, stroke=momapy.coloring.red
+                position=p,
+                width=5.0,
+                height=5.0,
+                stroke=momapy.coloring.red,
+                stroke_width=0.5,
             )
             anchor_cross_points.append(cross_point)
         kwargs["layout_elements"] = tuple(anchor_cross_points)
         node_obj = node_cls(**kwargs)
         node_objs.append(node_obj)
+
+        angle_cross_points = []
+        for angle in range(0, 380, 30):
+            p = node_obj.self_angle(angle)
+            cross_point = momapy.nodes.CrossPoint(
+                position=p,
+                width=5.0,
+                height=5.0,
+                stroke=momapy.coloring.darkgoldenrod,
+                stroke_width=0.5,
+            )
+            angle_cross_points.append(cross_point)
+        kwargs["layout_elements"] = tuple(angle_cross_points)
+        node_obj = node_cls(**kwargs)
+        node_objs.append(node_obj)
+
     render_nodes_on_grid(
         output_file=output_file,
         nodes=node_objs,
-        n_cols=2,
+        n_cols=4,
         width=width,
         height=height,
         x_margin=x_margin,
