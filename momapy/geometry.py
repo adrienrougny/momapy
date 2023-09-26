@@ -125,12 +125,7 @@ class Line(GeometryObject):
         return get_intersection_of_lines(self, line)
 
     def get_distance_to_point(self, point):
-        d = abs(
-            (line.p2.x - line.p1.x) * (line.p1.y - point.y)
-            - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
-        ) / math.sqrt(
-            (line.p2.x - line.p1.x) ** 2 + (line.p2.y - line.p1.y) ** 2
-        )
+        return get_distance_between_line_and_point(self, point)
 
     def has_point(self, point, max_distance=0.01):
         return line_has_point(self, point, max_distance)
@@ -154,6 +149,9 @@ class Segment(GeometryObject):
         return math.sqrt(
             (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
         )
+
+    def get_distance_to_point(self, point):
+        return get_distance_between_segment_and_point(self, point)
 
     def has_point(self, point, max_distance=0.01):
         return segment_has_point(self, point, max_distance)
@@ -768,9 +766,9 @@ def get_intersection_of_lines(line1, line2):
     elif line1.is_parallel_to_line(line2):
         intersection = []
     elif math.isnan(slope1):
-        intersection = [Point(line2.p1.x, slope2 * line2.p1.x + intercept2)]
+        intersection = [Point(line1.p1.x, slope2 * line1.p1.x + intercept2)]
     elif math.isnan(slope2):
-        intersection = [Point(line1.p1.x, slope1 * line1.p1.x + intercept1)]
+        intersection = [Point(line2.p1.x, slope1 * line2.p1.x + intercept1)]
     else:
         d = (line1.p1.x - line1.p2.x) * (line2.p1.y - line2.p2.y) - (
             line1.p1.y - line1.p2.y
@@ -1051,22 +1049,48 @@ def get_distance_between_points(p1, p2):
 
 
 def get_distance_between_line_and_point(line, point):
-    d = abs(
+    distance = abs(
         (line.p2.x - line.p1.x) * (line.p1.y - point.y)
         - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
     ) / math.sqrt((line.p2.x - line.p1.x) ** 2 + (line.p2.y - line.p1.y) ** 2)
-    return d
+    return distance
+
+
+def get_distance_between_segment_and_point(segment, point):
+    a = point.x - segment.p1.x
+    b = point.y - segment.p1.y
+    c = segment.p2.x - segment.p1.x
+    d = segment.p2.y - segment.p1.y
+    dot = a * c + b * d
+    len_sq = c**2 + d**2
+    if len_sq != 0:
+        param = dot / len_sq
+    else:
+        param = -1
+    if param < 0:
+        xx = segment.p1.x
+        yy = segment.p1.y
+    elif param > 1:
+        xx = segment.p2.x
+        yy = segment.p2.y
+    else:
+        xx = segment.p1.x + param * c
+        yy = segment.p1.y + param * d
+    dx = point.x - xx
+    dy = point.y - yy
+    distance = math.sqrt(dx**2 + dy**2)
+    return distance
 
 
 def line_has_point(line, point, max_distance=0.01):
-    d = distance_between_line_and_point(line, point)
+    d = line.get_distance_to_point(point)
     if d <= max_distance:
         return True
     return False
 
 
 def segment_has_point(segment, point, max_distance=0.01):
-    d = segment.to_shapely().distance(point.to_shapely())
+    d = segment.get_distance_to_point(point)
     if d <= max_distance:
         return True
     return False
