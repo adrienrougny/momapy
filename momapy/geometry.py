@@ -156,8 +156,8 @@ class Segment(GeometryObject):
     def has_point(self, point, max_distance=0.01):
         return segment_has_point(self, point, max_distance)
 
-    def get_angle(self):
-        return get_angle_of_line(self)
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_line(self)
 
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_segment(line, self)
@@ -976,8 +976,8 @@ def _get_angle_at_fraction(
         )
         current_length += segment.length()
         if current_length / total_length >= fraction:
-            return segment.get_angle()
-    return segment.get_angle()
+            break
+    return segment.get_angle_to_horizontal()
 
 
 def get_angle_at_fraction_of_segment(
@@ -1005,8 +1005,8 @@ def _get_position_and_angle_at_fraction(
     segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    position = get_position_at_fraction(segment_or_curve, fraction)
-    angle = get_angle_at_fraction(segment_or_curve, fraction)
+    position = _get_position_at_fraction(segment_or_curve, fraction)
+    angle = _get_angle_at_fraction(segment_or_curve, fraction)
     return position, angle
 
 
