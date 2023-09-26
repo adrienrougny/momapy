@@ -407,7 +407,7 @@ class NodeLayout(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_of_line(line)
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
     def north(self) -> momapy.geometry.Point:
@@ -417,7 +417,7 @@ class NodeLayout(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, -self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_of_line(line)
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
     def east(self) -> momapy.geometry.Point:
@@ -427,7 +427,7 @@ class NodeLayout(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_of_line(line)
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
     def south(self) -> momapy.geometry.Point:
@@ -437,7 +437,7 @@ class NodeLayout(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_of_line(line)
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
     def west(self) -> momapy.geometry.Point:
@@ -451,8 +451,10 @@ class NodeLayout(GroupLayout):
 
     def _border_from_shapely(self, shapely_obj, point):
         line = momapy.geometry.Line(self.center(), point)
-        intersection = momapy.geometry.get_intersection_of_object_and_line(
-            shapely_obj, line
+        intersection = (
+            momapy.geometry.get_intersection_of_line_and_shapely_object(
+                line, shapely_obj
+            )
         )
         candidate_points = []
         for intersection_obj in intersection:
@@ -705,7 +707,7 @@ class SingleHeadedArcLayout(ArcLayout):
             line = momapy.geometry.Line(p1, p2)
         else:
             line = momapy.geometry.Line(arrowhead_base, last_segment.p2)
-        angle = momapy.geometry.get_angle_of_line(line)
+        angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
         translation = momapy.geometry.Translation(
             arrowhead_base.x, arrowhead_base.y
         )
@@ -909,7 +911,7 @@ class DoubleHeadedArcLayout(ArcLayout):
             line = momapy.geometry.Line(p1, p2)
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p2)
-        angle = momapy.geometry.get_angle_of_line(line)
+        angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
         translation = momapy.geometry.Translation(
             arrowhead_base.x, arrowhead_base.y
         )

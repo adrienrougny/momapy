@@ -122,7 +122,7 @@ class Line(GeometryObject):
         return are_lines_coincident(self, line)
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_lines(self, line)
 
     def get_distance_to_point(self, point):
         d = abs(
@@ -793,7 +793,7 @@ def get_intersection_of_lines(line1, line2):
 
 def get_intersection_of_line_and_segment(line, segment):
     line2 = momapy.geometry.Line(segment.p1, segment.p2)
-    intersection = line1.get_intersection_with_line(line2)
+    intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
         if not segment.has_point(intersection[0]):
             intersection = []
@@ -813,7 +813,7 @@ def get_intersection_of_line_and_elliptical_arc(line, elliptical_arc):
 
 
 def get_intersection_of_line_and_shapely_object(line, shapely_object):
-    bbox = Bbox.from_bounds(shapely_obj.bounds)
+    bbox = Bbox.from_bounds(shapely_object.bounds)
     line_string = None
     points = []
     anchors = ["north_west", "north_east", "south_east", "south_west"]
@@ -825,7 +825,7 @@ def get_intersection_of_line_and_shapely_object(line, shapely_object):
         bbox_segment = Segment(
             getattr(bbox, current_anchor)(), getattr(bbox, next_anchor)()
         )
-        bbox_intersection = line.get_intersection_with_segment(bbox_segment)
+        bbox_intersection = bbox_segment.get_intersection_with_line(line)
         if (
             len(bbox_intersection) > 0
         ):  # intersection is not empty => intersection has one element
@@ -835,8 +835,9 @@ def get_intersection_of_line_and_shapely_object(line, shapely_object):
                 line_string = bbox_intersection[0].to_shapely()
                 break
             else:  # intersection is a point
-                points.append(bbox_intersection)
+                points += bbox_intersection
     if line_string is None:
+        points = [point.to_shapely() for point in points]
         line_string = shapely.LineString(points)
     shapely_intersection = line_string.intersection(shapely_object)
     intersection = []
