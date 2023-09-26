@@ -228,7 +228,6 @@ def render_arcs_testing(
     path_fill=None,
     arrowhead_stroke=None,
     arrowhead_stroke_width=None,
-    arrowhead_fill=None,
 ):
     arc_objs = []
     for arc_config in arc_configs:
@@ -260,8 +259,6 @@ def render_arcs_testing(
             kwargs["arrowhead_stroke"] = arrowhead_stroke
         if "arrowhead_stroke_width" not in kwargs:
             kwargs["arrowhead_stroke_width"] = arrowhead_stroke_width
-        if "arrowhead_fill" not in kwargs:
-            kwargs["arrowhead_fill"] = arrowhead_fill
         kwargs["segments"] = tuple(
             [
                 momapy.geometry.Segment(
