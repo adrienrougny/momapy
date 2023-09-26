@@ -1294,394 +1294,105 @@ class PhenotypeLayout(
         return node
 
 
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class ConsumptionLayout(momapy.arcs.PolyLine):
-#     width: float = 0.0
-#     height: float = 0.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_width: typing.Optional[float] = 0.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class ProductionLayout(momapy.arcs.Arrow):
-#     width: float = 12.0
-#     height: float = 12.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class StimulationLayout(momapy.arcs.Arrow):
-#     width: float = 12.0
-#     height: float = 12.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.white
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class CatalysisLayout(momapy.arcs.Circle):
-#     width: float = 11.0
-#     height: float = 11.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.white
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class InhibitionLayout(momapy.arcs.Bar):
-#     width: float = 1.5
-#     height: float = 12.0
-#     shorten: float = 2.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class NecessaryStimulationLayout(momapy.arcs.BarArrow):
-#     width: float = 12.0
-#     height: float = 12.0
-#     bar_width: float = 1.0
-#     bar_height: float = 12.0
-#     sep: float = 2.0
-#     shorten: float = 2.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.white
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class ModulationLayout(momapy.arcs.Diamond):
-#     width: float = 12.0
-#     height: float = 12.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.black
-#     arrowhead_stroke_width: typing.Optional[float] = 1.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.coloring.white
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class LogicArcLayout(momapy.arcs.PolyLine):
-#     width: float = 0.0
-#     height: float = 0.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_width: typing.Optional[float] = 0.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class EquivalenceArcLayout(momapy.arcs.PolyLine):
-#     width: float = 0.0
-#     height: float = 0.0
-#     shorten: float = 0.0
-#     stroke: typing.Union[
-#         momapy.drawing.NoneValueType, momapy.coloring.Color
-#     ] = momapy.coloring.black
-#     stroke_width: float = 1.0
-#     stroke_dasharray: typing.Union[
-#         momapy.drawing.NoneValueType, tuple[float]
-#     ] = momapy.drawing.NoneValue
-#     fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-#     arrowhead_stroke: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_width: typing.Optional[float] = 0.0
-#     arrowhead_stroke_dasharray: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-#     ] = momapy.drawing.NoneValue
-#     arrowhead_stroke_dashoffset: typing.Optional[float] = 0.0
-#     arrowhead_fill: typing.Optional[
-#         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-#     ] = momapy.drawing.NoneValue
-#
-#
-# @dataclasses.dataclass(frozen=True, kw_only=True)
-# class SBGNPDMap(momapy.sbgn.core.SBGNMap):
-#     model: SBGNPDModel
-#     layout: SBGNPDLayout
-#
-#
-# SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
-# SBGNPDLayoutBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDLayout)
-#
-#
-# def _sbgnpd_map_builder_new_model(self, *args, **kwargs):
-#     return SBGNPDModelBuilder(*args, **kwargs)
-#
-#
-# def _sbgnpd_map_builder_new_layout(self, *args, **kwargs):
-#     return SBGNPDLayoutBuilder(*args, **kwargs)
-#
-#
-# SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
-#     SBGNPDMap,
-#     builder_namespace={
-#         "new_model": _sbgnpd_map_builder_new_model,
-#         "new_layout": _sbgnpd_map_builder_new_layout,
-#     },
-# )
-#
-#
-# @dataclass(frozen=True, kw_only=True)
-# class CircleWithDiagonalBar(momapy.core.NodeLayout):
-#     def border_drawing_element(self):
-#         circle = momapy.drawing.Ellipse(
-#             point=self.position, rx=self.width / 2, ry=self.height / 2
-#         )
-#         actions = [
-#             momapy.drawing.MoveTo(
-#                 self.position - (self.width / 2, -self.height / 2)
-#             ),
-#             momapy.drawing.LineTo(
-#                 self.position + (self.width / 2, -self.height / 2)
-#             ),
-#         ]
-#         bar = momapy.drawing.Path(actions=actions)
-#         elements = (circle, bar)
-#         group = momapy.drawing.Group(elements=elements)
-#         return group
-#
-#
-# @dataclass(frozen=True, kw_only=True)
-# class Pointer(momapy.core.NodeLayout):
-#     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
-#     top_angle: float  # degrees
-#     bottom_angle: float
-#
-#     def joint1(self):
-#         if self.direction == momapy.core.Direction.UP:
-#             return self.position - (0, self.height / 2)
-#         elif self.direction == momapy.core.Direction.LEFT:
-#             angle = math.radians(self.top_angle)
-#             side_length = abs(self.height / (2 * math.sin(angle)))
-#             return self.position + (
-#                 -self.width / 2 + side_length * math.cos(angle),
-#                 -self.height / 2,
-#             )
-#         else:  # case down, right, or ill defined
-#             return self.position - (self.width / 2, self.height / 2)
-#
-#     def joint2(self):
-#         if self.direction == momapy.core.Direction.UP:
-#             angle = math.radians(self.top_angle)
-#             side_length = abs(self.width / (2 * math.sin(angle)))
-#             return self.position + (
-#                 self.width / 2,
-#                 -self.height / 2 + side_length * math.cos(angle),
-#             )
-#         elif (
-#             self.direction == momapy.core.Direction.DOWN
-#             or self.direction == momapy.core.Direction.LEFT
-#         ):
-#             return self.position + (self.width / 2, -self.height / 2)
-#         else:  # case right or ill defined
-#             angle = math.radians(self.top_angle)
-#             side_length = abs(self.height / (2 * math.sin(angle)))
-#             return self.position + (
-#                 self.width / 2 - side_length * math.cos(angle),
-#                 -self.height / 2,
-#             )
-#
-#     def joint3(self):
-#         if (
-#             self.direction == momapy.core.Direction.UP
-#             or self.direction == momapy.core.Direction.LEFT
-#         ):
-#             return self.position + (self.width / 2, self.height / 2)
-#         elif self.direction == momapy.core.Direction.DOWN:
-#             angle = math.radians(self.bottom_angle)
-#             side_length = abs(self.width / (2 * math.sin(angle)))
-#             return self.position + (
-#                 self.width / 2,
-#                 self.height / 2 - side_length * math.cos(angle),
-#             )
-#         else:  # case right or ill defined
-#             return self.position + (self.width / 2, 0)
-#
-#     def joint4(self):
-#         if self.direction == momapy.core.Direction.UP:
-#             return self.position + (-self.width / 2, self.height / 2)
-#         elif self.direction == momapy.core.Direction.DOWN:
-#             return self.position + (0, self.height / 2)
-#         elif self.direction == momapy.core.Direction.LEFT:
-#             angle = math.radians(self.bottom_angle)
-#             side_length = abs(self.height / (2 * math.sin(angle)))
-#             return self.position + (
-#                 -self.width / 2 + side_length * math.cos(angle),
-#                 self.height / 2,
-#             )
-#         else:  # case right or ill defined
-#             angle = math.radians(self.bottom_angle)
-#             side_length = abs(self.height / (2 * math.sin(angle)))
-#             return self.position + (
-#                 self.width / 2 - side_length * math.cos(angle),
-#                 self.height / 2,
-#             )
-#
-#     def joint5(self):
-#         if self.direction == momapy.core.Direction.UP:
-#             angle = math.radians(self.top_angle)
-#             side_length = abs(self.width / (2 * math.sin(angle)))
-#             return self.position + (
-#                 -self.width / 2,
-#                 -self.height / 2 + side_length * math.cos(angle),
-#             )
-#         elif self.direction == momapy.core.Direction.DOWN:
-#             angle = math.radians(self.bottom_angle)
-#             side_length = abs(self.width / (2 * math.sin(angle)))
-#             return self.position + (
-#                 -self.width / 2,
-#                 +self.height / 2 - side_length * math.cos(angle),
-#             )
-#         elif self.direction == momapy.core.Direction.LEFT:
-#             return self.position + (-self.width / 2, 0)
-#         else:  # case right or ill defined
-#             return self.position + (-self.width / 2, self.height / 2)
-#
-#     def border_drawing_elements(self):
-#         actions = [
-#             momapy.drawing.MoveTo(self.joint1()),
-#             momapy.drawing.LineTo(self.joint2()),
-#             momapy.drawing.LineTo(self.joint3()),
-#             momapy.drawing.LineTo(self.joint4()),
-#             momapy.drawing.LineTo(self.joint5()),
-#             momapy.drawing.ClosePath(),
-#         ]
-#         border = momapy.drawing.Path(actions=actions)
-#         return [border]
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ConsumptionLayout(momapy.arcs.PolyLine):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ProductionLayout(momapy.arcs.Triangle):
+    arrowhead_fill: momapy.coloring.Color = momapy.coloring.black
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ModulationLayout(momapy.arcs.Diamond):
+    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class StimulationLayout(momapy.arcs.Triangle):
+    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
+    arrowhead_triangle_width: float
+    arrowhead_triangle_height: float
+    arrowhead_bar_width: float
+    arrowhead_bar_height: float
+    arrowhead_sep: float
+    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+
+    def arrowhead_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(
+            actions=actions, stroke_width=self.arrowhead_bar_width
+        )
+        actions = [
+            momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
+            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
+        ]
+        sep = momapy.drawing.Path(actions=actions)
+        triangle = momapy.nodes.Triangle(
+            position=momapy.geometry.Point(
+                self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0
+            ),
+            width=self.arrowhead_triangle_width,
+            height=self.arrowhead_triangle_height,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return [bar, sep] + triangle.self_drawing_elements()
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class CatalysisLayout(momapy.arcs.Ellipse):
+    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class InhibitionLayout(momapy.arcs.Bar):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class LogicArcLayout(momapy.arcs.PolyLine):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class EquivalenceArcLayout(momapy.arcs.PolyLine):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class SBGNPDMap(momapy.sbgn.core.SBGNMap):
+    model: SBGNPDModel
+    layout: SBGNPDLayout
+
+
+SBGNPDModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDModel)
+SBGNPDLayoutBuilder = momapy.builder.get_or_make_builder_cls(SBGNPDLayout)
+
+
+def _sbgnpd_map_builder_new_model(self, *args, **kwargs):
+    return SBGNPDModelBuilder(*args, **kwargs)
+
+
+def _sbgnpd_map_builder_new_layout(self, *args, **kwargs):
+    return SBGNPDLayoutBuilder(*args, **kwargs)
+
+
+SBGNPDMapBuilder = momapy.builder.get_or_make_builder_cls(
+    SBGNPDMap,
+    builder_namespace={
+        "new_model": _sbgnpd_map_builder_new_model,
+        "new_layout": _sbgnpd_map_builder_new_layout,
+    },
+)
