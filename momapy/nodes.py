@@ -428,7 +428,7 @@ class CrossPoint(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Trianlge(momapy.core.NodeLayout):
+class Triangle(momapy.core.NodeLayout):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
     def joint1(self):

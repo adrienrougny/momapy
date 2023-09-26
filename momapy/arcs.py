@@ -18,7 +18,7 @@ class Triangle(momapy.core.SingleHeadedArcLayout):
     arrowhead_height: float
 
     def arrowhead_drawing_elements(self):
-        triangle = momapy.nodes.Trianlge(
+        triangle = momapy.nodes.Triangle(
             position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_height,
             height=self.arrowhead_width,
