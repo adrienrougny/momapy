@@ -1,7 +1,9 @@
 import frozendict
 import collections.abc
 import dataclasses
+
 import colorama
+import numpy
 
 import momapy.rendering.core
 import momapy.rendering.skia
@@ -57,9 +59,9 @@ def print_classes(obj):
         print(cls)
 
 
-def render_nodes_on_grid(
+def render_layout_elements_on_grid(
     output_file,
-    nodes,
+    layout_elements,
     n_cols,
     width,
     height,
@@ -69,29 +71,45 @@ def render_nodes_on_grid(
     renderer="skia",
 ):
     max_x = x_margin * 2 + n_cols * width
-    n_rows = len(nodes) // n_cols + int(bool(len(nodes) % n_cols))
+    n_rows = len(layout_elements) // n_cols + int(
+        bool(len(layout_elements) % n_cols)
+    )
     max_y = y_margin * 2 + n_rows * height
     renderer = momapy.rendering.core.renderers[renderer].from_file(
         output_file, max_x, max_y, format
     )
     renderer.begin_session()
-    for i, node in enumerate(nodes):
+    for i, layout_element in enumerate(layout_elements):
         n_row = i // n_cols
         n_col = i % n_cols
-        position = momapy.geometry.Point(
+        new_position = momapy.geometry.Point(
             x_margin + width * (n_col + 1 / 2),
             y_margin + height * (n_row + 1 / 2),
         )
-        if not isinstance(node, momapy.core.NodeLayoutBuilder):
-            node = momapy.builder.builder_from_object(node)
-        tx = position.x - node.position.x
-        ty = position.y - node.position.y
+        if momapy.builder.isinstance_or_builder(
+            layout_element, momapy.core.ArcLayout
+        ):
+            old_position = layout_element.points()[0] * (
+                1 / 2
+            ) + layout_element.points()[-1] * (1 / 2)
+        elif momapy.builder.isinstance_or_builder(
+            layout_element, momapy.core.NodeLayout
+        ):
+            old_position = layout_element.position
+        else:
+            raise TypeError(
+                f"layout element must be of type {momapy.core.NodeLayout} or {momapy.core.ArcLayout}"
+            )
+        if not isinstance(layout_element, momapy.builder.Builder):
+            layout_element = momapy.builder.builder_from_object(layout_element)
+        tx = new_position.x - old_position.x
+        ty = new_position.y - old_position.y
         translation = momapy.geometry.Translation(tx, ty)
-        if node.transform is None:
-            node.transform = momapy.core.TupleBuilder()
-        node.transform.append(translation)
-        node = momapy.builder.object_from_builder(node)
-        renderer.render_layout_element(node)
+        if layout_element.transform is None:
+            layout_element.transform = momapy.core.TupleBuilder()
+        layout_element.transform.append(translation)
+        layout_element = momapy.builder.object_from_builder(layout_element)
+        renderer.render_layout_element(layout_element)
     renderer.end_session()
 
 
@@ -183,9 +201,116 @@ def render_nodes_testing(
         node_obj = node_cls(**kwargs)
         node_objs.append(node_obj)
 
-    render_nodes_on_grid(
+    render_layout_elements_on_grid(
         output_file=output_file,
-        nodes=node_objs,
+        layout_elements=node_objs,
+        n_cols=4,
+        width=width,
+        height=height,
+        x_margin=x_margin,
+        y_margin=y_margin,
+        format=format,
+        renderer=renderer,
+    )
+
+
+def render_arcs_testing(
+    output_file,
+    arc_configs,
+    width,
+    height,
+    x_margin=10.0,
+    y_margin=10.0,
+    format="pdf",
+    renderer="skia",
+    path_stroke=None,
+    path_stroke_width=None,
+    path_fill=None,
+    arrowhead_stroke=None,
+    arrowhead_stroke_width=None,
+    arrowhead_fill=None,
+):
+    arc_objs = []
+    for arc_config in arc_configs:
+        arc_cls = arc_config[0]
+        arc_obj = momapy.nodes.Rectangle(
+            position=momapy.geometry.Point(0, 0),
+            width=width,
+            height=height,
+            stroke_width=0.0,
+            fill=momapy.drawing.NoneValue,
+            label=momapy.core.TextLayout(
+                position=momapy.geometry.Point(0, 0),
+                text=arc_cls.__name__,
+                font_size=10,
+                font_family="Cantarell",
+            ),
+        )
+        arc_objs.append(arc_obj)
+
+        kwargs = arc_config[1]
+        if "path_stroke" not in kwargs:
+            kwargs["path_stroke"] = path_stroke
+        if "path_stroke_width" not in kwargs:
+            kwargs["path_stroke_width"] = path_stroke_width
+        if "path_fill" not in kwargs:
+            kwargs["path_fill"] = path_fill
+
+        if "arrowhead_stroke" not in kwargs:
+            kwargs["arrowhead_stroke"] = arrowhead_stroke
+        if "arrowhead_stroke_width" not in kwargs:
+            kwargs["arrowhead_stroke_width"] = arrowhead_stroke_width
+        if "arrowhead_fill" not in kwargs:
+            kwargs["arrowhead_fill"] = arrowhead_fill
+        kwargs["segments"] = tuple(
+            [
+                momapy.geometry.Segment(
+                    momapy.geometry.Point(0, 0),
+                    momapy.geometry.Point(0.8 * width, -0.8 * height),
+                )
+            ]
+        )
+        arc_obj = arc_cls(**kwargs)
+        arc_objs.append(arc_obj)
+
+        anchor_cross_points = []
+        for anchor_name in [
+            "start_point",
+            "end_point",
+            "arrowhead_base",
+            "arrowhead_tip",
+        ]:
+            p = getattr(arc_obj, anchor_name)()
+            cross_point = momapy.nodes.CrossPoint(
+                position=p,
+                width=5.0,
+                height=5.0,
+                stroke=momapy.coloring.red,
+                stroke_width=0.5,
+            )
+            anchor_cross_points.append(cross_point)
+        kwargs["layout_elements"] = tuple(anchor_cross_points)
+        arc_obj = arc_cls(**kwargs)
+        arc_objs.append(arc_obj)
+
+        fraction_cross_points = []
+        for fraction in numpy.arange(0, 1.1, 0.2):
+            p, _ = arc_obj.fraction(fraction)
+            cross_point = momapy.nodes.CrossPoint(
+                position=p,
+                width=5.0,
+                height=5.0,
+                stroke=momapy.coloring.darkgoldenrod,
+                stroke_width=0.5,
+            )
+            fraction_cross_points.append(cross_point)
+        kwargs["layout_elements"] = tuple(fraction_cross_points)
+        arc_obj = arc_cls(**kwargs)
+        arc_objs.append(arc_obj)
+
+    render_layout_elements_on_grid(
+        output_file=output_file,
+        layout_elements=arc_objs,
         n_cols=4,
         width=width,
         height=height,
