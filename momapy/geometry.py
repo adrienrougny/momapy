@@ -60,11 +60,10 @@ class Point(GeometryObject):
         )
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_line_and_point(line, self)
 
-    def get_angle(self):
-        line = Line(Point(0, 0), self)
-        return line.get_angle()
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_point(self)
 
     def transformed(self, transformation):
         return transform_point(self, transformation)
@@ -113,8 +112,8 @@ class Line(GeometryObject):
         else:
             return float("NAN")
 
-    def get_angle(self):
-        return get_angle_of_line(self)
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_line(self)
 
     def is_parallel_to_line(self, line):
         return are_lines_parallel(self, line)
@@ -125,12 +124,16 @@ class Line(GeometryObject):
     def get_intersection_with_line(self, line):
         return get_intersection_of_object_and_line(self, line)
 
-    def has_point(self, point):
-        slope = self.slope()
-        if not math.isnan(slope):
-            return point.y == slope * point.x + self.intercept()
-        else:
-            return self.p1.x == point.x
+    def get_distance_to_point(self, point):
+        d = abs(
+            (line.p2.x - line.p1.x) * (line.p1.y - point.y)
+            - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
+        ) / math.sqrt(
+            (line.p2.x - line.p1.x) ** 2 + (line.p2.y - line.p1.y) ** 2
+        )
+
+    def has_point(self, point, max_distance=0.01):
+        return line_has_point(self, point, max_distance)
 
     def transformed(self, transformation):
         return transform_line(self, transformation)
@@ -152,26 +155,23 @@ class Segment(GeometryObject):
             (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
         )
 
-    def contains(self, point, max_distance=0.01):
-        distance = self.to_shapely().distance(point.to_shapely())
-        if distance <= max_distance:
-            return True
-        return False
+    def has_point(self, point, max_distance=0.01):
+        return segment_has_point(self, point, max_distance)
 
     def get_angle(self):
         return get_angle_of_line(self)
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(line, self)
+        return get_intersection_of_line_and_segment(line, self)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_segment(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_segment(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_segment(self, fraction)
 
     def shortened(self, length, start_or_end="end"):
         return shorten_segment(self, length, start_or_end)
@@ -233,16 +233,18 @@ class BezierCurve(GeometryObject):
         return [Point(e[0], e[1]) for e in evaluation.T]
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(line, self)
+        return get_intersection_of_line_and_bezier_curve(line, self)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_bezier_curve(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_bezier_curve(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_bezier_curve(
+            self, fraction
+        )
 
     def shortened(self, length, start_or_end="end"):
         return shorten_bezier_curve(self, length, start_or_end)
@@ -274,7 +276,7 @@ class EllipticalArc(GeometryObject):
     sweep_flag: int
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_line_and_elliptical_arc(self, line)
 
     def to_arc_and_transformation(self):
         x1, y1 = self.p1.x, self.p1.y
@@ -355,13 +357,15 @@ class EllipticalArc(GeometryObject):
         return Point(cx, cy)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_elliptical_arc(
+            self, fraction
+        )
 
     def to_shapely(self):
         def _split_line_string(
@@ -379,7 +383,7 @@ class EllipticalArc(GeometryObject):
                     previous_point = Point.from_tuple(previous_coord)
                     current_point = Point.from_tuple(current_coord)
                     segment = Segment(previous_point, current_point)
-                    if segment.contains(point, max_distance):
+                    if segment.has_point(point, max_distance):
                         left_coords.append(previous_coord)
                         left_coords.append(point.to_tuple())
                         right_coords.append(point.to_tuple())
@@ -748,93 +752,10 @@ def invert_scaling(scaling):
     return Scaling(-scaling.sx, -scaling.sy)
 
 
-def get_intersection_of_object_and_line(
-    obj: Union[
-        GeometryObject,
-        "momapy.core.LayoutElement",
-        "momapy.drawing.DrawingElement",
-        shapely.Geometry,
-    ],
-    line: Line,
-):
-    if isinstance(obj, Line):
-        slope1 = obj.slope()
-        intercept1 = obj.intercept()
-        slope2 = line.slope()
-        intercept2 = line.intercept()
-        if line.is_coincident_to_line(obj):
-            intersection = [copy.deepcopy(obj)]
-        elif line.is_parallel_to_line(obj):
-            intersection = []
-        elif math.isnan(slope1):
-            intersection = [Point(obj.p1.x, slope2 * obj.p1.x + intercept2)]
-        elif math.isnan(slope2):
-            intersection = [Point(line.p1.x, slope1 * line.p1.x + intercept1)]
-        else:
-            d = (line.p1.x - line.p2.x) * (obj.p1.y - obj.p2.y) - (
-                line.p1.y - line.p2.y
-            ) * (obj.p1.x - obj.p2.x)
-            px = (
-                (line.p1.x * line.p2.y - line.p1.y * line.p2.x)
-                * (obj.p1.x - obj.p2.x)
-                - (line.p1.x - line.p2.x)
-                * (obj.p1.x * obj.p2.y - obj.p1.y * obj.p2.x)
-            ) / d
-            py = (
-                (line.p1.x * line.p2.y - line.p1.y * line.p2.x)
-                * (obj.p1.y - obj.p2.y)
-                - (line.p1.y - line.p2.y)
-                * (obj.p1.x * obj.p2.y - obj.p1.y * obj.p2.x)
-            ) / d
-            intersection = [Point(px, py)]
-    else:
-        if isinstance(obj, shapely.Geometry):
-            bbox = Bbox.from_bounds(obj.bounds)
-        else:
-            bbox = obj.bbox()
-            obj = obj.to_shapely()
-        points = []
-        anchors = ["north_west", "north_east", "south_east", "south_west"]
-        line_string = None
-        for i, current_anchor in enumerate(anchors):
-            if i < len(anchors) - 1:
-                next_anchor = anchors[i + 1]
-            else:
-                next_anchor = anchors[0]
-            bbox_line = Line(
-                getattr(bbox, current_anchor)(), getattr(bbox, next_anchor)()
-            )
-            bbox_line_intersection = line.get_intersection_with_line(bbox_line)
-            if (
-                len(bbox_line_intersection) > 0
-            ):  # intersection is not empty => intersection has one element
-                bbox_line_intersection = bbox_line_intersection.pop()
-                if isinstance(
-                    bbox_line_intersection, Line
-                ):  # intersection is the line
-                    line_string = line.to_shapely()
-                    break
-                else:  # intersection is a point
-                    points.append(bbox_line_intersection)
-        if line_string is None:
-            points = sorted([point.to_tuple() for point in points])
-            line_string = shapely.LineString(points)
-        print("LLLL", line_string)
-        shapely_intersection = line_string.intersection(obj)
-        print("L INTER", shapely_intersection)
-        intersection = []
-        if not hasattr(shapely_intersection, "geoms"):
-            shapely_intersection = [shapely_intersection]
-        else:
-            shapely_intersection = shapely_intersection.geoms
-
-        for shapely_obj in shapely_intersection:
-            if isinstance(shapely_obj, shapely.Point):
-                intersection_obj = Point.from_shapely(shapely_obj)
-            elif isinstance(shapely_obj, shapely.LineString):
-                intersection_obj = Segment.from_shapely(shapely_obj)
-            intersection.append(intersection_obj)
-    return intersection
+def get_intersection_of_line_and_point(line, point):
+    if line.has_point(point):
+        return [point]
+    return []
 
 
 def get_intersection_of_lines(line1, line2):
@@ -874,17 +795,28 @@ def get_intersection_of_line_and_segment(line, segment):
     line2 = momapy.geometry.Line(segment.p1, segment.p2)
     intersection = line1.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
-        if not segment.contains(intersection[0]):
+        if not segment.has_point(intersection[0]):
             intersection = []
     elif len(intersection) > 0:
         intersection = [segment]
     return intersection
 
+
+def get_intersection_of_line_and_bezier_curve(line, bezier_curve):
+    shapely_object = bezier_curve.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_intersection_of_line_and_elliptical_arc(line, elliptical_arc):
+    shapely_object = elliptical_arc.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
 def get_intersection_of_line_and_shapely_object(line, shapely_object):
     bbox = Bbox.from_bounds(shapely_obj.bounds)
     line_string = None
     points = []
-    anchors = ["north_west", "north_east", "south_east", "south_west"]:
+    anchors = ["north_west", "north_east", "south_east", "south_west"]
     for i, current_anchor in enumerate(anchors):
         if i < len(anchors) - 1:
             next_anchor = anchors[i + 1]
@@ -922,13 +854,22 @@ def get_intersection_of_line_and_shapely_object(line, shapely_object):
 
 
 def get_intersection_of_line_and_layout_element(line, layout_element):
-    pass
+    shapely_object = layout_element.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
 
+def get_intersection_of_line_and_drawing_element(line, drawing_element):
+    shapely_object = drawing_element.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_angle_to_horizontal_of_point(point):
+    line = Line(Point(0, 0), point)
+    return line.get_angle_to_horizontal()
 
 
 # angle in radians
-def get_angle_of_line(line):
+def get_angle_to_horizontal_of_line(line):
     x1 = line.p1.x
     y1 = line.p1.y
     x2 = line.p2.x
@@ -993,16 +934,34 @@ def get_normalized_angle(angle):
     return angle
 
 
-def get_position_at_fraction(
-    segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
-    fraction: float,
-) -> Point:  # fraction in [0, 1]
-    line_string = segment_or_curve.to_shapely()
+def _get_position_at_fraction(segment_or_curve, fraction):
+    line_string = segment.to_shapely()
     shapely_point = line_string.interpolate(fraction, normalized=True)
     return Point.from_shapely(shapely_point)
 
 
-def get_angle_at_fraction(
+def get_position_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(segment, fraction)
+
+
+def get_position_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(segment, fraction)
+
+
+def get_position_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(segment, fraction)
+
+
+def _get_angle_at_fraction(
     segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
@@ -1021,13 +980,55 @@ def get_angle_at_fraction(
     return segment.get_angle()
 
 
-def get_position_and_angle_at_fraction(
+def get_angle_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def get_angle_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def get_angle_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def _get_position_and_angle_at_fraction(
     segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
     position = get_position_at_fraction(segment_or_curve, fraction)
     angle = get_angle_at_fraction(segment_or_curve, fraction)
     return position, angle
+
+
+def get_position_and_angle_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_and_angle_at_fraction(segment, fraction)
+
+
+def get_position_and_angle_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_angle_at_fraction(segment, fraction)
+
+
+def get_position_and_angle_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_and_angle_at_fraction(segment, fraction)
 
 
 # angle is in radians between -pi and pi
@@ -1046,6 +1047,28 @@ def get_angle_between_segments(segment1, segment2):
 
 def get_distance_between_points(p1, p2):
     return Segment(p1, p2).length()
+
+
+def get_distance_between_line_and_point(line, point):
+    d = abs(
+        (line.p2.x - line.p1.x) * (line.p1.y - point.y)
+        - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
+    ) / math.sqrt((line.p2.x - line.p1.x) ** 2 + (line.p2.y - line.p1.y) ** 2)
+    return d
+
+
+def line_has_point(line, point, max_distance=0.01):
+    d = distance_between_line_and_point(line, point)
+    if d <= max_distance:
+        return True
+    return False
+
+
+def segment_has_point(segment, point, max_distance=0.01):
+    d = segment.to_shapely().distance(point.to_shapely())
+    if d <= max_distance:
+        return True
+    return False
 
 
 def _point_builder_add(self, xy):

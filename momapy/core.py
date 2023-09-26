@@ -590,9 +590,7 @@ class ArcLayout(GroupLayout):
             current_length += segment.length()
             if current_length >= length_to_reach:
                 break
-        position, angle = momapy.geometry.get_position_and_angle_at_fraction(
-            segment, fraction
-        )
+        position, angle = segment.get_position_and_angle_at_fraction(fraction)
         return position, angle
 
     @classmethod
