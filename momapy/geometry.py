@@ -812,6 +812,7 @@ def get_intersection_of_line_and_elliptical_arc(line, elliptical_arc):
 
 def get_intersection_of_line_and_shapely_object(line, shapely_object):
     bbox = Bbox.from_bounds(shapely_object.bounds)
+    bbox = Bbox(bbox.position, bbox.width + 10, bbox.height + 10)
     line_string = None
     points = []
     anchors = ["north_west", "north_east", "south_east", "south_west"]
