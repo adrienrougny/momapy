@@ -22,7 +22,6 @@ import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 import momapy.builder
-import momapy.utils
 
 
 class Direction(Enum):
