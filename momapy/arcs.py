@@ -86,7 +86,6 @@ class Diamond(momapy.core.SingleHeadedArcLayout):
 
 @dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.SingleHeadedArcLayout):
-    arrowhead_width: float
     arrowhead_height: float
 
     def arrowhead_drawing_elements(self):
@@ -98,9 +97,7 @@ class Bar(momapy.core.SingleHeadedArcLayout):
                 momapy.geometry.Point(0, self.arrowhead_height / 2)
             ),
         ]
-        bar = momapy.drawing.Path(
-            actions=actions, stroke_width=self.arrowhead_width
-        )
+        bar = momapy.drawing.Path(actions=actions)
         return [bar]
 
 
