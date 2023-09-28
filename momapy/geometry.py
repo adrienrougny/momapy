@@ -369,37 +369,33 @@ class EllipticalArc(GeometryObject):
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
-            max_distance: float = 0.02,
         ):
-            left_coords = []
-            right_coords = []
-            passed = False
-            left_coords.append(line_string.coords[0])
-            for i, current_coord in enumerate(line_string.coords[1:]):
-                previous_coord = line_string.coords[i]
-                if not passed:
-                    previous_point = Point.from_tuple(previous_coord)
-                    current_point = Point.from_tuple(current_coord)
-                    segment = Segment(previous_point, current_point)
-                    if segment.has_point(point, max_distance):
-                        left_coords.append(previous_coord)
-                        left_coords.append(point.to_tuple())
-                        right_coords.append(point.to_tuple())
-                        right_coords.append(current_coord)
-                        passed = True
-                    else:
-                        left_coords.append(current_coord)
-                else:
-                    right_coords.append(current_coord)
-            if right_coords:
-                return shapely.GeometryCollection(
-                    [
-                        shapely.LineString(left_coords),
-                        shapely.LineString(right_coords),
-                    ]
+            segment = Segment(
+                Point.from_tuple(line_string.coords[0]),
+                Point.from_tuple(line_string.coords[1]),
+            )
+            min_distance = segment.get_distance_to_point(point)
+            for i, current_coord in enumerate(line_string.coords[2:]):
+                previous_coord = line_string.coords[i + 1]
+                segment = Segment(
+                    Point.from_tuple(previous_coord),
+                    Point.from_tuple(current_coord),
                 )
-            else:
-                return line_string
+                distance = segment.get_distance_to_point(point)
+                if distance <= min_distance:
+                    min_distance = distance
+                    min_i = i
+            left_coords = line_string.coords[0 : min_i + 1] + [
+                point.to_shapely()
+            ]
+            right_coords = [point.to_shapely()] + line_string.coords[
+                min_i + 1 :
+            ]
+            left_line_string = shapely.LineString(left_coords)
+            right_line_string = shapely.LineString(right_coords)
+            return shapely.GeometryCollection(
+                [left_line_string, right_line_string]
+            )
 
         origin = shapely.Point(0, 0)
         circle = origin.buffer(1.0).boundary
