@@ -70,10 +70,6 @@ class LayoutElement(MapElement):
         pass
 
     @abstractmethod
-    def translated(self, tx, ty) -> list["LayoutElement"]:
-        pass
-
-    @abstractmethod
     def childless(self) -> "LayoutElement":
         pass
 
@@ -245,9 +241,6 @@ class TextLayout(LayoutElement):
     def childless(self):
         return copy.deepcopy(self)
 
-    def translated(self, tx, ty):
-        return replace(self, position=self.position + (tx, ty))
-
     def north_west(self):
         return self.bbox().north_west()
 
@@ -336,12 +329,6 @@ class GroupLayout(LayoutElement):
 
     def childless(self):
         return replace(self, layout_elements=None)
-
-    def translated(self, tx, ty):
-        layout_elements = type(self.layout_elements)(
-            [le.translated(tx, ty) for le in self.layout_elements]
-        )
-        return replace(self, layout_elements=layout_elements)
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -508,22 +495,6 @@ class NodeLayout(GroupLayout):
     def childless(self):
         return replace(self, label=None, layout_elements=None)
 
-    def translated(self, tx, ty):
-        position = self.position + (tx, ty)
-        if self.label is not None:
-            label = replace(label, position=label.position + (tx, ty))
-        else:
-            label = None
-        layout_elements = type(self.layout_elements)(
-            [le.translated(tx, ty) for le in self.layout_elements]
-        )
-        return replace(
-            self,
-            position=position,
-            label=label,
-            layout_elements=layout_elements,
-        )
-
 
 @dataclass(frozen=True, kw_only=True)
 class ArcLayout(GroupLayout):
@@ -573,16 +544,6 @@ class ArcLayout(GroupLayout):
 
     def childless(self):
         return replace(self, layout_elements=None)
-
-    def translated(self, tx, ty):
-        transformation = momapy.geometry.Translation(tx, ty)
-        segments = [
-            segment.transformed(transformation) for segment in self.segments
-        ]
-        layout_elements = type(self.layout_elements)(
-            [le.translated(tx, ty) for le in self.layout_elements]
-        )
-        return replace(self, segments=segments, layout_elements=layout_elements)
 
     def fraction(self, fraction):
         current_length = 0
@@ -1036,9 +997,6 @@ class Layout(GroupLayout):
     def childless(self):
         return replace(self, layout_elements=None)
 
-    def translated(self, tx, ty):
-        return replace(self, position=self.position + (tx, ty))
-
     def is_sublayout(self, other, flattened=False, unordered=False):
         def _is_sublist(list1, list2, unordered=False) -> bool:
             if not unordered:
@@ -1115,9 +1073,6 @@ class PhantomLayout(LayoutElement):
         return []
 
     def childless(self):
-        return copy.deepcopy(self)
-
-    def translated(self):
         return copy.deepcopy(self)
 
     def __getattr__(self, name):
