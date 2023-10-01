@@ -5,6 +5,7 @@ import dataclasses
 import colorama
 import numpy
 
+import momapy.meta.nodes
 import momapy.rendering.core
 import momapy.rendering.skia
 
@@ -131,7 +132,7 @@ def render_nodes_testing(
     node_objs = []
     for node_config in node_configs:
         node_cls = node_config[0]
-        node_obj = momapy.nodes.Rectangle(
+        node_obj = momapy.meta.nodes.Rectangle(
             position=momapy.geometry.Point(0, 0),
             width=node_width,
             height=node_height,
@@ -174,7 +175,7 @@ def render_nodes_testing(
             "label_center",
         ]:
             p = getattr(node_obj, anchor_name)()
-            cross_point = momapy.nodes.CrossPoint(
+            cross_point = momapy.meta.nodes.CrossPoint(
                 position=p,
                 width=5.0,
                 height=5.0,
@@ -189,7 +190,7 @@ def render_nodes_testing(
         angle_cross_points = []
         for angle in range(0, 380, 30):
             p = node_obj.self_angle(angle)
-            cross_point = momapy.nodes.CrossPoint(
+            cross_point = momapy.meta.nodes.CrossPoint(
                 position=p,
                 width=5.0,
                 height=5.0,
@@ -232,7 +233,7 @@ def render_arcs_testing(
     arc_objs = []
     for arc_config in arc_configs:
         arc_cls = arc_config[0]
-        arc_obj = momapy.nodes.Rectangle(
+        arc_obj = momapy.meta.nodes.Rectangle(
             position=momapy.geometry.Point(0, 0),
             width=width,
             height=height,
@@ -278,7 +279,7 @@ def render_arcs_testing(
             "arrowhead_tip",
         ]:
             p = getattr(arc_obj, anchor_name)()
-            cross_point = momapy.nodes.CrossPoint(
+            cross_point = momapy.meta.nodes.CrossPoint(
                 position=p,
                 width=5.0,
                 height=5.0,
@@ -293,7 +294,7 @@ def render_arcs_testing(
         fraction_cross_points = []
         for fraction in numpy.arange(0, 1.1, 0.2):
             p, _ = arc_obj.fraction(fraction)
-            cross_point = momapy.nodes.CrossPoint(
+            cross_point = momapy.meta.nodes.CrossPoint(
                 position=p,
                 width=5.0,
                 height=5.0,
