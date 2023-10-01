@@ -393,9 +393,7 @@ class EllipticalArc(GeometryObject):
             ]
             left_line_string = shapely.LineString(left_coords)
             right_line_string = shapely.LineString(right_coords)
-            return shapely.GeometryCollection(
-                [left_line_string, right_line_string]
-            )
+            return [left_line_string, right_line_string]
 
         origin = shapely.Point(0, 0)
         circle = origin.buffer(1.0).boundary
@@ -403,28 +401,27 @@ class EllipticalArc(GeometryObject):
         ellipse = shapely.affinity.rotate(ellipse, self.x_axis_rotation)
         center = self.center()
         ellipse = shapely.affinity.translate(ellipse, center.x, center.y)
-        if self.p1 != Point.from_tuple(ellipse.coords[0]):
-            first_point = self.p1
-            second_point = self.p2
+        line1 = Line(center, Point.from_tuple(ellipse.coords[0]))
+        angle1 = get_angle_to_horizontal_of_line(line1)
+        line2 = Line(center, Point.from_tuple(ellipse.coords[-2]))
+        angle2 = get_angle_to_horizontal_of_line(line2)
+        angle = angle1 - angle2
+        if angle >= 0:
+            sweep = 1
         else:
-            first_point = self.p2
-            second_point = self.p1
-        first_split = _split_line_string(ellipse, first_point)
-        if second_point == Point.from_tuple(first_split.geoms[0].coords[0]):
-            arcs = first_split
-        else:
-            multi_line = shapely.MultiLineString(
-                [first_split.geoms[1], first_split.geoms[0]]
+            sweep = 0
+        if sweep != self.sweep_flag:
+            ellipse = shapely.LineString(ellipse.coords[::-1])
+        if ellipse.coords[0] == self.p1.to_tuple():
+            ellipse = shapely.LineString(
+                ellipse.coords[1:] + [ellipse.coords[0]]
             )
-            line_string = shapely.ops.linemerge(multi_line)
-            arcs = _split_line_string(line_string, second_point)
-        arcs = list(arcs.geoms)
-        if arcs[0].length == arcs[1].length:
-            if first_point == self.p1:
-                return arcs[self.sweep_flag]
-            return arcs[abs(self.sweep_flag - 1)]
-        arcs.sort(key=lambda arc: arc.length)
-        return arcs[self.arc_flag]
+        first_split = _split_line_string(ellipse, self.p1)
+        multi_line = shapely.MultiLineString([first_split[1], first_split[0]])
+        line_string = shapely.ops.linemerge(multi_line)
+        second_split = _split_line_string(line_string, self.p2)
+        shapely_arc = second_split[0]
+        return shapely_arc
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
@@ -898,8 +895,8 @@ def are_lines_coincident(line1, line2):
 
 # angle in radians
 def is_angle_in_sector(angle, center, point1, point2):
-    angle1 = get_angle_of_line(Line(center, point1))
-    angle2 = get_angle_of_line(Line(center, point2))
+    angle1 = get_angle_to_horizontal_of_line(Line(center, point1))
+    angle2 = get_angle_to_horizontal_of_line(Line(center, point2))
     return is_angle_between(angle, angle1, angle2)
 
 
@@ -923,11 +920,7 @@ def is_angle_between(angle, start_angle, end_angle):
 
 # angle is in radians; return angle between 0 and 2 * pi
 def get_normalized_angle(angle):
-    while angle > 2 * math.pi:
-        angle -= 2 * math.pi
-    while angle < 0:
-        angle += 2 * math.pi
-    return angle
+    return angle - (angle // (2 * math.pi) * (2 * math.pi))
 
 
 def _get_position_at_fraction(segment_or_curve, fraction):
