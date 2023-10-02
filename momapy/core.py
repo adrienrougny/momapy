@@ -1,9 +1,9 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, replace
-from frozendict import frozendict
-from typing import Optional, Union, Any, TypeAlias, ClassVar
-from uuid import uuid4
-from enum import Enum
+import abc
+import dataclasses
+import frozendict
+import typing
+import uuid
+import enum
 import math
 import collections
 import copy
@@ -16,7 +16,7 @@ import gi
 
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
-from gi.repository import Pango, PangoCairo
+from gi.repository import Pango, PangoCairo  # must import like that to use
 
 import momapy.drawing
 import momapy.geometry
@@ -24,7 +24,7 @@ import momapy.coloring
 import momapy.builder
 
 
-class Direction(Enum):
+class Direction(enum.Enum):
     HORIZONTAL = 1
     VERTICAL = 2
     UP = 3
@@ -33,43 +33,45 @@ class Direction(Enum):
     LEFT = 6
 
 
-class HAlignment(Enum):
+class HAlignment(enum.Enum):
     LEFT = 1
     CENTER = 2
     RIGHT = 3
 
 
-class VAlignment(Enum):
+class VAlignment(enum.Enum):
     TOP = 1
     CENTER = 2
     BOTTOM = 3
 
 
-@dataclass(frozen=True, kw_only=True)
-class MapElement(ABC):
-    id: str = field(hash=False, compare=False, default_factory=uuid4)
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class MapElement(abc.ABC):
+    id: str = dataclasses.field(
+        hash=False, compare=False, default_factory=uuid.uuid4
+    )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ModelElement(MapElement):
     pass
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class LayoutElement(MapElement):
     def bbox(self) -> momapy.geometry.Bbox:
         bounds = self.to_shapely().bounds
         return momapy.geometry.Bbox.from_bounds(bounds)
 
-    @abstractmethod
+    @abc.abstractmethod
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def children(self) -> list["LayoutElement"]:
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def childless(self) -> "LayoutElement":
         pass
 
@@ -109,18 +111,18 @@ class LayoutElement(MapElement):
         return shapely.GeometryCollection(geom_collection)
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
     text: str
     position: momapy.geometry.Point
     font_size: float
     font_family: str
     font_color: momapy.coloring.Color = momapy.coloring.black
-    width: Optional[float] = None
-    height: Optional[float] = None
+    width: float | None = None
+    height: float | None = None
     horizontal_alignment: HAlignment = HAlignment.LEFT
     vertical_alignment: VAlignment = VAlignment.TOP
-    justify: Optional[bool] = False
+    justify: bool = False
 
     @property
     def x(self):
@@ -275,9 +277,11 @@ class Shape(LayoutElement):
         return []
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
-    layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
+    layout_elements: tuple[LayoutElement] = dataclasses.field(
+        default_factory=tuple
+    )
     stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None  # inherited
     )
@@ -308,11 +312,11 @@ class GroupLayout(LayoutElement):
         bounds = self.self_to_shapely().bounds
         return momapy.geometry.Bbox.from_bounds(bounds)
 
-    @abstractmethod
+    @abc.abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def self_children(self) -> list[LayoutElement]:
         pass
 
@@ -337,15 +341,15 @@ class GroupLayout(LayoutElement):
         return self.self_children() + list(self.layout_elements)
 
     def childless(self):
-        return replace(self, layout_elements=None)
+        return dataclasses.replace(self, layout_elements=None)
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class NodeLayout(GroupLayout):
     position: momapy.geometry.Point
     width: float
     height: float
-    label: Optional[TextLayout] = None
+    label: TextLayout | None = None
     border_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -372,7 +376,7 @@ class NodeLayout(GroupLayout):
     def y(self):
         return self.position.y
 
-    @abstractmethod
+    @abc.abstractmethod
     def border_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
@@ -502,18 +506,18 @@ class NodeLayout(GroupLayout):
         return self.border(point)
 
     def childless(self):
-        return replace(self, label=None, layout_elements=None)
+        return dataclasses.replace(self, label=None, layout_elements=None)
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ArcLayout(GroupLayout):
     segments: tuple[
         momapy.geometry.Segment,
         momapy.geometry.BezierCurve,
         momapy.geometry.EllipticalArc,
-    ] = field(default_factory=tuple)
-    source: Optional[LayoutElement] = None
-    target: Optional[LayoutElement] = None
+    ] = dataclasses.field(default_factory=tuple)
+    source: LayoutElement | None = None
+    target: LayoutElement | None = None
     path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -552,7 +556,7 @@ class ArcLayout(GroupLayout):
         return []
 
     def childless(self):
-        return replace(self, layout_elements=None)
+        return dataclasses.replace(self, layout_elements=None)
 
     def fraction(self, fraction):
         current_length = 0
@@ -597,7 +601,7 @@ class ArcLayout(GroupLayout):
         return path_action
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SingleHeadedArcLayout(ArcLayout):
     path_shorten: float = 0.0
     arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -644,7 +648,7 @@ class SingleHeadedArcLayout(ArcLayout):
         fraction = 1 - (arrowhead_length + self.path_shorten) / segment.length()
         return segment.get_position_at_fraction(fraction)
 
-    @abstractmethod
+    @abc.abstractmethod
     def arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
@@ -733,7 +737,7 @@ class SingleHeadedArcLayout(ArcLayout):
         return drawing_elements
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class DoubleHeadedArcLayout(ArcLayout):
     path_shorten_start: float = 0.0
     path_shorten_end: float = 0.0
@@ -833,13 +837,13 @@ class DoubleHeadedArcLayout(ArcLayout):
     def end_arrowhead_tip(self) -> momapy.geometry.Point:
         return self._get_arrowhead_tip("end")
 
-    @abstractmethod
+    @abc.abstractmethod
     def start_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def end_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
@@ -965,14 +969,14 @@ class DoubleHeadedArcLayout(ArcLayout):
         return drawing_elements
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Model(MapElement):
-    @abstractmethod
+    @abc.abstractmethod
     def is_submodel(self, other):
         pass
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Layout(GroupLayout):
     position: momapy.geometry.Point
     width: float
@@ -1004,7 +1008,7 @@ class Layout(GroupLayout):
         return []
 
     def childless(self):
-        return replace(self, layout_elements=None)
+        return dataclasses.replace(self, layout_elements=None)
 
     def is_sublayout(self, other, flattened=False, unordered=False):
         def _is_sublist(list1, list2, unordered=False) -> bool:
@@ -1068,50 +1072,26 @@ class Layout(GroupLayout):
         return self.bbox().center()
 
 
-@dataclass(frozen=True, kw_only=True)
-class PhantomLayout(LayoutElement):
-    layout_element: LayoutElement
-
-    def bbox(self):
-        return self.layout_element.bbox()
-
-    def drawing_elements(self):
-        return []
-
-    def children(self):
-        return []
-
-    def childless(self):
-        return copy.deepcopy(self)
-
-    def __getattr__(self, name):
-        if hasattr(self, name):
-            return getattr(self, name)
-        else:
-            if self.layout_element is not None:
-                return getattr(self.layout_element, name)
-            else:
-                raise AttributeError
-
-
-_MappingElementType: TypeAlias = (
+_MappingElementType: typing.TypeAlias = (
     tuple[ModelElement, ModelElement | None] | LayoutElement
 )
-_MappingKeyType: TypeAlias = frozenset[_MappingElementType]
-_MappingValueType: TypeAlias = frozenset[_MappingKeyType]
-_SingletonToSetMappingType: TypeAlias = frozendict[
-    _MappingElementType, frozendict[_MappingKeyType]
+_MappingKeyType: typing.TypeAlias = frozenset[_MappingElementType]
+_MappingValueType: typing.TypeAlias = frozenset[_MappingKeyType]
+_SingletonToSetMappingType: typing.TypeAlias = frozendict.frozendict[
+    _MappingElementType, frozendict.frozendict[_MappingKeyType]
 ]
-_SetToSetMappingType: TypeAlias = frozendict[_MappingKeyType, _MappingValueType]
+_SetToSetMappingType: typing.TypeAlias = frozendict.frozendict[
+    _MappingKeyType, _MappingValueType
+]
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class LayoutModelMapping(collections.abc.Mapping):
-    _singleton_to_set_mapping: _SingletonToSetMappingType = field(
-        default_factory=frozendict
+    _singleton_to_set_mapping: _SingletonToSetMappingType = dataclasses.field(
+        default_factory=frozendict.frozendict
     )
-    _set_to_set_mapping: _SetToSetMappingType = field(
-        default_factory=frozendict
+    _set_to_set_mapping: _SetToSetMappingType = dataclasses.field(
+        default_factory=frozendict.frozendict
     )
 
     def __iter__(self):
@@ -1184,7 +1164,7 @@ class LayoutModelMapping(collections.abc.Mapping):
         return True
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
     model: Model
     layout: Layout
@@ -1216,7 +1196,7 @@ class TupleBuilder(list, momapy.builder.Builder):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, Any] | None = None,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         if builder_object_mapping is not None:
             obj = builder_object_mapping.get(id(self))
@@ -1269,7 +1249,7 @@ class FrozensetBuilder(set, momapy.builder.Builder):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, Any] | None = None,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         if builder_object_mapping is not None:
             obj = builder_object_mapping.get(id(self))
@@ -1317,12 +1297,12 @@ class FrozensetBuilder(set, momapy.builder.Builder):
 
 
 class FrozendictBuilder(dict, momapy.builder.Builder):
-    _cls_to_build = frozendict
+    _cls_to_build = frozendict.frozendict
 
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, Any] | None = None,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         if builder_object_mapping is not None:
             obj = builder_object_mapping.get(id(self))
@@ -1450,9 +1430,7 @@ LayoutBuilder = momapy.builder.get_or_make_builder_cls(
     builder_namespace={"new_element": _layout_builder_new_element},
 )
 
-PhantomLayoutBuilder = momapy.builder.get_or_make_builder_cls(PhantomLayout)
-
-_MappingElementBuilderType: TypeAlias = (
+_MappingElementBuilderType: typing.TypeAlias = (
     tuple[
         ModelElement | ModelElementBuilder,
         ModelElement | ModelElementBuilder | None,
@@ -1460,25 +1438,27 @@ _MappingElementBuilderType: TypeAlias = (
     | LayoutElement
     | LayoutElementBuilder
 )
-_MappingKeyBuilderType: TypeAlias = frozenset[_MappingElementBuilderType]
-_MappingValueBuilderType: TypeAlias = FrozensetBuilder[_MappingKeyBuilderType]
-_SingletonToSetMappingBuilderType: TypeAlias = FrozendictBuilder[
+_MappingKeyBuilderType: typing.TypeAlias = frozenset[_MappingElementBuilderType]
+_MappingValueBuilderType: typing.TypeAlias = FrozensetBuilder[
+    _MappingKeyBuilderType
+]
+_SingletonToSetMappingBuilderType: typing.TypeAlias = FrozendictBuilder[
     _MappingElementBuilderType, FrozendictBuilder[_MappingKeyBuilderType]
 ]
-_SetToSetMappingBuilderType: TypeAlias = FrozendictBuilder[
+_SetToSetMappingBuilderType: typing.TypeAlias = FrozendictBuilder[
     _MappingKeyBuilderType, _MappingValueBuilderType
 ]
 
 
-@dataclass
+@dataclasses.dataclass
 class LayoutModelMappingBuilder(
     momapy.builder.Builder, collections.abc.Mapping
 ):
-    _cls_to_build: ClassVar[type] = LayoutModelMapping
-    _singleton_to_set_mapping: _SingletonToSetMappingBuilderType = field(
-        default_factory=FrozendictBuilder
+    _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
+    _singleton_to_set_mapping: _SingletonToSetMappingBuilderType = (
+        dataclasses.field(default_factory=FrozendictBuilder)
     )
-    _set_to_set_mapping: _SetToSetMappingBuilderType = field(
+    _set_to_set_mapping: _SetToSetMappingBuilderType = dataclasses.field(
         default_factory=FrozendictBuilder
     )
 
@@ -1680,7 +1660,7 @@ class LayoutModelMappingBuilder(
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, Any] | None = None,
+        builder_object_mapping: dict[int, typing.Any] | None = None,
     ):
         _set_to_set_mapping = momapy.builder.object_from_builder(
             builder=self._set_to_set_mapping,
@@ -1774,12 +1754,12 @@ class LayoutModelMappingBuilder(
 momapy.builder.register_builder(LayoutModelMappingBuilder)
 
 
-@abstractmethod
+@abc.abstractmethod
 def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
     pass
 
 
-@abstractmethod
+@abc.abstractmethod
 def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
     pass
 
