@@ -3,8 +3,8 @@ import typing
 
 import momapy.sbgn.core
 import momapy.builder
-import momapy.arcs
-import momapy.nodes
+import momapy.meta.arcs
+import momapy.meta.shapes
 import momapy.coloring
 
 
@@ -456,13 +456,12 @@ class StateVariableLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Stadium(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Stadium(
+            position=self.position,
+            width=self.width,
+            height=self.height,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -472,56 +471,12 @@ class UnitOfInformationLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
         )
-        return node
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase):
-    width: float
-    height: float
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
-    angle: float = 50.0
-
-    def _make_node(self, position, width, height):
-        if self.direction == momapy.core.Direction.RIGHT:
-            node = momapy.nodes.Hexagon(
-                position=position,
-                width=width,
-                height=height,
-                left_angle=90.0,
-                right_angle=self.angle,
-            )
-        elif self.direction == momapy.core.Direction.LEFT:
-            node = momapy.nodes.Hexagon(
-                position=position,
-                width=width,
-                height=height,
-                left_angle=self.angle,
-                right_angle=90.0,
-            )
-        elif self.direction == momapy.core.Direction.UP:
-            node = momapy.nodes.TurnedHexagon(
-                position=position,
-                width=width,
-                height=height,
-                top_angle=self.angle,
-                bottom_angle=90.0,
-            )
-        elif self.direction == momapy.core.Direction.DOWN:
-            node = momapy.nodes.TurnedHexagon(
-                position=position,
-                width=width,
-                height=height,
-                top_angle=90.0,
-                bottom_angle=self.angle,
-            )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -533,8 +488,8 @@ class TerminalLayout(
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
     angle: float = 50.0
 
-    def _make_node(self, position, width, height):
-        return TagLayout._make_node(self, position, width, height)
+    def _make_shape(self):
+        return TagLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -544,8 +499,8 @@ class CardinalityLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        return UnitOfInformationLayout._make_node(self, position, width, height)
+    def _make_shape(self):
+        return UnitOfInformationLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -555,9 +510,8 @@ class UnspecifiedEntitySubunitLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = UnspecifiedEntityLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return UnspecifiedEntityLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -567,9 +521,8 @@ class SimpleChemicalSubunitLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = SimpleChemicalLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return SimpleChemicalLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -580,9 +533,8 @@ class MacromoleculeSubunitLayout(
     height: float
     rounded_corners: float
 
-    def _make_node(self, position, width, height):
-        node = MacromoleculeLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return MacromoleculeLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -593,11 +545,8 @@ class NucleicAcidFeatureSubunitLayout(
     height: float
     rounded_corners: float
 
-    def _make_node(self, position, width, height):
-        node = NucleicAcidFeatureLayout._make_node(
-            self, position, width, height
-        )
-        return node
+    def _make_shape(self):
+        return NucleicAcidFeatureLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -608,9 +557,8 @@ class ComplexSubunitLayout(
     height: float
     cut_corners: float
 
-    def _make_node(self, position, width, height):
-        node = ComplexLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return ComplexLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -621,32 +569,17 @@ class SimpleChemicalMultimerSubunitLayout(
     width: float
     height: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Stadium(
+        return momapy.meta.shapes.Stadium(
             position=position,
             width=width,
             height=height,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -658,20 +591,13 @@ class MacromoleculeMultimerSubunitLayout(
     height: float
     rounded_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -683,15 +609,7 @@ class MacromoleculeMultimerSubunitLayout(
             bottom_left_ry=self.rounded_corners,
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -703,20 +621,13 @@ class NucleicAcidFeatureMultimerSubunitLayout(
     height: float
     rounded_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -724,15 +635,7 @@ class NucleicAcidFeatureMultimerSubunitLayout(
             bottom_left_ry=self.rounded_corners,
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -744,20 +647,13 @@ class ComplexMultimerSubunitLayout(
     height: float
     cut_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -773,15 +669,7 @@ class ComplexMultimerSubunitLayout(
             bottom_right_rx=self.cut_corners,
             bottom_right_ry=self.cut_corners,
             bottom_right_rounded_or_cut="cut",
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -793,9 +681,8 @@ class CompartmentLayout(
     rounded_corners: float
     border_stroke_width: float = 5.0
 
-    def _make_node(self, position, width, height):
-        node = MacromoleculeLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return MacromoleculeLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -803,13 +690,12 @@ class SubmapLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNNodeBase,
 ):
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -819,11 +705,10 @@ class UnspecifiedEntityLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Ellipse(
-            position=position, width=width, height=height
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -833,11 +718,10 @@ class SimpleChemicalLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Stadium(
-            position=position, width=width, height=height
+    def _make_shape(self):
+        return momapy.meta.shapes.Stadium(
+            position=self.position, width=self.width, height=self.height
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -848,11 +732,11 @@ class MacromoleculeLayout(
     height: float
     rounded_corners: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
             top_left_rx=self.rounded_corners,
             top_left_ry=self.rounded_corners,
             top_right_rx=self.rounded_corners,
@@ -862,7 +746,6 @@ class MacromoleculeLayout(
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -873,17 +756,16 @@ class NucleicAcidFeatureLayout(
     height: float
     rounded_corners: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
             bottom_left_rx=self.rounded_corners,
             bottom_left_ry=self.rounded_corners,
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -894,11 +776,11 @@ class ComplexLayout(
     height: float
     cut_corners: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
             top_left_rx=self.cut_corners,
             top_left_ry=self.cut_corners,
             top_left_rounded_or_cut="cut",
@@ -912,7 +794,6 @@ class ComplexLayout(
             bottom_right_ry=self.cut_corners,
             bottom_right_rounded_or_cut="cut",
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -923,32 +804,17 @@ class SimpleChemicalMultimerLayout(
     width: float
     height: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Stadium(
+        return momapy.meta.shapes.Stadium(
             position=position,
             width=width,
             height=height,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -960,20 +826,13 @@ class MacromoleculeMultimerLayout(
     height: float
     rounded_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -985,15 +844,7 @@ class MacromoleculeMultimerLayout(
             bottom_left_ry=self.rounded_corners,
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1005,20 +856,13 @@ class NucleicAcidFeatureMultimerLayout(
     height: float
     rounded_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -1026,15 +870,7 @@ class NucleicAcidFeatureMultimerLayout(
             bottom_left_ry=self.rounded_corners,
             bottom_right_rx=self.rounded_corners,
             bottom_right_ry=self.rounded_corners,
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1046,20 +882,13 @@ class ComplexMultimerLayout(
     height: float
     cut_corners: float
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
-        node = momapy.nodes.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position,
             width=width,
             height=height,
@@ -1075,20 +904,16 @@ class ComplexMultimerLayout(
             bottom_right_rx=self.cut_corners,
             bottom_right_ry=self.cut_corners,
             bottom_right_rounded_or_cut="cut",
-            border_stroke=border_stroke,
-            border_stroke_width=border_stroke_width,
-            border_stroke_dasharray=border_stroke_dasharray,
-            border_stroke_dashoffset=border_stroke_dashoffset,
-            border_fill=border_fill,
-            border_transform=border_transform,
-            border_filter=border_filter,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _EmptySetNode(momapy.core.NodeLayout):
-    def border_drawing_elements(self):
+class _EmptySetShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
+
+    def drawing_elements(self):
         circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -1111,13 +936,12 @@ class EmptySetLayout(
     width: float
     height: float
 
-    def _make_node(self, position, width, height):
-        node = _EmptySetNode(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return _EmptySetShape(
+            position=self.position,
+            width=self.width,
+            height=self.height,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1128,15 +952,14 @@ class PerturbingAgentLayout(
     height: float
     angle: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Hexagon(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Hexagon(
+            position=self.position,
+            width=self.width,
+            height=self.height,
             left_angle=180 - self.angle,
             right_angle=180 - self.angle,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1152,11 +975,10 @@ class _LogicalOperatorLayout(
     )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Ellipse(
-            position=position, width=width, height=height
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1185,11 +1007,10 @@ class GenericProcessLayout(
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._SBGNNodeBase,
 ):
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Rectangle(
-            position=position, width=width, height=height
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position, width=self.width, height=self.height
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1206,9 +1027,8 @@ class OmittedProcessLayout(
     )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
-    def _make_node(self, position, width, height):
-        node = GenericProcessLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return GenericProcessLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1225,9 +1045,8 @@ class UncertainProcessLayout(
     )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
-    def _make_node(self, position, width, height):
-        node = GenericProcessLayout._make_node(self, position, width, height)
-        return node
+    def _make_shape(self):
+        return GenericProcessLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1238,18 +1057,20 @@ class AssociationLayout(
 ):
     border_fill: momapy.coloring.Color = momapy.coloring.black
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Ellipse(
-            position=position, width=width, height=height
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DissociationNode(momapy.core.NodeLayout):
+class _DissociationShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     sep: float
 
-    def border_drawing_elements(self):
+    def drawing_elements(self):
         outer_circle = momapy.drawing.Ellipse(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -1269,11 +1090,13 @@ class DissociationLayout(
 ):
     sep: float
 
-    def _make_node(self, position, width, height):
-        node = _DissociationNode(
-            position=position, width=width, height=height, sep=self.sep
+    def _make_shape(self):
+        return _DissociationShape(
+            position=self.position,
+            width=self.width,
+            height=self.height,
+            sep=self.sep,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1283,34 +1106,75 @@ class PhenotypeLayout(
 ):
     angle: float
 
-    def _make_node(self, position, width, height):
-        node = momapy.nodes.Hexagon(
-            position=position,
-            width=width,
-            height=height,
+    def _make_shape(self):
+        return momapy.meta.shapes.Hexagon(
+            position=self.position,
+            width=self.width,
+            height=self.height,
             left_angle=self.angle,
             right_angle=self.angle,
         )
-        return node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ConsumptionLayout(momapy.arcs.PolyLine):
+class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase):
+    width: float
+    height: float
+    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    angle: float = 50.0
+
+    def _make_shape(self):
+        if self.direction == momapy.core.Direction.RIGHT:
+            return momapy.meta.shapes.Hexagon(
+                position=self.position,
+                width=self.width,
+                height=self.height,
+                left_angle=90.0,
+                right_angle=self.angle,
+            )
+        elif self.direction == momapy.core.Direction.LEFT:
+            return momapy.meta.shapes.Hexagon(
+                position=self.position,
+                width=self.width,
+                height=self.height,
+                left_angle=self.angle,
+                right_angle=90.0,
+            )
+        elif self.direction == momapy.core.Direction.UP:
+            return momapy.meta.shapes.TurnedHexagon(
+                position=self.position,
+                width=self.width,
+                height=self.height,
+                top_angle=self.angle,
+                bottom_angle=90.0,
+            )
+        elif self.direction == momapy.core.Direction.DOWN:
+            return momapy.meta.shapes.TurnedHexagon(
+                position=self.position,
+                width=self.width,
+                height=self.height,
+                top_angle=90.0,
+                bottom_angle=self.angle,
+            )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ConsumptionLayout(momapy.meta.arcs.PolyLine):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ProductionLayout(momapy.arcs.Triangle):
+class ProductionLayout(momapy.meta.arcs.Triangle):
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.black
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ModulationLayout(momapy.arcs.Diamond):
+class ModulationLayout(momapy.meta.arcs.Diamond):
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StimulationLayout(momapy.arcs.Triangle):
+class StimulationLayout(momapy.meta.arcs.Triangle):
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
@@ -1318,7 +1182,6 @@ class StimulationLayout(momapy.arcs.Triangle):
 class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
     arrowhead_triangle_width: float
     arrowhead_triangle_height: float
-    arrowhead_bar_width: float
     arrowhead_bar_height: float
     arrowhead_sep: float
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
@@ -1332,15 +1195,13 @@ class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
                 momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
             ),
         ]
-        bar = momapy.drawing.Path(
-            actions=actions, stroke_width=self.arrowhead_bar_width
-        )
+        bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
             momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
         ]
         sep = momapy.drawing.Path(actions=actions)
-        triangle = momapy.nodes.Triangle(
+        triangle = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(
                 self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0
             ),
@@ -1348,26 +1209,26 @@ class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
             height=self.arrowhead_triangle_height,
             direction=momapy.core.Direction.RIGHT,
         )
-        return [bar, sep] + triangle.self_drawing_elements()
+        return [bar, sep] + triangle.drawing_elements()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CatalysisLayout(momapy.arcs.Ellipse):
+class CatalysisLayout(momapy.meta.arcs.Ellipse):
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class InhibitionLayout(momapy.arcs.Bar):
+class InhibitionLayout(momapy.meta.arcs.Bar):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(momapy.arcs.PolyLine):
+class LogicArcLayout(momapy.meta.arcs.PolyLine):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(momapy.arcs.PolyLine):
+class EquivalenceArcLayout(momapy.meta.arcs.PolyLine):
     pass
 
 
