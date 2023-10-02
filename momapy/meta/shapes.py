@@ -8,16 +8,7 @@ import momapy.drawing
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Shape(momapy.core.LayoutElement):
-    def childless(self):
-        return copy.deepcopy(self)
-
-    def children(self):
-        return []
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Rectangle(Shape):
+class Rectangle(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -150,7 +141,7 @@ class Rectangle(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Ellipse(Shape):
+class Ellipse(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -163,7 +154,7 @@ class Ellipse(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Stadium(Shape):
+class Stadium(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -208,7 +199,7 @@ class Stadium(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Hexagon(Shape):
+class Hexagon(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -273,7 +264,7 @@ class Hexagon(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TurnedHexagon(Shape):
+class TurnedHexagon(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -396,7 +387,7 @@ class TurnedHexagon(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Parallelogram(Shape):
+class Parallelogram(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -444,7 +435,7 @@ class Parallelogram(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CrossPoint(Shape):
+class CrossPoint(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -464,7 +455,7 @@ class CrossPoint(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Triangle(Shape):
+class Triangle(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -518,7 +509,7 @@ class Triangle(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Diamond(Shape):
+class Diamond(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -548,7 +539,7 @@ class Diamond(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Bar(Shape):
+class Bar(momapy.core.Shape):
     position: momapy.geometry.Point
     height: float
 
@@ -568,7 +559,7 @@ class Bar(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ArcBarb(Shape):
+class ArcBarb(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -652,7 +643,7 @@ class ArcBarb(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StraightBarb(Shape):
+class StraightBarb(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -724,7 +715,7 @@ class StraightBarb(Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class To(Shape):
+class To(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float

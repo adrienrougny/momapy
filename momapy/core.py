@@ -266,6 +266,15 @@ class TextLayout(LayoutElement):
         return self.bbox().west()
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Shape(LayoutElement):
+    def childless(self):
+        return copy.deepcopy(self)
+
+    def children(self):
+        return []
+
+
 @dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
     layout_elements: tuple[LayoutElement] = field(default_factory=tuple)
