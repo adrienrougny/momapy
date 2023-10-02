@@ -258,13 +258,13 @@ class _ConnectorsMixin(_SBGNMixinBase):
 @dataclass(frozen=True)
 class _SimpleMixin(_SBGNMixinBase):
     @abstractmethod
-    def _make_node(self, position, width, height):
+    def _make_shape(self):
         pass
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        node = obj._make_node(obj.position, obj.width, obj.height)
-        drawing_elements = node.border_drawing_elements()
+        shape = obj._make_shape()
+        drawing_elements = shape.drawing_elements()
         return drawing_elements
 
 
@@ -296,18 +296,11 @@ class _MultiMixin(_SBGNMixinBase):
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
     ] = field(default_factory=tuple)
 
-    def _make_subunit_node(
+    def _make_subunit_shape(
         self,
         position,
         width,
         height,
-        border_stroke=None,
-        border_stroke_width=None,
-        border_stroke_dasharray=None,
-        border_stroke_dashoffset=None,
-        border_fill=None,
-        border_transform=None,
-        border_filter=None,
     ):
         pass
 
@@ -317,11 +310,11 @@ class _MultiMixin(_SBGNMixinBase):
         width = obj.width - obj.offset * (obj._n - 1)
         height = obj.height - obj.offset * (obj._n - 1)
         for i in range(obj._n):
-            kwargs = {"width": width, "height": height}
-            kwargs["position"] = obj.position + (
+            position = obj.position + (
                 obj.width / 2 - width / 2 - i * obj.offset,
                 obj.height / 2 - height / 2 - i * obj.offset,
             )
+            kwargs = {}
             for attr_name in [
                 "stroke",
                 "stroke_width",
@@ -333,10 +326,12 @@ class _MultiMixin(_SBGNMixinBase):
             ]:
                 attr_value = getattr(obj, f"subunits_{attr_name}")
                 if len(attr_value) > i:
-                    kwargs[f"border_{attr_name}"] = attr_value[i]
-            subunit_node = obj._make_subunit_node(**kwargs)
-            drawing_elements += subunit_node.self_drawing_elements()
-        return drawing_elements
+                    kwargs[f"{attr_name}"] = attr_value[i]
+            subunit_shape = obj._make_subunit_shape(position, width, height)
+            drawing_elements += subunit_shape.drawing_elements()
+            kwargs["elements"] = drawing_elements
+            group = momapy.drawing.Group(**kwargs)
+        return [group]
 
     def label_center(self):
         width = self.width - self.offset * (self._n - 1)
@@ -345,9 +340,9 @@ class _MultiMixin(_SBGNMixinBase):
             self.width / 2 - width / 2 - (self._n - 1) * self.offset,
             self.height / 2 - height / 2 - (self._n - 1) * self.offset,
         )
-        return self._make_subunit_node(
+        return self._make_subunit_shape(
             position=position, width=width, height=height
-        ).label_center()
+        ).position
 
 
 @dataclass(frozen=True)
