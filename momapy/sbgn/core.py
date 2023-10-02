@@ -328,10 +328,10 @@ class _MultiMixin(_SBGNMixinBase):
                 if len(attr_value) > i:
                     kwargs[f"{attr_name}"] = attr_value[i]
             subunit_shape = obj._make_subunit_shape(position, width, height)
-            drawing_elements += subunit_shape.drawing_elements()
-            kwargs["elements"] = drawing_elements
+            kwargs["elements"] = subunit_shape.drawing_elements()
             group = momapy.drawing.Group(**kwargs)
-        return [group]
+            drawing_elements.append(group)
+        return drawing_elements
 
     def label_center(self):
         width = self.width - self.offset * (self._n - 1)
