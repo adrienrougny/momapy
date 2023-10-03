@@ -123,41 +123,27 @@ def render_nodes_testing(
     y_margin=10.0,
     format="pdf",
     renderer="skia",
-    node_width=60.0,
-    node_height=30.0,
-    border_stroke=None,
-    border_stroke_width=None,
-    border_fill=None,
 ):
     node_objs = []
     for node_config in node_configs:
         node_cls = node_config[0]
         node_obj = momapy.meta.nodes.Rectangle(
             position=momapy.geometry.Point(0, 0),
-            width=node_width,
-            height=node_height,
-            stroke_width=0.0,
-            fill=momapy.drawing.NoneValue,
+            width=10.0,
+            height=10.0,
             label=momapy.core.TextLayout(
                 position=momapy.geometry.Point(0, 0),
                 text=node_cls.__name__,
-                font_size=10,
+                font_size=7,
                 font_family="Cantarell",
             ),
+            stroke=momapy.drawing.NoneValue,
+            fill=momapy.drawing.NoneValue,
         )
         node_objs.append(node_obj)
+
         kwargs = node_config[1]
-        if "width" not in kwargs:
-            kwargs["width"] = node_width
-        if "height" not in kwargs:
-            kwargs["height"] = node_height
         kwargs["position"] = momapy.geometry.Point(0, 0)
-        if "border_stroke" not in kwargs:
-            kwargs["border_stroke"] = border_stroke
-        if "border_stroke_width" not in kwargs:
-            kwargs["border_stroke_width"] = border_stroke_width
-        if "border_fill" not in kwargs:
-            kwargs["border_fill"] = border_fill
         node_obj = node_cls(**kwargs)
         node_objs.append(node_obj)
 
