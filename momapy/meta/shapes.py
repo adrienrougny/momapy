@@ -203,8 +203,8 @@ class Hexagon(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-    left_angle: float = 45.0
-    right_angle: float = 45.0
+    left_angle: float
+    right_angle: float
 
     def joint1(self):
         if self.left_angle > 90:
@@ -268,9 +268,8 @@ class TurnedHexagon(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-
-    top_angle: float = 45.0
-    bottom_angle: float = 45.0
+    top_angle: float
+    bottom_angle: float
 
     def joint1(self):
         if self.top_angle >= 90:
@@ -391,8 +390,7 @@ class Parallelogram(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-
-    angle: float  # degrees
+    angle: float
 
     def joint1(self):
         if self.angle >= 90:
@@ -459,7 +457,7 @@ class Triangle(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.Direction
 
     def joint1(self):
         if (
@@ -563,7 +561,7 @@ class ArcBarb(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.Direction
 
     def joint1(self):
         if (
@@ -647,7 +645,7 @@ class StraightBarb(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.Direction
 
     def joint1(self):
         if (
@@ -719,7 +717,7 @@ class To(momapy.core.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.Direction
 
     def joint1(self):
         if (

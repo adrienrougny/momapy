@@ -65,8 +65,8 @@ class Stadium(momapy.core.NodeLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Hexagon(momapy.core.NodeLayout):
-    left_angle: float = 45.0
-    right_angle: float = 45.0
+    left_angle: float = 60.0
+    right_angle: float = 60.0
 
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Hexagon(
@@ -81,8 +81,8 @@ class Hexagon(momapy.core.NodeLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TurnedHexagon(momapy.core.NodeLayout):
-    top_angle: float = 45.0
-    bottom_angle: float = 45.0
+    top_angle: float = 80.0
+    bottom_angle: float = 80.0
 
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.TurnedHexagon(
@@ -97,7 +97,7 @@ class TurnedHexagon(momapy.core.NodeLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Parallelogram(momapy.core.NodeLayout):
-    angle: float  # degrees
+    angle: float = 60.0
 
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Parallelogram(
