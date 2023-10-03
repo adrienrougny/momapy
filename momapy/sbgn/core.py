@@ -76,7 +76,7 @@ class SBGNMap(momapy.core.Map):
 
 
 @dataclass(frozen=True)
-class SBGNNode(momapy.core.NodeLayout):
+class SBGNNode(momapy.core.Node):
     stroke: momapy.coloring.Color = momapy.coloring.black
     stroke_width: float = 1.0
     fill: momapy.coloring.Color = momapy.coloring.white
@@ -98,7 +98,7 @@ class SBGNNode(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True)
-class SBGNArc(momapy.core.ArcLayout):
+class SBGNArc(momapy.core.Arc):
     stroke: momapy.coloring.Color = momapy.coloring.black
     stroke_width: float = 1.0
     fill: momapy.coloring.Color = momapy.coloring.white

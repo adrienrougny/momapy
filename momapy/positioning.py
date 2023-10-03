@@ -19,7 +19,7 @@ def right_of(
 ):
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.east()
     else:
         raise TypeError
@@ -39,7 +39,7 @@ def left_of(
 ):
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.west()
     else:
         raise TypeError
@@ -59,7 +59,7 @@ def above_of(
 ):
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.north()
     else:
         raise TypeError
@@ -79,7 +79,7 @@ def below_of(
 ):
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.south()
     else:
         raise TypeError
@@ -102,7 +102,7 @@ def above_left_of(
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.north_west()
     else:
         raise TypeError
@@ -125,7 +125,7 @@ def above_right_of(
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.north_east()
     else:
         raise TypeError
@@ -148,7 +148,7 @@ def below_left_of(
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.south_west()
     else:
         raise TypeError
@@ -171,7 +171,7 @@ def below_right_of(
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.NodeLayout):
+    elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
         source_point = obj.south_east()
     else:
         raise TypeError
@@ -240,7 +240,7 @@ def fit(
 
 def fraction_of(
     arc_layout_element: Union[
-        momapy.core.ArcLayout, momapy.core.ArcLayoutBuilder
+        momapy.core.Arc, momapy.core.ArcBuilder
     ],
     fraction: float,
 ):
@@ -250,7 +250,7 @@ def fraction_of(
 
 
 def set_position(
-    obj: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     position: Union[momapy.geometry.Point, momapy.geometry.PointBuilder],
     anchor: Optional[str] = None,
 ):
@@ -261,7 +261,7 @@ def set_position(
 
 
 def set_right_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -278,7 +278,7 @@ def set_right_of(
 
 
 def set_left_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -295,7 +295,7 @@ def set_left_of(
 
 
 def set_above_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -312,7 +312,7 @@ def set_above_of(
 
 
 def set_below_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -329,7 +329,7 @@ def set_below_of(
 
 
 def set_above_left_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -347,7 +347,7 @@ def set_above_left_of(
 
 
 def set_above_right_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -365,7 +365,7 @@ def set_above_right_of(
 
 
 def set_below_left_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -383,7 +383,7 @@ def set_below_left_of(
 
 
 def set_below_right_of(
-    obj1: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj1: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     obj2: Union[
         momapy.geometry.Point,
         momapy.geometry.PointBuilder,
@@ -401,7 +401,7 @@ def set_below_right_of(
 
 
 def set_fit(
-    obj: Union[momapy.core.NodeLayoutBuilder, momapy.geometry.BboxBuilder],
+    obj: Union[momapy.core.NodeBuilder, momapy.geometry.BboxBuilder],
     elements: Collection[
         Union[
             momapy.geometry.Point,
@@ -421,9 +421,9 @@ def set_fit(
 
 
 def set_fraction_of(
-    obj: momapy.core.NodeLayoutBuilder,
+    obj: momapy.core.NodeBuilder,
     arc_layout_element: Union[
-        momapy.core.ArcLayout, momapy.core.ArcLayoutBuilder
+        momapy.core.Arc, momapy.core.ArcBuilder
     ],
     fraction: float,
     anchor: Optional[str] = None,

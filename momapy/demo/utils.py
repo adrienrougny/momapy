@@ -192,7 +192,7 @@ def show_room(cls, type_="anchor"):
     CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
         momapy.meta.nodes.CrossPoint
     )
-    if momapy.builder.issubclass_or_builder(cls, momapy.core.NodeLayout):
+    if momapy.builder.issubclass_or_builder(cls, momapy.core.Node):
         SCALE = 5.0
         if cls in [
             momapy.sbgn.pd.MacromoleculeLayout,
@@ -261,7 +261,7 @@ def show_room(cls, type_="anchor"):
             )
             m.add_element(cross)
 
-    elif momapy.builder.issubclass_or_builder(cls, momapy.core.ArcLayout):
+    elif momapy.builder.issubclass_or_builder(cls, momapy.core.Arc):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)

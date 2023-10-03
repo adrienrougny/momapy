@@ -88,18 +88,18 @@ def render_layout_elements_on_grid(
             y_margin + height * (n_row + 1 / 2),
         )
         if momapy.builder.isinstance_or_builder(
-            layout_element, momapy.core.ArcLayout
+            layout_element, momapy.core.Arc
         ):
             old_position = layout_element.points()[0] * (
                 1 / 2
             ) + layout_element.points()[-1] * (1 / 2)
         elif momapy.builder.isinstance_or_builder(
-            layout_element, momapy.core.NodeLayout
+            layout_element, momapy.core.Node
         ):
             old_position = layout_element.position
         else:
             raise TypeError(
-                f"layout element must be of type {momapy.core.NodeLayout} or {momapy.core.ArcLayout}"
+                f"layout element must be of type {momapy.core.Node} or {momapy.core.Arc}"
             )
         if not isinstance(layout_element, momapy.builder.Builder):
             layout_element = momapy.builder.builder_from_object(layout_element)

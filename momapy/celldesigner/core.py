@@ -991,7 +991,7 @@ class ModificationLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _OvalCompartmentShape(momapy.core.NodeLayout):
+class _OvalCompartmentShape(momapy.core.Node):
     outer_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
     ] = momapy.coloring.black
@@ -1085,7 +1085,7 @@ class OvalCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _SquareCompartmentShape(momapy.core.NodeLayout):
+class _SquareCompartmentShape(momapy.core.Node):
     outer_stroke: typing.Optional[
         typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
     ] = momapy.coloring.black
@@ -1190,7 +1190,7 @@ class SquareCompartmentLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReactionNodeLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
+class ReactionNode(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
     _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 8.0
@@ -1218,7 +1218,7 @@ class ReactionNodeLayout(_CellDesignerSimpleMixin, _CellDesignerShapeBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionLayout(momapy.arcs.Arrow):
-    reaction_node: ReactionNodeLayout
+    reaction_node: ReactionNode
 
     def self_children(self):
         layout_elements = momapy.arcs.Arrow.self_children(self)
@@ -1385,7 +1385,7 @@ CellDesignerMapBuilder = momapy.builder.get_or_make_builder_cls(
 
 @dataclass(frozen=True, kw_only=True)
 class RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners(
-    momapy.core.NodeLayout
+    momapy.core.Node
 ):
     rounded_corners: float
     right_rectangle_width: float
@@ -1509,7 +1509,7 @@ class RectangleWithRoundedCornersAlongsideRectangleWithRoundedCorners(
 
 
 @dataclass(frozen=True, kw_only=True)
-class TruncatedRectangleWithLeftRoundedCorners(momapy.core.NodeLayout):
+class TruncatedRectangleWithLeftRoundedCorners(momapy.core.Node):
     rounded_corners: float
     vertical_truncation: float  # proportion of total height, number in ]0, 1[
     horizontal_truncation: float  # proportion of total width number in ]0, 1[
@@ -1595,7 +1595,7 @@ class TruncatedRectangleWithLeftRoundedCorners(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class FoxHead(momapy.core.NodeLayout):
+class FoxHead(momapy.core.Node):
     vertical_truncation: float  # proportion of total height, number in ]0, 1[
 
     def joint1(self):
@@ -1647,7 +1647,7 @@ class FoxHead(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.NodeLayout):
+class StadiumWithEllipsesWithInsideStadiumWithEllipses(momapy.core.Node):
     horizontal_proportion: float  # ]0, 0.5[
     sep: float
 

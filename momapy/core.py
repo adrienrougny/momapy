@@ -345,7 +345,7 @@ class GroupLayout(LayoutElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NodeLayout(GroupLayout):
+class Node(GroupLayout):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -510,7 +510,7 @@ class NodeLayout(GroupLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ArcLayout(GroupLayout):
+class Arc(GroupLayout):
     segments: tuple[
         momapy.geometry.Segment,
         momapy.geometry.BezierCurve,
@@ -602,7 +602,7 @@ class ArcLayout(GroupLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SingleHeadedArcLayout(ArcLayout):
+class SingleHeadedArc(Arc):
     path_shorten: float = 0.0
     arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
@@ -738,7 +738,7 @@ class SingleHeadedArcLayout(ArcLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class DoubleHeadedArcLayout(ArcLayout):
+class DoubleHeadedArc(Arc):
     path_shorten_start: float = 0.0
     path_shorten_end: float = 0.0
     start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -1398,8 +1398,8 @@ MapElementBuilder = momapy.builder.get_or_make_builder_cls(
 
 ModelElementBuilder = momapy.builder.get_or_make_builder_cls(ModelElement)
 LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(LayoutElement)
-NodeLayoutBuilder = momapy.builder.get_or_make_builder_cls(NodeLayout)
-ArcLayoutBuilder = momapy.builder.get_or_make_builder_cls(ArcLayout)
+NodeBuilder = momapy.builder.get_or_make_builder_cls(Node)
+ArcBuilder = momapy.builder.get_or_make_builder_cls(Arc)
 TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(TextLayout)
 
 

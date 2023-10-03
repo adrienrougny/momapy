@@ -6,7 +6,7 @@ import momapy.meta.shapes
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Rectangle(momapy.core.NodeLayout):
+class Rectangle(momapy.core.Node):
     top_left_rx: float = 0.0
     top_left_ry: float = 0.0
     top_left_rounded_or_cut: str = "rounded"
@@ -42,7 +42,7 @@ class Rectangle(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Ellipse(momapy.core.NodeLayout):
+class Ellipse(momapy.core.Node):
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Ellipse(
             position=self.position,
@@ -53,7 +53,7 @@ class Ellipse(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Stadium(momapy.core.NodeLayout):
+class Stadium(momapy.core.Node):
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Stadium(
             position=self.position,
@@ -64,7 +64,7 @@ class Stadium(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Hexagon(momapy.core.NodeLayout):
+class Hexagon(momapy.core.Node):
     left_angle: float = 60.0
     right_angle: float = 60.0
 
@@ -80,7 +80,7 @@ class Hexagon(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TurnedHexagon(momapy.core.NodeLayout):
+class TurnedHexagon(momapy.core.Node):
     top_angle: float = 80.0
     bottom_angle: float = 80.0
 
@@ -96,7 +96,7 @@ class TurnedHexagon(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Parallelogram(momapy.core.NodeLayout):
+class Parallelogram(momapy.core.Node):
     angle: float = 60.0
 
     def border_drawing_elements(self):
@@ -110,7 +110,7 @@ class Parallelogram(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CrossPoint(momapy.core.NodeLayout):
+class CrossPoint(momapy.core.Node):
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.CrossPoint(
             position=self.position,
@@ -121,7 +121,7 @@ class CrossPoint(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Triangle(momapy.core.NodeLayout):
+class Triangle(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
     def border_drawing_elements(self):
@@ -135,7 +135,7 @@ class Triangle(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Diamond(momapy.core.NodeLayout):
+class Diamond(momapy.core.Node):
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Diamond(
             position=self.position,
@@ -146,7 +146,7 @@ class Diamond(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Bar(momapy.core.NodeLayout):
+class Bar(momapy.core.Node):
     def border_drawing_elements(self):
         shape = momapy.meta.shapes.Bar(
             position=self.position,
@@ -156,7 +156,7 @@ class Bar(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ArcBarb(momapy.core.NodeLayout):
+class ArcBarb(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
     def border_drawing_elements(self):
@@ -170,7 +170,7 @@ class ArcBarb(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StraightBarb(momapy.core.NodeLayout):
+class StraightBarb(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
     def border_drawing_elements(self):
@@ -184,7 +184,7 @@ class StraightBarb(momapy.core.NodeLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class To(momapy.core.NodeLayout):
+class To(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
     def border_drawing_elements(self):

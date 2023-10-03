@@ -1215,7 +1215,7 @@ class StimulationLayout(momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulationLayout(
-    momapy.core.SingleHeadedArcLayout, momapy.sbgn.core.SBGNArc
+    momapy.core.SingleHeadedArc, momapy.sbgn.core.SBGNArc
 ):
     arrowhead_triangle_width: float
     arrowhead_triangle_height: float
@@ -1262,12 +1262,12 @@ class InhibitionLayout(momapy.meta.arcs.Bar, momapy.sbgn.core.SBGNArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
+class LogicArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
+class EquivalenceArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
     pass
 
 

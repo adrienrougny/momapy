@@ -7,13 +7,13 @@ import momapy.geometry
 
 
 @dataclass(frozen=True, kw_only=True)
-class PolyLine(momapy.core.SingleHeadedArcLayout):
+class PolyLine(momapy.core.SingleHeadedArc):
     def arrowhead_drawing_elements(self):
         return []
 
 
 @dataclass(frozen=True, kw_only=True)
-class Triangle(momapy.core.SingleHeadedArcLayout):
+class Triangle(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
 
@@ -28,7 +28,7 @@ class Triangle(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class ReversedTriangle(momapy.core.SingleHeadedArcLayout):
+class ReversedTriangle(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
 
@@ -43,7 +43,7 @@ class ReversedTriangle(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Rectangle(momapy.core.SingleHeadedArcLayout):
+class Rectangle(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
 
@@ -57,7 +57,7 @@ class Rectangle(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Ellipse(momapy.core.SingleHeadedArcLayout):
+class Ellipse(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 5.0
 
@@ -71,7 +71,7 @@ class Ellipse(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Diamond(momapy.core.SingleHeadedArcLayout):
+class Diamond(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 5.0
 
@@ -85,7 +85,7 @@ class Diamond(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Bar(momapy.core.SingleHeadedArcLayout):
+class Bar(momapy.core.SingleHeadedArc):
     arrowhead_height: float = 10.0
 
     def arrowhead_drawing_elements(self):
@@ -97,7 +97,7 @@ class Bar(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class ArcBarb(momapy.core.SingleHeadedArcLayout):
+class ArcBarb(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
     arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -115,7 +115,7 @@ class ArcBarb(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class StraightBarb(momapy.core.SingleHeadedArcLayout):
+class StraightBarb(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
     arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -133,7 +133,7 @@ class StraightBarb(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class To(momapy.core.SingleHeadedArcLayout):
+class To(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
     arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -151,7 +151,7 @@ class To(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclass(frozen=True, kw_only=True)
-class DoubleTriangle(momapy.core.DoubleHeadedArcLayout):
+class DoubleTriangle(momapy.core.DoubleHeadedArc):
     start_arrowhead_width: float = 10.0
     start_arrowhead_height: float = 10.0
     end_arrowhead_width: float = 10.0

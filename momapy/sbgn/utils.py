@@ -94,7 +94,7 @@ def set_nodes_to_fit_labels(
     if restrict_to is None:
         restrict_to = []
     if len(restrict_to) == 0:
-        restrict_to = [momapy.core.NodeLayout]
+        restrict_to = [momapy.core.Node]
     if exclude is None:
         exclude = []
     exclude = tuple(exclude)
@@ -229,8 +229,8 @@ def set_arcs_to_borders(map_):
                 if momapy.builder.isinstance_or_builder(
                     sub_layout_element,
                     (
-                        momapy.sbgn.pd.LogicArcLayout,
-                        momapy.sbgn.af.LogicArcLayout,
+                        momapy.sbgn.pd.LogicArc,
+                        momapy.sbgn.af.LogicArc,
                     ),
                 ):
                     target = sub_layout_element.target
@@ -337,7 +337,7 @@ def set_auxilliary_units_to_borders(map_builder):
                         momapy.sbgn.af.PerturbationUnitOfInformationLayout
                     ),
                 ),
-            ) and isinstance(layout_element, momapy.core.NodeLayoutBuilder):
+            ) and isinstance(layout_element, momapy.core.NodeBuilder):
                 position = layout_element.self_border(child.position)
                 child.position = position
                 if child.label is not None:
