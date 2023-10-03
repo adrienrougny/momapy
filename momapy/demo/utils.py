@@ -10,7 +10,7 @@ import momapy.geometry
 import momapy.builder
 import momapy.core
 import momapy.drawing
-import momapy.nodes
+import momapy.meta.nodes
 import momapy.positioning
 
 
@@ -33,7 +33,7 @@ def display(obj, width=600, height=450):
 def display_at(obj, positions, width=600, height=450):
     obj = copy.deepcopy(obj)
     cp_builder_cls = momapy.builder.get_or_make_builder_cls(
-        momapy.nodes.CrossPoint
+        momapy.meta.nodes.CrossPoint
     )
     if momapy.builder.isinstance_or_builder(positions, momapy.geometry.Point):
         positions = [positions]
@@ -190,7 +190,7 @@ def show_room(cls, type_="anchor"):
     AUXILIARY_UNIT_WIDTH = 18
     AUXILIARY_UNIT_HEIGHT = 9
     CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
-        momapy.nodes.CrossPoint
+        momapy.meta.nodes.CrossPoint
     )
     if momapy.builder.issubclass_or_builder(cls, momapy.core.NodeLayout):
         SCALE = 5.0
