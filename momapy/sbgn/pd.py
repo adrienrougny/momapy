@@ -444,17 +444,15 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNPDLayout(momapy.sbgn.core.SBGNLayout):
-    fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.white
+    pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariableLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Stadium(
@@ -466,10 +464,10 @@ class StateVariableLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformationLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
@@ -480,13 +478,11 @@ class UnitOfInformationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TerminalLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
-):
-    width: float
-    height: float
+class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    width: float = 60.0
+    height: float = 30.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
-    angle: float = 50.0
+    angle: float = 70.0
 
     def _make_shape(self):
         return TagLayout._make_shape(self)
@@ -494,10 +490,10 @@ class TerminalLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CardinalityLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return UnitOfInformationLayout._make_shape(self)
@@ -505,10 +501,10 @@ class CardinalityLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntitySubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return UnspecifiedEntityLayout._make_shape(self)
@@ -516,10 +512,10 @@ class UnspecifiedEntitySubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalSubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return SimpleChemicalLayout._make_shape(self)
@@ -527,11 +523,11 @@ class SimpleChemicalSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeSubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_shape(self):
         return MacromoleculeLayout._make_shape(self)
@@ -539,11 +535,11 @@ class MacromoleculeSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureSubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_shape(self):
         return NucleicAcidFeatureLayout._make_shape(self)
@@ -551,11 +547,11 @@ class NucleicAcidFeatureSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexSubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    cut_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    cut_corners: float = 5.0
 
     def _make_shape(self):
         return ComplexLayout._make_shape(self)
@@ -563,11 +559,11 @@ class ComplexSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimerSubunitLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_subunit_shape(
         self,
@@ -584,12 +580,12 @@ class SimpleChemicalMultimerSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimerSubunitLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -614,12 +610,12 @@ class MacromoleculeMultimerSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimerSubunitLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -640,12 +636,12 @@ class NucleicAcidFeatureMultimerSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimerSubunitLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    cut_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    cut_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -674,11 +670,11 @@ class ComplexMultimerSubunitLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CompartmentLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
     border_stroke_width: float = 5.0
 
     def _make_shape(self):
@@ -688,8 +684,11 @@ class CompartmentLayout(
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(
     momapy.sbgn.core._SimpleMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
+    width: float = 60.0
+    height: float = 30.0
+
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
             position=self.position,
@@ -700,10 +699,10 @@ class SubmapLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -713,10 +712,10 @@ class UnspecifiedEntityLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Stadium(
@@ -726,11 +725,11 @@ class SimpleChemicalLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
@@ -750,11 +749,11 @@ class MacromoleculeLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
@@ -769,12 +768,10 @@ class NucleicAcidFeatureLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
-):
-    width: float
-    height: float
-    cut_corners: float
+class ComplexLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    width: float = 60.0
+    height: float = 30.0
+    cut_corners: float = 5.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
@@ -798,11 +795,11 @@ class ComplexLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimerLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
+    width: float = 60.0
+    height: float = 30.0
 
     def _make_subunit_shape(
         self,
@@ -819,12 +816,12 @@ class SimpleChemicalMultimerLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimerLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -849,12 +846,12 @@ class MacromoleculeMultimerLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimerLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    rounded_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    rounded_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -875,12 +872,12 @@ class NucleicAcidFeatureMultimerLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimerLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
     _n: int = 2
-    width: float
-    height: float
-    cut_corners: float
+    width: float = 60.0
+    height: float = 30.0
+    cut_corners: float = 5.0
 
     def _make_subunit_shape(
         self,
@@ -930,11 +927,9 @@ class _EmptySetShape(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EmptySetLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
-):
-    width: float
-    height: float
+class EmptySetLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    width: float = 30.0
+    height: float = 30.0
 
     def _make_shape(self):
         return _EmptySetShape(
@@ -946,11 +941,11 @@ class EmptySetLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbingAgentLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float
-    height: float
-    angle: float
+    width: float = 60.0
+    height: float = 30.0
+    angle: float = 70.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Hexagon(
@@ -967,12 +962,9 @@ class _LogicalOperatorLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._TextMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
     _font_family: typing.ClassVar[str] = "Cantarell"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
     def _make_shape(self):
@@ -983,30 +975,56 @@ class _LogicalOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperatorLayout(_LogicalOperatorLayout):
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+
     _text: typing.ClassVar[str] = "AND"
+    width: float = 20.0
+    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperatorLayout(_LogicalOperatorLayout):
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+
     _text: typing.ClassVar[str] = "OR"
+    width: float = 20.0
+    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperatorLayout(_LogicalOperatorLayout):
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+
     _text: typing.ClassVar[str] = "NOT"
+    width: float = 20.0
+    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorLayout(_LogicalOperatorLayout):
     _text: typing.ClassVar[str] = "≡"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 2
+    )
+    width: float = 20.0
+    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProcessLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
+    width: float = 20.0
+    height: float = 20.0
+
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
             position=self.position, width=self.width, height=self.height
@@ -1018,7 +1036,7 @@ class OmittedProcessLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._TextMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
     _text: typing.ClassVar[str] = "\\\\"
     _font_family: typing.ClassVar[str] = "Cantarell"
@@ -1026,6 +1044,8 @@ class OmittedProcessLayout(
         lambda obj: obj.width / 1.5
     )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
+    width: float = 20.0
+    height: float = 20.0
 
     def _make_shape(self):
         return GenericProcessLayout._make_shape(self)
@@ -1036,7 +1056,7 @@ class UncertainProcessLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._TextMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
     _text: typing.ClassVar[str] = "?"
     _font_family: typing.ClassVar[str] = "Cantarell"
@@ -1044,6 +1064,8 @@ class UncertainProcessLayout(
         lambda obj: obj.width / 1.5
     )
     _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
+    width: float = 20.0
+    height: float = 20.0
 
     def _make_shape(self):
         return GenericProcessLayout._make_shape(self)
@@ -1053,8 +1075,11 @@ class UncertainProcessLayout(
 class AssociationLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
+    width: float = 20.0
+    height: float = 20.0
+
     border_fill: momapy.coloring.Color = momapy.coloring.black
 
     def _make_shape(self):
@@ -1086,9 +1111,11 @@ class _DissociationShape(momapy.core.Shape):
 class DissociationLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
-    sep: float
+    width: float = 20.0
+    height: float = 20.0
+    sep: float = 3.0
 
     def _make_shape(self):
         return _DissociationShape(
@@ -1102,9 +1129,11 @@ class DissociationLayout(
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeLayout(
     momapy.sbgn.core._SimpleMixin,
-    momapy.sbgn.core._SBGNNodeBase,
+    momapy.sbgn.core.SBGNNode,
 ):
-    angle: float
+    width: float = 60.0
+    height: float = 30.0
+    angle: float = 70.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Hexagon(
@@ -1117,11 +1146,11 @@ class PhenotypeLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase):
-    width: float
-    height: float
+class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    width: float = 60.0
+    height: float = 30.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
-    angle: float = 50.0
+    angle: float = 70.0
 
     def _make_shape(self):
         if self.direction == momapy.core.Direction.RIGHT:
@@ -1159,27 +1188,35 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core._SBGNNodeBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ConsumptionLayout(momapy.meta.arcs.PolyLine):
+class ConsumptionLayout(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ProductionLayout(momapy.meta.arcs.Triangle):
+class ProductionLayout(momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNArc):
+    arrowhead_width: float = 10.0
+    arrowhead_height: float = 10.0
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.black
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ModulationLayout(momapy.meta.arcs.Diamond):
+class ModulationLayout(momapy.meta.arcs.Diamond, momapy.sbgn.core.SBGNArc):
+    arrowhead_width: float = 10.0
+    arrowhead_height: float = 10.0
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StimulationLayout(momapy.meta.arcs.Triangle):
+class StimulationLayout(momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNArc):
+    arrowhead_width: float = 10.0
+    arrowhead_height: float = 10.0
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
+class NecessaryStimulationLayout(
+    momapy.core.SingleHeadedArcLayout, momapy.sbgn.core.SBGNArc
+):
     arrowhead_triangle_width: float
     arrowhead_triangle_height: float
     arrowhead_bar_height: float
@@ -1213,22 +1250,24 @@ class NecessaryStimulationLayout(momapy.core.SingleHeadedArcLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CatalysisLayout(momapy.meta.arcs.Ellipse):
+class CatalysisLayout(momapy.meta.arcs.Ellipse, momapy.sbgn.core.SBGNArc):
+    arrowhead_width: float = 10.0
+    arrowhead_height: float = 10.0
     arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class InhibitionLayout(momapy.meta.arcs.Bar):
+class InhibitionLayout(momapy.meta.arcs.Bar, momapy.sbgn.core.SBGNArc):
+    arrowhead_height: float = 10.0
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class LogicArcLayout(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(momapy.meta.arcs.PolyLine):
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(momapy.meta.arcs.PolyLine):
+class EquivalenceArcLayout(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
     pass
 
 

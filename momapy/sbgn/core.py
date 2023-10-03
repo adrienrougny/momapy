@@ -60,7 +60,9 @@ class SBGNModel(momapy.core.Model):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    pass
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -74,15 +76,19 @@ class SBGNMap(momapy.core.Map):
 
 
 @dataclass(frozen=True)
-class _SBGNNodeBase(momapy.core.NodeLayout):
+class SBGNNode(momapy.core.NodeLayout):
+    stroke: momapy.coloring.Color = momapy.coloring.black
+    stroke_width: float = 1.0
+    fill: momapy.coloring.Color = momapy.coloring.white
+
     def border_drawing_elements(self):
         drawing_elements = []
         for base in type(self).__mro__:
             if (
-                momapy.builder.issubclass_or_builder(base, _SBGNMixinBase)
-                and base is not _SBGNMixinBase
+                momapy.builder.issubclass_or_builder(base, _SBGNMixin)
+                and base is not _SBGNMixin
                 and base
-                is not momapy.builder.get_or_make_builder_cls(_SBGNMixinBase)
+                is not momapy.builder.get_or_make_builder_cls(_SBGNMixin)
                 and base is not type(self)
             ):
                 drawing_elements += getattr(base, "_mixin_drawing_elements")(
@@ -92,7 +98,17 @@ class _SBGNNodeBase(momapy.core.NodeLayout):
 
 
 @dataclass(frozen=True)
-class _SBGNMixinBase(object):
+class SBGNArc(momapy.core.ArcLayout):
+    stroke: momapy.coloring.Color = momapy.coloring.black
+    stroke_width: float = 1.0
+    fill: momapy.coloring.Color = momapy.coloring.white
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+
+
+@dataclass(frozen=True)
+class _SBGNMixin(object):
     @classmethod
     @abstractmethod
     def _mixin_drawing_elements(cls, obj):
@@ -100,21 +116,21 @@ class _SBGNMixinBase(object):
 
 
 @dataclass(frozen=True, kw_only=True)
-class _ConnectorsMixin(_SBGNMixinBase):
-    direction: momapy.core.Direction
-    left_connector_length: float
-    right_connector_length: float
+class _ConnectorsMixin(_SBGNMixin):
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     left_to_right: bool = True
+    left_connector_length: float = 10.0
+    right_connector_length: float = 10.0
     left_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
+        None
     )
-    left_connector_stroke_width: float | None = None  # inherited
+    left_connector_stroke_width: float | None = None
     left_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
         float
-    ] | None = None  # inherited
-    left_connector_stroke_dashoffset: float | None = None  # inherited
+    ] | None = None
+    left_connector_stroke_dashoffset: float | None = None
     left_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
+        None
     )
     left_connector_transform: momapy.drawing.NoneValueType | tuple[
         momapy.geometry.Transformation
@@ -123,15 +139,15 @@ class _ConnectorsMixin(_SBGNMixinBase):
         None
     )
     right_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
+        None
     )
-    right_connector_stroke_width: float | None = None  # inherited
+    right_connector_stroke_width: float | None = None
     right_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
         float
-    ] | None = None  # inherited
-    right_connector_stroke_dashoffset: float | None = None  # inherited
+    ] | None = None
+    right_connector_stroke_dashoffset: float | None = None
     right_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
+        None
     )
     right_connector_transform: momapy.drawing.NoneValueType | tuple[
         momapy.geometry.Transformation
@@ -256,7 +272,7 @@ class _ConnectorsMixin(_SBGNMixinBase):
 
 
 @dataclass(frozen=True)
-class _SimpleMixin(_SBGNMixinBase):
+class _SimpleMixin(_SBGNMixin):
     @abstractmethod
     def _make_shape(self):
         pass
@@ -269,9 +285,9 @@ class _SimpleMixin(_SBGNMixinBase):
 
 
 @dataclass(frozen=True)
-class _MultiMixin(_SBGNMixinBase):
-    _n: ClassVar[int]
-    offset: float
+class _MultiMixin(_SBGNMixin):
+    _n: ClassVar[int] = 2
+    offset: float = 3.0
     subunits_stroke: tuple[
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ] = field(default_factory=tuple)
@@ -346,7 +362,7 @@ class _MultiMixin(_SBGNMixinBase):
 
 
 @dataclass(frozen=True)
-class _TextMixin(_SBGNMixinBase):
+class _TextMixin(_SBGNMixin):
     _text: ClassVar[str]
     _font_color: ClassVar[momapy.coloring.Color]
     _font_family: ClassVar[str]
