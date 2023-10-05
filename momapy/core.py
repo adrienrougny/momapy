@@ -340,9 +340,6 @@ class GroupLayout(LayoutElement):
     def children(self):
         return self.self_children() + list(self.layout_elements)
 
-    def childless(self):
-        return dataclasses.replace(self, layout_elements=None)
-
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Node(GroupLayout):
