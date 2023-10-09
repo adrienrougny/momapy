@@ -60,7 +60,9 @@ class SBGNModel(momapy.core.Model):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    pass
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -74,42 +76,85 @@ class SBGNMap(momapy.core.Map):
 
 
 @dataclass(frozen=True)
-class _SBGNShapeBase(momapy.core.NodeLayout):
-    def border_drawing_element(self):
+class SBGNNode(momapy.core.Node):
+    stroke: momapy.coloring.Color = momapy.coloring.black
+    stroke_width: float = 1.0
+    fill: momapy.coloring.Color = momapy.coloring.white
+
+    def border_drawing_elements(self):
         drawing_elements = []
         for base in type(self).__mro__:
             if (
-                momapy.builder.issubclass_or_builder(base, _SBGNMixinBase)
-                and base is not _SBGNMixinBase
+                momapy.builder.issubclass_or_builder(base, _SBGNMixin)
+                and base is not _SBGNMixin
                 and base
-                is not momapy.builder.get_or_make_builder_cls(_SBGNMixinBase)
+                is not momapy.builder.get_or_make_builder_cls(_SBGNMixin)
                 and base is not type(self)
             ):
                 drawing_elements += getattr(base, "_mixin_drawing_elements")(
                     self
                 )
-        group = momapy.drawing.Group(elements=drawing_elements)
-        return group
+        return drawing_elements
 
 
 @dataclass(frozen=True)
-class _SBGNMixinBase(object):
+class SBGNArc(momapy.core.Arc):
+    stroke: momapy.coloring.Color = momapy.coloring.black
+    stroke_width: float = 1.0
+    fill: momapy.coloring.Color = momapy.coloring.white
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+
+
+@dataclass(frozen=True)
+class _SBGNMixin(object):
     @classmethod
     @abstractmethod
     def _mixin_drawing_elements(cls, obj):
         pass
 
 
-@dataclass(frozen=True)
-class _ConnectorsMixin(_SBGNMixinBase):
-    left_connector_length: float
-    right_connector_length: float
-    left_connector_stroke_width: float
-    right_connector_stroke_width: float
-    direction: Optional[
-        momapy.core.Direction
-    ] = momapy.core.Direction.HORIZONTAL
+@dataclass(frozen=True, kw_only=True)
+class _ConnectorsMixin(_SBGNMixin):
+    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     left_to_right: bool = True
+    left_connector_length: float = 10.0
+    right_connector_length: float = 10.0
+    left_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    left_connector_stroke_width: float | None = None
+    left_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None
+    left_connector_stroke_dashoffset: float | None = None
+    left_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    left_connector_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
+    left_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None
+    )
+    right_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    right_connector_stroke_width: float | None = None
+    right_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None
+    right_connector_stroke_dashoffset: float | None = None
+    right_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    right_connector_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
+    right_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None
+    )
 
     def left_connector_base(self):
         if self.direction == momapy.core.Direction.VERTICAL:
@@ -204,129 +249,120 @@ class _ConnectorsMixin(_SBGNMixinBase):
                 ),
             ]
         path_left = momapy.drawing.Path(
-            stroke_width=obj.left_connector_stroke_width, actions=left_actions
+            stroke=obj.left_connector_stroke,
+            stroke_width=obj.left_connector_stroke_width,
+            stroke_dasharray=obj.left_connector_stroke_dasharray,
+            stroke_dashoffset=obj.left_connector_stroke_dashoffset,
+            fill=obj.left_connector_fill,
+            transform=obj.left_connector_transform,
+            filter=obj.left_connector_filter,
+            actions=left_actions,
         )
         path_right = momapy.drawing.Path(
-            stroke_width=obj.right_connector_stroke_width, actions=right_actions
+            stroke=obj.right_connector_stroke,
+            stroke_width=obj.right_connector_stroke_width,
+            stroke_dasharray=obj.right_connector_stroke_dasharray,
+            stroke_dashoffset=obj.right_connector_stroke_dashoffset,
+            fill=obj.right_connector_fill,
+            transform=obj.right_connector_transform,
+            filter=obj.right_connector_filter,
+            actions=right_actions,
         )
-
         return [path_left, path_right]
 
 
 @dataclass(frozen=True)
-class _SimpleMixin(_SBGNMixinBase):
-    _shape_cls: ClassVar[type]
-    _arg_names_mapping: ClassVar[dict[str, str]]
-
-    def _get_shape_initialization_arguments(self) -> dict[str, Any]:
-        kwargs = {}
-        for arg_name in self._arg_names_mapping:
-            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
-        kwargs["position"] = self.position
-        kwargs["width"] = self.width
-        kwargs["height"] = self.height
-        return kwargs
-
+class _SimpleMixin(_SBGNMixin):
+    @abstractmethod
     def _make_shape(self):
-        kwargs = self._get_shape_initialization_arguments()
-        return self._shape_cls(**kwargs)
+        pass
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        return obj._make_shape().drawing_elements()
+        shape = obj._make_shape()
+        drawing_elements = shape.drawing_elements()
+        return drawing_elements
 
 
 @dataclass(frozen=True)
-class _MultiMixin(_SBGNMixinBase):
-    _n: ClassVar[int]
-    _shape_cls: ClassVar[momapy.core.NodeLayout]
-    _arg_names_mapping: ClassVar[dict[str, str]]
-    offset: int = 10
-    subunits_stroke: Optional[
+class _MultiMixin(_SBGNMixin):
+    _n: ClassVar[int] = 2
+    offset: float = 3.0
+    subunits_stroke: tuple[
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_width: tuple[
+        momapy.drawing.NoneValueType | float | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_dasharray: tuple[
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ] = field(default_factory=tuple)
+    subunits_stroke_dashoffset: tuple[float | None] = field(
+        default_factory=tuple
+    )
+    subunits_fill: tuple[
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ] = field(default_factory=tuple)
+    subunits_transform: tuple[
         momapy.drawing.NoneValueType
-        | tuple[
-            Optional[momapy.drawing.NoneValueType | momapy.coloring.Color], ...
-        ]
-    ] = None
-    subunits_stroke_width: Optional[
-        momapy.drawing.NoneValueType
-        | tuple[Optional[momapy.drawing.NoneValueType | float], ...]
-    ] = None
-    subunits_stroke_dasharray: Optional[
-        momapy.drawing.NoneValueType
-        | tuple[Optional[momapy.drawing.NoneValueType | tuple[float, ...]], ...]
-    ] = None
-    subunits_stroke_dashoffset: Optional[tuple[Optional[float], ...]] = None
-    subunits_fill: tuple[momapy.coloring.Color] = field(default_factory=tuple)
-    subunits_filter: tuple[momapy.drawing.Filter] = field(default_factory=tuple)
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ] = field(default_factory=tuple)
+    subunits_filter: tuple[
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ] = field(default_factory=tuple)
 
-    def _get_subunit_width(self):
-        width = self.width - self.offset * (self._n - 1)
-        return width
+    def _make_subunit_shape(
+        self,
+        position,
+        width,
+        height,
+    ):
+        pass
 
-    def _get_subunit_height(self):
-        height = self.height - self.offset * (self._n - 1)
-        return height
-
-    def _get_subunit_position(self, order=0):
-        position = self.position + (
-            +self.width / 2
-            - self._get_subunit_width() / 2
-            - order * self.offset,
-            +self.height / 2
-            - self._get_subunit_height() / 2
-            - order * self.offset,
-        )
-        return position
-
-    def _get_subunit_initialization_arguments(self, order=0) -> dict[str, Any]:
-        kwargs = {}
-        for arg_name in self._arg_names_mapping:
-            kwargs[arg_name] = getattr(self, self._arg_names_mapping[arg_name])
-        if self._n > 1:
-            for arg_name in [
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        drawing_elements = []
+        width = obj.width - obj.offset * (obj._n - 1)
+        height = obj.height - obj.offset * (obj._n - 1)
+        for i in range(obj._n):
+            position = obj.position + (
+                obj.width / 2 - width / 2 - i * obj.offset,
+                obj.height / 2 - height / 2 - i * obj.offset,
+            )
+            kwargs = {}
+            for attr_name in [
                 "stroke",
                 "stroke_width",
                 "stroke_dasharray",
                 "stroke_dashoffset",
                 "fill",
+                "transform",
                 "filter",
             ]:
-                if arg_name not in self._arg_names_mapping:
-                    arg_value = getattr(self, f"subunits_{arg_name}")
-                    if arg_value is not None and len(arg_value) > order:
-                        kwargs[arg_name] = getattr(
-                            self, f"subunits_{arg_name}"
-                        )[order]
-        kwargs["position"] = self._get_subunit_position(order)
-        kwargs["width"] = self._get_subunit_width()
-        kwargs["height"] = self._get_subunit_height()
-        return kwargs
-
-    def _make_subunit(self, order=0):
-        kwargs = self._get_subunit_initialization_arguments(order)
-        return self._shape_cls(**kwargs)
-
-    def _make_subunits(self):
-        subunits = []
-        for i in range(self._n):
-            subunit = self._make_subunit(i)
-            subunits.append(subunit)
-        return subunits
-
-    @classmethod
-    def _mixin_drawing_elements(cls, obj):
-        drawing_elements = []
-        for subunit in obj._make_subunits():
-            drawing_elements += subunit.drawing_elements()
+                attr_value = getattr(obj, f"subunits_{attr_name}")
+                if len(attr_value) > i:
+                    kwargs[f"{attr_name}"] = attr_value[i]
+            subunit_shape = obj._make_subunit_shape(position, width, height)
+            kwargs["elements"] = subunit_shape.drawing_elements()
+            group = momapy.drawing.Group(**kwargs)
+            drawing_elements.append(group)
         return drawing_elements
 
     def label_center(self):
-        return self._make_subunit(self._n - 1).label_center()
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2 - (self._n - 1) * self.offset,
+            self.height / 2 - height / 2 - (self._n - 1) * self.offset,
+        )
+        return self._make_subunit_shape(
+            position=position, width=width, height=height
+        ).position
 
 
 @dataclass(frozen=True)
-class _TextMixin(_SBGNMixinBase):
+class _TextMixin(_SBGNMixin):
     _text: ClassVar[str]
     _font_color: ClassVar[momapy.coloring.Color]
     _font_family: ClassVar[str]

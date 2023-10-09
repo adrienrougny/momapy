@@ -4,7 +4,7 @@ import math
 
 import momapy.core
 import momapy.builder
-import momapy.shapes
+import momapy.nodes
 import momapy.arcs
 import momapy.coloring
 
@@ -1045,7 +1045,7 @@ def _reaction_to_layout_element(
             )(previous_point, point)
             reaction_le.segments.append(segment)
         reaction_node_le = builder.new_layout_element(
-            momapy.celldesigner.core.ReactionNodeLayout
+            momapy.celldesigner.core.ReactionNode
         )
         position, angle = reaction_le.segments[
             index

@@ -60,14 +60,16 @@ class Point(GeometryObject):
         )
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_line_and_point(line, self)
 
-    def get_angle(self):
-        line = Line(Point(0, 0), self)
-        return line.get_angle()
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_point(self)
 
     def transformed(self, transformation):
         return transform_point(self, transformation)
+
+    def reversed(self):
+        return reverse_point(self)
 
     def to_shapely(self):
         return shapely.Point(self.x, self.y)
@@ -101,16 +103,17 @@ class Line(GeometryObject):
             return round(
                 (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x), ROUNDING
             )
-        return None  # infinite slope
+        return float("NAN")  # infinite slope
 
     def intercept(self):
-        if self.slope() is not None:
-            return self.p1.y - self.slope() * self.p1.x
+        slope = self.slope()
+        if not math.isnan(slope):
+            return self.p1.y - slope * self.p1.x
         else:
-            return None
+            return float("NAN")
 
-    def get_angle(self):
-        return get_angle_of_line(self)
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_line(self)
 
     def is_parallel_to_line(self, line):
         return are_lines_parallel(self, line)
@@ -119,16 +122,19 @@ class Line(GeometryObject):
         return are_lines_coincident(self, line)
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_lines(self, line)
 
-    def has_point(self, point):
-        if self.slope() is not None:
-            return point.y == self.slope() * point.x + self.intercept()
-        else:
-            return self.p1.x == point.x
+    def get_distance_to_point(self, point):
+        return get_distance_between_line_and_point(self, point)
+
+    def has_point(self, point, max_distance=0.01):
+        return line_has_point(self, point, max_distance)
 
     def transformed(self, transformation):
         return transform_line(self, transformation)
+
+    def reversed(self):
+        return reverse_line(self)
 
     def to_shapely(self):
         return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
@@ -144,37 +150,35 @@ class Segment(GeometryObject):
             (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
         )
 
-    def contains(self, point, max_distance=0.01):
-        distance = self.to_shapely().distance(point.to_shapely())
-        if distance <= max_distance:
-            return True
-        return False
+    def get_distance_to_point(self, point):
+        return get_distance_between_segment_and_point(self, point)
 
-    def get_angle(self):
-        return get_angle_of_line(self)
+    def has_point(self, point, max_distance=0.01):
+        return segment_has_point(self, point, max_distance)
+
+    def get_angle_to_horizontal(self):
+        return get_angle_to_horizontal_of_line(self)
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(line, self)
+        return get_intersection_of_line_and_segment(line, self)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_segment(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_segment(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_segment(self, fraction)
 
-    def shortened(self, length):
-        if self.length() > 0:
-            fraction = 1 - length / self.length()
-            point = self.get_position_at_fraction(fraction)
-        else:
-            point = self.p2
-        return Segment(self.p1, point)
+    def shortened(self, length, start_or_end="end"):
+        return shorten_segment(self, length, start_or_end)
 
     def transformed(self, transformation):
         return transform_segment(self, transformation)
+
+    def reversed(self):
+        return reverse_segment(self)
 
     def to_shapely(self):
         return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
@@ -227,33 +231,27 @@ class BezierCurve(GeometryObject):
         return [Point(e[0], e[1]) for e in evaluation.T]
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(line, self)
+        return get_intersection_of_line_and_bezier_curve(line, self)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_bezier_curve(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_bezier_curve(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_bezier_curve(
+            self, fraction
+        )
 
-    def shortened(self, length):
-        bezier_curve = self._to_bezier()
-        total_length = bezier_curve.length
-        if length > total_length:
-            length = total_length
-        fraction = 1 - length / total_length
-        point = self.get_position_at_fraction(fraction)
-        horizontal_line = BezierCurve(
-            point - (5, 0), point + (5, 0)
-        )._to_bezier()
-        s = bezier_curve.intersect(horizontal_line)[0][0]
-        shortened_bezier_curve = bezier_curve.specialize(0, s)
-        return BezierCurve._from_bezier(shortened_bezier_curve)
+    def shortened(self, length, start_or_end="end"):
+        return shorten_bezier_curve(self, length, start_or_end)
 
     def transformed(self, transformation):
         return transform_bezier_curve(self, transformation)
+
+    def reversed(self):
+        return reverse_bezier_curve(self)
 
     def to_shapely(self, n_segs=50):
         points = self.evaluate_multi(
@@ -276,7 +274,7 @@ class EllipticalArc(GeometryObject):
     sweep_flag: int
 
     def get_intersection_with_line(self, line):
-        return get_intersection_of_object_and_line(self, line)
+        return get_intersection_of_line_and_elliptical_arc(self, line)
 
     def to_arc_and_transformation(self):
         x1, y1 = self.p1.x, self.p1.y
@@ -357,49 +355,45 @@ class EllipticalArc(GeometryObject):
         return Point(cx, cy)
 
     def get_position_at_fraction(self, fraction):
-        return get_position_at_fraction(self, fraction)
+        return get_position_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_angle_at_fraction(self, fraction):
-        return get_angle_at_fraction(self, fraction)
+        return get_angle_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
-        return get_position_and_angle_at_fraction(self, fraction)
+        return get_position_and_angle_at_fraction_of_elliptical_arc(
+            self, fraction
+        )
 
     def to_shapely(self):
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
-            max_distance: float = 0.01,
         ):
-            left_coords = []
-            right_coords = []
-            passed = False
-            left_coords.append(line_string.coords[0])
-            for i, current_coord in enumerate(line_string.coords[1:]):
-                previous_coord = line_string.coords[i]
-                if not passed:
-                    previous_point = Point.from_tuple(previous_coord)
-                    current_point = Point.from_tuple(current_coord)
-                    segment = Segment(previous_point, current_point)
-                    if segment.contains(point, max_distance):
-                        left_coords.append(previous_coord)
-                        left_coords.append(point.to_tuple())
-                        right_coords.append(point.to_tuple())
-                        right_coords.append(current_coord)
-                        passed = True
-                    else:
-                        left_coords.append(current_coord)
-                else:
-                    right_coords.append(current_coord)
-            if right_coords:
-                return shapely.GeometryCollection(
-                    [
-                        shapely.LineString(left_coords),
-                        shapely.LineString(right_coords),
-                    ]
+            segment = Segment(
+                Point.from_tuple(line_string.coords[0]),
+                Point.from_tuple(line_string.coords[1]),
+            )
+            min_distance = segment.get_distance_to_point(point)
+            for i, current_coord in enumerate(line_string.coords[2:]):
+                previous_coord = line_string.coords[i + 1]
+                segment = Segment(
+                    Point.from_tuple(previous_coord),
+                    Point.from_tuple(current_coord),
                 )
-            else:
-                return line_string
+                distance = segment.get_distance_to_point(point)
+                if distance <= min_distance:
+                    min_distance = distance
+                    min_i = i
+            left_coords = line_string.coords[0 : min_i + 1] + [
+                point.to_shapely()
+            ]
+            right_coords = [point.to_shapely()] + line_string.coords[
+                min_i + 1 :
+            ]
+            left_line_string = shapely.LineString(left_coords)
+            right_line_string = shapely.LineString(right_coords)
+            return [left_line_string, right_line_string]
 
         origin = shapely.Point(0, 0)
         circle = origin.buffer(1.0).boundary
@@ -407,36 +401,39 @@ class EllipticalArc(GeometryObject):
         ellipse = shapely.affinity.rotate(ellipse, self.x_axis_rotation)
         center = self.center()
         ellipse = shapely.affinity.translate(ellipse, center.x, center.y)
-        if self.p1 != Point.from_tuple(ellipse.coords[0]):
-            first_point = self.p1
-            second_point = self.p2
+        line1 = Line(center, Point.from_tuple(ellipse.coords[0]))
+        angle1 = get_angle_to_horizontal_of_line(line1)
+        line2 = Line(center, Point.from_tuple(ellipse.coords[-2]))
+        angle2 = get_angle_to_horizontal_of_line(line2)
+        angle = angle1 - angle2
+        if angle >= 0:
+            sweep = 1
         else:
-            first_point = self.p2
-            second_point = self.p1
-        first_split = _split_line_string(ellipse, first_point)
-        if second_point == Point.from_tuple(first_split.geoms[0].coords[0]):
-            arcs = first_split
-        else:
-            multi_line = shapely.MultiLineString(
-                [first_split.geoms[1], first_split.geoms[0]]
+            sweep = 0
+        if sweep != self.sweep_flag:
+            ellipse = shapely.LineString(ellipse.coords[::-1])
+        if ellipse.coords[0] == self.p1.to_tuple():
+            ellipse = shapely.LineString(
+                ellipse.coords[1:] + [ellipse.coords[0]]
             )
-            line_string = shapely.ops.linemerge(multi_line)
-            arcs = _split_line_string(line_string, second_point)
-        arcs = list(arcs.geoms)
-        if arcs[0].length == arcs[1].length:
-            if first_point == self.p1:
-                return arcs[self.sweep_flag]
-            return arcs[abs(self.sweep_flag - 1)]
-        arcs.sort(key=lambda arc: arc.length)
-        return arcs[self.arc_flag]
+        first_split = _split_line_string(ellipse, self.p1)
+        multi_line = shapely.MultiLineString([first_split[1], first_split[0]])
+        line_string = shapely.ops.linemerge(multi_line)
+        second_split = _split_line_string(line_string, self.p2)
+        shapely_arc = second_split[0]
+        return shapely_arc
 
     def bbox(self):
         return Bbox.from_bounds(self.to_shapely().bounds)
 
-    def shortened(self, length):
-        fraction = 1 - length / self.length()
-        point = self.get_position_at_fraction(fraction)
-        return replace(self, p2=point)
+    def shortened(self, length, start_or_end="end"):
+        return shorten_elliptical_arc(self, length, start_or_end)
+
+    def transformed(self, transformation):
+        return transform_elliptical_arc(self, transformation)
+
+    def reversed(self):
+        return reverse_elliptical_arc(self)
 
 
 @dataclass(frozen=True)
@@ -503,7 +500,7 @@ class Transformation(ABC):
         pass
 
     @abstractmethod
-    def get_inverse(self):
+    def inverted(self):
         pass
 
     def __mul__(self, other):
@@ -519,8 +516,8 @@ class MatrixTransformation(Transformation):
     def to_matrix(self):
         return self.m
 
-    def get_inverse(self):
-        return MatrixTransformation(numpy.linalg.inv(self.m))
+    def inverted(self):
+        return invert_matrix_transformation(self)
 
 
 @dataclass(frozen=True)
@@ -541,12 +538,12 @@ class Rotation(Transformation):
             translation = Translation(self.point.x, self.point.y)
             m = numpy.matmul(
                 numpy.matmul(translation.to_matrix(), m),
-                translation.get_inverse().to_matrix(),
+                translation.inverted().to_matrix(),
             )
         return m
 
-    def get_inverse(self):
-        return Rotation(-self.angle, self.point)
+    def inverted(self):
+        return invert_rotation(self)
 
 
 @dataclass(frozen=True)
@@ -560,8 +557,8 @@ class Translation(Transformation):
         )
         return m
 
-    def get_inverse(self):
-        return Translation(-self.tx, -self.ty)
+    def inverted(self):
+        return invert_translation(self)
 
 
 @dataclass(frozen=True)
@@ -580,8 +577,8 @@ class Scaling(Transformation):
         )
         return m
 
-    def get_inverse(self):
-        return Scaling(-self.sx, -self.sy)
+    def inverted(self):
+        return invert_scaling(self)
 
 
 def transform_point(point, transformation):
@@ -613,75 +610,228 @@ def transform_bezier_curve(bezier_curve, transformation):
     )
 
 
-def get_intersection_of_object_and_line(
-    obj: Union[
-        GeometryObject,
-        "momapy.core.LayoutElement",
-        "momapy.drawing.DrawingElement",
-        shapely.Geometry,
-    ],
-    line: Line,
-):
-    if isinstance(obj, Line):
-        if line.is_coincident_to_line(obj):
-            return [obj]
-        elif line.is_parallel_to_line(obj):
-            return []
-        elif line.slope() is None:
-            return [Point(line.p1.x, obj.slope() * line.p1.x + obj.intercept())]
-        elif obj.slope() is None:
-            return [Point(obj.p1.x, line.slope() * obj.p1.x + line.intercept())]
-        else:
-            d = (line.p1.x - line.p2.x) * (obj.p1.y - obj.p2.y) - (
-                line.p1.y - line.p2.y
-            ) * (obj.p1.x - obj.p2.x)
-            px = (
-                (line.p1.x * line.p2.y - line.p1.y * line.p2.x)
-                * (obj.p1.x - obj.p2.x)
-                - (line.p1.x - line.p2.x)
-                * (obj.p1.x * obj.p2.y - obj.p1.y * obj.p2.x)
-            ) / d
-            py = (
-                (line.p1.x * line.p2.y - line.p1.y * line.p2.x)
-                * (obj.p1.y - obj.p2.y)
-                - (line.p1.y - line.p2.y)
-                * (obj.p1.x * obj.p2.y - obj.p1.y * obj.p2.x)
-            ) / d
-            return [Point(px, py)]
-        return []
-    if isinstance(obj, shapely.Geometry):
-        bbox = Bbox.from_bounds(obj.bounds)
+def transform_elliptical_arc(elliptical_arc, transformation):
+    east = momapy.geometry.Point(
+        math.cos(self.x_axis_rotation) * self.rx,
+        math.sin(self.x_axis_rotation) * self.rx,
+    )
+    north = momapy.geometry.Point(
+        math.cos(self.x_axis_rotation) * self.ry,
+        math.sin(self.x_axis_rotation) * self.ry,
+    )
+    new_center = momapy.geometry.transform_point(
+        momapy.geometry.Point(0, 0), transformation
+    )
+    new_east = momapy.geometry.transform_point(east, transformation)
+    new_north = momapy.geometry.transform_point(north, transformation)
+    new_rx = momapy.geometry.Segment(new_center, new_east).length()
+    new_ry = momapy.geometry.Segment(new_center, new_north).length()
+    new_start_point = momapy.geometry.transform_point(self.p1, transformation)
+    new_end_point = momapy.geometry.transform_point(self.p2, transformation)
+    new_x_axis_rotation = math.degrees(
+        momapy.geometry.get_angle_of_line(
+            momapy.geometry.Line(new_center, new_east)
+        )
+    )
+    return EllipticalArc(
+        new_end_point,
+        new_rx,
+        new_ry,
+        new_x_axis_rotation,
+        self.arc_flag,
+        self.sweep_flag,
+    )
+
+
+def reverse_point(point):
+    return Point(point.x, point.y)
+
+
+def reverse_line(line):
+    return Line(line.p2, line.p1)
+
+
+def reverse_segment(segment):
+    return Segment(segment.p2, segment.p1)
+
+
+def reverse_bezier_curve(bezier_curve):
+    return BezierCurve(
+        bezier_curve.p2, bezier_curve.p1, bezier_curve.control_points[::-1]
+    )
+
+
+def reverse_elliptical_arc(elliptical_arc):
+    return EllipticalArc(
+        elliptical_arc.p2,
+        elliptical_arc.p1,
+        elliptical_arc.rx,
+        elliptical_arc.ry,
+        elliptical_arc.x_axis_rotation,
+        elliptical_arc.arc_flag,
+        abs(elliptical_arc.sweep_flag - 1),
+    )
+
+
+def shorten_segment(segment, length, start_or_end="end"):
+    if length == 0:
+        shortened_segment = copy.deepcopy(segment)
     else:
-        bbox = obj.bbox()
-        obj = obj.to_shapely()
+        if start_or_end == "start":
+            shortened_segment = segment.reversed().shortened(length).reversed()
+        else:
+            fraction = 1 - length / segment.length()
+            point = segment.get_position_at_fraction(fraction)
+            shortened_segment = Segment(segment.p1, point)
+    return shortened_segment
+
+
+def shorten_bezier_curve(bezier_curve, length, start_or_end="end"):
+    if length == 0:
+        shortened_bezier_curve = copy.deepcopy(bezier_curve)
+    else:
+        if start_or_end == "start":
+            shortened_bezier_curve = (
+                bezier_curve.reversed().shortened(length).reversed()
+            )
+        else:
+            lib_bezier_curve = bezier_curve._to_bezier()
+            total_length = lib_bezier_curve.length
+            if length > total_length:
+                length = total_length
+            fraction = 1 - length / total_length
+            point = bezier_curve.get_position_at_fraction(fraction)
+            horizontal_line = BezierCurve(
+                point - (5, 0), point + (5, 0)
+            )._to_bezier()
+            s = lib_bezier_curve.intersect(horizontal_line)[0][0]
+            lib_shortened_bezier_curve = lib_bezier_curve.specialize(0, s)
+            shortened_bezier_curve = BezierCurve._from_bezier(
+                lib_shortened_bezier_curve
+            )
+    return shortened_bezier_curve
+
+
+def shorten_elliptical_arc(elliptical_arc, length, start_or_end="end"):
+    if length == 0:
+        shortened_elliptical_arc = copy.deepcopy(elliptical_arc)
+    else:
+        if start_or_end == "start":
+            shortened_elliptical_arc = (
+                elliptical_arc.reversed().shortened(length).reversed()
+            )
+        else:
+            fraction = 1 - length / elliptical_arc.length()
+            point = elliptical_arc.get_position_at_fraction(fraction)
+            shortened_elliptical_arc = replace(elliptical_arc, p2=point)
+    return shortened_elliptical_arc
+
+
+def invert_matrix_transformation(matrix_transformation):
+    return MatrixTransformation(numpy.linalg.inv(matrix_transformation.m))
+
+
+def invert_rotation(rotation):
+    return Rotation(-rotation.angle, rotation.point)
+
+
+def invert_translation(translation):
+    return Translation(-translation.tx, -translation.ty)
+
+
+def invert_scaling(scaling):
+    return Scaling(-scaling.sx, -scaling.sy)
+
+
+def get_intersection_of_line_and_point(line, point):
+    if line.has_point(point):
+        return [point]
+    return []
+
+
+def get_intersection_of_lines(line1, line2):
+    slope1 = line1.slope()
+    intercept1 = line1.intercept()
+    slope2 = line2.slope()
+    intercept2 = line2.intercept()
+    if line1.is_coincident_to_line(line2):
+        intersection = [copy.deepcopy(line1)]
+    elif line1.is_parallel_to_line(line2):
+        intersection = []
+    elif math.isnan(slope1):
+        intersection = [Point(line1.p1.x, slope2 * line1.p1.x + intercept2)]
+    elif math.isnan(slope2):
+        intersection = [Point(line2.p1.x, slope1 * line2.p1.x + intercept1)]
+    else:
+        d = (line1.p1.x - line1.p2.x) * (line2.p1.y - line2.p2.y) - (
+            line1.p1.y - line1.p2.y
+        ) * (line2.p1.x - line2.p2.x)
+        px = (
+            (line1.p1.x * line1.p2.y - line1.p1.y * line1.p2.x)
+            * (line2.p1.x - line2.p2.x)
+            - (line1.p1.x - line1.p2.x)
+            * (line2.p1.x * line2.p2.y - line2.p1.y * line2.p2.x)
+        ) / d
+        py = (
+            (line1.p1.x * line1.p2.y - line1.p1.y * line1.p2.x)
+            * (line2.p1.y - line2.p2.y)
+            - (line1.p1.y - line1.p2.y)
+            * (line2.p1.x * line2.p2.y - line2.p1.y * line2.p2.x)
+        ) / d
+        intersection = [Point(px, py)]
+    return intersection
+
+
+def get_intersection_of_line_and_segment(line, segment):
+    line2 = momapy.geometry.Line(segment.p1, segment.p2)
+    intersection = line.get_intersection_with_line(line2)
+    if len(intersection) > 0 and isinstance(intersection[0], Point):
+        if not segment.has_point(intersection[0]):
+            intersection = []
+    elif len(intersection) > 0:
+        intersection = [segment]
+    return intersection
+
+
+def get_intersection_of_line_and_bezier_curve(line, bezier_curve):
+    shapely_object = bezier_curve.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_intersection_of_line_and_elliptical_arc(line, elliptical_arc):
+    shapely_object = elliptical_arc.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_intersection_of_line_and_shapely_object(line, shapely_object):
+    bbox = Bbox.from_bounds(shapely_object.bounds)
+    bbox = Bbox(bbox.position, bbox.width + 10, bbox.height + 10)
+    line_string = None
     points = []
     anchors = ["north_west", "north_east", "south_east", "south_west"]
-    line_string = None
-    intersection = []
     for i, current_anchor in enumerate(anchors):
         if i < len(anchors) - 1:
             next_anchor = anchors[i + 1]
         else:
             next_anchor = anchors[0]
-        bbox_line = Line(
+        bbox_segment = Segment(
             getattr(bbox, current_anchor)(), getattr(bbox, next_anchor)()
         )
-        bbox_line_intersection = line.get_intersection_with_line(bbox_line)
+        bbox_intersection = bbox_segment.get_intersection_with_line(line)
         if (
-            len(bbox_line_intersection) > 0
+            len(bbox_intersection) > 0
         ):  # intersection is not empty => intersection has one element
-            bbox_line_intersection = bbox_line_intersection.pop()
             if isinstance(
-                bbox_line_intersection, Line
+                bbox_intersection, Segment
             ):  # intersection is the line
-                line_string = line.to_shapely()
+                line_string = bbox_intersection[0].to_shapely()
                 break
             else:  # intersection is a point
-                points.append(bbox_line_intersection)
+                points += bbox_intersection
     if line_string is None:
-        points = sorted([point.to_tuple() for point in points])
+        points = [point.to_shapely() for point in points]
         line_string = shapely.LineString(points)
-    shapely_intersection = line_string.intersection(obj)
+    shapely_intersection = line_string.intersection(shapely_object)
     intersection = []
     if not hasattr(shapely_intersection, "geoms"):
         shapely_intersection = [shapely_intersection]
@@ -696,8 +846,23 @@ def get_intersection_of_object_and_line(
     return intersection
 
 
+def get_intersection_of_line_and_layout_element(line, layout_element):
+    shapely_object = layout_element.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_intersection_of_line_and_drawing_element(line, drawing_element):
+    shapely_object = drawing_element.to_shapely()
+    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+
+
+def get_angle_to_horizontal_of_point(point):
+    line = Line(Point(0, 0), point)
+    return line.get_angle_to_horizontal()
+
+
 # angle in radians
-def get_angle_of_line(line):
+def get_angle_to_horizontal_of_line(line):
     x1 = line.p1.x
     y1 = line.p1.y
     x2 = line.p2.x
@@ -707,24 +872,31 @@ def get_angle_of_line(line):
 
 
 def are_lines_parallel(line1, line2):
-    return line1.slope() == line2.slope()
+    slope1 = line1.slope()
+    slope2 = line2.slope()
+    if math.isnan(slope1) and math.isnan(slope2):
+        return True
+    return slope1 == slope2
 
 
 def are_lines_coincident(line1, line2):
+    slope1 = line1.slope()
+    intercept1 = line1.intercept()
+    slope2 = line2.slope()
+    intercept2 = line2.intercept()
     return (
-        line1.slope() is None
-        and line2.slope() is None
+        math.isnan(slope1)
+        and math.isnan(slope2)
         and line1.p1.x == line2.p1.x
-        or line1.slope() is not None
-        and line1.slope() == line2.slope()
-        and line1.intercept() == line2.intercept()
+        or slope1 == slope2
+        and intercept1 == intercept2
     )
 
 
 # angle in radians
 def is_angle_in_sector(angle, center, point1, point2):
-    angle1 = get_angle_of_line(Line(center, point1))
-    angle2 = get_angle_of_line(Line(center, point2))
+    angle1 = get_angle_to_horizontal_of_line(Line(center, point1))
+    angle2 = get_angle_to_horizontal_of_line(Line(center, point2))
     return is_angle_between(angle, angle1, angle2)
 
 
@@ -746,25 +918,39 @@ def is_angle_between(angle, start_angle, end_angle):
     return False
 
 
-# angle is in radians
+# angle is in radians; return angle between 0 and 2 * pi
 def get_normalized_angle(angle):
-    while angle > 2 * math.pi:
-        angle -= 2 * math.pi
-    while angle < 0:
-        angle += 2 * math.pi
-    return angle
+    return angle - (angle // (2 * math.pi) * (2 * math.pi))
 
 
-def get_position_at_fraction(
-    segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
-    fraction: float,
-) -> Point:  # fraction in [0, 1]
+def _get_position_at_fraction(segment_or_curve, fraction):
     line_string = segment_or_curve.to_shapely()
     shapely_point = line_string.interpolate(fraction, normalized=True)
     return Point.from_shapely(shapely_point)
 
 
-def get_angle_at_fraction(
+def get_position_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(segment, fraction)
+
+
+def get_position_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(bezier_curve, fraction)
+
+
+def get_position_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_at_fraction(elliptical_arc, fraction)
+
+
+def _get_angle_at_fraction(
     segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
@@ -779,17 +965,59 @@ def get_angle_at_fraction(
         )
         current_length += segment.length()
         if current_length / total_length >= fraction:
-            return segment.get_angle()
-    return segment.get_angle()
+            break
+    return segment.get_angle_to_horizontal()
 
 
-def get_position_and_angle_at_fraction(
+def get_angle_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def get_angle_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def get_angle_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_angle_at_fraction(segment, fraction)
+
+
+def _get_position_and_angle_at_fraction(
     segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    position = get_position_at_fraction(segment_or_curve, fraction)
-    angle = get_angle_at_fraction(segment_or_curve, fraction)
+    position = _get_position_at_fraction(segment_or_curve, fraction)
+    angle = _get_angle_at_fraction(segment_or_curve, fraction)
     return position, angle
+
+
+def get_position_and_angle_at_fraction_of_segment(
+    segment,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_and_angle_at_fraction(segment, fraction)
+
+
+def get_position_and_angle_at_fraction_of_bezier_curve(
+    bezier_curve,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_angle_at_fraction(segment, fraction)
+
+
+def get_position_and_angle_at_fraction_of_elliptical_arc(
+    elliptical_arc,
+    fraction: float,
+) -> Point:  # fraction in [0, 1]
+    return _get_position_and_angle_at_fraction(segment, fraction)
 
 
 # angle is in radians between -pi and pi
@@ -808,6 +1036,54 @@ def get_angle_between_segments(segment1, segment2):
 
 def get_distance_between_points(p1, p2):
     return Segment(p1, p2).length()
+
+
+def get_distance_between_line_and_point(line, point):
+    distance = abs(
+        (line.p2.x - line.p1.x) * (line.p1.y - point.y)
+        - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
+    ) / math.sqrt((line.p2.x - line.p1.x) ** 2 + (line.p2.y - line.p1.y) ** 2)
+    return distance
+
+
+def get_distance_between_segment_and_point(segment, point):
+    a = point.x - segment.p1.x
+    b = point.y - segment.p1.y
+    c = segment.p2.x - segment.p1.x
+    d = segment.p2.y - segment.p1.y
+    dot = a * c + b * d
+    len_sq = c**2 + d**2
+    if len_sq != 0:
+        param = dot / len_sq
+    else:
+        param = -1
+    if param < 0:
+        xx = segment.p1.x
+        yy = segment.p1.y
+    elif param > 1:
+        xx = segment.p2.x
+        yy = segment.p2.y
+    else:
+        xx = segment.p1.x + param * c
+        yy = segment.p1.y + param * d
+    dx = point.x - xx
+    dy = point.y - yy
+    distance = math.sqrt(dx**2 + dy**2)
+    return distance
+
+
+def line_has_point(line, point, max_distance=0.01):
+    d = line.get_distance_to_point(point)
+    if d <= max_distance:
+        return True
+    return False
+
+
+def segment_has_point(segment, point, max_distance=0.01):
+    d = segment.get_distance_to_point(point)
+    if d <= max_distance:
+        return True
+    return False
 
 
 def _point_builder_add(self, xy):

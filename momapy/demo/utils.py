@@ -10,7 +10,7 @@ import momapy.geometry
 import momapy.builder
 import momapy.core
 import momapy.drawing
-import momapy.shapes
+import momapy.meta.nodes
 import momapy.positioning
 
 
@@ -33,7 +33,7 @@ def display(obj, width=600, height=450):
 def display_at(obj, positions, width=600, height=450):
     obj = copy.deepcopy(obj)
     cp_builder_cls = momapy.builder.get_or_make_builder_cls(
-        momapy.shapes.CrossPoint
+        momapy.meta.nodes.CrossPoint
     )
     if momapy.builder.isinstance_or_builder(positions, momapy.geometry.Point):
         positions = [positions]
@@ -190,9 +190,9 @@ def show_room(cls, type_="anchor"):
     AUXILIARY_UNIT_WIDTH = 18
     AUXILIARY_UNIT_HEIGHT = 9
     CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
-        momapy.shapes.CrossPoint
+        momapy.meta.nodes.CrossPoint
     )
-    if momapy.builder.issubclass_or_builder(cls, momapy.core.NodeLayout):
+    if momapy.builder.issubclass_or_builder(cls, momapy.core.Node):
         SCALE = 5.0
         if cls in [
             momapy.sbgn.pd.MacromoleculeLayout,
@@ -261,7 +261,7 @@ def show_room(cls, type_="anchor"):
             )
             m.add_element(cross)
 
-    elif momapy.builder.issubclass_or_builder(cls, momapy.core.ArcLayout):
+    elif momapy.builder.issubclass_or_builder(cls, momapy.core.Arc):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)

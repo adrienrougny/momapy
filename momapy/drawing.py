@@ -313,7 +313,7 @@ class EllipticalArc(PathAction):
             self.point, transformation
         )
         new_x_axis_rotation = math.degrees(
-            momapy.geometry.get_angle_of_line(
+            momapy.geometry.get_angle_to_horizontal_of_line(
                 momapy.geometry.Line(new_center, new_east)
             )
         )
@@ -376,7 +376,7 @@ class CurveTo(PathAction):
 
     def to_shapely(self, current_point, n_segs=50):
         bezier_curve = self.to_geometry(current_point)
-        return bezier_curve.to_shapely()
+        return bezier_curve.to_shapely(n_segs)
 
 
 @dataclass(frozen=True)
@@ -547,12 +547,16 @@ class Ellipse(DrawingElement):
         return self.point.y
 
     def to_path(self):
-        west = self.point - (self.rx, 0)
+        north = self.point + (0, -self.ry)
         east = self.point + (self.rx, 0)
+        south = self.point + (0, self.ry)
+        west = self.point - (self.rx, 0)
         actions = [
-            MoveTo(west),
-            EllipticalArc(east, self.rx, self.ry, 0, 1, 0),
-            EllipticalArc(west, self.rx, self.ry, 0, 1, 0),
+            MoveTo(north),
+            EllipticalArc(east, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(south, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(west, self.rx, self.ry, 0, 0, 1),
+            EllipticalArc(north, self.rx, self.ry, 0, 0, 1),
             ClosePath(),
         ]
         path = Path(

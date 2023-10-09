@@ -342,7 +342,7 @@ ConsumptionLayout {
     stroke: black;
     stroke-width: 1.25;
     fill: none;
-    shorten: 0;
+    path_shorten: 0;
     filter: none;
 }
 
@@ -353,7 +353,7 @@ ProductionLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.25;
     arrowhead-fill: black;
-    shorten: 1;
+    path_shorten: 1;
     width: 10;
     height: 10;
     filter: none;
@@ -366,7 +366,7 @@ ModulationLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 1;
+    path_shorten: 1;
     width: 15;
     height: 15;
     filter: none;
@@ -379,7 +379,7 @@ StimulationLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 1;
+    path_shorten: 1;
     width: 15;
     height: 15;
     filter: none;
@@ -392,7 +392,7 @@ CatalysisLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.25;
     arrowhead-fill: white;
-    shorten: 1;
+    path_shorten: 1;
     width: 12;
     height: 12;
     filter: none;
@@ -408,7 +408,7 @@ NecessaryStimulationLayout {
     bar-width: 1.5;
     bar-height: 24;
     sep: 7;
-    shorten: 1;
+    path_shorten: 1;
     width: 15;
     height: 15;
     filter: none;
@@ -421,7 +421,7 @@ InhibitionLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 6;
+    path_shorten: 6;
     width: 1.5;
     height: 15;
     filter: none;
@@ -431,7 +431,7 @@ LogicArcLayout {
     stroke: black;
     stroke-width: 2;
     fill: none;
-    shorten: 0;
+    path_shorten: 0;
     filter: none;
 }
 
@@ -439,7 +439,7 @@ EquivalenceArcLayout {
     stroke: black;
     stroke-width: 2;
     fill: none;
-    shorten: 0;
+    path_shorten: 0;
     filter: none;
 }
 
@@ -533,7 +533,7 @@ UnknownInfluenceLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 1;
+    path_shorten: 1;
     width: 15;
     height: 15;
     filter: none;
@@ -546,7 +546,7 @@ PositiveInfluenceLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 1;
+    path_shorten: 1;
     width: 15;
     height: 15;
     filter: none;
@@ -559,7 +559,7 @@ NegativeInfluenceLayout {
     arrowhead-stroke: black;
     arrowhead-stroke-width: 1.5;
     arrowhead-fill: white;
-    shorten: 6;
+    path_shorten: 6;
     width: 1.5;
     height: 15;
     filter: none;
