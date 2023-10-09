@@ -499,11 +499,33 @@ class Path(DrawingElement):
         return shapely.geometry.GeometryCollection(geom_collection)
 
 
+class FontStyle(Enum):
+    NORMAL = 0
+    ITALIC = 1
+    OBLIQUE = 2
+
+
+class FontWeight(Enum):
+    NORMAL = 0
+    BOLD = 1
+    BOLDER = 2
+    LIGHTER = 3
+
+
+class TextAnchor(Enum):
+    START = 0
+    MIDDLE = 1
+    END = 2
+
+
 @dataclass(frozen=True, kw_only=True)
 class Text(DrawingElement):
     text: str
     font_family: str
     font_size: str
+    font_style: FontStyle = FontStyle.NORMAL
+    font_weight: FontWeight | float = FontWeight.NORMAL
+    text_anchor: TextAnchor = TextAnchor.START
     position: momapy.geometry.Point
 
     @property

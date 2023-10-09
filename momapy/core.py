@@ -117,6 +117,10 @@ class TextLayout(LayoutElement):
     position: momapy.geometry.Point
     font_size: float
     font_family: str
+    font_style: momapy.drawing.FontStyle = momapy.drawing.FontStyle.NORMAL
+    font_weight: momapy.drawing.FontWeight | float = (
+        momapy.drawing.FontWeight.NORMAL
+    )
     font_color: momapy.coloring.Color = momapy.coloring.black
     width: float | None = None
     height: float | None = None
@@ -226,6 +230,8 @@ class TextLayout(LayoutElement):
                 text=line_text,
                 font_family=self.font_family,
                 font_size=self.font_size,
+                font_style=self.font_style,
+                font_weight=self.font_weight,
                 fill=self.font_color,
                 stroke=momapy.drawing.NoneValue,
                 position=pos,

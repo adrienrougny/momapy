@@ -117,6 +117,13 @@ class Renderer(ABC):
     default_stroke_width: ClassVar[float] = 1.0
     default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.black
     default_stroke_dashoffset: ClassVar[float] = 0.0
+    default_font_weight: ClassVar[
+        momapy.drawing.FontWeight | float
+    ] = momapy.drawing.FontWeight.NORMAL
+    font_weight_value_mapping: ClassVar[dict] = {
+        momapy.drawing.FontWeight.NORMAL: 400,
+        momapy.drawing.FontWeight.BOLD: 700,
+    }
 
     @abstractmethod
     def begin_session(self):
@@ -141,3 +148,39 @@ class Renderer(ABC):
     @abstractmethod
     def render_drawing_element(self, drawing_element):
         pass
+
+    @classmethod
+    def get_lighter_font_weight(
+        cls, font_weight: momapy.drawing.FontWeight | float
+    ) -> float:
+        if isinstance(font_weight, momapy.drawing.FontWeight):
+            font_weight = self.font_weight_value_mapping.get(font_weight)
+            if font_weight is None:
+                raise ValueError(
+                    f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
+                )
+        if font_weight > 700:
+            new_font_weight = 700
+        elif font_weight > 500:
+            new_font_weight = 400
+        else:
+            new_font_weight = 100
+        return new_font_weight
+
+    @classmethod
+    def get_bolder_font_weight(
+        cls, font_weight: momapy.drawing.FontWeight | float
+    ) -> float:
+        if isinstance(font_weight, momapy.drawing.FontWeight):
+            font_weight = self.font_weight_value_mapping.get(font_weight)
+            if font_weight is None:
+                raise ValueError(
+                    f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
+                )
+        if font_weight < 400:
+            new_font_weight = 400
+        elif font_weight < 600:
+            new_font_weight = 700
+        else:
+            new_font_weight = 900
+        return new_font_weight

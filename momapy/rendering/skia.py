@@ -54,6 +54,15 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.EdgeMode.DUPLICATE: skia.TileMode.kClamp,
         None: skia.TileMode.kDecal,
     }
+    _te_font_style_slant_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,
+        momapy.drawing.FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
+        momapy.drawing.FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
+    }
+    _te_font_weigth_value_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.FontWeight.NORMAL: 400,
+        momapy.drawing.FontWeight.BOLD: 700,
+    }
     canvas: skia.Canvas
     config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
@@ -91,6 +100,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         self._stroke_width = self.default_stroke_width
         self._stroke_dasharray = None
         self._stroke_dashoffset = self.default_stroke_dashoffset
+        self._font_weight = self.default_font_weight
 
     def end_session(self):
         self.canvas.flush()
@@ -184,6 +194,21 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             state["stroke_dashoffset"] = None
         elif drawing_element.stroke_dashoffset is not None:
             state["stroke_dashoffset"] = drawing_element.stroke_dashoffset
+        if hasattr(drawing_element, "font_weight"):
+            font_weight = drawing_element.font_weight
+            if isinstance(font_weight, momapy.drawing.FontWeight):
+                if (
+                    font_weight == momapy.drawing.FontWeight.NORMAL
+                    or font_weight == momapy.drawing.FontWeight.BOLD
+                ):
+                    font_weight = self.font_weight_value_mapping(font_weight)
+                elif font_weight == momapy.drawing.FontWeight.BOLDER:
+                    font_weight = self.get_bolder_font_weight(self._font_weight)
+                elif font_weight == momapy.drawing.FontWeight.LIGHTER:
+                    font_weight = self.get_lighter_font_weight(
+                        self._font_weight
+                    )
+            state["font_weight"] = font_weight
         return state
 
     def _set_new_path(self):
@@ -403,18 +428,40 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         if skia_typeface is None:
             skia_typeface = skia.Typeface(familyName=text.font_family)
             self._skia_typefaces[text.font_family] = skia_typeface
+        # we compute the value of the font weight for normalization
+        font_weight = text.font_weight
+        if isinstance(font_weight, momapy.drawing.FontWeight):
+            if (
+                font_weight == momapy.drawing.FontWeight.NORMAL
+                or font_weight == momapy.drawing.FontWeight.BOLD
+            ):
+                font_weight = self.font_weight_value_mapping(font_weight)
+            elif font_weight == momapy.drawing.FontWeight.LIGHTER:
+                font_weight = self.get_lighter_font_weight(self._font_weight)
+            elif font_weight == momapy.drawing.FontWeight.BOLDER:
+                font_weight = self.get_bolder_font_weight(self._font_weight)
         skia_font = self._skia_fonts.get(
             (
                 text.font_family,
                 text.font_size,
+                text.font_style,
+                font_weight,
             )
         )
         if skia_font is None:
-            skia_font = skia.Font(typeface=skia_typeface, size=text.font_size)
+            font_slant = self._te_font_style_slant_mapping[text.font_style]
+            skia_font = skia.Font(
+                typeface=skia_typeface,
+                size=text.font_size,
+                slant=font_slant,
+                weight=font_weight,
+            )
             self._skia_fonts[
                 (
                     text.font_family,
                     text.font_size,
+                    text.font_style,
+                    font_weight,
                 )
             ] = skia_font
         if self._fill is not None:

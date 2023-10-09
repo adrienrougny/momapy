@@ -95,6 +95,22 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.FilterEffectInput.FILL_PAINT: "FillPaint",
         momapy.drawing.FilterEffectInput.STROKE_PAINT: "StrokePaint",
     }
+    _te_font_style_value_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.FontStyle.NORMAL: "normal",
+        momapy.drawing.FontStyle.ITALIC: "italic",
+        momapy.drawing.FontStyle.OBLIQUE: "oblique",
+    }
+    _te_font_weight_value_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.FontWeight.NORMAL: "normal",
+        momapy.drawing.FontWeight.BOLD: "bold",
+        momapy.drawing.FontWeight.BOLDER: "bolder",
+        momapy.drawing.FontWeight.LIGHTER: "lighter",
+    }
+    _te_text_anchor_value_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.TextAnchor.START: "start",
+        momapy.drawing.TextAnchor.MIDDLE: "middle",
+        momapy.drawing.TextAnchor.END: "end",
+    }
 
     svg: SVGElement
     config: dict = dataclasses.field(default_factory=dict)
@@ -415,6 +431,17 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         attributes["y"] = text.y
         attributes["font-size"] = text.font_size
         attributes["font-family"] = text.font_family
+        attributes["font-style"] = self._te_font_style_value_mapping[
+            text.font_style
+        ]
+        attributes["text-anchor"] = self._te_text_anchor_value_mapping[
+            text.text_anchor
+        ]
+        attributes["font-weight"] = (
+            text.font_weight
+            if isinstance(text.font_weight, float)
+            else self._te_font_weight_value_mapping[text.font_weight]
+        )
         value = text.text
         element = SVGElement(name=name, attributes=attributes, value=value)
         return element
