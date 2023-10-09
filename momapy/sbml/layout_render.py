@@ -6,29 +6,59 @@ import momapy.core
 import momapy.builder
 
 
+@dataclasses.dataclass(frozen=True)
+class GraphicalPrimitive1D:
+    id: string
+    stroke: momapy.coloring.Color | None = None
+    stroke_width: float | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class GraphicalPrimitive2D:
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class LineHeading(GraphicalPrimitive2D):
+    bounding_box: momapy.geometry.Bbox
+    g: RenderGroup
+
+
+@dataclasses.dataclass(frozen=True)
+class RenderGroup(GraphicalPrimitive2D):
+    startHead: LineHeading | None = None
+    endHead: LineHeading | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class RenderCurve(GraphicalPrimitive1D):
+    startHead: LineHeading | None = None
+    endHead: LineHeading | None = None
+
+
+def _render_group_to_drawing_elements(g):
+    drawing_elements = []
+    return drawing_elements
+
+
 # - no metaidRef attribute: given by he LayoutModelMapping
 @dataclasses.dataclass(frozen=True)
 class GraphicalObject(momapy.core.LayoutElement):
     bounding_box: momapy.geometry.Bbox
+    g: RenderGroup | None = None
 
-    def bbox(self):
+    def bbox(self) -> momapy.geometry.Bbox:
         return self.bounding_box
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        if self.g is not None:
+            return _render_group_to_drawing_elements(self.g)
         return []
 
-    def children(self) -> list["LayoutElement"]:
+    def children(self) -> list[momapy.core.LayoutElement]:
         return []
 
-    def translated(self, tx, ty) -> list["LayoutElement"]:
-        new_bbox = momapy.geometry.Bbox(
-            position=self.bounding_box.position + (tx, ty),
-            width=self.bounding_box.width,
-            height=self.bounding_box.height,
-        )
-        return dataclasses.replace(self, bounding_box=new_bbox)
-
-    def childless(self) -> "LayoutElement":
+    def childless(self) -> momapy.core.LayoutElement:
         return copy.deepcopy(self)
 
 
@@ -46,7 +76,7 @@ class SpeciesGlyph(GraphicalObject):
 
 
 @dataclasses.dataclass(frozen=True)
-class _CurveGraphicalObject(GraphicalObject, momapy.core.GroupLayout):
+class _CurveGraphicalObject(momapy.core.GroupLayout, GraphicalObject):
     curve: tuple[
         momapy.geometry.Segment | momapy.geometry.BezierCurve
     ] = dataclasses.field(default_factory=tuple)
@@ -67,23 +97,25 @@ class _CurveGraphicalObject(GraphicalObject, momapy.core.GroupLayout):
                 )
             return path_action
 
-        drawing_elements = []
-        if len(self.curve) > 0:
+        if self.g is not None:
+            return _render_group_to_drawing_elements(self.g)
+        elif len(self.curve) > 0:
             actions = [momapy.drawing.MoveTo(self.curve[0].p1)]
             for segment in self.curve:
                 action = _make_path_action_from_segment(segment)
                 actions.append(action)
             path = Path(actions=actions)
-            drawing_elements.append(path)
-        return drawing_elements
+            return path
+        return []
 
-    def bbox(self):
-        if len(self.curve) > 0:
+    def self_bbox(self):
+        if self.g is not None or len(self.curve) > 0:
             return super(GraphicalObject, self).bbox()
         else:
             return super().bbox()
 
 
+# - no speciesReference attribute: given by the LayoutModelMapping
 @dataclasses.dataclass(frozen=True)
 class SpeciesReferenceGlyph(_CurveGraphicalObject):
     role: SpeciesReferenceRole
@@ -101,8 +133,12 @@ class ReactionGlyph(_CurveGraphicalObject):
         ]
 
 
+# - no reference attribute: given by the LayoutModelMapping
 @dataclasses.dataclass(frozen=True)
-class GeneralGlyph(_CurveGraphicalObject):
+class ReferenceGlyph(_CurveGraphicalObject):
+    glyph: GraphicalObject
+    role: str | SpeciesReferenceRole
+
     def list_of_subglyphs(self):
         return [
             le
@@ -111,12 +147,28 @@ class GeneralGlyph(_CurveGraphicalObject):
         ]
 
 
+# - no reference attribute: given by the LayoutModelMapping
+@dataclasses.dataclass(frozen=True)
+class GeneralGlyph(_CurveGraphicalObject):
+    def list_of_subglyphs(self):  # also contains referenceGlyphs
+        return [
+            le
+            for le in self.layout_elements
+            if momapy.builder.isinstance_or_builder(le, GraphicalObject)
+        ]
+
+    def list_of_reference_glyphs(self):
+        return [
+            le
+            for le in self.layout_elements
+            if momapy.builder.isinstance_or_builder(le, ReferenceGlyph)
+        ]
+
+
+# - no originOfText to ensure a strict separation between the model and the layout
 @dataclasses.dataclass(frozen=True)
 class TextGlyph(GraphicalObject, momapy.core.TextLayout):
-    pass
-
-
-# - no reference attribute: given by the LayoutModelMapping
+    graphicalObject: GraphicalObject | None = None
 
 
 class SpeciesReferenceRole(enums.Enum):
