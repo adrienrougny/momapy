@@ -154,6 +154,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             "stroke_width": self._stroke_width,
             "stroke_dasharray": self._stroke_dasharray,
             "stroke_dashoffset": self._stroke_dashoffset,
+            "font_weight": self._font_weight,
         }
         self._states.append(state)
         self.canvas.save()
@@ -428,24 +429,12 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         if skia_typeface is None:
             skia_typeface = skia.Typeface(familyName=text.font_family)
             self._skia_typefaces[text.font_family] = skia_typeface
-        # we compute the value of the font weight for normalization
-        font_weight = text.font_weight
-        if isinstance(font_weight, momapy.drawing.FontWeight):
-            if (
-                font_weight == momapy.drawing.FontWeight.NORMAL
-                or font_weight == momapy.drawing.FontWeight.BOLD
-            ):
-                font_weight = self.font_weight_value_mapping(font_weight)
-            elif font_weight == momapy.drawing.FontWeight.LIGHTER:
-                font_weight = self.get_lighter_font_weight(self._font_weight)
-            elif font_weight == momapy.drawing.FontWeight.BOLDER:
-                font_weight = self.get_bolder_font_weight(self._font_weight)
         skia_font = self._skia_fonts.get(
             (
                 text.font_family,
                 text.font_size,
                 text.font_style,
-                font_weight,
+                self._font_weight,
             )
         )
         if skia_font is None:
@@ -454,14 +443,14 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                 typeface=skia_typeface,
                 size=text.font_size,
                 slant=font_slant,
-                weight=font_weight,
+                weight=self._font_weight,
             )
             self._skia_fonts[
                 (
                     text.font_family,
                     text.font_size,
                     text.font_style,
-                    font_weight,
+                    self._font_weight,
                 )
             ] = skia_font
         if self._fill is not None:
