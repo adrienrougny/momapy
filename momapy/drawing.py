@@ -157,6 +157,12 @@ class Filter(object):
         return replace(self, effects=tuple(effects))
 
 
+# not implemented yet, just present in sbml render; to be implemented later
+class FillRule(Enum):
+    NONZERO = "nonzero"
+    EVENODD = "evenodd"
+
+
 @dataclass(frozen=True, kw_only=True)
 class DrawingElement(ABC):
     stroke_width: Optional[float] = None
