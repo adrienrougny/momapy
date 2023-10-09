@@ -536,7 +536,7 @@ class Text(DrawingElement):
     def y(self):
         return self.position.y
 
-    def transformed(self):
+    def transformed(self, transformation):
         return copy.deepcopy(self)
 
     def to_shapely(self, to_polygons=False):
