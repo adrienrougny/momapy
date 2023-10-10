@@ -136,6 +136,8 @@ def render_nodes_testing(
                 text=node_cls.__name__,
                 font_size=7,
                 font_family="Cantarell",
+                font_style=momapy.drawing.FontStyle.ITALIC,
+                font_weight=momapy.drawing.FontWeight.BOLD,
             ),
             stroke=momapy.drawing.NoneValue,
             fill=momapy.drawing.NoneValue,
@@ -144,6 +146,8 @@ def render_nodes_testing(
 
         kwargs = node_config[1]
         kwargs["position"] = momapy.geometry.Point(0, 0)
+        kwargs["fill"] = momapy.coloring.lightblue
+        kwargs["stroke"] = momapy.coloring.black
         node_obj = node_cls(**kwargs)
         node_objs.append(node_obj)
 
