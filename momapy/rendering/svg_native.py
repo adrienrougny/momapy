@@ -53,7 +53,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.LineTo: "_make_line_to_value",
         momapy.drawing.CurveTo: "_make_curve_to_value",
         momapy.drawing.QuadraticCurveTo: "_make_quadratic_curve_to_value",
-        momapy.drawing.Close: "_make_close_value",
+        momapy.drawing.ClosePath: "_make_close_value",
         momapy.drawing.EllipticalArc: "_make_elliptical_arc_value",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
