@@ -202,7 +202,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                     font_weight == momapy.drawing.FontWeight.NORMAL
                     or font_weight == momapy.drawing.FontWeight.BOLD
                 ):
-                    font_weight = self.font_weight_value_mapping(font_weight)
+                    font_weight = self.font_weight_value_mapping[font_weight]
                 elif font_weight == momapy.drawing.FontWeight.BOLDER:
                     font_weight = self.get_bolder_font_weight(self._font_weight)
                 elif font_weight == momapy.drawing.FontWeight.LIGHTER:
@@ -425,32 +425,46 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
     def _render_text(self, text):
-        skia_typeface = self._skia_typefaces.get(text.font_family)
+        font_family = text.font_family
+        font_weight = self._font_weight
+        font_style = text.font_style
+        skia_typeface = self._skia_typefaces.get(
+            (font_family, font_weight, font_style)
+        )
         if skia_typeface is None:
-            skia_typeface = skia.Typeface(familyName=text.font_family)
-            self._skia_typefaces[text.font_family] = skia_typeface
+            skia_font_slant = self._te_font_style_slant_mapping[font_style]
+            skia_font_style = skia.FontStyle(
+                weight=font_weight,
+                slant=skia_font_slant,
+                width=skia.FontStyle.kNormal_Width,
+            )
+            skia_typeface = skia.Typeface(
+                familyName=font_family,
+                fontStyle=skia_font_style,
+            )
+            self._skia_typefaces[
+                (font_family, font_weight, font_style)
+            ] = skia_typeface
+        font_size = text.font_size
         skia_font = self._skia_fonts.get(
             (
-                text.font_family,
-                text.font_size,
-                text.font_style,
-                self._font_weight,
+                font_family,
+                font_weight,
+                font_style,
+                font_size,
             )
         )
         if skia_font is None:
-            font_slant = self._te_font_style_slant_mapping[text.font_style]
             skia_font = skia.Font(
                 typeface=skia_typeface,
-                size=text.font_size,
-                slant=font_slant,
-                weight=self._font_weight,
+                size=font_size,
             )
             self._skia_fonts[
                 (
-                    text.font_family,
-                    text.font_size,
-                    text.font_style,
-                    self._font_weight,
+                    font_family,
+                    font_weight,
+                    font_style,
+                    font_size,
                 )
             ] = skia_font
         if self._fill is not None:
