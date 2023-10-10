@@ -8,6 +8,7 @@ import numpy
 import momapy.meta.nodes
 import momapy.rendering.core
 import momapy.rendering.skia
+import momapy.rendering.svg_native
 
 
 def pretty_print(obj, max_depth=0, _depth=0, _indent=0):
