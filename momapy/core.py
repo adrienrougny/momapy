@@ -115,18 +115,27 @@ class LayoutElement(MapElement):
 class TextLayout(LayoutElement):
     text: str
     position: momapy.geometry.Point
-    font_size: float
-    font_family: str
-    font_style: momapy.drawing.FontStyle = momapy.drawing.FontStyle.NORMAL
-    font_weight: momapy.drawing.FontWeight | float = (
-        momapy.drawing.FontWeight.NORMAL
-    )
-    font_color: momapy.coloring.Color = momapy.coloring.black
     width: float | None = None
     height: float | None = None
     horizontal_alignment: HAlignment = HAlignment.LEFT
     vertical_alignment: VAlignment = VAlignment.TOP
     justify: bool = False
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None  # should be a tuple of filters to follow SVG (to be implemented)
+    )
+    font_family: str | None = None
+    font_size: float | None = None
+    font_style: momapy.drawing.FontStyle | None = None
+    font_weight: momapy.drawing.FontWeight | float | None = None
+    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    stroke_dasharray: tuple[float] | None = None
+    stroke_dashoffset: float | None = None
+    stroke_width: float | None = None
+    text_anchor: momapy.drawing.TextAnchor | None = None
+    transform: momapy.drawing.NoneValueType | momapy.geometry.Transformation | None = (
+        None
+    )
 
     @property
     def x(self):
@@ -228,13 +237,19 @@ class TextLayout(LayoutElement):
             pos += (tx, ty)
             text = momapy.drawing.Text(
                 text=line_text,
+                point=pos,
+                fill=self.fill,
+                filter=self.filter,
                 font_family=self.font_family,
                 font_size=self.font_size,
                 font_style=self.font_style,
                 font_weight=self.font_weight,
-                fill=self.font_color,
-                stroke=momapy.drawing.NoneValue,
-                position=pos,
+                stroke=self.stroke,
+                stroke_dasharray=self.stroke_dasharray,
+                stroke_dashoffset=self.stroke_dashoffset,
+                stroke_width=self.stroke_width,
+                text_anchor=self.text_anchor,
+                transform=self.transform,
             )
             drawing_elements.append(text)
             if pango_layout_iter.at_last_line():
@@ -288,22 +303,22 @@ class GroupLayout(LayoutElement):
     layout_elements: tuple[LayoutElement] = dataclasses.field(
         default_factory=tuple
     )
-    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
-    )
-    stroke_width: float | None = None  # inherited
-    stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None  # inherited
-    stroke_dashoffset: float | None = None  # inherited
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None  # inherited
-    )
-    transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    fill_rule: momapy.drawing.FillRule | None = None
     filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
+        None  # should be a tuple of filters to follow SVG (to be implemented)
+    )
+    font_family: str | None = None
+    font_size: float | None = None
+    font_style: momapy.drawing.FontStyle | None = None
+    font_weight: momapy.drawing.FontWeight | float | None = None
+    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    stroke_dasharray: tuple[float] | None = None
+    stroke_dashoffset: float | None = None
+    stroke_width: float | None = None
+    text_anchor: momapy.drawing.TextAnchor | None = None
+    transform: momapy.drawing.NoneValueType | momapy.geometry.Transformation | None = (
+        None
     )
 
     def self_to_shapely(self, to_polygons=False):
@@ -333,13 +348,19 @@ class GroupLayout(LayoutElement):
                 drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
             elements=drawing_elements,
+            fill=self.fill,
+            fill_rule=self.fill_rule,
+            filter=self.filter,
+            font_family=self.font_family,
+            font_size=self.font_size,
+            font_style=self.font_style,
+            font_weight=self.font_weight,
             stroke=self.stroke,
-            stroke_width=self.stroke_width,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
-            fill=self.fill,
+            stroke_width=self.stroke_width,
+            text_anchor=self.text_anchor,
             transform=self.transform,
-            filter=self.filter,
         )
         return [group]
 
@@ -366,9 +387,9 @@ class Node(GroupLayout):
     )
     border_transform: momapy.drawing.NoneValueType | tuple[
         momapy.geometry.Transformation
-    ] | None = None  # not inherited
+    ] | None = None
     border_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
+        None
     )
 
     @property

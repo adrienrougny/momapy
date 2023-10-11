@@ -140,8 +140,8 @@ def render_nodes_testing(
                 font_style=momapy.drawing.FontStyle.ITALIC,
                 font_weight=momapy.drawing.FontWeight.BOLD,
             ),
-            stroke=momapy.drawing.NoneValue,
-            fill=momapy.drawing.NoneValue,
+            border_stroke_width=0.0,
+            border_fill=momapy.coloring.white,
         )
         node_objs.append(node_obj)
 

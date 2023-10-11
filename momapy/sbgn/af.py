@@ -317,11 +317,8 @@ class _LogicalOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
+    _fill: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     _font_family: typing.ClassVar[str] = "Cantarell"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
-    _font_color: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
 
     def _make_shape(self):
         return momapy.sbgn.pd._LogicalOperatorLayout._make_shape(self)
@@ -330,6 +327,9 @@ class _LogicalOperatorLayout(
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperatorLayout(_LogicalOperatorLayout):
     _text: typing.ClassVar[str] = "AND"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
     width: float = 20.0
     height: float = 20.0
 
@@ -337,6 +337,9 @@ class AndOperatorLayout(_LogicalOperatorLayout):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperatorLayout(_LogicalOperatorLayout):
     _text: typing.ClassVar[str] = "OR"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
     width: float = 20.0
     height: float = 20.0
 
@@ -344,6 +347,9 @@ class OrOperatorLayout(_LogicalOperatorLayout):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperatorLayout(_LogicalOperatorLayout):
     _text: typing.ClassVar[str] = "NOT"
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
     width: float = 20.0
     height: float = 20.0
 

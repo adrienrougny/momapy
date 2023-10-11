@@ -16,8 +16,9 @@ class SVGElement(object):
     attributes: dict = dataclasses.field(default_factory=dict)
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
-    def __str__(self):
-        s_value = self.value if self.value is not None else ""
+    def to_string(self, indent=0):
+        s_indent = "\t" * indent
+        s_value = f"{s_indent}{self.value}\n" if self.value is not None else ""
         if self.attributes:
             l_s_attributes = []
             for attr_name, attr_value in self.attributes.items():
@@ -29,10 +30,16 @@ class SVGElement(object):
         else:
             s_attributes = ""
         if self.elements:
-            s_elements = "\n".join([str(child) for child in self.elements])
+            s_elements = "\n".join(
+                [child.to_string(indent + 1) for child in self.elements]
+            )
+            s_elements += "\n"
         else:
             s_elements = ""
-        return f"<{self.name}{s_attributes}>\n{s_value}{s_elements}</{self.name}>\n"
+        return f"{s_indent}<{self.name}{s_attributes}>\n{s_value}{s_elements}{s_indent}</{self.name}>"
+
+    def __str__(self):
+        return self.to_string()
 
     def add_element(self, element):
         self.elements.append(element)
@@ -111,6 +118,10 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.TextAnchor.MIDDLE: "middle",
         momapy.drawing.TextAnchor.END: "end",
     }
+    _de_fill_rule_value_mapping: typing.ClassVar[dict] = {
+        momapy.drawing.FillRule.NONZERO: "nonzero",
+        momapy.drawing.FillRule.EVENODD: "evenodd",
+    }
 
     svg: SVGElement
     config: dict = dataclasses.field(default_factory=dict)
@@ -181,65 +192,57 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _make_drawing_element_generic_attributes(self, drawing_element):
+    def _make_drawing_element_presentation_attributes(self, drawing_element):
         attributes = {}
-        if drawing_element.stroke is not None:
-            if drawing_element.stroke is momapy.drawing.NoneValue:
-                stroke_value = "none"
-            else:
-                stroke_value = self._make_color_value(drawing_element.stroke)
-                stroke_opacity_value = self._make_opacity_value(
-                    drawing_element.stroke
-                )
-                attributes["stroke-opacity"] = stroke_opacity_value
-            attributes["stroke"] = stroke_value
-
-        if drawing_element.fill is not None:
-            if drawing_element.fill is momapy.drawing.NoneValue:
-                fill_value = "none"
-            else:
-                fill_value = self._make_color_value(drawing_element.fill)
-                fill_opacity_value = self._make_opacity_value(
-                    drawing_element.fill
-                )
-                attributes["fill-opacity"] = fill_opacity_value
-            attributes["fill"] = fill_value
-
-        if drawing_element.stroke_width is not None:
-            stroke_width_value = drawing_element.stroke_width
-            attributes["stroke-width"] = stroke_width_value
-
-        if (
-            drawing_element.transform is not None
-            and drawing_element.transform is not momapy.drawing.NoneValue
-        ):
-            transform_value = self._make_transform_value(
-                drawing_element.transform
-            )
-            attributes["transform"] = transform_value
-
-        if (
-            drawing_element.filter is not None
-            and drawing_element.filter is not momapy.drawing.NoneValue
-        ):
-            filter_element = self._make_filter_element(drawing_element.filter)
-            if filter_element not in self._filter_elements:
-                self._filter_elements.append(filter_element)
-            attributes["filter"] = f"url(#{drawing_element.filter.id})"
-
+        for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+            attr_value = getattr(drawing_element, attr_name)
+            if attr_value is not None:
+                if attr_value is momapy.drawing.NoneValue:
+                    attr_value = "none"
+                else:
+                    if attr_name == "stroke" or attr_name == "fill":
+                        opacity_value = self._make_opacity_value(attr_value)
+                        attributes[f"{attr_name}-opacity"] = opacity_value
+                        attr_value = self._make_color_value(attr_value)
+                    elif attr_name == "transform":
+                        attr_value = self._make_transform_value(attr_value)
+                    elif attr_name == "filter":
+                        filter_element = self._make_filter_element(attr_value)
+                        if filter_element not in self._filter_elements:
+                            self._filter_elements.append(filter_element)
+                        attr_value = f"url(#{attr_value.id})"
+                    elif attr_name == "font_style":
+                        attr_value = self._te_font_style_value_mapping[
+                            attr_value
+                        ]
+                    elif attr_name == "font_weight":
+                        if isinstance(attr_value, momapy.drawing.FontWeight):
+                            attr_value = self._te_font_weight_value_mapping[
+                                attr_value
+                            ]
+                    elif attr_name == "text_anchor":
+                        attr_value = self._te_text_anchor_value_mapping[
+                            attr_value
+                        ]
+                    elif attr_name == "fill_rule":
+                        attr_value = self._de_fill_rule_value_mapping[
+                            attr_value
+                        ]
+                attr_name = attr_name.replace("_", "-")
+                attributes[attr_name] = attr_value
         return attributes
 
-    def _make_filter_element(self, filter_):
+    def _make_filter_element(self, filter):
         name = "filter"
         attributes = {}
-        attributes["id"] = filter_.id
+        attributes["id"] = filter.id
         attributes["filterUnits"] = self._fe_filter_unit_value_mapping[
-            filter_.filter_units
+            filter.filter_units
         ]
-        attributes["x"] = filter_.x
-        attributes["y"] = filter_.y
-        attributes["width"] = filter_.width
-        attributes["height"] = filter_.height
+        attributes["x"] = filter.x
+        attributes["y"] = filter.y
+        attributes["width"] = filter.width
+        attributes["height"] = filter.height
         subelements = []
         for filter_effect in filter_.effects:
             subelement = self._make_filter_effect_element(filter_effect)
@@ -355,7 +358,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_group_element(self, group):
         name = "g"
-        attributes = self._make_drawing_element_generic_attributes(group)
+        attributes = self._make_drawing_element_presentation_attributes(group)
         subelements = []
         for drawing_element in group.elements:
             subelement = self._make_drawing_element_element(drawing_element)
@@ -413,7 +416,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_path_element(self, path):
         name = "path"
-        attributes = self._make_drawing_element_generic_attributes(path)
+        attributes = self._make_drawing_element_presentation_attributes(path)
         d_value = " ".join(
             [
                 self._make_path_action_value(path_action)
@@ -426,29 +429,16 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_text_element(self, text):
         name = "text"
-        attributes = self._make_drawing_element_generic_attributes(text)
+        attributes = self._make_drawing_element_presentation_attributes(text)
         attributes["x"] = text.x
         attributes["y"] = text.y
-        attributes["font-size"] = text.font_size
-        attributes["font-family"] = text.font_family
-        attributes["font-style"] = self._te_font_style_value_mapping[
-            text.font_style
-        ]
-        attributes["text-anchor"] = self._te_text_anchor_value_mapping[
-            text.text_anchor
-        ]
-        attributes["font-weight"] = (
-            text.font_weight
-            if isinstance(text.font_weight, float)
-            else self._te_font_weight_value_mapping[text.font_weight]
-        )
         value = text.text
         element = SVGElement(name=name, attributes=attributes, value=value)
         return element
 
     def _make_ellipse_element(self, ellipse):
         name = "ellipse"
-        attributes = self._make_drawing_element_generic_attributes(ellipse)
+        attributes = self._make_drawing_element_presentation_attributes(ellipse)
         attributes["cx"] = ellipse.x
         attributes["cy"] = ellipse.y
         attributes["rx"] = ellipse.rx
@@ -458,7 +448,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_rectangle_element(self, rectangle):
         name = "rect"
-        attributes = self._make_drawing_element_generic_attributes(rectangle)
+        attributes = self._make_drawing_element_presentation_attributes(
+            rectangle
+        )
         attributes["x"] = rectangle.x
         attributes["y"] = rectangle.y
         attributes["width"] = rectangle.width
