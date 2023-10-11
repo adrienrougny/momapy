@@ -6,6 +6,21 @@ import momapy.core
 import momapy.builder
 import momapy.drawing
 
+DEFAULT_FILL = None
+DEFAULT_FILL_RULE = None
+DEFAULT_Z = None
+DEFAULT_STROKE = None
+DEFAULT_STROKE_WIDTH = None
+DEFAULT_FONT_FAMILY = None
+DEFAULT_FONT_SIZE = None
+DEFAULT_FONT_WEIGHT = None
+DEFAULT_FONT_STYLE = None
+DEFAULT_TEXT_ANCHOR = None
+DEFAULT_VTEXT_ANCHOR = None
+DEFAULT_START_HEAD = None
+DEFAULT_END_HEAD = None
+DEFAULT_ENABLE_ROTATIONAL_MAPPING = True
+
 
 class VTextAnchor(enums.Enum):
     TOP = "top"
@@ -18,6 +33,12 @@ class VTextAnchor(enums.Enum):
 class RelAbsVector(object):
     abs: float = 0.0
     rel: float | None = None
+
+    def evaluate(self, length: float) -> float:
+        res = self.abs
+        if self.rel is not None:
+            res += self.rel / 100 * length
+        return res
 
     def __str__(self):
         if self.abs != 0:
@@ -51,12 +72,8 @@ class RenderPoint(SBase):
     z: RelAbsVector | None = None
 
     def evaluate(self, bbox: momapy.geometry.Bbox) -> momapy.geometry.Point:
-        x = bbox.west().x + self.x.abs
-        if self.x.rel is not None:
-            x += self.x.rel * bbox.width
-        y = bbox.north().x + self.y.abs
-        if self.y.rel is not None:
-            y += self.y.rel * bbox.height
+        x = bbox.west().x + self.x.evaluate(bbox.width)
+        y = bbox.north().y + self.y.evaluate(bbox.height)
         return momapy.geometry.Point(x, y)
 
     def to_path_action(self, bbox):
@@ -96,7 +113,24 @@ class Transformation(SBase):
 @dataclasses.dataclass(frozen=True)
 class Transformation2D(Transformation, abc.ABC):
     @abc.abstractmethod
-    def to_drawing_elements(self, bbox=None, from_=None):
+    def to_drawing_elements(
+        self,
+        bbox=None,
+        fill=None,
+        fill_rule=None,
+        z=None,
+        stroke=None,
+        stroke_width=None,
+        font_family=None,
+        font_size=None,
+        font_weight=None,
+        font_style=None,
+        text_anchor=None,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+        enable_rotational_mapping=None,
+    ):
         pass
 
 
