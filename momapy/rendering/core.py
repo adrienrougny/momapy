@@ -208,12 +208,13 @@ class StatefulRenderer(Renderer):
         self.set_current_state(state)
 
     def save(self):
-        self._states.append(self.get_current_state())
+        self._states.append(copy.deepcopy(self.get_current_state()))
         self.self_save()
 
     def restore(self):
         if len(self._states) > 0:
             state = self._states.pop()
+            print("IN RESTORE", state["stroke_dasharray"])
             self.set_current_state(state)
             self.self_restore()
         else:
