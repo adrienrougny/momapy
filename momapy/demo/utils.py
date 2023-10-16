@@ -17,7 +17,7 @@ import momapy.positioning
 def display(obj, width=600, height=450):
     surface = skia.Surface.MakeRasterN32Premul(width, height)
     canvas = surface.getCanvas()
-    renderer = momapy.rendering.skia.SkiaRenderer(canvas)
+    renderer = momapy.rendering.skia.SkiaRenderer(canvas=canvas)
     renderer.begin_session()
     if momapy.builder.isinstance_or_builder(obj, momapy.core.Map):
         renderer.render_map(obj)
