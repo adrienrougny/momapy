@@ -317,8 +317,13 @@ class _LogicalOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    _fill: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
 
     def _make_shape(self):
         return momapy.sbgn.pd._LogicalOperatorLayout._make_shape(self)

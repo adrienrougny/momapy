@@ -964,8 +964,13 @@ class _LogicalOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    _fill: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -1039,11 +1044,17 @@ class OmittedProcessLayout(
     momapy.sbgn.core.SBGNNode,
 ):
     _text: typing.ClassVar[str] = "\\\\"
-    _fill: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 1.5
     )
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+
     width: float = 20.0
     height: float = 20.0
 
@@ -1059,11 +1070,17 @@ class UncertainProcessLayout(
     momapy.sbgn.core.SBGNNode,
 ):
     _text: typing.ClassVar[str] = "?"
-    _fill: typing.ClassVar[momapy.coloring.Color] = momapy.coloring.black
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 1.5
     )
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+
     width: float = 20.0
     height: float = 20.0
 

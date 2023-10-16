@@ -140,6 +140,7 @@ def render_nodes_testing(
                 font_style=momapy.drawing.FontStyle.ITALIC,
                 font_weight=momapy.drawing.FontWeight.BOLD,
                 fill=momapy.coloring.black,
+                stroke=momapy.drawing.NoneValue,
             ),
             border_stroke_width=0.0,
             border_fill=momapy.coloring.white,
@@ -237,6 +238,7 @@ def render_arcs_testing(
                 font_size=10,
                 font_family="Cantarell",
                 fill=momapy.coloring.black,
+                stroke=momapy.drawing.NoneValue,
             ),
         )
         arc_objs.append(arc_obj)

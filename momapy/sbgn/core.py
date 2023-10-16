@@ -364,7 +364,6 @@ class _MultiMixin(_SBGNMixin):
 @dataclass(frozen=True)
 class _TextMixin(_SBGNMixin):
     _text: ClassVar[str]
-    _fill: ClassVar[momapy.coloring.Color]
     _font_family: ClassVar[str]
     _font_size_func: ClassVar[Callable]
     _font_style: ClassVar[
@@ -373,16 +372,19 @@ class _TextMixin(_SBGNMixin):
     _font_weight: ClassVar[
         momapy.drawing.FontWeight | float
     ] = momapy.drawing.FontWeight.NORMAL
+    _font_fill: ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
+    _font_stroke: ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
 
     def _make_text_layout(self):
         text_layout = momapy.core.TextLayout(
             text=self._text,
             position=self.label_center(),
-            fill=self._fill,
             font_family=self._font_family,
             font_size=self._font_size_func(),
             font_style=self._font_style,
             font_weight=self._font_weight,
+            fill=self._font_fill,
+            stroke=self._font_stroke,
         )
         return text_layout
 
