@@ -114,6 +114,8 @@ class LayoutElement(MapElement):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
     text: str
+    font_family: str
+    font_size: float
     position: momapy.geometry.Point
     width: float | None = None
     height: float | None = None
@@ -124,8 +126,6 @@ class TextLayout(LayoutElement):
     filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
         None  # should be a tuple of filters to follow SVG (to be implemented)
     )
-    font_family: str | None = None
-    font_size: float | None = None
     font_style: momapy.drawing.FontStyle | None = None
     font_weight: momapy.drawing.FontWeight | float | None = None
     stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
