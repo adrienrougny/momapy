@@ -151,7 +151,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             de_func(drawing_element)
             picture = recorder.finishRecordingAsPicture()
             skia_paint = self._make_filter_paint(
-                filter, group.get_filter_region()
+                filter, drawing_element.get_filter_region()
             )
             self.canvas = saved_canvas
             self.canvas.drawPicture(picture, paint=skia_paint)
@@ -369,7 +369,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         if skia_typeface is None:
             skia_font_slant = self._te_font_style_slant_mapping[font_style]
             skia_font_style = skia.FontStyle(
-                weight=font_weight,
+                weight=int(font_weight),
                 slant=skia_font_slant,
                 width=skia.FontStyle.kNormal_Width,
             )
