@@ -134,7 +134,29 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         if issubclass(class_, momapy.builder.Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
-        de_func(drawing_element)
+        filter = self.get_current_value("filter")
+        if filter is not momapy.drawing.NoneValue:
+            bbox = drawing_element.bbox()
+            saved_canvas = self.canvas
+            recorder = skia.PictureRecorder()
+            canvas = recorder.beginRecording(
+                skia.Rect.MakeXYWH(
+                    bbox.north_west().x,
+                    bbox.north_west().y,
+                    bbox.width,
+                    bbox.height,
+                )
+            )
+            self.canvas = canvas
+            de_func(drawing_element)
+            picture = recorder.finishRecordingAsPicture()
+            skia_paint = self._make_filter_paint(
+                filter, group.get_filter_region()
+            )
+            self.canvas = saved_canvas
+            self.canvas.drawPicture(picture, paint=skia_paint)
+        else:
+            de_func(drawing_element)
         self.restore()
 
     def self_save(self):
@@ -312,31 +334,8 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         return tr_func(transformation)
 
     def _render_group(self, group):
-        filter = self.get_current_value("filter")
-        if filter is not momapy.drawing.NoneValue:
-            bbox = group.bbox()
-            saved_canvas = self.canvas
-            recorder = skia.PictureRecorder()
-            canvas = recorder.beginRecording(
-                skia.Rect.MakeXYWH(
-                    bbox.north_west().x,
-                    bbox.north_west().y,
-                    bbox.width,
-                    bbox.height,
-                )
-            )
-            self.canvas = canvas
-            for drawing_element in group.elements:
-                self.render_drawing_element(drawing_element)
-            picture = recorder.finishRecordingAsPicture()
-            skia_paint = self._make_filter_paint(
-                filter, group.get_filter_region()
-            )
-            self.canvas = saved_canvas
-            self.canvas.drawPicture(picture, paint=skia_paint)
-        else:
-            for drawing_element in group.elements:
-                self.render_drawing_element(drawing_element)
+        for drawing_element in group.elements:
+            self.render_drawing_element(drawing_element)
 
     def _add_path_action_to_skia_path(self, skia_path, path_action):
         class_ = type(path_action)
