@@ -151,7 +151,7 @@ class Filter(object):
                 effects += effect.to_compat()
             else:
                 effects.append(effect)
-        return replace(self, effects=tuple(effects))
+        return dataclasses.replace(self, effects=tuple(effects))
 
 
 class FontStyle(enum.Enum):
@@ -345,7 +345,7 @@ class Group(DrawingElement):
         elements = []
         for element in self.elements:
             elements.append(element.transformed(transformation))
-        return replace(self, elements=tuple(elements))
+        return dataclasses.replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False):
         geom_collection = []
@@ -695,7 +695,7 @@ class Path(DrawingElement):
                 current_point = action.point
             else:
                 current_point = None
-        return replace(self, actions=tuple(actions))
+        return dataclasses.replace(self, actions=tuple(actions))
 
     def to_shapely(self, to_polygons=False):
         current_point = momapy.geometry.Point(
