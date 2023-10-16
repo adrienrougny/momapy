@@ -1,12 +1,7 @@
-from dataclasses import dataclass, InitVar
-from copy import deepcopy
-from abc import ABC, abstractmethod
-from typing import ClassVar, Optional, Collection, Union
-import cairo
-import gi
-import skia
-
-import math
+import dataclasses
+import copy
+import abc
+import typing
 
 import momapy.drawing
 import momapy.styling
@@ -109,43 +104,38 @@ def render_maps(
         renderer.end_session()
 
 
-@dataclass
-class Renderer(ABC):
-    default_stroke: ClassVar[
-        Union[momapy.coloring.Color, momapy.drawing.NoneValueType]
-    ] = (momapy.drawing.NoneValue,)
-    default_stroke_width: ClassVar[float] = 1.0
-    default_fill: ClassVar[momapy.coloring.Color] = momapy.coloring.black
-    default_stroke_dashoffset: ClassVar[float] = 0.0
-    default_font_weight: ClassVar[
-        momapy.drawing.FontWeight | float
-    ] = momapy.drawing.FontWeight.NORMAL
-    font_weight_value_mapping: ClassVar[dict] = {
+@dataclasses.dataclass
+class Renderer(abc.ABC):
+    initial_values: typing.ClassVar[dict] = {
+        "font_family": "Arial",
+        "font_weight": 16.0,
+    }
+    font_weight_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.FontWeight.NORMAL: 400,
         momapy.drawing.FontWeight.BOLD: 700,
     }
 
-    @abstractmethod
+    @abc.abstractmethod
     def begin_session(self):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def end_session(self):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def new_page(self, width, height):
         pass
 
-    @abstractmethod
-    def render_map(self, map_):
+    @abc.abstractmethod
+    def render_map(self, map):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def render_layout_element(self, layout_element):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def render_drawing_element(self, drawing_element):
         pass
 
@@ -184,3 +174,97 @@ class Renderer(ABC):
         else:
             new_font_weight = 900
         return new_font_weight
+
+
+@dataclasses.dataclass
+class StatefulRenderer(Renderer):
+    _current_state: dict = dataclasses.field(default_factory=dict)
+    _states: list[dict] = dataclasses.field(default_factory=list)
+
+    def __post_init__(self):
+        self._initialize_current_state()
+
+    @abc.abstractmethod
+    def self_save(self):
+        pass
+
+    @abc.abstractmethod
+    def self_restore(self):
+        pass
+
+    @classmethod
+    def _make_initial_current_state(cls):
+        state = {}
+        for attr_name, attr_d in momapy.drawing.PRESENTATION_ATTRIBUTES.items():
+            if attr_name in cls.initial_values:
+                attr_value = cls.initial_values[attr_name]
+            else:
+                attr_value = attr_d["initial"]
+            state[attr_name] = attr_value
+        return state
+
+    def _initialize_current_state(self):
+        state = self._make_initial_current_state()
+        self.set_current_state(state)
+
+    def save(self):
+        self._states.append(self.get_current_state())
+        self.self_save()
+
+    def restore(self):
+        if len(self._states) > 0:
+            state = self._states.pop()
+            self.set_current_state(state)
+            self.self_restore()
+        else:
+            raise Exception("no state to be restored")
+
+    def get_current_value(self, attr_name):
+        return self.get_current_state()[attr_name]
+
+    def get_current_state(self):
+        return self._current_state
+
+    def set_current_value(self, attr_name, attr_value):
+        if attr_value is None:
+            attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
+            if not attr_d["inherited"]:
+                if attr_name in self.initial_values:
+                    attr_value = self.initial_values[attr_name]
+                else:
+                    attr_value = attr_d["initial"]
+                if attr_value is None:
+                    raise ValueError(
+                        f"non-inherited presentation attribute {attr_name} must have an initial value or a value different than {attr_value}"
+                    )
+        if attr_name == "font_weight":
+            if isinstance(attr_value, momapy.drawing.FontWeight):
+                if (
+                    attr_value == momapy.drawing.FontWeight.NORMAL
+                    or attr_value == momapy.drawing.FontWeight.BOLD
+                ):
+                    attr_value = self.font_weight_value_mapping[attr_value]
+                elif attr_value == momapy.drawing.FontWeight.BOLDER:
+                    attr_value = self.get_bolder_font_weight(
+                        self.get_current_value("font_weight")
+                    )
+                elif attr_value == momapy.drawing.FontWeight.LIGHTER:
+                    attr_value = self.get_lighter_font_weight(
+                        self.get_current_value("font_weight")
+                    )
+        if attr_value is not None:
+            self._current_state[attr_name] = attr_value
+
+    def set_current_state(self, state: dict):
+        for attr_name, attr_value in state.items():
+            self.set_current_value(attr_name, attr_value)
+
+    def _get_state_from_drawing_element(self, drawing_element):
+        state = {}
+        for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+            state[attr_name] = getattr(drawing_element, attr_name)
+        return state
+
+    def set_current_state_from_drawing_element(self, drawing_element):
+        state = self._get_state_from_drawing_element(drawing_element)
+        self.set_current_state(state)

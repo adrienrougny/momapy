@@ -9,8 +9,8 @@ import momapy.geometry
 import momapy.rendering.core
 
 
-@dataclasses.dataclass
-class SkiaRenderer(momapy.rendering.core.Renderer):
+@dataclasses.dataclass(kw_only=True)
+class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "jpeg", "webp"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
@@ -59,10 +59,6 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
         momapy.drawing.FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
     }
-    _te_font_weigth_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontWeight.NORMAL: 400,
-        momapy.drawing.FontWeight.BOLD: 700,
-    }
     canvas: skia.Canvas
     config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
@@ -94,36 +90,30 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         return cls(canvas=canvas, config=config)
 
     def begin_session(self):
-        self._states = []
-        self._stroke = None
-        self._fill = self.default_fill
-        self._stroke_width = self.default_stroke_width
-        self._stroke_dasharray = None
-        self._stroke_dashoffset = self.default_stroke_dashoffset
-        self._font_weight = self.default_font_weight
+        pass
 
     def end_session(self):
         self.canvas.flush()
-        format_ = self.config.get("format")
-        if format_ == "pdf":
+        format = self.config.get("format")
+        if format == "pdf":
             self.config["document"].endPage()
             self.config["document"].close()
-        elif format_ == "png":
+        elif format == "png":
             image = self.config["surface"].makeImageSnapshot()
             image.save(self.config["output_file"], skia.kPNG)
-        elif format_ == "jpeg":
+        elif format == "jpeg":
             image = self.config["surface"].makeImageSnapshot()
             image.save(self.config["output_file"], skia.kJPEG)
-        elif format_ == "webp":
+        elif format == "webp":
             image = self.config["surface"].makeImageSnapshot()
             image.save(self.config["output_file"], skia.kWEBP)
-        elif format_ == "svg":
+        elif format == "svg":
             del self.canvas
             self.config["stream"].flush()
 
     def new_page(self, width, height):
-        format_ = self.config.get("format")
-        if format_ == "pdf":
+        format = self.config.get("format")
+        if format == "pdf":
             self.config["document"].endPage()
             canvas = self.config["document"].beginPage(width, height)
             self.canvas = canvas
@@ -137,95 +127,39 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
-        self._save()
-        self._set_state_from_drawing_element(drawing_element)
+        self.save()
+        self.set_current_state_from_drawing_element(drawing_element)
         self._add_transform_from_drawing_element(drawing_element)
         class_ = type(drawing_element)
         if issubclass(class_, momapy.builder.Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
         de_func(drawing_element)
-        self._restore()
+        self.restore()
 
-    def _save(self):
-        state = {
-            "stroke": self._stroke,
-            "fill": self._fill,
-            "stroke_width": self._stroke_width,
-            "stroke_dasharray": self._stroke_dasharray,
-            "stroke_dashoffset": self._stroke_dashoffset,
-            "font_weight": self._font_weight,
-        }
-        self._states.append(state)
+    def self_save(self):
         self.canvas.save()
 
-    def _restore(self):
-        state = self._states.pop()
-        self._set_state(state)
+    def self_restore(self):
         self.canvas.restore()
-        self._set_new_path()
-
-    def _set_state(self, state):
-        for key in state:
-            setattr(self, f"_{key}", state[key])
-
-    def _set_state_from_drawing_element(self, drawing_element):
-        state = self._get_state_from_drawing_element(drawing_element)
-        self._set_state(state)
-
-    def _get_state_from_drawing_element(self, drawing_element):
-        state = {}
-        if drawing_element.stroke is momapy.drawing.NoneValue:
-            state["stroke"] = None
-        elif drawing_element.stroke is not None:
-            state["stroke"] = drawing_element.stroke
-        if drawing_element.fill is momapy.drawing.NoneValue:
-            state["fill"] = None
-        elif drawing_element.fill is not None:
-            state["fill"] = drawing_element.fill
-        if (
-            drawing_element.stroke_width is not None
-        ):  # not sure, need to check svg spec
-            state["stroke_width"] = drawing_element.stroke_width
-        if drawing_element.stroke_dasharray is momapy.drawing.NoneValue:
-            state["stroke_dasharray"] = None
-        elif drawing_element.stroke_dasharray is not None:
-            state["stroke_dasharray"] = drawing_element.stroke_dasharray
-        if drawing_element.stroke_dashoffset is momapy.drawing.NoneValue:
-            state["stroke_dashoffset"] = None
-        elif drawing_element.stroke_dashoffset is not None:
-            state["stroke_dashoffset"] = drawing_element.stroke_dashoffset
-        if hasattr(drawing_element, "font_weight"):
-            font_weight = drawing_element.font_weight
-            if isinstance(font_weight, momapy.drawing.FontWeight):
-                if (
-                    font_weight == momapy.drawing.FontWeight.NORMAL
-                    or font_weight == momapy.drawing.FontWeight.BOLD
-                ):
-                    font_weight = self.font_weight_value_mapping[font_weight]
-                elif font_weight == momapy.drawing.FontWeight.BOLDER:
-                    font_weight = self.get_bolder_font_weight(self._font_weight)
-                elif font_weight == momapy.drawing.FontWeight.LIGHTER:
-                    font_weight = self.get_lighter_font_weight(
-                        self._font_weight
-                    )
-            state["font_weight"] = font_weight
-        return state
-
-    def _set_new_path(self):
-        pass
 
     def _make_stroke_paint(self):
-        if self._stroke_dasharray is not None:
+        if (
+            self.get_current_value("stroke_dasharray")
+            is not momapy.drawing.NoneValue
+        ):
             skia_path_effect = skia.DashPathEffect.Make(
-                list(self._stroke_dasharray), self._stroke_dashoffset
+                list(self.get_current_value("stroke_dasharray")),
+                self.get_current_value("stroke_dashoffset"),
             )
         else:
             skia_path_effect = None
         skia_paint = skia.Paint(
             AntiAlias=True,
-            Color4f=skia.Color4f(self._stroke.to_rgba(rgba_range=(0, 1))),
-            StrokeWidth=self._stroke_width,
+            Color4f=skia.Color4f(
+                self.get_current_value("stroke").to_rgba(rgba_range=(0, 1))
+            ),
+            StrokeWidth=self.get_current_value("stroke_width"),
             PathEffect=skia_path_effect,
             Style=skia.Paint.kStroke_Style,
         )
@@ -234,7 +168,9 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
     def _make_fill_paint(self):
         skia_paint = skia.Paint(
             AntiAlias=True,
-            Color4f=skia.Color4f(self._fill.to_rgba(rgba_range=(0, 1))),
+            Color4f=skia.Color4f(
+                self.get_current_value("fill").to_rgba(rgba_range=(0, 1))
+            ),
             Style=skia.Paint.kFill_Style,
         )
         return skia_paint
@@ -376,8 +312,8 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
         return tr_func(transformation)
 
     def _render_group(self, group):
-        filter_ = group.filter
-        if filter_ is not None and filter_ is not momapy.drawing.NoneValue:
+        filter = self.get_current_value("filter")
+        if filter is not momapy.drawing.NoneValue:
             bbox = group.bbox()
             saved_canvas = self.canvas
             recorder = skia.PictureRecorder()
@@ -394,7 +330,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                 self.render_drawing_element(drawing_element)
             picture = recorder.finishRecordingAsPicture()
             skia_paint = self._make_filter_paint(
-                group.filter, group.get_filter_region()
+                filter, group.get_filter_region()
             )
             self.canvas = saved_canvas
             self.canvas.drawPicture(picture, paint=skia_paint)
@@ -417,17 +353,17 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
 
     def _render_path(self, path):
         skia_path = self._make_skia_path(path)
-        if self._fill is not None:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
-        if self._stroke is not None:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
     def _render_text(self, text):
-        font_family = text.font_family
-        font_weight = self._font_weight
-        font_style = text.font_style
+        font_family = self.get_current_value("font_family")
+        font_weight = self.get_current_value("font_weight")
+        font_style = self.get_current_value("font_style")
         skia_typeface = self._skia_typefaces.get(
             (font_family, font_weight, font_style)
         )
@@ -445,7 +381,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             self._skia_typefaces[
                 (font_family, font_weight, font_style)
             ] = skia_typeface
-        font_size = text.font_size
+        font_size = self.get_current_value("font_size")
         skia_font = self._skia_fonts.get(
             (
                 font_family,
@@ -467,7 +403,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                     font_size,
                 )
             ] = skia_font
-        if self._fill is not None:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -476,7 +412,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                 font=skia_font,
                 paint=skia_paint,
             )
-        if self._stroke is not None:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -493,10 +429,10 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             ellipse.x + ellipse.rx,
             ellipse.y + ellipse.ry,
         )
-        if self._fill is not None:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
-        if self._stroke is not None:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
 
@@ -507,7 +443,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
             rectangle.x + rectangle.width,
             rectangle.y + rectangle.height,
         )
-        if self._fill is not None:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,
@@ -515,7 +451,7 @@ class SkiaRenderer(momapy.rendering.core.Renderer):
                 ry=rectangle.ry,
                 paint=skia_paint,
             )
-        if self._stroke is not None:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,
