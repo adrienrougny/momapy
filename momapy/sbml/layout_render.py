@@ -6,6 +6,9 @@ import momapy.core
 import momapy.builder
 import momapy.drawing
 
+# should be moved to IO, will be used when cascading styles during file reading
+# all presentation attributes are set to None, their defaults are defined by SVG
+# (in momapy.drawing.PRESENTATION_ATTRIBUTES) or by the user agent
 DEFAULT_FILL = None
 DEFAULT_FILL_RULE = None
 DEFAULT_Z = None
@@ -20,6 +23,55 @@ DEFAULT_VTEXT_ANCHOR = None
 DEFAULT_START_HEAD = None
 DEFAULT_END_HEAD = None
 DEFAULT_ENABLE_ROTATIONAL_MAPPING = True
+
+
+def make_path_from_elements(
+    elements,
+    bbox,
+    close=False,
+    fill=None,
+    fill_rule=None,
+    stroke=None,
+    stroke_width=None,
+):
+    actions = []
+    for render_point in elements:
+        actions.append(render_point.to_path_action(bbox))
+    if close:
+        actions.append(momapy.drawing.ClosePath())
+    path = momapy.drawing.Path(
+        actions=path_actions,
+        fill=fill,
+        fill_rule=fill_rule,
+        stroke=stroke,
+        stroke_width=stroke_width,
+    )
+    return path
+
+
+def make_path_from_curve(
+    curve,
+    bbox,
+    close=False,
+    fill=None,
+    fill_rule=None,
+    stroke=None,
+    stroke_width=None,
+):
+    actions = [momapy.drawing.MoveTo(self.curve[0].p1)]
+    for segment in self.curve:
+        action = momapy.core.Arc._make_path_action_from_segment(segment)
+        actions.append(action)
+    if close:
+        actions.append(momapy.drawing.ClosePath())
+    path = momapy.drawing.Path(
+        actions=path_actions,
+        fill=fill,
+        fill_rule=fill_rule,
+        stroke=stroke,
+        stroke_width=stroke_width,
+    )
+    return path
 
 
 class VTextAnchor(enums.Enum):
@@ -116,20 +168,9 @@ class Transformation2D(Transformation, abc.ABC):
     def to_drawing_elements(
         self,
         bbox=None,
-        fill=None,
-        fill_rule=None,
-        z=None,
-        stroke=None,
-        stroke_width=None,
-        font_family=None,
-        font_size=None,
-        font_weight=None,
-        font_style=None,
-        text_anchor=None,
         vtext_anchor=None,
         start_head=None,
         end_head=None,
-        enable_rotational_mapping=None,
     ):
         pass
 
@@ -153,9 +194,21 @@ class LineEnding(GraphicalPrimitive2D):
     id: str
     bounding_box: momapy.geometry.Bbox
     g: RenderGroup
+    enable_rotational_mapping: bool | None = True
 
-    def to_drawing_elements(self, bbox=None, from_=None):
-        return g.to_drawing_elements(self.bounding_box)
+    def to_drawing_elements(
+        self,
+        bbox=None,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
+        return g.to_drawing_elements(
+            bbox=self.bounding_box,
+            vtext_anchor=vtext_anchor,
+            start_head=start_head,
+            end_head=end_head,
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -167,16 +220,84 @@ class RenderCurve(GraphicalPrimitive1D):
         momapy.geometry.Segment | momapy.geometry.BezierCurve
     ] = dataclasses.field(default_factory=tuple)
 
-    def to_drawing_elements(self, bbox, from_=None):
-        if (
-            self.start_head is None
-            and from_ is not None
-            and from_.start_head is not None
-        ):
-            start_head = from_.start_head
-        else:
-            start_head = self.start_head
+    def points(self, bbox) -> list[momapy.geometry.Point]:
+        points = []
+        if len(self.elements) > 0:
+            for render_point in self.elements:
+                points.append(render_point.evaluate(bbox))
+            return points
+        elif len(self.curve) > 0:
+            points.append(self.curve[0].p1)
+            for segment in self.curve:
+                points.append(segment.p2)
+            return points
         return []
+
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
+        elements = []
+        if len(self.elements) > 0:
+            path = make_path_from_elements(elements=self.elements, bbox=bbox)
+            elements.append(path)
+        elif len(self.curve) > 0:
+            path = make_path_from_curve(curve=self.curve, bbox=bbpx)
+            elements.append(path)
+        if self.start_head is not None:
+            start_head = self.start_head
+        if self.end_head is not None:
+            end_head = self.end_head
+        points = self.points()
+        if start_head is not None:
+            start_point = points[0]
+            start_head_drawing_elements = start_head.to_drawing_elements()
+            start_translation = momapy.geometry.Translation(
+                start_point.x, start_point.y
+            )
+            start_head_drawing_elements = [
+                de.transformed(start_translation)
+                for de in start_head_drawing_elements
+            ]
+            if start_head.enable_rotational_mapping:
+                line = momapy.geometry.Line(points[1], start_point)
+                angle = line.get_angle_to_horizontal()
+                start_rotation = momapy.geometry.Rotation(angle, start_point)
+                start_head_drawing_elements = [
+                    de.transformed(start_rotation)
+                    for de in start_head_drawing_elements
+                ]
+            elements += start_head_drawing_elements
+        if end_head is not None:
+            end_point = points[-1]
+            end_head_drawing_elements = end_head.to_drawing_elements()
+            end_translation = momapy.geometry.Translation(
+                end_point.x, end_point.y
+            )
+            end_head_drawing_elements = [
+                de.transformed(end_translation)
+                for de in end_head_drawing_elements
+            ]
+            if end_head.enable_rotational_mapping:
+                line = momapy.geometry.Line(points[-2], end_point)
+                angle = line.get_angle_to_horizontal()
+                end_rotation = momapy.geometry.Rotation(angle, end_point)
+                end_head_drawing_elements = [
+                    de.transformed(end_rotation)
+                    for de in end_head_drawing_elements
+                ]
+            elements += end_head_drawing_elements
+        group = momapy.drawing.Group(
+            elements=elements,
+            stroke=self.stroke,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_width=self.stroke_width,
+            transform=(self.transform,),
+        )
+        return [group]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -185,15 +306,27 @@ class RenderGroup(GraphicalPrimitive2D):
     end_head: LineEnding | None = None
     font_family: str | None = None
     font_size: float | None = None
+    font_style: momapy.drawing.FontStyle | None = None
     font_weight: str | None = None
-    text_anchor: momapy.drawing.TextAnchor
-    vtext_anchor: VTextAnchor  # not implemented
+    text_anchor: momapy.drawing.TextAnchor | None = None
+    vtext_anchor: VTextAnchor | None = None  # not implemented
     elements: tuple[Transformation2D] = dataclasses.field(default_factory=tuple)
 
-    def to_drawing_elements(self, bbox, from_=None):
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
         group_elements = []
         for element in self.elements:
-            group_elements += element.to_drawing_elements(bbox, from_=self)
+            group_elements += element.to_drawing_elements(
+                bbox=bbox,
+                vtext_anchor=self.vtext_anchor,
+                start_head=self.start_head,
+                end_head=self.end_head,
+            )
         group = momapy.drawing.Group(elements=group_elements)
         return [group]
 
@@ -206,25 +339,31 @@ class Text(GraphicalPrimitive1D):
     z: RelAbsVector | None = None
     font_family: str | None = None
     font_size: float | None = None
-    font_weight: momapy.drawing.FontWeight
-    font_style: momapy.drawing.FontStyle
-    text_anchor: momapy.drawing.TextAnchor
-    vtext_anchor: VTextAnchor  # not implemented
+    font_weight: momapy.drawing.FontWeight | None = None
+    font_style: momapy.drawing.FontStyle | None = None
+    text_anchor: momapy.drawing.TextAnchor | None = None
+    vtext_anchor: VTextAnchor | None = None  # not implemented
 
-    def to_drawing_elements(self, bbox, font_family=None):
-        if self.font_family is not None:
-            font_family = self.font_family
-        elif (
-            font_family is None
-        ):  # only possible if not called from RenderGroup
-            font_family = DEFAULT_FONT_FAMILY
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
         text = momapy.drawing.Text(
-            stroke_width=stroke_width,
-            stroke=stroke,
-            fill=fill,
-            text_anchor=text_anchor,
-            text=value,
+            text=self.value,
             point=RenderPoint(self.x, self.y).evaluate(bbox),
+            fill=self.fill,
+            font_family=self.font_family,
+            font_size=self.font_size,
+            font_style=self.font_style,
+            font_weight=self.font_weight,
+            stroke=self.stroke,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_width=self.stroke_width,
+            text_anchor=self.text_anchor,
+            vtext_anchor=self.vtext_anchor,
         )
         return [text]
 
@@ -239,8 +378,23 @@ class Ellipse(GraphicalPrimitive2D):
     rz: RelAbsVector | None = None
     ratio: float | None = None
 
-    def to_drawing_elements(self, bbox):
-        return []
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
+        ellipse = momapy.drawing.Ellipse(
+            point=RenderPoint(self.cx, self.cy).evaluate(bbox),
+            rx=self.rx.evaluate(bbox.width),
+            ry=self.ry.evaluate(bbox.height),
+            fill=self.fill,
+            stroke=self.stroke,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_width=self.stroke_width,
+        )
+        return [ellipse]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -254,8 +408,25 @@ class Rectangle(GraphicalPrimitive2D):
     ry: RelAbsVector | None = None
     ratio: float | None = None
 
-    def to_drawing_elements(self, bbox):
-        return []
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
+        rectangle = momapy.drawing.Rectangle(
+            point=RenderPoint(self.x, self.y).evaluate(bbox),
+            width=self.width.evaluate(bbox.width),
+            height=self.height.evaluate(bbox.height),
+            rx=self.rx.evaluate(bbox.width),
+            ry=self.ry.evaluate(bbox.height),
+            fill=self.fill,
+            stroke=self.stroke,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_width=self.stroke_width,
+        )
+        return [rectangle]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -265,8 +436,36 @@ class Polygon(GraphicalPrimitive2D):
         momapy.geometry.Segment | momapy.geometry.BezierCurve
     ] = dataclasses.field(default_factory=tuple)
 
-    def to_drawing_elements(self, bbox):
-        return []
+    def to_drawing_elements(
+        self,
+        bbox,
+        vtext_anchor=None,
+        start_head=None,
+        end_head=None,
+    ):
+        if len(self.elements) > 0:
+            path = make_path_from_elements(
+                elements=self.elements,
+                bbox=bbox,
+                close=True,
+                fill=self.fill,
+                fill_rule=self.fill_rule,
+                stroke=self.stroke,
+                stroke_dasharray=self.stroke_dasharray,
+                stroke_width=self.stroke_width,
+            )
+        else:
+            path = make_path_from_curve(
+                curve=self.curve,
+                bbox=bbox,
+                fill=self.fill,
+                fill_rule=self.fill_rule,
+                stroke=self.stroke,
+                stroke_dasharray=self.stroke_dasharray,
+                stroke_width=self.stroke_width,
+                close=True,
+            )
+        return [path]
 
 
 # - no metaidRef attribute: given by he LayoutModelMapping
@@ -276,15 +475,14 @@ class GraphicalObject(momapy.core.LayoutElement):
     g: RenderGroup | None = None
 
     def bbox(self) -> momapy.geometry.Bbox:
-        if self.g is not None:
-            group = self.g.to_drawing_elements(self.bounding_box)[0]
-            return group.bbox()
-        return self.bounding_box
+        if len(self.drawing_elements) != 0:
+            return super().bbox()
+        else:
+            return self.bounding_box
 
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         if self.g is not None:
-            group = self.g.to_drawing_elements(self.bounding_box)[0]
-            return [group]
+            return self.g.to_drawing_elements(bbox=self.bounding_box)
         return []
 
     def children(self) -> list[momapy.core.LayoutElement]:
@@ -313,43 +511,41 @@ class _CurveGraphicalObject(momapy.core.GroupLayout, GraphicalObject):
         momapy.geometry.Segment | momapy.geometry.BezierCurve
     ] = dataclasses.field(default_factory=tuple)
 
-    def _make_curve_path(self):
-        def _make_path_action_from_segment(segment):
-            if momapy.builder.isinstance_or_builder(
-                segment, momapy.geometry.Segment
-            ):
-                path_action = momapy.drawing.LineTo(segment.p2)
-            elif momapy.builder.isinstance_or_builder(
-                segment, momapy.geometry.BezierCurve
-            ):
-                path_action = momapy.drawing.CurveTo(
-                    segment.p2,
-                    segment.control_points[0],
-                    segment.control_points[1],
-                )
-            return path_action
-
-        actions = [momapy.drawing.MoveTo(self.curve[0].p1)]
-        for segment in self.curve:
-            action = _make_path_action_from_segment(segment)
-            actions.append(action)
-        path = Path(actions=actions)
-        return path
-
     def self_drawing_elements(self):
         if self.g is not None:
-            group = self.g.to_drawing_elements(self.bounding_box)[0]
+            # if the layout element has a curve, we remove all RenderCurve
+            # objects from its RenderGroup and add a new RenderCurve object
+            # formed with the layout element's curve. The new RenderCurve
+            # object replaces the first RenderCurve object of the RenderGroup,
+            # or is placed as the first element of the RenderGroup if the latter
+            # does not contain any RenderCurve object.
             if len(self.curve) > 0:
-                curve_path = self._make_curve_path()
-                group = dataclasses.replace(group, elements=[curve_path])
-            return [group]
+                new_elements = []
+                new_render_curve = RenderCurve(curve=self.curve)
+                done = False
+                for element in self.g.elements:
+                    if not momapy.builder.isinstance_or_builder(
+                        element, RenderCurve
+                    ):
+                        new_elements.append(element)
+                    elif not done:
+                        new_elements.append(new_render_curve)
+                        done = True
+                if not done:
+                    new_elements = [new_render_curve] + new_elements
+                new_g = dataclasses.replace(self.g, elements=new_elements)
+                return new_g.to_drawing_elements(bbox=self.bounding_box)
+            else:
+                return self.g.to_drawing_elements(bbox=self.bounding_box)
         elif len(self.curve) > 0:
-            return [self._make_curve_path()]
+            return [
+                make_path_from_curve(curve=self.curve, bbox=self.bounding_box)
+            ]
         return []
 
     def self_bbox(self):
-        if self.g is not None or len(self.curve) != 0:
-            return super(GraphicalObject, self).self_bbox()
+        if len(self.drawing_elements) > 0:
+            return super().bbox()
         return self.bounding_box
 
 
@@ -405,8 +601,34 @@ class GeneralGlyph(_CurveGraphicalObject):
 
 # - no originOfText to ensure a strict separation between the model and the layout
 @dataclasses.dataclass(frozen=True)
-class TextGlyph(GraphicalObject, momapy.core.TextLayout):
+class TextGlyph(GraphicalObject):
     graphical_object: GraphicalObject | None = None
+    text: str | None = None
+
+    def drawing_elements(self):
+        if self.g:
+            if self.text is not None:
+                new_elements = []
+                new_text = Text(
+                    x=RelAbsVector(abs=self.bounding_box.position.x),
+                    y=RelAbsVector(abs=self.bounding_box.position.y),
+                )
+                done = False
+                for element in self.g.elements:
+                    if not momapy.builder.isinstance_or_builder(element, Text):
+                        new_elements.append(element)
+                    elif not done:
+                        new_elements.append(new_text)
+                        done = True
+                if not done:
+                    new_elements = [new_text] + new_elements
+                new_g = dataclasses.replace(self.g, elements=new_elements)
+                return new_g.to_drawing_elements(bbox=self.bounding_box)
+            else:
+                return self.g.to_drawing_elements(bbox=self.bounding_box)
+        elif self.text is not None:
+            return [momapy.drawing.Text(point=self.bounding_box.position)]
+        return []
 
 
 class SpeciesReferenceRole(enums.Enum):
