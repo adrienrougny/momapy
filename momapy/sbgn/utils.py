@@ -93,7 +93,7 @@ def set_nodes_to_fit_labels(
 ):
     if restrict_to is None:
         restrict_to = []
-    if len(restrict_to) == 0:
+    if not restrict_to:
         restrict_to = [momapy.core.Node]
     if exclude is None:
         exclude = []

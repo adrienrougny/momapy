@@ -192,7 +192,7 @@ def fit(
     xsep: float = 0,
     ysep: float = 0,
 ):
-    if len(elements) == 0:
+    if not elements:
         raise ValueError("elements must contain at least one element")
     points = []
     for element in elements:

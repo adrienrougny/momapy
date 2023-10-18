@@ -78,7 +78,7 @@ class ChildSelector(Selector):
     child_selector: Selector
 
     def select(self, obj, ancestors):
-        if len(ancestors) == 0:
+        if not ancestors:
             return False
         return self.child_selector.select(
             obj, ancestors
@@ -91,7 +91,7 @@ class DescendantSelector(Selector):
     descendant_selector: Selector
 
     def select(self, obj, ancestors):
-        if len(ancestors) == 0:
+        if not ancestors:
             return False
         return self.descendant_selector.select(obj, ancestors) and any(
             [
@@ -112,7 +112,7 @@ class OrSelector(Selector):
 
 
 def join_style_sheets(style_sheets):
-    if len(style_sheets) == 0:
+    if not style_sheets:
         return None
     output_style_sheet = style_sheets[0]
     for style_sheet in style_sheets[1:]:

@@ -1166,11 +1166,11 @@ class LayoutModelMapping(collections.abc.Mapping):
         for key in keys:
             value |= self._set_to_set_mapping[key]
         if unpack:
-            if len(value) == 0:
+            if not value:
                 raise ValueError(f"could not unpack '{value}': result is empty")
             for element in value:
                 break
-            if len(element) == 0:
+            if not element:
                 raise ValueError(f"could not unpack '{value}': result is empty")
             for sub_element in element:
                 break
@@ -1581,11 +1581,11 @@ class LayoutModelMappingBuilder(
         for key in keys:
             value |= self._set_to_set_mapping[key]
         if unpack:
-            if len(value) == 0:
+            if not value:
                 raise ValueError(f"could not unpack '{value}': result is empty")
             for element in value:
                 break
-            if len(element) == 0:
+            if not element:
                 raise ValueError(f"could not unpack '{value}': result is empty")
             for sub_element in element:
                 break
@@ -1658,7 +1658,7 @@ class LayoutModelMappingBuilder(
             value = self._prepare_value(value)
             deleted = value
             self._set_to_set_mapping[key] -= value
-            if len(self._set_to_set_mapping[key]) == 0:
+            if not self._set_to_set_mapping[key]:
                 del self._set_to_set_mapping[key]
         else:
             deleted = self._set_to_set_mapping[key]
@@ -1666,7 +1666,7 @@ class LayoutModelMappingBuilder(
         if key not in self._set_to_set_mapping:
             for element in key:
                 self._singleton_to_set_mapping[element].remove(key)
-                if len(self._singleton_to_set_mapping[element]) == 0:
+                if not self._singleton_to_set_mapping[element]:
                     del self._singleton_to_set_mapping[element]
         if reverse:
             for rkey in deleted:

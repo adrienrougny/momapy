@@ -214,7 +214,6 @@ class StatefulRenderer(Renderer):
     def restore(self):
         if len(self._states) > 0:
             state = self._states.pop()
-            print("IN RESTORE", state["stroke_dasharray"])
             self.set_current_state(state)
             self.self_restore()
         else:
