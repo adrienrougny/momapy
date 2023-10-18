@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 momapy = {editable = true, path = "."}
 colorama = "*"
+python-libsbml = "*"
+sbmlutils = "*"
 
 [dev-packages]
 
