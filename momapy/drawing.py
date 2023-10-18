@@ -706,9 +706,7 @@ class Path(DrawingElement):
         geom_collection = []
         line_strings = []
         previous_action = None
-        for i, current_action in enumerate(self.actions):
-            if i > 0:
-                previous_action = self.actions[i - 1]
+        for current_action in self.actions:
             if isinstance(current_action, MoveTo):
                 current_point = current_action.point
                 initial_point = current_point
@@ -744,8 +742,47 @@ class Path(DrawingElement):
                 line_string = current_action.to_shapely(current_point)
                 line_strings.append(line_string)
                 current_point = current_action.point
+            previous_action = current_action
         if not isinstance(current_action, (MoveTo, ClosePath)):
             multi_linestring = shapely.geometry.MultiLineString(line_strings)
             line_string = shapely.ops.linemerge(multi_linestring)
             geom_collection.append(line_string)
         return shapely.geometry.GeometryCollection(geom_collection)
+
+    def to_path_with_bezier_curves(self):
+        new_actions = []
+        current_point = momapy.geometry.Point(
+            0, 0
+        )  # in case the path does not start with a move_to command;
+        # this is not possible in svg but not enforced here
+        intial_point = current_point
+        for action in self.actions:
+            if isinstance(action, MoveTo):
+                current_point = action.point
+                initial_point = current_point
+                new_actions.append(action)
+            elif isinstance(action, ClosePath):
+                current_point = initial_point
+                new_actions.append(action)
+            elif isinstance(
+                action,
+                (
+                    LineTo,
+                    CurveTo,
+                    QuadraticCurveTo,
+                ),
+            ):
+                current_point = action.point
+                new_actions.append(action)
+            elif isinstance(action, EllipticalArc):
+                geom_object = action.to_geometry(current_point)
+                bezier_curves = geom_object.to_bezier_curves()
+                for bezier_curve in bezier_curves:
+                    new_action = CurveTo(
+                        point=bezier_curve.p2,
+                        control_point1=bezier_curve.control_points[0],
+                        control_point2=bezier_curve.control_points[1],
+                    )
+                    new_actions.append(new_action)
+        new_path = dataclasses.replace(self, actions=new_actions)
+        return new_path

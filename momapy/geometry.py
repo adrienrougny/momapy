@@ -276,83 +276,11 @@ class EllipticalArc(GeometryObject):
     def get_intersection_with_line(self, line):
         return get_intersection_of_line_and_elliptical_arc(self, line)
 
-    def to_arc_and_transformation(self):
-        x1, y1 = self.p1.x, self.p1.y
-        sigma = self.x_axis_rotation
-        x2, y2 = self.p2.x, self.p2.y
-        rx = self.rx
-        ry = self.ry
-        fa = self.arc_flag
-        fs = self.sweep_flag
-        x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * (
-            (y1 - y2) / 2
-        )
-        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
-            (y1 - y2) / 2
-        )
-        l = x1p**2 / rx**2 + y1p**2 / ry**2
-        if l > 1:
-            rx = math.sqrt(l) * rx
-            ry = math.sqrt(l) * ry
-        r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
-        if r < 0:  # dure to imprecision? to fix later
-            r = 0
-        a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
-        if fa == fs:
-            a = -a
-        cxp = a * rx * y1p / ry
-        cyp = -a * ry * x1p / rx
-        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
-        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
-        theta1 = get_angle_between_segments(
-            Segment(Point(0, 0), Point(1, 0)),
-            Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
-        )
-        delta_theta = get_angle_between_segments(
-            Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
-            Segment(Point(0, 0), Point(-(x1p + cxp) / rx, -(y1p + cyp) / ry)),
-        )
-        if fs == 0 and delta_theta > 0:
-            delta_theta -= 2 * math.pi
-        elif fs == 1 and delta_theta < 0:
-            delta_theta += 2 * math.pi
-        theta2 = theta1 + delta_theta
-        translation = Translation(cx, cy)
-        rotation = Rotation(sigma)
-        scaling = Scaling(rx, ry)
-        transformation = translation * rotation * scaling
-        arc = Arc(Point(0, 0), 1, theta1, theta2)
-        return arc, transformation
+    def get_center_parameterization(self):
+        return get_center_parameterization_of_elliptical_arc(self)
 
-    def center(self):
-        x1, y1 = self.p1.x, self.p1.y
-        sigma = self.x_axis_rotation
-        x2, y2 = self.p2.x, self.p2.y
-        rx = self.rx
-        ry = self.ry
-        fa = self.arc_flag
-        fs = self.sweep_flag
-        x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * (
-            (y1 - y2) / 2
-        )
-        y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
-            (y1 - y2) / 2
-        )
-        l = x1p**2 / rx**2 + y1p**2 / ry**2
-        if l > 1:
-            rx = math.sqrt(l) * rx
-            ry = math.sqrt(l) * ry
-        r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
-        if r < 0:  # dure to imprecision? to fix later
-            r = 0
-        a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
-        if fa == fs:
-            a = -a
-        cxp = a * rx * y1p / ry
-        cyp = -a * ry * x1p / rx
-        cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
-        cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
-        return Point(cx, cy)
+    def get_center(self):
+        return get_center_of_elliptical_arc(self)
 
     def get_position_at_fraction(self, fraction):
         return get_position_at_fraction_of_elliptical_arc(self, fraction)
@@ -399,7 +327,7 @@ class EllipticalArc(GeometryObject):
         circle = origin.buffer(1.0).boundary
         ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
         ellipse = shapely.affinity.rotate(ellipse, self.x_axis_rotation)
-        center = self.center()
+        center = self.get_center()
         ellipse = shapely.affinity.translate(ellipse, center.x, center.y)
         line1 = Line(center, Point.from_tuple(ellipse.coords[0]))
         angle1 = get_angle_to_horizontal_of_line(line1)
@@ -434,6 +362,9 @@ class EllipticalArc(GeometryObject):
 
     def reversed(self):
         return reverse_elliptical_arc(self)
+
+    def to_bezier_curves(self):
+        return transform_elliptical_arc_to_bezier_curves(self)
 
 
 @dataclass(frozen=True)
@@ -602,10 +533,13 @@ def transform_segment(segment, transformation):
 
 def transform_bezier_curve(bezier_curve, transformation):
     return BezierCurve(
-        transform_point(bezier_curve.p1),
-        transform_point(bezier_curve.p2),
+        transform_point(bezier_curve.p1, transformation),
+        transform_point(bezier_curve.p2, transformation),
         tuple(
-            [transform_point(point) for point in bezier_curve.control_points]
+            [
+                transform_point(point, transformation)
+                for point in bezier_curve.control_points
+            ]
         ),
     )
 
@@ -948,6 +882,106 @@ def get_position_at_fraction_of_elliptical_arc(
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
     return _get_position_at_fraction(elliptical_arc, fraction)
+
+
+def get_center_parameterization_of_elliptical_arc(elliptical_arc):
+    x1, y1 = elliptical_arc.p1.x, elliptical_arc.p1.y
+    sigma = elliptical_arc.x_axis_rotation
+    x2, y2 = elliptical_arc.p2.x, elliptical_arc.p2.y
+    rx = elliptical_arc.rx
+    ry = elliptical_arc.ry
+    fa = elliptical_arc.arc_flag
+    fs = elliptical_arc.sweep_flag
+    x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * ((y1 - y2) / 2)
+    y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * ((y1 - y2) / 2)
+    l = x1p**2 / rx**2 + y1p**2 / ry**2
+    if l > 1:
+        rx = math.sqrt(l) * rx
+        ry = math.sqrt(l) * ry
+    r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
+    if r < 0:  # due to imprecision? to fix later
+        r = 0
+    a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
+    if fa == fs:
+        a = -a
+    cxp = a * rx * y1p / ry
+    cyp = -a * ry * x1p / rx
+    cx = math.cos(sigma) * cxp - math.sin(sigma) * cyp + (x1 + x2) / 2
+    cy = math.sin(sigma) * cxp + math.cos(sigma) * cyp + (y1 + y2) / 2
+    theta1 = get_angle_between_segments(
+        Segment(Point(0, 0), Point(1, 0)),
+        Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
+    )
+    delta_theta = get_angle_between_segments(
+        Segment(Point(0, 0), Point((x1p - cxp) / rx, (y1p - cyp) / ry)),
+        Segment(Point(0, 0), Point(-(x1p + cxp) / rx, -(y1p + cyp) / ry)),
+    )
+    if fs == 0 and delta_theta > 0:
+        delta_theta -= 2 * math.pi
+    elif fs == 1 and delta_theta < 0:
+        delta_theta += 2 * math.pi
+    theta2 = theta1 + delta_theta
+    return cx, cy, rx, ry, sigma, theta1, theta2, delta_theta
+
+
+def get_center_of_elliptical_arc(elliptical_arc):
+    cx, cy, *_ = get_center_parameterization_of_elliptical_arc(elliptical_arc)
+    return Point(cx, cy)
+
+
+def transform_elliptical_arc_to_bezier_curves(elliptical_arc):
+    def _make_angles(angles):
+        new_angles = [angles[0]]
+        for theta1, theta2 in zip(angles, angles[1:]):
+            delta_theta = theta2 - theta1
+            if delta_theta > math.pi / 2:
+                new_angles.append(theta1 + delta_theta / 2)
+            new_angles.append(theta2)
+        if len(new_angles) != len(angles):
+            new_angles = _make_angles(new_angles)
+        return new_angles
+
+    bezier_curves = []
+    (
+        cx,
+        cy,
+        rx,
+        ry,
+        sigma,
+        theta1,
+        theta2,
+        delta_theta,
+    ) = get_center_parameterization_of_elliptical_arc(elliptical_arc)
+    translation = Translation(cx, cy)
+    scaling = Scaling(rx, ry)
+    rotation = Rotation(sigma)
+    transformation = translation * rotation * scaling
+    angles = _make_angles([theta1, theta2])
+    for theta1, theta2 in zip(angles, angles[1:]):
+        x1 = math.cos(theta1)
+        y1 = math.sin(theta1)
+        x2 = math.cos(theta2)
+        y2 = math.sin(theta2)
+        ax = x1
+        ay = y1
+        bx = x2
+        by = y2
+        q1 = ax * ax + ay * ay
+        q2 = q1 + ax * bx + ay * by
+        k2 = (4 / 3) * (math.sqrt(2 * q1 * q2) - q2) / (ax * by - ay * bx)
+        cp1x = ax - k2 * ay
+        cp1y = ay + k2 * ax
+        cp2x = bx + k2 * by
+        cp2y = by - k2 * bx
+        p1 = Point(x1, y1)
+        p2 = Point(x2, y2)
+        control_point1 = Point(cp1x, cp1y)
+        control_point2 = Point(cp2x, cp2y)
+        bezier_curve = BezierCurve(
+            p1=p1, p2=p2, control_points=[control_point1, control_point2]
+        ).transformed(transformation)
+        bezier_curves.append(bezier_curve)
+    return bezier_curves
 
 
 def _get_angle_at_fraction(
