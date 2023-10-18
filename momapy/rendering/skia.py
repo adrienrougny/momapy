@@ -351,6 +351,8 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         return skia_path
 
     def _render_path(self, path):
+        # to remove
+        path = path.to_path_with_bezier_curves()
         skia_path = self._make_skia_path(path)
         if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
@@ -468,7 +470,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     def _add_curve_to(self, skia_path, curve_to):
         skia_path.cubicTo(
             curve_to.control_point1.x,
-            curve_to.control_point2.y,
+            curve_to.control_point1.y,
             curve_to.control_point2.x,
             curve_to.control_point2.y,
             curve_to.x,
