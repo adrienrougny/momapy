@@ -11,7 +11,6 @@ import copy
 import shapely
 
 import cairo
-
 import gi
 
 gi.require_version("Pango", "1.0")
@@ -22,6 +21,7 @@ import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 import momapy.builder
+import momapy.utils
 
 
 class Direction(enum.Enum):
@@ -114,8 +114,14 @@ class LayoutElement(MapElement):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
     text: str
-    font_family: str
-    font_size: float
+    font_family: str = momapy.drawing.get_initial_value("font_family")
+    font_size: float = momapy.drawing.get_initial_value("font_size")
+    font_style: momapy.drawing.FontStyle = momapy.drawing.get_initial_value(
+        "font_style"
+    )
+    font_weight: momapy.drawing.FontWeight | float = (
+        momapy.drawing.get_initial_value("font_weight")
+    )
     position: momapy.geometry.Point
     width: float | None = None
     height: float | None = None
@@ -126,8 +132,6 @@ class TextLayout(LayoutElement):
     filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
         None  # should be a tuple of filters to follow SVG (to be implemented)
     )
-    font_style: momapy.drawing.FontStyle | None = None
-    font_weight: momapy.drawing.FontWeight | float | None = None
     stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
     stroke_dasharray: tuple[float] | None = None
     stroke_dashoffset: float | None = None
@@ -146,18 +150,12 @@ class TextLayout(LayoutElement):
         return self.position.y
 
     def _make_pango_layout(self):
-        cairo_surface = cairo.RecordingSurface(cairo.CONTENT_COLOR_ALPHA, None)
-        cairo_context = cairo.Context(cairo_surface)
-        pango_layout = PangoCairo.create_layout(cairo_context)
-        pango_layout.set_alignment(
-            getattr(Pango.Alignment, self.horizontal_alignment.name)
+        pango_layout = momapy.utils.make_pango_layout(
+            font_family=self.font_family,
+            font_size=self.font_size,
+            font_style=self.font_style,
+            font_weight=self.font_weight,
         )
-        pango_font_description = Pango.FontDescription()
-        pango_font_description.set_family(self.font_family)
-        pango_font_description.set_absolute_size(
-            Pango.units_from_double(self.font_size)
-        )
-        pango_layout.set_font_description(pango_font_description)
         if self.width is not None:
             pango_layout.set_width(Pango.units_from_double(self.width))
         if self.height is not None:
