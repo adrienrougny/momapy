@@ -219,6 +219,15 @@ class StatefulRenderer(Renderer):
         else:
             raise Exception("no state to be restored")
 
+    def get_initial_value(self, attr_name):
+        attr_value = self.initial_values.get(attr_name)
+        if attr_value is None:
+            attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
+            attr_value = attr_d["initial"]
+            if attr_value is None:
+                attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
+        return attr_value
+
     def get_current_value(self, attr_name):
         return self.get_current_state()[attr_name]
 
@@ -229,14 +238,11 @@ class StatefulRenderer(Renderer):
         if attr_value is None:
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
-                if attr_name in self.initial_values:
-                    attr_value = self.initial_values[attr_name]
-                else:
+                attr_value = self.initial_values.get(attr_name)
+                if attr_valye is None:
                     attr_value = attr_d["initial"]
                 if attr_value is None:
-                    raise ValueError(
-                        f"non-inherited presentation attribute {attr_name} must have an initial value or a value different than {attr_value}"
-                    )
+                    attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
         if attr_name == "font_weight":
             if isinstance(attr_value, momapy.drawing.FontWeight):
                 if (
