@@ -5,6 +5,8 @@ import dataclasses
 import colorama
 import numpy
 
+import cairo
+
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
 from gi.repository import Pango, PangoCairo  # must import like that to use
