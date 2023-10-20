@@ -240,9 +240,16 @@ INITIAL_VALUES = {
 }
 
 FONT_WEIGHT_VALUE_MAPPING = {
-    momapy.drawing.FontWeight.NORMAL: 400,
-    momapy.drawing.FontWeight.BOLD: 700,
+    FontWeight.NORMAL: 400,
+    FontWeight.BOLD: 700,
 }
+
+
+def get_initial_value(attr_name):
+    attr_value = PRESENTATION_ATTRIBUTES[attr_name]["initial"]
+    if attr_value is None:
+        attr_value = INITIAL_VALUES[attr_name]
+    return attr_value
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
