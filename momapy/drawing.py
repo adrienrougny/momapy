@@ -235,8 +235,13 @@ PRESENTATION_ATTRIBUTES = {
 }
 
 INITIAL_VALUES = {
-    "font_family": "",
+    "font_family": "Arial",
     "font_size": 16.0,
+}
+
+FONT_WEIGHT_VALUE_MAPPING = {
+    momapy.drawing.FontWeight.NORMAL: 400,
+    momapy.drawing.FontWeight.BOLD: 700,
 }
 
 
