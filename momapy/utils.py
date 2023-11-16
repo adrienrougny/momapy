@@ -105,3 +105,28 @@ def make_pango_layout(
         ] = pango_font_description
     pango_layout.set_font_description(pango_font_description)
     return pango_layout
+
+
+def make_node(cls, position):
+    if isinstance(position, tuple):
+        position = momapy.geometry.Point.from_tuple(position)
+    if not issubclass(cls, momapy.builder.Builder):
+        builder_cls = momapy.builder.get_or_make_builder_cls(cls)
+    node = builder_cls(position=position)
+    return node
+
+
+def make_arc(cls, points):
+    segments = []
+    new_points = []
+    for point in points:
+        if isinstance(point, tuple):
+            point = momapy.geometry.Point.from_tuple(point)
+        new_points.append(point)
+    for start_point, end_point in zip(new_points, new_points[1:]):
+        segment = momapy.geometry.Segment(start_point, end_point)
+        segments.append(segment)
+    if not issubclass(cls, momapy.builder.Builder):
+        builder_cls = momapy.builder.get_or_make_builder_cls(cls)
+    arc = builder_cls(segments=segments)
+    return arc
