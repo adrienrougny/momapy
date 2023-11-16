@@ -15,19 +15,19 @@ class UndefinedVariable(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariable(momapy.sbgn.core.SBGNModelElement):
-    variable: typing.Union[str, UndefinedVariable]
-    value: typing.Optional[str] = None
+    variable: str | UndefinedVariable
+    value: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
     value: str
-    prefix: typing.Optional[str] = None
+    prefix: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Subunit(momapy.sbgn.core.SBGNModelElement):
-    label: typing.Optional[str] = None
+    label: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -78,7 +78,7 @@ class ComplexSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MultimerSubunit(ComplexSubunit):
-    cardinality: typing.Optional[int] = None
+    cardinality: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -103,7 +103,7 @@ class ComplexMultimerSubunit(MultimerSubunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(momapy.sbgn.core.SBGNModelElement):
-    label: typing.Optional[str] = None
+    label: str | None = None
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
@@ -114,7 +114,7 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EntityPool(momapy.sbgn.core.SBGNModelElement):
-    compartment: typing.Optional[Compartment] = None
+    compartment: Compartment | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -124,17 +124,17 @@ class EmptySet(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbingAgent(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntity(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Macromolecule(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
@@ -145,7 +145,7 @@ class Macromolecule(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeature(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
@@ -156,7 +156,7 @@ class NucleicAcidFeature(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemical(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
@@ -167,7 +167,7 @@ class SimpleChemical(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Complex(EntityPool):
-    label: typing.Optional[str] = None
+    label: str | None = None
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset
     )
@@ -179,7 +179,7 @@ class Complex(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Multimer(Complex):
-    cardinality: typing.Optional[int] = None
+    cardinality: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -205,7 +205,7 @@ class ComplexMultimer(Multimer):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FluxRole(momapy.sbgn.core.SBGNRole):
     element: EntityPool
-    stoichiometry: typing.Optional[int] = None
+    stoichiometry: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -220,7 +220,7 @@ class Product(FluxRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[EntityPool, "LogicalOperator"]
+    element: EntityPool | "LogicalOperator"
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -235,12 +235,12 @@ class EquivalenceOperatorOutput(momapy.sbgn.core.SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[EntityPool, Compartment]
+    element: EntityPool | Compartment
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[EntityPool, Compartment]
+    element: EntityPool | Compartment
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -284,7 +284,7 @@ class OmittedProcess(GenericProcess):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Process):
-    label: typing.Optional[str] = None
+    label: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -314,12 +314,12 @@ class EquivalenceOperator(momapy.sbgn.core.SBGNModelElement):
     inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
         default_factory=frozenset
     )
-    output: typing.Optional[EquivalenceOperatorOutput] = None
+    output: EquivalenceOperatorOutput | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulation(momapy.sbgn.core.SBGNModelElement):
-    source: typing.Union[EntityPool, LogicalOperator]
+    source: EntityPool | LogicalOperator
     target: Process
 
 
@@ -345,19 +345,19 @@ class NecessaryStimulation(Stimulation):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(momapy.sbgn.core.SBGNModelElement):
-    label: typing.Optional[str] = None
-    refers_to: typing.Optional[TerminalReference] = None
+    label: str | None = None
+    refers_to: TerminalReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
-    label: typing.Optional[str] = None
-    refers_to: typing.Optional[TagReference] = None
+    label: str | None = None
+    refers_to: TagReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Submap(momapy.sbgn.core.SBGNModelElement):
-    label: typing.Optional[str] = None
+    label: str | None = None
     terminals: frozenset[Terminal] = dataclasses.field(
         default_factory=frozenset
     )
@@ -561,7 +561,7 @@ class ComplexSubunitLayout(
 class SimpleChemicalMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
 
@@ -582,7 +582,7 @@ class SimpleChemicalMultimerSubunitLayout(
 class MacromoleculeMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -612,7 +612,7 @@ class MacromoleculeMultimerSubunitLayout(
 class NucleicAcidFeatureMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -638,7 +638,7 @@ class NucleicAcidFeatureMultimerSubunitLayout(
 class ComplexMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     cut_corners: float = 5.0
@@ -797,7 +797,7 @@ class ComplexLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class SimpleChemicalMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
 
@@ -818,7 +818,7 @@ class SimpleChemicalMultimerLayout(
 class MacromoleculeMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -848,7 +848,7 @@ class MacromoleculeMultimerLayout(
 class NucleicAcidFeatureMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -874,7 +874,7 @@ class NucleicAcidFeatureMultimerLayout(
 class ComplexMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: int = 2
+    _n: momapy.typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     cut_corners: float = 5.0
