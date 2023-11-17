@@ -220,7 +220,7 @@ class Product(FluxRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    element: EntityPool | "LogicalOperator"
+    element: typing.Union[EntityPool, "LogicalOperator"]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -561,7 +561,7 @@ class ComplexSubunitLayout(
 class SimpleChemicalMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
 
@@ -582,7 +582,7 @@ class SimpleChemicalMultimerSubunitLayout(
 class MacromoleculeMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -612,7 +612,7 @@ class MacromoleculeMultimerSubunitLayout(
 class NucleicAcidFeatureMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -638,7 +638,7 @@ class NucleicAcidFeatureMultimerSubunitLayout(
 class ComplexMultimerSubunitLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     cut_corners: float = 5.0
@@ -797,7 +797,7 @@ class ComplexLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class SimpleChemicalMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
 
@@ -818,7 +818,7 @@ class SimpleChemicalMultimerLayout(
 class MacromoleculeMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -848,7 +848,7 @@ class MacromoleculeMultimerLayout(
 class NucleicAcidFeatureMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
@@ -874,7 +874,7 @@ class NucleicAcidFeatureMultimerLayout(
 class ComplexMultimerLayout(
     momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
 ):
-    _n: momapy.typing.ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
     cut_corners: float = 5.0
