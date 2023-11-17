@@ -381,32 +381,29 @@ class TagLayout(momapy.sbgn.pd.TagLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnknownInfluenceLayout(
-    momapy.meta.arcs.Diamond, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_width: float = 10.0
+class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+    arrowhead_width: float = 10.0
+
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Diamond.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PositiveInfluenceLayout(
-    momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_width: float = 10.0
+class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+    arrowhead_width: float = 10.0
+
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NecessaryStimulationLayout(
-    momapy.core.SingleHeadedArc, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_triangle_width: float
-    arrowhead_triangle_height: float
-    arrowhead_bar_height: float
-    arrowhead_sep: float
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    arrowhead_bar_height: float = 12.0
+    arrowhead_sep: float = 3.0
+    arrowhead_triangle_height: float = 10.0
+    arrowhead_triangle_width: float = 10.0
 
     def arrowhead_drawing_elements(self):
         actions = [
@@ -435,18 +432,25 @@ class NecessaryStimulationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NegativeInfluenceLayout(momapy.meta.arcs.Bar, momapy.sbgn.core.SBGNArc):
+class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
 
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
-    pass
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Bar.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
-    pass
+class LogicArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc):
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class EquivalenceArc(
+    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
+):
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

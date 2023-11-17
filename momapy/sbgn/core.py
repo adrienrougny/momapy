@@ -77,9 +77,13 @@ class SBGNMap(momapy.core.Map):
 
 @dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    stroke: momapy.coloring.Color = momapy.coloring.black
-    stroke_width: float = 1.0
-    fill: momapy.coloring.Color = momapy.coloring.white
+    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    border_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    border_stroke_width: float | None = 1.0
 
     def border_drawing_elements(self):
         drawing_elements = []
@@ -98,13 +102,46 @@ class SBGNNode(momapy.core.Node):
 
 
 @dataclass(frozen=True)
-class SBGNArc(momapy.core.Arc):
-    stroke: momapy.coloring.Color = momapy.coloring.black
-    stroke_width: float = 1.0
-    fill: momapy.coloring.Color = momapy.coloring.white
+class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    arrowhead_stroke_width: float = 1.0
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
+    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    path_stroke_width: float = 1.0
+
+
+@dataclass(frozen=True)
+class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
+    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    end_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    end_arrowhead_stroke_width: float = 1.0
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    path_stroke_width: float = 1.0
+    start_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    start_arrowhead_stroke_width: float = 1.0
 
 
 @dataclass(frozen=True)
