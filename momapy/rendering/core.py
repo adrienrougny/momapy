@@ -239,7 +239,7 @@ class StatefulRenderer(Renderer):
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
                 attr_value = self.initial_values.get(attr_name)
-                if attr_valye is None:
+                if attr_value is None:
                     attr_value = attr_d["initial"]
                 if attr_value is None:
                     attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
