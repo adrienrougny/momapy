@@ -23,7 +23,7 @@ import momapy.sbgn.io._sbgnml_parser
 class SBGNMLReader(momapy.io.MapReader):
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 14.0
-    _DEFAULT_FONT_COLOR = momapy.coloring.black
+    _DEFAULT_FONT_FILL = momapy.coloring.black
     _SBGNML_ELEMENT_CLASS_TO_TRANSFORMATION_FUNC_MAPPING = {
         "COMPARTMENT": "_compartment_elements_from_glyph",
         "SUBMAP": "_submap_elements_from_glyph",
@@ -373,7 +373,6 @@ class SBGNMLReader(momapy.io.MapReader):
                 render_information.background_color
             )
             style_sheet[layout_selector] = style_collection
-        style_collection
         d_colors = {}
         for (
             color_definition
@@ -418,9 +417,10 @@ class SBGNMLReader(momapy.io.MapReader):
                     if color_str == "#000":
                         color_str = "#000000"
                     label_style_collection[
-                        attr
+                        "fill"
                     ] = momapy.coloring.Color.from_hex(color_str)
-            style_sheet[label_selector] = label_style_collection
+            if label_style_collection:
+                style_sheet[label_selector] = label_style_collection
         return style_sheet
 
     @classmethod
@@ -587,7 +587,7 @@ class SBGNMLReader(momapy.io.MapReader):
                 text_layout.text = glyph.label.text
                 text_layout.font_family = cls._DEFAULT_FONT_FAMILY
                 text_layout.font_size = cls._DEFAULT_FONT_SIZE
-                text_layout.font_color = cls._DEFAULT_FONT_COLOR
+                text_layout.fill = cls._DEFAULT_FONT_FILL
                 layout_element.label = text_layout
         if glyph.compartment_ref is not None:
             model_element.compartment = d_model_element_ids[
@@ -1569,7 +1569,7 @@ class SBGNMLReader(momapy.io.MapReader):
         text_layout.text = text
         text_layout.font_family = cls._DEFAULT_FONT_FAMILY
         text_layout.font_size = 8.0
-        text_layout.font_color = cls._DEFAULT_FONT_COLOR
+        text_layout.fill = cls._DEFAULT_FONT_FILL
         layout_element.label = text_layout
         return model_element, layout_element
 
@@ -2865,7 +2865,7 @@ class SBGNMLWriter(momapy.io.MapWriter):
             lattrs += [
                 ("font_family", layout_element.label.font_family),
                 ("font_size", layout_element.label.font_size),
-                ("font_color", layout_element.label.font_color.to_hex()),
+                ("font_color", layout_element.label.fill.to_hex()),
             ]
         style = frozendict.frozendict(lattrs)
         if style not in dstyles:
