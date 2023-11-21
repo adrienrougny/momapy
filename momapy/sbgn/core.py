@@ -60,7 +60,7 @@ class SBGNModel(momapy.core.Model):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
     )
 
@@ -84,16 +84,6 @@ class SBGNNode(momapy.core.Node):
         momapy.coloring.black
     )
     border_stroke_width: float | None = 1.0
-    border_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = momapy.drawing.NoneValue
-    border_stroke_dashoffset: float | None = 0.0
-    border_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = momapy.drawing.NoneValue
-    border_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        momapy.drawing.NoneValue
-    )
 
     def border_drawing_elements(self):
         drawing_elements = []
@@ -337,27 +327,25 @@ class _MultiMixin(_SBGNMixin):
     offset: float = 3.0
     subunits_stroke: tuple[
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = field(default_factory=tuple)
+    ] = None
     subunits_stroke_width: tuple[
         momapy.drawing.NoneValueType | float | None
-    ] = field(default_factory=tuple)
+    ] = None
     subunits_stroke_dasharray: tuple[
         momapy.drawing.NoneValueType | tuple[float] | None
-    ] = field(default_factory=tuple)
-    subunits_stroke_dashoffset: tuple[float | None] = field(
-        default_factory=tuple
-    )
+    ] = None
+    subunits_stroke_dashoffset: tuple[float | None] = None
     subunits_fill: tuple[
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = field(default_factory=tuple)
+    ] = None
     subunits_transform: tuple[
         momapy.drawing.NoneValueType
         | tuple[momapy.geometry.Transformation]
         | None
-    ] = field(default_factory=tuple)
+    ] = None
     subunits_filter: tuple[
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ] = field(default_factory=tuple)
+    ] = None
 
     def _make_subunit_shape(
         self,
