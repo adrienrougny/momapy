@@ -999,23 +999,13 @@ class Model(MapElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Layout(GroupLayout):
-    position: momapy.geometry.Point
-    width: float
-    height: float
-
-    @property
-    def x(self):
-        return self.position.x
-
-    @property
-    def y(self):
-        return self.position.y
+class Layout(Node):
+    pass
 
     def self_bbox(self):
         return momapy.geometry.Bbox(self.position, self.width, self.height)
 
-    def self_drawing_elements(self):
+    def border_drawing_elements(self):
         actions = [
             momapy.drawing.MoveTo(self.self_bbox().north_west()),
             momapy.drawing.LineTo(self.self_bbox().north_east()),
@@ -1025,12 +1015,6 @@ class Layout(GroupLayout):
         ]
         path = momapy.drawing.Path(actions=actions)
         return [path]
-
-    def self_children(self):
-        return []
-
-    def childless(self):
-        return dataclasses.replace(self, layout_elements=None)
 
     def is_sublayout(self, other, flattened=False, unordered=False):
         def _is_sublist(list1, list2, unordered=False) -> bool:
