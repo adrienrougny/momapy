@@ -345,7 +345,9 @@ class SBGNMLReader(momapy.io.MapReader):
                 and sbgn_map.extension.render_information is not None
             ):
                 style_sheet = cls._style_sheet_from_render_information(
-                    sbgn_map.extension.render_information, map_
+                    sbgn_map.extension.render_information,
+                    d_layout_element_ids,
+                    map_,
                 )
                 momapy.styling.apply_style_sheet(map_.layout, style_sheet)
         if with_annotations:
@@ -364,7 +366,9 @@ class SBGNMLReader(momapy.io.MapReader):
         return map_
 
     @classmethod
-    def _style_sheet_from_render_information(cls, render_information, map_):
+    def _style_sheet_from_render_information(
+        cls, render_information, d_layout_element_ids, map_
+    ):
         style_sheet = momapy.styling.StyleSheet()
         if render_information.background_color is not None:
             style_collection = momapy.styling.StyleCollection()
@@ -384,28 +388,58 @@ class SBGNMLReader(momapy.io.MapReader):
                 color = momapy.coloring.Color.from_hexa(color_hex)
             d_colors[color_definition.id] = color
         for style in render_information.list_of_styles.style:
-            selector = momapy.styling.OrSelector(
-                tuple(
-                    [
-                        momapy.styling.IdSelector(id_)
-                        for id_ in style.id_list.split(" ")
-                    ]
-                )
-            )
-            style_collection = momapy.styling.StyleCollection()
-            for attr in ["fill", "stroke"]:
-                color_id = getattr(style.g, attr)
-                if color_id is not None:
-                    style_collection[attr] = d_colors[color_id]
-            for attr in ["stroke_width"]:
-                value = getattr(style.g, attr)
-                if value is not None:
-                    style_collection[attr] = value
-            style_sheet[selector] = style_collection
-            label_selector = momapy.styling.ChildSelector(
-                selector,
-                momapy.styling.TypeSelector(momapy.core.TextLayout.__name__),
-            )
+            arc_ids = []
+            node_ids = []
+            for id in style.id_list.split(" "):
+                layout_element = d_layout_element_ids.get(id)
+                if layout_element is not None:
+                    if momapy.builder.isinstance_or_builder(
+                        layout_element, momapy.sbgn.core.SBGNNode
+                    ):
+                        node_ids.append(id)
+                    else:
+                        arc_ids.append(id)
+            if node_ids:
+                node_style_collection = momapy.styling.StyleCollection()
+                for attr in ["fill", "stroke"]:
+                    color_id = getattr(style.g, attr)
+                    if color_id is not None:
+                        node_style_collection[f"border_{attr}"] = d_colors[
+                            color_id
+                        ]
+                for attr in ["stroke_width"]:
+                    value = getattr(style.g, attr)
+                    if value is not None:
+                        node_style_collection[f"border_{attr}"] = value
+                if node_style_collection:
+                    node_selector = momapy.styling.OrSelector(
+                        tuple(
+                            [momapy.styling.IdSelector(id) for id in node_ids]
+                        )
+                    )
+                    style_sheet[node_selector] = node_style_collection
+            if arc_ids:
+                arc_style_collection = momapy.styling.StyleCollection()
+                for attr in ["fill", "stroke"]:
+                    color_id = getattr(style.g, attr)
+                    if color_id is not None:
+                        if attr == "stroke":
+                            arc_style_collection[f"path_{attr}"] = d_colors[
+                                color_id
+                            ]
+                        arc_style_collection[f"arrowhead_{attr}"] = d_colors[
+                            color_id
+                        ]
+                for attr in ["stroke_width"]:
+                    value = getattr(style.g, attr)
+                    if value is not None:
+                        arc_style_collection[f"path_{attr}"] = value
+                        arc_style_collection[f"arrowhead_{attr}"] = value
+                if arc_style_collection:
+                    arc_selector = momapy.styling.OrSelector(
+                        tuple([momapy.styling.IdSelector(id) for id in arc_ids])
+                    )
+                    style_sheet[arc_selector] = arc_style_collection
             label_style_collection = momapy.styling.StyleCollection()
             for attr in ["font_size", "font_family"]:
                 value = getattr(style.g, attr)
@@ -420,7 +454,22 @@ class SBGNMLReader(momapy.io.MapReader):
                         "fill"
                     ] = momapy.coloring.Color.from_hex(color_str)
             if label_style_collection:
-                style_sheet[label_selector] = label_style_collection
+                if node_ids:
+                    node_label_selector = momapy.styling.ChildSelector(
+                        node_selector,
+                        momapy.styling.TypeSelector(
+                            momapy.core.TextLayout.__name__
+                        ),
+                    )
+                    style_sheet[node_label_selector] = label_style_collection
+                if arc_ids:
+                    style_sheet[arc_label_selector] = label_style_collection
+                    arc_label_selector = momapy.styling.ChildSelector(
+                        arc_selector,
+                        momapy.styling.TypeSelector(
+                            momapy.core.TextLayout.__name__
+                        ),
+                    )
         return style_sheet
 
     @classmethod
@@ -2856,11 +2905,18 @@ class SBGNMLWriter(momapy.io.MapWriter):
                         )
                 if add_sub_elements_to_return:
                     sbgnml_elements += sub_sbgnml_elements
-        lattrs = [
-            ("stroke", layout_element.stroke),
-            ("fill", layout_element.fill),
-            ("stroke_width", layout_element.stroke_width),
-        ]
+
+        lattrs = []
+        for attr_name in ["fill", "stroke", "stroke_width"]:
+            attr_value = getattr(layout_element, f"border_{attr_name}")
+            if attr_value is None:
+                attr_value = getattr(layout_element, attr_name)
+            lattrs.append(
+                (
+                    attr_name,
+                    attr_value,
+                )
+            )
         if layout_element.label is not None:
             lattrs += [
                 ("font_family", layout_element.label.font_family),
@@ -3569,13 +3625,21 @@ class SBGNMLWriter(momapy.io.MapWriter):
                 cls._add_sub_sbgnml_element_to_sbgnml_element(
                     sub_sbgnml_element, arc
                 )
-        style = frozendict.frozendict(
-            [
-                ("stroke", layout_element.stroke),
-                ("fill", layout_element.fill),
-                ("stroke_width", layout_element.stroke_width),
-            ]
-        )
+        lattrs = []
+        for attr_name in ["fill", "stroke", "stroke_width"]:
+            attr_value = getattr(layout_element, f"arrowhead_{attr_name}")
+            if attr_value is None:
+                if attr_name != "fill":
+                    attr_value = getattr(layout_element, f"path_{attr_name}")
+                if attr_value is None:
+                    attr_value = getattr(layout_element, attr_name)
+            lattrs.append(
+                (
+                    attr_name,
+                    attr_value,
+                )
+            )
+        style = frozendict.frozendict(lattrs)
         if style not in dstyles:
             dstyles[style] = [arc.id]
         else:
