@@ -84,6 +84,16 @@ class SBGNNode(momapy.core.Node):
         momapy.coloring.black
     )
     border_stroke_width: float | None = 1.0
+    border_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = momapy.drawing.NoneValue
+    border_stroke_dashoffset: float | None = 0.0
+    border_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = momapy.drawing.NoneValue
+    border_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        momapy.drawing.NoneValue
+    )
 
     def border_drawing_elements(self):
         drawing_elements = []
