@@ -183,6 +183,7 @@ _css_drop_shadow_filter_value = (
 _css_filter_value = _css_drop_shadow_filter_value
 _css_simple_value = (
     _css_drop_shadow_filter_value
+    | _css_unset_value
     | _css_none_value
     | _css_float_value
     | _css_string_value
