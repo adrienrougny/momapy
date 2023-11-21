@@ -77,7 +77,8 @@ class Color(object):
 def list_colors():
     return [
         (color_name, color)
-        for color_name, color in globals().items() is isinstance(color, Color)
+        for color_name, color in globals().items()
+        if isinstance(color, Color)
     ]
 
 
