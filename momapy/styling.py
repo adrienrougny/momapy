@@ -158,6 +158,7 @@ def read_file(file_or_file_name):
     return style_sheet
 
 
+_css_unset_value = pp.Literal("unset")
 _css_none_value = pp.Literal("none")
 _css_float_value = pp.Combine(
     pp.Word(pp.nums) + pp.Literal(".") + pp.Word(pp.nums)
@@ -227,6 +228,11 @@ _css_selector = (
 )
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
+
+
+@_css_unset_value.set_parse_action
+def _resolve_css_unset_value(results):
+    return None
 
 
 @_css_none_value.set_parse_action
