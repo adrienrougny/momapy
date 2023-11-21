@@ -233,7 +233,7 @@ _css_style_sheet = pp.Group(_css_rule[1, ...])
 
 @_css_unset_value.set_parse_action
 def _resolve_css_unset_value(results):
-    return None
+    return results[0]
 
 
 @_css_none_value.set_parse_action
@@ -280,6 +280,8 @@ def _resolve_css_drop_shadow_filter_value(results):
     return filter
 
 
+# Issue: the function cannot return None (pyparsing bug?) otherwise it simply
+# does not apply the function
 @_css_simple_value.set_parse_action
 def _resolve_css_simple_value(results):
     return results[0]
@@ -292,6 +294,9 @@ def _resolve_css_list_value(results):
 
 @_css_attribute_value.set_parse_action
 def _resolve_css_attribute_value(results):
+    # see above
+    if results[0] == "unset":
+        results[0] = None
     return results
 
 
