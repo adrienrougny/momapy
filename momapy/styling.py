@@ -242,7 +242,7 @@ _css_selector = (
 )
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
-_css_document = _css_import_statement[0, ...] + _css_style_sheet[0, ...]
+_css_document = _css_import_statement[...] + _css_style_sheet[...]
 
 
 @_css_unset_value.set_parse_action
