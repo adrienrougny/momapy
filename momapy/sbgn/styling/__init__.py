@@ -2,19 +2,21 @@ import pathlib
 
 import momapy.styling
 
-default = momapy.styling.read_file(
+default = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("./default.css")
 )
-default_colorscheme = momapy.styling.read_file(
+default_colorscheme = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("./default_colorscheme.css")
 )
-white_colorscheme = momapy.styling.read_file(
+white_colorscheme = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("./white_colorscheme.css")
 )
-sbgned = momapy.styling.read_file(
+sbgned = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("./sbgned.css")
 )
-newt = momapy.styling.read_file(pathlib.Path(__file__).with_name("./newt.css"))
-shadows = momapy.styling.read_file(
+newt = momapy.styling.StyleSheet.from_file(
+    pathlib.Path(__file__).with_name("./newt.css")
+)
+shadows = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("./shadows.css")
 )

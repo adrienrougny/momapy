@@ -29,6 +29,60 @@ class StyleSheet(dict):
     def __ior__(self, other):
         return self.__or__(other)
 
+    @classmethod
+    def from_file(cls, file_path):
+        style_sheet = _css_style_sheet.parse_file(file_path, parse_all=True)[0]
+        return style_sheet
+
+    @classmethod
+    def from_string(cls, s):
+        style_sheet = _css_style_sheet.parse_string(s, parse_all=True)[0]
+        return style_sheet
+
+    @classmethod
+    def from_files(cls, file_paths):
+        style_sheets = []
+        for file_path in file_paths:
+            style_sheet = StyleSheet.from_file(file_path)
+            style_sheets.append(style_sheet)
+        style_sheet = combine_style_sheets(style_sheets)
+        return style_sheet
+
+
+def combine_style_sheets(style_sheets):
+    if not style_sheets:
+        return None
+    output_style_sheet = style_sheets[0]
+    for style_sheet in style_sheets[1:]:
+        output_style_sheet |= style_sheet
+    return output_style_sheet
+
+
+def apply_style_collection(layout_element, style_collection, strict=True):
+    for attribute, value in style_collection.items():
+        if hasattr(layout_element, attribute):
+            setattr(layout_element, attribute, value)
+        else:
+            if strict:
+                raise AttributeError(
+                    f"{type(layout_element)} object has no "
+                    f"attribute '{attribute}'"
+                )
+
+
+def apply_style_sheet(layout_element, style_sheet, strict=True, ancestors=None):
+    if isinstance(layout_element, momapy.core.MapBuilder):
+        layout_element = layout_element.layout
+    if style_sheet is not None:
+        if ancestors is None:
+            ancestors = []
+        for selector, style_collection in style_sheet.items():
+            if selector.select(layout_element, ancestors):
+                apply_style_collection(layout_element, style_collection, strict)
+        ancestors = ancestors + [layout_element]
+        for child in layout_element.children():
+            apply_style_sheet(child, style_sheet, strict, ancestors)
+
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
@@ -109,53 +163,6 @@ class OrSelector(Selector):
         return any(
             [selector.select(obj, ancestors) for selector in self.selectors]
         )
-
-
-def join_style_sheets(style_sheets):
-    if not style_sheets:
-        return None
-    output_style_sheet = style_sheets[0]
-    for style_sheet in style_sheets[1:]:
-        output_style_sheet |= style_sheet
-    return output_style_sheet
-
-
-def apply_style_collection(layout_element, style_collection, strict=True):
-    for attribute, value in style_collection.items():
-        if hasattr(layout_element, attribute):
-            setattr(layout_element, attribute, value)
-        else:
-            if strict:
-                raise AttributeError(
-                    f"{type(layout_element)} object has no "
-                    f"attribute '{attribute}'"
-                )
-
-
-def apply_style_sheet(layout_element, style_sheet, strict=True, ancestors=None):
-    if isinstance(layout_element, momapy.core.MapBuilder):
-        layout_element = layout_element.layout
-    if style_sheet is not None:
-        if ancestors is None:
-            ancestors = []
-        for selector, style_collection in style_sheet.items():
-            if selector.select(layout_element, ancestors):
-                apply_style_collection(layout_element, style_collection, strict)
-        ancestors = ancestors + [layout_element]
-        for child in layout_element.children():
-            apply_style_sheet(child, style_sheet, strict, ancestors)
-
-
-def read_string(s):
-    style_sheet = _css_style_sheet.parse_string(s, parse_all=True)[0]
-    return style_sheet
-
-
-def read_file(file_or_file_name):
-    style_sheet = _css_style_sheet.parse_file(
-        file_or_file_name, parse_all=True
-    )[0]
-    return style_sheet
 
 
 _css_unset_value = pp.Literal("unset")
