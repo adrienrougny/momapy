@@ -1,0 +1,430 @@
+AndOperatorLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+AssociationLayout {
+	border-fill: black;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+BiologicalActivityLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+CardinalityLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+CompartmentLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+ComplexLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+ComplexMultimerLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+ComplexMultimerSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+ComplexSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+ComplexUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+DelayOperatorLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+DissociationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+EmptySetLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+EquivalenceOperatorLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+GenericProcessLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+MacromoleculeLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+MacromoleculeMultimerLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+MacromoleculeMultimerSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+MacromoleculeSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+MacromoleculeUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+NotOperatorLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+NucleicAcidFeatureLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+NucleicAcidFeatureMultimerLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+NucleicAcidFeatureMultimerSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+NucleicAcidFeatureSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+NucleicAcidFeatureUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+OmittedProcessLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+OrOperatorLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+PerturbationUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+PerturbingAgentLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+PhenotypeLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SBGNAFLayout {
+	border-fill: white;
+	border-stroke: unset;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SBGNPDLayout {
+	border-fill: white;
+	border-stroke: unset;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SimpleChemicalLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SimpleChemicalMultimerLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+SimpleChemicalMultimerSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+	subunits-fill: unset;
+	subunits-stroke: unset;
+}
+
+
+SimpleChemicalSubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SimpleChemicalUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+StateVariableLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+SubmapLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+TagLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+TerminalLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+UncertainProcessLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	left-connector-fill: unset;
+	left-connector-stroke: unset;
+	right-connector-fill: unset;
+	right-connector-stroke: unset;
+	stroke: unset;
+}
+
+
+UnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+UnspecifiedEntityLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+UnspecifiedEntitySubunitLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
+
+
+UnspecifiedEntityUnitOfInformationLayout {
+	border-fill: white;
+	border-stroke: black;
+	fill: unset;
+	stroke: unset;
+}
