@@ -31,12 +31,12 @@ class StyleSheet(dict):
 
     @classmethod
     def from_file(cls, file_path):
-        style_sheet = _css_style_sheet.parse_file(file_path, parse_all=True)[0]
+        style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
         return style_sheet
 
     @classmethod
     def from_string(cls, s):
-        style_sheet = _css_style_sheet.parse_string(s, parse_all=True)[0]
+        style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
 
     @classmethod
@@ -165,6 +165,7 @@ class OrSelector(Selector):
         )
 
 
+_css_import_keyword = pp.Literal("@import")
 _css_unset_value = pp.Literal("unset")
 _css_none_value = pp.Literal("none")
 _css_float_value = pp.Combine(
@@ -200,6 +201,11 @@ _css_simple_value = (
 _css_list_value = pp.Group(pp.delimited_list(_css_simple_value, ",", min=2))
 _css_attribute_value = _css_list_value | _css_simple_value
 _css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_" + "-")
+
+
+_css_import_statement = (
+    _css_import_keyword + _css_string_value + pp.Literal(";")
+)
 _css_style = (
     _css_attribute_name
     + pp.Literal(":")
@@ -236,6 +242,7 @@ _css_selector = (
 )
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pp.Group(_css_rule[1, ...])
+_css_document = _css_import_statement[0, ...] + _css_style_sheet[0, ...]
 
 
 @_css_unset_value.set_parse_action
@@ -305,6 +312,13 @@ def _resolve_css_attribute_value(results):
     if results[0] == "unset":
         results[0] = None
     return results
+
+
+@_css_import_statement.set_parse_action
+def _resolve_css_import_statement(results):
+    file_path = results[1]
+    style_sheet = StyleSheet.from_file(file_path)
+    return style_sheet
 
 
 @_css_attribute_name.set_parse_action
@@ -381,3 +395,11 @@ def _resolve_css_rule(results):
 @_css_style_sheet.set_parse_action
 def _resolve_css_style_sheet(results):
     return StyleSheet(dict(list(results[0])))
+
+
+@_css_document.set_parse_action
+def _resolve_css_document(results):
+    style_sheets = [
+        style_sheet for style_sheet in results if style_sheet is not None
+    ]
+    return combine_style_sheets(style_sheets)
