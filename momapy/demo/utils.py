@@ -60,16 +60,6 @@ def make_toy_node(
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
-    if m.width is None:
-        m.width = 50
-    if m.height is None:
-        m.height = 50
-    if m.fill is None:
-        m.fill = momapy.coloring.white
-    if m.stroke is None:
-        m.stroke = momapy.coloring.black
-    if m.stroke_width is None:
-        m.stroke_width = 1.0
     m.position = position
     m.width = m.width * scale
     m.height = m.height * scale
@@ -127,19 +117,8 @@ def make_toy_arc(
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
-    if m.width is None:
-        m.width = 30
-    if m.height is None:
-        m.height = 30
-    if m.arrowhead_fill is None:
-        m.arrowhead_fill = momapy.coloring.white
-    if m.stroke is None:
-        m.stroke = momapy.coloring.black
-    if m.stroke_width is None:
-        m.stroke_width = 1.0
     m.width = m.width * scale
     m.height = m.height * scale
-    m.stroke_width = m.stroke_width * scale
     m.segments = momapy.core.TupleBuilder(
         [momapy.geometry.Segment(start_point, end_point)]
     )
@@ -226,12 +205,13 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                stroke_width=1.5,
-                stroke=momapy.coloring.red,
+                border_stroke_width=1.5,
+                border_stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
+                    fill=momapy.coloring.red,
                 ),
             )
             if type_ == "anchor":
@@ -280,12 +260,13 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                stroke_width=1.5,
-                stroke=momapy.coloring.red,
+                border_stroke_width=1.5,
+                border_stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
+                    fill=momapy.coloring.red,
                 ),
             )
             if type_ == "anchor":
