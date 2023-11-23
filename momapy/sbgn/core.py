@@ -376,7 +376,7 @@ class _MultiMixin(_SBGNMixin):
                 "filter",
             ]:
                 attr_value = getattr(obj, f"subunits_{attr_name}")
-                if len(attr_value) > i:
+                if attr_value is not None and len(attr_value) > i:
                     kwargs[f"{attr_name}"] = attr_value[i]
             subunit_shape = obj._make_subunit_shape(position, width, height)
             kwargs["elements"] = subunit_shape.drawing_elements()
