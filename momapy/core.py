@@ -533,30 +533,34 @@ class Node(GroupLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Arc(GroupLayout):
+    end_shorten: float = 0.0
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    path_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
+        None  # not inherited
+    )
+
+    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    path_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
+        float
+    ] | None = None
+    path_stroke_dashoffset: float | None = None
+
+    path_stroke_width: float | None = None
+    path_transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None  # not inherited
     segments: tuple[
         momapy.geometry.Segment,
         momapy.geometry.BezierCurve,
         momapy.geometry.EllipticalArc,
     ] = dataclasses.field(default_factory=tuple)
     source: LayoutElement | None = None
+    start_shorten: float = 0.0
     target: LayoutElement | None = None
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    path_stroke_width: float | None = None
-    path_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
-    path_stroke_dashoffset: float | None = None
-    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    path_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
-    path_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
-    )
 
     def points(self) -> list[momapy.geometry.Point]:
         points = []
@@ -625,7 +629,6 @@ class Arc(GroupLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SingleHeadedArc(Arc):
-    path_shorten: float = 0.0
     arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -658,7 +661,7 @@ class SingleHeadedArc(Arc):
         segment = self.segments[-1]
         if segment.length() == 0:
             return segment.p2
-        fraction = 1 - self.path_shorten / segment.length()
+        fraction = 1 - self.end_shorten / segment.length()
         return segment.get_position_at_fraction(fraction)
 
     def arrowhead_base(self) -> momapy.geometry.Point:
@@ -667,7 +670,7 @@ class SingleHeadedArc(Arc):
         segment = self.segments[-1]
         if segment.length() == 0:
             return self.arrowhead_tip() - (arrowhead_length, 0)
-        fraction = 1 - (arrowhead_length + self.path_shorten) / segment.length()
+        fraction = 1 - (arrowhead_length + self.end_shorten) / segment.length()
         return segment.get_position_at_fraction(fraction)
 
     @abc.abstractmethod
@@ -719,15 +722,22 @@ class SingleHeadedArc(Arc):
     def _make_path(self) -> momapy.drawing.Path:
         arrowhead_length = self.arrowhead_length()
         if len(self.segments) == 1:
-            segment = self.segments[0].shortened(
-                self.path_shorten + arrowhead_length, "end"
+            segment = (
+                self.segments[0]
+                .shortened(self.start_shorten, "start")
+                .shortened(self.end_shorten + arrowhead_length, "end")
             )
             actions = [
                 momapy.drawing.MoveTo(segment.p1),
                 self._make_path_action_from_segment(segment),
             ]
         else:
-            first_segment = self.segments[0]
+            first_segment = self.segments[0].shortened(
+                self.start_shorten, "start"
+            )
+            last_segment = self.segments[-1].shortened(
+                self.end_shorten + arrowhead_length, "end"
+            )
             actions = [
                 momapy.drawing.MoveTo(first_segment.p1),
                 self._make_path_action_from_segment(first_segment),
@@ -735,9 +745,6 @@ class SingleHeadedArc(Arc):
             for segment in self.segments[1:-1]:
                 action = self._make_path_action_from_segment(segment)
                 actions.append(action)
-            last_segment = self.segments[-1].shortened(
-                self.path_shorten_end + end_arrowhead_length, "end"
-            )
             actions.append(self._make_path_action_from_segment(last_segment))
         path = momapy.drawing.Path(
             stroke=self.path_stroke,
@@ -761,8 +768,6 @@ class SingleHeadedArc(Arc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DoubleHeadedArc(Arc):
-    path_shorten_start: float = 0.0
-    path_shorten_end: float = 0.0
     start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -812,10 +817,10 @@ class DoubleHeadedArc(Arc):
         if start_or_end == "start":
             segment = self.segments[0]
             segment = momapy.geometry.Segment(segment.p2, segment.p1)
-            shorten = self.path_shorten_start
+            shorten = self.start_shorten
         else:
             segment = self.segments[-1]
-            shorten = self.path_shorten_end
+            shorten = self.end_shorten
         if segment.length() == 0:
             return segment.p2
         fraction = 1 - shorten / segment.length()
@@ -830,14 +835,14 @@ class DoubleHeadedArc(Arc):
             segment = momapy.geometry.Segment(segment.p2, segment.p1)
             if segment.length() == 0:
                 return self.arrowhead_tip() + (arrowhead_length, 0)
-            shorten = self.path_shorten_start
+            shorten = self.start_shorten
         else:
             if arrowhead_length == 0:
                 return self.end_point()
             segment = self.segments[-1]
             if segment.length() == 0:
                 return self.arrowhead_tip() - (arrowhead_length, 0)
-            shorten = self.path_shorten_end
+            shorten = self.end_shorten
         fraction = 1 - (arrowhead_length + shorten) / segment.length()
         return segment.get_position_at_fraction(fraction)
 
@@ -934,10 +939,8 @@ class DoubleHeadedArc(Arc):
         if len(self.segments) == 1:
             segment = (
                 self.segments[0]
-                .shortened(
-                    self.path_shorten_start + start_arrowhead_length, "start"
-                )
-                .shortened(self.path_shorten_end + end_arrowhead_length, "end")
+                .shortened(self.start_shorten + start_arrowhead_length, "start")
+                .shortened(self.end_shorten + end_arrowhead_length, "end")
             )
             actions = [
                 momapy.drawing.MoveTo(segment.p1),
@@ -945,10 +948,10 @@ class DoubleHeadedArc(Arc):
             ]
         else:
             first_segment = self.segments[0].shortened(
-                self.path_shorten_start + start_arrowhead_length, "start"
+                self.start_shorten + start_arrowhead_length, "start"
             )
             last_segment = self.segments[-1].shortened(
-                self.path_shorten_end + end_arrowhead_length, "end"
+                self.end_shorten + end_arrowhead_length, "end"
             )
             actions = [
                 momapy.drawing.MoveTo(first_segment.p1),
