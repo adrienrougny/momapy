@@ -303,6 +303,7 @@ class EllipticalArc(GeometryObject):
                 Point.from_tuple(line_string.coords[1]),
             )
             min_distance = segment.get_distance_to_point(point)
+            min_i = 0
             for i, current_coord in enumerate(line_string.coords[2:]):
                 previous_coord = line_string.coords[i + 1]
                 segment = Segment(
