@@ -117,8 +117,14 @@ def make_toy_arc(
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
-    m.width = m.width * scale
-    m.height = m.height * scale
+    if hasattr(m, "arrowhead_width"):
+        m.arrowhead_width = m.arrowhead_width * scale
+    if hasattr(m, "arrowhead_height"):
+        m.arrowhead_height = m.arrowhead_height * scale
+    if hasattr(m, "arrowhead_triangle_width"):
+        m.arrowhead_triangle_width = m.arrowhead_triangle_width * scale
+    if hasattr(m, "arrowhead_triangle_height"):
+        m.arrowhead_triangle_height = m.arrowhead_triangle_height * scale
     m.segments = momapy.core.TupleBuilder(
         [momapy.geometry.Segment(start_point, end_point)]
     )
