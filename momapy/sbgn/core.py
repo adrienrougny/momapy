@@ -326,26 +326,24 @@ class _MultiMixin(_SBGNMixin):
     _n: ClassVar[int] = 2
     offset: float = 3.0
     subunits_stroke: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = None
+        momapy.drawing.NoneValueType | momapy.coloring.Color
+    ] | None = None
     subunits_stroke_width: tuple[
-        momapy.drawing.NoneValueType | float | None
-    ] = None
+        momapy.drawing.NoneValueType | float
+    ] | None = None
     subunits_stroke_dasharray: tuple[
-        momapy.drawing.NoneValueType | tuple[float] | None
-    ] = None
-    subunits_stroke_dashoffset: tuple[float | None] = None
+        momapy.drawing.NoneValueType | tuple[float]
+    ] | None = None
+    subunits_stroke_dashoffset: tuple[float] | None = None
     subunits_fill: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = None
+        momapy.drawing.NoneValueType | momapy.coloring.Color
+    ] | None = None
     subunits_transform: tuple[
-        momapy.drawing.NoneValueType
-        | tuple[momapy.geometry.Transformation]
-        | None
-    ] = None
+        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation]
+    ] | None = None
     subunits_filter: tuple[
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ] = None
+        momapy.drawing.NoneValueType | momapy.drawing.Filter
+    ] | None = None
 
     def _make_subunit_shape(
         self,
