@@ -137,9 +137,9 @@ class TextLayout(LayoutElement):
     stroke_dashoffset: float | None = None
     stroke_width: float | None = None
     text_anchor: momapy.drawing.TextAnchor | None = None
-    transform: momapy.drawing.NoneValueType | momapy.geometry.Transformation | None = (
-        None
-    )
+    transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
 
     @property
     def x(self):
@@ -315,9 +315,9 @@ class GroupLayout(LayoutElement):
     stroke_dashoffset: float | None = None
     stroke_width: float | None = None
     text_anchor: momapy.drawing.TextAnchor | None = None
-    transform: momapy.drawing.NoneValueType | momapy.geometry.Transformation | None = (
-        None
-    )
+    transform: momapy.drawing.NoneValueType | tuple[
+        momapy.geometry.Transformation
+    ] | None = None
 
     def self_to_shapely(self, to_polygons=False):
         geom_collection = []
