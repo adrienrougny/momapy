@@ -170,7 +170,7 @@ class SBGNMLReader(momapy.io.MapReader):
         for sub_layout_element in layout_element.layout_elements:
             if momapy.builder.isinstance_or_builder(
                 sub_layout_element,
-                (momapy.sbgn.pd.LogicArc, momapy.sbgn.af.LogicArc),
+                (momapy.sbgn.pd.LogicArcLayout, momapy.sbgn.af.LogicArcLayout),
             ):
                 if layout_element.direction == momapy.core.Direction.HORIZONTAL:
                     if sub_layout_element.points()[-1].x < layout_element.x:
@@ -2376,7 +2376,7 @@ class SBGNMLReader(momapy.io.MapReader):
             d_model_element_ids[arc.target], momapy.sbgn.pd.EquivalenceOperator
         ):
             model_cls = momapy.sbgn.pd.EquivalenceOperatorInput
-        layout_cls = cls._get_module_from_map(map_).LogicArc
+        layout_cls = cls._get_module_from_map(map_).LogicArcLayout
         model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
@@ -2416,7 +2416,7 @@ class SBGNMLReader(momapy.io.MapReader):
             d_model_element_ids[arc.target], cls._get_module_from_map(map_).Tag
         ):
             model_cls = cls._get_module_from_map(map_).TagReference
-        layout_cls = cls._get_module_from_map(map_).EquivalenceArc
+        layout_cls = cls._get_module_from_map(map_).EquivalenceArcLayout
         model_element, layout_element = cls._arc_elements_from_arc_and_cls(
             arc,
             model_cls,
@@ -2490,8 +2490,8 @@ class SBGNMLWriter(momapy.io.MapWriter):
         momapy.sbgn.pd.CatalysisLayout: "_catalysis_to_arc",
         momapy.sbgn.pd.NecessaryStimulationLayout: "_necessary_stimulation_to_arc",
         momapy.sbgn.pd.InhibitionLayout: "_inhibition_to_arc",
-        momapy.sbgn.pd.LogicArc: "_logic_arc_to_arc",
-        momapy.sbgn.pd.EquivalenceArc: "_equivalence_arc_to_arc",
+        momapy.sbgn.pd.LogicArcLayout: "_logic_arc_to_arc",
+        momapy.sbgn.pd.EquivalenceArcLayout: "_equivalence_arc_to_arc",
         momapy.sbgn.af.CompartmentLayout: "_compartment_to_glyph",
         momapy.sbgn.af.SubmapLayout: "_submap_to_glyph",
         momapy.sbgn.af.BiologicalActivityLayout: "_biological_activity_to_glyph",
@@ -2512,8 +2512,8 @@ class SBGNMLWriter(momapy.io.MapWriter):
         momapy.sbgn.af.NegativeInfluenceLayout: "_negative_influence_to_arc",
         momapy.sbgn.af.TerminalLayout: "_terminal_to_glyph",
         momapy.sbgn.af.TagLayout: "_tag_to_glyph",
-        momapy.sbgn.af.LogicArc: "_logic_arc_to_arc",
-        momapy.sbgn.af.EquivalenceArc: "_equivalence_arc_to_arc",
+        momapy.sbgn.af.LogicArcLayout: "_logic_arc_to_arc",
+        momapy.sbgn.af.EquivalenceArcLayout: "_equivalence_arc_to_arc",
     }
     _SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE_MAPPING = {
         momapy.sbgn.core.BQBiol.ENCODES: (

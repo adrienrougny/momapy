@@ -440,13 +440,15 @@ class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc):
+class LogicArcLayout(
+    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
+):
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArc(
+class EquivalenceArcLayout(
     momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
 ):
     def arrowhead_drawing_elements(self):
