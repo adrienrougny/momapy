@@ -189,8 +189,8 @@ class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
 class UnspecifiedEntityUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
 
     def _make_shape(self):
         return momapy.sbgn.pd.UnspecifiedEntityLayout._make_shape(self)
@@ -200,8 +200,8 @@ class UnspecifiedEntityUnitOfInformationLayout(
 class SimpleChemicalUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
 
     def _make_shape(self):
         return momapy.sbgn.pd.SimpleChemicalLayout._make_shape(self)
@@ -211,8 +211,8 @@ class SimpleChemicalUnitOfInformationLayout(
 class MacromoleculeUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
     rounded_corners: float = 5.0
 
     def _make_shape(self):
@@ -223,8 +223,8 @@ class MacromoleculeUnitOfInformationLayout(
 class NucleicAcidFeatureUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
     rounded_corners: float = 5.0
 
     def _make_shape(self):
@@ -235,8 +235,8 @@ class NucleicAcidFeatureUnitOfInformationLayout(
 class ComplexUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
     cut_corners: float = 5.0
 
     def _make_shape(self):
@@ -247,8 +247,8 @@ class ComplexUnitOfInformationLayout(
 class PerturbationUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 12.0
+    height: float = 12.0
     angle: float = 70.0
 
     def _make_shape(self):
@@ -257,8 +257,8 @@ class PerturbationUnitOfInformationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 35.0
+    height: float = 35.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
     angle: float = 70.0
 
@@ -270,9 +270,10 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class CompartmentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 80.0
     rounded_corners: float = 5.0
+    border_stroke_width: float | None = 3.25
 
     def _make_shape(self):
         return momapy.sbgn.pd.CompartmentLayout._make_shape(self)
@@ -280,8 +281,9 @@ class CompartmentLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 80.0
+    border_stroke_width: float | None = 2.25
 
     def _make_shape(self):
         return momapy.sbgn.pd.SubmapLayout._make_shape(self)
@@ -324,6 +326,8 @@ class _LogicalOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
+    width: float = 30.0
+    height: float = 30.0
 
     def _make_shape(self):
         return momapy.sbgn.pd._LogicalOperatorLayout._make_shape(self)
@@ -335,8 +339,6 @@ class AndOperatorLayout(_LogicalOperatorLayout):
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 3
     )
-    width: float = 20.0
-    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -345,8 +347,6 @@ class OrOperatorLayout(_LogicalOperatorLayout):
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 3
     )
-    width: float = 20.0
-    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -355,8 +355,6 @@ class NotOperatorLayout(_LogicalOperatorLayout):
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 3
     )
-    width: float = 20.0
-    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -365,14 +363,12 @@ class DelayOperatorLayout(_LogicalOperatorLayout):
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 2
     )
-    width: float = 20.0
-    height: float = 20.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(momapy.sbgn.pd.TagLayout):
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 35.0
+    height: float = 35.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
     angle: float = 70.0
 
@@ -381,32 +377,29 @@ class TagLayout(momapy.sbgn.pd.TagLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnknownInfluenceLayout(
-    momapy.meta.arcs.Diamond, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_width: float = 10.0
+class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+    arrowhead_width: float = 10.0
+
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Diamond.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PositiveInfluenceLayout(
-    momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_width: float = 10.0
+class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+    arrowhead_width: float = 10.0
+
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NecessaryStimulationLayout(
-    momapy.core.SingleHeadedArc, momapy.sbgn.core.SBGNArc
-):
-    arrowhead_triangle_width: float
-    arrowhead_triangle_height: float
-    arrowhead_bar_height: float
-    arrowhead_sep: float
-    arrowhead_fill: momapy.coloring.Color = momapy.coloring.white
+class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    arrowhead_bar_height: float = 12.0
+    arrowhead_sep: float = 3.0
+    arrowhead_triangle_height: float = 10.0
+    arrowhead_triangle_width: float = 10.0
 
     def arrowhead_drawing_elements(self):
         actions = [
@@ -435,18 +428,23 @@ class NecessaryStimulationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NegativeInfluenceLayout(momapy.meta.arcs.Bar, momapy.sbgn.core.SBGNArc):
+class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
 
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
-    pass
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Bar.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArc(momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNArc):
-    pass
+class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

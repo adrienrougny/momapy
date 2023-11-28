@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.2" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
+  <sbgn:map language="process description">
+    <sbgn:extension>
+      <render:renderInformation id="9c7ab6be-1a6a-42de-8191-f5ceb5e81bf9" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
+        <render:listOfColorDefinitions>
+          <render:colorDefinition id="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" value="#000000ff"/>
+          <render:colorDefinition id="8072e0b2-38e0-4499-a7ad-957e4bc46895" value="#ffffffff"/>
+        </render:listOfColorDefinitions>
+        <render:listOfStyles>
+          <render:style id="9b296ba8-fa91-4d40-a148-1b875b52d892" idList="glyph2a glyph1a">
+            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
+          </render:style>
+          <render:style id="37bb2799-8bfd-4f6a-83eb-a1a6336097f7" idList="glyph2 glyph1 glyph3">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
+          </render:style>
+          <render:style id="afa07204-2ebd-4d36-99fd-ebaaff5098db" idList="arc1 glyph4 arc3">
+            <render:g stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
+          </render:style>
+          <render:style id="5757f8a3-48d1-400e-aaf9-f739b6c03daa" idList="arc2">
+            <render:g stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e"/>
+          </render:style>
+        </render:listOfStyles>
+      </render:renderInformation>
+    </sbgn:extension>
+    <sbgn:bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph2">
+      <sbgn:label text="A">
+        <sbgn:bbox x="80.5" y="262.5" w="10" h="11"/>
+      </sbgn:label>
+      <sbgn:bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
+      <sbgn:glyph class="state variable" orientation="horizontal" id="glyph2a">
+        <sbgn:state/>
+        <sbgn:bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
+      </sbgn:glyph>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph1">
+      <sbgn:label text="A">
+        <sbgn:bbox x="385.5" y="262.5" w="10" h="11"/>
+      </sbgn:label>
+      <sbgn:bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
+      <sbgn:glyph class="state variable" orientation="horizontal" id="glyph1a">
+        <sbgn:state value="P"/>
+        <sbgn:bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
+      </sbgn:glyph>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph3">
+      <sbgn:label text="B">
+        <sbgn:bbox x="226.5" y="127.5" w="8" h="11"/>
+      </sbgn:label>
+      <sbgn:bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="glyph4">
+      <sbgn:bbox x="218.0" y="258.0" w="24.0" h="24.0"/>
+      <sbgn:port x="206.0" y="270.0" id="glyph4_left_port"/>
+      <sbgn:port x="254.0" y="270.0" id="glyph4_right_port"/>
+    </sbgn:glyph>
+    <sbgn:arc class="consumption" id="arc1" source="glyph2" target="glyph4_left_port">
+      <sbgn:start x="139.0" y="270.0"/>
+      <sbgn:end x="206.0" y="270.0"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="arc2" source="glyph4_right_port" target="glyph1">
+      <sbgn:start x="254.0" y="270.0"/>
+      <sbgn:end x="336.0" y="270.0"/>
+    </sbgn:arc>
+    <sbgn:arc class="catalysis" id="arc3" source="glyph3" target="glyph4">
+      <sbgn:start x="230.0" y="165.0"/>
+      <sbgn:end x="230.0" y="258.0"/>
+    </sbgn:arc>
+  </sbgn:map>
+</sbgn:sbgn>

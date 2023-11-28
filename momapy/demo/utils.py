@@ -60,16 +60,6 @@ def make_toy_node(
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
-    if m.width is None:
-        m.width = 50
-    if m.height is None:
-        m.height = 50
-    if m.fill is None:
-        m.fill = momapy.coloring.white
-    if m.stroke is None:
-        m.stroke = momapy.coloring.black
-    if m.stroke_width is None:
-        m.stroke_width = 1.0
     m.position = position
     m.width = m.width * scale
     m.height = m.height * scale
@@ -127,19 +117,36 @@ def make_toy_arc(
     if not issubclass(cls, momapy.builder.Builder):
         cls = momapy.builder.get_or_make_builder_cls(cls)
     m = cls()
-    if m.width is None:
-        m.width = 30
-    if m.height is None:
-        m.height = 30
-    if m.arrowhead_fill is None:
-        m.arrowhead_fill = momapy.coloring.white
-    if m.stroke is None:
-        m.stroke = momapy.coloring.black
-    if m.stroke_width is None:
-        m.stroke_width = 1.0
-    m.width = m.width * scale
-    m.height = m.height * scale
-    m.stroke_width = m.stroke_width * scale
+    if hasattr(m, "arrowhead_width"):
+        m.arrowhead_width = m.arrowhead_width * scale
+    if hasattr(m, "arrowhead_height"):
+        m.arrowhead_height = m.arrowhead_height * scale
+    if hasattr(m, "arrowhead_triangle_width"):
+        m.arrowhead_triangle_width = m.arrowhead_triangle_width * scale
+    if hasattr(m, "arrowhead_triangle_height"):
+        m.arrowhead_triangle_height = m.arrowhead_triangle_height * scale
+    if hasattr(m, "start_arrowhead_width"):
+        m.start_arrowhead_width = m.start_arrowhead_width * scale
+    if hasattr(m, "start_arrowhead_height"):
+        m.start_arrowhead_height = m.start_arrowhead_height * scale
+    if hasattr(m, "start_arrowhead_triangle_width"):
+        m.start_arrowhead_triangle_width = (
+            m.start_arrowhead_triangle_width * scale
+        )
+    if hasattr(m, "start_arrowhead_triangle_height"):
+        m.start_arrowhead_triangle_height = (
+            m.start_arrowhead_triangle_height * scale
+        )
+    if hasattr(m, "end_arrowhead_width"):
+        m.end_arrowhead_width = m.end_arrowhead_width * scale
+    if hasattr(m, "end_arrowhead_height"):
+        m.end_arrowhead_height = m.end_arrowhead_height * scale
+    if hasattr(m, "end_arrowhead_triangle_width"):
+        m.end_arrowhead_triangle_width = m.end_arrowhead_triangle_width * scale
+    if hasattr(m, "end_arrowhead_triangle_height"):
+        m.end_arrowhead_triangle_height = (
+            m.end_arrowhead_triangle_height * scale
+        )
     m.segments = momapy.core.TupleBuilder(
         [momapy.geometry.Segment(start_point, end_point)]
     )
@@ -178,11 +185,19 @@ def show_room(cls, type_="anchor"):
         "center": "center",
         "label_center": "label_center",
     }
-    ARC_ANCHORS = {
+    SINGLE_ARC_ANCHORS = {
         "arrowhead_base": "north_west",
         "arrowhead_tip": "north_west",
         "start_point": "north_west",
         "end_point": "south_east",
+    }
+    DOUBLE_ARC_ANCHORS = {
+        "start_point": "north_west",
+        "end_point": "south_east",
+        "start_arrowhead_base": "north_west",
+        "start_arrowhead_tip": "north_west",
+        "end_arrowhead_base": "north_west",
+        "end_arrowhead_tip": "north_west",
     }
 
     ANGLE_STEP = 15
@@ -226,12 +241,13 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                stroke_width=1.5,
-                stroke=momapy.coloring.red,
+                border_stroke_width=1.5,
+                border_stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
+                    fill=momapy.coloring.red,
                 ),
             )
             if type_ == "anchor":
@@ -266,7 +282,14 @@ def show_room(cls, type_="anchor"):
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)
         if type_ == "anchor":
-            l = ARC_ANCHORS.keys()
+            if momapy.builder.issubclass_or_builder(
+                cls, momapy.core.SingleHeadedArc
+            ):
+                d = SINGLE_ARC_ANCHORS
+                l = SINGLE_ARC_ANCHORS.keys()
+            else:
+                l = DOUBLE_ARC_ANCHORS.keys()
+                d = DOUBLE_ARC_ANCHORS
         elif type_ == "fraction":
             l = numpy.arange(0, 1.1, FRACTION_STEP)
         for i, elem in enumerate(l):
@@ -280,16 +303,17 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                stroke_width=1.5,
-                stroke=momapy.coloring.red,
+                border_stroke_width=1.5,
+                border_stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
+                    fill=momapy.coloring.red,
                 ),
             )
             if type_ == "anchor":
-                attach = ARC_ANCHORS[elem]
+                attach = d[elem]
                 func_name = (
                     NODE_ANCHORS[attach]
                     .replace("north", "above")

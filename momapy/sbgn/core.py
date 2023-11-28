@@ -60,7 +60,7 @@ class SBGNModel(momapy.core.Model):
 
 @dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
     )
 
@@ -77,9 +77,13 @@ class SBGNMap(momapy.core.Map):
 
 @dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    stroke: momapy.coloring.Color = momapy.coloring.black
-    stroke_width: float = 1.0
-    fill: momapy.coloring.Color = momapy.coloring.white
+    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    border_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    border_stroke_width: float | None = 1.25
 
     def border_drawing_elements(self):
         drawing_elements = []
@@ -98,13 +102,46 @@ class SBGNNode(momapy.core.Node):
 
 
 @dataclass(frozen=True)
-class SBGNArc(momapy.core.Arc):
-    stroke: momapy.coloring.Color = momapy.coloring.black
-    stroke_width: float = 1.0
-    fill: momapy.coloring.Color = momapy.coloring.white
+class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    arrowhead_stroke_width: float | None = 1.25
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
+    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    path_stroke_width: float | None = 1.25
+
+
+@dataclass(frozen=True)
+class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
+    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    end_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    end_arrowhead_stroke_width: float | None = 1.25
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    path_stroke_width: float | None = 1.25
+    start_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    start_arrowhead_stroke_width: float | None = 1.25
 
 
 @dataclass(frozen=True)
@@ -289,28 +326,24 @@ class _MultiMixin(_SBGNMixin):
     _n: ClassVar[int] = 2
     offset: float = 3.0
     subunits_stroke: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = field(default_factory=tuple)
+        momapy.drawing.NoneValueType | momapy.coloring.Color
+    ] | None = None
     subunits_stroke_width: tuple[
-        momapy.drawing.NoneValueType | float | None
-    ] = field(default_factory=tuple)
+        momapy.drawing.NoneValueType | float
+    ] | None = None
     subunits_stroke_dasharray: tuple[
-        momapy.drawing.NoneValueType | tuple[float] | None
-    ] = field(default_factory=tuple)
-    subunits_stroke_dashoffset: tuple[float | None] = field(
-        default_factory=tuple
-    )
+        momapy.drawing.NoneValueType | tuple[float]
+    ] | None = None
+    subunits_stroke_dashoffset: tuple[float] | None = None
     subunits_fill: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ] = field(default_factory=tuple)
+        momapy.drawing.NoneValueType | momapy.coloring.Color
+    ] | None = None
     subunits_transform: tuple[
-        momapy.drawing.NoneValueType
-        | tuple[momapy.geometry.Transformation]
-        | None
-    ] = field(default_factory=tuple)
+        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation]
+    ] | None = None
     subunits_filter: tuple[
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ] = field(default_factory=tuple)
+        momapy.drawing.NoneValueType | momapy.drawing.Filter
+    ] | None = None
 
     def _make_subunit_shape(
         self,
@@ -341,7 +374,7 @@ class _MultiMixin(_SBGNMixin):
                 "filter",
             ]:
                 attr_value = getattr(obj, f"subunits_{attr_name}")
-                if len(attr_value) > i:
+                if attr_value is not None and len(attr_value) > i:
                     kwargs[f"{attr_name}"] = attr_value[i]
             subunit_shape = obj._make_subunit_shape(position, width, height)
             kwargs["elements"] = subunit_shape.drawing_elements()

@@ -75,11 +75,16 @@ class Color(object):
 
 
 def list_colors():
-    for color_name, color in globals().items():
-        if isinstance(color, Color):
-            print(
-                f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}"
-            )
+    return [
+        (color_name, color)
+        for color_name, color in globals().items()
+        if isinstance(color, Color)
+    ]
+
+
+def print_colors():
+    for color_name, color in list_colors():
+        print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
 
 
 def has_color(color_name):

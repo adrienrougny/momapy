@@ -60,12 +60,12 @@ def render_maps(
             else:
                 style_sheets = style_sheet
             style_sheets = [
-                momapy.styling.read_file(style_sheet)
+                momapy.styling.StyleSheet.from_file(style_sheet)
                 if not isinstance(style_sheet, momapy.styling.StyleSheet)
                 else style_sheet
                 for style_sheet in style_sheets
             ]
-            style_sheet = momapy.styling.join_style_sheets(style_sheets)
+            style_sheet = momapy.styling.combine_style_sheets(style_sheets)
             for map_ in maps:
                 momapy.styling.apply_style_sheet(map_.layout, style_sheet)
         if to_top_left:
@@ -239,7 +239,7 @@ class StatefulRenderer(Renderer):
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
                 attr_value = self.initial_values.get(attr_name)
-                if attr_valye is None:
+                if attr_value is None:
                     attr_value = attr_d["initial"]
                 if attr_value is None:
                     attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
