@@ -2,23 +2,23 @@
 <sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.2" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
   <sbgn:map language="process description">
     <sbgn:extension>
-      <render:renderInformation id="0ff03cee-dc21-495c-8550-14ab5df01b3d" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
+      <render:renderInformation id="9c7ab6be-1a6a-42de-8191-f5ceb5e81bf9" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
         <render:listOfColorDefinitions>
-          <render:colorDefinition id="31b29c23-a634-49c2-93b2-cf12e6f69817" value="#000000ff"/>
-          <render:colorDefinition id="a26fd4a4-4881-491e-a1a8-73f4c6f9a255" value="#ffffffff"/>
+          <render:colorDefinition id="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" value="#000000ff"/>
+          <render:colorDefinition id="8072e0b2-38e0-4499-a7ad-957e4bc46895" value="#ffffffff"/>
         </render:listOfColorDefinitions>
         <render:listOfStyles>
-          <render:style id="ab17e9a9-8224-4986-8feb-51ecf3bb52ac" idList="glyph2a glyph1a">
-            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="31b29c23-a634-49c2-93b2-cf12e6f69817" stroke-width="1.0" fill="a26fd4a4-4881-491e-a1a8-73f4c6f9a255"/>
+          <render:style id="9b296ba8-fa91-4d40-a148-1b875b52d892" idList="glyph2a glyph1a">
+            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
           </render:style>
-          <render:style id="f32a586d-f402-40aa-b5a2-01e80900a42c" idList="glyph2 glyph1 glyph3">
-            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="31b29c23-a634-49c2-93b2-cf12e6f69817" stroke-width="1.0" fill="a26fd4a4-4881-491e-a1a8-73f4c6f9a255"/>
+          <render:style id="37bb2799-8bfd-4f6a-83eb-a1a6336097f7" idList="glyph2 glyph1 glyph3">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
           </render:style>
-          <render:style id="5d7c0ed8-cf18-4999-b6eb-2b427b88ab31" idList="arc1 glyph4 arc3">
-            <render:g stroke="31b29c23-a634-49c2-93b2-cf12e6f69817" stroke-width="1.0" fill="a26fd4a4-4881-491e-a1a8-73f4c6f9a255"/>
+          <render:style id="afa07204-2ebd-4d36-99fd-ebaaff5098db" idList="arc1 glyph4 arc3">
+            <render:g stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="8072e0b2-38e0-4499-a7ad-957e4bc46895"/>
           </render:style>
-          <render:style id="f4f933e8-f3f8-48f1-b5cb-53ea4f24a9d6" idList="arc2">
-            <render:g stroke="31b29c23-a634-49c2-93b2-cf12e6f69817" stroke-width="1.0" fill="31b29c23-a634-49c2-93b2-cf12e6f69817"/>
+          <render:style id="5757f8a3-48d1-400e-aaf9-f739b6c03daa" idList="arc2">
+            <render:g stroke="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e" stroke-width="1.0" fill="b36e1db0-b6b8-4c12-8bf6-c8e438b12d6e"/>
           </render:style>
         </render:listOfStyles>
       </render:renderInformation>
