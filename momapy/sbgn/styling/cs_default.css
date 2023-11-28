@@ -23,7 +23,7 @@ AssociationLayout {
 
 
 BiologicalActivityLayout {
-	border-fill: white;
+	border-fill: blue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -49,7 +49,7 @@ CatalysisLayout {
 
 
 CompartmentLayout {
-	border-fill: white;
+	border-fill: ghostwhite;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -57,7 +57,7 @@ CompartmentLayout {
 
 
 ComplexLayout {
-	border-fill: white;
+	border-fill: gold;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -65,7 +65,7 @@ ComplexLayout {
 
 
 ComplexMultimerLayout {
-	border-fill: white;
+	border-fill: gold;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -75,7 +75,7 @@ ComplexMultimerLayout {
 
 
 ComplexMultimerSubunitLayout {
-	border-fill: white;
+	border-fill: gold;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -85,7 +85,7 @@ ComplexMultimerSubunitLayout {
 
 
 ComplexSubunitLayout {
-	border-fill: white;
+	border-fill: gold;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -93,7 +93,7 @@ ComplexSubunitLayout {
 
 
 ComplexUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: gold;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -197,7 +197,7 @@ LogicArc {
 
 
 MacromoleculeLayout {
-	border-fill: white;
+	border-fill: deepskyblue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -205,7 +205,7 @@ MacromoleculeLayout {
 
 
 MacromoleculeMultimerLayout {
-	border-fill: white;
+	border-fill: deepskyblue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -215,7 +215,7 @@ MacromoleculeMultimerLayout {
 
 
 MacromoleculeMultimerSubunitLayout {
-	border-fill: white;
+	border-fill: deepskyblue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -225,7 +225,7 @@ MacromoleculeMultimerSubunitLayout {
 
 
 MacromoleculeSubunitLayout {
-	border-fill: white;
+	border-fill: deepskyblue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -233,7 +233,7 @@ MacromoleculeSubunitLayout {
 
 
 MacromoleculeUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: deepskyblue;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -283,7 +283,7 @@ NotOperatorLayout {
 
 
 NucleicAcidFeatureLayout {
-	border-fill: white;
+	border-fill: limegreen;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -291,7 +291,7 @@ NucleicAcidFeatureLayout {
 
 
 NucleicAcidFeatureMultimerLayout {
-	border-fill: white;
+	border-fill: limegreen;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -301,7 +301,7 @@ NucleicAcidFeatureMultimerLayout {
 
 
 NucleicAcidFeatureMultimerSubunitLayout {
-	border-fill: white;
+	border-fill: limegreen;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -311,7 +311,7 @@ NucleicAcidFeatureMultimerSubunitLayout {
 
 
 NucleicAcidFeatureSubunitLayout {
-	border-fill: white;
+	border-fill: limegreen;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -319,7 +319,7 @@ NucleicAcidFeatureSubunitLayout {
 
 
 NucleicAcidFeatureUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: limegreen;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -351,7 +351,7 @@ OrOperatorLayout {
 
 
 PerturbationUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: orangered;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -359,7 +359,7 @@ PerturbationUnitOfInformationLayout {
 
 
 PerturbingAgentLayout {
-	border-fill: white;
+	border-fill: orangered;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -367,7 +367,7 @@ PerturbingAgentLayout {
 
 
 PhenotypeLayout {
-	border-fill: white;
+	border-fill: plum;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -411,7 +411,7 @@ SBGNPDLayout {
 
 
 SimpleChemicalLayout {
-	border-fill: white;
+	border-fill: sandybrown;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -419,7 +419,7 @@ SimpleChemicalLayout {
 
 
 SimpleChemicalMultimerLayout {
-	border-fill: white;
+	border-fill: sandybrown;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -429,7 +429,7 @@ SimpleChemicalMultimerLayout {
 
 
 SimpleChemicalMultimerSubunitLayout {
-	border-fill: white;
+	border-fill: sandybrown;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -439,7 +439,7 @@ SimpleChemicalMultimerSubunitLayout {
 
 
 SimpleChemicalSubunitLayout {
-	border-fill: white;
+	border-fill: sandybrown;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -447,7 +447,7 @@ SimpleChemicalSubunitLayout {
 
 
 SimpleChemicalUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: sandybrown;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -473,7 +473,7 @@ StimulationLayout {
 
 
 SubmapLayout {
-	border-fill: white;
+	border-fill: tan;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -527,7 +527,7 @@ UnknownInfluenceLayout {
 
 
 UnspecifiedEntityLayout {
-	border-fill: white;
+	border-fill: lightgray;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -535,7 +535,7 @@ UnspecifiedEntityLayout {
 
 
 UnspecifiedEntitySubunitLayout {
-	border-fill: white;
+	border-fill: lightgray;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
@@ -543,7 +543,7 @@ UnspecifiedEntitySubunitLayout {
 
 
 UnspecifiedEntityUnitOfInformationLayout {
-	border-fill: white;
+	border-fill: lightgray;
 	border-stroke: black;
 	fill: unset;
 	stroke: unset;
