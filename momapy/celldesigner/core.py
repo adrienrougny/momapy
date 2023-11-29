@@ -1076,7 +1076,6 @@ class _OvalCompartmentShape(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OvalCompartmentLayout(_SimpleMixin, CellDesignerNode):
-    width: float = 16.0
     height: float = 16.0
     inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
@@ -1086,121 +1085,81 @@ class OvalCompartmentLayout(_SimpleMixin, CellDesignerNode):
     )
     inner_stroke_width: float | None = 1.0
     sep: float = 12.0
+    width: float = 16.0
 
     def _make_shape(self):
         return _OvalCompartmentShape(
-            position=self.position,
-            width=self.width,
             height=self.height,
             inner_fill=self.inner_fill,
             inner_stroke=self.inner_stroke,
             inner_stroke_width=self.inner_stroke_width,
+            position=self.position,
+            width=self.width,
+            sep=self.sep,
         )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _SquareCompartmentShape(momapy.core.Node):
-    outer_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    outer_stroke_width: float | None = 2.0
-    outer_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    outer_rounded_corners: float = 20.0
-    inner_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    inner_stroke_width: float | None = 1.0
-    inner_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.white
-    inner_rounded_corners: float = 20.0
+class _RectangleCompartmentShape(momapy.core.Shape):
+    inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    inner_rounded_corners: float = 10.0
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        None
+    )
+    inner_stroke_width: float | None = None
+    rounded_corners: float = 10.0
     sep: float = 12.0
 
-    def border_drawing_element(self):
-        outer_square = momapy.drawing.Rectangle(
-            stroke_width=self.outer_stroke_width,
-            stroke=self.outer_stroke,
-            fill=self.outer_fill,
-            point=self.position - (self.width / 2, self.height / 2),
-            width=self.width,
+    def border_drawing_elements(self):
+        outer_rectangle = momapy.drawing.Rectangle(
+            point=self.position,
             height=self.height,
-            rx=self.outer_rounded_corners,
-            ry=self.outer_rounded_corners,
+            rx=self.rounded_corners,
+            ry=self.rounded_corners,
+            width=self.width,
         )
-        inner_square = momapy.drawing.Rectangle(
-            stroke_width=self.inner_stroke_width,
-            stroke=self.inner_stroke,
+        inner_rectangle = momapy.drawing.Rectangle(
             fill=self.inner_fill,
-            point=self.position
-            + (self.sep - self.width / 2, self.sep - self.height / 2),
-            width=self.width - self.sep * 2,
-            height=self.height - self.sep * 2,
+            height=self.height - self.sep,
+            point=self.position,
             rx=self.inner_rounded_corners,
             ry=self.inner_rounded_corners,
+            stroke=self.inner_stroke,
+            stroke_width=self.inner_stroke_width,
+            width=self.width - self.sep,
         )
-        group = momapy.drawing.Group(
-            elements=(
-                outer_square,
-                inner_square,
-            )
-        )
-        return group
+        return [outer_rectangle, inner_rectangle]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SquareCompartmentLayout(_SimpleMixin, CellDesignerNode):
-    _shape_cls: typing.ClassVar[type] = _SquareCompartmentShape
-    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {
-        "outer_stroke": "outer_stroke",
-        "outer_stroke_width": "outer_stroke_width",
-        "outer_fill": "outer_fill",
-        "outer_rounded_corners": "outer_rounded_corners",
-        "inner_stroke": "inner_stroke",
-        "inner_stroke_width": "inner_stroke_width",
-        "inner_fill": "inner_fill",
-        "inner_rounded_corners": "inner_rounded_corners",
-        "sep": "sep",
-    }
+class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
     width: float = 16.0
     height: float = 16.0
-    outer_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    outer_stroke_width: float | None = 2.0
-    outer_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    outer_rounded_corners: float = 20.0
-    inner_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
+    inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    inner_rounded_corners: float = 10.0
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
     inner_stroke_width: float | None = 1.0
-    inner_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.white
-    inner_rounded_corners: float = 15.0
+    rounded_corners: float = 10.0
     sep: float = 12.0
-    stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    stroke_width: float | None = 1.0
-    stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    stroke_dashoffset: float | None = 0.0
-    fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.white
-    transform: typing.Optional[
-        typing.Union[
-            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
-        ]
-    ] = momapy.drawing.NoneValue
-    filter: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
-    ] = momapy.drawing.NoneValue
+
+    def _make_shape(self):
+        return _RectangleCompartmentShape(
+            height=self.height,
+            inner_fill=self.inner_fill,
+            inner_rounded_corners=self.inner_rounded_corners,
+            inner_stroke=self.inner_stroke,
+            inner_stroke_width=self.inner_stroke_width,
+            position=self.position,
+            rounded_corners=self.rounded_corners,
+            sep=self.sep,
+            width=self.width,
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1395,55 +1354,3 @@ CellDesignerMapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout": _celldesigner_map_builder_new_layout,
     },
 )
-
-
-@dataclass(frozen=True, kw_only=True)
-class FoxHead(momapy.core.Node):
-    vertical_truncation: float  # proportion of total height, number in ]0, 1[
-
-    def joint1(self):
-        return self.position + (
-            -self.width / 2,
-            -self.height / 2,
-        )
-
-    def joint2(self):
-        return self.position + (
-            0,
-            self.vertical_truncation * self.height - self.height / 2,
-        )
-
-    def joint3(self):
-        return self.position + (
-            self.width / 2,
-            -self.height / 2,
-        )
-
-    def joint4(self):
-        return self.position + (
-            self.width / 2,
-            self.height / 2 - self.vertical_truncation * self.height,
-        )
-
-    def joint5(self):
-        return self.position + (0, self.height / 2)
-
-    def joint6(self):
-        return self.position + (
-            -self.width / 2,
-            self.height / 2 - self.vertical_truncation * self.height,
-        )
-
-    def border_drawing_elements(self):
-        actions = [
-            momapy.drawing.MoveTo(self.joint1()),
-            momapy.drawing.LineTo(self.joint2()),
-            momapy.drawing.LineTo(self.joint3()),
-            momapy.drawing.LineTo(self.joint4()),
-            momapy.drawing.LineTo(self.joint5()),
-            momapy.drawing.LineTo(self.joint5()),
-            momapy.drawing.LineTo(self.joint6()),
-            momapy.drawing.ClosePath(),
-        ]
-        border = momapy.drawing.Path(actions=actions)
-        return [border]
