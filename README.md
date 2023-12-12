@@ -1,6 +1,6 @@
 # momapy
 
-The `MomaPy` library is a new python library for working with molecular maps such as SBGN maps.
+`MomaPy` is a new Python library for working with molecular maps such as SBGN maps.
 Its key feature is its definition of a map, that is now formed of two entities: a model, that describes what concepts are represented, and a layout, that describes how these concepts are represented.
 This definition is borrowed from SBML and its layout/render extensions, that allow users to add a layout to an SBML model.
 `MomaPy` aims at extending this definition to all types of molecular maps, and in particular to SBGN maps.
