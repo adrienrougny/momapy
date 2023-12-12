@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.2" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
+  <sbgn:map language="process description">
+    <sbgn:extension>
+      <render:renderInformation id="9ff04b5b-2162-49c2-81d9-b53cf2fccf73" program-name="momapy" program-version="0.1.0" background-color="#00000000">
+        <render:listOfColorDefinitions>
+          <render:colorDefinition id="2be6d45b-99be-4460-932a-e77ba8d28e34" value="#555555ff"/>
+          <render:colorDefinition id="5211af73-7405-4d7c-bd83-d60374588c82" value="#ffffff7f"/>
+          <render:colorDefinition id="9f07d8cc-8e0a-4be1-b732-0fc0ea28884f" value="#ffffffff"/>
+          <render:colorDefinition id="1df331e6-12f5-458f-9118-e2e9e77959bc" value="#707070ff"/>
+        </render:listOfColorDefinitions>
+        <render:listOfStyles>
+          <render:style id="645b485d-9b32-47a5-b0f0-658f0e8dc559" idList="nwtN_24b7de0f-7f3f-40c5-b15e-403cd41cdab7">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="3.25" fill="5211af73-7405-4d7c-bd83-d60374588c82"/>
+          </render:style>
+          <render:style id="a61ee92e-fbbd-44e0-9829-eff51ece6479" idList="nwtN_1ea92f27-3763-47f1-b6bd-7fe39d8fa6a5 nwtN_5b6b70be-b58e-49d4-9e7e-0a25b077be84 nwtN_1b85807e-4fda-4e6b-99de-e9db3168c494 nwtN_9be50c6b-a9e7-40d4-ac49-ad63a7b3fa4d nwtN_2a844c3a-00b9-4335-be14-513b81cfd11f nwtN_b5265473-4e68-48c9-b096-80765d86eed5 nwtN_1440d847-f784-4bda-b481-70f3999edeea nwtN_a27141af-af64-43a6-b8ad-2ba7fb3f724f nwtN_447b2e94-b29f-40fc-9b2c-6dd3499f1bcd nwtN_782fb627-8a59-4568-8485-eb22c488d0a5 nwtN_fc67b2c7-0d88-48dd-aa0c-d0fbefac3160 4be473ee-79d2-af26-51f5-0150ac61fbd0 bffadda7-2d72-9287-ab50-0a7f9217ea22 fac8cf40-4cbf-dabf-330c-b8ab34d6b5f8 7c3a61de-dac7-a9ea-9917-12b28bf5fd8f 403bd5d8-73fa-17c9-2025-8ec0f640dd04 574c232f-c7d9-7a9d-bf80-016a672d0a0b ba182082-84e0-495f-d2ca-5f06bdf644cf c012704c-b7b3-6d92-85b6-d8036df64803 c14e4267-0f06-baae-6108-ecafd254de3f e1a6be42-e5dc-779d-15bc-eab1bbf9b06c 9b05e2c0-2464-2af4-0d4d-a1a7f2c36d68 be32bcda-3a35-010f-c26c-109866c67469 5952b570-4ef8-a3ac-8eec-a0cdc733356e 386b54bc-300d-5327-02f3-95147b427e08 ec20ebbb-77c3-7876-d1ff-e40b52758eb7 40a90894-ad7b-62a8-f607-667190013f0a nwtN_65b90426-083a-4665-bc9b-9003cd87e835 6e0e9f7f-6175-3a0f-abb8-110490e026d6 f907821c-4b3a-23c8-d129-4f7e12d9a5ac a0cb5ca4-427d-4d6a-ac3e-6bdfea61f32c 43183a83-8a96-25b5-5251-c23ea01e26c3 ae9a2fd3-3dfa-2bdd-9185-112aa7adef13 278e9231-60ec-7434-cc56-e251a20e0572 896fea85-b6cc-9f12-8fd2-8853e4ae9327 31b1a7f5-e760-3a20-bddb-dbd7df6656ad nwtN_466f5cd6-a584-4173-824f-4925b175f426 nwtN_72a27a48-9ead-43d2-9717-55c7e659bfb3 dade3481-f37a-c6c0-591a-f860e945e33a 0b48967f-c570-10f2-201c-fd70a1e5f160 8cc05897-9fd4-c8d1-258b-7daf86eb1ccf 65850a12-2f88-a6e8-a0c6-6768ba8dc5dd ff406de2-af36-6e36-d406-7b63de0a4850 4cc43353-3a3b-0507-8c75-6c919ab53728 nwtN_2c838837-096d-44fb-89ae-bf14d6a8166b nwtN_8dc182c0-eb6e-493a-a3f2-adc1c1d2a11a nwtN_a65f2fe5-4739-40a3-b3e5-409a85bde131 551e24de-0d41-2a41-0e28-3636a4c141c1 nwtN_7417b586-00d9-4ade-a5d4-ba4b096eaacf b20258b1-d969-12bb-50bd-52989dcfe855 nwtN_40c75662-0be1-4d17-b624-b28081ff4935 nwtN_f92e0ee2-a9c5-48d9-a634-f4ab4ae1b0c1 nwtN_ef624e79-2929-4ee8-999d-9abb6e691f4e nwtN_a9ea03bb-76d4-492c-9e2c-d939cd6fe0f1 nwtN_194babcd-b1e6-42c9-b04d-6cc33828db8b nwtN_5321c8fd-64b7-4872-a3d8-4d27261be1e1 nwtN_c1d35262-9598-4d48-a4f5-564d80cb13f8 9c5d8956-5518-f27c-a245-7ee958b0f2cb nwtN_29ef6b07-215e-4ec3-9471-bf7cc201c216 nwtN_6fb449b4-b0cf-4fd7-86f8-cb2109f0396d f83e6d48-d172-780b-5cd1-0fe5b056e8e6 nwtN_3c275754-62c3-40bb-97da-74ceebe91b2d nwtN_6f276a2e-03ef-4c2f-897e-7644b96c996f">
+            <render:g font-family="Helvetica" font-size="11.0" font-color="#000000" stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.25" fill="9f07d8cc-8e0a-4be1-b732-0fc0ea28884f"/>
+          </render:style>
+          <render:style id="67f83627-0567-4f1c-b5fc-1c17e152c0c1" idList="nwtN_ef754ff5-8d12-4ff5-8d17-61c5230f1ff1 02016c20-92e4-8309-0c73-51649a2a81e5 nwtN_79146ab9-bdc4-4c09-a1cb-0cad0d3db5b4 nwtN_65217e09-af66-4e2a-9746-96bcfe859e8a nwtN_25ec5a79-4b1c-4e61-8a2d-4a4f625ba77b">
+            <render:g font-family="Helvetica" font-size="11.0" font-color="#000000" stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.25" fill="5211af73-7405-4d7c-bd83-d60374588c82"/>
+          </render:style>
+          <render:style id="68188d25-ab5b-4ab3-b285-12507f6d09e3" idList="nwtN_1f349670-3cb6-4428-b668-5df26096b5ed nwtN_42337355-4c28-4c97-a1fe-41a60baf459b nwtN_dd763a24-e728-4184-9584-8e91af881e10 nwtN_108db8b8-d82d-461b-a0ca-d87cca16179a nwtN_53723c92-df0e-4bb6-8d40-a68938d33f59 nwtN_51e909c0-1fbb-43dc-84a5-bde11d87f2fa nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40 cea49b4b-82d0-e004-dd4e-8f5d59a719e0 43e01630-972b-7ff9-f6c8-aae399f44ee2 5cff717e-9ab0-bbc3-506e-d3314596e372 bf9893c9-2141-963b-fe1d-c59af57a6901 118419d6-b7f4-2489-00dc-145aeb5ea19c nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4 a6fa3b57-48de-285b-e439-ac43ca63b741 nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9 nwtN_d2f5b56e-c64a-4391-822d-b55d845cc08e nwtN_b9dc814b-2a80-4569-a4b7-938596513b07 nwtN_f998d248-6865-40f1-9cd7-869af01856f0 nwtN_0400a3bf-73cc-49c3-9dae-6de4900f3e29">
+            <render:g stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.25" fill="9f07d8cc-8e0a-4be1-b732-0fc0ea28884f"/>
+          </render:style>
+          <render:style id="2f1a7692-3e8a-4bad-b158-e1d0b37311d8" idList="nwtN_d902a026-3de8-4b89-bf79-a86323d2270a">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="2.25" fill="5211af73-7405-4d7c-bd83-d60374588c82"/>
+          </render:style>
+          <render:style id="7e3dda05-d458-45fc-adda-e943c49812de" idList="nwtE_55af6cc9-ef10-41dc-9d64-47baf72db2a0 nwtE_95a9dee5-1a5d-4703-802a-eab60332ab73 nwtE_160b5981-b39e-4e95-88b0-925bc1cf0c8e nwtE_2745e8f4-f351-4ed8-8b12-b0700a9e8f63 c0917b0d-3e98-9878-f41d-734bd92ba00e a7732b00-ff49-d559-1233-de09fa7549ff 502c354c-c586-e230-f9f0-25d3e285fc63 7f112f98-fd0b-f753-3810-0aa36d9224bc 96c18101-1ac7-5e1a-d767-b3ce2f980212 e12d08df-631d-541a-ae66-ce5694b7cd52 6e879703-e2d4-c7cb-a953-e2bc337d33a0 54d2241b-dbf7-707b-820a-ecb91bba4c22 5a938067-ea69-58c9-1a5a-6d531226f0e9 ad16d405-84ca-5561-77a4-130408b6f029 baa78cef-f811-af9d-ba8c-f80260e5ea9f f77ffa70-e2dd-8d9c-2f18-5560f32118a2 6883044a-6f35-15f8-e6db-aeca521ab237 5c090e78-72a5-870f-1482-6e8cc20d3211 9da632ce-d515-37aa-68da-adc88dc53d7e 2831c387-dd51-47d7-5803-59f75c5f89f3 1ae62e6b-bc0d-1dfa-3c73-1986f7cf1d72 60708358-4398-1be7-a884-e70e7ce5fc63 24de5fcd-e1aa-7ddb-80ad-e42635982d09 73dc3b36-f611-06b6-0c5e-5d35264b4cec nwtE_8e4ab527-f5cd-49e6-a8e3-05be7ed4ab6d nwtE_2aa12a0d-327e-4234-9bfd-1704d8ae3f91 nwtE_0e2c3af8-bbc8-4aa8-8cb1-6f3cc33208d2 nwtE_02e80291-e214-4f4f-8130-0ed6db6aa441 3431a1f8-6140-de67-8c6b-12fefc19f6ba ec2bd576-d919-f232-1e07-55879cdba21f nwtE_b940d2b2-6ee5-4242-90fa-a7d36ba6572c nwtE_0041d743-3544-4020-a1b0-3e88db5cff3b nwtE_b5ab08e4-27ab-4809-bde4-13a83474fef3 nwtE_b7563307-9ace-47c3-b87e-242ccbdc2fec nwtE_4c6ab8ca-673b-45ad-a2cd-4a1dcbd0753c nwtE_0d17e2bf-040b-4490-ac0e-db7eb0dca855 nwtE_47cf639e-59f2-4743-9f05-d3795ab2b5e1 nwtE_dbac3ee9-cdb0-4426-a6c6-59e192690955 nwtE_fd6b1224-20af-4b04-b28f-356fd0040b32 nwtE_6726f0eb-3070-403d-bf2e-561dd7973e8d nwtE_9847012c-d44c-4fa3-86de-77f1856c28ea">
+            <render:g stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.25"/>
+          </render:style>
+          <render:style id="e1e96924-6067-4255-b723-4d31a587cb57" idList="nwtN_731d0674-9463-457e-93d7-f535ab3de0cd 4a7927a3-46a5-5e0f-a3b2-cf7d4a22fd33">
+            <render:g stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="2.25" fill="5211af73-7405-4d7c-bd83-d60374588c82"/>
+          </render:style>
+          <render:style id="e85ce072-08ed-4a84-82ea-cdada5e3fdaa" idList="nwtSV_050c92ea-2e87-4f88-92e6-233c60a9a3ea nwtUOI_dc2c4489-9ea8-46e5-a5c5-9167ad7177c1">
+            <render:g font-family="Arial" font-size="9.0" font-color="#0f0f0f" stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.0" fill="9f07d8cc-8e0a-4be1-b732-0fc0ea28884f"/>
+          </render:style>
+          <render:style id="08645cd8-e40f-4d2f-8a2b-ee2ab75c6482" idList="nwtN_39de06fb-c8ea-4364-afd2-132677cb608a">
+            <render:g stroke="2be6d45b-99be-4460-932a-e77ba8d28e34" stroke-width="1.25" fill="1df331e6-12f5-458f-9118-e2e9e77959bc"/>
+          </render:style>
+        </render:listOfStyles>
+      </render:renderInformation>
+    </sbgn:extension>
+    <sbgn:bbox x="-249.57999225980438" y="20.48553518515473" w="1893.4577790870926" h="1448.6783511754293"/>
+    <sbgn:glyph class="compartment" orientation="horizontal" id="nwtN_24b7de0f-7f3f-40c5-b15e-403cd41cdab7">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1565.3813886165792" y="143.84186838637106" w="10" h="11"/>
+      </sbgn:label>
+      <sbgn:bbox x="1529.8813886165792" y="111.34186838637106" w="80.0" h="80.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="nwtN_1ea92f27-3763-47f1-b6bd-7fe39d8fa6a5">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-163.76992495462903" y="51.30969949253876" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-190.26992495462903" y="41.30969949253876" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="complex" orientation="horizontal" id="nwtN_ef754ff5-8d12-4ff5-8d17-61c5230f1ff1">
+      <sbgn:label text="A">
+        <sbgn:bbox x="79.38225982663717" y="57.73872922246579" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="60.88225982663717" y="40.73872922246579" w="44.0" h="44.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="simple chemical" orientation="horizontal" id="nwtN_5b6b70be-b58e-49d4-9e7e-0a25b077be84">
+      <sbgn:label text="A">
+        <sbgn:bbox x="263.1358936177528" y="48.13819056204086" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="251.6358936177528" y="38.13819056204086" w="30.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_1b85807e-4fda-4e6b-99de-e9db3168c494">
+      <sbgn:label text="A">
+        <sbgn:bbox x="405.52020160416015" y="45.05269350047394" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="379.02020160416015" y="35.05269350047394" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="nucleic acid feature" orientation="horizontal" id="nwtN_9be50c6b-a9e7-40d4-ac49-ad63a7b3fa4d">
+      <sbgn:label text="A">
+        <sbgn:bbox x="576.415775935422" y="42.053208307838155" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="549.915775935422" y="32.053208307838155" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="perturbing agent" orientation="horizontal" id="nwtN_2a844c3a-00b9-4335-be14-513b81cfd11f">
+      <sbgn:label text="A">
+        <sbgn:bbox x="751.4826875947272" y="42.31124391463136" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="724.9826875947272" y="32.31124391463136" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="source and sink" orientation="horizontal" id="nwtN_1f349670-3cb6-4428-b668-5df26096b5ed">
+      <sbgn:bbox x="866.7681729452568" y="36.31124391463139" w="22.0" h="22.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="phenotype" orientation="horizontal" id="nwtN_b5265473-4e68-48c9-b096-80765d86eed5">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-162.59468960775922" y="178.4656332263304" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-189.09468960775922" y="168.4656332263304" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="nwtN_42337355-4c28-4c97-a1fe-41a60baf459b">
+      <sbgn:bbox x="77.74244269033296" y="168.06611329631784" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="74.8852998331901" y="175.20897043917498" id="nwtN_42337355-4c28-4c97-a1fe-41a60baf459b_left_port"/>
+      <sbgn:port x="94.88529983319009" y="175.20897043917498" id="nwtN_42337355-4c28-4c97-a1fe-41a60baf459b_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="omitted process" orientation="horizontal" id="nwtN_dd763a24-e728-4184-9584-8e91af881e10">
+      <sbgn:bbox x="258.18735947539125" y="164.5039168897947" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="255.33021661824841" y="171.64677403265185" id="nwtN_dd763a24-e728-4184-9584-8e91af881e10_left_port"/>
+      <sbgn:port x="275.33021661824847" y="171.64677403265185" id="nwtN_dd763a24-e728-4184-9584-8e91af881e10_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="tag" orientation="horizontal" id="nwtN_1440d847-f784-4bda-b481-70f3999edeea">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1380.8222401893324" y="152.88138487685987" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1366.8222401893324" y="140.38138487685987" w="35.0" h="35.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="submap" orientation="horizontal" id="nwtN_d902a026-3de8-4b89-bf79-a86323d2270a">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-151.5972254674442" y="362.7510662397094" w="10" h="11"/>
+      </sbgn:label>
+      <sbgn:bbox x="-187.0972254674442" y="330.2510662397094" w="80.0" h="80.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="and" orientation="horizontal" id="nwtN_108db8b8-d82d-461b-a0ca-d87cca16179a">
+      <sbgn:bbox x="877.7987770993229" y="161.12929161662535" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="873.5130628136086" y="171.84357733091107" id="nwtN_108db8b8-d82d-461b-a0ca-d87cca16179a_left_port"/>
+      <sbgn:port x="903.5130628136085" y="171.84357733091107" id="nwtN_108db8b8-d82d-461b-a0ca-d87cca16179a_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="or" orientation="horizontal" id="nwtN_53723c92-df0e-4bb6-8d40-a68938d33f59">
+      <sbgn:bbox x="1003.0676764289024" y="164.38681241605434" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="998.781962143188" y="175.10109813034006" id="nwtN_53723c92-df0e-4bb6-8d40-a68938d33f59_left_port"/>
+      <sbgn:port x="1028.7819621431881" y="175.10109813034006" id="nwtN_53723c92-df0e-4bb6-8d40-a68938d33f59_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="not" orientation="horizontal" id="nwtN_51e909c0-1fbb-43dc-84a5-bde11d87f2fa">
+      <sbgn:bbox x="1176.9950499824274" y="158.12980642398955" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="1172.7093356967132" y="168.84409213827527" id="nwtN_51e909c0-1fbb-43dc-84a5-bde11d87f2fa_left_port"/>
+      <sbgn:port x="1202.7093356967134" y="168.84409213827527" id="nwtN_51e909c0-1fbb-43dc-84a5-bde11d87f2fa_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40">
+      <sbgn:bbox x="1388.257827098248" y="378.21960269583457" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="1385.4006842411052" y="385.36245983869173" id="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_left_port"/>
+      <sbgn:port x="1405.4006842411052" y="385.36245983869173" id="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_a27141af-af64-43a6-b8ad-2ba7fb3f724f">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1294.1969206981378" y="308.17047744794263" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1267.6969206981378" y="298.17047744794263" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_447b2e94-b29f-40fc-9b2c-6dd3499f1bcd">
+      <sbgn:label text="B">
+        <sbgn:bbox x="1297.4544414975667" y="448.4691167703286" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1270.9544414975667" y="438.4691167703286" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_782fb627-8a59-4568-8485-eb22c488d0a5">
+      <sbgn:label text="C">
+        <sbgn:bbox x="1496.1892584358204" y="300.9996549272636" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1470.1892584358204" y="290.9996549272636" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_fc67b2c7-0d88-48dd-aa0c-d0fbefac3160">
+      <sbgn:label text="D">
+        <sbgn:bbox x="1503.1880572186371" y="450.55478543435026" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1477.1880572186371" y="440.55478543435026" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="cea49b4b-82d0-e004-dd4e-8f5d59a719e0">
+      <sbgn:bbox x="-141.53309784382392" y="878.2794635602007" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="-144.39024070096679" y="885.4223207030578" id="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_left_port"/>
+      <sbgn:port x="-124.3902407009668" y="885.4223207030578" id="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="4be473ee-79d2-af26-51f5-0150ac61fbd0">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-223.07999225980424" y="806.1446696482872" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-249.57999225980424" y="796.1446696482872" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="bffadda7-2d72-9287-ab50-0a7f9217ea22">
+      <sbgn:label text="B">
+        <sbgn:bbox x="-219.8224714603753" y="954.7859836267598" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-246.3224714603753" y="944.7859836267598" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="fac8cf40-4cbf-dabf-330c-b8ab34d6b5f8">
+      <sbgn:label text="C">
+        <sbgn:bbox x="-21.08765452212191" y="807.3165217836945" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-47.08765452212191" y="797.3165217836945" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="7c3a61de-dac7-a9ea-9917-12b28bf5fd8f">
+      <sbgn:label text="D">
+        <sbgn:bbox x="-18.26019306734827" y="956.8716522907813" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-44.26019306734827" y="946.8716522907813" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="43e01630-972b-7ff9-f6c8-aae399f44ee2">
+      <sbgn:bbox x="251.64085022756618" y="877.1535910685861" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="248.78370737042331" y="884.2964482114432" id="43e01630-972b-7ff9-f6c8-aae399f44ee2_left_port"/>
+      <sbgn:port x="268.7837073704233" y="884.2964482114432" id="43e01630-972b-7ff9-f6c8-aae399f44ee2_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="403bd5d8-73fa-17c9-2025-8ec0f640dd04">
+      <sbgn:label text="A">
+        <sbgn:bbox x="132.55191985919674" y="807.1044658206944" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="106.05191985919674" y="797.1044658206944" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="574c232f-c7d9-7a9d-bf80-016a672d0a0b">
+      <sbgn:label text="B">
+        <sbgn:bbox x="137.89510932264733" y="951.5744424711236" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="111.39510932264733" y="941.5744424711236" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="ba182082-84e0-495f-d2ca-5f06bdf644cf">
+      <sbgn:label text="C">
+        <sbgn:bbox x="384.6003055333982" y="797.8479746359936" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="358.6003055333982" y="787.8479746359936" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="c012704c-b7b3-6d92-85b6-d8036df64803">
+      <sbgn:label text="D">
+        <sbgn:bbox x="391.599104316215" y="941.1460991510156" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="365.599104316215" y="931.1460991510156" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="5cff717e-9ab0-bbc3-506e-d3314596e372">
+      <sbgn:bbox x="680.5314032029263" y="873.5558317310878" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="677.6742603457834" y="880.6986888739449" id="5cff717e-9ab0-bbc3-506e-d3314596e372_left_port"/>
+      <sbgn:port x="697.6742603457833" y="880.6986888739449" id="5cff717e-9ab0-bbc3-506e-d3314596e372_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="c14e4267-0f06-baae-6108-ecafd254de3f">
+      <sbgn:label text="A">
+        <sbgn:bbox x="548.9284608504278" y="799.3353691551526" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="522.4284608504278" y="789.3353691551526" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="e1a6be42-e5dc-779d-15bc-eab1bbf9b06c">
+      <sbgn:label text="B">
+        <sbgn:bbox x="556.3573189778996" y="945.8910144696034" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="529.8573189778996" y="935.8910144696034" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="9b05e2c0-2464-2af4-0d4d-a1a7f2c36d68">
+      <sbgn:label text="C">
+        <sbgn:bbox x="817.6621958368013" y="796.3358839625167" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="791.6621958368013" y="786.3358839625167" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="be32bcda-3a35-010f-c26c-109866c67469">
+      <sbgn:label text="D">
+        <sbgn:bbox x="830.9180006116832" y="947.9766831336251" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="804.9180006116832" y="937.9766831336251" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="bf9893c9-2141-963b-fe1d-c59af57a6901">
+      <sbgn:bbox x="1114.921945836086" y="867.2988257390232" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="1112.0648029789431" y="874.4416828818803" id="bf9893c9-2141-963b-fe1d-c59af57a6901_left_port"/>
+      <sbgn:port x="1132.0648029789431" y="874.4416828818803" id="bf9893c9-2141-963b-fe1d-c59af57a6901_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="5952b570-4ef8-a3ac-8eec-a0cdc733356e">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1010.3656772873413" y="789.7918645712803" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="983.8656772873413" y="779.7918645712803" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="386b54bc-300d-5327-02f3-95147b427e08">
+      <sbgn:label text="B">
+        <sbgn:bbox x="1015.1419612011625" y="947.0918443973897" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="988.6419612011625" y="937.0918443973897" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="ec20ebbb-77c3-7876-d1ff-e40b52758eb7">
+      <sbgn:label text="C">
+        <sbgn:bbox x="1232.3738948163373" y="789.0140276947749" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1206.3738948163373" y="779.0140276947749" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="40a90894-ad7b-62a8-f607-667190013f0a">
+      <sbgn:label text="D">
+        <sbgn:bbox x="1243.815990231415" y="949.3134927135203" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1217.815990231415" y="939.3134927135203" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_65b90426-083a-4665-bc9b-9003cd87e835">
+      <sbgn:label text="E">
+        <sbgn:bbox x="-140.57988986204677" y="760.0244972214051" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-167.07988986204677" y="750.0244972214051" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="6e0e9f7f-6175-3a0f-abb8-110490e026d6">
+      <sbgn:label text="E">
+        <sbgn:bbox x="256.9093920937344" y="755.4991846535576" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="230.40939209373443" y="745.4991846535576" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="f907821c-4b3a-23c8-d129-4f7e12d9a5ac">
+      <sbgn:label text="E">
+        <sbgn:bbox x="681.4974416674908" y="752.2539750939451" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="654.9974416674908" y="742.2539750939451" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="a0cb5ca4-427d-4d6a-ac3e-6bdfea61f32c">
+      <sbgn:label text="E">
+        <sbgn:bbox x="1116.3470596289844" y="748.3278984656362" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1089.8470596289844" y="738.3278984656362" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="process" orientation="horizontal" id="118419d6-b7f4-2489-00dc-145aeb5ea19c">
+      <sbgn:bbox x="1477.6512699577659" y="859.4018946813612" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="1474.794127100623" y="866.5447518242183" id="118419d6-b7f4-2489-00dc-145aeb5ea19c_left_port"/>
+      <sbgn:port x="1494.794127100623" y="866.5447518242183" id="118419d6-b7f4-2489-00dc-145aeb5ea19c_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="43183a83-8a96-25b5-5251-c23ea01e26c3">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1375.3166497251518" y="785.2274059878142" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1348.8166497251518" y="775.2274059878142" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="ae9a2fd3-3dfa-2bdd-9185-112aa7adef13">
+      <sbgn:label text="B">
+        <sbgn:bbox x="1373.427988690581" y="952.5248032365109" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1346.927988690581" y="942.5248032365109" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="278e9231-60ec-7434-cc56-e251a20e0572">
+      <sbgn:label text="C">
+        <sbgn:bbox x="1600.6573397283428" y="781.117096637113" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1574.6573397283428" y="771.117096637113" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="896fea85-b6cc-9f12-8fd2-8853e4ae9327">
+      <sbgn:label text="D">
+        <sbgn:bbox x="1609.87778682729" y="940.3057374977932" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1583.87778682729" y="930.3057374977932" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="31b1a7f5-e760-3a20-bddb-dbd7df6656ad">
+      <sbgn:label text="E">
+        <sbgn:bbox x="1483.9592729218707" y="741.1636216395495" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1457.4592729218707" y="731.1636216395495" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_466f5cd6-a584-4173-824f-4925b175f426">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-205.8463034173251" y="1070.5077078467866" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-232.3463034173251" y="1060.5077078467866" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_72a27a48-9ead-43d2-9717-55c7e659bfb3">
+      <sbgn:label text="B">
+        <sbgn:bbox x="-8.293178590512241" y="1062.897170517342" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-34.79317859051224" y="1052.897170517342" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="and" orientation="vertical" id="nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b">
+      <sbgn:bbox x="-106.11707898535684" y="1182.5067237104222" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="-95.40279327107112" y="1178.221009424708" id="nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b_left_port"/>
+      <sbgn:port x="-95.40279327107112" y="1208.2210094247082" id="nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="dade3481-f37a-c6c0-591a-f860e945e33a">
+      <sbgn:label text="A">
+        <sbgn:bbox x="141.72552339893122" y="1065.3531132387484" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="115.22552339893122" y="1055.3531132387484" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="0b48967f-c570-10f2-201c-fd70a1e5f160">
+      <sbgn:label text="B">
+        <sbgn:bbox x="375.8092274070788" y="1059.2646833751924" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="349.3092274070788" y="1049.2646833751924" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="8cc05897-9fd4-c8d1-258b-7daf86eb1ccf">
+      <sbgn:label text="A">
+        <sbgn:bbox x="73.96589720073686" y="1280.4452068784924" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="47.46589720073686" y="1270.4452068784924" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="65850a12-2f88-a6e8-a0c6-6768ba8dc5dd">
+      <sbgn:label text="B">
+        <sbgn:bbox x="70.7031603164726" y="1449.1638863605833" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="44.203160316472605" y="1439.1638863605833" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="or" orientation="vertical" id="nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4">
+      <sbgn:bbox x="250.33924262083303" y="1171.271399105773" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="261.05352833511876" y="1166.9856848200589" id="nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4_left_port"/>
+      <sbgn:port x="261.05352833511876" y="1196.985684820059" id="nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="ff406de2-af36-6e36-d406-7b63de0a4850">
+      <sbgn:label text="A">
+        <sbgn:bbox x="-218.47342213478535" y="1292.87895020197" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-244.97342213478535" y="1282.87895020197" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="4cc43353-3a3b-0507-8c75-6c919ab53728">
+      <sbgn:label text="B">
+        <sbgn:bbox x="-222.5249497269054" y="1446.41831336869" w="7" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="-249.0249497269054" y="1436.41831336869" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="and" orientation="horizontal" id="a6fa3b57-48de-285b-e439-ac43ca63b741">
+      <sbgn:bbox x="-110.75783528170729" y="1368.0133201361236" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="-115.04354956742156" y="1378.7276058504094" id="a6fa3b57-48de-285b-e439-ac43ca63b741_left_port"/>
+      <sbgn:port x="-85.04354956742155" y="1378.7276058504094" id="a6fa3b57-48de-285b-e439-ac43ca63b741_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="or" orientation="horizontal" id="nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9">
+      <sbgn:bbox x="184.89326012709864" y="1354.2247535966283" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="180.60754584138436" y="1364.939039310914" id="nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9_left_port"/>
+      <sbgn:port x="210.60754584138436" y="1364.939039310914" id="nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="not" orientation="vertical" id="nwtN_d2f5b56e-c64a-4391-822d-b55d845cc08e">
+      <sbgn:bbox x="549.3185997363628" y="1166.7468350516244" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="560.0328854506485" y="1162.4611207659102" id="nwtN_d2f5b56e-c64a-4391-822d-b55d845cc08e_left_port"/>
+      <sbgn:port x="560.0328854506485" y="1192.4611207659104" id="nwtN_d2f5b56e-c64a-4391-822d-b55d845cc08e_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_2c838837-096d-44fb-89ae-bf14d6a8166b">
+      <sbgn:label text="A">
+        <sbgn:bbox x="554.5173282773027" y="1055.4940951240449" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="528.0173282773027" y="1045.4940951240449" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="not" orientation="horizontal" id="nwtN_b9dc814b-2a80-4569-a4b7-938596513b07">
+      <sbgn:bbox x="504.0699473196051" y="1349.5749145119246" w="21.42857142857143" h="21.42857142857143"/>
+      <sbgn:port x="499.7842330338908" y="1360.2892002262104" id="nwtN_b9dc814b-2a80-4569-a4b7-938596513b07_left_port"/>
+      <sbgn:port x="529.7842330338908" y="1360.2892002262104" id="nwtN_b9dc814b-2a80-4569-a4b7-938596513b07_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_8dc182c0-eb6e-493a-a3f2-adc1c1d2a11a">
+      <sbgn:label text="A">
+        <sbgn:bbox x="350.6618901739387" y="1353.2736430528646" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="324.1618901739387" y="1343.2736430528646" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="submap" orientation="horizontal" id="nwtN_731d0674-9463-457e-93d7-f535ab3de0cd">
+      <sbgn:bbox x="918.6796651008488" y="285.8713763253664" w="155.10490455152592" h="159.22024178722597"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="tag" orientation="horizontal" id="nwtN_a65f2fe5-4739-40a3-b3e5-409a85bde131">
+      <sbgn:label text="A">
+        <sbgn:bbox x="935.6635208377969" y="324.01405589497796" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="921.6635208377969" y="311.51405589497796" w="35.0" h="35.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="submap" orientation="horizontal" id="4a7927a3-46a5-5e0f-a3b2-cf7d4a22fd33">
+      <sbgn:bbox x="854.2288550604433" y="1029.7044776438852" w="155.10490455152592" h="159.22024178722597"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="tag" orientation="horizontal" id="551e24de-0d41-2a41-0e28-3636a4c141c1">
+      <sbgn:label text="A">
+        <sbgn:bbox x="871.984930865648" y="1069.3915973500114" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="857.984930865648" y="1056.8915973500114" w="35.0" h="35.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_7417b586-00d9-4ade-a5d4-ba4b096eaacf">
+      <sbgn:label text="A">
+        <sbgn:bbox x="700.5540771266135" y="1068.4690148817538" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="674.0540771266135" y="1058.4690148817538" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="complex" orientation="horizontal" id="nwtN_65217e09-af66-4e2a-9746-96bcfe859e8a">
+      <sbgn:label text="A">
+        <sbgn:bbox x="623.9733355930831" y="470.4385395343671" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="420.93005522666397" y="221.27964085780857" w="413.08656073283834" h="508.3177973531171"/>
+      <sbgn:glyph class="complex multimer" orientation="horizontal" id="02016c20-92e4-8309-0c73-51649a2a81e5">
+        <sbgn:label text="H">
+          <sbgn:bbox x="737.4652374940262" y="452.11991109114024" w="8" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="719.4652374940262" y="435.11991109114024" w="44.0" h="44.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="macromolecule multimer" orientation="horizontal" id="b20258b1-d969-12bb-50bd-52989dcfe855">
+        <sbgn:label text="G">
+          <sbgn:bbox x="731.4308340947318" y="245.9109024650233" w="8" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="705.9308340947318" y="235.9109024650233" w="60.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="macromolecule" orientation="horizontal" id="nwtN_40c75662-0be1-4d17-b624-b28081ff4935">
+        <sbgn:label text="B">
+          <sbgn:bbox x="459.0550552266639" y="242.90464085780854" w="7" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="432.5550552266639" y="232.90464085780854" w="60.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="complex" orientation="horizontal" id="nwtN_79146ab9-bdc4-4c09-a1cb-0cad0d3db5b4">
+        <sbgn:label text="C">
+          <sbgn:bbox x="474.2093353868784" y="447.9333336182259" w="8" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="456.2093353868784" y="430.9333336182259" w="44.0" h="44.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="simple chemical" orientation="horizontal" id="nwtN_f92e0ee2-a9c5-48d9-a634-f4ab4ae1b0c1">
+        <sbgn:label text="D">
+          <sbgn:bbox x="469.0707241663343" y="324.6795274665103" w="8" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="458.0707241663343" y="314.6795274665103" w="30.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="simple chemical multimer" orientation="horizontal" id="nwtN_ef624e79-2929-4ee8-999d-9abb6e691f4e">
+        <sbgn:label text="I">
+          <sbgn:bbox x="732.0575418410916" y="322.1042802872736" w="2" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="717.5575418410916" y="312.1042802872736" w="30.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="unspecified entity" orientation="horizontal" id="nwtN_a9ea03bb-76d4-492c-9e2c-d939cd6fe0f1">
+        <sbgn:label text="F">
+          <sbgn:bbox x="477.75581722649724" y="652.9615888304235" w="7" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="451.25581722649724" y="642.9615888304235" w="60.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="nucleic acid feature" orientation="horizontal" id="nwtN_194babcd-b1e6-42c9-b04d-6cc33828db8b">
+        <sbgn:label text="E">
+          <sbgn:bbox x="473.0194589016067" y="567.7055437515866" w="7" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="446.5194589016067" y="557.7055437515866" w="60.0" h="30.0"/>
+      </sbgn:glyph>
+      <sbgn:glyph class="nucleic acid feature multimer" orientation="horizontal" id="nwtN_5321c8fd-64b7-4872-a3d8-4d27261be1e1">
+        <sbgn:label text="J">
+          <sbgn:bbox x="737.9002164971777" y="567.9880542500105" w="5" h="8"/>
+        </sbgn:label>
+        <sbgn:bbox x="710.9002164971777" y="557.9880542500105" w="60.0" h="30.0"/>
+      </sbgn:glyph>
+    </sbgn:glyph>
+    <sbgn:glyph class="tag" orientation="horizontal" id="nwtN_c1d35262-9598-4d48-a4f5-564d80cb13f8">
+      <sbgn:label text="A">
+        <sbgn:bbox x="880.8340750565843" y="1350.2294281210868" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="866.8340750565843" y="1337.7294281210868" w="35.0" h="35.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="unspecified entity" orientation="horizontal" id="9c5d8956-5518-f27c-a245-7ee958b0f2cb">
+      <sbgn:label text="A">
+        <sbgn:bbox x="697.7482948851996" y="1349.7359784136297" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="671.2482948851996" y="1339.7359784136297" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule multimer" orientation="horizontal" id="nwtN_29ef6b07-215e-4ec3-9471-bf7cc201c216">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1012.6797860542355" y="40.996017619552504" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="986.1797860542355" y="30.996017619552504" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="nwtN_6fb449b4-b0cf-4fd7-86f8-cb2109f0396d">
+      <sbgn:label text="A">
+        <sbgn:bbox x="84.49185498693467" y="352.3916241503884" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="57.99185498693467" y="342.3916241503884" w="60.0" h="30.0"/>
+      <sbgn:glyph class="state variable" orientation="horizontal" id="nwtSV_050c92ea-2e87-4f88-92e6-233c60a9a3ea">
+        <sbgn:state value="B" variable="C"/>
+        <sbgn:bbox x="62.80426734118865" y="336.3916241503884" w="23.630434036254883" h="12.0"/>
+      </sbgn:glyph>
+    </sbgn:glyph>
+    <sbgn:glyph class="macromolecule" orientation="horizontal" id="f83e6d48-d172-780b-5cd1-0fe5b056e8e6">
+      <sbgn:label text="A">
+        <sbgn:bbox x="270.9464900458845" y="352.39162415038834" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="244.4464900458845" y="342.39162415038834" w="60.0" h="30.0"/>
+      <sbgn:glyph class="unit of information" orientation="horizontal" id="nwtUOI_dc2c4489-9ea8-46e5-a5c5-9167ad7177c1">
+        <sbgn:label text="C:D">
+          <sbgn:bbox x="249.60778036846511" y="339.89162415038834" w="17" h="6"/>
+        </sbgn:label>
+        <sbgn:bbox x="249.35778036846511" y="336.39162415038834" w="17.5" h="12.0"/>
+      </sbgn:glyph>
+    </sbgn:glyph>
+    <sbgn:glyph class="nucleic acid feature multimer" orientation="horizontal" id="nwtN_3c275754-62c3-40bb-97da-74ceebe91b2d">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1561.2750263054775" y="30.48553518515473" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1534.7750263054775" y="20.48553518515473" w="60.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="complex multimer" orientation="horizontal" id="nwtN_25ec5a79-4b1c-4e61-8a2d-4a4f625ba77b">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1195.4627270236933" y="38.91034895553084" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1176.9627270236933" y="21.910348955530843" w="44.0" h="44.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="simple chemical multimer" orientation="horizontal" id="nwtN_6f276a2e-03ef-4c2f-897e-7644b96c996f">
+      <sbgn:label text="A">
+        <sbgn:bbox x="1369.2432704304765" y="38.03016476683795" w="8" h="8"/>
+      </sbgn:label>
+      <sbgn:bbox x="1357.7432704304765" y="28.03016476683795" w="30.0" h="30.0"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="uncertain process" orientation="horizontal" id="nwtN_f998d248-6865-40f1-9cd7-869af01856f0">
+      <sbgn:bbox x="407.3611252117756" y="161.6416397727182" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="404.50398235463274" y="168.78449691557535" id="nwtN_f998d248-6865-40f1-9cd7-869af01856f0_left_port"/>
+      <sbgn:port x="424.5039823546328" y="168.78449691557535" id="nwtN_f998d248-6865-40f1-9cd7-869af01856f0_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="association" orientation="horizontal" id="nwtN_39de06fb-c8ea-4364-afd2-132677cb608a">
+      <sbgn:bbox x="573.6901185326415" y="162.06714291104623" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="570.8329756754986" y="169.21000005390337" id="nwtN_39de06fb-c8ea-4364-afd2-132677cb608a_left_port"/>
+      <sbgn:port x="590.8329756754985" y="169.21000005390337" id="nwtN_39de06fb-c8ea-4364-afd2-132677cb608a_right_port"/>
+    </sbgn:glyph>
+    <sbgn:glyph class="dissociation" orientation="horizontal" id="nwtN_0400a3bf-73cc-49c3-9dae-6de4900f3e29">
+      <sbgn:bbox x="752.1005628603066" y="167.23830863663474" w="14.285714285714286" h="14.285714285714286"/>
+      <sbgn:port x="749.2434200031637" y="174.38116577949188" id="nwtN_0400a3bf-73cc-49c3-9dae-6de4900f3e29_left_port"/>
+      <sbgn:port x="769.2434200031636" y="174.38116577949188" id="nwtN_0400a3bf-73cc-49c3-9dae-6de4900f3e29_right_port"/>
+    </sbgn:glyph>
+    <sbgn:arc class="consumption" id="nwtE_55af6cc9-ef10-41dc-9d64-47baf72db2a0" source="nwtN_a27141af-af64-43a6-b8ad-2ba7fb3f724f" target="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_left_port">
+      <sbgn:start x="1315.0982374747587" y="326.0280738061546"/>
+      <sbgn:end x="1384.7756842411052" y="385.36245983869173"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="nwtE_95a9dee5-1a5d-4703-802a-eab60332ab73" source="nwtN_447b2e94-b29f-40fc-9b2c-6dd3499f1bcd" target="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_left_port">
+      <sbgn:start x="1318.6426888544906" y="440.7138460526656"/>
+      <sbgn:end x="1384.7756842411052" y="385.36245983869173"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="nwtE_160b5981-b39e-4e95-88b0-925bc1cf0c8e" source="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_right_port" target="nwtN_782fb627-8a59-4568-8485-eb22c488d0a5">
+      <sbgn:start x="1406.0256842411052" y="385.36245983869173"/>
+      <sbgn:end x="1480.5876186347882" y="320.84517723184956"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="nwtE_2745e8f4-f351-4ed8-8b12-b0700a9e8f63" source="nwtN_90630a14-cee7-41bb-a4da-8f4cdee4aa40_right_port" target="nwtN_fc67b2c7-0d88-48dd-aa0c-d0fbefac3160">
+      <sbgn:start x="1406.0256842411052" y="385.36245983869173"/>
+      <sbgn:end x="1485.228995366784" y="441.7664873625253"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="c0917b0d-3e98-9878-f41d-734bd92ba00e" source="4be473ee-79d2-af26-51f5-0150ac61fbd0" target="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_left_port">
+      <sbgn:start x="-204.1129720554807" y="824.6304928672968"/>
+      <sbgn:end x="-145.01524070096679" y="885.4223207030578"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="a7732b00-ff49-d559-1233-de09fa7549ff" source="bffadda7-2d72-9287-ab50-0a7f9217ea22" target="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_left_port">
+      <sbgn:start x="-201.315694302743" y="946.1654717991463"/>
+      <sbgn:end x="-145.01524070096679" y="885.4223207030578"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="502c354c-c586-e230-f9f0-25d3e285fc63" source="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_right_port" target="fac8cf40-4cbf-dabf-330c-b8ab34d6b5f8">
+      <sbgn:start x="-123.76524070096679" y="885.4223207030578"/>
+      <sbgn:end x="-39.139354172762225" y="826.0596724933644"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="7f112f98-fd0b-f753-3810-0aa36d9224bc" source="cea49b4b-82d0-e004-dd4e-8f5d59a719e0_right_port" target="7c3a61de-dac7-a9ea-9917-12b28bf5fd8f">
+      <sbgn:start x="-123.76524070096679" y="885.4223207030578"/>
+      <sbgn:end x="-36.052918598230406" y="948.0030213101971"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="96c18101-1ac7-5e1a-d767-b3ce2f980212" source="403bd5d8-73fa-17c9-2025-8ec0f640dd04" target="43e01630-972b-7ff9-f6c8-aae399f44ee2_left_port">
+      <sbgn:start x="156.11865912962128" y="823.907909064098"/>
+      <sbgn:end x="248.15870737042331" y="884.2964482114432"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="e12d08df-631d-541a-ae66-ce5694b7cd52" source="574c232f-c7d9-7a9d-bf80-016a672d0a0b" target="43e01630-972b-7ff9-f6c8-aae399f44ee2_left_port">
+      <sbgn:start x="160.93530806009366" y="944.5432367521205"/>
+      <sbgn:end x="248.15870737042331" y="884.2964482114432"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="6e879703-e2d4-c7cb-a953-e2bc337d33a0" source="43e01630-972b-7ff9-f6c8-aae399f44ee2_right_port" target="ba182082-84e0-495f-d2ca-5f06bdf644cf">
+      <sbgn:start x="269.4087073704233" y="884.2964482114432"/>
+      <sbgn:end x="366.6314334819998" y="816.6315055563956"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="54d2241b-dbf7-707b-820a-ecb91bba4c22" source="43e01630-972b-7ff9-f6c8-aae399f44ee2_right_port" target="c012704c-b7b3-6d92-85b6-d8036df64803">
+      <sbgn:start x="269.4087073704233" y="884.2964482114432"/>
+      <sbgn:end x="369.82986541788307" y="934.4966907772507"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="5a938067-ea69-58c9-1a5a-6d531226f0e9" source="c14e4267-0f06-baae-6108-ecafd254de3f" target="5cff717e-9ab0-bbc3-506e-d3314596e372_left_port">
+      <sbgn:start x="572.9608337922533" y="815.9284845450021"/>
+      <sbgn:end x="677.0492603457834" y="880.6986888739449"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="ad16d405-84ca-5561-77a4-130408b6f029" source="e1a6be42-e5dc-779d-15bc-eab1bbf9b06c" target="5cff717e-9ab0-bbc3-506e-d3314596e372_left_port">
+      <sbgn:start x="580.7019925840394" y="939.4438925072167"/>
+      <sbgn:end x="677.0492603457834" y="880.6986888739449"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="baa78cef-f811-af9d-ba8c-f80260e5ea9f" source="5cff717e-9ab0-bbc3-506e-d3314596e372_right_port" target="9b05e2c0-2464-2af4-0d4d-a1a7f2c36d68">
+      <sbgn:start x="698.2992603457834" y="880.6986888739449"/>
+      <sbgn:end x="798.9864091070287" y="814.7670487300993"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="f77ffa70-e2dd-8d9c-2f18-5560f32118a2" source="5cff717e-9ab0-bbc3-506e-d3314596e372_right_port" target="be32bcda-3a35-010f-c26c-109866c67469">
+      <sbgn:start x="698.2992603457834" y="880.6986888739449"/>
+      <sbgn:end x="810.0435541403263" y="940.7664859733059"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="6883044a-6f35-15f8-e6db-aeca521ab237" source="5952b570-4ef8-a3ac-8eec-a0cdc733356e" target="bf9893c9-2141-963b-fe1d-c59af57a6901_left_port">
+      <sbgn:start x="1031.3108586290002" y="807.6339787323418"/>
+      <sbgn:end x="1111.4398029789431" y="874.4416828818803"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="5c090e78-72a5-870f-1482-6e8cc20d3211" source="386b54bc-300d-5327-02f3-95147b427e08" target="bf9893c9-2141-963b-fe1d-c59af57a6901_left_port">
+      <sbgn:start x="1035.8548186630337" y="939.1683824320959"/>
+      <sbgn:end x="1111.4398029789431" y="874.4416828818803"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="9da632ce-d515-37aa-68da-adc88dc53d7e" source="bf9893c9-2141-963b-fe1d-c59af57a6901_right_port" target="ec20ebbb-77c3-7876-d1ff-e40b52758eb7">
+      <sbgn:start x="1132.6898029789431" y="874.4416828818803"/>
+      <sbgn:end x="1215.8400354025273" y="808.4616113300614"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="2831c387-dd51-47d7-5803-59f75c5f89f3" source="bf9893c9-2141-963b-fe1d-c59af57a6901_right_port" target="40a90894-ad7b-62a8-f607-667190013f0a">
+      <sbgn:start x="1132.6898029789431" y="874.4416828818803"/>
+      <sbgn:end x="1225.999228174646" y="940.4564126476132"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="1ae62e6b-bc0d-1dfa-3c73-1986f7cf1d72" source="43183a83-8a96-25b5-5251-c23ea01e26c3" target="118419d6-b7f4-2489-00dc-145aeb5ea19c_left_port">
+      <sbgn:start x="1396.5210518316387" y="802.9768411682769"/>
+      <sbgn:end x="1474.169127100623" y="866.5447518242183"/>
+    </sbgn:arc>
+    <sbgn:arc class="consumption" id="60708358-4398-1be7-a884-e70e7ce5fc63" source="ae9a2fd3-3dfa-2bdd-9185-112aa7adef13" target="118419d6-b7f4-2489-00dc-145aeb5ea19c_left_port">
+      <sbgn:start x="1392.7787117306252" y="944.1554584322755"/>
+      <sbgn:end x="1474.169127100623" y="866.5447518242183"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="24de5fcd-e1aa-7ddb-80ad-e42635982d09" source="118419d6-b7f4-2489-00dc-145aeb5ea19c_right_port" target="278e9231-60ec-7434-cc56-e251a20e0572">
+      <sbgn:start x="1495.419127100623" y="866.5447518242183"/>
+      <sbgn:end x="1583.5260010341965" y="800.2961260897384"/>
+    </sbgn:arc>
+    <sbgn:arc class="production" id="73dc3b36-f611-06b6-0c5e-5d35264b4cec" source="118419d6-b7f4-2489-00dc-145aeb5ea19c_right_port" target="896fea85-b6cc-9f12-8fd2-8853e4ae9327">
+      <sbgn:start x="1495.419127100623" y="866.5447518242183"/>
+      <sbgn:end x="1591.564943121523" y="931.691453806365"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_8e4ab527-f5cd-49e6-a8e3-05be7ed4ab6d" source="nwtN_466f5cd6-a584-4173-824f-4925b175f426" target="nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b_left_port">
+      <sbgn:start x="-95.40279327107112" y="1177.596009424708"/>
+      <sbgn:end x="-189.46716884329732" y="1089.683841116602"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_2aa12a0d-327e-4234-9bfd-1704d8ae3f91" source="nwtN_72a27a48-9ead-43d2-9717-55c7e659bfb3" target="nwtN_062f9cc0-7c2a-4c87-ac4f-cf95db61e76b_left_port">
+      <sbgn:start x="-95.40279327107112" y="1177.596009424708"/>
+      <sbgn:end x="-15.392002461744795" y="1082.5566004258424"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_0e2c3af8-bbc8-4aa8-8cb1-6f3cc33208d2" source="dade3481-f37a-c6c0-591a-f860e945e33a" target="nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4_left_port">
+      <sbgn:start x="261.05352833511876" y="1166.3606848200589"/>
+      <sbgn:end x="159.55388870079838" y="1084.1624874577471"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_02e80291-e214-4f4f-8130-0ed6db6aa441" source="0b48967f-c570-10f2-201c-fd70a1e5f160" target="nwtN_c78b789b-23b3-45e5-9fa3-7342640abdc4_left_port">
+      <sbgn:start x="261.05352833511876" y="1166.3606848200589"/>
+      <sbgn:end x="365.34098358284774" y="1078.1697692553573"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="3431a1f8-6140-de67-8c6b-12fefc19f6ba" source="ff406de2-af36-6e36-d406-7b63de0a4850" target="a6fa3b57-48de-285b-e439-ac43ca63b741_left_port">
+      <sbgn:start x="-115.66854956742156" y="1378.7276058504094"/>
+      <sbgn:end x="-196.99303541763734" y="1310.5274467298716"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="ec2bd576-d919-f232-1e07-55879cdba21f" source="4cc43353-3a3b-0507-8c75-6c919ab53728" target="a6fa3b57-48de-285b-e439-ac43ca63b741_left_port">
+      <sbgn:start x="-115.66854956742156" y="1378.7276058504094"/>
+      <sbgn:end x="-199.39465510438134" y="1439.4253463756063"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_b940d2b2-6ee5-4242-90fa-a7d36ba6572c" source="65850a12-2f88-a6e8-a0c6-6768ba8dc5dd" target="nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9_left_port">
+      <sbgn:start x="179.98254584138436" y="1364.939039310914"/>
+      <sbgn:end x="91.6675968378274" y="1441.328586625"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_0041d743-3544-4020-a1b0-3e88db5cff3b" source="8cc05897-9fd4-c8d1-258b-7daf86eb1ccf" target="nwtN_18af88a0-95ed-421e-b178-c0396c5d50f9_left_port">
+      <sbgn:start x="179.98254584138436" y="1364.939039310914"/>
+      <sbgn:end x="95.96952086639868" y="1297.8957184127003"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_b5ab08e4-27ab-4809-bde4-13a83474fef3" source="nwtN_2c838837-096d-44fb-89ae-bf14d6a8166b" target="nwtN_d2f5b56e-c64a-4391-822d-b55d845cc08e_left_port">
+      <sbgn:start x="560.0328854506485" y="1161.8361207659102"/>
+      <sbgn:end x="558.2865653858208" y="1076.1184912921306"/>
+    </sbgn:arc>
+    <sbgn:arc class="logic arc" id="nwtE_b7563307-9ace-47c3-b87e-242ccbdc2fec" source="nwtN_8dc182c0-eb6e-493a-a3f2-adc1c1d2a11a" target="nwtN_b9dc814b-2a80-4569-a4b7-938596513b07_left_port">
+      <sbgn:start x="499.1592330338908" y="1360.2892002262104"/>
+      <sbgn:end x="384.7776316959479" y="1358.6578223416439"/>
+    </sbgn:arc>
+    <sbgn:arc class="equivalence arc" id="nwtE_4c6ab8ca-673b-45ad-a2cd-4a1dcbd0753c" source="nwtN_7417b586-00d9-4ade-a5d4-ba4b096eaacf" target="551e24de-0d41-2a41-0e28-3636a4c141c1">
+      <sbgn:start x="857.359930865648" y="1074.294054773092"/>
+      <sbgn:end x="734.6773735784166" y="1073.6338190334598"/>
+    </sbgn:arc>
+    <sbgn:arc class="equivalence arc" id="nwtE_0d17e2bf-040b-4490-ac0e-db7eb0dca855" source="9c5d8956-5518-f27c-a245-7ee958b0f2cb" target="nwtN_c1d35262-9598-4d48-a4f5-564d80cb13f8">
+      <sbgn:start x="866.2090750565843" y="1355.1805779267174"/>
+      <sbgn:end x="731.8728675922599" y="1354.8185172455867"/>
+    </sbgn:arc>
+    <sbgn:arc class="modulation" id="nwtE_47cf639e-59f2-4743-9f05-d3795ab2b5e1" source="nwtN_65b90426-083a-4665-bc9b-9003cd87e835" target="cea49b4b-82d0-e004-dd4e-8f5d59a719e0">
+      <sbgn:start x="-136.73085499236717" y="780.6484824001093"/>
+      <sbgn:end x="-134.5946799821548" y="876.2709247346309"/>
+    </sbgn:arc>
+    <sbgn:arc class="stimulation" id="nwtE_dbac3ee9-cdb0-4426-a6c6-59e192690955" source="6e0e9f7f-6175-3a0f-abb8-110490e026d6" target="43e01630-972b-7ff9-f6c8-aae399f44ee2">
+      <sbgn:start x="260.2042118419833" y="776.123833971274"/>
+      <sbgn:end x="258.92440202012637" y="873.5824319075973"/>
+    </sbgn:arc>
+    <sbgn:arc class="catalysis" id="nwtE_fd6b1224-20af-4b04-b28f-356fd0040b32" source="f907821c-4b3a-23c8-d129-4f7e12d9a5ac" target="5cff717e-9ab0-bbc3-506e-d3314596e372">
+      <sbgn:start x="685.3362389403636" y="772.8780189331433"/>
+      <sbgn:end x="687.441943924384" y="869.9851376055672"/>
+    </sbgn:arc>
+    <sbgn:arc class="inhibition" id="nwtE_6726f0eb-3070-403d-bf2e-561dd7973e8d" source="a0cb5ca4-427d-4d6a-ac3e-6bdfea61f32c" target="bf9893c9-2141-963b-fe1d-c59af57a6901">
+      <sbgn:start x="1120.1331602397086" y="768.952216621859"/>
+      <sbgn:end x="1121.9075255917921" y="865.8525647761676"/>
+    </sbgn:arc>
+    <sbgn:arc class="necessary stimulation" id="nwtE_9847012c-d44c-4fa3-86de-77f1856c28ea" source="31b1a7f5-e760-3a20-bddb-dbd7df6656ad" target="118419d6-b7f4-2489-00dc-145aeb5ea19c">
+      <sbgn:start x="1487.1133694811847" y="761.7876249464507"/>
+      <sbgn:end x="1485.0313162132077" y="855.8312316810328"/>
+    </sbgn:arc>
+  </sbgn:map>
+</sbgn:sbgn>

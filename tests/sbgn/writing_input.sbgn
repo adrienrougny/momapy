@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.2">
+  <map language="process description">
+    <extension>
+      <renderInformation 
+        xmlns="http://www.sbml.org/sbml/level3/version1/render/version1" id="renderInformation" program-name="sbgnviz" program-version="6.0.6" background-color="#00000000">
+        <listOfColorDefinitions>
+          <colorDefinition id="color_1" value="#ffffffff"/>
+          <colorDefinition id="color_2" value="#1a5961"/>
+          <colorDefinition id="color_3" value="#555555"/>
+          <colorDefinition id="color_4" value="#caca1877"/>
+          <colorDefinition id="color_5" value="#617a84"/>
+          <colorDefinition id="color_6" value="#18a54c"/>
+          <colorDefinition id="color_7" value="#2f2e55"/>
+        </listOfColorDefinitions>
+        <listOfBackgroundImages/>
+        <listOfStyles>
+          <style id="nodeffffff11a5961411normalnormalHelvetica0001" idList="nwtN_dc63f7a0-0daf-420c-9cc8-6323c90c62ac">
+            <g font-size="11" font-family="Helvetica" font-weight="normal" font-style="normal" font-color="#000" stroke="color_2" stroke-width="4" fill="color_1" background-image-opacity="1" background-opacity="1"/>
+          </style>
+          <style id="nodeffffff15555551.2511normalnormalHelvetica0001" idList="nwtN_05754cd6-8ed8-40f4-a605-2996dec84769">
+            <g font-size="11" font-family="Helvetica" font-weight="normal" font-style="normal" font-color="#000" stroke="color_3" stroke-width="1.25" fill="color_1" background-image-opacity="1" background-opacity="1"/>
+          </style>
+          <style id="nodecaca180.47617a8420.47" idList="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76">
+            <g stroke="color_5" stroke-width="2" fill="color_4" background-image-opacity="0.47" background-opacity="0.47"/>
+          </style>
+          <style id="edge18a54c2" idList="nwtE_8044593f-47e5-4380-bb93-9f082d955dde">
+            <g stroke="color_6" stroke-width="2"/>
+          </style>
+          <style id="edge2f2e553" idList="nwtE_20f001ba-cef8-46c5-9dfd-8b6b47a00837">
+            <g stroke="color_7" stroke-width="3"/>
+          </style>
+        </listOfStyles>
+      </renderInformation>
+      <mapProperties>
+        <compoundPadding>0</compoundPadding>
+        <extraCompartmentPadding>14</extraCompartmentPadding>
+        <extraComplexPadding>10</extraComplexPadding>
+        <arrowScale>1.25</arrowScale>
+        <showComplexName>true</showComplexName>
+        <dynamicLabelSize>regular</dynamicLabelSize>
+        <inferNestingOnLoad>false</inferNestingOnLoad>
+        <fitLabelsToNodes>false</fitLabelsToNodes>
+        <fitLabelsToInfoboxes>false</fitLabelsToInfoboxes>
+        <recalculateLayoutOnComplexityManagement>true</recalculateLayoutOnComplexityManagement>
+        <rearrangeOnComplexityManagement>true</rearrangeOnComplexityManagement>
+        <animateOnDrawingChanges>true</animateOnDrawingChanges>
+        <adjustNodeLabelFontSizeAutomatically>false</adjustNodeLabelFontSizeAutomatically>
+        <enablePorts>true</enablePorts>
+        <enableSIFTopologyGrouping>false</enableSIFTopologyGrouping>
+        <allowCompoundNodeResize>true</allowCompoundNodeResize>
+        <mapColorScheme>black_white</mapColorScheme>
+        <mapColorSchemeStyle>solid</mapColorSchemeStyle>
+        <mapName>Pathway #0</mapName>
+        <mapDescription/>
+        <highlightColor>#0B9BCD</highlightColor>
+        <extraHighlightThickness>2</extraHighlightThickness>
+      </mapProperties>
+    </extension>
+    <glyph id="nwtN_dc63f7a0-0daf-420c-9cc8-6323c90c62ac" class="macromolecule">
+      <label text="A"/>
+      <bbox x="230.03413928488345" y="227.03177579593" w="60" h="30"/>
+    </glyph>
+    <glyph id="nwtN_05754cd6-8ed8-40f4-a605-2996dec84769" class="unspecified entity">
+      <label text="B"/>
+      <bbox x="494.0688037895344" y="237.0330888453486" w="60" h="30"/>
+    </glyph>
+    <glyph id="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76" class="process">
+      <bbox x="392.90966483388667" y="234.88891865307286" w="14.285714285714286" h="14.285714285714286"/>
+      <port id="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76.1" x="390.05252197674383" y="242.03177579593"/>
+      <port id="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76.2" x="410.05252197674383" y="242.03177579593"/>
+    </glyph>
+    <arc id="nwtE_8044593f-47e5-4380-bb93-9f082d955dde" class="consumption" source="nwtN_dc63f7a0-0daf-420c-9cc8-6323c90c62ac" target="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76.1">
+      <start x="292.03413928488345" y="242.03177579593"/>
+      <end x="389.05252197674383" y="242.03177579593"/>
+    </arc>
+    <arc id="nwtE_20f001ba-cef8-46c5-9dfd-8b6b47a00837" class="production" source="nwtN_ea884ef6-330e-4b20-a644-6753f5e2ac76.2" target="nwtN_05754cd6-8ed8-40f4-a605-2996dec84769">
+      <start x="411.05252197674383" y="242.03177579593"/>
+      <end x="486.34362490876526" y="248.99073570980272"/>
+    </arc>
+  </map>
+</sbgn>

@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.2">
+  <map language="process description">
+    <extension>
+      <renderInformation 
+        xmlns="http://www.sbml.org/sbml/level3/version1/render/version1" id="renderInformation" program-name="sbgnviz" program-version="6.0.6" background-color="#00000000">
+        <listOfColorDefinitions>
+          <colorDefinition id="color_1" value="#ffffffff"/>
+          <colorDefinition id="color_2" value="#555555"/>
+        </listOfColorDefinitions>
+        <listOfBackgroundImages/>
+        <listOfStyles>
+          <style id="nodeffffff15555551.2511normalnormalHelvetica0001" idList="nwtN_4713462c-ddb7-4e9b-9c34-af21195d6993 nwtN_685eb6c8-a642-4beb-874d-d6bdc7c35287">
+            <g font-size="11" font-family="Helvetica" font-weight="normal" font-style="normal" font-color="#000" stroke="color_2" stroke-width="1.25" fill="color_1" background-image-opacity="1" background-opacity="1"/>
+          </style>
+          <style id="nodeffffff15555551.251" idList="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe">
+            <g stroke="color_2" stroke-width="1.25" fill="color_1" background-image-opacity="1" background-opacity="1"/>
+          </style>
+          <style id="edge5555551.25" idList="nwtE_4d05aab8-b94e-4f79-a363-531d6117d150 nwtE_6812f78f-45d3-4306-89dc-cba9f491a730">
+            <g stroke="color_2" stroke-width="1.25"/>
+          </style>
+        </listOfStyles>
+      </renderInformation>
+      <mapProperties>
+        <compoundPadding>0</compoundPadding>
+        <extraCompartmentPadding>14</extraCompartmentPadding>
+        <extraComplexPadding>10</extraComplexPadding>
+        <arrowScale>1.25</arrowScale>
+        <showComplexName>true</showComplexName>
+        <dynamicLabelSize>regular</dynamicLabelSize>
+        <inferNestingOnLoad>false</inferNestingOnLoad>
+        <fitLabelsToNodes>false</fitLabelsToNodes>
+        <fitLabelsToInfoboxes>false</fitLabelsToInfoboxes>
+        <recalculateLayoutOnComplexityManagement>true</recalculateLayoutOnComplexityManagement>
+        <rearrangeOnComplexityManagement>true</rearrangeOnComplexityManagement>
+        <animateOnDrawingChanges>true</animateOnDrawingChanges>
+        <adjustNodeLabelFontSizeAutomatically>false</adjustNodeLabelFontSizeAutomatically>
+        <enablePorts>true</enablePorts>
+        <enableSIFTopologyGrouping>false</enableSIFTopologyGrouping>
+        <allowCompoundNodeResize>true</allowCompoundNodeResize>
+        <mapColorScheme>black_white</mapColorScheme>
+        <mapColorSchemeStyle>solid</mapColorSchemeStyle>
+        <mapName>Pathway #0</mapName>
+        <mapDescription/>
+        <highlightColor>#0B9BCD</highlightColor>
+        <extraHighlightThickness>2</extraHighlightThickness>
+      </mapProperties>
+    </extension>
+    <glyph id="nwtN_4713462c-ddb7-4e9b-9c34-af21195d6993" class="simple chemical">
+      <bbox x="475" y="175" w="30" h="30"/>
+    </glyph>
+    <glyph id="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe" class="process">
+      <bbox x="422.85714285714283" y="182.85714285714286" w="14.285714285714286" h="14.285714285714286"/>
+      <port id="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe.1" x="420" y="190"/>
+      <port id="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe.2" x="440" y="190"/>
+    </glyph>
+    <glyph id="nwtN_685eb6c8-a642-4beb-874d-d6bdc7c35287" class="simple chemical">
+      <bbox x="355" y="175" w="30" h="30"/>
+    </glyph>
+    <arc id="nwtE_4d05aab8-b94e-4f79-a363-531d6117d150" class="production" source="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe.2" target="nwtN_4713462c-ddb7-4e9b-9c34-af21195d6993">
+      <start x="440.625" y="190"/>
+      <end x="471.25" y="190"/>
+    </arc>
+    <arc id="nwtE_6812f78f-45d3-4306-89dc-cba9f491a730" class="production" source="nwtN_23711a57-b639-497c-aa0b-2ed0a04ceabe.1" target="nwtN_685eb6c8-a642-4beb-874d-d6bdc7c35287">
+      <start x="419.375" y="190"/>
+      <end x="388.75" y="190"/>
+    </arc>
+  </map>
+</sbgn>

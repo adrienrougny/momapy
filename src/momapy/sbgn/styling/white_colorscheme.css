@@ -1,0 +1,271 @@
+TextLayout {
+    font-color: black;
+}
+
+MapLayout {
+    stroke: none;
+    stroke-width: 1.0;
+    fill: white;
+}
+
+SubmapLayout {
+    stroke: black;
+    fill: white;
+}
+
+CompartmentLayout {
+    stroke: black;
+    fill: white;
+}
+
+GenericProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+UncertainProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+OmittedProcessLayout {
+    stroke: black;
+    fill: white;
+}
+
+AssociationLayout {
+    stroke: black;
+    fill: black;
+}
+
+DissociationLayout {
+    stroke: black;
+    fill: white;
+}
+
+PhenotypeLayout {
+    stroke: black;
+    fill: white;
+}
+
+AndOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+OrOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+NotOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+EquivalenceOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnspecifiedEntityLayout {
+    stroke: black;
+    fill: white;
+}
+
+MacromoleculeLayout {
+    stroke: black;
+    fill: white;
+}
+
+MacromoleculeMultimerLayout {
+    stroke: black;
+    fill: white;
+}
+
+ComplexLayout {
+    stroke: black;
+    fill: white;
+}
+
+ComplexLayout > ComplexLayout {
+    fill: white;
+}
+
+ComplexMultimerLayout {
+    stroke: black;
+    fill: white;
+}
+
+ComplexLayout > ComplexMultimerLayout {
+    fill: white;
+}
+
+SimpleChemicalLayout {
+    stroke: black;
+    fill: white;
+}
+
+SimpleChemicalMultimerLayout {
+    stroke: black;
+    fill: white;
+}
+
+NucleicAcidFeatureLayout {
+    stroke: black;
+    fill: white;
+}
+
+NucleicAcidFeatureMultimerLayout {
+    stroke: black;
+    fill: white;
+}
+
+EmptySetLayout {
+    stroke: black;
+    fill: white;
+}
+
+PerturbingAgentLayout {
+    stroke: black;
+    fill: white;
+}
+
+TagLayout {
+    stroke: black;
+    fill: white;
+}
+
+SubmapTerminalLayout {
+    stroke: black;
+    fill: white;
+}
+
+StateVariableLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+CardinalityLayout {
+    stroke: black;
+    fill: white;
+}
+
+ConsumptionLayout {
+    stroke: black;
+    fill: none;
+}
+
+ProductionLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: black;
+}
+
+ModulationLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+StimulationLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+CatalysisLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+NecessaryStimulationLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+InhibitionLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+}
+
+MacromoleculeUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnspecifiedEntityUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+ComplexUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+SimpleChemicalUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+PerturbationUnitOfInformationLayout {
+    stroke: black;
+    fill: white;
+}
+
+DelayOperatorLayout {
+    stroke: black;
+    fill: white;
+}
+
+UnknownInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+PositiveInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+NecessaryStimulationLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: white;
+}
+
+NegativeInfluenceLayout {
+    stroke: black;
+    fill: none;
+    arrowhead-stroke: black;
+    arrowhead-fill: none;
+}
+
+BiologicalActivityLayout {
+    stroke: black;
+    fill: lavender;
+}

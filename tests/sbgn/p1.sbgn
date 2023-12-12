@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.2">
+    <map language="process description">
+        <glyph id="glyph1" class="macromolecule">
+            <label text="B"/>
+            <bbox y="270.0" x="6.0" h="60.0" w="108.0"/>
+            <glyph id="glyph1a" class="state variable">
+                <bbox y="260.0" x="23.0" h="20.0" w="20.0"/>
+            </glyph>
+        </glyph>
+        <glyph id="glyph2" class="macromolecule">
+            <label text="B"/>
+            <bbox y="270.0" x="246.0" h="60.0" w="108.0"/>
+            <glyph id="glyph2a" class="state variable">
+                <state value="P"/>
+                <bbox y="260.0" x="261.0" h="20.0" w="24.0"/>
+            </glyph>
+        </glyph>
+        <glyph id="glyph3" class="macromolecule">
+            <label text="A"/>
+            <bbox y="75.0" x="136.0" h="60.0" w="108.0"/>
+        </glyph>
+        <glyph id="glyph4" class="process">
+            <bbox y="288.0" x="178.0" h="24.0" w="24.0"/>
+            <port y="300.0" x="166.0" id="glyph4.1"/>
+            <port y="300.0" x="214.0" id="glyph4.2"/>
+        </glyph>
+        <arc target="glyph4.1" source="glyph1" id="arc1" class="consumption">
+            <start y="300.0" x="114.0"/>
+            <end y="300.0" x="166.0"/>
+        </arc>
+        <arc target="glyph2" source="glyph4.2" id="arc2" class="production">
+            <start y="300.0" x="214.0"/>
+            <end y="300.0" x="246.0"/>
+        </arc>
+        <arc target="glyph4" source="glyph3" id="arc3" class="inhibition">
+            <start y="135.0" x="190.0"/>
+            <end y="288.0" x="190.0"/>
+        </arc>
+    </map>
+</sbgn>

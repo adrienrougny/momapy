@@ -1,0 +1,157 @@
+SubmapLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+CompartmentLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+GenericProcessLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+UncertainProcessLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+OmittedProcessLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+AssociationLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+DissociationLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+PhenotypeLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+AndOperatorLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+OrOperatorLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+NotOperatorLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+EquivalenceOperatorLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+UnspecifiedEntityLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+MacromoleculeLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+MacromoleculeMultimerLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+}
+
+ComplexLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+ComplexMultimerLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+}
+
+SimpleChemicalLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+SimpleChemicalMultimerLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+}
+
+NucleicAcidFeatureLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+NucleicAcidFeatureMultimerLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+    subunits-filter: none, drop-shadow(1.0, 1.0, 2.0, 0.5, black);
+}
+
+EmptySetLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+PerturbingAgentLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+StateVariableLayout {
+    border-stroke: none;
+}
+
+UnitOfInformationLayout {
+    border-stroke: none;
+}
+
+TagLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+SubmapTerminalLayout {
+    border-stroke: none;
+}
+
+MacromoleculeUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+UnspecifiedEntityUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+NucleicAcidFeatureUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+ComplexUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+SimpleChemicalUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+PerturbationUnitOfInformationLayout {
+    border-stroke: none;
+}
+
+DelayOperatorLayout {
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}
+
+BiologicalActivityLayout {
+    border-stroke: none;
+    filter: drop-shadow(3.0, 3.0, 2.0, 0.5, black);
+}

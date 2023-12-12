@@ -1,9 +1,7 @@
 *.pdf
 *.swp
 *.pyc
-testing/*
 build/
-momapy.egg-info/
 __pycache__/
-.idea/
-momapy/demo/.ipynb_checkpoints/*
+src/momapy/demo/.ipynb_checkpoints/*
+.pdm-python

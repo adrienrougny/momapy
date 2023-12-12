@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.2">
+    <map language="process description">
+        <glyph id="glyph2" class="macromolecule">
+            <label text="A"/>
+            <bbox y="190.0" x="86.0" h="60.0" w="108.0"/>
+            <glyph id="glyph2a" class="state variable">
+                <state variable="var" value="val"/>
+                <bbox y="177.0" x="83.0" h="26.0" w="60.0"/>
+            </glyph>
+        </glyph>
+        <glyph id="glyph1" class="macromolecule">
+            <label text="B"/>
+            <bbox y="235.0" x="431.0" h="60.0" w="108.0"/>
+        </glyph>
+        <glyph id="glyph5" class="macromolecule">
+            <label text="C"/>
+            <bbox y="60.0" x="61.0" h="60.0" w="108.0"/>
+        </glyph>
+        <glyph id="glyph4" class="macromolecule">
+            <label text="D"/>
+            <bbox y="60.0" x="471.0" h="60.0" w="108.0"/>
+        </glyph>
+        <glyph id="glyph6" class="macromolecule">
+            <label text="E"/>
+            <bbox y="40.0" x="216.0" h="60.0" w="108.0"/>
+        </glyph>
+        <glyph id="glyph3" class="process">
+            <bbox y="208.0" x="258.0" h="24.0" w="24.0"/>
+            <port y="220.0" x="246.0" id="glyph3.1"/>
+            <port y="220.0" x="294.0" id="glyph3.2"/>
+        </glyph>
+        <arc target="glyph3.1" source="glyph2" id="arc1" class="consumption">
+            <start y="220.0" x="194.0"/>
+            <end y="220.0" x="246.0"/>
+        </arc>
+        <arc target="glyph1" source="glyph3.2" id="arc2" class="production">
+            <start y="220.0" x="294.0"/>
+            <next y="260.0" x="330.0"/>
+            <end y="263.25806" x="431.0"/>
+        </arc>
+        <arc target="glyph3.1" source="glyph5" id="arc3" class="consumption">
+            <start y="120.0" x="145.23077"/>
+            <end y="220.0" x="246.0"/>
+        </arc>
+        <arc target="glyph4" source="glyph3.2" id="arc4" class="production">
+            <start y="220.0" x="294.0"/>
+            <end y="117.52941" x="471.0"/>
+        </arc>
+        <arc target="glyph3" source="glyph6" id="arc5" class="stimulation">
+            <start y="100.0" x="270.0"/>
+            <end y="208.0" x="270.0"/>
+        </arc>
+    </map>
+</sbgn>
