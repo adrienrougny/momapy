@@ -22,4 +22,4 @@ This definition is borrowed from SBML and its layout/render extensions, that all
 `MomaPy` is still in its initial development phase.
 As such, it is not yet released nor documented, and may change at any time.
 
-A jupyter notebook demo is however available in the `src/momapy/demo/` directory.
+However, the features of `MomaPy` are demonstrated in a jupyter notebook that can be found [here](https://github.com/adrienrougny/momapy/blob/main/src/momapy/demo/demo.ipynb).
