@@ -370,98 +370,110 @@ class _SBGNMLReader(momapy.io.MapReader):
             )
             style_sheet[layout_selector] = style_collection
         d_colors = {}
-        for (
-            color_definition
-        ) in render_information.list_of_color_definitions.color_definition:
-            color_hex = color_definition.value
-            if len(color_hex) < 8:
-                color = momapy.coloring.Color.from_hex(color_hex)
-            else:
-                color = momapy.coloring.Color.from_hexa(color_hex)
-            d_colors[color_definition.id] = color
-        for style in render_information.list_of_styles.style:
-            arc_ids = []
-            node_ids = []
-            for id in style.id_list.split(" "):
-                layout_element = d_layout_element_ids.get(id)
-                if layout_element is not None:
-                    if momapy.builder.isinstance_or_builder(
-                        layout_element, momapy.sbgn.core.SBGNNode
-                    ):
-                        node_ids.append(id)
-                    else:
-                        arc_ids.append(id)
-            if node_ids:
-                node_style_collection = momapy.styling.StyleCollection()
-                for attr in ["fill", "stroke"]:
-                    color_id = getattr(style.g, attr)
-                    if color_id is not None:
-                        node_style_collection[f"border_{attr}"] = d_colors[
-                            color_id
-                        ]
-                for attr in ["stroke_width"]:
-                    value = getattr(style.g, attr)
-                    if value is not None:
-                        node_style_collection[f"border_{attr}"] = value
-                if node_style_collection:
-                    node_selector = momapy.styling.OrSelector(
-                        tuple(
-                            [momapy.styling.IdSelector(id) for id in node_ids]
-                        )
-                    )
-                    style_sheet[node_selector] = node_style_collection
-            if arc_ids:
-                arc_style_collection = momapy.styling.StyleCollection()
-                for attr in ["fill", "stroke"]:
-                    color_id = getattr(style.g, attr)
-                    if color_id is not None:
-                        if attr == "stroke":
-                            arc_style_collection[f"path_{attr}"] = d_colors[
+        if render_information.list_of_color_definitions is not None:
+            for (
+                color_definition
+            ) in render_information.list_of_color_definitions.color_definition:
+                color_hex = color_definition.value
+                if len(color_hex) < 8:
+                    color = momapy.coloring.Color.from_hex(color_hex)
+                else:
+                    color = momapy.coloring.Color.from_hexa(color_hex)
+                d_colors[color_definition.id] = color
+        if render_information.list_of_styles is not None:
+            for style in render_information.list_of_styles.style:
+                arc_ids = []
+                node_ids = []
+                for id in style.id_list.split(" "):
+                    layout_element = d_layout_element_ids.get(id)
+                    if layout_element is not None:
+                        if momapy.builder.isinstance_or_builder(
+                            layout_element, momapy.sbgn.core.SBGNNode
+                        ):
+                            node_ids.append(id)
+                        else:
+                            arc_ids.append(id)
+                if node_ids:
+                    node_style_collection = momapy.styling.StyleCollection()
+                    for attr in ["fill", "stroke"]:
+                        color_id = getattr(style.g, attr)
+                        if color_id is not None:
+                            node_style_collection[f"border_{attr}"] = d_colors[
                                 color_id
                             ]
-                        arc_style_collection[f"arrowhead_{attr}"] = d_colors[
-                            color_id
-                        ]
-                for attr in ["stroke_width"]:
+                    for attr in ["stroke_width"]:
+                        value = getattr(style.g, attr)
+                        if value is not None:
+                            node_style_collection[f"border_{attr}"] = value
+                    if node_style_collection:
+                        node_selector = momapy.styling.OrSelector(
+                            tuple(
+                                [
+                                    momapy.styling.IdSelector(id)
+                                    for id in node_ids
+                                ]
+                            )
+                        )
+                        style_sheet[node_selector] = node_style_collection
+                if arc_ids:
+                    arc_style_collection = momapy.styling.StyleCollection()
+                    for attr in ["fill", "stroke"]:
+                        color_id = getattr(style.g, attr)
+                        if color_id is not None:
+                            if attr == "stroke":
+                                arc_style_collection[f"path_{attr}"] = d_colors[
+                                    color_id
+                                ]
+                            arc_style_collection[f"arrowhead_{attr}"] = (
+                                d_colors[color_id]
+                            )
+                    for attr in ["stroke_width"]:
+                        value = getattr(style.g, attr)
+                        if value is not None:
+                            arc_style_collection[f"path_{attr}"] = value
+                            arc_style_collection[f"arrowhead_{attr}"] = value
+                    if arc_style_collection:
+                        arc_selector = momapy.styling.OrSelector(
+                            tuple(
+                                [
+                                    momapy.styling.IdSelector(id)
+                                    for id in arc_ids
+                                ]
+                            )
+                        )
+                        style_sheet[arc_selector] = arc_style_collection
+                label_style_collection = momapy.styling.StyleCollection()
+                for attr in ["font_size", "font_family"]:
                     value = getattr(style.g, attr)
                     if value is not None:
-                        arc_style_collection[f"path_{attr}"] = value
-                        arc_style_collection[f"arrowhead_{attr}"] = value
-                if arc_style_collection:
-                    arc_selector = momapy.styling.OrSelector(
-                        tuple([momapy.styling.IdSelector(id) for id in arc_ids])
-                    )
-                    style_sheet[arc_selector] = arc_style_collection
-            label_style_collection = momapy.styling.StyleCollection()
-            for attr in ["font_size", "font_family"]:
-                value = getattr(style.g, attr)
-                if value is not None:
-                    label_style_collection[attr] = value
-            for attr in ["font_color"]:
-                color_str = getattr(style.g, attr)
-                if color_str is not None:
-                    if color_str == "#000":
-                        color_str = "#000000"
-                    label_style_collection["fill"] = (
-                        momapy.coloring.Color.from_hex(color_str)
-                    )
-            if label_style_collection:
-                if node_ids:
-                    node_label_selector = momapy.styling.ChildSelector(
-                        node_selector,
-                        momapy.styling.TypeSelector(
-                            momapy.core.TextLayout.__name__
-                        ),
-                    )
-                    style_sheet[node_label_selector] = label_style_collection
-                if arc_ids:
-                    style_sheet[arc_label_selector] = label_style_collection
-                    arc_label_selector = momapy.styling.ChildSelector(
-                        arc_selector,
-                        momapy.styling.TypeSelector(
-                            momapy.core.TextLayout.__name__
-                        ),
-                    )
+                        label_style_collection[attr] = value
+                for attr in ["font_color"]:
+                    color_str = getattr(style.g, attr)
+                    if color_str is not None:
+                        if color_str == "#000":
+                            color_str = "#000000"
+                        label_style_collection["fill"] = (
+                            momapy.coloring.Color.from_hex(color_str)
+                        )
+                if label_style_collection:
+                    if node_ids:
+                        node_label_selector = momapy.styling.ChildSelector(
+                            node_selector,
+                            momapy.styling.TypeSelector(
+                                momapy.core.TextLayout.__name__
+                            ),
+                        )
+                        style_sheet[node_label_selector] = (
+                            label_style_collection
+                        )
+                    if arc_ids:
+                        style_sheet[arc_label_selector] = label_style_collection
+                        arc_label_selector = momapy.styling.ChildSelector(
+                            arc_selector,
+                            momapy.styling.TypeSelector(
+                                momapy.core.TextLayout.__name__
+                            ),
+                        )
         return style_sheet
 
     @classmethod
