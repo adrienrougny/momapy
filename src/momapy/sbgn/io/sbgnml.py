@@ -118,7 +118,6 @@ class _SBGNMLReader(momapy.io.MapReader):
         parser = xsdata.formats.dataclass.parsers.XmlParser(
             config=config, context=xsdata.formats.dataclass.context.XmlContext()
         )
-        print("READ", file_path, cls._parser_module)
         sbgn = parser.parse(file_path, cls._parser_module.Sbgn)
         map_ = cls._map_from_sbgn(
             sbgn, with_render_information, with_annotations, with_notes
@@ -396,11 +395,14 @@ class _SBGNMLReader(momapy.io.MapReader):
                 if node_ids:
                     node_style_collection = momapy.styling.StyleCollection()
                     for attr in ["fill", "stroke"]:
-                        color_id = getattr(style.g, attr)
-                        if color_id is not None:
-                            node_style_collection[f"border_{attr}"] = d_colors[
-                                color_id
-                            ]
+                        color_str = getattr(style.g, attr)
+                        if color_str is not None:
+                            color = d_colors.get(color_str)
+                            if color is None:
+                                color = momapy.coloring.Color.from_hex(
+                                    color_str
+                                )
+                            node_style_collection[f"border_{attr}"] = color
                     for attr in ["stroke_width"]:
                         value = getattr(style.g, attr)
                         if value is not None:
@@ -418,15 +420,16 @@ class _SBGNMLReader(momapy.io.MapReader):
                 if arc_ids:
                     arc_style_collection = momapy.styling.StyleCollection()
                     for attr in ["fill", "stroke"]:
-                        color_id = getattr(style.g, attr)
-                        if color_id is not None:
+                        color_str = getattr(style.g, attr)
+                        if color_str is not None:
+                            color = d_colors.get(color_str)
+                            if color is None:
+                                color = momapy.coloring.Color.from_hex(
+                                    color_str
+                                )
                             if attr == "stroke":
-                                arc_style_collection[f"path_{attr}"] = d_colors[
-                                    color_id
-                                ]
-                            arc_style_collection[f"arrowhead_{attr}"] = (
-                                d_colors[color_id]
-                            )
+                                arc_style_collection[f"path_{attr}"] = color
+                            arc_style_collection[f"arrowhead_{attr}"] = color
                     for attr in ["stroke_width"]:
                         value = getattr(style.g, attr)
                         if value is not None:
@@ -450,11 +453,12 @@ class _SBGNMLReader(momapy.io.MapReader):
                 for attr in ["font_color"]:
                     color_str = getattr(style.g, attr)
                     if color_str is not None:
-                        if color_str == "#000":
-                            color_str = "#000000"
-                        label_style_collection["fill"] = (
-                            momapy.coloring.Color.from_hex(color_str)
-                        )
+                        color = d_colors.get(color_str)
+                        if color is None:
+                            if color_str == "#000":
+                                color_str = "#000000"
+                            color = momapy.coloring.Color.from_hex(color_str)
+                        label_style_collection["fill"] = color
                 if label_style_collection:
                     if node_ids:
                         node_label_selector = momapy.styling.ChildSelector(
