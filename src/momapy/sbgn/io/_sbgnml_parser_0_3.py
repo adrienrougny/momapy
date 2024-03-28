@@ -120,12 +120,14 @@ class ColorDefinitionType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     value: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
 
@@ -140,6 +142,7 @@ class GType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_family: Optional[str] = field(
@@ -147,6 +150,7 @@ class GType:
         metadata={
             "name": "font-family",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_size: Optional[float] = field(
@@ -154,6 +158,7 @@ class GType:
         metadata={
             "name": "font-size",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_weight: Optional[str] = field(
@@ -161,6 +166,7 @@ class GType:
         metadata={
             "name": "font-weight",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_style: Optional[str] = field(
@@ -168,6 +174,7 @@ class GType:
         metadata={
             "name": "font-style",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_color: Optional[str] = field(
@@ -175,12 +182,14 @@ class GType:
         metadata={
             "name": "font-color",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     stroke: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     stroke_width: Optional[float] = field(
@@ -188,6 +197,7 @@ class GType:
         metadata={
             "name": "stroke-width",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_image_opacity: Optional[str] = field(
@@ -195,6 +205,7 @@ class GType:
         metadata={
             "name": "background-image-opacity",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_opacity: Optional[str] = field(
@@ -202,12 +213,14 @@ class GType:
         metadata={
             "name": "background-opacity",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     fill: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
 
@@ -268,6 +281,7 @@ class StyleType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     id_list: Optional[str] = field(
@@ -275,6 +289,7 @@ class StyleType:
         metadata={
             "name": "idList",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     g: Optional[GType] = field(
@@ -620,6 +635,7 @@ class RenderInformationType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     program_name: Optional[str] = field(
@@ -627,6 +643,7 @@ class RenderInformationType:
         metadata={
             "name": "program-name",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     program_version: Optional[str] = field(
@@ -634,6 +651,7 @@ class RenderInformationType:
         metadata={
             "name": "program-version",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_color: Optional[str] = field(
@@ -641,6 +659,7 @@ class RenderInformationType:
         metadata={
             "name": "background-color",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     list_of_color_definitions: Optional[ListOfColorDefinitionsType] = field(
