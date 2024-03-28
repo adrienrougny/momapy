@@ -2447,18 +2447,6 @@ class _SBGNMLReader(momapy.io.MapReader):
         d_layout_element_ids[arc.target].add_element(layout_element)
         return model_element, layout_element
 
-    @classmethod
-    def check_file(cls, file_path):
-        config = xsdata.formats.dataclass.parsers.config.ParserConfig()
-        parser = xsdata.formats.dataclass.parsers.XmlParser(
-            config=config, context=xsdata.formats.dataclass.context.XmlContext()
-        )
-        try:
-            sbgn = parser.parse(file_path, cls._parser_module.Sbgn)
-            return True
-        except xsdata.exceptions.ParserError:
-            return False
-
 
 class SBGNML0_2Reader(_SBGNMLReader):
     _parser_module = momapy.sbgn.io._sbgnml_parser_0_2
@@ -2478,6 +2466,14 @@ class SBGNML0_2Reader(_SBGNMLReader):
         map_.layout = map_.new_layout()
         map_.layout_model_mapping = map_.new_layout_model_mapping()
         return map_, sbgn_map
+
+    @classmethod
+    def check_file(cls, file_path):
+        with open(file_path) as f:
+            for line in f:
+                if "sbgn" in line and "http://sbgn.org/libsbgn/0.2" in line:
+                    return True
+        return False
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
@@ -2525,6 +2521,14 @@ class SBGNML0_3Reader(_SBGNMLReader):
         map_.layout_model_mapping = map_.new_layout_model_mapping()
         map_.id = sbgn_map.id
         return map_, sbgn_map
+
+    @classmethod
+    def check_file(cls, file_path):
+        with open(file_path) as f:
+            for line in f:
+                if "sbgn" in line and "http://sbgn.org/libsbgn/0.3" in line:
+                    return True
+        return False
 
 
 class _SBGNMLWriter(momapy.io.MapWriter):
