@@ -60,6 +60,7 @@ def transform_type(type_, make_optional=False):
             new_type = type_
     if make_optional:
         new_type = typing.Optional[new_type]
+    new_type = type_ | new_type
     return new_type
 
 
