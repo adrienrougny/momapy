@@ -37,6 +37,8 @@ builders = {}
 
 
 def transform_type(type_, make_optional=False):
+    # We get the origin of type_, e.g., if type_ = X[Y, Z, ...]
+    # we get X
     o_type = typing.get_origin(type_)  # returns None if not supported
     if o_type is not None:
         if isinstance(o_type, type):  # o_type is a type
@@ -144,9 +146,12 @@ def make_builder_cls(
             field_dict = {}
             has_default = False
             if field_.default_factory != dataclasses.MISSING:
-                field_dict["default_factory"] = transform_type(
-                    field_.default_factory
-                )
+                if isinstance(field_.default_factory, type):
+                    field_dict["default_factory"] = transform_type(
+                        field_.default_factory
+                    )
+                else:
+                    field_dict["default_factory"] = field_.default_factory
                 has_default = True
             if field_.default != dataclasses.MISSING:
                 field_dict["default"] = field_.default
