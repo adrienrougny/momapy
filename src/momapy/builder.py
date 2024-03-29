@@ -17,7 +17,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
         pass
 
@@ -28,7 +28,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, "Builder"] | None = None,
+        object_to_builder: dict[int, "Builder"] | None = None,
     ):
         pass
 
@@ -67,24 +67,24 @@ def make_builder_cls(
     def _builder_build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        if builder_object_mapping is not None:
-            obj = builder_object_mapping.get(id(self))
+        if builder_to_object is not None:
+            obj = builder_to_object.get(id(self))
             if obj is not None:
                 return obj
         else:
-            builder_object_mapping = {}
+            builder_to_object = {}
         args = {}
-        for field_ in dataclasses.fields(self):
-            attr_value = getattr(self, field_.name)
-            args[field_.name] = object_from_builder(
+        for field in dataclasses.fields(self):
+            attr_value = getattr(self, field.name)
+            args[field.name] = object_from_builder(
                 builder=attr_value,
                 inside_collections=inside_collections,
-                builder_object_mapping=builder_object_mapping,
+                builder_to_object=builder_to_object,
             )
         obj = self._cls_to_build(**args)
-        builder_object_mapping[id(self)] = obj
+        builder_to_object[id(self)] = obj
         return obj
 
     def _builder_from_object(
@@ -92,14 +92,14 @@ def make_builder_cls(
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, "Builder"] | None = None,
+        object_to_builder: dict[int, "Builder"] | None = None,
     ):
-        if object_builder_mapping is not None:
-            builder = object_builder_mapping.get(id(obj))
+        if object_to_builder is not None:
+            builder = object_to_builder.get(id(obj))
             if builder is not None:
                 return builder
         else:
-            object_builder_mapping = {}
+            object_to_builder = {}
         args = {}
         for field_ in dataclasses.fields(obj):
             attr_value = getattr(obj, field_.name)
@@ -107,10 +107,10 @@ def make_builder_cls(
                 obj=attr_value,
                 inside_collections=inside_collections,
                 omit_keys=omit_keys,
-                object_builder_mapping=object_builder_mapping,
+                object_to_builder=object_to_builder,
             )
         builder = cls(**args)
-        object_builder_mapping[id(obj)] = builder
+        object_to_builder[id(obj)] = builder
         return builder
 
     def _builder_add_element(self, element, fields_for_add_element):
@@ -220,19 +220,19 @@ def make_builder_cls(
 def object_from_builder(
     builder,
     inside_collections=True,
-    builder_object_mapping: dict[int, typing.Any] | None = None,
+    builder_to_object: dict[int, typing.Any] | None = None,
 ):
-    if builder_object_mapping is not None:
-        if id(builder) in builder_object_mapping:
-            return builder_object_mapping[id(builder)]
+    if builder_to_object is not None:
+        if id(builder) in builder_to_object:
+            return builder_to_object[id(builder)]
     else:
-        builder_object_mapping = {}
+        builder_to_object = {}
     if isinstance(builder, Builder):
         obj = builder.build(
             inside_collections=inside_collections,
-            builder_object_mapping=builder_object_mapping,
+            builder_to_object=builder_to_object,
         )
-        builder_object_mapping[id(builder)] = obj
+        builder_to_object[id(builder)] = obj
         return obj
     if inside_collections:
         if isinstance(builder, (list, tuple, set, frozenset)):
@@ -241,7 +241,7 @@ def object_from_builder(
                     object_from_builder(
                         builder=e,
                         inside_collections=inside_collections,
-                        builder_object_mapping=builder_object_mapping,
+                        builder_to_object=builder_to_object,
                     )
                     for e in builder
                 ]
@@ -253,12 +253,12 @@ def object_from_builder(
                         object_from_builder(
                             builder=k,
                             inside_collections=inside_collections,
-                            builder_object_mapping=builder_object_mapping,
+                            builder_to_object=builder_to_object,
                         ),
                         object_from_builder(
                             builder=v,
                             inside_collections=inside_collections,
-                            builder_object_mapping=builder_object_mapping,
+                            builder_to_object=builder_to_object,
                         ),
                     )
                     for k, v in builder.items()
@@ -271,21 +271,21 @@ def builder_from_object(
     obj,
     inside_collections=True,
     omit_keys=True,
-    object_builder_mapping: dict[int, "Builder"] | None = None,
+    object_to_builder: dict[int, "Builder"] | None = None,
 ):
-    if object_builder_mapping is not None:
-        builder = object_builder_mapping.get(id(obj))
+    if object_to_builder is not None:
+        builder = object_to_builder.get(id(obj))
         if builder is not None:
             return builder
     else:
-        object_builder_mapping = {}
+        object_to_builder = {}
     cls = get_or_make_builder_cls(type(obj))
     if issubclass(cls, Builder):
         return cls.from_object(
             obj=obj,
             inside_collections=inside_collections,
             omit_keys=omit_keys,
-            object_builder_mapping=object_builder_mapping,
+            object_to_builder=object_to_builder,
         )
     if inside_collections:
         if isinstance(obj, (list, tuple, set, frozenset)):
@@ -295,7 +295,7 @@ def builder_from_object(
                         obj=e,
                         inside_collections=inside_collections,
                         omit_keys=omit_keys,
-                        object_builder_mapping=object_builder_mapping,
+                        object_to_builder=object_to_builder,
                     )
                     for e in obj
                 ]
@@ -304,28 +304,30 @@ def builder_from_object(
             return type(obj)(
                 [
                     (
-                        builder_from_object(
-                            obj=k,
-                            inside_collections=inside_collections,
-                            omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
-                        ),
-                        builder_from_object(
-                            obj=v,
-                            inside_collections=inside_collections,
-                            omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
-                        ),
-                    )
-                    if not omit_keys
-                    else (
-                        k,
-                        builder_from_object(
-                            obj=v,
-                            inside_collections=inside_collections,
-                            omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
-                        ),
+                        (
+                            builder_from_object(
+                                obj=k,
+                                inside_collections=inside_collections,
+                                omit_keys=omit_keys,
+                                object_to_builder=object_to_builder,
+                            ),
+                            builder_from_object(
+                                obj=v,
+                                inside_collections=inside_collections,
+                                omit_keys=omit_keys,
+                                object_to_builder=object_to_builder,
+                            ),
+                        )
+                        if not omit_keys
+                        else (
+                            k,
+                            builder_from_object(
+                                obj=v,
+                                inside_collections=inside_collections,
+                                omit_keys=omit_keys,
+                                object_to_builder=object_to_builder,
+                            ),
+                        )
                     )
                     for k, v in obj.items()
                 ]
