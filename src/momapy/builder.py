@@ -125,33 +125,20 @@ def make_builder_cls(
         object_to_builder[id(obj)] = builder
         return builder
 
-    def _builder_add_element(self, element, fields_for_add_element):
-        added = False
-        for field_ in fields_for_add_element:
-            if isinstance(element, field_["a_types"]):
-                attr = getattr(self, field_["field_name"])
-                if hasattr(attr, "append"):
-                    attr.append(element)
-                    added = True
-                elif hasattr(attr, "add"):
-                    attr.add(element)
-                    added = True
-        if not added:
-            raise TypeError(
-                f"unsupported type {type(element)} for add_element of class {type(self)}"
-            )
-
-    cls_fields = dataclasses.fields(cls)
     if builder_fields is None:
         builder_fields = []
     if builder_bases is None:
         builder_bases = []
     if builder_namespace is None:
         builder_namespace = {}
-    fields_for_add_element = []
-    builder_field_names = [builder_field[0] for builder_field in builder_fields]
+    # We transform the fields to builder fields
+    cls_fields = dataclasses.fields(cls)
+    builder_field_names = set(
+        [builder_field[0] for builder_field in builder_fields]
+    )
     for field_ in cls_fields:
         field_name = field_.name
+        # We only consider fields that are not already in the input fields
         if field_name not in builder_field_names:
             field_dict = {}
             has_default = False
@@ -160,11 +147,11 @@ def make_builder_cls(
                     field_dict["default_factory"] = transform_type(
                         field_.default_factory
                     )
-                else:
+                else:  # in case of a func for example
                     field_dict["default_factory"] = field_.default_factory
                 has_default = True
             if field_.default != dataclasses.MISSING:
-                field_dict["default"] = field_.default
+                field_dict["default"] = field_.default  # TO DO: transform?
                 has_default = True
             if not has_default:
                 field_dict["default"] = None
@@ -174,45 +161,25 @@ def make_builder_cls(
             builder_fields.append(
                 (field_name, field_type, dataclasses.field(**field_dict))
             )
-            field_o_type = typing.get_origin(field_type)
-            if (
-                field_o_type is not None
-                and isinstance(field_o_type, type)
-                and issubclass(field_o_type, typing.Collection)
-            ):
-                print("YES")
-                fields_for_add_element.append(
-                    {
-                        "field_name": field_name,
-                        "field_type": field_type,
-                        "a_types": typing.get_args(field_type),
-                    }
-                )
-
     builder_namespace["build"] = _builder_build
     builder_namespace["from_object"] = classmethod(_builder_from_object)
     builder_namespace["_cls_to_build"] = cls
-
-    if fields_for_add_element:
-        builder_namespace["add_element"] = (
-            lambda fields_for_add_element: lambda self, element: _builder_add_element(
-                self, element, fields_for_add_element
-            )
-        )(fields_for_add_element)
-
+    # We add the undundered methods from the non-builder class
+    # Do we really want this? Should we keep builders really only to build?
     for member in inspect.getmembers(cls):
         func_name = member[0]
         func = member[1]
 
         if not func_name.startswith("__") and not func_name == "_cls_to_build":
             builder_namespace[func_name] = func
-
+    # We add the transformed bases
     cls_bases = [
         get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__
     ]
     builder_bases = builder_bases + [
         base_cls for base_cls in cls_bases if issubclass(base_cls, Builder)
     ]
+    # We add the Builder class to the bases
     has_builder_cls = False
     for builder_base in builder_bases:
         if Builder in builder_base.__mro__:

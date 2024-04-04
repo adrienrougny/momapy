@@ -137,9 +137,11 @@ class TextLayout(LayoutElement):
     stroke_dashoffset: float | None = None
     stroke_width: float | None = None
     text_anchor: momapy.drawing.TextAnchor | None = None
-    transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None
+    transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
 
     @property
     def x(self):
@@ -315,9 +317,11 @@ class GroupLayout(LayoutElement):
     stroke_dashoffset: float | None = None
     stroke_width: float | None = None
     text_anchor: momapy.drawing.TextAnchor | None = None
-    transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None
+    transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
 
     def self_to_shapely(self, to_polygons=False):
         geom_collection = []
@@ -372,23 +376,25 @@ class Node(GroupLayout):
     width: float
     height: float
     label: TextLayout | None = None
-    border_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    border_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     border_stroke_width: float | None = None
-    border_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    border_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     border_stroke_dashoffset: float | None = None
     border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
-    border_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None
-    border_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None
-    )
+    border_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
+    border_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None
 
     @property
     def x(self):
@@ -544,15 +550,17 @@ class Arc(GroupLayout):
     path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
-    path_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     path_stroke_dashoffset: float | None = None
 
     path_stroke_width: float | None = None
-    path_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
+    path_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
     segments: tuple[
         momapy.geometry.Segment,
         momapy.geometry.BezierCurve,
@@ -629,23 +637,25 @@ class Arc(GroupLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SingleHeadedArc(Arc):
-    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     arrowhead_stroke_width: float | None = None
-    arrowhead_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     arrowhead_stroke_dashoffset: float | None = None
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    arrowhead_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
-    arrowhead_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
+    arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
 
     def arrowhead_length(self):
         drawing_element = self._make_arrowhead_drawing_element()
@@ -768,40 +778,44 @@ class SingleHeadedArc(Arc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DoubleHeadedArc(Arc):
-    start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    start_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     start_arrowhead_stroke_width: float | None = None
-    start_arrowhead_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    start_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     start_arrowhead_stroke_dashoffset: float | None = None
-    start_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    start_arrowhead_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
-    start_arrowhead_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
-    )
-    end_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    start_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
+    start_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    start_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     end_arrowhead_stroke_width: float | None = None
-    end_arrowhead_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     end_arrowhead_stroke_dashoffset: float | None = None
-    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    end_arrowhead_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None  # not inherited
-    end_arrowhead_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
-    )
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
 
     def _get_arrowhead_length(self, start_or_end: str):
         drawing_element = self._make_arrowhead_drawing_element(start_or_end)
@@ -1355,28 +1369,30 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
         builder = cls(
             [
                 (
-                    momapy.builder.builder_from_object(
-                        obj=k,
-                        inside_collections=inside_collections,
-                        omit_keys=omit_keys,
-                        object_builder_mapping=object_builder_mapping,
-                    ),
-                    momapy.builder.builder_from_object(
-                        obj=v,
-                        inside_collections=inside_collections,
-                        omit_keys=omit_keys,
-                        object_builder_mapping=object_builder_mapping,
-                    ),
-                )
-                if not omit_keys
-                else (
-                    k,
-                    momapy.builder.builder_from_object(
-                        obj=v,
-                        inside_collections=inside_collections,
-                        omit_keys=omit_keys,
-                        object_builder_mapping=object_builder_mapping,
-                    ),
+                    (
+                        momapy.builder.builder_from_object(
+                            obj=k,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                        momapy.builder.builder_from_object(
+                            obj=v,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                    )
+                    if not omit_keys
+                    else (
+                        k,
+                        momapy.builder.builder_from_object(
+                            obj=v,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        ),
+                    )
                 )
                 for k, v in self.items()
             ]
@@ -1484,15 +1500,19 @@ class LayoutModelMappingBuilder(
 
     def __setitem__(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
-        value: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
+        value: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+            | _MappingValueBuilderType
+        ),
     ):
         return self.set_mapping(key=key, value=value, reverse=True)
 
@@ -1501,10 +1521,12 @@ class LayoutModelMappingBuilder(
 
     def _prepare_key(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
     ):
         if momapy.builder.isinstance_or_builder(
             key, ModelElement
@@ -1520,11 +1542,13 @@ class LayoutModelMappingBuilder(
 
     def _prepare_value(
         self,
-        value: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType,
+        value: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+            | _MappingValueBuilderType
+        ),
     ):
         value = self._prepare_key(
             value
@@ -1540,10 +1564,12 @@ class LayoutModelMappingBuilder(
 
     def get_mapping(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
         expand: bool = True,
         unpack: bool = True,
     ):
@@ -1580,15 +1606,19 @@ class LayoutModelMappingBuilder(
 
     def set_mapping(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
-        value: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
+        value: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+            | _MappingValueBuilderType
+        ),
         reverse: bool = True,
     ):
         key, value = self._prepare_key_value(key, value)
@@ -1603,14 +1633,18 @@ class LayoutModelMappingBuilder(
 
     def add_mapping(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
-        value: ModelElement
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
+        value: (
+            ModelElement
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+            | _MappingValueBuilderType
+        ),
         reverse: bool = True,
     ):
         key, value = self._prepare_key_value(key, value)
@@ -1627,15 +1661,19 @@ class LayoutModelMappingBuilder(
 
     def delete_mapping(
         self,
-        key: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType,
-        value: ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType,
+        key: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+        ),
+        value: (
+            ModelElement
+            | ModelElementBuilder
+            | _MappingElementBuilderType
+            | _MappingKeyBuilderType
+            | _MappingValueBuilderType
+        ),
         reverse: bool = True,
     ):
         key = self._prepare_key(key)
@@ -1698,23 +1736,25 @@ class LayoutModelMappingBuilder(
         for key in obj._set_to_set_mapping:
             builder_key = frozenset(
                 [
-                    momapy.builder.builder_from_object(
-                        obj=e,
-                        inside_collections=inside_collections,
-                        omit_keys=omit_keys,
-                        object_builder_mapping=object_builder_mapping,
-                    )
-                    if not isinstance(e, tuple)
-                    else tuple(
-                        [
-                            momapy.builder.builder_from_object(
-                                obj=ee,
-                                inside_collections=inside_collections,
-                                omit_keys=omit_keys,
-                                object_builder_mapping=object_builder_mapping,
-                            )
-                            for ee in e
-                        ]
+                    (
+                        momapy.builder.builder_from_object(
+                            obj=e,
+                            inside_collections=inside_collections,
+                            omit_keys=omit_keys,
+                            object_builder_mapping=object_builder_mapping,
+                        )
+                        if not isinstance(e, tuple)
+                        else tuple(
+                            [
+                                momapy.builder.builder_from_object(
+                                    obj=ee,
+                                    inside_collections=inside_collections,
+                                    omit_keys=omit_keys,
+                                    object_builder_mapping=object_builder_mapping,
+                                )
+                                for ee in e
+                            ]
+                        )
                     )
                     for e in key
                 ]
@@ -1723,23 +1763,25 @@ class LayoutModelMappingBuilder(
                 [
                     frozenset(
                         [
-                            momapy.builder.builder_from_object(
-                                obj=e,
-                                inside_collections=inside_collections,
-                                omit_keys=omit_keys,
-                                object_builder_mapping=object_builder_mapping,
-                            )
-                            if not isinstance(e, tuple)
-                            else tuple(
-                                [
-                                    momapy.builder.builder_from_object(
-                                        obj=ee,
-                                        inside_collections=inside_collections,
-                                        omit_keys=omit_keys,
-                                        object_builder_mapping=object_builder_mapping,
-                                    )
-                                    for ee in e
-                                ]
+                            (
+                                momapy.builder.builder_from_object(
+                                    obj=e,
+                                    inside_collections=inside_collections,
+                                    omit_keys=omit_keys,
+                                    object_builder_mapping=object_builder_mapping,
+                                )
+                                if not isinstance(e, tuple)
+                                else tuple(
+                                    [
+                                        momapy.builder.builder_from_object(
+                                            obj=ee,
+                                            inside_collections=inside_collections,
+                                            omit_keys=omit_keys,
+                                            object_builder_mapping=object_builder_mapping,
+                                        )
+                                        for ee in e
+                                    ]
+                                )
                             )
                             for e in k
                         ]
@@ -1791,24 +1833,20 @@ def _map_builder_new_layout_element(
     return layout_element
 
 
-def _map_builder_add_model_element(self, model_element):
-    self.model.add_element(model_element)
-
-
-def _map_builder_add_layout_element(self, layout_element):
-    self.layout.add_element(layout_element)
-
-
 def _map_builder_add_mapping(
     self,
-    key: ModelElement
-    | ModelElementBuilder
-    | _MappingElementBuilderType
-    | _MappingKeyBuilderType,
-    value: ModelElement
-    | _MappingElementBuilderType
-    | _MappingKeyBuilderType
-    | _MappingValueBuilderType,
+    key: (
+        ModelElement
+        | ModelElementBuilder
+        | _MappingElementBuilderType
+        | _MappingKeyBuilderType
+    ),
+    value: (
+        ModelElement
+        | _MappingElementBuilderType
+        | _MappingKeyBuilderType
+        | _MappingValueBuilderType
+    ),
     reverse: bool = True,
 ):
     self.layout_model_mapping.add_mapping(key=key, value=value, reverse=reverse)
@@ -1816,10 +1854,12 @@ def _map_builder_add_mapping(
 
 def _map_builder_get_mapping(
     self,
-    key: ModelElement
-    | ModelElementBuilder
-    | _MappingElementBuilderType
-    | _MappingKeyBuilderType,
+    key: (
+        ModelElement
+        | ModelElementBuilder
+        | _MappingElementBuilderType
+        | _MappingKeyBuilderType
+    ),
     expand: bool = True,
     unpack: bool = True,
 ):
@@ -1836,8 +1876,6 @@ MapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout_model_mapping": _map_builder_new_layout_model_mapping,
         "new_model_element": _map_builder_new_model_element,
         "new_layout_element": _map_builder_new_layout_element,
-        "add_model_element": _map_builder_add_model_element,
-        "add_layout_element": _map_builder_add_layout_element,
         "add_mapping": _map_builder_add_mapping,
     },
 )
