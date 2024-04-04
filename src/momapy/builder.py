@@ -36,7 +36,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
 builders = {}
 
 
-def transform_type(type_, make_optional=False):
+def transform_type(type_, make_optional=False, make_union=False):
     if isinstance(
         type_, typing.ForwardRef
     ):  # TO DO: should find if type is already in builders first
@@ -69,7 +69,8 @@ def transform_type(type_, make_optional=False):
                 new_type = type_
     if make_optional:
         new_type = typing.Optional[new_type]
-    new_type = typing.Union[type_, new_type]
+    if make_union:
+        new_type = typing.Union[type_, new_type]
     return new_type
 
 
@@ -156,7 +157,7 @@ def make_builder_cls(
             if not has_default:
                 field_dict["default"] = None
             field_type = transform_type(
-                field_.type, make_optional=not has_default
+                field_.type, make_optional=not has_default, make_union=True
             )
             builder_fields.append(
                 (field_name, field_type, dataclasses.field(**field_dict))
