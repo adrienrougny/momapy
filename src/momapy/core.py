@@ -1219,20 +1219,20 @@ class TupleBuilder(list, momapy.builder.Builder):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        if builder_object_mapping is not None:
-            obj = builder_object_mapping.get(id(self))
+        if builder_to_object is not None:
+            obj = builder_to_object.get(id(self))
             if obj is not None:
                 return obj
         else:
-            builder_object_mapping = {}
+            builder_to_object = {}
         obj = self._cls_to_build(
             [
                 momapy.builder.object_from_builder(
                     builder=e,
                     inside_collections=inside_collections,
-                    builder_object_mapping=builder_object_mapping,
+                    builder_to_object=builder_to_object,
                 )
                 for e in self
             ]
@@ -1245,20 +1245,20 @@ class TupleBuilder(list, momapy.builder.Builder):
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+        object_to_builder: dict[int, momapy.builder.Builder] | None = None,
     ):
-        if object_builder_mapping is not None:
-            builder = object_builder_mapping.get(id(obj))
+        if object_to_builder is not None:
+            builder = object_to_builder.get(id(obj))
             if builder is not None:
                 return builder
         else:
-            object_builder_mapping = {}
+            object_to_builder = {}
         builder = cls(
             [
                 momapy.builder.builder_from_object(
                     obj=e,
                     inside_collections=inside_collections,
-                    object_builder_mapping=object_builder_mapping,
+                    object_to_builder=object_to_builder,
                 )
                 for e in obj
             ]
@@ -1272,20 +1272,20 @@ class FrozensetBuilder(set, momapy.builder.Builder):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        if builder_object_mapping is not None:
-            obj = builder_object_mapping.get(id(self))
+        if builder_to_object is not None:
+            obj = builder_to_object.get(id(self))
             if obj is not None:
                 return obj
         else:
-            builder_object_mapping = {}
+            builder_to_object = {}
         obj = self._cls_to_build(
             [
                 momapy.builder.object_from_builder(
                     builder=e,
                     inside_collections=inside_collections,
-                    builder_object_mapping=builder_object_mapping,
+                    builder_to_object=builder_to_object,
                 )
                 for e in self
             ]
@@ -1298,20 +1298,20 @@ class FrozensetBuilder(set, momapy.builder.Builder):
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+        object_to_builder: dict[int, momapy.builder.Builder] | None = None,
     ):
-        if object_builder_mapping is not None:
-            builder = object_builder_mapping.get(id(obj))
+        if object_to_builder is not None:
+            builder = object_to_builder.get(id(obj))
             if builder is not None:
                 return builder
         else:
-            object_builder_mapping = {}
+            object_to_builder = {}
         builder = cls(
             [
                 momapy.builder.builder_from_object(
                     obj=e,
                     inside_collections=inside_collections,
-                    object_builder_mapping=object_builder_mapping,
+                    object_to_builder=object_to_builder,
                 )
                 for e in obj
             ]
@@ -1325,26 +1325,26 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        if builder_object_mapping is not None:
-            obj = builder_object_mapping.get(id(self))
+        if builder_to_object is not None:
+            obj = builder_to_object.get(id(self))
             if obj is not None:
                 return obj
         else:
-            builder_object_mapping = {}
+            builder_to_object = {}
         obj = self._cls_to_build(
             [
                 (
                     momapy.builder.object_from_builder(
                         builder=k,
                         inside_collections=inside_collections,
-                        builder_object_mapping=builder_object_mapping,
+                        builder_to_object=builder_to_object,
                     ),
                     momapy.builder.object_from_builder(
                         builder=v,
                         inside_collections=inside_collections,
-                        builder_object_mapping=builder_object_mapping,
+                        builder_to_object=builder_to_object,
                     ),
                 )
                 for k, v in self.items()
@@ -1358,14 +1358,14 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+        object_to_builder: dict[int, momapy.builder.Builder] | None = None,
     ):
-        if object_builder_mapping is not None:
-            builder = object_builder_mapping.get(id(obj))
+        if object_to_builder is not None:
+            builder = object_to_builder.get(id(obj))
             if builder is not None:
                 return builder
         else:
-            object_builder_mapping = {}
+            object_to_builder = {}
         builder = cls(
             [
                 (
@@ -1374,13 +1374,13 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
                             obj=k,
                             inside_collections=inside_collections,
                             omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
+                            object_to_builder=object_to_builder,
                         ),
                         momapy.builder.builder_from_object(
                             obj=v,
                             inside_collections=inside_collections,
                             omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
+                            object_to_builder=object_to_builder,
                         ),
                     )
                     if not omit_keys
@@ -1390,7 +1390,7 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
                             obj=v,
                             inside_collections=inside_collections,
                             omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
+                            object_to_builder=object_to_builder,
                         ),
                     )
                 )
@@ -1707,17 +1707,17 @@ class LayoutModelMappingBuilder(
     def build(
         self,
         inside_collections: bool = True,
-        builder_object_mapping: dict[int, typing.Any] | None = None,
+        builder_to_object: dict[int, typing.Any] | None = None,
     ):
         _set_to_set_mapping = momapy.builder.object_from_builder(
             builder=self._set_to_set_mapping,
             inside_collections=True,
-            builder_object_mapping=builder_object_mapping,
+            builder_to_object=builder_to_object,
         )
         _singleton_to_set_mapping = momapy.builder.object_from_builder(
             builder=self._singleton_to_set_mapping,
             inside_collections=True,
-            builder_object_mapping=builder_object_mapping,
+            builder_to_object=builder_to_object,
         )
         return self._cls_to_build(
             _singleton_to_set_mapping=_singleton_to_set_mapping,
@@ -1730,7 +1730,7 @@ class LayoutModelMappingBuilder(
         obj,
         inside_collections: bool = True,
         omit_keys: bool = True,
-        object_builder_mapping: dict[int, momapy.builder.Builder] | None = None,
+        object_to_builder: dict[int, momapy.builder.Builder] | None = None,
     ):
         _set_to_set_mapping = FrozendictBuilder()
         for key in obj._set_to_set_mapping:
@@ -1741,7 +1741,7 @@ class LayoutModelMappingBuilder(
                             obj=e,
                             inside_collections=inside_collections,
                             omit_keys=omit_keys,
-                            object_builder_mapping=object_builder_mapping,
+                            object_to_builder=object_to_builder,
                         )
                         if not isinstance(e, tuple)
                         else tuple(
@@ -1750,7 +1750,7 @@ class LayoutModelMappingBuilder(
                                     obj=ee,
                                     inside_collections=inside_collections,
                                     omit_keys=omit_keys,
-                                    object_builder_mapping=object_builder_mapping,
+                                    object_to_builder=object_to_builder,
                                 )
                                 for ee in e
                             ]
@@ -1768,7 +1768,7 @@ class LayoutModelMappingBuilder(
                                     obj=e,
                                     inside_collections=inside_collections,
                                     omit_keys=omit_keys,
-                                    object_builder_mapping=object_builder_mapping,
+                                    object_to_builder=object_to_builder,
                                 )
                                 if not isinstance(e, tuple)
                                 else tuple(
@@ -1777,7 +1777,7 @@ class LayoutModelMappingBuilder(
                                             obj=ee,
                                             inside_collections=inside_collections,
                                             omit_keys=omit_keys,
-                                            object_builder_mapping=object_builder_mapping,
+                                            object_to_builder=object_to_builder,
                                         )
                                         for ee in e
                                     ]
