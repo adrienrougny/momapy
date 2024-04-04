@@ -37,30 +37,39 @@ builders = {}
 
 
 def transform_type(type_, make_optional=False):
-    # We get the origin of type_, e.g., if type_ = X[Y, Z, ...]
-    # we get X
-    o_type = typing.get_origin(type_)  # returns None if not supported
-    if o_type is not None:
-        if isinstance(o_type, type):  # o_type is a type
-            if o_type == types.UnionType:  # from t1 | t2 syntax
-                new_o_type = typing.Union
+    if isinstance(
+        type_, typing.ForwardRef
+    ):  # TO DO: should find if type is already in builders first
+        new_type = typing.ForwardRef(f"{type_.__forward_arg__}Builder")
+    else:
+        # We get the origin of type_, e.g., if type_ = X[Y, Z, ...] we get X
+        o_type = typing.get_origin(type_)  # returns None if not supported
+        if o_type is not None:
+            if isinstance(o_type, type):  # o_type is a type
+                if o_type == types.UnionType:  # from t1 | t2 syntax
+                    new_o_type = typing.Union
+                else:
+                    new_o_type = get_or_make_builder_cls(o_type)
+            else:  # o_type is an object from typing
+                new_o_type = o_type
+            new_type = new_o_type[
+                tuple(
+                    [
+                        transform_type(a_type)
+                        for a_type in typing.get_args(type_)
+                    ]
+                )
+            ]
+        else:  # type_ has no origin
+            if isinstance(type_, type):  # type_ is a type
+                new_type = get_or_make_builder_cls(type_)
+                if new_type is None:
+                    new_type = type_
             else:
-                new_o_type = get_or_make_builder_cls(o_type)
-        else:  # o_type is an object from typing
-            new_o_type = o_type
-        new_type = new_o_type[
-            tuple([transform_type(a_type) for a_type in typing.get_args(type_)])
-        ]
-    else:  # type_ has no origin
-        if isinstance(type_, type):  # type_ is a type
-            new_type = get_or_make_builder_cls(type_)
-            if new_type is None:
                 new_type = type_
-        else:
-            new_type = type_
     if make_optional:
         new_type = typing.Optional[new_type]
-    new_type = type_ | new_type
+    new_type = typing.Union[type_, new_type]
     return new_type
 
 
@@ -171,6 +180,7 @@ def make_builder_cls(
                 and isinstance(field_o_type, type)
                 and issubclass(field_o_type, typing.Collection)
             ):
+                print("YES")
                 fields_for_add_element.append(
                     {
                         "field_name": field_name,
