@@ -15,7 +15,7 @@ from gi.repository import Pango, PangoCairo  # must import like that to use
 import momapy.drawing
 
 
-def pretty_print(obj, max_depth=0, _depth=0, _indent=0):
+def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     def _print_with_indent(s, indent):
         print(f"{'  '*indent}{s}")
 
@@ -27,9 +27,13 @@ def pretty_print(obj, max_depth=0, _depth=0, _indent=0):
 
     if _depth > max_depth:
         return
+    if exclude_cls is None:
+        exclude_cls = []
     obj_typing = type(obj)
+    if obj_typing in exclude_cls:
+        return
     obj_value_string = _get_value_string(obj)
-    obj_string = f"{colorama.Fore.BLACK}{obj_typing}{colorama.Fore.RED}: {obj_value_string}{colorama.Style.RESET_ALL}"
+    obj_string = f"{colorama.Fore.GREEN}{obj_typing}{colorama.Fore.RED}: {obj_value_string}{colorama.Style.RESET_ALL}"
     _print_with_indent(obj_string, _indent)
     if dataclasses.is_dataclass(type(obj)):
         for field in dataclasses.fields(obj):
@@ -43,10 +47,13 @@ def pretty_print(obj, max_depth=0, _depth=0, _indent=0):
                 pretty_print(
                     attr_value,
                     max_depth=max_depth,
+                    exclude_cls=exclude_cls,
                     _depth=_depth + 1,
                     _indent=_indent + 2,
                 )
-    if isinstance(obj, collections.abc.Iterable):
+    if isinstance(obj, collections.abc.Iterable) and not isinstance(
+        obj, (str, bytes, bytearray)
+    ):
         for i, elem_value in enumerate(obj):
             elem_typing = type(elem_value)
             elem_value_string = _get_value_string(elem_value)
@@ -55,6 +62,7 @@ def pretty_print(obj, max_depth=0, _depth=0, _indent=0):
             pretty_print(
                 elem_value,
                 max_depth=max_depth,
+                exclude_cls=exclude_cls,
                 _depth=_depth + 1,
                 _indent=_indent + 2,
             )
@@ -130,3 +138,17 @@ def make_arc(cls, points):
         builder_cls = momapy.builder.get_or_make_builder_cls(cls)
     arc = builder_cls(segments=segments)
     return arc
+
+
+def get_element_from_collection(element, collection):
+    for e in collection:
+        if e == element:
+            return e
+    return None
+
+
+def get_or_return_element_from_collection(element, collection):
+    existing_element = get_element_from_collection(element, collection)
+    if existing_element is not None:
+        return existing_element
+    return element
