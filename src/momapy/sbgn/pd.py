@@ -1207,9 +1207,9 @@ class ConsumptionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1219,9 +1219,9 @@ class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1291,9 +1291,7 @@ class InhibitionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(
-    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
