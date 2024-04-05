@@ -52,7 +52,7 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
                     _indent=_indent + 2,
                 )
     if isinstance(obj, collections.abc.Iterable) and not isinstance(
-        obj, (str, bytes, bytearray)
+        obj, (str, bytes, bytearray, momapy.geometry.Point)
     ):
         for i, elem_value in enumerate(obj):
             elem_typing = type(elem_value)
