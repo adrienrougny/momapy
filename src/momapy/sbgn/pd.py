@@ -1230,9 +1230,7 @@ class ModulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StimulationLayout(
-    momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class StimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1297,9 +1295,7 @@ class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(
-    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
