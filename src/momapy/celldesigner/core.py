@@ -117,16 +117,16 @@ class GeneReference(CellDesignerSpeciesReference):
 
 @dataclasses.dataclass(frozen=True)
 class RNAReference(CellDesignerSpeciesReference):
-    regions: frozenset[
-        ModificationSite, CodingRegion, ProteinBindingDomain
-    ] = dataclasses.field(default_factory=frozenset)
+    regions: frozenset[ModificationSite, CodingRegion, ProteinBindingDomain] = (
+        dataclasses.field(default_factory=frozenset)
+    )
 
 
 @dataclasses.dataclass(frozen=True)
-class AntisensRNAReference(CellDesignerSpeciesReference):
-    regions: frozenset[
-        ModificationSite, CodingRegion, ProteinBindingDomain
-    ] = dataclasses.field(default_factory=frozenset)
+class AntisenseRNAReference(CellDesignerSpeciesReference):
+    regions: frozenset[ModificationSite, CodingRegion, ProteinBindingDomain] = (
+        dataclasses.field(default_factory=frozenset)
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -213,8 +213,8 @@ class RNA(Species):
 
 
 @dataclasses.dataclass(frozen=True)
-class AntisensRNA(Species):
-    reference: AntisensRNAReference | None = None
+class AntisenseRNA(Species):
+    reference: AntisenseRNAReference | None = None
 
     @property
     def name(self):
@@ -782,7 +782,7 @@ class RNALayout(_MultiMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class AntisensRNALayout(_MultiMixin, CellDesignerNode):
+class AntisenseRNALayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
     angle: float = 45.0
@@ -1051,9 +1051,9 @@ class _OvalCompartmentShape(momapy.core.Shape):
     inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
-    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    inner_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     inner_stroke_width: float | None = None
     sep: float = 12.0
 
@@ -1080,9 +1080,9 @@ class OvalCompartmentLayout(_SimpleMixin, CellDesignerNode):
     inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
     )
-    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    inner_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     inner_stroke_width: float | None = 1.0
     sep: float = 12.0
     width: float = 16.0
@@ -1105,9 +1105,9 @@ class _RectangleCompartmentShape(momapy.core.Shape):
         None
     )
     inner_rounded_corners: float = 10.0
-    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    inner_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     inner_stroke_width: float | None = None
     rounded_corners: float = 10.0
     sep: float = 12.0
@@ -1141,9 +1141,9 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
         momapy.coloring.white
     )
     inner_rounded_corners: float = 10.0
-    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    inner_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     inner_stroke_width: float | None = 1.0
     rounded_corners: float = 10.0
     sep: float = 12.0
@@ -1303,9 +1303,9 @@ class ProductionLayout(momapy.arcs.Arrow):
 
 @dataclasses.dataclass(frozen=True)
 class CellDesignerModel(momapy.sbml.core.Model):
-    species_references: frozenset[
-        CellDesignerSpeciesReference
-    ] = dataclasses.field(default_factory=frozenset)
+    species_references: frozenset[CellDesignerSpeciesReference] = (
+        dataclasses.field(default_factory=frozenset)
+    )
     sbml_reactions: frozenset[Reaction] = dataclasses.field(
         default_factory=frozenset
     )
