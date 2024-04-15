@@ -253,17 +253,6 @@ class _SBGNMLReader(momapy.io.MapReader):
                 map_.layout,
                 momapy.builder.object_from_builder(map_.layout).layout_elements,
             )
-        if with_render_information:
-            if (
-                sbgnml_map.extension is not None
-                and sbgnml_map.extension.render_information is not None
-            ):
-                style_sheet = cls._style_sheet_from_sbgnml(
-                    map_,
-                    sbgnml_map.extension.render_information,
-                    sbgnml_id_to_layout_element,
-                )
-                # momapy.styling.apply_style_sheet(map_.layout, style_sheet)
         if with_annotations:
             if (
                 sbgnml_map.extension is not None
@@ -278,6 +267,17 @@ class _SBGNMLReader(momapy.io.MapReader):
             notes = cls._notes_from_sbgnml(sbgnml_map.notes)
             map_.notes = notes
         map_ = momapy.builder.object_from_builder(map_)
+        if (
+            with_render_information
+            and sbgnml_map.extension is not None
+            and sbgnml_map.extension.render_information is not None
+        ):
+            style_sheet = cls._style_sheet_from_sbgnml(
+                map_,
+                sbgnml_map.extension.render_information,
+                sbgnml_id_to_layout_element,
+            )
+            map_ = momapy.styling.apply_style_sheet(map_, style_sheet)
         return map_
 
     @classmethod
