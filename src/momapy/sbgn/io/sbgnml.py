@@ -3,7 +3,6 @@ import uuid
 import collections
 
 import frozendict
-
 import xsdata.formats.dataclass.context
 import xsdata.formats.dataclass.parsers
 import xsdata.formats.dataclass.parsers.config
@@ -140,20 +139,20 @@ class _SBGNMLReader(momapy.io.MapReader):
     ):
         sbgnml_id_to_model_element = {}
         sbgnml_id_to_layout_element = {}
-        sbgnml_map = cls._get_sbgnml_mapfrom_sbgnml(sbgnml_sbgn)
+        sbgnml_map = cls._get_sbgnml_map_from_sbgnml(sbgnml_sbgn)
         map_ = cls._make_map_no_subelements_from_sbgnml(sbgnml_map)
         # We gather glyph ids and their correponding glyphs
         sbgnml_id_to_sbgnml_element = {}
         for sbgnml_glyph in sbgnml_map.glyph:
-            sbgnml_id_to_sbgnml_element[sbgnml_glyph.id] = sbgnml_glyph
-            if sbgnml_glyph.port:
-                for port in sbgnml_glyph.port:
-                    sbgnml_id_to_sbgnml_element[port.id] = sbgnml_glyph
+            sub_sbgnml_id_to_sbgnml_element = (
+                cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(sbgnml_glyph)
+            )
+            sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
         for sbgnml_arc in sbgnml_map.arc:
-            sbgnml_id_to_sbgnml_element[sbgnml_arc.id] = sbgnml_arc
-            if sbgnml_arc.port:
-                for port in sbgnml_arc.port:
-                    sbgnml_id_to_sbgnml_element[port.id] = sbgnml_arc
+            sub_sbgnml_id_to_sbgnml_element = (
+                cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(sbgnml_arc)
+            )
+            sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
         # We gather glyph ids and their ingoing/outgoing arcs
         sbgnml_glyph_id_to_sbgnml_arcs = collections.defaultdict(list)
         for sbgnml_arc in sbgnml_map.arc:
@@ -247,38 +246,37 @@ class _SBGNMLReader(momapy.io.MapReader):
         if sbgnml_map.bbox is not None:
             position = cls._make_position_from_sbgnml(sbgnml_map)
             map_.layout.position = position
-            map_.layout.width = sbgn_map_.bbox.w
-            map_.layout.height = sbgn_map_.bbox.h
+            map_.layout.width = sbgnml_map.bbox.w
+            map_.layout.height = sbgnml_map.bbox.h
         else:
             momapy.positioning.set_fit(
                 map_.layout,
                 momapy.builder.object_from_builder(map_.layout).layout_elements,
             )
-
-        # if with_render_information:
-        #     if (
-        #         sbgn_map_.extension is not None
-        #         and sbgn_map_.extension.render_information is not None
-        #     ):
-        #         style_sheet = cls._style_sheet_from_render_information(
-        #             sbgn_map_.extension.render_information,
-        #             id_to_layout_element,
-        #             map_,
-        #         )
-        #         momapy.styling.apply_style_sheet(map_.layout, style_sheet)
-        # if with_annotations:
-        #     if (
-        #         sbgn_map_.extension is not None
-        #         and sbgn_map_.extension.annotation is not None
-        #     ):
-        #         annotations = cls._annotations_from_annotation_element(
-        #             sbgn_map_.extension.annotation, map_
-        #         )
-        #         for annotation in annotations:
-        #             map_.model.add_element(annotation)
-        # if with_notes and sbgn_map_.notes is not None:
-        #     notes = cls._notes_from_notes_element(sbgn_map_.notes)
-        #     map_.notes = notes
+        if with_render_information:
+            if (
+                sbgnml_map.extension is not None
+                and sbgnml_map.extension.render_information is not None
+            ):
+                style_sheet = cls._style_sheet_from_sbgnml(
+                    map_,
+                    sbgnml_map.extension.render_information,
+                    sbgnml_id_to_layout_element,
+                )
+                # momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+        if with_annotations:
+            if (
+                sbgnml_map.extension is not None
+                and sbgnml_map.extension.annotation is not None
+            ):
+                annotations = cls._annotations_from_sbgnml(
+                    map_, sbgnml_map.extension.annotation
+                )
+                for annotation in annotations:
+                    map_.model.annotations.add(annotation)
+        if with_notes and sbgnml_map.notes is not None:
+            notes = cls._notes_from_sbgnml(sbgnml_map.notes)
+            map_.notes = notes
         map_ = momapy.builder.object_from_builder(map_)
         return map_
 
@@ -2666,6 +2664,23 @@ class _SBGNMLReader(momapy.io.MapReader):
         return NotImplemented
 
     @classmethod
+    def _get_sbgnml_id_to_sbgnml_element_from_sbgnml(cls, sbgnml_element):
+        sbgnml_id_to_sbgnml_element = {}
+        sbgnml_id_to_sbgnml_element[sbgnml_element.id] = sbgnml_element
+        if sbgnml_element.port:
+            for sbgnml_port in sbgnml_element.port:
+                sbgnml_id_to_sbgnml_element[sbgnml_port.id] = sbgnml_element
+        if sbgnml_element.glyph:
+            for sbgnml_glyph in sbgnml_element.glyph:
+                sub_sbgnml_id_to_sbgnml_element = (
+                    cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(
+                        sbgnml_glyph
+                    )
+                )
+                sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
+        return sbgnml_id_to_sbgnml_element
+
+    @classmethod
     def _make_and_add_elements_from_sbgnml(
         cls,
         map_,
@@ -2950,34 +2965,36 @@ class _SBGNMLReader(momapy.io.MapReader):
         return True
 
     @classmethod
-    def _style_sheet_from_render_information(
-        cls, render_information, id_to_layout_element, map_
+    def _style_sheet_from_sbgnml(
+        cls, map_, sbgnml_render_information, sbgnml_id_to_layout_element
     ):
         style_sheet = momapy.styling.StyleSheet()
-        if render_information.background_color is not None:
+        if sbgnml_render_information.background_color is not None:
             style_collection = momapy.styling.StyleCollection()
             layout_selector = momapy.styling.IdSelector(map_.layout.id)
             style_collection["fill"] = momapy.coloring.Color.from_hexa(
-                render_information.background_color
+                sbgnml_render_information.background_color
             )
             style_sheet[layout_selector] = style_collection
         d_colors = {}
-        if render_information.list_of_color_definitions is not None:
+        if sbgnml_render_information.list_of_color_definitions is not None:
             for (
                 color_definition
-            ) in render_information.list_of_color_definitions.color_definition:
+            ) in (
+                sbgnml_render_information.list_of_color_definitions.color_definition
+            ):
                 color_hex = color_definition.value
                 if len(color_hex) < 8:
                     color = momapy.coloring.Color.from_hex(color_hex)
                 else:
                     color = momapy.coloring.Color.from_hexa(color_hex)
                 d_colors[color_definition.id] = color
-        if render_information.list_of_styles is not None:
-            for style in render_information.list_of_styles.style:
+        if sbgnml_render_information.list_of_styles is not None:
+            for style in sbgnml_render_information.list_of_styles.style:
                 arc_ids = []
                 node_ids = []
                 for id in style.id_list.split(" "):
-                    layout_element = id_to_layout_element.get(id)
+                    layout_element = sbgnml_id_to_layout_element.get(id)
                     if layout_element is not None:
                         if momapy.builder.isinstance_or_builder(
                             layout_element, momapy.sbgn.core.SBGNNode
@@ -3074,15 +3091,13 @@ class _SBGNMLReader(momapy.io.MapReader):
         return style_sheet
 
     @classmethod
-    def _annotations_from_annotation_element(cls, annotation_element, map_):
+    def _annotations_from_sbgnml(cls, annotation_element, map_):
         annotations = []
         if annotation_element.rdf is not None:
             if annotation_element.rdf.description is not None:
                 for (
                     qualifier_attribute
-                ) in (
-                    cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER_MAPPING
-                ):
+                ) in cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER:
                     annotation_value = getattr(
                         annotation_element.rdf.description, qualifier_attribute
                     )
@@ -3093,7 +3108,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                             annotation = map_.new_model_element(
                                 momapy.sbgn.core.Annotation
                             )
-                            annotation.qualifier = cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER_MAPPING[
+                            annotation.qualifier = cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[
                                 qualifier_attribute
                             ]
                             annotation.resource = resource
@@ -3101,7 +3116,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         return annotations
 
     @classmethod
-    def _notes_from_notes_element(cls, notes_element):
+    def _notes_from_sbgnml(cls, notes_element):
         config = xsdata.formats.dataclass.serializers.config.SerializerConfig(
             pretty_print=True
         )
@@ -3127,7 +3142,7 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
     @classmethod
     @abc.abstractmethod
-    def _get_sbgnml_mapfrom_sbgnml(cls, sbgnml_sbgn):
+    def _get_sbgnml_map_from_sbgnml(cls, sbgnml_sbgn):
         return sbgnml_sbgn.map
 
     @classmethod
@@ -3157,7 +3172,7 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
 class SBGNML0_3Reader(_SBGNMLReader):
     _parser_module = momapy.sbgn.io._sbgnml_parser_0_3
-    _SBGNML_VERSION_URI_TO_MAP_CLASS_MAPPING = {
+    _SBGNML_VERSION_URI_TO_MAP_CLASS = {
         "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_2_0": momapy.sbgn.pd.SBGNPDMapBuilder,
         "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_3": momapy.sbgn.pd.SBGNPDMapBuilder,
         "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_2": momapy.sbgn.pd.SBGNPDMapBuilder,
@@ -3175,31 +3190,38 @@ class SBGNML0_3Reader(_SBGNMLReader):
     }
 
     @classmethod
-    def _map_objs_from_sbgn(cls, sbgn):
-        sbgn_map = sbgn.map[0]
-        if sbgn_map.version is not None:
-            map_cls = cls._SBGNML_VERSION_URI_TO_MAP_CLASS_MAPPING[
-                sbgn_map.version.name
+    @abc.abstractmethod
+    def _get_sbgnml_map_from_sbgnml(cls, sbgnml_sbgn):
+        sbgnml_map = sbgnml_sbgn.map[0]
+        return sbgnml_map
+
+    @classmethod
+    def _make_map_no_subelements_from_sbgnml(cls, sbgnml_map):
+        if sbgnml_map.version is not None:
+            map_cls = cls._SBGNML_VERSION_URI_TO_MAP_CLASS[
+                sbgnml_map.version.name
             ]
             if map_cls is None:
                 raise TypeError(
                     "entity relationship maps are not yet supported"
                 )
         else:
-            if sbgn_map.language.name == "PROCESS_DESCRIPTION":
+            if sbgnml_map.language.name == "PROCESS_DESCRIPTION":
                 map_cls = momapy.sbgn.pd.SBGNPDMapBuilder
-            elif sbgn_map.language.name == "ACTIVITY_FLOW":
+            elif sbgnml_map.language.name == "ACTIVITY_FLOW":
                 map_cls = momapy.sbgn.af.SBGNAFMapBuilder
-            elif sbgn_map.language.name == "ENTITY_RELATIONSHIP":
+            elif sbgnml_map.language.name == "ENTITY_RELATIONSHIP":
                 raise TypeError(
                     "entity relationship maps are not yet supported"
                 )
+            else:
+                raise TypeError(f"unknown language {sbgnml_map.language.value}")
         map_ = map_cls()
         map_.model = map_.new_model()
         map_.layout = map_.new_layout()
         map_.layout_model_mapping = map_.new_layout_model_mapping()
-        map_.id = sbgn_map_.id
-        return map_, sbgn_map
+        map_.id = sbgnml_map.id
+        return map_
 
     @classmethod
     def check_file(cls, file_path):
@@ -3211,7 +3233,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
 
 
 class _SBGNMLWriter(momapy.io.MapWriter):
-    _SBGN_CLASS_TO_TRANSFORMATION_FUNC_MAPPING = {
+    _SBGN_CLASS_TO_TRANSFORMATION_FUNC = {
         momapy.sbgn.pd.CompartmentLayout: "_compartment_to_glyph",
         momapy.sbgn.pd.SubmapLayout: "_submap_to_glyph",
         momapy.sbgn.pd.UnspecifiedEntityLayout: "_unspecified_entity_to_glyph",
@@ -3271,7 +3293,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         momapy.sbgn.af.LogicArcLayout: "_logic_arc_to_arc",
         momapy.sbgn.af.EquivalenceArcLayout: "_equivalence_arc_to_arc",
     }
-    _SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE_MAPPING = {
+    _SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE = {
         momapy.sbgn.core.BQBiol.ENCODES: (
             "encodes",
             "Encodes",
@@ -3501,10 +3523,8 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             layout_element_cls = type(layout_element)._cls_to_build
         else:
             layout_element_cls = type(layout_element)
-        transformation_func_name = (
-            cls._SBGN_CLASS_TO_TRANSFORMATION_FUNC_MAPPING.get(
-                layout_element_cls
-            )
+        transformation_func_name = cls._SBGN_CLASS_TO_TRANSFORMATION_FUNC.get(
+            layout_element_cls
         )
         if transformation_func_name is not None:
             return getattr(cls, transformation_func_name)
@@ -3578,7 +3598,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             (
                 qualifier_attribute,
                 qualifier_cls_name,
-            ) = cls._SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE_MAPPING[
+            ) = cls._SBGN_QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
                 qualifier_member
             ]
             qualifier_cls = getattr(cls._parser_module, qualifier_cls_name)
