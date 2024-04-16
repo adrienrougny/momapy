@@ -3442,7 +3442,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         sbgn_map_.bbox = bbox
         if with_render_information:
             render_information = cls._render_information_from_styles(dstyles)
-            render_information.id = str(uuid.uuid4())
+            render_information.id = momapy.utils.get_uuid4_as_()
             render_information.program_name = momapy.__about__.__name__
             render_information.program_version = momapy.__about__.__version__
             render_information.background_color = map_.layout.fill.to_hexa()
@@ -3550,9 +3550,11 @@ class _SBGNMLWriter(momapy.io.MapWriter):
                         and color is not momapy.drawing.NoneValue
                     ):
                         if color.to_hexa() not in dcolors:
-                            dcolors[color.to_hexa()] = str(uuid.uuid4())
+                            dcolors[color.to_hexa()] = (
+                                momapy.utils.get_uuid4_as_()
+                            )
             sbgn_style = cls._parser_module.StyleType()
-            sbgn_style.id = str(uuid.uuid4())
+            sbgn_style.id = momapy.utils.get_uuid4_as_()
             sbgn_style.id_list = " ".join(dstyles[style])
             sbgn_g = cls._parser_module.GType()
             for attr in ["stroke", "fill"]:

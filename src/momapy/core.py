@@ -22,6 +22,7 @@ import momapy.geometry
 import momapy.coloring
 import momapy.builder
 import momapy.utils
+import momapy._pango
 
 
 class Direction(enum.Enum):
@@ -48,7 +49,7 @@ class VAlignment(enum.Enum):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MapElement(abc.ABC):
     id: str = dataclasses.field(
-        hash=False, compare=False, default_factory=uuid.uuid4
+        hash=False, compare=False, default_factory=momapy.utils.get_uuid4_as_str
     )
 
 
@@ -152,7 +153,7 @@ class TextLayout(LayoutElement):
         return self.position.y
 
     def _make_pango_layout(self):
-        pango_layout = momapy.utils.make_pango_layout(
+        pango_layout = momapy._pango.make_pango_layout(
             font_family=self.font_family,
             font_size=self.font_size,
             font_style=self.font_style,
