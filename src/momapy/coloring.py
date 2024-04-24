@@ -6,7 +6,7 @@ class Color(object):
     red: int
     green: int
     blue: int
-    alpha: int = 1.0
+    alpha: float = 1.0
 
     def __or__(self, alpha: float) -> "Color":
         if alpha < 0 or alpha > 100:
