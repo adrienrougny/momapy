@@ -1790,7 +1790,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                 else:
                     model_element_cls = momapy.sbgn.pd.Reactant  # BOTTOM
         else:
-            model_element_cls = momapy.sbgn.pd.Reactant
+            model_element_cls = momapy.sbgn.pd.Product
         model_element = map_.new_model_element(model_element_cls)
         sbgnml_target_id = sbgnml_element.target
         sbgnml_target_element = sbgnml_id_to_sbgnml_element[sbgnml_target_id]
