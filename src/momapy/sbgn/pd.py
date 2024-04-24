@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+import sys
 
 import momapy.sbgn.core
 import momapy.builder
@@ -220,7 +221,10 @@ class Product(FluxRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[EntityPool, "LogicalOperator"]
+    element: typing.Union[
+        EntityPool,
+        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
+    ]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -368,7 +372,9 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
     entity_pools: frozenset[EntityPool] = dataclasses.field(
         default_factory=frozenset
     )
-    processes: frozenset[Process] = dataclasses.field(default_factory=frozenset)
+    processes: frozenset[Process] = dataclasses.field(
+        default_factory=frozenset
+    )
     compartments: frozenset[Compartment] = dataclasses.field(
         default_factory=frozenset
     )
@@ -417,7 +423,10 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
                     if entity_no_svs not in entity_variables_mapping:
                         entity_variables_mapping[entity_no_svs] = variables
                     else:
-                        if entity_variables_mapping[entity_no_svs] != variables:
+                        if (
+                            entity_variables_mapping[entity_no_svs]
+                            != variables
+                        ):
                             return False
                 if hasattr(entity, "subunits"):
                     is_ovav = _check_entities(
@@ -436,7 +445,9 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
             and self.compartments.issubset(other.compartments)
             and self.modulations.issubset(other.modulations)
             and self.logical_operators.issubset(other.logical_operators)
-            and self.equivalence_operators.issubset(other.equivalence_operators)
+            and self.equivalence_operators.issubset(
+                other.equivalence_operators
+            )
             and self.submaps.issubset(other.submaps)
             and self.tags.issubset(other.tags)
         )
@@ -1257,7 +1268,9 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
         bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
