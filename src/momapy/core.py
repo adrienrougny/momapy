@@ -49,7 +49,9 @@ class VAlignment(enum.Enum):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MapElement(abc.ABC):
     id: str = dataclasses.field(
-        hash=False, compare=False, default_factory=momapy.utils.get_uuid4_as_str
+        hash=False,
+        compare=False,
+        default_factory=momapy.utils.get_uuid4_as_str,
     )
 
 
@@ -385,9 +387,9 @@ class Node(GroupLayout):
         momapy.drawing.NoneValueType | tuple[float] | None
     ) = None
     border_stroke_dashoffset: float | None = None
-    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     border_transform: (
         momapy.drawing.NoneValueType
         | tuple[momapy.geometry.Transformation]
@@ -544,13 +546,13 @@ class Arc(GroupLayout):
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
-    path_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None  # not inherited
-    )
+    path_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
 
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     path_stroke_dasharray: (
         momapy.drawing.NoneValueType | tuple[float] | None
     ) = None
@@ -563,9 +565,9 @@ class Arc(GroupLayout):
         | None
     ) = None  # not inherited
     segments: tuple[
-        momapy.geometry.Segment,
-        momapy.geometry.BezierCurve,
-        momapy.geometry.EllipticalArc,
+        momapy.geometry.Segment
+        | momapy.geometry.BezierCurve
+        | momapy.geometry.EllipticalArc
     ] = dataclasses.field(default_factory=tuple)
     source: LayoutElement | None = None
     start_shorten: float = 0.0
@@ -954,7 +956,9 @@ class DoubleHeadedArc(Arc):
         if len(self.segments) == 1:
             segment = (
                 self.segments[0]
-                .shortened(self.start_shorten + start_arrowhead_length, "start")
+                .shortened(
+                    self.start_shorten + start_arrowhead_length, "start"
+                )
                 .shortened(self.end_shorten + end_arrowhead_length, "end")
             )
             actions = [
@@ -1062,7 +1066,9 @@ class Layout(Node):
             return False
         if flattened:
             return _is_sublist(
-                self.flattened()[1:], other.flattened()[1:], unordered=unordered
+                self.flattened()[1:],
+                other.flattened()[1:],
+                unordered=unordered,
             )
         return _is_sublist(
             self.children(), other.children(), unordered=unordered
@@ -1167,11 +1173,15 @@ class LayoutModelMapping(collections.abc.Mapping):
             value |= self._set_to_set_mapping[key]
         if unpack:
             if not value:
-                raise ValueError(f"could not unpack '{value}': result is empty")
+                raise ValueError(
+                    f"could not unpack '{value}': result is empty"
+                )
             for element in value:
                 break
             if not element:
-                raise ValueError(f"could not unpack '{value}': result is empty")
+                raise ValueError(
+                    f"could not unpack '{value}': result is empty"
+                )
             for sub_element in element:
                 break
             return sub_element
@@ -1464,7 +1474,9 @@ _MappingElementBuilderType: typing.TypeAlias = (
     | LayoutElement
     | LayoutElementBuilder
 )
-_MappingKeyBuilderType: typing.TypeAlias = frozenset[_MappingElementBuilderType]
+_MappingKeyBuilderType: typing.TypeAlias = frozenset[
+    _MappingElementBuilderType
+]
 _MappingValueBuilderType: typing.TypeAlias = FrozensetBuilder[
     _MappingKeyBuilderType
 ]
@@ -1594,11 +1606,15 @@ class LayoutModelMappingBuilder(
             value |= self._set_to_set_mapping[key]
         if unpack:
             if not value:
-                raise ValueError(f"could not unpack '{value}': result is empty")
+                raise ValueError(
+                    f"could not unpack '{value}': result is empty"
+                )
             for element in value:
                 break
             if not element:
-                raise ValueError(f"could not unpack '{value}': result is empty")
+                raise ValueError(
+                    f"could not unpack '{value}': result is empty"
+                )
             for sub_element in element:
                 break
             return sub_element
@@ -1850,7 +1866,9 @@ def _map_builder_add_mapping(
     ),
     reverse: bool = True,
 ):
-    self.layout_model_mapping.add_mapping(key=key, value=value, reverse=reverse)
+    self.layout_model_mapping.add_mapping(
+        key=key, value=value, reverse=reverse
+    )
 
 
 def _map_builder_get_mapping(
