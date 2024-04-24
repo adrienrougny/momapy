@@ -116,7 +116,8 @@ class _SBGNMLReader(momapy.io.MapReader):
     ):
         config = xsdata.formats.dataclass.parsers.config.ParserConfig()
         parser = xsdata.formats.dataclass.parsers.XmlParser(
-            config=config, context=xsdata.formats.dataclass.context.XmlContext()
+            config=config,
+            context=xsdata.formats.dataclass.context.XmlContext(),
         )
         sbgnml_sbgn = parser.parse(
             source=file_path, clazz=cls._parser_module.Sbgn
@@ -229,7 +230,10 @@ class _SBGNMLReader(momapy.io.MapReader):
                     )
                 )
         # We make the layout_model_mapping
-        for sbgnml_id, super_sbgnml_id in sbgnml_id_super_sbgnml_id_for_mapping:
+        for (
+            sbgnml_id,
+            super_sbgnml_id,
+        ) in sbgnml_id_super_sbgnml_id_for_mapping:
             model_element = sbgnml_id_to_model_element[sbgnml_id]
             if super_sbgnml_id is not None:
                 super_model_element = sbgnml_id_to_model_element[
@@ -251,7 +255,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         else:
             momapy.positioning.set_fit(
                 map_.layout,
-                momapy.builder.object_from_builder(map_.layout).layout_elements,
+                momapy.builder.object_from_builder(
+                    map_.layout
+                ).layout_elements,
             )
         if with_annotations:
             if (
@@ -322,7 +328,9 @@ class _SBGNMLReader(momapy.io.MapReader):
             momapy.sbgn.pd.StateVariableLayout
         )
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -365,7 +373,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         order=None,
     ):
         # We make the model element
-        model_element = map_.new_model_element(momapy.sbgn.pd.UnitOfInformation)
+        model_element = map_.new_model_element(
+            momapy.sbgn.pd.UnitOfInformation
+        )
         if (
             sbgnml_element.label is not None
             and sbgnml_element.label.text is not None
@@ -382,7 +392,9 @@ class _SBGNMLReader(momapy.io.MapReader):
             momapy.sbgn.pd.UnitOfInformationLayout
         )
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -399,7 +411,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element = momapy.builder.object_from_builder(model_element)
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
-        super_model_element.state_variables.add(model_element)
+        super_model_element.units_of_information.add(model_element)
         super_layout_element.layout_elements.append(layout_element)
         # We save the elements
         sbgnml_id_to_model_element[sbgnml_element.id] = model_element
@@ -437,11 +449,15 @@ class _SBGNMLReader(momapy.io.MapReader):
             momapy.sbgn.pd.SubmapTerminalLayout
         )
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
-        layout_element.direction = cls._get_sbgnml_tag_direction(sbgnml_element)
+        layout_element.direction = cls._get_sbgnml_tag_direction(
+            sbgnml_element
+        )
         if (
             sbgnml_element.label is not None
             and sbgnml_element.label.text is not None
@@ -843,7 +859,9 @@ class _SBGNMLReader(momapy.io.MapReader):
             momapy.sbgn.pd.CompartmentLayout
         )
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -922,7 +940,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(momapy.sbgn.pd.SubmapLayout)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -1591,9 +1611,13 @@ class _SBGNMLReader(momapy.io.MapReader):
         ):
             model_element.label = sbgnml_element.label.text
         # We make the layout element
-        layout_element = map_.new_layout_element(momapy.sbgn.pd.PhenotypeLayout)
+        layout_element = map_.new_layout_element(
+            momapy.sbgn.pd.PhenotypeLayout
+        )
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -2223,11 +2247,15 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(momapy.sbgn.pd.TagLayout)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
-        layout_element.direction = cls._get_sbgnml_tag_direction(sbgnml_element)
+        layout_element.direction = cls._get_sbgnml_tag_direction(
+            sbgnml_element
+        )
         if (
             sbgnml_element.label is not None
             and sbgnml_element.label.text is not None
@@ -2276,7 +2304,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(layout_element_cls)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -2346,7 +2376,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(layout_element_cls)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -2416,7 +2448,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(layout_element_cls)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -2511,7 +2545,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We make the layout element
         layout_element = map_.new_layout_element(layout_element_cls)
         layout_element.id = sbgnml_element.id
-        position = cls._make_position_from_sbgnml(sbgnml_element=sbgnml_element)
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
         layout_element.position = position
         layout_element.width = sbgnml_element.bbox.w
         layout_element.height = sbgnml_element.bbox.h
@@ -3081,7 +3117,9 @@ class _SBGNMLReader(momapy.io.MapReader):
                             label_style_collection
                         )
                     if arc_ids:
-                        style_sheet[arc_label_selector] = label_style_collection
+                        style_sheet[arc_label_selector] = (
+                            label_style_collection
+                        )
                         arc_label_selector = momapy.styling.ChildSelector(
                             arc_selector,
                             momapy.styling.TypeSelector(
@@ -3131,7 +3169,9 @@ class _SBGNMLReader(momapy.io.MapReader):
 
     @classmethod
     def _get_module_from_map(cls, map):
-        if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
+        if momapy.builder.isinstance_or_builder(
+            map_, momapy.sbgn.pd.SBGNPDMap
+        ):
             return momapy.sbgn.pd
         else:
             return momapy.sbgn.af
@@ -3215,7 +3255,9 @@ class SBGNML0_3Reader(_SBGNMLReader):
                     "entity relationship maps are not yet supported"
                 )
             else:
-                raise TypeError(f"unknown language {sbgnml_map.language.value}")
+                raise TypeError(
+                    f"unknown language {sbgnml_map.language.value}"
+                )
         map_ = map_cls()
         map_.model = map_.new_model()
         map_.layout = map_.new_layout()
@@ -3480,7 +3522,9 @@ class _SBGNMLWriter(momapy.io.MapWriter):
                 layout_element, map_, dstyles, super_layout_element
             )
             if with_annotations:
-                model_element = map_.get_mapping(layout_element, unpack=True)[0]
+                model_element = map_.get_mapping(layout_element, unpack=True)[
+                    0
+                ]
                 if len(model_element.annotations) != 0:
                     annotation_sbgn_element = (
                         cls._annotation_element_from_annotations(
@@ -3491,7 +3535,9 @@ class _SBGNMLWriter(momapy.io.MapWriter):
                     extension.annotation = annotation_sbgn_element
                     sbgn_elements[0].extension = extension
             if with_notes:
-                model_element = map_.get_mapping(layout_element, unpack=True)[0]
+                model_element = map_.get_mapping(layout_element, unpack=True)[
+                    0
+                ]
                 if model_element.notes is not None:
                     notes_element = cls._notes_element_from_notes(
                         model_element.notes
@@ -3540,7 +3586,9 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         list_of_color_definitions = (
             cls._parser_module.ListOfColorDefinitionsType()
         )
-        render_information.list_of_color_definitions = list_of_color_definitions
+        render_information.list_of_color_definitions = (
+            list_of_color_definitions
+        )
         for style in dstyles:
             for attr in ["stroke", "fill"]:
                 if attr in style:
@@ -4124,7 +4172,9 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         return sbgn_elements
 
     @classmethod
-    def _tag_to_glyph(cls, layout_element, map_, dstyles, super_layout_element):
+    def _tag_to_glyph(
+        cls, layout_element, map_, dstyles, super_layout_element
+    ):
         class_value = cls._parser_module.GlyphClass.TAG
         sbgn_elements = cls._node_layout_to_sbgn_elements(
             layout_element,
@@ -4358,7 +4408,9 @@ class _SBGNMLWriter(momapy.io.MapWriter):
                 layout_element,
             )
             for sub_sbgn_element in sub_sbgn_elements:
-                cls._add_sub_sbgn_element_to_sbgn_element(sub_sbgn_element, arc)
+                cls._add_sub_sbgn_element_to_sbgn_element(
+                    sub_sbgn_element, arc
+                )
         lattrs = []
         for attr_name in ["fill", "stroke", "stroke_width"]:
             attr_value = getattr(layout_element, f"arrowhead_{attr_name}")
@@ -4601,7 +4653,9 @@ class SBGNML0_2Writer(_SBGNMLWriter):
     def _sbgn_objs_from_map(cls, map_):
         sbgn = cls._parser_module.Sbgn()
         sbgn_map = cls._parser_module.Map()
-        if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
+        if momapy.builder.isinstance_or_builder(
+            map_, momapy.sbgn.pd.SBGNPDMap
+        ):
             sbgn_language = cls._parser_module.MapLanguage.PROCESS_DESCRIPTION
         elif momapy.builder.isinstance_or_builder(
             map_, momapy.sbgn.af.SBGNAFMap
@@ -4622,7 +4676,9 @@ class SBGNML0_3Writer(_SBGNMLWriter):
         sbgn = cls._parser_module.Sbgn()
         sbgn_map = cls._parser_module.Map()
         sbgn_map_.id = map_.id
-        if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
+        if momapy.builder.isinstance_or_builder(
+            map_, momapy.sbgn.pd.SBGNPDMap
+        ):
             sbgn_language = cls._parser_module.MapLanguage.PROCESS_DESCRIPTION
         elif momapy.builder.isinstance_or_builder(
             map_, momapy.sbgn.af.SBGNAFMap
