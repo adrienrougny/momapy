@@ -309,24 +309,29 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element = map_.new_model_element(momapy.sbgn.pd.StateVariable)
         if sbgnml_element.state is None:
             value = None
-            variable = momapy.sbgn.pd.UndefinedVariable(order=order)
+            variable = None
+            order = order
             text = ""
         else:
-            if sbgnml_element.state.value is not None:
-                text = sbgnml_element.state.value
-            else:
+            if sbgnml_element.state.value is None:
+                value = None
                 text = ""
-            value = sbgnml_element.state.value
+            else:
+                value = sbgnml_element.state.value
+                text = sbgnml_element.state.value
             if (
                 sbgnml_element.state.variable is not None
                 and sbgnml_element.state.variable
             ):
                 variable = sbgnml_element.state.variable
                 text += f"@{sbgnml_element.state.variable}"
+                order = None
             else:
-                variable = momapy.sbgn.pd.UndefinedVariable(order=order)
+                variable = None
+                order = order
         model_element.value = value
         model_element.variable = variable
+        model_element.order = order
         if (
             sbgnml_element.extension is not None
             and sbgnml_element.extension.annotation is not None

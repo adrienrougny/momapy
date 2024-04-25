@@ -10,14 +10,10 @@ import momapy.coloring
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UndefinedVariable(momapy.sbgn.core.SBGNModelElement):
-    order: int
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariable(momapy.sbgn.core.SBGNModelElement):
-    variable: str | UndefinedVariable
+    variable: str | None = None
     value: str | None = None
+    order: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
