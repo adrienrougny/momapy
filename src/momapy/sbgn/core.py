@@ -7,7 +7,11 @@ import momapy.core
 import momapy.geometry
 
 
-class BQModel(enum.Enum):
+class BiomodelQualifier(enum.Enum):
+    pass
+
+
+class BQModel(BiomodelQualifier):
     HAS_INSTANCE = "hasInstance"
     IS = "is"
     IS_DERIVED_FROM = "isDerivedFrom"
@@ -15,7 +19,7 @@ class BQModel(enum.Enum):
     IS_INSTANCE_OF = "isInstanceOf"
 
 
-class BQBiol(enum.Enum):
+class BQBiol(BiomodelQualifier):
     ENCODES = "encodes"
     HAS_PART = "hasPart"
     HAS_PROPERTY = "hasProperty"
@@ -33,7 +37,7 @@ class BQBiol(enum.Enum):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
-    qualifier: BQModel | BQBiol
+    qualifier: BQ
     resource: str
 
 
@@ -60,9 +64,9 @@ class SBGNModel(momapy.core.Model):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -77,9 +81,9 @@ class SBGNMap(momapy.core.Map):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
     border_stroke: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.black
@@ -113,9 +117,9 @@ class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     path_stroke_width: float | None = 1.25
 
 
@@ -131,9 +135,9 @@ class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     path_stroke_width: float | None = 1.25
     start_arrowhead_fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
@@ -273,7 +277,8 @@ class _ConnectorsMixin(_SBGNMixin):
             right_actions = [
                 momapy.drawing.MoveTo(obj.right_connector_base()),
                 momapy.drawing.LineTo(
-                    obj.right_connector_base() + (0, obj.right_connector_length)
+                    obj.right_connector_base()
+                    + (0, obj.right_connector_length)
                 ),
             ]
         else:
@@ -286,7 +291,8 @@ class _ConnectorsMixin(_SBGNMixin):
             right_actions = [
                 momapy.drawing.MoveTo(obj.right_connector_base()),
                 momapy.drawing.LineTo(
-                    obj.right_connector_base() + (obj.right_connector_length, 0)
+                    obj.right_connector_base()
+                    + (obj.right_connector_length, 0)
                 ),
             ]
         path_left = momapy.drawing.Path(
@@ -344,7 +350,8 @@ class _MultiMixin(_SBGNMixin):
     ) = None
     subunits_transform: (
         tuple[
-            momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation]
+            momapy.drawing.NoneValueType
+            | tuple[momapy.geometry.Transformation]
         ]
         | None
     ) = None
