@@ -1099,7 +1099,9 @@ class AssociationLayout(
     width: float = 20.0
     height: float = 20.0
 
-    border_fill: momapy.coloring.Color = momapy.coloring.black
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
