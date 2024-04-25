@@ -37,7 +37,7 @@ class BQBiol(BiomodelQualifier):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
-    qualifier: BQ
+    qualifier: BiomodelQualifier
     resource: str
 
 
