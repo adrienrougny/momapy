@@ -187,6 +187,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         order=None,
+                        with_annotations=with_annotations,
                     )
                 )
         # We make the rest of the glyphs
@@ -208,6 +209,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         order=None,
+                        with_annotations=with_annotations,
                     )
                 )
 
@@ -227,6 +229,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         order=None,
+                        with_annotations=with_annotations,
                     )
                 )
         # We make the layout_model_mapping
@@ -300,6 +303,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.StateVariable)
@@ -323,6 +327,15 @@ class _SBGNMLReader(momapy.io.MapReader):
                 variable = momapy.sbgn.pd.UndefinedVariable(order=order)
         model_element.value = value
         model_element.variable = variable
+        if (
+            sbgnml_element.extension is not None
+            and sbgnml_element.extension.annotation is not None
+        ):
+            annotations = cls._annotations_from_sbgnml(
+                map_, sbgnml_element.extension.annotation
+            )
+            for annotation in annotations:
+                model_element.annotations.add(annotation)
         # We make the layout element
         layout_element = map_.new_layout_element(
             momapy.sbgn.pd.StateVariableLayout
@@ -371,6 +384,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(
@@ -436,6 +450,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.SubmapTerminal)
@@ -495,6 +510,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -534,6 +550,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -573,6 +590,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -612,6 +630,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -651,6 +670,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -690,6 +710,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -729,6 +750,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -768,6 +790,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -807,6 +830,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_subunit_from_sbgnml(
             map_=map_,
@@ -846,6 +870,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.Compartment)
@@ -929,6 +954,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.Submap)
@@ -1010,6 +1036,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1047,6 +1074,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1059,6 +1087,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
             sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
             super_sbgnml_element=super_sbgnml_element,
+            with_annotations=with_annotations,
         )
         # We add the model and layout elements to the map_, and to the mapping
         map_.model.entity_pools.add(model_element)
@@ -1084,6 +1113,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1121,6 +1151,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1158,6 +1189,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1195,6 +1227,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1232,6 +1265,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1269,6 +1303,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1306,6 +1341,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1343,6 +1379,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1380,6 +1417,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_entity_pool_from_sbgnml(
             map_=map_,
@@ -1417,6 +1455,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_process_from_sbgnml(
             map_=map_,
@@ -1454,6 +1493,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_process_from_sbgnml(
             map_=map_,
@@ -1491,6 +1531,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_process_from_sbgnml(
             map_=map_,
@@ -1528,6 +1569,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_process_from_sbgnml(
             map_=map_,
@@ -1565,6 +1607,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_process_from_sbgnml(
             map_=map_,
@@ -1602,6 +1645,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.Phenotype)
@@ -1685,6 +1729,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.Reactant)
@@ -1766,6 +1811,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element.
         # The model element class depends on whether the process is reversible
@@ -1862,6 +1908,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element_cls = momapy.sbgn.pd.EquivalenceOperatorInput
@@ -1940,6 +1987,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
@@ -1977,6 +2025,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
@@ -2014,6 +2063,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
@@ -2051,6 +2101,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
@@ -2088,6 +2139,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
@@ -2125,6 +2177,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
@@ -2162,6 +2215,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
@@ -2199,6 +2253,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
@@ -2236,6 +2291,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         order=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(momapy.sbgn.pd.Tag)
@@ -2293,6 +2349,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         sbgnml_glyph_id_to_sbgnml_arcs,
         sbgnml_id_super_sbgnml_id_for_mapping,
         super_sbgnml_element=None,
+        with_annotations=True,
     ):
         # We make the model element
         model_element = map_.new_model_element(model_element_cls)
@@ -2301,6 +2358,15 @@ class _SBGNMLReader(momapy.io.MapReader):
             and sbgnml_element.label.text is not None
         ):
             model_element.label = sbgnml_element.label.text
+        if (
+            sbgnml_element.extension is not None
+            and sbgnml_element.extension.annotation is not None
+        ):
+            annotations = cls._annotations_from_sbgnml(
+                map_, sbgnml_element.extension.annotation
+            )
+            for annotation in annotations:
+                model_element.annotations.add(annotation)
         # We make the layout element
         layout_element = map_.new_layout_element(layout_element_cls)
         layout_element.id = sbgnml_element.id
@@ -2493,6 +2559,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     order=None,
+                    with_annotations=True,
                 )
         for sbgnml_production_arc in sbgnml_production_arcs:
             product_model_element = sbgnml_id_to_model_element.get(
@@ -2517,6 +2584,7 @@ class _SBGNMLReader(momapy.io.MapReader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     order=None,
+                    with_annotations=True,
                 )
         # We build the model and layout elements
         model_element = momapy.builder.object_from_builder(model_element)
@@ -2729,7 +2797,8 @@ class _SBGNMLReader(momapy.io.MapReader):
         super_sbgnml_element=None,
         super_model_element=None,
         super_layout_element=None,
-        order=0,
+        order=None,
+        with_annotations=True,
     ):
         make_and_add_func = cls._get_make_and_add_func_from_sbgnml(
             sbgnml_element=sbgnml_element,
@@ -3129,7 +3198,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         return style_sheet
 
     @classmethod
-    def _annotations_from_sbgnml(cls, annotation_element, map_):
+    def _annotations_from_sbgnml(cls, map_, annotation_element):
         annotations = []
         if annotation_element.rdf is not None:
             if annotation_element.rdf.description is not None:
