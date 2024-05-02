@@ -58,30 +58,77 @@ def combine_style_sheets(style_sheets):
     return output_style_sheet
 
 
-def apply_style_collection(layout_element, style_collection, strict=True):
+def _apply_style_collection_to_builder(
+    layout_element_builder: momapy.core.LayoutElementBuilder,
+    style_collection: StyleCollection,
+    strict=True,
+):
     for attribute, value in style_collection.items():
-        if hasattr(layout_element, attribute):
-            setattr(layout_element, attribute, value)
+        if hasattr(layout_element_builder, attribute):
+            setattr(layout_element_builder, attribute, value)
         else:
             if strict:
                 raise AttributeError(
-                    f"{type(layout_element)} object has no "
+                    f"{type(layout_element_builder)} object has no "
                     f"attribute '{attribute}'"
                 )
 
 
-def apply_style_sheet(layout_element, style_sheet, strict=True, ancestors=None):
-    if isinstance(layout_element, momapy.core.MapBuilder):
-        layout_element = layout_element.layout
+def apply_style_collection(
+    layout_element: momapy.core.LayoutElement,
+    style_collection: StyleCollection,
+    strict=True,
+):
+    layout_element_builder = momapy.builder.builder_from_object(layout_element)
+    _apply_style_collection_to_builder(
+        layout_element_builder, style_collection, strict=strict
+    )
+    return momapy.builder.object_from_builder(layout_element_builder)
+
+
+def _apply_style_sheet_to_builder(
+    map_or_layout_element_builder: (
+        momapy.core.MapBuilder | momapy.core.LayoutElementBuilder
+    ),
+    style_sheet: StyleSheet,
+    strict=True,
+    ancestors=None,
+):
+    if isinstance(map_or_layout_element_builder, momapy.core.MapBuilder):
+        layout_element_builder = map_or_layout_element_builder.layout
+    else:
+        layout_element_builder = map_or_layout_element_builder
     if style_sheet is not None:
         if ancestors is None:
             ancestors = []
         for selector, style_collection in style_sheet.items():
-            if selector.select(layout_element, ancestors):
-                apply_style_collection(layout_element, style_collection, strict)
-        ancestors = ancestors + [layout_element]
-        for child in layout_element.children():
-            apply_style_sheet(child, style_sheet, strict, ancestors)
+            if selector.select(layout_element_builder, ancestors):
+                _apply_style_collection_to_builder(
+                    layout_element_builder, style_collection, strict
+                )
+        ancestors = ancestors + [layout_element_builder]
+        for child_builder in layout_element_builder.children():
+            _apply_style_sheet_to_builder(
+                child_builder, style_sheet, strict=strict, ancestors=ancestors
+            )
+
+
+def apply_style_sheet(
+    map_or_layout_element: momapy.core.Map | momapy.core.LayoutElement,
+    style_sheet: StyleSheet,
+    strict=True,
+    ancestors=None,
+):
+    map_or_layout_element_builder = momapy.builder.builder_from_object(
+        map_or_layout_element
+    )
+    _apply_style_sheet_to_builder(
+        map_or_layout_element_builder,
+        style_sheet,
+        strict=strict,
+        ancestors=ancestors,
+    )
+    return momapy.builder.object_from_builder(map_or_layout_element_builder)
 
 
 @dataclasses.dataclass(frozen=True)

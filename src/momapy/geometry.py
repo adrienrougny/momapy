@@ -609,7 +609,7 @@ def reverse_elliptical_arc(elliptical_arc):
 
 
 def shorten_segment(segment, length, start_or_end="end"):
-    if length == 0:
+    if length == 0 or segment.length() == 0:
         shortened_segment = copy.deepcopy(segment)
     else:
         if start_or_end == "start":
@@ -622,7 +622,7 @@ def shorten_segment(segment, length, start_or_end="end"):
 
 
 def shorten_bezier_curve(bezier_curve, length, start_or_end="end"):
-    if length == 0:
+    if length == 0 or segment.length() == 0:
         shortened_bezier_curve = copy.deepcopy(bezier_curve)
     else:
         if start_or_end == "start":
@@ -648,7 +648,7 @@ def shorten_bezier_curve(bezier_curve, length, start_or_end="end"):
 
 
 def shorten_elliptical_arc(elliptical_arc, length, start_or_end="end"):
-    if length == 0:
+    if length == 0 or segment.length() == 0:
         shortened_elliptical_arc = copy.deepcopy(elliptical_arc)
     else:
         if start_or_end == "start":

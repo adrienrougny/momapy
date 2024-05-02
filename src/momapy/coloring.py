@@ -3,9 +3,9 @@ from dataclasses import dataclass, replace
 
 @dataclass(frozen=True)
 class Color(object):
-    red: float
-    green: float
-    blue: float
+    red: int
+    green: int
+    blue: int
     alpha: float = 1.0
 
     def __or__(self, alpha: float) -> "Color":

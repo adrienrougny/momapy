@@ -1,88 +1,92 @@
-from enum import Enum
-from abc import abstractmethod
-from dataclasses import dataclass, field
-from typing import TypeVar, Union, Optional, ClassVar, Callable, Any
+import enum
+import abc
+import dataclasses
+import typing
 
 import momapy.core
 import momapy.geometry
 
 
-class BQModel(Enum):
-    HAS_INSTANCE = 0
-    IS = 1
-    IS_DERIVED_FROM = 2
-    IS_DESCRIBED_BY = 3
-    IS_INSTANCE_OF = 4
+class BiomodelQualifier(enum.Enum):
+    pass
 
 
-class BQBiol(Enum):
-    ENCODES = 0
-    HAS_PART = 1
-    HAS_PROPERTY = 2
-    HAS_VERSION = 3
-    IS = 4
-    IS_DESCRIBED_BY = 5
-    IS_ENCODED_BY = 6
-    IS_HOMOLOG_TO = 7
-    IS_PART_OF = 8
-    IS_PROPERTY_OF = 9
-    IS_VERSION_OF = 10
-    OCCURS_IN = 11
-    HAS_TAXON = 12
+class BQModel(BiomodelQualifier):
+    HAS_INSTANCE = "hasInstance"
+    IS = "is"
+    IS_DERIVED_FROM = "isDerivedFrom"
+    IS_DESCRIBED_BY = "isDescribedBy"
+    IS_INSTANCE_OF = "isInstanceOf"
 
 
-@dataclass(frozen=True, kw_only=True)
+class BQBiol(BiomodelQualifier):
+    ENCODES = "encodes"
+    HAS_PART = "hasPart"
+    HAS_PROPERTY = "hasProperty"
+    HAS_VERSION = "hasVersion"
+    IS = "is"
+    IS_DESCRIBED_BY = "isDescribedBy"
+    IS_ENCODED_BY = "isEncodedBy"
+    IS_HOMOLOG_TO = "isHomologTo"
+    IS_PART_OF = "isPartOf"
+    IS_PROPERTY_OF = "isPropertyOf"
+    IS_VERSION_OF = "isVersionOf"
+    OCCURS_IN = "occursIn"
+    HAS_TAXON = "hasTaxon"
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
-    qualifier: Union[BQModel, BQBiol]
+    qualifier: BiomodelQualifier
     resource: str
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNModelElement(momapy.core.ModelElement):
     notes: str | None = None
-    annotations: frozenset[Annotation] = field(
+    annotations: frozenset[Annotation] = dataclasses.field(
         default_factory=frozenset, compare=False
     )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
     element: SBGNModelElement
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNModel(momapy.core.Model):
     notes: str | None = None
-    annotations: frozenset[Annotation] = field(
+    annotations: frozenset[Annotation] = dataclasses.field(
         default_factory=frozenset, compare=False
     )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNMap(momapy.core.Map):
     model: SBGNModel
     layout: SBGNLayout
     notes: str | None = None
-    annotations: frozenset[Annotation] = field(
+    annotations: frozenset[Annotation] = dataclasses.field(
         default_factory=frozenset, compare=False
     )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    border_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    border_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    border_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     border_stroke_width: float | None = 1.25
 
     def border_drawing_elements(self):
@@ -101,97 +105,101 @@ class SBGNNode(momapy.core.Node):
         return drawing_elements
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     arrowhead_stroke_width: float | None = 1.25
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     path_stroke_width: float | None = 1.25
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
-    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    end_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     end_arrowhead_stroke_width: float | None = 1.25
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.drawing.NoneValue
     )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     path_stroke_width: float | None = 1.25
-    start_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    start_arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    start_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    start_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     start_arrowhead_stroke_width: float | None = 1.25
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class _SBGNMixin(object):
     @classmethod
-    @abstractmethod
+    @abc.abstractmethod
     def _mixin_drawing_elements(cls, obj):
         pass
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _ConnectorsMixin(_SBGNMixin):
     direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
     left_to_right: bool = True
     left_connector_length: float = 10.0
     right_connector_length: float = 10.0
-    left_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    left_connector_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     left_connector_stroke_width: float | None = None
-    left_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    left_connector_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     left_connector_stroke_dashoffset: float | None = None
-    left_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    left_connector_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None
-    left_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None
-    )
-    right_connector_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
+    left_connector_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
+    left_connector_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
+    left_connector_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None
+    right_connector_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
     right_connector_stroke_width: float | None = None
-    right_connector_stroke_dasharray: momapy.drawing.NoneValueType | tuple[
-        float
-    ] | None = None
+    right_connector_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
     right_connector_stroke_dashoffset: float | None = None
-    right_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    right_connector_transform: momapy.drawing.NoneValueType | tuple[
-        momapy.geometry.Transformation
-    ] | None = None
-    right_connector_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        None
-    )
+    right_connector_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = None
+    right_connector_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
+    right_connector_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None
 
     def left_connector_base(self):
         if self.direction == momapy.core.Direction.VERTICAL:
@@ -269,7 +277,8 @@ class _ConnectorsMixin(_SBGNMixin):
             right_actions = [
                 momapy.drawing.MoveTo(obj.right_connector_base()),
                 momapy.drawing.LineTo(
-                    obj.right_connector_base() + (0, obj.right_connector_length)
+                    obj.right_connector_base()
+                    + (0, obj.right_connector_length)
                 ),
             ]
         else:
@@ -282,7 +291,8 @@ class _ConnectorsMixin(_SBGNMixin):
             right_actions = [
                 momapy.drawing.MoveTo(obj.right_connector_base()),
                 momapy.drawing.LineTo(
-                    obj.right_connector_base() + (obj.right_connector_length, 0)
+                    obj.right_connector_base()
+                    + (obj.right_connector_length, 0)
                 ),
             ]
         path_left = momapy.drawing.Path(
@@ -308,9 +318,9 @@ class _ConnectorsMixin(_SBGNMixin):
         return [path_left, path_right]
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class _SimpleMixin(_SBGNMixin):
-    @abstractmethod
+    @abc.abstractmethod
     def _make_shape(self):
         pass
 
@@ -321,29 +331,33 @@ class _SimpleMixin(_SBGNMixin):
         return drawing_elements
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class _MultiMixin(_SBGNMixin):
-    _n: ClassVar[int] = 2
+    _n: typing.ClassVar[int] = 2
     offset: float = 3.0
-    subunits_stroke: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color
-    ] | None = None
-    subunits_stroke_width: tuple[
-        momapy.drawing.NoneValueType | float
-    ] | None = None
-    subunits_stroke_dasharray: tuple[
-        momapy.drawing.NoneValueType | tuple[float]
-    ] | None = None
+    subunits_stroke: (
+        tuple[momapy.drawing.NoneValueType | momapy.coloring.Color] | None
+    ) = None
+    subunits_stroke_width: (
+        tuple[momapy.drawing.NoneValueType | float] | None
+    ) = None
+    subunits_stroke_dasharray: (
+        tuple[momapy.drawing.NoneValueType | tuple[float]] | None
+    ) = None
     subunits_stroke_dashoffset: tuple[float] | None = None
-    subunits_fill: tuple[
-        momapy.drawing.NoneValueType | momapy.coloring.Color
-    ] | None = None
-    subunits_transform: tuple[
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation]
-    ] | None = None
-    subunits_filter: tuple[
-        momapy.drawing.NoneValueType | momapy.drawing.Filter
-    ] | None = None
+    subunits_fill: (
+        tuple[momapy.drawing.NoneValueType | momapy.coloring.Color] | None
+    ) = None
+    subunits_transform: (
+        tuple[
+            momapy.drawing.NoneValueType
+            | tuple[momapy.geometry.Transformation]
+        ]
+        | None
+    ) = None
+    subunits_filter: (
+        tuple[momapy.drawing.NoneValueType | momapy.drawing.Filter] | None
+    ) = None
 
     def _make_subunit_shape(
         self,
@@ -394,19 +408,23 @@ class _MultiMixin(_SBGNMixin):
         ).position
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class _TextMixin(_SBGNMixin):
-    _text: ClassVar[str]
-    _font_family: ClassVar[str]
-    _font_size_func: ClassVar[Callable]
-    _font_style: ClassVar[
-        momapy.drawing.FontStyle
-    ] = momapy.drawing.FontStyle.NORMAL
-    _font_weight: ClassVar[
-        momapy.drawing.FontWeight | float
-    ] = momapy.drawing.FontWeight.NORMAL
-    _font_fill: ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
-    _font_stroke: ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
+    _text: typing.ClassVar[str]
+    _font_family: typing.ClassVar[str]
+    _font_size_func: typing.ClassVar[typing.Callable]
+    _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
+        momapy.drawing.FontStyle.NORMAL
+    )
+    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
+        momapy.drawing.FontWeight.NORMAL
+    )
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ]
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ]
 
     def _make_text_layout(self):
         text_layout = momapy.core.TextLayout(

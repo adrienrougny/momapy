@@ -45,7 +45,7 @@ def display_at(obj, positions, width=600, height=450):
             stroke=momapy.coloring.red,
             position=position,
         )
-        obj.add_element(cp)
+        obj.layout_elements.append(cp)
     display(obj, width, height)
 
 
@@ -89,19 +89,19 @@ def make_toy_node(
             height=auxiliary_unit_height * scale,
             position=m.self_angle(130),
         )
-        m.add_element(s1)
+        m.state_variables.add(s1)
         s2 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
             position=m.self_angle(50),
         )
-        m.add_element(s2)
+        m.state_variables.add(s1)
         u1 = UnitOfInformationLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
             position=m.south(),
         )
-        m.add_element(u1)
+        m.unit_of_informations.add(s1)
     return m
 
 
@@ -159,7 +159,7 @@ def make_toy_arc(
             height=auxiliary_unit_height * scale,
         )
         momapy.positioning.set_fraction_of(u1, m, 0.5, "south")
-        m.add_element(u1)
+        m.unit_of_informations.add(u1)
     return m
 
 
@@ -275,7 +275,7 @@ def show_room(cls, type_="anchor"):
             getattr(momapy.positioning, func_name)(
                 cross.label, cross, NODE_DISTANCE, anchor=attach
             )
-            m.add_element(cross)
+            m.layout_elements.append(cross)
 
     elif momapy.builder.issubclass_or_builder(cls, momapy.core.Arc):
         SCALE = 3.0
@@ -328,7 +328,7 @@ def show_room(cls, type_="anchor"):
             getattr(momapy.positioning, func_name)(
                 cross.label, cross, ARC_DISTANCE, anchor=attach
             )
-            m.add_element(cross)
+            m.layout_elements.append(cross)
 
     display(m)
 

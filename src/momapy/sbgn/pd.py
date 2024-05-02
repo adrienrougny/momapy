@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+import sys
 
 import momapy.sbgn.core
 import momapy.builder
@@ -9,14 +10,10 @@ import momapy.coloring
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UndefinedVariable(momapy.sbgn.core.SBGNModelElement):
-    order: int
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariable(momapy.sbgn.core.SBGNModelElement):
-    variable: str | UndefinedVariable
+    variable: str | None = None
     value: str | None = None
+    order: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -220,7 +217,10 @@ class Product(FluxRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[EntityPool, "LogicalOperator"]
+    element: typing.Union[
+        EntityPool,
+        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
+    ]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -368,7 +368,9 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
     entity_pools: frozenset[EntityPool] = dataclasses.field(
         default_factory=frozenset
     )
-    processes: frozenset[Process] = dataclasses.field(default_factory=frozenset)
+    processes: frozenset[Process] = dataclasses.field(
+        default_factory=frozenset
+    )
     compartments: frozenset[Compartment] = dataclasses.field(
         default_factory=frozenset
     )
@@ -417,7 +419,10 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
                     if entity_no_svs not in entity_variables_mapping:
                         entity_variables_mapping[entity_no_svs] = variables
                     else:
-                        if entity_variables_mapping[entity_no_svs] != variables:
+                        if (
+                            entity_variables_mapping[entity_no_svs]
+                            != variables
+                        ):
                             return False
                 if hasattr(entity, "subunits"):
                     is_ovav = _check_entities(
@@ -436,7 +441,9 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
             and self.compartments.issubset(other.compartments)
             and self.modulations.issubset(other.modulations)
             and self.logical_operators.issubset(other.logical_operators)
-            and self.equivalence_operators.issubset(other.equivalence_operators)
+            and self.equivalence_operators.issubset(
+                other.equivalence_operators
+            )
             and self.submaps.issubset(other.submaps)
             and self.tags.issubset(other.tags)
         )
@@ -1092,7 +1099,9 @@ class AssociationLayout(
     width: float = 20.0
     height: float = 20.0
 
-    border_fill: momapy.coloring.Color = momapy.coloring.black
+    border_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -1207,9 +1216,9 @@ class ConsumptionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1219,9 +1228,9 @@ class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1230,9 +1239,7 @@ class ModulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StimulationLayout(
-    momapy.meta.arcs.Triangle, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class StimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -1259,7 +1266,9 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
         bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
@@ -1291,17 +1300,13 @@ class InhibitionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(
-    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(
-    momapy.meta.arcs.PolyLine, momapy.sbgn.core.SBGNSingleHeadedArc
-):
+class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
