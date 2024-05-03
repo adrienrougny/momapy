@@ -1,17 +1,15 @@
-import frozendict
 import collections.abc
 import dataclasses
 import uuid
 
 import colorama
-import numpy
 
 import momapy
 
 
 def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     def _print_with_indent(s, indent):
-        print(f"{'  '*indent}{s}")
+        print(f"{'  ' * indent}{s}")
 
     def _get_value_string(attr_value, max_len=30):
         s = str(attr_value)
