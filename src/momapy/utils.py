@@ -6,6 +6,8 @@ import uuid
 import colorama
 import numpy
 
+import momapy
+
 
 def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     def _print_with_indent(s, indent):
@@ -97,6 +99,16 @@ def get_or_return_element_from_collection(element, collection):
     if existing_element is not None:
         return existing_element
     return element
+
+
+def add_or_replace_element_in_set(element, set_, func=None):
+    existing_element = get_element_from_collection(element, set_)
+    if existing_element is None:
+        set_.add(element)
+    # Replaces existing element by input element if func(element, existing_element) is True
+    elif func is not None and func(element, existing_element):
+        set_.remove(existing_element)
+        set_.add(element)
 
 
 def get_uuid4_as_str():
