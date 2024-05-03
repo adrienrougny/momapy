@@ -3726,7 +3726,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         bbox.y = map_.layout.position.y - map_.layout.height / 2
         bbox.w = map_.layout.width
         bbox.h = map_.layout.height
-        sbgn_map_.bbox = bbox
+        sbgn_map.bbox = bbox
         if with_render_information:
             render_information = cls._render_information_from_styles(dstyles)
             render_information.id = momapy.utils.get_uuid4_as_()
@@ -3735,18 +3735,18 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             render_information.background_color = map_.layout.fill.to_hexa()
             extension = cls._parser_module.Map.Extension()
             extension.render_information = render_information
-            sbgn_map_.extension = extension
+            sbgn_map.extension = extension
         if with_annotations and len(map_.model.annotations) != 0:
             annotation_sbgn_element = cls._annotation_element_from_annotations(
                 map_.model.annotations, model_element.id
             )
-            if sbgn_map_.extension is None:
+            if sbgn_map.extension is None:
                 extension = cls._parser_module.Map.Extension()
-                sbgn_map_.extension = extension
+                sbgn_map.extension = extension
             extension.annotation = annotation_sbgn_element
         if with_notes and map_.notes is not None:
             notes_element = cls._notes_element_from_notes(map_.notes)
-            sbgn_map_.notes = notes_element
+            sbgn_map.notes = notes_element
         return sbgn
 
     @classmethod
