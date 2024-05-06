@@ -217,10 +217,9 @@ class Product(FluxRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    element: typing.Union[
-        EntityPool,
-        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
-    ]
+    element: EntityPool | typing.ForwardRef(
+        "LogicalOperator", module=sys.modules[__name__]
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
