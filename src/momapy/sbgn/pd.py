@@ -345,13 +345,13 @@ class NecessaryStimulation(Stimulation):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(momapy.sbgn.core.SBGNModelElement):
     label: str | None = None
-    refers_to: TerminalReference | None = None
+    reference: TerminalReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
     label: str | None = None
-    refers_to: TagReference | None = None
+    reference: TagReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
