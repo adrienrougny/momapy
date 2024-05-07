@@ -50,6 +50,11 @@ class SBGNModelElement(momapy.core.ModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class SBGNAuxiliaryUnit(SBGNModelElement):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
     element: SBGNModelElement
 
