@@ -632,8 +632,8 @@ class EffectTargetInBlockDiagram:
 @dataclass
 class EndPointInBlockDiagram:
     """
-    End point (residue, binding site, effect site, operator, link, degrade) of
-    the link.
+    End point (residue, binding site, effect site, operator, link, degrade) of the
+    link.
     """
     class Meta:
         name = "endPointInBlockDiagram"
@@ -1115,7 +1115,7 @@ class ModificationResidue:
             "max_inclusive": Decimal("6.283185307179586476925286766559"),
         }
     )
-    side: Optional[str] = field(
+    side: Optional[object] = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -1201,6 +1201,7 @@ class Notes:
         metadata={
             "type": "Wildcard",
             "namespace": "http://www.w3.org/1999/xhtml",
+            "process_contents": "skip",
         }
     )
 
@@ -1520,6 +1521,7 @@ class Sbase:
             metadata={
                 "type": "Wildcard",
                 "namespace": "http://www.w3.org/1999/xhtml",
+                "process_contents": "skip",
             }
         )
 
@@ -1611,6 +1613,7 @@ class AnnotationXml:
         metadata={
             "type": "Wildcard",
             "namespace": "##any",
+            "process_contents": "skip",
         }
     )
     class_value: List[str] = field(
@@ -1682,7 +1685,7 @@ class Ci:
     )
 
 
-class CnAttributesType(Enum):
+class CnType(Enum):
     E_NOTATION = "e-notation"
     INTEGER = "integer"
     RATIONAL = "rational"
@@ -1809,9 +1812,10 @@ class EffectInBlockDiagram:
             "min_occurs": 1,
         }
     )
-    type: Optional[EffectInBlockDiagramType] = field(
+    type_value: Optional[EffectInBlockDiagramType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -1835,9 +1839,10 @@ class ExternalConnectionInBlockDiagram:
             "min_inclusive": 0,
         }
     )
-    type: Optional[ExternalConnectionInBlockDiagramType] = field(
+    type_value: Optional[ExternalConnectionInBlockDiagramType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -1886,9 +1891,10 @@ class InternalLinkInBlockDiagram:
             "min_inclusive": 0,
         }
     )
-    type: Optional[InternalLinkInBlockDiagramType] = field(
+    type_value: Optional[InternalLinkInBlockDiagramType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -1920,9 +1926,10 @@ class InternalOperatorInBlockDiagram:
             "min_inclusive": 0,
         }
     )
-    type: Optional[InternalOperatorInBlockDiagramType] = field(
+    type_value: Optional[InternalOperatorInBlockDiagramType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -2048,9 +2055,10 @@ class LineType2:
             "min_inclusive": Decimal("0.0"),
         }
     )
-    type: Optional[LineType2Type] = field(
+    type_value: Optional[LineType2Type] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -2310,9 +2318,10 @@ class Region:
             "max_inclusive": Decimal("1.0"),
         }
     )
-    type: Optional[RegionType] = field(
+    type_value: Optional[RegionType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
         }
     )
@@ -2346,9 +2355,10 @@ class ResidueInBlockDiagram:
             "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
         }
     )
-    type: Optional[ResidueInBlockDiagramType] = field(
+    type_value: Optional[ResidueInBlockDiagramType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -2588,9 +2598,10 @@ class Cn:
     class Meta:
         target_namespace = "http://www.w3.org/1998/Math/MathML"
 
-    type: Optional[CnAttributesType] = field(
+    type_value: Optional[CnType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
         }
     )
@@ -3025,9 +3036,10 @@ class LayerCompartmentAlias:
             "required": True,
         }
     )
-    type: Optional[LayerCompartmentAliasType] = field(
+    type_value: Optional[LayerCompartmentAliasType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -3397,9 +3409,10 @@ class Protein:
             "required": True,
         }
     )
-    type: Optional[ProteinType] = field(
+    type_value: Optional[ProteinType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -3469,8 +3482,7 @@ class ReactantLink:
 @dataclass
 class State:
     """
-    Chemical "state" to distinguish chemical species derived from a root
-    chemical.
+    Chemical "state" to distinguish chemical species derived from a root chemical.
     """
     class Meta:
         name = "state"
@@ -3694,7 +3706,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3703,7 +3714,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3712,7 +3722,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3721,7 +3730,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3730,7 +3738,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3739,7 +3746,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3748,7 +3754,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3757,7 +3762,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3766,7 +3770,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3775,7 +3778,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3784,7 +3786,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3793,7 +3794,6 @@ class Piece(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "min_occurs": 2,
             "max_occurs": 2,
         }
     )
@@ -3838,9 +3838,10 @@ class AntisenseRna:
             "required": True,
         }
     )
-    type: Optional[AntisenseRnaType] = field(
+    type_value: Optional[AntisenseRnaType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -3886,9 +3887,10 @@ class Rna:
             "required": True,
         }
     )
-    type: Optional[RnaType] = field(
+    type_value: Optional[RnaType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -3963,7 +3965,7 @@ class ConnectScheme:
             "required": True,
         }
     )
-    rectangle_index: Optional[str] = field(
+    rectangle_index: Optional[object] = field(
         default=None,
         metadata={
             "name": "rectangleIndex",
@@ -4076,9 +4078,10 @@ class Gene:
             "required": True,
         }
     )
-    type: Optional[GeneType] = field(
+    type_value: Optional[GeneType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -4557,13 +4560,13 @@ class Layer:
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
         }
     )
-    id: Optional[str] = field(
+    id: Optional[object] = field(
         default=None,
         metadata={
             "type": "Attribute",
         }
     )
-    name: Optional[str] = field(
+    name: Optional[object] = field(
         default=None,
         metadata={
             "type": "Attribute",
@@ -4709,9 +4712,10 @@ class Modification:
             "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*(,(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*)*",
         }
     )
-    type: Optional[ModificationType] = field(
+    type_value: Optional[ModificationType] = field(
         default=None,
         metadata={
+            "name": "type",
             "type": "Attribute",
             "required": True,
         }
@@ -5600,7 +5604,6 @@ class Semantics(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "sequential": True,
         }
     )
     annotation_xml: List[AnnotationXml] = field(
@@ -5609,7 +5612,6 @@ class Semantics(MathBase):
             "name": "annotation-xml",
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "sequential": True,
         }
     )
     definition_url: Optional[str] = field(
@@ -5762,7 +5764,6 @@ class Apply(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "sequential": True,
         }
     )
     csymbol: List[Csymbol] = field(
@@ -5770,7 +5771,6 @@ class Apply(MathBase):
         metadata={
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
-            "sequential": True,
         }
     )
     eq: Optional[MathBase] = field(
