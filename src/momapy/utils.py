@@ -22,7 +22,7 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     if exclude_cls is None:
         exclude_cls = []
     obj_typing = type(obj)
-    if obj_typing in exclude_cls:
+    if issubclass(obj_typing, tuple(exclude_cls)):
         return
     obj_value_string = _get_value_string(obj)
     obj_string = f"{colorama.Fore.GREEN}{obj_typing}{colorama.Fore.RED}: {obj_value_string}{colorama.Style.RESET_ALL}"
