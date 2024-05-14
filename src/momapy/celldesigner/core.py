@@ -6,6 +6,8 @@ import math
 import momapy.core
 import momapy.geometry
 import momapy.meta.shapes
+import momapy.meta.nodes
+import momapy.meta.arcs
 import momapy.sbml.core
 import momapy.sbgn.core
 
@@ -923,7 +925,7 @@ class ReceptorLayout(_MultiMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DrugShape(momapy.core.shape):
+class _DrugShape(momapy.core.Shape):
     horizontal_proportion: float  # ]0, 0.5[
     sep: float
 
@@ -1164,7 +1166,7 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionNode(_SimpleMixin, CellDesignerNode):
-    _shape_cls: typing.ClassVar[type] = momapy.nodes.Rectangle
+    _shape_cls: typing.ClassVar[type] = momapy.meta.nodes.Rectangle
     _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
     width: float = 8.0
     height: float = 8.0
@@ -1190,11 +1192,11 @@ class ReactionNode(_SimpleMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReactionLayout(momapy.arcs.Arrow):
+class ReactionLayout(momapy.meta.arcs.Triangle):
     reaction_node: ReactionNode
 
     def self_children(self):
-        layout_elements = momapy.arcs.Arrow.self_children(self)
+        layout_elements = momapy.arcs.Triangle.self_children(self)
         layout_elements.append(self.reaction_node)
         return layout_elements
 
@@ -1252,7 +1254,7 @@ class TranscriptionLayout(ReactionLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ConsumptionLayout(momapy.arcs.PolyLine):
+class ConsumptionLayout(momapy.meta.arcs.PolyLine):
     shorten: float = 0.0
     stroke: typing.Union[
         momapy.drawing.NoneValueType, momapy.coloring.Color
@@ -1276,7 +1278,7 @@ class ConsumptionLayout(momapy.arcs.PolyLine):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ProductionLayout(momapy.arcs.Arrow):
+class ProductionLayout(momapy.meta.arcs.Triangle):
     width: float = 14.0
     height: float = 10.0
     shorten: float = 2.0
