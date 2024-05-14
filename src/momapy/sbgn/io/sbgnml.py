@@ -3367,14 +3367,14 @@ class _SBGNMLReader(momapy.io.MapReader):
                             label_style_collection
                         )
                     if arc_ids:
-                        style_sheet[arc_label_selector] = (
-                            label_style_collection
-                        )
                         arc_label_selector = momapy.styling.ChildSelector(
                             arc_selector,
                             momapy.styling.TypeSelector(
                                 momapy.core.TextLayout.__name__
                             ),
+                        )
+                        style_sheet[arc_label_selector] = (
+                            label_style_collection
                         )
         return style_sheet
 
@@ -3418,7 +3418,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         return notes
 
     @classmethod
-    def _get_module_from_map(cls, map):
+    def _get_module_from_map(cls, map_):
         if momapy.builder.isinstance_or_builder(
             map_, momapy.sbgn.pd.SBGNPDMap
         ):
