@@ -2525,6 +2525,11 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element.id = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
         )
+        if sbgnml_element.compartment_ref is not None:
+            compartment_model_element = sbgnml_id_to_model_element[
+                sbgnml_element.compartment_ref
+            ]
+            model_element.compartment = compartment_model_element
         if (
             sbgnml_element.label is not None
             and sbgnml_element.label.text is not None
