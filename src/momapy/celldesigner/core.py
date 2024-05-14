@@ -117,16 +117,16 @@ class GeneReference(CellDesignerSpeciesReference):
 
 @dataclasses.dataclass(frozen=True)
 class RNAReference(CellDesignerSpeciesReference):
-    regions: frozenset[ModificationSite, CodingRegion, ProteinBindingDomain] = (
-        dataclasses.field(default_factory=frozenset)
-    )
+    regions: frozenset[
+        ModificationSite, CodingRegion, ProteinBindingDomain
+    ] = dataclasses.field(default_factory=frozenset)
 
 
 @dataclasses.dataclass(frozen=True)
 class AntisenseRNAReference(CellDesignerSpeciesReference):
-    regions: frozenset[ModificationSite, CodingRegion, ProteinBindingDomain] = (
-        dataclasses.field(default_factory=frozenset)
-    )
+    regions: frozenset[
+        ModificationSite, CodingRegion, ProteinBindingDomain
+    ] = dataclasses.field(default_factory=frozenset)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -508,7 +508,7 @@ class GenericProteinLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _IonChannelShape(momapy.core.Shape):
     right_rectangle_width: float
     rounded_corners: float
@@ -796,7 +796,7 @@ class AntisenseRNALayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _TruncatedProteinShape(momapy.core.Shape):
     rounded_corners: float
     vertical_truncation: float  # proportion of total height, number in ]0, 1[
@@ -922,7 +922,7 @@ class ReceptorLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _DrugShape(momapy.core.shape):
     horizontal_proportion: float  # ]0, 0.5[
     sep: float
