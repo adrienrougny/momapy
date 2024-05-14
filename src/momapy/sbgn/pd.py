@@ -10,20 +10,20 @@ import momapy.coloring
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateVariable(momapy.sbgn.core.SBGNModelElement):
+class StateVariable(momapy.sbgn.core.SBGNAuxiliaryUnit):
     variable: str | None = None
     value: str | None = None
     order: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
+class UnitOfInformation(momapy.sbgn.core.SBGNAuxiliaryUnit):
     value: str
     prefix: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Subunit(momapy.sbgn.core.SBGNModelElement):
+class Subunit(momapy.sbgn.core.SBGNAuxiliaryUnit):
     label: str | None = None
 
 
@@ -234,16 +234,6 @@ class EquivalenceOperatorOutput(momapy.sbgn.core.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TerminalReference(momapy.sbgn.core.SBGNRole):
-    element: EntityPool | Compartment
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class TagReference(momapy.sbgn.core.SBGNRole):
-    element: EntityPool | Compartment
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class Process(momapy.sbgn.core.SBGNModelElement):
     pass
 
@@ -344,15 +334,25 @@ class NecessaryStimulation(Stimulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Terminal(momapy.sbgn.core.SBGNModelElement):
-    label: str | None = None
-    refers_to: TerminalReference | None = None
+class TagReference(momapy.sbgn.core.SBGNRole):
+    element: EntityPool | Compartment
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
     label: str | None = None
-    refers_to: TagReference | None = None
+    reference: TagReference | None = None
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TerminalReference(momapy.sbgn.core.SBGNRole):
+    element: EntityPool | Compartment
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Terminal(momapy.sbgn.core.SBGNAuxiliaryUnit):
+    label: str | None = None
+    reference: TerminalReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
