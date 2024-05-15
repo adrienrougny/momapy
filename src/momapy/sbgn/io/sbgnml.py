@@ -2526,9 +2526,24 @@ class _SBGNMLReader(momapy.io.MapReader):
             sbgnml_element
         )
         if sbgnml_element.compartment_ref is not None:
-            compartment_model_element = sbgnml_id_to_model_element[
+            compartment_model_element = sbgnml_id_to_model_element.get(
                 sbgnml_element.compartment_ref
-            ]
+            )
+            if compartment_model_element is None:
+                sbgnml_compartment = sbgnml_id_to_sbgnml_element[
+                    sbgnml_element.compartment_ref
+                ]
+                compartment_mode_element, _ = (
+                    cls._make_and_add_elements_from_sbgnml(
+                        map_=map_,
+                        sbgnml_element=sbgnml_compartment,
+                        sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                        sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                        sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                        sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                        sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                    )
+                )
             model_element.compartment = compartment_model_element
         if (
             sbgnml_element.label is not None
