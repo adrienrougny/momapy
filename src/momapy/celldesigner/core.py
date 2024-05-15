@@ -138,15 +138,8 @@ class Modification(CellDesignerModelElement):
 
 
 @dataclasses.dataclass(frozen=True)
-class StructuralStateValue(enum.Enum):
-    EMPTY = "empty"
-    OPEN = "open"
-    CLOSED = "closed"
-
-
-@dataclasses.dataclass(frozen=True)
 class StructuralState(CellDesignerModelElement):
-    value: typing.Optional[typing.Union[StructuralStateValue, str]] = None
+    value: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True)
