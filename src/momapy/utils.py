@@ -1,6 +1,7 @@
 import collections.abc
 import dataclasses
 import uuid
+import types
 
 import colorama
 
@@ -36,13 +37,19 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
                 attr_value_string = _get_value_string(attr_value)
                 attr_string = f"{colorama.Fore.BLUE}* {attr_name}{colorama.Fore.MAGENTA}: {attr_typing} = {colorama.Fore.RED}{attr_value_string}{colorama.Style.RESET_ALL}"
                 _print_with_indent(attr_string, _indent + 1)
-                pretty_print(
-                    attr_value,
-                    max_depth=max_depth,
-                    exclude_cls=exclude_cls,
-                    _depth=_depth + 1,
-                    _indent=_indent + 2,
-                )
+                if (
+                    not isinstance(
+                        attr_value, (str, float, int, bool, types.NoneType)
+                    )
+                    and attr_value
+                ):
+                    pretty_print(
+                        attr_value,
+                        max_depth=max_depth,
+                        exclude_cls=exclude_cls,
+                        _depth=_depth + 1,
+                        _indent=_indent + 2,
+                    )
     if isinstance(obj, collections.abc.Iterable) and not isinstance(
         obj, (str, bytes, bytearray, momapy.geometry.Point)
     ):
