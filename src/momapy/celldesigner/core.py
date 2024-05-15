@@ -171,10 +171,6 @@ class Protein(Species):
         default_factory=frozenset
     )
 
-    @property
-    def name(self):
-        return self.reference.name
-
 
 @dataclasses.dataclass(frozen=True)
 class GenericProtein(Protein):
