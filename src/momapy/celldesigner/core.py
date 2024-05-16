@@ -1337,13 +1337,10 @@ class CellDesignerModel(momapy.sbml.core.Model):
     species_references: frozenset[CellDesignerSpeciesReference] = (
         dataclasses.field(default_factory=frozenset)
     )
-    sbml_reactions: frozenset[Reaction] = dataclasses.field(
-        default_factory=frozenset
-    )
     boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
         default_factory=frozenset
     )
-    modulations: frozenset[ReactionModification] = dataclasses.field(
+    modulations: frozenset[Modulation | UnknownModulation] = dataclasses.field(
         default_factory=frozenset
     )
 
