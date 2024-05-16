@@ -287,7 +287,7 @@ class UnknownGate(BooleanLogicGate):
 
 
 @dataclasses.dataclass(frozen=True)
-class Modifier(
+class _Modifier(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
     # redefined because can be BooleanLogicGate
@@ -295,7 +295,12 @@ class Modifier(
 
 
 @dataclasses.dataclass(frozen=True)
-class Modulator(Modifier):
+class Modulator(_Modifier):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownModulator(_Modifier):
     pass
 
 
@@ -320,12 +325,12 @@ class Trigger(Modulator):
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownCatalyzer(Modifier):
+class UnknownCatalyzer(UnknownModulator):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownInhibitor(Modifier):
+class UnknownInhibitor(UnknownModulator):
     pass
 
 
@@ -335,12 +340,9 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
-    # redefined because modifier can be BooleanLogicGate
-    modifiers: frozenset[Modifier] = dataclasses.field(
+    # redefined because modifier can be BooleanLogicGate;
+    modifiers: frozenset[Modulator | UnknownModulator] = dataclasses.field(
         default_factory=frozenset
-    )
-    ungrouped_modifiers: frozenset[Modifier] = dataclasses.field(
-        default_factory=frozenset, compare=False, hash=False
     )
 
 
@@ -430,13 +432,18 @@ class BooleanLogicGateReaction(Reaction):
 
 
 @dataclasses.dataclass(frozen=True)
-class ReactionModification(CellDesignerModelElement):
+class _Influence(CellDesignerModelElement):
     source: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
     target: Species | None = None
 
 
 @dataclasses.dataclass(frozen=True)
-class Modulation(ReactionModification):
+class Modulation(_Influence):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class Catalysis(Modulation):
     pass
 
 
@@ -450,23 +457,54 @@ class PhysicalStimulation(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
-class Catalysis(PhysicalStimulation):
-    pass
-
-
+# need to be a different name than the modifier Trigger
 @dataclasses.dataclass(frozen=True)
 class Triggering(Modulation):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownCatalysis(ReactionModification):
+class PositiveInfluence(Modulation):
     pass
 
 
 @dataclasses.dataclass(frozen=True)
-class UnknownInhibition(ReactionModification):
+class NegativeInfluence(Modulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownModulation(_Influence):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownCatalysis(UnknownModulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownInhibition(UnknownModulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownPositiveInfluence(UnknownModulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownNegativeInfluence(UnknownModulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownPhysicalStimulation(UnknownModulation):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class UnknownTriggering(UnknownModulation):
     pass
 
 
