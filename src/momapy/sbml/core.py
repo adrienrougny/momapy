@@ -64,7 +64,7 @@ class Reaction(SBase):
     products: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
-    modulators: frozenset[ModifierSpeciesReference] = dataclasses.field(
+    modifiers: frozenset[ModifierSpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
 
