@@ -75,12 +75,11 @@ class ProteinBindingDomain(Region):
 
 @dataclasses.dataclass(frozen=True)
 class CellDesignerSpeciesReference(CellDesignerModelElement):
-    pass
+    name: str | None = None
 
 
 @dataclasses.dataclass(frozen=True)
 class ProteinReference(CellDesignerSpeciesReference):
-    name: str | None = None
     modification_residues: frozenset[ModificationResidue] = dataclasses.field(
         default_factory=frozenset
     )
@@ -189,27 +188,15 @@ class IonChannel(Protein):
 class Gene(Species):
     reference: GeneReference | None = None
 
-    @property
-    def name(self):
-        return self.reference.name
-
 
 @dataclasses.dataclass(frozen=True)
 class RNA(Species):
     reference: RNAReference | None = None
 
-    @property
-    def name(self):
-        return self.reference.name
-
 
 @dataclasses.dataclass(frozen=True)
 class AntisenseRNA(Species):
     reference: AntisenseRNAReference | None = None
-
-    @property
-    def name(self):
-        return self.reference.name
 
 
 @dataclasses.dataclass(frozen=True)
