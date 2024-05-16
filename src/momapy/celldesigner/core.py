@@ -290,6 +290,7 @@ class UnknownGate(BooleanLogicGate):
 class Modifier(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
+    # redefined because can be BooleanLogicGate
     species: Species | BooleanLogicGate | None = None
 
 
@@ -334,6 +335,7 @@ class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
+    # redefined because modifier can be BooleanLogicGate
     modifiers: frozenset[Modifier] = dataclasses.field(
         default_factory=frozenset
     )
