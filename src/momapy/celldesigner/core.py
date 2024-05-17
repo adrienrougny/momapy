@@ -1,7 +1,7 @@
 import dataclasses
-import typing
 import enum
 import math
+import typing
 
 import momapy.core
 import momapy.geometry
@@ -12,12 +12,13 @@ import momapy.sbml.core
 import momapy.sbgn.core
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModelElement(momapy.core.ModelElement):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationResidue(CellDesignerModelElement):
     name: str | None = None
 
@@ -37,125 +38,127 @@ class ModificationState(enum.Enum):
     UNKNOWN = "?"
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Region(CellDesignerModelElement):
     name: str | None = None
     active: bool = False
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationSite(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CodingRegion(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class RegulatoryRegion(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class TranscriptionStartingSiteL(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class TranscriptionStartingSiteR(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ProteinBindingDomain(Region):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerSpeciesReference(CellDesignerModelElement):
-    name: str | None = None
+    name: str
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ProteinReference(CellDesignerSpeciesReference):
     modification_residues: frozenset[ModificationResidue] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinReference(ProteinReference):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProteinReference(ProteinReference):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ReceptorReference(ProteinReference):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannelReference(ProteinReference):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneReference(CellDesignerSpeciesReference):
     regions: frozenset[
-        ModificationSite,
-        CodingRegion,
-        RegulatoryRegion,
-        TranscriptionStartingSiteL,
-        TranscriptionStartingSiteR,
+        ModificationSite
+        | CodingRegion
+        | RegulatoryRegion
+        | TranscriptionStartingSiteL
+        | TranscriptionStartingSiteR
     ] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class RNAReference(CellDesignerSpeciesReference):
     regions: frozenset[
-        ModificationSite, CodingRegion, ProteinBindingDomain
+        ModificationSite | CodingRegion | ProteinBindingDomain
     ] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNAReference(CellDesignerSpeciesReference):
     regions: frozenset[
-        ModificationSite, CodingRegion, ProteinBindingDomain
+        ModificationSite | CodingRegion | ProteinBindingDomain
     ] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Modification(CellDesignerModelElement):
     residue: ModificationResidue | None = None
     state: ModificationState | None = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class StructuralState(CellDesignerModelElement):
-    value: typing.Optional[str] = None
+    value: str | None = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(momapy.sbml.core.Compartment, CellDesignerModelElement):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(momapy.sbml.core.Species, CellDesignerModelElement):
-    reference: CellDesignerSpeciesReference | None = None
-    active: bool | None = None
-    homodimer: int | None = 1
+    active: bool
+    homodimer: int
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Protein(Species):
-    reference: ProteinReference | None = None
+    reference: ProteinReference
     modifications: frozenset[Modification] = dataclasses.field(
         default_factory=frozenset
     )
@@ -164,348 +167,325 @@ class Protein(Species):
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProtein(Protein):
-    reference: GenericProteinReference | None = None
+    reference: GenericProteinReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProtein(Protein):
-    reference: TruncatedProteinReference | None = None
+    reference: TruncatedProteinReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Receptor(Protein):
-    reference: ReceptorReference | None = None
+    reference: ReceptorReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannel(Protein):
-    reference: IonChannelReference | None = None
+    reference: IonChannelReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Gene(Species):
-    reference: GeneReference | None = None
+    reference: GeneReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class RNA(Species):
-    reference: RNAReference | None = None
+    reference: RNAReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNA(Species):
-    reference: AntisenseRNAReference | None = None
+    reference: AntisenseRNAReference
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Ion(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMolecule(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Drug(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Unknown(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Complex(Species):
-    name: str | None = None
     structural_states: frozenset[StructuralState] = dataclasses.field(
         default_factory=frozenset
     )
     subunits: frozenset[Species] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Degraded(Species):
-    name: str | None = None
+    pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Reactant(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
-    pass
+    base: bool
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Product(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
-    pass
+    base: bool
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class BooleanLogicGate(CellDesignerModelElement):
     inputs: frozenset[Species] = dataclasses.field(default_factory=frozenset)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class AndGate(BooleanLogicGate):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class OrGate(BooleanLogicGate):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class NotGate(BooleanLogicGate):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownGate(BooleanLogicGate):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _Modifier(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
     # redefined because can be BooleanLogicGate
-    species: Species | BooleanLogicGate | None = None
+    species: Species | BooleanLogicGate
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulator(_Modifier):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownModulator(_Modifier):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibitor(Modulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class PhysicalStimulator(Modulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Catalyzer(PhysicalStimulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Trigger(Modulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownCatalyzer(UnknownModulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibitor(UnknownModulator):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(momapy.sbml.core.Reaction, CellDesignerModelElement):
     reactants: frozenset[Reactant] = dataclasses.field(
         default_factory=frozenset
     )
     products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
-    # redefined because modifier can be BooleanLogicGate;
     modifiers: frozenset[Modulator | UnknownModulator] = dataclasses.field(
         default_factory=frozenset
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransition(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class KnownTransitionOmitted(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTransition(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Transcription(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Translation(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Transport(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class HeterodimerAssociation(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Dissociation(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Truncation(Reaction):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
-class ModulationReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class InhibitionReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class PhysicalStimulationReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class CatalysisReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class TriggeringReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class UnknownCatalysisReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class UnknownInhibitionReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class BooleanLogicGateReaction(Reaction):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
+# abstract
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _Influence(CellDesignerModelElement):
-    source: typing.Optional[typing.Union[Species, BooleanLogicGate]] = None
-    target: Species | None = None
+    source: Species | BooleanLogicGate
+    target: Species | None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulation(_Influence):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Catalysis(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibition(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class PhysicalStimulation(Modulation):
     pass
 
 
 # need to be a different name than the modifier Trigger
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Triggering(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluence(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluence(Modulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownModulation(_Influence):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownCatalysis(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInhibition(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPositiveInfluence(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownNegativeInfluence(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownPhysicalStimulation(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownTriggering(UnknownModulation):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class CellDesignerModel(momapy.sbml.core.Model):
+    species_references: frozenset[CellDesignerSpeciesReference] = (
+        dataclasses.field(default_factory=frozenset)
+    )
+    boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
+        default_factory=frozenset
+    )
+    modulations: frozenset[Modulation | UnknownModulation] = dataclasses.field(
+        default_factory=frozenset
+    )
+
+    def is_submodel(self, other):
+        pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerNode(momapy.sbgn.core.SBGNNode):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleMixin(momapy.sbgn.core._SimpleMixin):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiMixin(momapy.sbgn.core._MultiMixin):
     n: int = 1
 
@@ -514,7 +494,7 @@ class _MultiMixin(momapy.sbgn.core._MultiMixin):
         return self.n
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -646,7 +626,7 @@ class _IonChannelShape(momapy.core.Shape):
         return [left_rectangle, right_rectangle]
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannelLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -663,7 +643,7 @@ class IonChannelLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -690,7 +670,7 @@ class ComplexLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMoleculeLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -701,7 +681,7 @@ class SimpleMoleculeLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class IonLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -712,7 +692,7 @@ class IonLayout(_MultiMixin, CellDesignerNode):
         )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -751,7 +731,7 @@ class _DegradedShape(momapy.core.Shape):
         return [circle, bar]
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class DegradedLayout(_MultiMixin, CellDesignerNode):
     width: float = 30.0
     height: float = 30.0
@@ -760,7 +740,7 @@ class DegradedLayout(_MultiMixin, CellDesignerNode):
         return _DegradedShape(position=position, width=width, height=height)
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
@@ -1319,28 +1299,12 @@ class ProductionLayout(momapy.meta.arcs.Triangle):
     ] = momapy.coloring.black
 
 
-@dataclasses.dataclass(frozen=True)
-class CellDesignerModel(momapy.sbml.core.Model):
-    species_references: frozenset[CellDesignerSpeciesReference] = (
-        dataclasses.field(default_factory=frozenset)
-    )
-    boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
-        default_factory=frozenset
-    )
-    modulations: frozenset[Modulation | UnknownModulation] = dataclasses.field(
-        default_factory=frozenset
-    )
-
-    def is_submodel(self, other):
-        pass
-
-
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerLayout(momapy.core.Layout):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerMap(momapy.core.Map):
     model: CellDesignerModel | None = None
     layout: CellDesignerLayout | None = None
