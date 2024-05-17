@@ -20,6 +20,7 @@ class SBOTerm(momapy.core.ModelElement):
     pass
 
 
+# abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBase(momapy.core.ModelElement):
     name: str | None = None
