@@ -67,9 +67,29 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.DISSOCIATION: "_make_and_add_dissociation_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.TRUNCATION: "_make_and_add_truncation_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.CATALYSIS: "_make_and_add_catalysis_from_cd",
-        "POSITIVE_INFLUENCE": "_make_and_add_positive_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_CATALYSIS: "_make_and_add_unknown_catalysis_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.INHIBITION: "_make_and_add_inhibition_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_INHIBITION: "_make_and_add_unknown_inhibition_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.PHYSICAL_STIMULATION: "_make_and_add_physical_stimulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.MODULATION: "_make_and_add_modulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.TRIGGER: "_make_and_add_triggering_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.POSITIVE_INFLUENCE: "_make_and_add_positive_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.NEGATIVE_INFLUENCE: "_make_and_add_negative_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_PHYSICAL_STIMULATION: "_make_and_add_physical_stimulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_MODULATION: "_make_and_add_modulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_TRIGGER: "_make_and_add_triggering_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_POSITIVE_INFLUENCE: "_make_and_add_unknown_positive_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_NEGATIVE_INFLUENCE: "_make_and_add_unknown_negative_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_PHYSICAL_STIMULATION: "_make_and_add_unknown_physical_stimulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_MODULATION: "_make_and_add_unknown_modulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_TRIGGER: "_make_and_add_unknown_triggering_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.CATALYSIS: "_make_and_add_catalyzer_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ModificationType.UNKNOWN_CATALYSIS: "_make_and_add_unknown_catalyzer_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.INHIBITION: "_make_and_add_inhibitor_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ModificationType.UNKNOWN_INHIBITION: "_make_and_add_unknown_inhibitor_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ModificationType.PHYSICAL_STIMULATION: "_make_and_add_physical_stimulator_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ModificationType.MODULATION: "_make_and_add_modulator_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ModificationType.TRIGGER: "_make_and_add_trigger_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND: "_make_and_add_boolean_logic_gate_and_catalyzer_from_cd",
     }
 
@@ -909,6 +929,31 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
+    def _make_and_add_unknown_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modifier_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        super_model_element.modifiers.add(model_element)
+        return model_element, layout_element
+
+    @classmethod
     def _make_and_add_inhibitor_from_cd(
         cls,
         map_,
@@ -923,6 +968,106 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Inhibitor,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        super_model_element.modifiers.add(model_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modifier_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        super_model_element.modifiers.add(model_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_physical_stimulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modifier_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        super_model_element.modifiers.add(model_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_modulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modifier_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Modulator,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        super_model_element.modifiers.add(model_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_trigger_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modifier_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Trigger,
             layout_element_cls=None,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
@@ -1264,6 +1409,162 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
+    def _make_and_add_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownCatalysis,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Inhibition,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownInhibition,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.PhysicalStimulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Modulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Triggering,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
     def _make_and_add_positive_influence_from_cd(
         cls,
         map_,
@@ -1278,6 +1579,162 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.PositiveInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.NegativeInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownPositiveInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownNegativeInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownModulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownTransition,
             layout_element_cls=None,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
