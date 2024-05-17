@@ -1,63 +1,65 @@
 import dataclasses
 import typing
-import uuid
 
 import momapy.core
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Notes(momapy.core.ModelElement):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+# to be defined
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBOTerm(momapy.core.ModelElement):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBase(momapy.core.ModelElement):
-    name: typing.Optional[str] = None
-    metaid: typing.Optional[typing.Union[str, uuid.UUID]] = None
-    sbo_term: typing.Optional[SBOTerm] = None
-    notes: typing.Optional[Notes] = None
-    annotations: typing.Optional[Annotation] = None
+    name: str | None = None
+    metaid: str | None = None
+    sbo_term: SBOTerm | None = None
+    notes: Notes | None = None
+    annotations: Annotation | None = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(SBase):
-    pass
+    outside: typing.Optional[
+        typing.ForwardRef("Compartment", module="momapy.sbml.core")
+    ] = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(SBase):
-    compartment: typing.Optional[Compartment] = None
+    compartment: Compartment | None = None
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleSpeciesReference(SBase):
-    species: typing.Optional[Species] = None
+    species: Species
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ModifierSpeciesReference(SimpleSpeciesReference):
     pass
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesReference(SimpleSpeciesReference):
-    stoichiometry: typing.Optional[int] = None
+    stoichiometry: int
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(SBase):
-    reversible: bool = False
-    compartment: typing.Optional[Compartment] = None
+    reversible: bool
+    compartment: Compartment | None = None
     reactants: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
@@ -69,7 +71,7 @@ class Reaction(SBase):
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Model(SBase, momapy.core.Model):
     compartments: frozenset[Compartment] = dataclasses.field(
         default_factory=frozenset
@@ -80,9 +82,9 @@ class Model(SBase, momapy.core.Model):
     )
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SBML(SBase):
     xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"
     level: int = 3
     version: int = 2
-    model: typing.Optional[Model] = None
+    model: Model | None = None
