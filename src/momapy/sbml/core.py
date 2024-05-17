@@ -23,10 +23,16 @@ class SBOTerm(momapy.core.ModelElement):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBase(momapy.core.ModelElement):
     name: str | None = None
-    metaid: str | None = None
     sbo_term: SBOTerm | None = None
-    notes: Notes | None = None
-    annotations: Annotation | None = None
+    metaid: str | None = dataclasses.field(
+        default=None, compare=False, hash=False
+    )
+    notes: Notes | None = dataclasses.field(
+        default=None, compare=False, hash=False
+    )
+    annotations: Annotation | None = dataclasses.field(
+        default=None, compare=False, hash=False
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
