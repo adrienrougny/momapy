@@ -2951,7 +2951,7 @@ class _SBGNMLReader(momapy.io.MapReader):
 
     @classmethod
     def _make_model_element_id_from_sbgnml(cls, sbgnml_element):
-        return f"{sbgnml_element.id}-momapy-model"
+        return f"{sbgnml_element.id}"
 
     @classmethod
     @abc.abstractmethod
