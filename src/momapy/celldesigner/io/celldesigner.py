@@ -22,6 +22,9 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.GeneType.GENE: "_make_and_add_gene_reference_from_cd",
         momapy.celldesigner.io._celldesigner_parser.RnaType.RNA: "_make_and_add_rna_reference_from_cd",
         momapy.celldesigner.io._celldesigner_parser.AntisenseRnaType.ANTISENSE_RNA: "_make_and_add_antisense_rna_reference_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.Gene: "_make_and_add_gene_reference_from_cd",  # to be deleted once minerva bug solved
+        momapy.celldesigner.io._celldesigner_parser.Rna: "_make_and_add_rna_reference_from_cd",  # to be deleted once minerva bug solved
+        momapy.celldesigner.io._celldesigner_parser.AntisenseRna: "_make_and_add_antisense_rna_reference_from_cd",  # to be deleted once minerva bug solved
         (
             momapy.celldesigner.io._celldesigner_parser.ClassValue.PROTEIN,
             momapy.celldesigner.io._celldesigner_parser.ProteinType.GENERIC,
@@ -50,6 +53,18 @@ class CellDesignerReader(momapy.io.MapReader):
             momapy.celldesigner.io._celldesigner_parser.ClassValue.ANTISENSE_RNA,
             momapy.celldesigner.io._celldesigner_parser.AntisenseRnaType.ANTISENSE_RNA,
         ): "_make_and_add_antisense_rna_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ClassValue.GENE,
+            None,
+        ): "_make_and_add_gene_from_cd",  # to be deleted once minerva bug solved
+        (
+            momapy.celldesigner.io._celldesigner_parser.ClassValue.RNA,
+            None,
+        ): "_make_and_add_rna_from_cd",  # to be deleted once minerva bug solved
+        (
+            momapy.celldesigner.io._celldesigner_parser.ClassValue.ANTISENSE_RNA,
+            None,
+        ): "_make_and_add_antisense_rna_from_cd",  # to be deleted once minerva bug solved
         momapy.celldesigner.io._celldesigner_parser.ClassValue.PHENOTYPE: "_make_and_add_phenotype_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ClassValue.ION: "_make_and_add_ion_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ClassValue.SIMPLE_MOLECULE: "_make_and_add_simple_molecule_from_cd",
@@ -2097,7 +2112,10 @@ class CellDesignerReader(momapy.io.MapReader):
                 momapy.celldesigner.io._celldesigner_parser.AntisenseRna,
             ),
         ):
-            key = cd_element.type_value
+            if cd_element.type_value is not None:
+                key = cd_element.type_value
+            else:  # to be deleted once minerva bug solved
+                key = type(cd_element)
         elif isinstance(
             cd_element, momapy.celldesigner.io._celldesigner_parser.Species1
         ):
