@@ -1749,6 +1749,16 @@
         <xs:enumeration value="PHYSICAL_STIMULATION"/>
         <xs:enumeration value="MODULATION"/>
         <xs:enumeration value="TRIGGER"/>
+        <xs:enumeration value="POSITIVE_INFLUENCE"/>
+        <xs:enumeration value="NEGATIVE_INFLUENCE"/>
+        <xs:enumeration value="REDUCED_PHYSICAL_STIMULATION"/>
+        <xs:enumeration value="REDUCED_MODULATION"/>
+        <xs:enumeration value="REDUCED_TRIGGER"/>
+        <xs:enumeration value="UNKNOWN_POSITIVE_INFLUENCE"/>
+        <xs:enumeration value="UNKNOWN_NEGATIVE_INFLUENCE"/>
+        <xs:enumeration value="UNKNOWN_REDUCED_PHYSICAL_STIMULATION"/>
+        <xs:enumeration value="UNKNOWN_REDUCED_MODULATION"/>
+        <xs:enumeration value="UNKNOWN_REDUCED_TRIGGER"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
