@@ -1123,7 +1123,7 @@ class ModificationResidue:
     )
 
 
-class ModificationModification(Enum):
+class ModificationModificationType(Enum):
     CATALYSIS = "CATALYSIS"
     UNKNOWN_CATALYSIS = "UNKNOWN_CATALYSIS"
     INHIBITION = "INHIBITION"
@@ -4766,9 +4766,10 @@ class Modification:
             "type": "Attribute",
         }
     )
-    modification: Optional[ModificationModification] = field(
+    modification_type: Optional[ModificationModificationType] = field(
         default=None,
         metadata={
+            "name": "modificationType",
             "type": "Attribute",
         }
     )

@@ -2010,7 +2010,7 @@
         <xs:restriction base="xs:nonNegativeInteger"/>
       </xs:simpleType>
     </xs:attribute>
-    <xs:attribute name="modification">
+    <xs:attribute name="modificationType"> <!-- Changed from modification to modificationType by A. Rougny-->
       <xs:simpleType>
         <xs:restriction base="xs:string">
           <xs:enumeration value="CATALYSIS"/>
