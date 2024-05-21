@@ -151,8 +151,8 @@ class Compartment(momapy.sbml.core.Compartment, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(momapy.sbml.core.Species, CellDesignerModelElement):
-    active: bool
-    homodimer: int
+    active: bool = False  # TODO: no default?
+    homomultimer: int = 1
 
 
 # abstract
@@ -242,12 +242,12 @@ class Degraded(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reactant(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
-    base: bool
+    base: bool = False  # TODO: no default?
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Product(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
-    base: bool
+    base: bool = False  # TODO: no default?
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
