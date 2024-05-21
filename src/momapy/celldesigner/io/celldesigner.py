@@ -105,7 +105,118 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.ModificationType.PHYSICAL_STIMULATION: "_make_and_add_physical_stimulator_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.MODULATION: "_make_and_add_modulator_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.TRIGGER: "_make_and_add_trigger_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND: "_make_and_add_boolean_logic_gate_and_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.CATALYSIS,
+        ): "_make_and_add_and_gate_and_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_and_gate_and_unknown_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.INHIBITION,
+        ): "_make_and_add_and_gate_and_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_and_gate_and_unknown_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_and_gate_and_physical_stimulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.MODULATION,
+        ): "_make_and_add_and_gate_and_modulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
+        ): "_make_and_add_and_gate_and_trigger_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.CATALYSIS,
+        ): "_make_and_add_or_gate_and_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_or_gate_and_unknown_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.INHIBITION,
+        ): "_make_and_add_or_gate_and_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_or_gate_and_unknown_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_or_gate_and_physical_stimulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.MODULATION,
+        ): "_make_and_add_or_gate_and_modulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
+        ): "_make_and_add_or_gate_and_trigger_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.CATALYSIS,
+        ): "_make_and_add_not_gate_and_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_not_gate_and_unknown_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.INHIBITION,
+        ): "_make_and_add_not_gate_and_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_not_gate_and_unknown_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_not_gate_and_physical_stimulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.MODULATION,
+        ): "_make_and_add_not_gate_and_modulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
+        ): "_make_and_add_not_gate_and_trigger_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.CATALYSIS,
+        ): "_make_and_add_unknown_gate_and_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_unknown_gate_and_unknown_catalyzer_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.INHIBITION,
+        ): "_make_and_add_unknown_gate_and_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_unknown_gate_and_unknown_inhibitor_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_unknown_gate_and_physical_stimulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.MODULATION,
+        ): "_make_and_add_unknown_gate_and_modulator_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
+        ): "_make_and_add_unknown_gate_and_trigger_from_cd",
     }
 
     @classmethod
@@ -272,9 +383,13 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_modification_residue_id
         ]
         model_element.residue = modification_residue_model_element
-        modification_state = momapy.celldesigner.core.ModificationState[
-            cd_element.state.name
-        ]
+        cd_modification_state = cd_element.state
+        if cd_modification_state == "empty":
+            modification_state = None
+        else:
+            modification_state = momapy.celldesigner.core.ModificationState[
+                cd_modification_state.name
+            ]
         model_element.state = modification_state
         model_element = momapy.builder.object_from_builder(model_element)
         super_model_element.modifications.add(model_element)
@@ -320,6 +435,24 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element.id = id_
         model_element.name = name
         model_element.metaid = metaid
+        if cd_element.outside is not None:
+            outside_model_element = cd_id_to_model_element.get(
+                cd_element.outside
+            )
+            if outside_model_element is None:
+                cd_outside = cd_id_to_cd_element[cd_element.outside]
+                outside_mode_element, outside_layout_element = (
+                    cls._make_and_add_compartment_from_cd(
+                        map_=map_,
+                        cd_element=cd_outside,
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        super_model_element=None,
+                        super_cd_element=None,
+                    )
+                )
+            model_element.outside = outside_model_element
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         map_.model.compartments.add(model_element)
@@ -1094,7 +1227,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_boolean_logic_gate_and_catalyzer_from_cd(
+    def _make_and_add_and_gate_and_catalyzer_from_cd(
         cls,
         map_,
         cd_element,
@@ -1104,7 +1237,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_cd_element=None,
     ):
-        and_gate_model_element, and_gate_layout_element = (
+        gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd(
                 map_=map_,
                 cd_element=cd_element,
@@ -1119,20 +1252,1183 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.modifiers = and_gate_model_element.id
-        model_element, layout_element = cls._make_modifier_from_cd(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.Catalyzer,
-            layout_element_cls=None,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            super_model_element=super_model_element,
-            super_cd_element=super_cd_element,
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Catalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
         )
-        super_model_element.modifiers.add(model_element)
-        return model_element, layout_element
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_unknown_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Inhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_unknown_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_physical_stimulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_modulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Modulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_and_gate_and_trigger_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Trigger,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Catalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_unknown_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Inhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_unknown_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_physical_stimulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_modulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Modulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_and_trigger_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Trigger,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Catalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_unknown_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Inhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_unknown_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_physical_stimulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_modulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Modulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_and_trigger_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Trigger,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Catalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_unknown_catalyzer_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Inhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_unknown_inhibitor_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_physical_stimulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_modulator_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Modulator,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_and_trigger_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.modifiers = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_modifier_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.Trigger,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
 
     @classmethod
     def _make_and_add_and_gate_from_cd(
@@ -1149,6 +2445,93 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.AndGate,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.boolean_logic_gates.add(model_element)
+        # we use the id of the model element since the cd element does not have
+        # one; this mapping is necessary when building the modification the
+        # Boolean gate is the source of
+        cd_id_to_model_element[model_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_or_gate_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_logic_gate_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.OrGate,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.boolean_logic_gates.add(model_element)
+        # we use the id of the model element since the cd element does not have
+        # one; this mapping is necessary when building the modification the
+        # Boolean gate is the source of
+        cd_id_to_model_element[model_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_not_gate_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_logic_gate_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.NotGate,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.boolean_logic_gates.add(model_element)
+        # we use the id of the model element since the cd element does not have
+        # one; this mapping is necessary when building the modification the
+        # Boolean gate is the source of
+        cd_id_to_model_element[model_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_gate_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_logic_gate_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownGate,
             layout_element_cls=None,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
@@ -1749,7 +3132,7 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element, layout_element = cls._make_modulation_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.UnknownTransition,
+            model_element_cls=momapy.celldesigner.core.UnknownTriggering,
             layout_element_cls=None,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
@@ -1832,7 +3215,7 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_species_state = cd_species_identity.state
         if cd_species_state is not None:
             if cd_species_state.homodimer is not None:
-                model_element.homodimer = cd_species_state.homodimer
+                model_element.homomultimer = cd_species_state.homodimer
             if cd_species_state.list_of_modifications is not None:
                 for (
                     cd_species_modification
@@ -1864,6 +3247,7 @@ class CellDesignerReader(momapy.io.MapReader):
                     super_model_element=model_element,
                     super_cd_element=cd_element,
                 )
+
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         return model_element, layout_element
@@ -2098,7 +3482,6 @@ class CellDesignerReader(momapy.io.MapReader):
         else:
             model_element = None
             layout_element = None
-            print(f"no reading function for {type(cd_element)}")
         return model_element, layout_element
 
     @classmethod
@@ -2142,11 +3525,18 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_element,
             momapy.celldesigner.io._celldesigner_parser.Modification,
         ):
-            key = cd_element.type_value
+            if cd_element.modification_type is not None:
+                key = (
+                    cd_element.type_value,
+                    cd_element.modification_type,
+                )
+            else:
+                key = cd_element.type_value
         else:
             key = type(cd_element)
         make_and_add_func_name = cls._KEY_TO_MAKE_AND_ADD_FUNC_NAME.get(key)
         if make_and_add_func_name is None:
+            print(f"no reading function for {key}")
             return None
         return getattr(cls, make_and_add_func_name)
 
