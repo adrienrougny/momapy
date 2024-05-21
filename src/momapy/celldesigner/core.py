@@ -151,7 +151,8 @@ class Compartment(momapy.sbml.core.Compartment, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Species(momapy.sbml.core.Species, CellDesignerModelElement):
-    active: bool = False  # TODO: no default?
+    hypothetical: bool = False
+    active: bool = False
     homomultimer: int = 1
 
 
