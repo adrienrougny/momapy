@@ -1,10 +1,10 @@
 <xsd:schema
-	targetNamespace="http://sbgn.org/libsbgn/0.3"
-    xmlns ="http://sbgn.org/libsbgn/0.3"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:sbgn="http://sbgn.org/libsbgn/0.3"
-    xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1"
-	elementFormDefault="qualified">
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:sbgn="http://sbgn.org/libsbgn/0.3"
+xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1"
+elementFormDefault="qualified"
+targetNamespace="http://sbgn.org/libsbgn/0.3"
+>
 	<xsd:annotation>
 		<xsd:documentation>
 			<p>
@@ -13,13 +13,13 @@
 				<a href="http://libsbgn.sourceforge.net">http://libsbgn.sourceforge.net</a>.
 			</p>
 			<p>
-				Version: LibSBGN Milestone 3 (cf. targetNamespace attribute - as recommended by the W3C)
+				Version: LibSBGN Milestone 2 (cf. targetNamespace attribute - as recommended by the W3C)
 			</p>
 		</xsd:documentation>
 	</xsd:annotation>
 
-    <xsd:import schemaLocation="sbml-render-for-sbgn-ml.xsd" namespace="http://www.sbml.org/sbml/level3/version1/render/version1"/>
-    <xsd:import schemaLocation="sbml-annotation-for-sbgn-ml.xsd"/>
+    <xsd:import schemaLocation="../common/extension-render.xsd" namespace="http://www.sbml.org/sbml/level3/version1/render/version1"/>
+    <xsd:include schemaLocation="../../sbml/annotation.xsd"/>
 
 <!-- COMMON TYPES AND ELEMENTS - COMMON TYPES AND ELEMENTS - COMMON TYPES AND ELEMENTS -->
 

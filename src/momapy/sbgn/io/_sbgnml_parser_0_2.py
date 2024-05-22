@@ -103,12 +103,14 @@ class ColorDefinitionType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     value: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
 
@@ -123,6 +125,7 @@ class GType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_family: Optional[str] = field(
@@ -130,6 +133,7 @@ class GType:
         metadata={
             "name": "font-family",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_size: Optional[float] = field(
@@ -137,6 +141,7 @@ class GType:
         metadata={
             "name": "font-size",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_weight: Optional[str] = field(
@@ -144,6 +149,7 @@ class GType:
         metadata={
             "name": "font-weight",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_style: Optional[str] = field(
@@ -151,6 +157,7 @@ class GType:
         metadata={
             "name": "font-style",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     font_color: Optional[str] = field(
@@ -158,12 +165,14 @@ class GType:
         metadata={
             "name": "font-color",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     stroke: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     stroke_width: Optional[float] = field(
@@ -171,6 +180,7 @@ class GType:
         metadata={
             "name": "stroke-width",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_image_opacity: Optional[str] = field(
@@ -178,6 +188,7 @@ class GType:
         metadata={
             "name": "background-image-opacity",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_opacity: Optional[str] = field(
@@ -185,12 +196,14 @@ class GType:
         metadata={
             "name": "background-opacity",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     fill: Optional[str] = field(
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
 
@@ -220,7 +233,6 @@ class LiType:
         default=None,
         metadata={
             "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         }
     )
 
@@ -251,6 +263,7 @@ class StyleType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     id_list: Optional[str] = field(
@@ -258,6 +271,7 @@ class StyleType:
         metadata={
             "name": "idList",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     g: Optional[GType] = field(
@@ -603,6 +617,7 @@ class RenderInformationType:
         default=None,
         metadata={
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     program_name: Optional[str] = field(
@@ -610,6 +625,7 @@ class RenderInformationType:
         metadata={
             "name": "program-name",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     program_version: Optional[str] = field(
@@ -617,6 +633,7 @@ class RenderInformationType:
         metadata={
             "name": "program-version",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     background_color: Optional[str] = field(
@@ -624,6 +641,7 @@ class RenderInformationType:
         metadata={
             "name": "background-color",
             "type": "Attribute",
+            "namespace": "http://www.sbml.org/sbml/level3/version1/render/version1",
         }
     )
     list_of_color_definitions: Optional[ListOfColorDefinitionsType] = field(
@@ -790,150 +808,143 @@ class DescriptionType:
     class Meta:
         target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
-    about: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
-    encodes: Optional[Encodes] = field(
-        default=None,
+    encodes: List[Encodes] = field(
+        default_factory=list,
         metadata={
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    has_part: Optional[HasPart] = field(
-        default=None,
+    has_part: List[HasPart] = field(
+        default_factory=list,
         metadata={
             "name": "hasPart",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    has_property: Optional[HasProperty] = field(
-        default=None,
+    has_property: List[HasProperty] = field(
+        default_factory=list,
         metadata={
             "name": "hasProperty",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    has_version: Optional[HasVersion] = field(
-        default=None,
+    has_version: List[HasVersion] = field(
+        default_factory=list,
         metadata={
             "name": "hasVersion",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_value: Optional[Is1] = field(
-        default=None,
+    is_value: List[Is1] = field(
+        default_factory=list,
         metadata={
             "name": "is",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_described_by: Optional[IsDescribedBy1] = field(
-        default=None,
+    is_described_by: List[IsDescribedBy1] = field(
+        default_factory=list,
         metadata={
             "name": "isDescribedBy",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_encoded_by: Optional[IsEncodedBy] = field(
-        default=None,
+    is_encoded_by: List[IsEncodedBy] = field(
+        default_factory=list,
         metadata={
             "name": "isEncodedBy",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_homolog_to: Optional[IsHomologTo] = field(
-        default=None,
+    is_homolog_to: List[IsHomologTo] = field(
+        default_factory=list,
         metadata={
             "name": "isHomologTo",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_part_of: Optional[IsPartOf] = field(
-        default=None,
+    is_part_of: List[IsPartOf] = field(
+        default_factory=list,
         metadata={
             "name": "isPartOf",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_property_of: Optional[IsPropertyOf] = field(
-        default=None,
+    is_property_of: List[IsPropertyOf] = field(
+        default_factory=list,
         metadata={
             "name": "isPropertyOf",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    is_version_of: Optional[IsVersionOf] = field(
-        default=None,
+    is_version_of: List[IsVersionOf] = field(
+        default_factory=list,
         metadata={
             "name": "isVersionOf",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    occurs_in: Optional[OccursIn] = field(
-        default=None,
+    occurs_in: List[OccursIn] = field(
+        default_factory=list,
         metadata={
             "name": "occursIn",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    has_taxon: Optional[HasTaxon] = field(
-        default=None,
+    has_taxon: List[HasTaxon] = field(
+        default_factory=list,
         metadata={
             "name": "hasTaxon",
             "type": "Element",
             "namespace": "http://biomodels.net/biology-qualifiers/",
         }
     )
-    has_instance: Optional[HasInstance] = field(
-        default=None,
+    has_instance: List[HasInstance] = field(
+        default_factory=list,
         metadata={
             "name": "hasInstance",
             "type": "Element",
             "namespace": "http://biomodels.net/model-qualifiers/",
         }
     )
-    biomodels_net_model_qualifiers_is: Optional[Is2] = field(
-        default=None,
+    biomodels_net_model_qualifiers_is: List[Is2] = field(
+        default_factory=list,
         metadata={
             "name": "is",
             "type": "Element",
             "namespace": "http://biomodels.net/model-qualifiers/",
         }
     )
-    is_derived_from: Optional[IsDerivedFrom] = field(
-        default=None,
+    is_derived_from: List[IsDerivedFrom] = field(
+        default_factory=list,
         metadata={
             "name": "isDerivedFrom",
             "type": "Element",
             "namespace": "http://biomodels.net/model-qualifiers/",
         }
     )
-    biomodels_net_model_qualifiers_is_described_by: Optional[IsDescribedBy2] = field(
-        default=None,
+    biomodels_net_model_qualifiers_is_described_by: List[IsDescribedBy2] = field(
+        default_factory=list,
         metadata={
             "name": "isDescribedBy",
             "type": "Element",
             "namespace": "http://biomodels.net/model-qualifiers/",
         }
     )
-    is_instance_of: Optional[IsInstanceOf] = field(
-        default=None,
+    is_instance_of: List[IsInstanceOf] = field(
+        default_factory=list,
         metadata={
             "name": "isInstanceOf",
             "type": "Element",
@@ -946,6 +957,12 @@ class DescriptionType:
             "type": "Wildcard",
             "namespace": "##any",
             "process_contents": "skip",
+        }
+    )
+    about: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
         }
     )
 
@@ -962,6 +979,14 @@ class Rdftype:
             "name": "Description",
             "type": "Element",
             "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+    any_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "##any",
+            "process_contents": "skip",
         }
     )
 
@@ -1045,7 +1070,7 @@ class Sbgnbase:
             default=None,
             metadata={
                 "type": "Element",
-                "namespace": "http://sbgn.org/libsbgn/0.2",
+                "namespace": "",
             }
         )
         any_element: List[object] = field(
@@ -1060,26 +1085,28 @@ class Sbgnbase:
 
 @dataclass
 class Bbox(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The bbox element describes a rectangle. This rectangle is defined by:
-    <ns1:ul><ns1:li>
+    """<p xmlns=""> The bbox element describes a rectangle.
+
+    This rectangle is defined by:
+    <ul><li>
     PointAttributes corresponding to the 2D coordinates of the top left
     corner,
-    </ns1:li><ns1:li>width and height attributes.</ns1:li></ns1:ul></ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    </li><li>width and height attributes.</li></ul></p>
+    <p xmlns="">
     The rectangle corresponds to the outer bounding box of a shape.
     The shape itself can be irregular
     (for instance in the case of some compartments).
-    </ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    </p>
+    <p xmlns="">
     In the case of process nodes,
     the bounding box only concerns the central glyph (square, or circle),
     the input/output ports are not included, and neither are the lines connecting
     them to the central glyph.
-    </ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    </p>
+    <p xmlns="">
     A bbox is required for all glyphs, and is optional for labels.
-    </ns1:p>"""
+    </p>
+    """
     class Meta:
         name = "bbox"
         namespace = "http://sbgn.org/libsbgn/0.2"
@@ -1116,17 +1143,19 @@ class Bbox(Sbgnbase):
 
 @dataclass
 class Point(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The point element is characterized by PointAttributes,
-    which describe absolute 2D cartesian coordinates. Namely:
-    <ns1:ul><ns1:li>x (horizontal, from left to right),</ns1:li><ns1:li>y (vertical, from top to bottom).</ns1:li></ns1:ul></ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    """<p xmlns=""> The point element is characterized by PointAttributes, which
+    describe absolute 2D cartesian coordinates.
+
+    Namely:
+    <ul><li>x (horizontal, from left to right),</li><li>y (vertical, from top to bottom).</li></ul></p>
+    <p xmlns="">
     The origin is located in the top-left corner of the map.
     There is no unit:
     proportions must be preserved, but the maps can be drawn at any scale.
     In the test files examples, to obtain a drawing similar to the reference
     *.png file, values in the corresponding *.sbgn file should be read as pixels.
-    </ns1:p>"""
+    </p>
+    """
     class Meta:
         name = "point"
         namespace = "http://sbgn.org/libsbgn/0.2"
@@ -1149,25 +1178,26 @@ class Point(Sbgnbase):
 
 @dataclass
 class Port(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The port element describes an anchor point which arcs can refer to
-    as a source or target. It consists in:
-    <ns1:ul><ns1:li>absolute 2D cartesian coordinates (PointAttribute),</ns1:li><ns1:li>a unique id attribute.</ns1:li></ns1:ul></ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    """<p xmlns=""> The port element describes an anchor point which arcs can refer
+    to as a source or target.
+
+    It consists in:
+    <ul><li>absolute 2D cartesian coordinates (PointAttribute),</li><li>a unique id attribute.</li></ul></p>
+    <p xmlns="">
     Two port elements are required for process nodes. They represent
     the extremity of the two "arms" which protrude on both sides of the
     core of the glyph (= square or circle shape).
     Other glyphs don't need ports (but can use them if desired).
-    </ns1:p>
+    </p>
 
     :ivar x:
     :ivar y:
-    :ivar id: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The xsd:ID
-        type is an alphanumeric identifier, starting with a letter. Port
-        IDs often contain the ID of their glyph, followed by a local
-        port number (e.g. glyph4.1, glyph4.2, etc.) However, this style
-        convention is not mandatory, and IDs should never be interpreted
-        as carrying any meaning. </ns1:p>
+    :ivar id: <p xmlns=""> The xsd:ID type is an alphanumeric
+        identifier, starting with a letter. Port IDs often contain the
+        ID of their glyph, followed by a local port number (e.g.
+        glyph4.1, glyph4.2, etc.) However, this style convention is not
+        mandatory, and IDs should never be interpreted as carrying any
+        meaning. </p>
     """
     class Meta:
         name = "port"
@@ -1198,17 +1228,15 @@ class Port(Sbgnbase):
 
 @dataclass
 class Label(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The label element describes the text accompanying a glyph.
-    The text attribute is mandatory.
-    Its position can be specified by a bbox (optional).
-    Tools are free to display the text in any style (font, font-size, etc.)
-    </ns1:p>
+    """<p xmlns=""> The label element describes the text accompanying a glyph.
+
+    The text attribute is mandatory. Its position can be specified by a
+    bbox (optional). Tools are free to display the text in any style
+    (font, font-size, etc.) </p>
 
     :ivar bbox:
-    :ivar text: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> Multi-
-        line labels are allowed. Line breaks are encoded as &amp;#xA; as
-        specified by the XML standard. </ns1:p>
+    :ivar text: <p xmlns=""> Multi-line labels are allowed. Line breaks
+        are encoded as &amp;#xA; as specified by the XML standard. </p>
     """
     class Meta:
         name = "label"
@@ -1231,108 +1259,94 @@ class Label(Sbgnbase):
 
 @dataclass
 class Glyph(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    """<p xmlns="">
     The glyph element is:
-    <ns1:ul><ns1:li>either a stand-alone, high-level SBGN glyph
-    (EPN, PN, compartment, etc),</ns1:li><ns1:li>or a sub-glyph
-    (state variable, unit of information, inside of a complex, ...)</ns1:li></ns1:ul></ns1:p>
-    <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
+    <ul><li>either a stand-alone, high-level SBGN glyph
+    (EPN, PN, compartment, etc),</li><li>or a sub-glyph
+    (state variable, unit of information, inside of a complex, ...)</li></ul></p>
+    <p xmlns="">
     In the first case, it appears directly in the glyph list of the map.
     In the second case, it is a child of another glyph element.
-    </ns1:p>
+    </p>
 
     :ivar label:
-    :ivar state: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        state element should only be used for state variables. It
-        replaces the label element used for other glyphs. It describes
-        the text to be drawn inside the state variable. </ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> A state must have a
-        value, a variable, or both. If it has both, they are rendered as
-        a concatenated string with @ in between. </ns1:p>
-    :ivar clone: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        clone element (which is optional) means the glyph carries a
-        clone marker. It can contain an optional label. </ns1:p>
-    :ivar callout: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        callout element is only used for glyphs with class annotation.
-        It contains the coordinate of the point where the annotation
-        points to, as well as a reference to the element that is pointed
-        to. </ns1:p>
-    :ivar entity: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        entity is only used in activity flow diagrams. It can only be
-        used on a unit of information glyph on a biological activity
-        glyph, where it is compulsory. It is used to indicate the shape
-        of this unit of information. </ns1:p>
-    :ivar bbox: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The bbox
-        element is mandatory and unique: exactly one per glyph. It
-        defines the outer bounding box of the glyph. The actual shape of
-        the glyph can be irregular (for instance in the case of some
-        compartments) </ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In the case of process
-        nodes, the bounding box only concerns the central glyph (square,
-        or circle): the input/output ports are not included, and neither
-        are the lines connecting them to the central glyph. </ns1:p>
-    :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> A glyph
-        element can contain any number of children glyph elements. In
-        practice, this should only happen in the following cases:
-        <ns1:ul><ns1:li>a compartment with unit of information
-        children,</ns1:li><ns1:li> an EPN with states variables and/or
-        unit of information children, </ns1:li><ns1:li> a complex, with
+    :ivar state: <p xmlns=""> The state element should only be used for
+        state variables. It replaces the label element used for other
+        glyphs. It describes the text to be drawn inside the state
+        variable. </p> <p xmlns=""> A state must have a value, a
+        variable, or both. If it has both, they are rendered as a
+        concatenated string with @ in between. </p>
+    :ivar clone: <p xmlns=""> The clone element (which is optional)
+        means the glyph carries a clone marker. It can contain an
+        optional label. </p>
+    :ivar callout: <p xmlns=""> The callout element is only used for
+        glyphs with class annotation. It contains the coordinate of the
+        point where the annotation points to, as well as a reference to
+        the element that is pointed to. </p>
+    :ivar entity: <p xmlns=""> The entity is only used in activity flow
+        diagrams. It can only be used on a unit of information glyph on
+        a biological activity glyph, where it is compulsory. It is used
+        to indicate the shape of this unit of information. </p>
+    :ivar bbox: <p xmlns=""> The bbox element is mandatory and unique:
+        exactly one per glyph. It defines the outer bounding box of the
+        glyph. The actual shape of the glyph can be irregular (for
+        instance in the case of some compartments) </p> <p xmlns=""> In
+        the case of process nodes, the bounding box only concerns the
+        central glyph (square, or circle): the input/output ports are
+        not included, and neither are the lines connecting them to the
+        central glyph. </p>
+    :ivar glyph: <p xmlns=""> A glyph element can contain any number of
+        children glyph elements. In practice, this should only happen in
+        the following cases: <ul><li>a compartment with unit of
+        information children,</li><li> an EPN with states variables
+        and/or unit of information children, </li><li> a complex, with
         state variables, unit of info, and/or EPN children.
-        </ns1:li></ns1:ul></ns1:p>
+        </li></ul></p>
     :ivar port:
-    :ivar class_value: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-        The class attribute defines the semantic of the glyph, and
-        influences: <ns1:ul><ns1:li>the way that glyph should be
-        rendered,</ns1:li><ns1:li>the overall syntactic validity of the
-        map.</ns1:li></ns1:ul></ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The various classes
-        encompass the following PD SBGN elements: <ns1:ul><ns1:li>Entity
-        Pool Nodes (EPN),</ns1:li><ns1:li>Process Nodes
-        (PN),</ns1:li><ns1:li>Logic Operator Nodes,</ns1:li><ns1:li>Sub-
-        glyphs on Nodes (State Variable, Unit of
-        Information),</ns1:li><ns1:li>Sub-glyphs on Arcs (Stoichiometry
-        Label),</ns1:li><ns1:li>Other glyphs (Compartment, Submap, Tag,
-        Terminal).</ns1:li></ns1:ul> And the following ER SBGN elements
-        <ns1:ul><ns1:li>Entities (Entity, Outcome)</ns1:li><ns1:li>Other
-        (Annotation, Phenotype)</ns1:li><ns1:li>Auxiliary on glyps
-        (Existence, Location)</ns1:li><ns1:li>Auxiliary on arcs
-        (Cardinality)</ns1:li><ns1:li>Delay
-        operator</ns1:li><ns1:li>implicit xor</ns1:li></ns1:ul></ns1:p>
-    :ivar orientation: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-        The orientation attribute is used to express how to draw
-        asymmetric glyphs. In PD, the orientation of Process Nodes is
-        either horizontal or vertical. It refers to an (imaginary) line
-        connecting the two in/out sides of the PN. In PD, the
-        orientation of Tags and Terminals can be left, right, up or
-        down. It refers to the direction the arrow side of the glyph is
-        pointing at. </ns1:p>
-    :ivar id: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The xsd:ID
-        type is an alphanumeric identifier, starting with a letter. It
-        is recommended to generate meaningless IDs (e.g. "glyph1234")
-        and avoid IDs with a meaning (e.g. "epn_ethanol") </ns1:p>
-    :ivar compartment_ref: <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> Reference to the ID of
-        the compartment that this glyph is part of. Only use this if
-        there is at least one explicit compartment present in the
-        diagram. Compartments are only used in PD and AF, and thus this
-        attribute as well. For PD, this should be used only for EPN's.
-        </ns1:p> <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In case
-        there are no compartments, entities that can have a location,
-        such as EPN's, are implicit member of an invisible compartment
-        that encompasses the whole map. In that case, this attribute
-        must be omitted. </ns1:p>
-    :ivar compartment_order: <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The compartment order
+    :ivar class_value: <p xmlns=""> The class attribute defines the
+        semantic of the glyph, and influences: <ul><li>the way that
+        glyph should be rendered,</li><li>the overall syntactic validity
+        of the map.</li></ul></p> <p xmlns=""> The various classes
+        encompass the following PD SBGN elements: <ul><li>Entity Pool
+        Nodes (EPN),</li><li>Process Nodes (PN),</li><li>Logic Operator
+        Nodes,</li><li>Sub-glyphs on Nodes (State Variable, Unit of
+        Information),</li><li>Sub-glyphs on Arcs (Stoichiometry
+        Label),</li><li>Other glyphs (Compartment, Submap, Tag,
+        Terminal).</li></ul> And the following ER SBGN elements
+        <ul><li>Entities (Entity, Outcome)</li><li>Other (Annotation,
+        Phenotype)</li><li>Auxiliary on glyps (Existence,
+        Location)</li><li>Auxiliary on arcs (Cardinality)</li><li>Delay
+        operator</li><li>implicit xor</li></ul></p>
+    :ivar orientation: <p xmlns=""> The orientation attribute is used to
+        express how to draw asymmetric glyphs. In PD, the orientation of
+        Process Nodes is either horizontal or vertical. It refers to an
+        (imaginary) line connecting the two in/out sides of the PN. In
+        PD, the orientation of Tags and Terminals can be left, right, up
+        or down. It refers to the direction the arrow side of the glyph
+        is pointing at. </p>
+    :ivar id: <p xmlns=""> The xsd:ID type is an alphanumeric
+        identifier, starting with a letter. It is recommended to
+        generate meaningless IDs (e.g. "glyph1234") and avoid IDs with a
+        meaning (e.g. "epn_ethanol") </p>
+    :ivar compartment_ref: <p xmlns=""> Reference to the ID of the
+        compartment that this glyph is part of. Only use this if there
+        is at least one explicit compartment present in the diagram.
+        Compartments are only used in PD and AF, and thus this attribute
+        as well. For PD, this should be used only for EPN's. </p> <p
+        xmlns=""> In case there are no compartments, entities that can
+        have a location, such as EPN's, are implicit member of an
+        invisible compartment that encompasses the whole map. In that
+        case, this attribute must be omitted. </p>
+    :ivar compartment_order: <p xmlns=""> The compartment order
         attribute can be used to define a drawing order for
         compartments. It enables tools to draw compartments in the
         correct order especially in the case of overlapping
         compartments. Compartments are only used in PD and AF, and thus
-        this attribute as well. </ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The attribute is of
+        this attribute as well. </p> <p xmlns=""> The attribute is of
         type float, the attribute value has not to be unique.
         Compartments with higher compartment order are drawn on top. The
         attribute is optional and should only be used for compartments.
-        </ns1:p>
+        </p>
     """
     class Meta:
         name = "glyph"
@@ -1461,19 +1475,17 @@ class Glyph(Sbgnbase):
     @dataclass
     class State:
         """
-        :ivar value: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-            value attribute represents the state of the variable. It can
-            be: <ns1:ul><ns1:li> either from a predefined set of string
-            (P, S, etc.) which correspond to specific SBO terms (cf.
-            SBGN specs), </ns1:li><ns1:li> or any arbitrary string.
-            </ns1:li></ns1:ul></ns1:p>
-        :ivar variable: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-            The variable attribute describes the site where the
-            modification described by the value attribute occurs. It is:
-            <ns1:ul><ns1:li> optional when there is only one state
-            variable on the parent EPN, </ns1:li><ns1:li> required when
-            there is more than one state variable the parent EPN.
-            </ns1:li></ns1:ul></ns1:p>
+        :ivar value: <p xmlns=""> The value attribute represents the
+            state of the variable. It can be: <ul><li> either from a
+            predefined set of string (P, S, etc.) which correspond to
+            specific SBO terms (cf. SBGN specs), </li><li> or any
+            arbitrary string. </li></ul></p>
+        :ivar variable: <p xmlns=""> The variable attribute describes
+            the site where the modification described by the value
+            attribute occurs. It is: <ul><li> optional when there is
+            only one state variable on the parent EPN, </li><li>
+            required when there is more than one state variable the
+            parent EPN. </li></ul></p>
         """
         value: Optional[str] = field(
             default=None,
@@ -1491,66 +1503,57 @@ class Glyph(Sbgnbase):
 
 @dataclass
 class Arc(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The arc element describes an SBGN arc between two SBGN nodes. It contains:
-    <ns1:ul><ns1:li>For PD: an optional stoichiometry marker,</ns1:li><ns1:li>For ER: an optional cardinality marker,
-    zero or more ports (influence targets), and zero or more outcomes,</ns1:li><ns1:li>a mandatory source and target (glyph or port),</ns1:li><ns1:li>a geometric description of its whole path, from start to end.</ns1:li></ns1:ul><ns1:p>
-    </ns1:p>
+    """<p xmlns=""> The arc element describes an SBGN arc between two SBGN nodes.
+
+    It contains:
+    <ul><li>For PD: an optional stoichiometry marker,</li><li>For ER: an optional cardinality marker,
+    zero or more ports (influence targets), and zero or more outcomes,</li><li>a mandatory source and target (glyph or port),</li><li>a geometric description of its whole path, from start to end.</li></ul><p>
+    </p>
     This path can involve any number of straight lines or quadratic/cubic Bezier
     curves.
-    </ns1:p>
+    </p>
 
-    :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In PD,
-        an arc can contain a single optional sub-glyph. This glyph must
-        be a stoichiometry marker (square with a numeric label) </ns1:p>
-        <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> In ER, an arc
+    :ivar glyph: <p xmlns=""> In PD, an arc can contain a single
+        optional sub-glyph. This glyph must be a stoichiometry marker
+        (square with a numeric label) </p> <p xmlns=""> In ER, an arc
         can contain several sub-glyphs. This can be zero or one
         cardinality glyphs (e.g. cis or trans), plus zero to many
-        outcome glyphs (black dot) </ns1:p>
-    :ivar port: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> Ports
-        are only allowed in ER. </ns1:p>
-    :ivar start: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        start element represents the starting point of the arc's path.
-        It is unique and mandatory. </ns1:p>
-    :ivar next: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The next
-        element represents the next point in the arc's path. Between the
-        start and the end of the path, there can be any number (even
-        zero) of next elements (intermediate points). They are read
-        consecutively: start, next, next, ..., next, end. When the path
-        from the previous point to this point is not straight, this
-        element also contains a list of control points (between 1 and 2)
-        describing a Bezier curve (quadratic if 1 control point, cubic
-        if 2) between the previous point and this point. </ns1:p>
-    :ivar end: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The end
-        element represents the ending point of the arc's path. It is
-        unique and mandatory. When the path from the previous point to
+        outcome glyphs (black dot) </p>
+    :ivar port: <p xmlns=""> Ports are only allowed in ER. </p>
+    :ivar start: <p xmlns=""> The start element represents the starting
+        point of the arc's path. It is unique and mandatory. </p>
+    :ivar next: <p xmlns=""> The next element represents the next point
+        in the arc's path. Between the start and the end of the path,
+        there can be any number (even zero) of next elements
+        (intermediate points). They are read consecutively: start, next,
+        next, ..., next, end. When the path from the previous point to
         this point is not straight, this element also contains a list of
         control points (between 1 and 2) describing a Bezier curve
         (quadratic if 1 control point, cubic if 2) between the previous
-        point and this point. </ns1:p>
-    :ivar class_value: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-        The class attribute defines the semantic of the arc, and
-        influences: <ns1:ul><ns1:li>the way that arc should be
-        rendered,</ns1:li><ns1:li>the overall syntactic validity of the
-        map.</ns1:li></ns1:ul></ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The various classes
-        encompass all possible types of SBGN arcs:
-        <ns1:ul><ns1:li>production and consumption
-        arcs,</ns1:li><ns1:li>all types of modification
-        arcs,</ns1:li><ns1:li>logic arcs,</ns1:li><ns1:li>equivalence
-        arcs.</ns1:li></ns1:ul> To express a reversible reaction, use
-        production arcs on both sides of the Process Node. </ns1:p>
-    :ivar id: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The xsd:ID
-        type is an alphanumeric identifier, starting with a letter.
-        </ns1:p>
-    :ivar source: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        source attribute can refer: <ns1:ul><ns1:li>either to the id of
-        a glyph,</ns1:li><ns1:li>or to the id of a port on a
-        glyph.</ns1:li></ns1:ul></ns1:p>
-    :ivar target: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The
-        target attribute can refer: <ns1:ul><ns1:li>either to the id of
-        a glyph,</ns1:li><ns1:li>or to the id of a port on a
-        glyph.</ns1:li></ns1:ul></ns1:p>
+        point and this point. </p>
+    :ivar end: <p xmlns=""> The end element represents the ending point
+        of the arc's path. It is unique and mandatory. When the path
+        from the previous point to this point is not straight, this
+        element also contains a list of control points (between 1 and 2)
+        describing a Bezier curve (quadratic if 1 control point, cubic
+        if 2) between the previous point and this point. </p>
+    :ivar class_value: <p xmlns=""> The class attribute defines the
+        semantic of the arc, and influences: <ul><li>the way that arc
+        should be rendered,</li><li>the overall syntactic validity of
+        the map.</li></ul></p> <p xmlns=""> The various classes
+        encompass all possible types of SBGN arcs: <ul><li>production
+        and consumption arcs,</li><li>all types of modification
+        arcs,</li><li>logic arcs,</li><li>equivalence arcs.</li></ul> To
+        express a reversible reaction, use production arcs on both sides
+        of the Process Node. </p>
+    :ivar id: <p xmlns=""> The xsd:ID type is an alphanumeric
+        identifier, starting with a letter. </p>
+    :ivar source: <p xmlns=""> The source attribute can refer:
+        <ul><li>either to the id of a glyph,</li><li>or to the id of a
+        port on a glyph.</li></ul></p>
+    :ivar target: <p xmlns=""> The target attribute can refer:
+        <ul><li>either to the id of a glyph,</li><li>or to the id of a
+        port on a glyph.</li></ul></p>
     """
     class Meta:
         name = "arc"
@@ -1686,22 +1689,21 @@ class Arc(Sbgnbase):
 
 @dataclass
 class Arcgroup(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The arc group describes a set of arcs and glyphs that together have a relation.
-    For example
-    <ns1:ul><ns1:li>For ER: interaction arcs around an interaction glyph,</ns1:li><ns1:li>...</ns1:li></ns1:ul>
-    Note that, in spite of the name, an arcgroup contains both arcs and glyphs.
-    </ns1:p>
+    """<p xmlns=""> The arc group describes a set of arcs and glyphs that together
+    have a relation.
 
-    :ivar glyph: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> An
-        arcgroup can contain glyphs. For example, in an interaction
-        arcgroup, there must be one interaction glyph. </ns1:p>
-    :ivar arc: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> An
-        arcgroup can have multiple arcs. They are all assumed to form a
-        single hyperarc-like structure. </ns1:p>
-    :ivar class_value: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-        The class attribute defines the semantic of the arcgroup.
-        </ns1:p>
+    For example
+    <ul><li>For ER: interaction arcs around an interaction glyph,</li><li>...</li></ul>
+    Note that, in spite of the name, an arcgroup contains both arcs and glyphs.
+    </p>
+
+    :ivar glyph: <p xmlns=""> An arcgroup can contain glyphs. For
+        example, in an interaction arcgroup, there must be one
+        interaction glyph. </p>
+    :ivar arc: <p xmlns=""> An arcgroup can have multiple arcs. They are
+        all assumed to form a single hyperarc-like structure. </p>
+    :ivar class_value: <p xmlns=""> The class attribute defines the
+        semantic of the arcgroup. </p>
     """
     class Meta:
         name = "arcgroup"
@@ -1731,27 +1733,25 @@ class Arcgroup(Sbgnbase):
 
 @dataclass
 class Map(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The map element describes a single SBGN PD map.
-    It contains a list of glyph elements and a list of arc elements.
-    These lists can be of any size (possibly empty).
-    </ns1:p>
+    """<p xmlns=""> The map element describes a single SBGN PD map.
 
-    :ivar bbox: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2"> The bbox
-        element on a map is not mandatory, it allows the application to
-        define a canvas, and at the same time define a whitespace margin
-        around the glyphs. </ns1:p> <ns1:p
-        xmlns:ns1="http://sbgn.org/libsbgn/0.2"> If a bbox is defined on
-        a map, all glyphs and arcs must be inside this bbox, otherwise
-        they could be clipped off by applications. </ns1:p>
+    It contains a list of glyph elements and a list of arc elements.
+    These lists can be of any size (possibly empty). </p>
+
+    :ivar bbox: <p xmlns=""> The bbox element on a map is not mandatory,
+        it allows the application to define a canvas, and at the same
+        time define a whitespace margin around the glyphs. </p> <p
+        xmlns=""> If a bbox is defined on a map, all glyphs and arcs
+        must be inside this bbox, otherwise they could be clipped off by
+        applications. </p>
     :ivar glyph:
     :ivar arc:
     :ivar arcgroup:
-    :ivar language: <ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-        Language of the map: one of three sublanguages defined by SBGN.
-        Different languages have different restrictions on the usage of
-        sub-elements (that are not encoded in this schema but must be
-        validated with an external validator) </ns1:p>
+    :ivar language: <p xmlns=""> Language of the map: one of three
+        sublanguages defined by SBGN. Different languages have different
+        restrictions on the usage of sub-elements (that are not encoded
+        in this schema but must be validated with an external validator)
+        </p>
     """
     class Meta:
         name = "map"
@@ -1792,10 +1792,10 @@ class Map(Sbgnbase):
 
 @dataclass
 class Sbgn(Sbgnbase):
-    """<ns1:p xmlns:ns1="http://sbgn.org/libsbgn/0.2">
-    The sbgn element is the root of any SBGNML document.
-    Currently each document must contain exactly one map element.
-    </ns1:p>"""
+    """<p xmlns=""> The sbgn element is the root of any SBGNML document.
+
+    Currently each document must contain exactly one map element. </p>
+    """
     class Meta:
         name = "sbgn"
         namespace = "http://sbgn.org/libsbgn/0.2"

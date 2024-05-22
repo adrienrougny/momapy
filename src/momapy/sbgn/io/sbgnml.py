@@ -3401,21 +3401,22 @@ class _SBGNMLReader(momapy.io.MapReader):
                 for (
                     qualifier_attribute
                 ) in cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER:
-                    annotation_value = getattr(
+                    annotation_values = getattr(
                         annotation_element.rdf.description, qualifier_attribute
                     )
-                    if annotation_value is not None:
-                        annotation_bag = annotation_value.bag
-                        for li in annotation_bag.li:
-                            resource = li.resource
-                            annotation = map_.new_model_element(
-                                momapy.sbgn.core.Annotation
-                            )
-                            annotation.qualifier = cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[
-                                qualifier_attribute
-                            ]
-                            annotation.resource = resource
-                            annotations.append(annotation)
+                    if annotation_values:
+                        for annotation_value in annotation_values:
+                            annotation_bag = annotation_value.bag
+                            for li in annotation_bag.li:
+                                resource = li.resource
+                                annotation = map_.new_model_element(
+                                    momapy.sbgn.core.Annotation
+                                )
+                                annotation.qualifier = cls._SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[
+                                    qualifier_attribute
+                                ]
+                                annotation.resource = resource
+                                annotations.append(annotation)
         return annotations
 
     @classmethod
