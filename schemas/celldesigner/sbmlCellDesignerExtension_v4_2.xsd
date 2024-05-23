@@ -363,6 +363,7 @@
                 <xs:enumeration value="prenylated"/>
                 <xs:enumeration value="protonated"/>
                 <xs:enumeration value="sulfated"/>
+                <xs:enumeration value="empty"/> <!-- Added by A. Rougny -->
               </xs:restriction>
             </xs:simpleType>
           </xs:attribute>

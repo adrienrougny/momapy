@@ -626,7 +626,10 @@ class CellDesignerReader(momapy.io.MapReader):
         ]
         model_element.residue = modification_residue_model_element
         cd_modification_state = cd_element.state
-        if cd_modification_state == "empty":
+        if (
+            cd_modification_state
+            is momapy.celldesigner.io._celldesigner_parser.ModificationState.EMPTY
+        ):
             modification_state = None
         else:
             modification_state = momapy.celldesigner.core.ModificationState[

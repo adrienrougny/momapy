@@ -1152,6 +1152,7 @@ class ModificationState(Enum):
     PRENYLATED = "prenylated"
     PROTONATED = "protonated"
     SULFATED = "sulfated"
+    EMPTY = "empty"
 
 
 class ModificationType(Enum):
