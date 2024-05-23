@@ -26,6 +26,7 @@ class ModificationResidue(CellDesignerModelElement):
 class ModificationState(enum.Enum):
     PHOSPHORYLATED = "P"
     UBIQUITINATED = "Ub"
+    ACETYLATED = "Ac"
     METHYLATED = "M"
     HYDROXYLATED = "OH"
     GLYCOSYLATED = "G"
