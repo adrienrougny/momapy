@@ -417,36 +417,6 @@ class ClassValue(Enum):
 
 
 @dataclass
-class CompartmentAnnotationType:
-    """
-    Annotation for compartment.
-    """
-    class Meta:
-        name = "compartmentAnnotationType"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    extension: Optional["CompartmentAnnotationType.Extension"] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "required": True,
-        }
-    )
-
-    @dataclass
-    class Extension:
-        name: Optional[str] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-
-
-@dataclass
 class ComplexSpecies:
     """Species id of the parent complex.
 
@@ -1742,6 +1712,21 @@ class SepType:
 
 
 @dataclass
+class LiType:
+    class Meta:
+        name = "liType"
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    resource: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
 class Activity:
     """
     Designation of activity of the species (aliases).
@@ -2431,72 +2416,6 @@ class View:
 
 
 @dataclass
-class Compartment(Sbase):
-    """
-    Redefined compartment.
-    """
-    class Meta:
-        target_namespace = "http://www.sbml.org/sbml/level2/version4"
-
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    size: Optional[float] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    spatial_dimensions: int = field(
-        default=3,
-        metadata={
-            "name": "spatialDimensions",
-            "type": "Attribute",
-            "min_inclusive": 0,
-            "max_inclusive": 3,
-        }
-    )
-    units: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    outside: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    constant: bool = field(
-        default=True,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    annotation: Optional[CompartmentAnnotationType] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/sbml/level2/version4",
-        }
-    )
-
-
-@dataclass
 class Parameter(Sbase):
     class Meta:
         target_namespace = "http://www.sbml.org/sbml/level2/version4"
@@ -2698,6 +2617,20 @@ class Csymbol:
         default=None,
         metadata={
             "type": "Attribute",
+        }
+    )
+
+
+@dataclass
+class BagType:
+    class Meta:
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    li: List[LiType] = field(
+        default_factory=list,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         }
     )
 
@@ -3811,6 +3744,300 @@ class Piece(MathBase):
 
 
 @dataclass
+class Bag(BagType):
+    class Meta:
+        namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+
+@dataclass
+class EncodesType:
+    class Meta:
+        name = "encodesType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasPartType:
+    class Meta:
+        name = "hasPartType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasPropertyType:
+    class Meta:
+        name = "hasPropertyType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasTaxonType:
+    class Meta:
+        name = "hasTaxonType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasVersionType:
+    class Meta:
+        name = "hasVersionType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDescribedByType1:
+    class Meta:
+        name = "isDescribedByType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsEncodedByType:
+    class Meta:
+        name = "isEncodedByType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsHomologToType:
+    class Meta:
+        name = "isHomologToType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsPartOfType:
+    class Meta:
+        name = "isPartOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsPropertyOfType:
+    class Meta:
+        name = "isPropertyOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsType1:
+    class Meta:
+        name = "isType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsVersionOfType:
+    class Meta:
+        name = "isVersionOfType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class OccursInType:
+    class Meta:
+        name = "occursInType"
+        target_namespace = "http://biomodels.net/biology-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class HasInstanceType:
+    class Meta:
+        name = "hasInstanceType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDerivedFromType:
+    class Meta:
+        name = "isDerivedFromType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsDescribedByType2:
+    class Meta:
+        name = "isDescribedByType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsInstanceOfType:
+    class Meta:
+        name = "isInstanceOfType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
+class IsType2:
+    class Meta:
+        name = "isType"
+        target_namespace = "http://biomodels.net/model-qualifiers/"
+
+    bag: Optional[Bag] = field(
+        default=None,
+        metadata={
+            "name": "Bag",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+
+@dataclass
 class AntisenseRna:
     """
     For antisense RNA.
@@ -4391,6 +4618,132 @@ class Piecewise(MathBase):
 
 
 @dataclass
+class Encodes(EncodesType):
+    class Meta:
+        name = "encodes"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasPart(HasPartType):
+    class Meta:
+        name = "hasPart"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasProperty(HasPropertyType):
+    class Meta:
+        name = "hasProperty"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasTaxon(HasTaxonType):
+    class Meta:
+        name = "hasTaxon"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasVersion(HasVersionType):
+    class Meta:
+        name = "hasVersion"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsDescribedBy1(IsDescribedByType1):
+    class Meta:
+        name = "isDescribedBy"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsEncodedBy(IsEncodedByType):
+    class Meta:
+        name = "isEncodedBy"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsHomologTo(IsHomologToType):
+    class Meta:
+        name = "isHomologTo"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsPartOf(IsPartOfType):
+    class Meta:
+        name = "isPartOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsPropertyOf(IsPropertyOfType):
+    class Meta:
+        name = "isPropertyOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class IsVersionOf(IsVersionOfType):
+    class Meta:
+        name = "isVersionOf"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class Is1(IsType1):
+    class Meta:
+        name = "is"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class OccursIn(OccursInType):
+    class Meta:
+        name = "occursIn"
+        namespace = "http://biomodels.net/biology-qualifiers/"
+
+
+@dataclass
+class HasInstance(HasInstanceType):
+    class Meta:
+        name = "hasInstance"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsDerivedFrom(IsDerivedFromType):
+    class Meta:
+        name = "isDerivedFrom"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsDescribedBy2(IsDescribedByType2):
+    class Meta:
+        name = "isDescribedBy"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class IsInstanceOf(IsInstanceOfType):
+    class Meta:
+        name = "isInstanceOf"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
+class Is2(IsType2):
+    class Meta:
+        name = "is"
+        namespace = "http://biomodels.net/model-qualifiers/"
+
+
+@dataclass
 class ComplexSpeciesAlias:
     """
     For species aliases of complex species.
@@ -4917,62 +5270,6 @@ class SpeciesAlias:
 
 
 @dataclass
-class SpeciesAnnotationType:
-    """
-    Annotation for species.
-    """
-    class Meta:
-        name = "speciesAnnotationType"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    extension: Optional["SpeciesAnnotationType.Extension"] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "required": True,
-        }
-    )
-
-    @dataclass
-    class Extension:
-        position_to_compartment: Optional[PositionToCompartmentValue] = field(
-            default=None,
-            metadata={
-                "name": "positionToCompartment",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        complex_species: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "complexSpecies",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-            }
-        )
-        species_identity: Optional[SpeciesIdentity] = field(
-            default=None,
-            metadata={
-                "name": "speciesIdentity",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_catalyzed_reactions: Optional[ListOfCatalyzedReactions] = field(
-            default=None,
-            metadata={
-                "name": "listOfCatalyzedReactions",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-
-
-@dataclass
 class Species2:
     """
     Species inside complexes.
@@ -5420,101 +5717,6 @@ class ListOfSpeciesAliases:
 
 
 @dataclass
-class Species1(Sbase):
-    """
-    Redefined species.
-    """
-    class Meta:
-        name = "Species"
-        target_namespace = "http://www.sbml.org/sbml/level2/version4"
-
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    compartment: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    initial_amount: Optional[float] = field(
-        default=None,
-        metadata={
-            "name": "initialAmount",
-            "type": "Attribute",
-        }
-    )
-    initial_concentration: Optional[float] = field(
-        default=None,
-        metadata={
-            "name": "initialConcentration",
-            "type": "Attribute",
-        }
-    )
-    substance_units: Optional[str] = field(
-        default=None,
-        metadata={
-            "name": "substanceUnits",
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    spatial_size_units: Optional[str] = field(
-        default=None,
-        metadata={
-            "name": "spatialSizeUnits",
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    has_only_substance_units: bool = field(
-        default=False,
-        metadata={
-            "name": "hasOnlySubstanceUnits",
-            "type": "Attribute",
-        }
-    )
-    boundary_condition: bool = field(
-        default=False,
-        metadata={
-            "name": "boundaryCondition",
-            "type": "Attribute",
-        }
-    )
-    charge: Optional[int] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    constant: bool = field(
-        default=False,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    annotation: Optional[SpeciesAnnotationType] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/sbml/level2/version4",
-        }
-    )
-
-
-@dataclass
 class Semantics(MathBase):
     class Meta:
         target_namespace = "http://www.w3.org/1998/Math/MathML"
@@ -5631,6 +5833,171 @@ class Semantics(MathBase):
         metadata={
             "name": "definitionURL",
             "type": "Attribute",
+        }
+    )
+
+
+@dataclass
+class DescriptionType:
+    class Meta:
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    encodes: List[Encodes] = field(
+        default_factory=list,
+        metadata={
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_part: List[HasPart] = field(
+        default_factory=list,
+        metadata={
+            "name": "hasPart",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_property: List[HasProperty] = field(
+        default_factory=list,
+        metadata={
+            "name": "hasProperty",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_version: List[HasVersion] = field(
+        default_factory=list,
+        metadata={
+            "name": "hasVersion",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_value: List[Is1] = field(
+        default_factory=list,
+        metadata={
+            "name": "is",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_described_by: List[IsDescribedBy1] = field(
+        default_factory=list,
+        metadata={
+            "name": "isDescribedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_encoded_by: List[IsEncodedBy] = field(
+        default_factory=list,
+        metadata={
+            "name": "isEncodedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_homolog_to: List[IsHomologTo] = field(
+        default_factory=list,
+        metadata={
+            "name": "isHomologTo",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_part_of: List[IsPartOf] = field(
+        default_factory=list,
+        metadata={
+            "name": "isPartOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_property_of: List[IsPropertyOf] = field(
+        default_factory=list,
+        metadata={
+            "name": "isPropertyOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    is_version_of: List[IsVersionOf] = field(
+        default_factory=list,
+        metadata={
+            "name": "isVersionOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    occurs_in: List[OccursIn] = field(
+        default_factory=list,
+        metadata={
+            "name": "occursIn",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_taxon: List[HasTaxon] = field(
+        default_factory=list,
+        metadata={
+            "name": "hasTaxon",
+            "type": "Element",
+            "namespace": "http://biomodels.net/biology-qualifiers/",
+        }
+    )
+    has_instance: List[HasInstance] = field(
+        default_factory=list,
+        metadata={
+            "name": "hasInstance",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    biomodels_net_model_qualifiers_is: List[Is2] = field(
+        default_factory=list,
+        metadata={
+            "name": "is",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    is_derived_from: List[IsDerivedFrom] = field(
+        default_factory=list,
+        metadata={
+            "name": "isDerivedFrom",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    biomodels_net_model_qualifiers_is_described_by: List[IsDescribedBy2] = field(
+        default_factory=list,
+        metadata={
+            "name": "isDescribedBy",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    is_instance_of: List[IsInstanceOf] = field(
+        default_factory=list,
+        metadata={
+            "name": "isInstanceOf",
+            "type": "Element",
+            "namespace": "http://biomodels.net/model-qualifiers/",
+        }
+    )
+    any_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "##any",
+            "process_contents": "skip",
+        }
+    )
+    about: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
         }
     )
 
@@ -6204,6 +6571,30 @@ class Apply(MathBase):
 
 
 @dataclass
+class Rdftype:
+    class Meta:
+        name = "RDFType"
+        target_namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+    description: Optional[DescriptionType] = field(
+        default=None,
+        metadata={
+            "name": "Description",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+    any_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "##any",
+            "process_contents": "skip",
+        }
+    )
+
+
+@dataclass
 class ModelAnnotationType:
     """
     Annotation for model.
@@ -6533,10 +6924,185 @@ class NodeContainer(MathBase):
 
 
 @dataclass
+class Rdf(Rdftype):
+    class Meta:
+        name = "RDF"
+        namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+
+@dataclass
+class CompartmentAnnotationType:
+    """
+    Annotation for compartment.
+    """
+    class Meta:
+        name = "compartmentAnnotationType"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    extension: Optional["CompartmentAnnotationType.Extension"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
+    rdf: Optional[Rdf] = field(
+        default=None,
+        metadata={
+            "name": "RDF",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+    @dataclass
+    class Extension:
+        name: Optional[str] = field(
+            default=None,
+            metadata={
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+
+
+@dataclass
+class SpeciesAnnotationType:
+    """
+    Annotation for species.
+    """
+    class Meta:
+        name = "speciesAnnotationType"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    extension: Optional["SpeciesAnnotationType.Extension"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
+    rdf: Optional[Rdf] = field(
+        default=None,
+        metadata={
+            "name": "RDF",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+    @dataclass
+    class Extension:
+        position_to_compartment: Optional[PositionToCompartmentValue] = field(
+            default=None,
+            metadata={
+                "name": "positionToCompartment",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        complex_species: Optional[str] = field(
+            default=None,
+            metadata={
+                "name": "complexSpecies",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+            }
+        )
+        species_identity: Optional[SpeciesIdentity] = field(
+            default=None,
+            metadata={
+                "name": "speciesIdentity",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_catalyzed_reactions: Optional[ListOfCatalyzedReactions] = field(
+            default=None,
+            metadata={
+                "name": "listOfCatalyzedReactions",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+
+
+@dataclass
 class Math(Math1):
     class Meta:
         name = "math"
         namespace = "http://www.w3.org/1998/Math/MathML"
+
+
+@dataclass
+class Compartment(Sbase):
+    """
+    Redefined compartment.
+    """
+    class Meta:
+        target_namespace = "http://www.sbml.org/sbml/level2/version4"
+
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    size: Optional[float] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    spatial_dimensions: int = field(
+        default=3,
+        metadata={
+            "name": "spatialDimensions",
+            "type": "Attribute",
+            "min_inclusive": 0,
+            "max_inclusive": 3,
+        }
+    )
+    units: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    outside: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    constant: bool = field(
+        default=True,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    annotation: Optional[CompartmentAnnotationType] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/sbml/level2/version4",
+        }
+    )
 
 
 @dataclass
@@ -6656,6 +7222,101 @@ class Rule(Sbase):
             "type": "Element",
             "namespace": "http://www.w3.org/1998/Math/MathML",
             "required": True,
+        }
+    )
+
+
+@dataclass
+class Species1(Sbase):
+    """
+    Redefined species.
+    """
+    class Meta:
+        name = "Species"
+        target_namespace = "http://www.sbml.org/sbml/level2/version4"
+
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    compartment: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    initial_amount: Optional[float] = field(
+        default=None,
+        metadata={
+            "name": "initialAmount",
+            "type": "Attribute",
+        }
+    )
+    initial_concentration: Optional[float] = field(
+        default=None,
+        metadata={
+            "name": "initialConcentration",
+            "type": "Attribute",
+        }
+    )
+    substance_units: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "substanceUnits",
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    spatial_size_units: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "spatialSizeUnits",
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    has_only_substance_units: bool = field(
+        default=False,
+        metadata={
+            "name": "hasOnlySubstanceUnits",
+            "type": "Attribute",
+        }
+    )
+    boundary_condition: bool = field(
+        default=False,
+        metadata={
+            "name": "boundaryCondition",
+            "type": "Attribute",
+        }
+    )
+    charge: Optional[int] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    constant: bool = field(
+        default=False,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    annotation: Optional[SpeciesAnnotationType] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/sbml/level2/version4",
         }
     )
 

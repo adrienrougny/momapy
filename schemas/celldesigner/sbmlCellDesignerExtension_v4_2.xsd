@@ -7,7 +7,16 @@
 <!-- edited with xmlspy v5 rel. 4 U (http://www.xmlspy.com) by Norihiro Kikuchi (Mitsui Knowledge Industry) -->
 <!-- edited with xmlspy v5 rel. 4 U (http://www.xmlspy.com) by Norihiro Kikuchi (Mitsui Knowledge Industry) -->
 <!-- edited with xmlspy v5 rel. 4 U (http://www.xmlspy.com) by Norihiro Kikuchi (Mitsui Knowledge Industry) -->
-<xs:schema targetNamespace="http://www.sbml.org/2001/ns/celldesigner" xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+<xs:schema
+xmlns:celldesigner="http://www.sbml.org/2001/ns/celldesigner"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+elementFormDefault="qualified"
+attributeFormDefault="unqualified"
+targetNamespace="http://www.sbml.org/2001/ns/celldesigner"
+>
+    <xs:import schemaLocation="../sbml/annotation-rdf.xsd" namespace="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/> <!-- Added by A. Rougny -->
+
   <!--Simple data types.-->
   <xs:simpleType name="SId">
     <xs:annotation>
@@ -429,6 +438,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+        <xs:element ref="rdf:RDF" minOccurs="0" maxOccurs="1"/> <!-- Added by A. Rougny -->
     </xs:sequence>
   </xs:complexType>
   <!--Model extension.-->
@@ -1592,6 +1602,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+        <xs:element ref="rdf:RDF" minOccurs="0" maxOccurs="1"/> <!-- Added by A. Rougny -->
     </xs:sequence>
   </xs:complexType>
   <!--Reaction extension.-->
