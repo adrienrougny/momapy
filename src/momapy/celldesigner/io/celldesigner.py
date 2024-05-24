@@ -298,6 +298,26 @@ class CellDesignerReader(momapy.io.MapReader):
             momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
         ): "_make_and_add_unknown_gate_and_trigger_from_cd",
     }
+    _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
+        "encodes": momapy.sbgn.core.BQBiol.ENCODES,
+        "has_part": momapy.sbgn.core.BQBiol.HAS_PART,
+        "has_property": momapy.sbgn.core.BQBiol.HAS_PROPERTY,
+        "has_version": momapy.sbgn.core.BQBiol.HAS_VERSION,
+        "is_value": momapy.sbgn.core.BQBiol.IS,
+        "is_described_by": momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY,
+        "is_encoded_by": momapy.sbgn.core.BQBiol.IS_ENCODED_BY,
+        "is_homolog_to": momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO,
+        "is_part_of": momapy.sbgn.core.BQBiol.IS_PART_OF,
+        "is_property_of": momapy.sbgn.core.BQBiol.IS_PROPERTY_OF,
+        "is_version_of": momapy.sbgn.core.BQBiol.IS_VERSION_OF,
+        "occurs_in": momapy.sbgn.core.BQBiol.OCCURS_IN,
+        "has_taxon": momapy.sbgn.core.BQBiol.HAS_TAXON,
+        "has_instance": momapy.sbgn.core.BQModel.HAS_INSTANCE,
+        "biomodels_net_model_qualifiers_is": momapy.sbgn.core.BQModel.IS,
+        "is_derived_from": momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
+        "biomodels_net_model_qualifiers_is_described_by": momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
+        "is_instance_of": momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
+    }
 
     @classmethod
     def check_file(cls, file_path):
@@ -704,6 +724,12 @@ class CellDesignerReader(momapy.io.MapReader):
                     )
                 )
             model_element.outside = outside_model_element
+        if cd_element.annotation is not None:
+            if cd_element.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd(
+                    cd_element.annotation.rdf
+                )
+                print(annotations)
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         map_.model.compartments.add(model_element)
@@ -4353,6 +4379,12 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=cd_element,
                     )
                 )
+        if cd_species.annotation is not None:
+            if cd_species.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd(
+                    cd_species.annotation.rdf
+                )
+                print(annotations)
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         return model_element, layout_element
@@ -4654,6 +4686,29 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean gate is the source of
         cd_id_to_model_element[model_element.id] = model_element
         return model_element, layout_element
+
+    @classmethod
+    def _make_annotations_from_cd(cls, cd_element):
+        annotations = []
+        if cd_element.description is not None:
+            for (
+                qualifier_attribute,
+                qualifier,
+            ) in cls._QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.items():
+                annotation_values = getattr(
+                    cd_element.description, qualifier_attribute
+                )
+                if annotation_values:
+                    for annotation_value in annotation_values:
+                        resources = []
+                        annotation_bag = annotation_value.bag
+                        for li in annotation_bag.li:
+                            resources.append(li.resource)
+                        annotation = momapy.sbml.core.Annotation(
+                            qualifier=qualifier, resources=frozenset(resources)
+                        )
+                        annotations.append(annotation)
+        return annotations
 
     @classmethod
     def _get_cd_species_reference_from_cd_species_alias(
