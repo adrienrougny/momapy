@@ -6,7 +6,8 @@ import momapy.core
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Annotation(momapy.core.ModelElement):
-    pass
+    qualifier: str
+    resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
