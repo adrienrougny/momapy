@@ -1312,7 +1312,7 @@ class CellDesignerLayout(momapy.core.Layout):
 class CellDesignerMap(momapy.core.Map):
     model: CellDesignerModel | None = None
     layout: CellDesignerLayout | None = None
-    map_element_to_annotation: frozendict.frozendict[
+    map_element_to_annotations: frozendict.frozendict[
         momapy.core.MapElement, frozenset[momapy.sbml.core.Annotation]
     ] = dataclasses.field(
         default_factory=frozendict.frozendict, hash=False, compare=False
