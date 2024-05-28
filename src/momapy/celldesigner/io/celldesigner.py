@@ -7,6 +7,7 @@ import momapy.celldesigner.core
 import momapy.celldesigner.io._celldesigner_parser
 import momapy.sbgn.pd
 
+import frozendict
 import xsdata.formats.dataclass.context
 import xsdata.formats.dataclass.parsers
 import xsdata.formats.dataclass.parsers.config
@@ -348,6 +349,7 @@ class CellDesignerReader(momapy.io.MapReader):
     def _make_map_from_cd(cls, cd_element):
         cd_id_to_model_element = {}
         cd_id_to_layout_element = {}
+        map_element_to_annotations = collections.defaultdict(set)
         map_ = cls._make_map_no_subelements_from_cd(cd_element)
         # we map the ids to their corresponding cd elements
         cd_id_to_cd_element = {}
@@ -404,9 +406,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_element.model.annotation.extension.list_of_included_species.species
             ):
                 cd_id_to_cd_element[cd_species.id] = cd_species
-        # while mapping the ids of species aliases to their cd elements,
-        # we also map them to the cd elements they are an alias of
-        cd_alias_id_to_cd_element = {}
         if (
             cd_element.model.annotation.extension.list_of_species_aliases
             is not None
@@ -417,9 +416,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_element.model.annotation.extension.list_of_species_aliases.species_alias
             ):
                 cd_id_to_cd_element[cd_alias.id] = cd_alias
-                cd_alias_id_to_cd_element[cd_alias.id] = cd_id_to_cd_element[
-                    cd_alias.species
-                ]
         if (
             cd_element.model.annotation.extension.list_of_complex_species_aliases
             is not None
@@ -430,9 +426,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
             ):
                 cd_id_to_cd_element[cd_alias.id] = cd_alias
-                cd_alias_id_to_cd_element[cd_alias.id] = cd_id_to_cd_element[
-                    cd_alias.species
-                ]
         # we map the ids of complex aliases to the list of the ids of the
         # species aliases they include, and we store the species aliases
         cd_complex_alias_id_to_cd_included_species_ids = (
@@ -480,8 +473,8 @@ class CellDesignerReader(momapy.io.MapReader):
                     cd_id_to_model_element=cd_id_to_model_element,
                     cd_id_to_layout_element=cd_id_to_layout_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
-                    cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                     cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                    map_element_to_annotations=map_element_to_annotations,
                     super_model_element=None,
                     super_cd_element=None,
                 )
@@ -499,8 +492,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=None,
                 super_cd_element=None,
             )
@@ -529,8 +522,8 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=None,
                             super_cd_element=None,
                         )
@@ -552,8 +545,8 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=None,
                             super_cd_element=None,
                         )
@@ -570,12 +563,17 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=None,
                         super_cd_element=None,
                     )
                 )
+        for map_element, annotations in map_element_to_annotations.items():
+            map_element_to_annotations[map_element] = frozenset(annotations)
+        map_.map_element_to_annotations = frozendict.frozendict(
+            map_element_to_annotations
+        )
         map_ = momapy.builder.object_from_builder(map_)
         return map_
 
@@ -595,8 +593,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element,
     ):
@@ -625,8 +623,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element,
     ):
@@ -669,8 +667,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element,
     ):
@@ -690,8 +688,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -717,8 +715,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=None,
                         super_cd_element=None,
                     )
@@ -729,9 +727,15 @@ class CellDesignerReader(momapy.io.MapReader):
                 annotations = cls._make_annotations_from_cd(
                     cd_element.annotation.rdf
                 )
-                print(annotations)
+                map_element_to_annotations[model_element].update(annotations)
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
+        if cd_element.annotation is not None:
+            if cd_element.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd(
+                    cd_element.annotation.rdf
+                )
+                map_element_to_annotations[model_element].update(annotations)
         map_.model.compartments.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
@@ -744,8 +748,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -756,8 +760,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -774,8 +778,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -786,8 +790,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -804,8 +808,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -816,8 +820,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -834,8 +838,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -846,8 +850,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -864,8 +868,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -876,8 +880,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -894,8 +898,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -906,8 +910,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -924,8 +928,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -936,8 +940,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=None,
             super_cd_element=None,
         )
@@ -954,8 +958,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -967,8 +971,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -984,8 +988,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -997,8 +1001,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1014,8 +1018,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1027,8 +1031,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1044,8 +1048,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1057,8 +1061,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1074,8 +1078,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1087,8 +1091,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1104,8 +1108,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1117,8 +1121,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1134,8 +1138,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1147,8 +1151,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1164,8 +1168,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1177,8 +1181,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1194,8 +1198,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1207,8 +1211,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1224,8 +1228,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1237,8 +1241,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1254,8 +1258,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1267,8 +1271,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1284,8 +1288,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1297,8 +1301,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1314,8 +1318,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1327,8 +1331,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1344,8 +1348,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1357,8 +1361,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1374,8 +1378,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -1387,8 +1391,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1404,8 +1408,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1417,8 +1421,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1434,8 +1438,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1447,8 +1451,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1464,8 +1468,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1477,8 +1481,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1494,8 +1498,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1507,8 +1511,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1524,8 +1528,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1537,8 +1541,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1554,8 +1558,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1567,8 +1571,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1584,8 +1588,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1597,8 +1601,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1614,8 +1618,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1627,8 +1631,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1644,8 +1648,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1657,8 +1661,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1674,8 +1678,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1687,8 +1691,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1704,8 +1708,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1717,8 +1721,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1734,8 +1738,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1747,8 +1751,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1764,8 +1768,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1777,8 +1781,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1794,8 +1798,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1820,8 +1824,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1846,8 +1850,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1859,8 +1863,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1875,8 +1879,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1888,8 +1892,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1904,8 +1908,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1917,8 +1921,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1933,8 +1937,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1946,8 +1950,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1962,8 +1966,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -1975,8 +1979,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -1991,8 +1995,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2004,8 +2008,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -2020,8 +2024,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2033,8 +2037,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -2049,8 +2053,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2061,8 +2065,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2081,8 +2085,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2098,8 +2102,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2110,8 +2114,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2130,8 +2134,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2147,8 +2151,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2159,8 +2163,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2179,8 +2183,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2196,8 +2200,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2208,8 +2212,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2228,8 +2232,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2245,8 +2249,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2257,8 +2261,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2277,8 +2281,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2294,8 +2298,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2306,8 +2310,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2326,8 +2330,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2343,8 +2347,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2355,8 +2359,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2375,8 +2379,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2392,8 +2396,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2404,8 +2408,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2424,8 +2428,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2441,8 +2445,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2453,8 +2457,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2473,8 +2477,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2490,8 +2494,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2502,8 +2506,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2522,8 +2526,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2539,8 +2543,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2551,8 +2555,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2571,8 +2575,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2588,8 +2592,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2600,8 +2604,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2620,8 +2624,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2637,8 +2641,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2649,8 +2653,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2669,8 +2673,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2686,8 +2690,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2698,8 +2702,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2718,8 +2722,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2735,8 +2739,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2747,8 +2751,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2767,8 +2771,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2784,8 +2788,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2796,8 +2800,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2816,8 +2820,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2833,8 +2837,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2845,8 +2849,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2865,8 +2869,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2882,8 +2886,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2894,8 +2898,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2914,8 +2918,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2931,8 +2935,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2943,8 +2947,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2963,8 +2967,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -2980,8 +2984,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -2992,8 +2996,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3012,8 +3016,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3029,8 +3033,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3041,8 +3045,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3061,8 +3065,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3078,8 +3082,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3090,8 +3094,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3110,8 +3114,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3127,8 +3131,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3139,8 +3143,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3159,8 +3163,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3176,8 +3180,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3188,8 +3192,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3208,8 +3212,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3225,8 +3229,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3237,8 +3241,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3257,8 +3261,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3274,8 +3278,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3286,8 +3290,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3306,8 +3310,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3323,8 +3327,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3335,8 +3339,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3355,8 +3359,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3372,8 +3376,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3384,8 +3388,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3404,8 +3408,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )
@@ -3421,8 +3425,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3434,8 +3438,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3454,8 +3458,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3467,8 +3471,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3487,8 +3491,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3500,8 +3504,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3520,8 +3524,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -3533,8 +3537,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3553,8 +3557,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3566,8 +3570,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3583,8 +3587,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3596,8 +3600,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3613,8 +3617,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3626,8 +3630,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3643,8 +3647,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3656,8 +3660,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3673,8 +3677,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3686,8 +3690,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3703,8 +3707,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3716,8 +3720,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3733,8 +3737,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3746,8 +3750,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3763,8 +3767,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3776,8 +3780,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3793,8 +3797,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3806,8 +3810,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3823,8 +3827,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3836,8 +3840,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3853,8 +3857,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3866,8 +3870,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3883,8 +3887,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3896,8 +3900,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3913,8 +3917,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3926,8 +3930,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3943,8 +3947,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3956,8 +3960,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -3973,8 +3977,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -3986,8 +3990,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4003,8 +4007,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4016,8 +4020,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4033,8 +4037,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4046,8 +4050,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4063,8 +4067,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4076,8 +4080,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4093,8 +4097,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4106,8 +4110,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4123,8 +4127,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4136,8 +4140,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4153,8 +4157,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4166,8 +4170,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4183,8 +4187,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4196,8 +4200,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4213,8 +4217,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4226,8 +4230,8 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
             super_model_element=super_model_element,
             super_cd_element=super_cd_element,
         )
@@ -4244,8 +4248,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4267,8 +4271,8 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=model_element,
                             super_cd_element=cd_element,
                         )
@@ -4286,12 +4290,12 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
-        cd_species = cd_alias_id_to_cd_element[cd_element.id]
+        cd_species = cd_id_to_cd_element[cd_element.species]
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_species.id
         model_element.name = cd_species.name
@@ -4327,8 +4331,8 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=model_element,
                             super_cd_element=cd_element,
                         )
@@ -4346,8 +4350,8 @@ class CellDesignerReader(momapy.io.MapReader):
                     cd_id_to_model_element=cd_id_to_model_element,
                     cd_id_to_layout_element=cd_id_to_layout_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
-                    cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                     cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                    map_element_to_annotations=map_element_to_annotations,
                     super_model_element=model_element,
                     super_cd_element=cd_element,
                 )
@@ -4373,8 +4377,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
                         super_cd_element=cd_element,
                     )
@@ -4384,9 +4388,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 annotations = cls._make_annotations_from_cd(
                     cd_species.annotation.rdf
                 )
-                print(annotations)
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
+        if cd_species.annotation is not None:
+            if cd_species.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd(
+                    cd_species.annotation.rdf
+                )
+                map_element_to_annotations[model_element] = annotations
         return model_element, layout_element
 
     @classmethod
@@ -4399,12 +4408,12 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
-        cd_species = cd_alias_id_to_cd_element[cd_element.id]
+        cd_species = cd_id_to_cd_element[cd_element.species]
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_species.id
         model_element.name = cd_species.name
@@ -4439,8 +4448,8 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=model_element,
                             super_cd_element=cd_element,
                         )
@@ -4458,8 +4467,8 @@ class CellDesignerReader(momapy.io.MapReader):
                     cd_id_to_model_element=cd_id_to_model_element,
                     cd_id_to_layout_element=cd_id_to_layout_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
-                    cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                     cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                    map_element_to_annotations=map_element_to_annotations,
                     super_model_element=model_element,
                     super_cd_element=cd_element,
                 )
@@ -4485,8 +4494,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
                         super_cd_element=cd_element,
                     )
@@ -4505,8 +4514,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4522,8 +4531,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
                         super_cd_element=cd_element,
                     )
@@ -4537,8 +4546,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
                         super_cd_element=cd_element,
                     )
@@ -4576,8 +4585,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
                         super_cd_element=cd_element,
                     )
@@ -4591,13 +4600,19 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
                             super_model_element=model_element,
                             super_cd_element=cd_element,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
+        if cd_element.annotation is not None:
+            if cd_element.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd(
+                    cd_element.annotation.rdf
+                )
+                map_element_to_annotations[model_element].update(annotations)
         layout_element = None
         return model_element, layout_element
 
@@ -4611,8 +4626,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -4633,8 +4648,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4668,8 +4683,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element,
         super_cd_element=None,
     ):
@@ -4751,8 +4766,8 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
-        cd_alias_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
         super_model_element=None,
         super_cd_element=None,
     ):
@@ -4766,8 +4781,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_alias_id_to_cd_element=cd_alias_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
                 super_model_element=super_model_element,
                 super_cd_element=super_cd_element,
             )

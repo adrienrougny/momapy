@@ -2081,6 +2081,7 @@ targetNamespace="http://www.sbml.org/2001/ns/celldesigner"
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+        <xs:element ref="rdf:RDF" minOccurs="0" maxOccurs="1"/> <!-- Added by A. Rougny -->
     </xs:sequence>
   </xs:complexType>
   <!--(Modifier)SpeciesReference extension.-->

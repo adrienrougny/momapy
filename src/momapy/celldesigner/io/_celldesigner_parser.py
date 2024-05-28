@@ -6022,118 +6022,6 @@ class ListOfBlockDiagrams:
 
 
 @dataclass
-class ReactionAnnotationType:
-    """
-    Annotation for reaction.
-    """
-    class Meta:
-        name = "reactionAnnotationType"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    extension: Optional["ReactionAnnotationType.Extension"] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "required": True,
-        }
-    )
-
-    @dataclass
-    class Extension:
-        name: Optional[str] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        reaction_type: Optional[ReactionTypeValue] = field(
-            default=None,
-            metadata={
-                "name": "reactionType",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        base_reactants: Optional[BaseReactants] = field(
-            default=None,
-            metadata={
-                "name": "baseReactants",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        base_products: Optional[BaseProducts] = field(
-            default=None,
-            metadata={
-                "name": "baseProducts",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_reactant_links: Optional[ListOfReactantLinks] = field(
-            default=None,
-            metadata={
-                "name": "listOfReactantLinks",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        list_of_product_links: Optional[ListOfProductLinks] = field(
-            default=None,
-            metadata={
-                "name": "listOfProductLinks",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        connect_scheme: Optional[ConnectScheme] = field(
-            default=None,
-            metadata={
-                "name": "connectScheme",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        offset: Optional[Offset] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        edit_points: Optional[EditPoints] = field(
-            default=None,
-            metadata={
-                "name": "editPoints",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        line: Optional[Line] = field(
-            default=None,
-            metadata={
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_modification: Optional[ListOfModification] = field(
-            default=None,
-            metadata={
-                "name": "listOfModification",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-
-
-@dataclass
 class Apply(MathBase):
     class Meta:
         target_namespace = "http://www.w3.org/1998/Math/MathML"
@@ -6964,6 +6852,126 @@ class CompartmentAnnotationType:
                 "type": "Element",
                 "namespace": "http://www.sbml.org/2001/ns/celldesigner",
                 "required": True,
+            }
+        )
+
+
+@dataclass
+class ReactionAnnotationType:
+    """
+    Annotation for reaction.
+    """
+    class Meta:
+        name = "reactionAnnotationType"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    extension: Optional["ReactionAnnotationType.Extension"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
+    rdf: Optional[Rdf] = field(
+        default=None,
+        metadata={
+            "name": "RDF",
+            "type": "Element",
+            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        }
+    )
+
+    @dataclass
+    class Extension:
+        name: Optional[str] = field(
+            default=None,
+            metadata={
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        reaction_type: Optional[ReactionTypeValue] = field(
+            default=None,
+            metadata={
+                "name": "reactionType",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        base_reactants: Optional[BaseReactants] = field(
+            default=None,
+            metadata={
+                "name": "baseReactants",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        base_products: Optional[BaseProducts] = field(
+            default=None,
+            metadata={
+                "name": "baseProducts",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_reactant_links: Optional[ListOfReactantLinks] = field(
+            default=None,
+            metadata={
+                "name": "listOfReactantLinks",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        list_of_product_links: Optional[ListOfProductLinks] = field(
+            default=None,
+            metadata={
+                "name": "listOfProductLinks",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        connect_scheme: Optional[ConnectScheme] = field(
+            default=None,
+            metadata={
+                "name": "connectScheme",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        offset: Optional[Offset] = field(
+            default=None,
+            metadata={
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        edit_points: Optional[EditPoints] = field(
+            default=None,
+            metadata={
+                "name": "editPoints",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        line: Optional[Line] = field(
+            default=None,
+            metadata={
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_modification: Optional[ListOfModification] = field(
+            default=None,
+            metadata={
+                "name": "listOfModification",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
             }
         )
 
