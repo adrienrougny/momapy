@@ -1200,9 +1200,9 @@ class LayoutModelMapping(collections.abc.Mapping):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
-    model: Model
-    layout: Layout
-    layout_model_mapping: LayoutModelMapping
+    model: Model | None = None
+    layout: Layout | None = None
+    layout_model_mapping: LayoutModelMapping | None = None
 
     def is_submap(self, other):
         return (
