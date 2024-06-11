@@ -1405,7 +1405,7 @@ class FrozendictBuilder(dict, momapy.builder.Builder):
                         ),
                     )
                 )
-                for k, v in self.items()
+                for k, v in obj.items()
             ]
         )
         return builder
