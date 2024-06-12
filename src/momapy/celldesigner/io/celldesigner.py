@@ -581,8 +581,6 @@ class CellDesignerReader(momapy.io.MapReader):
     def _make_map_no_subelements_from_cd(cls, cd_element):
         map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
         map_.model = map_.new_model()
-        map_.layout = map_.new_layout()
-        map_.layout_model_mapping = map_.new_layout_model_mapping()
         return map_
 
     @classmethod
