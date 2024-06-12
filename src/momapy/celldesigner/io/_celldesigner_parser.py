@@ -8,6 +8,50 @@ class AntisenseRnaType(Enum):
     ANTISENSE_RNA = "ANTISENSE_RNA"
 
 
+class GateMemberModificationType(Enum):
+    CATALYSIS = "CATALYSIS"
+    UNKNOWN_CATALYSIS = "UNKNOWN_CATALYSIS"
+    INHIBITION = "INHIBITION"
+    UNKNOWN_INHIBITION = "UNKNOWN_INHIBITION"
+    PHYSICAL_STIMULATION = "PHYSICAL_STIMULATION"
+    MODULATION = "MODULATION"
+    TRIGGER = "TRIGGER"
+    POSITIVE_INFLUENCE = "POSITIVE_INFLUENCE"
+    NEGATIVE_INFLUENCE = "NEGATIVE_INFLUENCE"
+    REDUCED_PHYSICAL_STIMULATION = "REDUCED_PHYSICAL_STIMULATION"
+    REDUCED_MODULATION = "REDUCED_MODULATION"
+    REDUCED_TRIGGER = "REDUCED_TRIGGER"
+    UNKNOWN_POSITIVE_INFLUENCE = "UNKNOWN_POSITIVE_INFLUENCE"
+    UNKNOWN_NEGATIVE_INFLUENCE = "UNKNOWN_NEGATIVE_INFLUENCE"
+    UNKNOWN_REDUCED_PHYSICAL_STIMULATION = "UNKNOWN_REDUCED_PHYSICAL_STIMULATION"
+    UNKNOWN_REDUCED_MODULATION = "UNKNOWN_REDUCED_MODULATION"
+    UNKNOWN_REDUCED_TRIGGER = "UNKNOWN_REDUCED_TRIGGER"
+
+
+class GateMemberType(Enum):
+    CATALYSIS = "CATALYSIS"
+    UNKNOWN_CATALYSIS = "UNKNOWN_CATALYSIS"
+    INHIBITION = "INHIBITION"
+    UNKNOWN_INHIBITION = "UNKNOWN_INHIBITION"
+    BOOLEAN_LOGIC_GATE_AND = "BOOLEAN_LOGIC_GATE_AND"
+    BOOLEAN_LOGIC_GATE_OR = "BOOLEAN_LOGIC_GATE_OR"
+    BOOLEAN_LOGIC_GATE_NOT = "BOOLEAN_LOGIC_GATE_NOT"
+    BOOLEAN_LOGIC_GATE_UNKNOWN = "BOOLEAN_LOGIC_GATE_UNKNOWN"
+    PHYSICAL_STIMULATION = "PHYSICAL_STIMULATION"
+    MODULATION = "MODULATION"
+    TRIGGER = "TRIGGER"
+    POSITIVE_INFLUENCE = "POSITIVE_INFLUENCE"
+    NEGATIVE_INFLUENCE = "NEGATIVE_INFLUENCE"
+    REDUCED_PHYSICAL_STIMULATION = "REDUCED_PHYSICAL_STIMULATION"
+    REDUCED_MODULATION = "REDUCED_MODULATION"
+    REDUCED_TRIGGER = "REDUCED_TRIGGER"
+    UNKNOWN_POSITIVE_INFLUENCE = "UNKNOWN_POSITIVE_INFLUENCE"
+    UNKNOWN_NEGATIVE_INFLUENCE = "UNKNOWN_NEGATIVE_INFLUENCE"
+    UNKNOWN_REDUCED_PHYSICAL_STIMULATION = "UNKNOWN_REDUCED_PHYSICAL_STIMULATION"
+    UNKNOWN_REDUCED_MODULATION = "UNKNOWN_REDUCED_MODULATION"
+    UNKNOWN_REDUCED_TRIGGER = "UNKNOWN_REDUCED_TRIGGER"
+
+
 @dataclass
 class KeyInfo:
     class Meta:
@@ -4744,6 +4788,80 @@ class Is2(IsType2):
 
 
 @dataclass
+class GateMember:
+    """
+    Gate member.
+    """
+    class Meta:
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    type_value: Optional[GateMemberType] = field(
+        default=None,
+        metadata={
+            "name": "type",
+            "type": "Attribute",
+        }
+    )
+    modification_type: Optional[GateMemberModificationType] = field(
+        default=None,
+        metadata={
+            "name": "modificationType",
+            "type": "Attribute",
+        }
+    )
+    aliases: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*(,(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*)*",
+        }
+    )
+    target_line_index: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "targetLineIndex",
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"-?[0-9]+,[0-9]+",
+        }
+    )
+    edit_points: List[str] = field(
+        default_factory=list,
+        metadata={
+            "name": "editPoints",
+            "type": "Attribute",
+            "pattern": r"(\+|-)?[0-9]+(\.[0-9]*)?((e|E)(\+|-)?[0-9]+)?,(\+|-)?[0-9]+(\.[0-9]*)?((e|E)(\+|-)?[0-9]+)?",
+            "tokens": True,
+        }
+    )
+    connect_scheme: Optional[ConnectScheme] = field(
+        default=None,
+        metadata={
+            "name": "connectScheme",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    link_target: List[LinkTarget] = field(
+        default_factory=list,
+        metadata={
+            "name": "linkTarget",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "max_occurs": 2,
+        }
+    )
+    line: Optional[Line] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+
+
+@dataclass
 class ComplexSpeciesAlias:
     """
     For species aliases of complex species.
@@ -5640,6 +5758,26 @@ class ListOfComplexSpeciesAliases:
                 "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
             }
         )
+
+
+@dataclass
+class ListOfGateMember:
+    """
+    List of gate members.
+    """
+    class Meta:
+        name = "listOfGateMember"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    gate_member: List[GateMember] = field(
+        default_factory=list,
+        metadata={
+            "name": "GateMember",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "min_occurs": 1,
+        }
+    )
 
 
 @dataclass
@@ -6970,6 +7108,14 @@ class ReactionAnnotationType:
             default=None,
             metadata={
                 "name": "listOfModification",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        list_of_gate_member: Optional[ListOfGateMember] = field(
+            default=None,
+            metadata={
+                "name": "listOfGateMember",
                 "type": "Element",
                 "namespace": "http://www.sbml.org/2001/ns/celldesigner",
             }

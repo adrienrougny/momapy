@@ -2059,6 +2059,91 @@ targetNamespace="http://www.sbml.org/2001/ns/celldesigner"
       <xs:element name="modification" type="celldesigner:modification" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="GateMember"> <!-- Added by A. Rougny -->
+    <xs:annotation>
+      <xs:documentation>Gate member.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="type">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CATALYSIS"/>
+            <xs:enumeration value="UNKNOWN_CATALYSIS"/>
+            <xs:enumeration value="INHIBITION"/>
+            <xs:enumeration value="UNKNOWN_INHIBITION"/>
+            <xs:enumeration value="BOOLEAN_LOGIC_GATE_AND"/>
+            <xs:enumeration value="BOOLEAN_LOGIC_GATE_OR"/>
+            <xs:enumeration value="BOOLEAN_LOGIC_GATE_NOT"/>
+            <xs:enumeration value="BOOLEAN_LOGIC_GATE_UNKNOWN"/>
+            <xs:enumeration value="PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="MODULATION"/>
+            <xs:enumeration value="TRIGGER"/>
+            <xs:enumeration value="POSITIVE_INFLUENCE"/>
+            <xs:enumeration value="NEGATIVE_INFLUENCE"/>
+            <xs:enumeration value="REDUCED_PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="REDUCED_MODULATION"/>
+            <xs:enumeration value="REDUCED_TRIGGER"/>
+            <xs:enumeration value="UNKNOWN_POSITIVE_INFLUENCE"/>
+            <xs:enumeration value="UNKNOWN_NEGATIVE_INFLUENCE"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_MODULATION"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_TRIGGER"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="modificationType">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CATALYSIS"/>
+            <xs:enumeration value="UNKNOWN_CATALYSIS"/>
+            <xs:enumeration value="INHIBITION"/>
+            <xs:enumeration value="UNKNOWN_INHIBITION"/>
+            <xs:enumeration value="PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="MODULATION"/>
+            <xs:enumeration value="TRIGGER"/>
+            <xs:enumeration value="POSITIVE_INFLUENCE"/>
+            <xs:enumeration value="NEGATIVE_INFLUENCE"/>
+            <xs:enumeration value="REDUCED_PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="REDUCED_MODULATION"/>
+            <xs:enumeration value="REDUCED_TRIGGER"/>
+            <xs:enumeration value="UNKNOWN_POSITIVE_INFLUENCE"/>
+            <xs:enumeration value="UNKNOWN_NEGATIVE_INFLUENCE"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_PHYSICAL_STIMULATION"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_MODULATION"/>
+            <xs:enumeration value="UNKNOWN_REDUCED_TRIGGER"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="aliases" use="required">
+      <xs:simpleType>
+        <xs:restriction base="celldesigner:SIdSet"/>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="targetLineIndex" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="-?[0-9]+,[0-9]+"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="editPoints">
+      <xs:simpleType>
+        <xs:restriction base="celldesigner:point2DList"/>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:sequence>
+        <xs:element name="connectScheme" type="celldesigner:connectScheme" minOccurs="0"/>
+        <xs:element name="linkTarget" type="celldesigner:linkTarget" minOccurs="0" maxOccurs="2"/>
+        <xs:element name="line" type="celldesigner:line" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="listOfGateMember"> <!-- Added by A. Rougny -->
+    <xs:annotation>
+      <xs:documentation>List of gate members.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="GateMember" type="celldesigner:GateMember" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="reactionAnnotationType">
     <xs:annotation>
       <xs:documentation>Annotation for reaction.</xs:documentation>
@@ -2078,6 +2163,7 @@ targetNamespace="http://www.sbml.org/2001/ns/celldesigner"
             <xs:element name="editPoints" type="celldesigner:editPoints" minOccurs="0"/>
             <xs:element name="line" type="celldesigner:line"/>
             <xs:element name="listOfModification" type="celldesigner:listOfModification" minOccurs="0"/>
+            <xs:element name="listOfGateMember" type="celldesigner:listOfGateMember" minOccurs="0"/> <!-- Added by A. Rougny -->
           </xs:sequence>
         </xs:complexType>
       </xs:element>
