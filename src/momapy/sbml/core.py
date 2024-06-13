@@ -4,6 +4,12 @@ import typing
 import momapy.core
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Annotation(momapy.core.ModelElement):
+    qualifier: str
+    resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
+
+
 # to be defined
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBOTerm(momapy.core.ModelElement):
