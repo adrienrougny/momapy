@@ -4,17 +4,6 @@ import typing
 import momapy.core
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Annotation(momapy.core.ModelElement):
-    qualifier: str
-    resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Notes(momapy.core.ModelElement):
-    pass
-
-
 # to be defined
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBOTerm(momapy.core.ModelElement):
@@ -27,12 +16,6 @@ class SBase(momapy.core.ModelElement):
     name: str | None = None
     sbo_term: SBOTerm | None = None
     metaid: str | None = dataclasses.field(
-        default=None, compare=False, hash=False
-    )
-    notes: Notes | None = dataclasses.field(
-        default=None, compare=False, hash=False
-    )
-    annotations: Annotation | None = dataclasses.field(
         default=None, compare=False, hash=False
     )
 
