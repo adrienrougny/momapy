@@ -170,14 +170,14 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.MODULATION: "_make_and_add_modulation_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.TRIGGER: "_make_and_add_triggering_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.POSITIVE_INFLUENCE: "_make_and_add_positive_influence_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.NEGATIVE_INFLUENCE: "_make_and_add_negative_influence_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_PHYSICAL_STIMULATION: "_make_and_add_physical_stimulation_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_MODULATION: "_make_and_add_modulation_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_TRIGGER: "_make_and_add_triggering_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_POSITIVE_INFLUENCE: "_make_and_add_unknown_positive_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.NEGATIVE_INFLUENCE: "_make_and_add_negative_influence_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_NEGATIVE_INFLUENCE: "_make_and_add_unknown_negative_influence_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_PHYSICAL_STIMULATION: "_make_and_add_physical_stimulation_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_PHYSICAL_STIMULATION: "_make_and_add_unknown_physical_stimulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_MODULATION: "_make_and_add_modulation_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_MODULATION: "_make_and_add_unknown_modulation_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.REDUCED_TRIGGER: "_make_and_add_triggering_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ReactionTypeValue.UNKNOWN_REDUCED_TRIGGER: "_make_and_add_unknown_triggering_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.CATALYSIS: "_make_and_add_catalyzer_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ModificationType.UNKNOWN_CATALYSIS: "_make_and_add_unknown_catalyzer_from_cd",
@@ -298,6 +298,278 @@ class CellDesignerReader(momapy.io.MapReader):
             momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
             momapy.celldesigner.io._celldesigner_parser.ModificationModificationType.TRIGGER,
         ): "_make_and_add_unknown_gate_and_trigger_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.CATALYSIS,
+        ): "_make_and_add_reduced_and_gate_and_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_reduced_and_gate_and_unknown_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.INHIBITION,
+        ): "_make_and_add_reduced_and_gate_and_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_reduced_and_gate_and_unknown_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_and_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.MODULATION,
+        ): "_make_and_add_reduced_and_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.TRIGGER,
+        ): "_make_and_add_reduced_and_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_and_gate_and_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_and_gate_and_unknown_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_and_gate_and_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_and_gate_and_unknown_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_and_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_and_gate_and_unknown_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_MODULATION,
+        ): "_make_and_add_reduced_and_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_MODULATION,
+        ): "_make_and_add_reduced_and_gate_and_unknown_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_and_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_AND,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_and_gate_and_unknown_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.CATALYSIS,
+        ): "_make_and_add_reduced_or_gate_and_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_reduced_or_gate_and_unknown_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.INHIBITION,
+        ): "_make_and_add_reduced_or_gate_and_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_reduced_or_gate_and_unknown_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_or_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.MODULATION,
+        ): "_make_and_add_reduced_or_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.TRIGGER,
+        ): "_make_and_add_reduced_or_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_or_gate_and_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_or_gate_and_unknown_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_or_gate_and_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_or_gate_and_unknown_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_or_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_or_gate_and_unknown_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_MODULATION,
+        ): "_make_and_add_reduced_or_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_MODULATION,
+        ): "_make_and_add_reduced_or_gate_and_unknown_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_or_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_OR,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_or_gate_and_unknown_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.CATALYSIS,
+        ): "_make_and_add_reduced_not_gate_and_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_reduced_not_gate_and_unknown_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.INHIBITION,
+        ): "_make_and_add_reduced_not_gate_and_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_reduced_not_gate_and_unknown_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_not_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.MODULATION,
+        ): "_make_and_add_reduced_not_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.TRIGGER,
+        ): "_make_and_add_reduced_not_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_not_gate_and_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_not_gate_and_unknown_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_not_gate_and_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_not_gate_and_unknown_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_not_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_not_gate_and_unknown_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_MODULATION,
+        ): "_make_and_add_reduced_not_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_MODULATION,
+        ): "_make_and_add_reduced_not_gate_and_unknown_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_not_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_NOT,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_not_gate_and_unknown_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.CATALYSIS,
+        ): "_make_and_add_reduced_unknown_gate_and_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_CATALYSIS,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_catalysis_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.INHIBITION,
+        ): "_make_and_add_reduced_unknown_gate_and_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_INHIBITION,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_inhibition_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.MODULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.TRIGGER,
+        ): "_make_and_add_reduced_unknown_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_unknown_gate_and_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_POSITIVE_INFLUENCE,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_positive_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_unknown_gate_and_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_NEGATIVE_INFLUENCE,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_negative_influence_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_PHYSICAL_STIMULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_physical_stimulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_MODULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_MODULATION,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_modulation_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_unknown_gate_and_triggering_from_cd",
+        (
+            momapy.celldesigner.io._celldesigner_parser.GateMemberType.BOOLEAN_LOGIC_GATE_UNKNOWN,
+            momapy.celldesigner.io._celldesigner_parser.GateMemberModificationType.UNKNOWN_REDUCED_TRIGGER,
+        ): "_make_and_add_reduced_unknown_gate_and_unknown_triggering_from_cd",
     }
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
         "encodes": momapy.sbgn.core.BQBiol.ENCODES,
@@ -3416,6 +3688,2862 @@ class CellDesignerReader(momapy.io.MapReader):
         return modifier_model_element, modifier_layout_element
 
     @classmethod
+    def _make_and_add_reduced_and_gate_and_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_and_gate_and_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_and_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_or_gate_and_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_or_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_not_gate_and_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_not_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_catalysis_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_inhibition_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_positive_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_negative_influence_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_physical_stimulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_modulation_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _make_and_add_reduced_unknown_gate_and_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_cd_element=None,
+    ):
+        # first we select the gate member corresponding to the boolean logic gate
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        # the gate can then be transformed the same way as for modifications,
+        # since it has the aliases attribute
+        gate_model_element, gate_layout_element = (
+            cls._make_and_add_unknown_gate_from_cd(
+                map_=map_,
+                cd_element=cd_gate_member,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+                super_model_element=super_model_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        # Boolean logic gate modulation is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modulation
+        cd_gate_member.aliases = gate_model_element.id
+        modifier_model_element, modifier_layout_element = (
+            cls._make_and_add_boolean_unknown_triggering_from_cd(
+                map_=map_,
+                cd_element=cd_element,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                map_element_to_annotations=map_element_to_annotations,
+            )
+        )
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
     def _make_and_add_and_gate_from_cd(
         cls,
         map_,
@@ -4238,6 +7366,426 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
+    def _make_and_add_boolean_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Catalysis,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_catalysis_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownCatalysis,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Inhibition,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_inhibition_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownInhibition,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.PhysicalStimulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Modulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.Triggering,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.PositiveInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_positive_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownPositiveInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.NegativeInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_negative_influence_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownNegativeInfluence,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_physical_stimulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownModulation,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_boolean_unknown_triggering_from_cd(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = cls._make_boolean_modulation_from_cd(
+            map_=map_,
+            cd_element=cd_element,
+            model_element_cls=momapy.celldesigner.core.UnknownTriggering,
+            layout_element_cls=None,
+            cd_id_to_model_element=cd_id_to_model_element,
+            cd_id_to_layout_element=cd_id_to_layout_element,
+            cd_id_to_cd_element=cd_id_to_cd_element,
+            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+            map_element_to_annotations=map_element_to_annotations,
+            super_model_element=super_model_element,
+            super_cd_element=super_cd_element,
+        )
+        map_.model.modulations.add(model_element)
+        cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
     def _make_species_reference_from_cd(
         cls,
         map_,
@@ -4701,6 +8249,44 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
+    def _make_boolean_modulation_from_cd(
+        cls,
+        map_,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element=None,
+        super_cd_element=None,
+    ):
+        model_element = map_.new_model_element(model_element_cls)
+        model_element.id = cd_element.id
+        # first we select the gate member corresponding to the boolean logic gate
+        # as it contains the id of the source of the modulation
+        for (
+            cd_gate_member
+        ) in cd_element.annotation.extension.list_of_gate_member.gate_member:
+            if cd_gate_member.modification_type is not None:
+                break
+        source_model_element = cd_id_to_model_element[cd_gate_member.aliases]
+        model_element.source = source_model_element
+        # the target is the base product of the cd element
+        if cd_element.list_of_products is not None:
+            for cd_product in cd_element.list_of_products.species_reference:
+                target_model_element = cd_id_to_model_element[
+                    cd_product.annotation.extension.alias
+                ]
+                model_element.target = target_model_element
+                break
+        model_element = momapy.builder.object_from_builder(model_element)
+        layout_element = None
+        return model_element, layout_element
+
+    @classmethod
     def _make_annotations_from_cd(cls, cd_element):
         annotations = []
         if cd_element.description is not None:
@@ -4845,6 +8431,17 @@ class CellDesignerReader(momapy.io.MapReader):
             cd_element, momapy.celldesigner.io._celldesigner_parser.Reaction
         ):
             key = cd_element.annotation.extension.reaction_type
+            if cd_element.annotation.extension.list_of_gate_member is not None:
+                for (
+                    cd_gate_member
+                ) in (
+                    cd_element.annotation.extension.list_of_gate_member.gate_member
+                ):
+                    if cd_gate_member.modification_type is not None:
+                        key = (
+                            cd_gate_member.type_value,
+                            cd_gate_member.modification_type,
+                        )
         elif isinstance(
             cd_element,
             momapy.celldesigner.io._celldesigner_parser.Modification,
