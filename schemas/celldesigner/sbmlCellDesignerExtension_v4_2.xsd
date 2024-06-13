@@ -229,6 +229,7 @@ targetNamespace="http://www.sbml.org/2001/ns/celldesigner"
     </xs:annotation>
     <xs:sequence>
       <xs:any namespace="http://www.w3.org/1999/xhtml" processContents="skip" maxOccurs="unbounded"/>
+        <xs:element ref="rdf:RDF" minOccurs="0" maxOccurs="1"/> <!-- Added by A. Rougny -->
     </xs:sequence>
   </xs:complexType>
   <xs:element name="class">
