@@ -18,16 +18,16 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.ModificationResidue: "_make_and_add_modification_residue_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ListOfModifications.Modification: "_make_and_add_modification_from_cd",
         momapy.celldesigner.io._celldesigner_parser.StructuralStates: "_make_and_add_structural_state_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ProteinType.GENERIC: "_make_and_add_generic_protein_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ProteinType.ION_CHANNEL: "_make_and_add_ion_channel_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ProteinType.RECEPTOR: "_make_and_add_receptor_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.ProteinType.TRUNCATED: "_make_and_add_receptor_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.GeneType.GENE: "_make_and_add_gene_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.RnaType.RNA: "_make_and_add_rna_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.AntisenseRnaType.ANTISENSE_RNA: "_make_and_add_antisense_rna_reference_from_cd",
-        momapy.celldesigner.io._celldesigner_parser.Gene: "_make_and_add_gene_reference_from_cd",  # to be deleted once minerva bug solved
-        momapy.celldesigner.io._celldesigner_parser.Rna: "_make_and_add_rna_reference_from_cd",  # to be deleted once minerva bug solved
-        momapy.celldesigner.io._celldesigner_parser.AntisenseRna: "_make_and_add_antisense_rna_reference_from_cd",  # to be deleted once minerva bug solved
+        momapy.celldesigner.io._celldesigner_parser.ProteinType.GENERIC: "_make_and_add_generic_protein_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ProteinType.ION_CHANNEL: "_make_and_add_ion_channel_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ProteinType.RECEPTOR: "_make_and_add_receptor_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.ProteinType.TRUNCATED: "_make_and_add_receptor_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.GeneType.GENE: "_make_and_add_gene_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.RnaType.RNA: "_make_and_add_rna_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.AntisenseRnaType.ANTISENSE_RNA: "_make_and_add_antisense_rna_template_from_cd",
+        momapy.celldesigner.io._celldesigner_parser.Gene: "_make_and_add_gene_template_from_cd",  # to be deleted once minerva bug solved
+        momapy.celldesigner.io._celldesigner_parser.Rna: "_make_and_add_rna_template_from_cd",  # to be deleted once minerva bug solved
+        momapy.celldesigner.io._celldesigner_parser.AntisenseRna: "_make_and_add_antisense_rna_template_from_cd",  # to be deleted once minerva bug solved
         (
             momapy.celldesigner.io._celldesigner_parser.ClassValue.PROTEIN,
             momapy.celldesigner.io._celldesigner_parser.ProteinType.GENERIC,
@@ -632,38 +632,38 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_cd_element[cd_compartment.id] = cd_compartment
         if cd_element.model.annotation.extension.list_of_proteins is not None:
             for (
-                cd_species_reference
+                cd_species_template
             ) in (
                 cd_element.model.annotation.extension.list_of_proteins.protein
             ):
-                cd_id_to_cd_element[cd_species_reference.id] = (
-                    cd_species_reference
+                cd_id_to_cd_element[cd_species_template.id] = (
+                    cd_species_template
                 )
         if cd_element.model.annotation.extension.list_of_genes is not None:
             for (
-                cd_species_reference
+                cd_species_template
             ) in cd_element.model.annotation.extension.list_of_genes.gene:
-                cd_id_to_cd_element[cd_species_reference.id] = (
-                    cd_species_reference
+                cd_id_to_cd_element[cd_species_template.id] = (
+                    cd_species_template
                 )
         if cd_element.model.annotation.extension.list_of_rnas is not None:
             for (
-                cd_species_reference
+                cd_species_template
             ) in cd_element.model.annotation.extension.list_of_rnas.rna:
-                cd_id_to_cd_element[cd_species_reference.id] = (
-                    cd_species_reference
+                cd_id_to_cd_element[cd_species_template.id] = (
+                    cd_species_template
                 )
         if (
             cd_element.model.annotation.extension.list_of_antisense_rnas
             is not None
         ):
             for (
-                cd_species_reference
+                cd_species_template
             ) in (
                 cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
             ):
-                cd_id_to_cd_element[cd_species_reference.id] = (
-                    cd_species_reference
+                cd_id_to_cd_element[cd_species_template.id] = (
+                    cd_species_template
                 )
         if cd_element.model.list_of_species is not None:
             for cd_species in cd_element.model.list_of_species.species:
@@ -751,8 +751,8 @@ class CellDesignerReader(momapy.io.MapReader):
                     super_cd_element=None,
                 )
             )
-        # we make and add the species references
-        for cd_species_reference in (
+        # we make and add the species templates
+        for cd_species_template in (
             cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
             + cd_element.model.annotation.extension.list_of_rnas.rna
             + cd_element.model.annotation.extension.list_of_genes.gene
@@ -760,7 +760,7 @@ class CellDesignerReader(momapy.io.MapReader):
         ):
             model_element, layout_element = cls._make_and_add_elements_from_cd(
                 map_=map_,
-                cd_element=cd_species_reference,
+                cd_element=cd_species_template,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -901,13 +901,13 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Modification
         )
-        cd_species_reference = (
-            cls._get_cd_species_reference_from_cd_species_alias(
+        cd_species_template = (
+            cls._get_cd_species_template_from_cd_species_alias(
                 super_cd_element, cd_id_to_cd_element
             )
         )
         cd_modification_residue_id = (
-            f"{cd_species_reference.id}_{cd_element.residue}"
+            f"{cd_species_template.id}_{cd_element.residue}"
         )
         modification_residue_model_element = cd_id_to_model_element[
             cd_modification_residue_id
@@ -1011,7 +1011,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_generic_protein_reference_from_cd(
+    def _make_and_add_generic_protein_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1023,10 +1023,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.GenericProteinReference,
+            model_element_cls=momapy.celldesigner.core.GenericProteinTemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1036,12 +1036,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_ion_channel_reference_from_cd(
+    def _make_and_add_ion_channel_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1053,10 +1053,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.IonChannelReference,
+            model_element_cls=momapy.celldesigner.core.IonChannelTemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1066,12 +1066,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_receptor_reference_from_cd(
+    def _make_and_add_receptor_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1083,10 +1083,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.ReceptorReference,
+            model_element_cls=momapy.celldesigner.core.ReceptorTemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1096,12 +1096,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_truncated_reference_from_cd(
+    def _make_and_add_truncated_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1113,10 +1113,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.TruncatedProteinReference,
+            model_element_cls=momapy.celldesigner.core.TruncatedProteinTemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1126,12 +1126,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_gene_reference_from_cd(
+    def _make_and_add_gene_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1143,10 +1143,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.GeneReference,
+            model_element_cls=momapy.celldesigner.core.GeneTemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1156,12 +1156,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_rna_reference_from_cd(
+    def _make_and_add_rna_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1173,10 +1173,10 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.RNAReference,
+            model_element_cls=momapy.celldesigner.core.RNATemplate,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1186,12 +1186,12 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_antisense_rna_reference_from_cd(
+    def _make_and_add_antisense_rna_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -1203,7 +1203,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_cd_element=None,
     ):
-        model_element = cls._make_species_reference_from_cd(
+        model_element = cls._make_species_template_from_cd(
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.AntisenseRNA,
@@ -1216,7 +1216,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_cd_element=None,
         )
         layout_element = None
-        map_.model.species_references.add(model_element)
+        map_.model.species_templates.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
@@ -2080,7 +2080,7 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element.stoichiometry = cd_element.stoichiometry
         cd_alias_id = cd_element.annotation.extension.alias
         species_model_element = cd_id_to_model_element[cd_alias_id]
-        model_element.species = species_model_element
+        model_element.referred_species = species_model_element
         layout_element = None
         super_model_element.reactants.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
@@ -2106,7 +2106,7 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element.stoichiometry = cd_element.stoichiometry
         cd_alias_id = cd_element.annotation.extension.alias
         species_model_element = cd_id_to_model_element[cd_alias_id]
-        model_element.species = species_model_element
+        model_element.referred_species = species_model_element
         layout_element = None
         super_model_element.products.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
@@ -7786,7 +7786,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
-    def _make_species_reference_from_cd(
+    def _make_species_template_from_cd(
         cls,
         map_,
         cd_element,
@@ -7851,16 +7851,16 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_species.compartment
             ]
             model_element.compartment = compartment_model_element
-        cd_species_reference = (
-            cls._get_cd_species_reference_from_cd_species_alias(
+        cd_species_template = (
+            cls._get_cd_species_template_from_cd_species_alias(
                 cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
             )
         )
-        if cd_species_reference is not None:
-            species_reference_model_element = cd_id_to_model_element[
-                cd_species_reference.id
+        if cd_species_template is not None:
+            species_template_model_element = cd_id_to_model_element[
+                cd_species_template.id
             ]
-            model_element.reference = species_reference_model_element
+            model_element.template = species_template_model_element
         cd_species_identity = cd_species.annotation.extension.species_identity
         cd_species_state = cd_species_identity.state
         if cd_species_state is not None:
@@ -7884,16 +7884,16 @@ class CellDesignerReader(momapy.io.MapReader):
                         )
                     )
                 # in most (but not all?) cases, empty state variables seem to be
-                # missing from the species; we add them using the species
-                # reference as a template
+                # missing from the species; we add them using the species'
+                # template
                 if isinstance(
-                    model_element.reference,
-                    momapy.celldesigner.core.ProteinReference,
+                    model_element.template,
+                    momapy.celldesigner.core.ProteinTemplate,
                 ):
 
                     for (
                         modification_residue_model_element
-                    ) in model_element.reference.modification_residues:
+                    ) in model_element.template.modification_residues:
                         has_modification = False
                         for (
                             modification_model_element
@@ -8008,16 +8008,16 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_species.compartment
             ]
             model_element.compartment = compartment_model_element
-        cd_species_reference = (
-            cls._get_cd_species_reference_from_cd_species_alias(
+        cd_species_template = (
+            cls._get_cd_species_template_from_cd_species_alias(
                 cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
             )
         )
-        if cd_species_reference is not None:
-            species_reference_model_element = cd_id_to_model_element[
-                cd_species_reference.id
+        if cd_species_template is not None:
+            species_template_model_element = cd_id_to_model_element[
+                cd_species_template.id
             ]
-            model_element.reference = species_reference_model_element
+            model_element.template = species_template_model_element
         cd_species_identity = cd_species.annotation.species_identity
         cd_species_state = cd_species_identity.state
         if cd_species_state is not None:
@@ -8219,7 +8219,7 @@ class CellDesignerReader(momapy.io.MapReader):
     ):
         model_element = map_.new_model_element(model_element_cls)
         species_model_element = cd_id_to_model_element[cd_element.aliases]
-        model_element.species = species_model_element
+        model_element.referred_species = species_model_element
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         return model_element, layout_element
@@ -8350,7 +8350,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return annotations
 
     @classmethod
-    def _get_cd_species_reference_from_cd_species_alias(
+    def _get_cd_species_template_from_cd_species_alias(
         cls, cd_element, cd_id_to_cd_element
     ):
         cd_species = cd_id_to_cd_element[cd_element.species]
@@ -8360,8 +8360,8 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         else:
             cd_species_identity = cd_species.annotation.species_identity
-        cd_species_reference = None
-        for cd_species_reference_type in [
+        cd_species_template = None
+        for cd_species_template_type in [
             "protein_reference",
             "rna_reference",
             "gene_reference",
@@ -8369,17 +8369,17 @@ class CellDesignerReader(momapy.io.MapReader):
         ]:
             if hasattr(
                 cd_species_identity,
-                cd_species_reference_type,
+                cd_species_template_type,
             ):
-                cd_species_reference_id = getattr(
+                cd_species_template_id = getattr(
                     cd_species_identity,
-                    cd_species_reference_type,
+                    cd_species_template_type,
                 )
-                if cd_species_reference_id is not None:
-                    cd_species_reference = cd_id_to_cd_element[
-                        cd_species_reference_id
+                if cd_species_template_id is not None:
+                    cd_species_template = cd_id_to_cd_element[
+                        cd_species_template_id
                     ]
-                    return cd_species_reference
+                    return cd_species_template
         return None
 
     @classmethod
@@ -8437,8 +8437,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 momapy.celldesigner.io._celldesigner_parser.ComplexSpeciesAlias,
             ),
         ):
-            cd_species_reference = (
-                cls._get_cd_species_reference_from_cd_species_alias(
+            cd_species_template = (
+                cls._get_cd_species_template_from_cd_species_alias(
                     cd_element=cd_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
                 )
@@ -8448,10 +8448,10 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_class_value = (
                     cd_species.annotation.extension.species_identity.class_value
                 )
-                if cd_species_reference is not None:
+                if cd_species_template is not None:
                     key = (
                         cd_class_value,
-                        cd_species_reference.type_value,
+                        cd_species_template.type_value,
                     )
                 else:
                     key = cd_class_value
@@ -8459,10 +8459,10 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_class_value = (
                     cd_species.annotation.species_identity.class_value
                 )
-                if cd_species_reference is not None:
+                if cd_species_template is not None:
                     key = (
                         cd_class_value,
-                        cd_species_reference.type_value,
+                        cd_species_template.type_value,
                         "included",
                     )
                 else:

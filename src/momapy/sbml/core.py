@@ -40,7 +40,7 @@ class Species(SBase):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleSpeciesReference(SBase):
-    species: Species
+    referred_species: Species
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

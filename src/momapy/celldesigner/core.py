@@ -78,40 +78,42 @@ class ProteinBindingDomain(Region):
 
 
 # abstract
+# changed name from reference to template to distinguish from SBML's
+# species reference which has a different meaning (reference to a species)
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerSpeciesReference(CellDesignerModelElement):
+class SpeciesTemplate(CellDesignerModelElement):
     name: str
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ProteinReference(CellDesignerSpeciesReference):
+class ProteinTemplate(SpeciesTemplate):
     modification_residues: frozenset[ModificationResidue] = dataclasses.field(
         default_factory=frozenset
     )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class GenericProteinReference(ProteinReference):
+class GenericProteinTemplate(ProteinTemplate):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TruncatedProteinReference(ProteinReference):
+class TruncatedProteinTemplate(ProteinTemplate):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReceptorReference(ProteinReference):
+class ReceptorTemplate(ProteinTemplate):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class IonChannelReference(ProteinReference):
+class IonChannelTemplate(ProteinTemplate):
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class GeneReference(CellDesignerSpeciesReference):
+class GeneTemplate(SpeciesTemplate):
     regions: frozenset[
         ModificationSite
         | CodingRegion
@@ -122,14 +124,14 @@ class GeneReference(CellDesignerSpeciesReference):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class RNAReference(CellDesignerSpeciesReference):
+class RNATemplate(SpeciesTemplate):
     regions: frozenset[
         ModificationSite | CodingRegion | ProteinBindingDomain
     ] = dataclasses.field(default_factory=frozenset)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class AntisenseRNAReference(CellDesignerSpeciesReference):
+class AntisenseRNATemplate(SpeciesTemplate):
     regions: frozenset[
         ModificationSite | CodingRegion | ProteinBindingDomain
     ] = dataclasses.field(default_factory=frozenset)
@@ -162,7 +164,7 @@ class Species(momapy.sbml.core.Species, CellDesignerModelElement):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Protein(Species):
-    reference: ProteinReference
+    template: ProteinTemplate
     modifications: frozenset[Modification] = dataclasses.field(
         default_factory=frozenset
     )
@@ -173,37 +175,37 @@ class Protein(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProtein(Protein):
-    reference: GenericProteinReference
+    template: GenericProteinTemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TruncatedProtein(Protein):
-    reference: TruncatedProteinReference
+    template: TruncatedProteinTemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Receptor(Protein):
-    reference: ReceptorReference
+    template: ReceptorTemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class IonChannel(Protein):
-    reference: IonChannelReference
+    template: IonChannelTemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Gene(Species):
-    reference: GeneReference
+    template: GeneTemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNA(Species):
-    reference: RNAReference
+    template: RNATemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNA(Species):
-    reference: AntisenseRNAReference
+    template: AntisenseRNATemplate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -465,8 +467,8 @@ class UnknownTriggering(UnknownModulation):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModel(momapy.sbml.core.Model):
-    species_references: frozenset[CellDesignerSpeciesReference] = (
-        dataclasses.field(default_factory=frozenset)
+    species_templates: frozenset[SpeciesTemplate] = dataclasses.field(
+        default_factory=frozenset
     )
     boolean_logic_gates: frozenset[BooleanLogicGate] = dataclasses.field(
         default_factory=frozenset
