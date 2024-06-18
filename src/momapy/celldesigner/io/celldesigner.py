@@ -7883,6 +7883,46 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_cd_element=cd_element,
                         )
                     )
+                # in most (but not all?) cases, empty state variables seem to be
+                # missing from the species; we add them using the species
+                # reference as a template
+                if isinstance(
+                    model_element.reference,
+                    momapy.celldesigner.core.ProteinReference,
+                ):
+
+                    for (
+                        modification_residue_model_element
+                    ) in model_element.reference.modification_residues:
+                        has_modification = False
+                        for (
+                            modification_model_element
+                        ) in model_element.modifications:
+                            if (
+                                modification_model_element.residue
+                                == modification_residue_model_element
+                            ):
+                                has_modification = True
+                        if not has_modification:
+                            modification_model_element = (
+                                map_.new_model_element(
+                                    momapy.celldesigner.core.Modification
+                                )
+                            )
+                            modification_model_element.residue = (
+                                modification_residue_model_element
+                            )
+                            modification_model_element.state = (
+                                momapy.celldesigner.io._celldesigner_parser.ModificationState.EMPTY
+                            )
+                            modification_model_element = (
+                                momapy.builder.object_from_builder(
+                                    modification_model_element
+                                )
+                            )
+                            model_element.modifications.add(
+                                modification_model_element
+                            )
             if cd_species_state.list_of_structural_states is not None:
                 cd_species_structural_state = (
                     cd_species_state.list_of_structural_states.structural_state
