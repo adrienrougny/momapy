@@ -287,7 +287,7 @@ class _Modifier(
     momapy.sbml.core.ModifierSpeciesReference, CellDesignerModelElement
 ):
     # redefined because can be BooleanLogicGate
-    species: Species | BooleanLogicGate
+    referred_species: Species | BooleanLogicGate
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
