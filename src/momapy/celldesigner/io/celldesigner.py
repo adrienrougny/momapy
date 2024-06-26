@@ -978,7 +978,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
             if outside_model_element is None:
                 cd_outside = cd_id_to_cd_element[cd_element.outside]
-                outside_mode_element, outside_layout_element = (
+                outside_model_element, outside_layout_element = (
                     cls._make_and_add_compartment_from_cd(
                         map_=map_,
                         cd_element=cd_outside,
@@ -991,6 +991,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=None,
                     )
                 )
+
             model_element.outside = outside_model_element
         if cd_element.annotation is not None:
             if cd_element.annotation.rdf is not None:
