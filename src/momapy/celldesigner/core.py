@@ -507,13 +507,16 @@ class GenericProteinLayout(_MultiMixin, CellDesignerNode):
     rounded_corners: float = 5.0
 
     def _make_subunit_shape(self, position, width, height):
-        return momapy.sbgn.MacromoleculeMultimerLayout._make_subunit_shape(
+        return momapy.sbgn.pd.MacromoleculeMultimerLayout._make_subunit_shape(
             self, position, width, height
         )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _IonChannelShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     right_rectangle_width: float
     rounded_corners: float
 
@@ -613,7 +616,7 @@ class _IonChannelShape(momapy.core.Shape):
             self.rounded_corners - self.height / 2,
         )
 
-    def border_drawing_element(self):
+    def drawing_elements(self):
         left_rectangle = momapy.drawing.Rectangle(
             point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
@@ -682,7 +685,7 @@ class SimpleMoleculeLayout(_MultiMixin, CellDesignerNode):
     height: float = 30.0
 
     def _make_subunit_shape(self, position, width, height):
-        return momapy.meta.shape.Ellipse(
+        return momapy.meta.shapes.Ellipse(
             position=position, width=width, height=height
         )
 
@@ -693,7 +696,7 @@ class IonLayout(_MultiMixin, CellDesignerNode):
     height: float = 30.0
 
     def _make_subunit_shape(self, position, width, height):
-        return momapy.meta.shape.Ellipse(
+        return momapy.meta.shapes.Ellipse(
             position=position, width=width, height=height
         )
 
@@ -710,7 +713,7 @@ class UnknownLayout(_MultiMixin, CellDesignerNode):
     )
 
     def _make_subunit_shape(self, position, width, height):
-        return momapy.meta.shape.Ellipse(
+        return momapy.meta.shapes.Ellipse(
             position=position, width=width, height=height
         )
 
@@ -752,7 +755,7 @@ class GeneLayout(_MultiMixin, CellDesignerNode):
     height: float = 30.0
 
     def _make_subunit_shape(self, position, width, height):
-        return momapy.meta.shape.Rectangle(
+        return momapy.meta.shapes.Rectangle(
             position=position, width=width, height=height
         )
 
@@ -761,7 +764,7 @@ class GeneLayout(_MultiMixin, CellDesignerNode):
 class PhenotypeLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
-    angle: float = 45.0
+    angle: float = 60.0
 
     def _make_subunit_shape(self, position, width, height):
         return momapy.meta.shapes.Hexagon(
@@ -802,6 +805,9 @@ class AntisenseRNALayout(_MultiMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _TruncatedProteinShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     rounded_corners: float
     vertical_truncation: float  # proportion of total height, number in ]0, 1[
     horizontal_truncation: float  # proportion of total width number in ]0, 1[
@@ -854,7 +860,7 @@ class _TruncatedProteinShape(momapy.core.Shape):
             self.rounded_corners - self.height / 2,
         )
 
-    def border_drawing_element(self):
+    def drawing_elements(self):
         actions = [
             momapy.drawing.MoveTo(self.joint1()),
             momapy.drawing.LineTo(self.joint2()),
@@ -910,11 +916,11 @@ class ReceptorLayout(_MultiMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
     vertical_truncation: float = (
-        0.20  # proportion of total height, number in ]0, 1[
+        0.10  # proportion of total height, number in ]0, 1[
     )
 
     def _make_subunit_shape(self, position, width, height):
-        angle = math.atan2(self.vertical_truncation * height, width / 2)
+        angle = math.atan2(width / 2, self.vertical_truncation * height)
         angle = momapy.geometry.get_normalized_angle(angle)
         angle = math.degrees(angle)
         return momapy.meta.shapes.TurnedHexagon(
@@ -928,6 +934,9 @@ class ReceptorLayout(_MultiMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _DrugShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     horizontal_proportion: float  # ]0, 0.5[
     sep: float
 
@@ -955,7 +964,7 @@ class _DrugShape(momapy.core.Shape):
             self.height / 2,
         )
 
-    def border_drawing_elements(self):
+    def drawing_elements(self):
         actions = [
             momapy.drawing.MoveTo(self.joint1()),
             momapy.drawing.LineTo(self.joint2()),
@@ -1052,6 +1061,9 @@ class ModificationLayout(_SimpleMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _OvalCompartmentShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -1061,7 +1073,7 @@ class _OvalCompartmentShape(momapy.core.Shape):
     inner_stroke_width: float | None = None
     sep: float = 12.0
 
-    def border_drawing_elements(self):
+    def drawing_elements(self):
         outer_oval = momapy.drawing.Ellipse(
             point=self.position,
             rx=self.width / 2,
@@ -1105,6 +1117,9 @@ class OvalCompartmentLayout(_SimpleMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _RectangleCompartmentShape(momapy.core.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
     inner_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         None
     )
@@ -1116,7 +1131,7 @@ class _RectangleCompartmentShape(momapy.core.Shape):
     rounded_corners: float = 10.0
     sep: float = 12.0
 
-    def border_drawing_elements(self):
+    def drawing_elements(self):
         outer_rectangle = momapy.drawing.Rectangle(
             point=self.position,
             height=self.height,
