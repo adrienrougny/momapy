@@ -1,6 +1,7 @@
 import collections
 
 import momapy.core
+import momapy.positioning
 import momapy.io
 import momapy.coloring
 import momapy.celldesigner.core
@@ -14,6 +15,9 @@ import xsdata.formats.dataclass.parsers.config
 
 
 class CellDesignerReader(momapy.io.MapReader):
+    _DEFAULT_FONT_FAMILY = "Helvetica"
+    _DEFAULT_FONT_SIZE = 12.0
+    _DEFAULT_FONT_FILL = momapy.coloring.black
     _KEY_TO_MAKE_AND_ADD_FUNC_NAME = {
         momapy.celldesigner.io._celldesigner_parser.ModificationResidue: "_make_and_add_modification_residue_from_cd",
         momapy.celldesigner.io._celldesigner_parser.ListOfModifications.Modification: "_make_and_add_modification_from_cd",
@@ -846,6 +850,14 @@ class CellDesignerReader(momapy.io.MapReader):
         map_.map_element_to_annotations = frozendict.frozendict(
             map_element_to_annotations
         )
+        momapy.positioning.set_fit(
+            map_.layout,
+            momapy.builder.object_from_builder(map_.layout).layout_elements,
+            xsep=5.0,
+            ysep=5.0,
+        )
+        map_.layout.fill = momapy.coloring.white
+        map_.layout.stroke = momapy.coloring.red
         map_ = momapy.builder.object_from_builder(map_)
         return map_
 
@@ -853,6 +865,7 @@ class CellDesignerReader(momapy.io.MapReader):
     def _make_map_no_subelements_from_cd(cls, cd_element):
         map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
         map_.model = map_.new_model()
+        map_.layout = map_.new_layout()
         return map_
 
     @classmethod
@@ -1238,7 +1251,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.GenericProtein,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.GenericProteinLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1268,7 +1281,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.IonChannel,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.IonChannelLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1298,7 +1311,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Receptor,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.ReceptorLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1328,7 +1341,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.TruncatedProtein,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TruncatedProteinLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1358,7 +1371,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Gene,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.GeneLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1388,7 +1401,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.RNA,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.RNALayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1418,7 +1431,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.AntisenseRNA,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.AntisenseRNALayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1448,7 +1461,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Phenotype,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.PhenotypeLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1478,7 +1491,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Ion,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.IonLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1508,7 +1521,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.SimpleMolecule,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.SimpleMoleculeLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1538,7 +1551,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Drug,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.DrugLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1568,7 +1581,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Unknown,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1598,7 +1611,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Complex,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.ComplexLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1628,7 +1641,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.GenericProtein,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.GenericProteinLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1658,7 +1671,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Degraded,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.DegradedLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1688,7 +1701,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Receptor,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.ReceptorLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1718,7 +1731,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.IonChannel,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.IonChannelLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1748,7 +1761,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.TruncatedProtein,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TruncatedProteinLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1778,7 +1791,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Gene,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.GeneLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1808,7 +1821,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.RNA,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.RNALayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1838,7 +1851,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.AntisenseRNA,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.AntisenseRNALayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1868,7 +1881,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Phenotype,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.PhenotypeLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1898,7 +1911,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Ion,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.IonLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1928,7 +1941,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.SimpleMolecule,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.SimpleMoleculeLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1958,7 +1971,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Drug,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.DrugLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -1988,7 +2001,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Unknown,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -2018,7 +2031,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Complex,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.ComplexLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -2048,7 +2061,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Degraded,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.DegradedLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7970,13 +7983,40 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=cd_element,
                     )
                 )
-        if cd_species.annotation is not None:
-            if cd_species.annotation.rdf is not None:
-                annotations = cls._make_annotations_from_cd(
-                    cd_species.annotation.rdf
-                )
-        layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
+        if layout_element_cls is not None:
+            layout_element = map_.new_layout_element(layout_element_cls)
+            layout_element.position = momapy.geometry.Point(
+                float(cd_element.bounds.x + cd_element.bounds.w / 2),
+                float(cd_element.bounds.y + cd_element.bounds.h / 2),
+            )
+            layout_element.width = float(cd_element.bounds.w)
+            layout_element.height = float(cd_element.bounds.h)
+            text = cd_species.name
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cd_element.font.size,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element.border_stroke_width = float(
+                cd_element.usual_view.single_line.width
+            )
+            cd_element_fill_color = cd_element.usual_view.paint.color
+            cd_element_fill_color = (
+                cd_element_fill_color[2:] + cd_element_fill_color[:2]
+            )
+            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+                cd_element_fill_color
+            )
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            map_.layout.layout_elements.append(layout_element)
+        else:
+            layout_element = None
         if cd_species.annotation is not None:
             if cd_species.annotation.rdf is not None:
                 annotations = cls._make_annotations_from_cd(
@@ -8087,8 +8127,40 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=cd_element,
                     )
                 )
-        layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
+        if layout_element_cls is not None:
+            layout_element = map_.new_layout_element(layout_element_cls)
+            layout_element.position = momapy.geometry.Point(
+                float(cd_element.bounds.x + cd_element.bounds.w / 2),
+                float(cd_element.bounds.y + cd_element.bounds.h / 2),
+            )
+            layout_element.width = float(cd_element.bounds.w)
+            layout_element.height = float(cd_element.bounds.h)
+            text = cd_species.name
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cd_element.font.size,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element.border_stroke_width = float(
+                cd_element.usual_view.single_line.width
+            )
+            cd_element_fill_color = cd_element.usual_view.paint.color
+            cd_element_fill_color = (
+                cd_element_fill_color[2:] + cd_element_fill_color[:2]
+            )
+            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+                cd_element_fill_color
+            )
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            map_.layout.layout_elements.append(layout_element)
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod

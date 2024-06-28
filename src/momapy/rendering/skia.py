@@ -377,9 +377,9 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
                 familyName=font_family,
                 fontStyle=skia_font_style,
             )
-            self._skia_typefaces[
-                (font_family, font_weight, font_style)
-            ] = skia_typeface
+            self._skia_typefaces[(font_family, font_weight, font_style)] = (
+                skia_typeface
+            )
         font_size = self.get_current_value("font_size")
         skia_font = self._skia_fonts.get(
             (

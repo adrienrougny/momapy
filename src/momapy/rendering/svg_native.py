@@ -125,7 +125,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     svg: SVGElement
     config: dict = dataclasses.field(default_factory=dict)
-    _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
+    _filter_elements: list[SVGElement] = dataclasses.field(
+        default_factory=list
+    )
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
@@ -438,7 +440,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_ellipse_element(self, ellipse):
         name = "ellipse"
-        attributes = self._make_drawing_element_presentation_attributes(ellipse)
+        attributes = self._make_drawing_element_presentation_attributes(
+            ellipse
+        )
         attributes["cx"] = ellipse.x
         attributes["cy"] = ellipse.y
         attributes["rx"] = ellipse.rx
