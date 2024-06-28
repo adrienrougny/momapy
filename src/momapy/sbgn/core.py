@@ -96,17 +96,19 @@ class SBGNNode(momapy.core.Node):
 
     def border_drawing_elements(self):
         drawing_elements = []
+        done_bases = []
         for base in type(self).__mro__:
             if (
                 momapy.builder.issubclass_or_builder(base, _SBGNMixin)
-                and base is not _SBGNMixin
-                and base
-                is not momapy.builder.get_or_make_builder_cls(_SBGNMixin)
                 and base is not type(self)
+                and not any(
+                    [issubclass(done_base, base) for done_base in done_bases]
+                )
             ):
                 drawing_elements += getattr(base, "_mixin_drawing_elements")(
                     self
                 )
+                done_bases.append(base)
         return drawing_elements
 
 
