@@ -947,7 +947,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
         map_.layout.layout_elements.append(layout_element)
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.compartments,
             func=lambda element, existing_element: element.id
@@ -1033,7 +1033,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element = momapy.builder.object_from_builder(model_element)
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.submaps,
             func=lambda element, existing_element: element.id
@@ -1076,7 +1076,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1120,7 +1120,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             with_annotations=with_annotations,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1163,7 +1163,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1206,7 +1206,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1249,7 +1249,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1292,7 +1292,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1335,7 +1335,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1378,7 +1378,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1421,7 +1421,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1464,7 +1464,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1507,7 +1507,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id
@@ -1550,7 +1550,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -1593,7 +1593,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -1636,7 +1636,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -1679,7 +1679,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -1722,7 +1722,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the model and layout elements to the map_, and to the mapping
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -1814,7 +1814,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         )
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id
@@ -2123,7 +2123,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id
@@ -2166,7 +2166,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id
@@ -2209,7 +2209,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id
@@ -2252,7 +2252,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id
@@ -2295,7 +2295,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id
@@ -2338,7 +2338,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id
@@ -2381,7 +2381,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id
@@ -2424,7 +2424,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             super_sbgnml_element=super_sbgnml_element,
         )
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id
@@ -2491,7 +2491,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         )
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
-        momapy.utils.add_or_replace_element_in_set(
+        model_element = momapy.utils.add_ore_replace_element_in_set(
             model_element,
             map_.model.tags,
             func=lambda element, existing_element: element.id
