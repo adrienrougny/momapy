@@ -110,10 +110,13 @@ def add_or_replace_element_in_set(element, set_, func=None):
     existing_element = get_element_from_collection(element, set_)
     if existing_element is None:
         set_.add(element)
+        return element
     # Replaces existing element by input element if func(element, existing_element) is True
     elif func is not None and func(element, existing_element):
         set_.remove(existing_element)
         set_.add(element)
+        return element
+    return existing_element
 
 
 def get_uuid4_as_str():
