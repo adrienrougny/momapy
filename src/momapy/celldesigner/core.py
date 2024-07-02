@@ -487,6 +487,16 @@ class CellDesignerNode(momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class CellDesignerSingleHeadedArc(momapy.sbgn.core.SBGNSingleHeadedArc):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class CellDesignerDoubleHeadedArc(momapy.core.DoubleHeadedArc):
+    pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleMixin(momapy.sbgn.core._SimpleMixin):
     pass
 
@@ -1183,142 +1193,95 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReactionNode(_SimpleMixin, CellDesignerNode):
-    _shape_cls: typing.ClassVar[type] = momapy.meta.nodes.Rectangle
-    _arg_names_mapping: typing.ClassVar[dict[str, str]] = {}
-    width: float = 8.0
-    height: float = 8.0
-    stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    stroke_width: float | None = 1.0
-    stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    stroke_dashoffset: float | None = 0.0
-    fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.white
-    transform: typing.Optional[
-        typing.Union[
-            momapy.drawing.NoneValueType, tuple[momapy.geometry.Transformation]
-        ]
-    ] = momapy.drawing.NoneValue
-    filter: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.drawing.Filter]
-    ] = momapy.drawing.NoneValue
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class ReactionLayout(momapy.meta.arcs.Triangle):
-    reaction_node: ReactionNode
-
-    def self_children(self):
-        layout_elements = momapy.arcs.Triangle.self_children(self)
-        layout_elements.append(self.reaction_node)
-        return layout_elements
+class ReactionLayout(CellDesignerDoubleHeadedArc):
+    _reaction_node_text: str | None = None
+    reaction_node_segment: int = 1
+    reaction_node_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    reaction_node_stroke_width: float | None = 1.0
+    reaction_node_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    reaction_node_stroke_dashoffset: float | None = None
+    reaction_node_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    reaction_node_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    reaction_node_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransitionLayout(ReactionLayout):
-    width: float = 14.0
-    height: float = 10.0
-    shorten: float = 2.0
-    stroke: typing.Union[
-        momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.black
-    stroke_width: float = 1.0
-    stroke_dasharray: typing.Union[
-        momapy.drawing.NoneValueType, tuple[float]
-    ] = momapy.drawing.NoneValue
-    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-    arrowhead_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    arrowhead_stroke_width: float | None = 1.0
-    arrowhead_stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    arrowhead_stroke_dashoffset: float | None = 0.0
-    arrowhead_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
+    end_arrowhead_width: float = 10.0
+    end_arrowhead_height: float = 10.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
 
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class TranscriptionLayout(ReactionLayout):
-    width: float = 12.0
-    height: float = 12.0
-    shorten: float = 2.0
-    stroke: typing.Union[
-        momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.black
-    stroke_width: float = 1.0
-    stroke_dasharray: typing.Union[
-        momapy.drawing.NoneValueType, tuple[float]
-    ] = (10, 3, 2, 3, 2, 3)
-    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-    arrowhead_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    arrowhead_stroke_width: float | None = 1.0
-    arrowhead_stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    arrowhead_stroke_dashoffset: float | None = 0.0
-    arrowhead_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
 
+    def self_drawing_elements(self):
+        drawing_elements = super().self_drawing_elements()
+        drawing_elements.append(
+            self._make_rotated_reaction_node_drawing_element()
+        )
+        return drawing_elements
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class ConsumptionLayout(momapy.meta.arcs.PolyLine):
-    shorten: float = 0.0
-    stroke: typing.Union[
-        momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.black
-    stroke_width: float = 1.0
-    stroke_dasharray: typing.Union[
-        momapy.drawing.NoneValueType, tuple[float]
-    ] = momapy.drawing.NoneValue
-    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-    arrowhead_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    arrowhead_stroke_width: float | None = 1.0
-    arrowhead_stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    arrowhead_stroke_dashoffset: float | None = 0.0
-    arrowhead_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
+    def _make_reaction_node(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(0.5)
+        reaction_node = momapy.meta.shape.Rectangle(
+            height=self.reaction_node_height,
+            position=position,
+            width=self.reaction_node_width,
+        )
+        return reaction_node
 
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class ProductionLayout(momapy.meta.arcs.Triangle):
-    width: float = 14.0
-    height: float = 10.0
-    shorten: float = 2.0
-    stroke: typing.Union[
-        momapy.drawing.NoneValueType, momapy.coloring.Color
-    ] = momapy.coloring.black
-    stroke_width: float = 1.0
-    stroke_dasharray: typing.Union[
-        momapy.drawing.NoneValueType, tuple[float]
-    ] = momapy.drawing.NoneValue
-    fill: momapy.drawing.NoneValueType = momapy.drawing.NoneValue
-    arrowhead_stroke: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
-    arrowhead_stroke_width: float | None = 1.0
-    arrowhead_stroke_dasharray: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, tuple[float]]
-    ] = momapy.drawing.NoneValue
-    arrowhead_stroke_dashoffset: float | None = 0.0
-    arrowhead_fill: typing.Optional[
-        typing.Union[momapy.drawing.NoneValueType, momapy.coloring.Color]
-    ] = momapy.coloring.black
+    def _make_rotated_reaction_node_drawing_element(self):
+        reaction_node = self._make_reaction_node()
+        elements = reaction_node.drawing_elements()
+        group = momapy.drawing.Group(
+            stroke=self.reaction_node_stroke,
+            stroke_width=self.reaction_node_stroke_width,
+            stroke_dasharray=self.reaction_node_stroke_dasharray,
+            stroke_dashoffset=self.reaction_node_stroke_dashoffset,
+            fill=self.reaction_node_fill,
+            transform=self.reaction_node_transform,
+            filter=self.reaction_node_filter,
+            elements=elements,
+        )
+        segment = self.segments[self.reaction_node_segment]
+        angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
+        rotation = momapy.geometry.Rotation(angle, reaction_node.position)
+        group = group.transformed(rotation)
+        return group
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
