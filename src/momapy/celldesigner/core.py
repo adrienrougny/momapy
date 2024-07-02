@@ -1133,7 +1133,7 @@ class _RectangleCompartmentShape(momapy.core.Shape):
 
     def drawing_elements(self):
         outer_rectangle = momapy.drawing.Rectangle(
-            point=self.position,
+            point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
             rx=self.rounded_corners,
             ry=self.rounded_corners,
@@ -1141,13 +1141,14 @@ class _RectangleCompartmentShape(momapy.core.Shape):
         )
         inner_rectangle = momapy.drawing.Rectangle(
             fill=self.inner_fill,
-            height=self.height - self.sep,
-            point=self.position,
+            height=self.height - 2 * self.sep,
+            point=self.position
+            - (self.width / 2 - self.sep, self.height / 2 - self.sep),
             rx=self.inner_rounded_corners,
             ry=self.inner_rounded_corners,
             stroke=self.inner_stroke,
             stroke_width=self.inner_stroke_width,
-            width=self.width - self.sep,
+            width=self.width - 2 * self.sep,
         )
         return [outer_rectangle, inner_rectangle]
 
