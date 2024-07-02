@@ -388,26 +388,50 @@ class Bbox(object):
     def north_west(self):
         return Point(self.x - self.width / 2, self.y - self.height / 2)
 
-    def west(self):
-        return Point(self.x - self.width / 2, self.y)
+    def north_north_west(self):
+        return Point(self.x - self.width / 4, self.y - self.height / 2)
 
-    def south_west(self):
-        return Point(self.x - self.width / 2, self.y + self.height / 2)
+    def north(self):
+        return Point(self.x, self.y - self.height / 2)
 
-    def south(self):
-        return Point(self.x, self.y + self.height / 2)
-
-    def south_east(self):
-        return Point(self.x + self.width / 2, self.y + self.height / 2)
-
-    def east(self):
-        return Point(self.x + self.width / 2, self.y)
+    def north_north_east(self):
+        return Point(self.x + self.width / 4, self.y - self.height / 2)
 
     def north_east(self):
         return Point(self.x + self.width / 2, self.y - self.height / 2)
 
-    def north(self):
-        return Point(self.x, self.y - self.height / 2)
+    def east_north_east(self):
+        return Point(self.x + self.width / 2, self.y - self.height / 4)
+
+    def east(self):
+        return Point(self.x + self.width / 2, self.y)
+
+    def east_south_east(self):
+        return Point(self.x + self.width / 2, self.y + self.width / 4)
+
+    def south_east(self):
+        return Point(self.x + self.width / 2, self.y + self.height / 2)
+
+    def south_south_east(self):
+        return Point(self.x + self.width / 4, self.y + self.height / 2)
+
+    def south(self):
+        return Point(self.x, self.y + self.height / 2)
+
+    def south_south_west(self):
+        return Point(self.x - self.width / 4, self.y + self.height / 2)
+
+    def south_west(self):
+        return Point(self.x - self.width / 2, self.y + self.height / 2)
+
+    def west_south_west(self):
+        return Point(self.x - self.width / 2, self.y + self.height / 4)
+
+    def west(self):
+        return Point(self.x - self.width / 2, self.y)
+
+    def west_north_west(self):
+        return Point(self.x - self.width / 2, self.y - self.height / 4)
 
     def center(self):
         return Point(self.x, self.y)
@@ -894,7 +918,9 @@ def get_center_parameterization_of_elliptical_arc(elliptical_arc):
     fa = elliptical_arc.arc_flag
     fs = elliptical_arc.sweep_flag
     x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * ((y1 - y2) / 2)
-    y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * ((y1 - y2) / 2)
+    y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
+        (y1 - y2) / 2
+    )
     l = x1p**2 / rx**2 + y1p**2 / ry**2
     if l > 1:
         rx = math.sqrt(l) * rx

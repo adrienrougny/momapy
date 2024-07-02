@@ -270,26 +270,50 @@ class TextLayout(LayoutElement):
     def north_west(self):
         return self.bbox().north_west()
 
+    def north_north_west(self):
+        return self.bbox().north_north_west()
+
     def north(self):
         return self.bbox().north()
+
+    def north_north_east(self):
+        return self.bbox().north_north_east()
 
     def north_east(self):
         return self.bbox().north_east()
 
+    def east_north_east(self):
+        return self.bbox().east_north_east()
+
     def east(self):
         return self.bbox().east()
+
+    def east_south_east(self):
+        return self.bbox().east_south_east()
 
     def south_east(self):
         return self.bbox().south_east()
 
+    def south_south_east(self):
+        return self.bbox().south_south_east()
+
     def south(self):
         return self.bbox().south()
+
+    def south_south_west(self):
+        return self.bbox().south_south_west()
 
     def south_west(self):
         return self.bbox().south_west()
 
+    def west_south_west(self):
+        return self.bbox().west_south_west()
+
     def west(self):
         return self.bbox().west()
+
+    def west_north_west(self):
+        return self.bbox().west_north_west()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -440,8 +464,22 @@ class Node(GroupLayout):
         angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
+    def north_north_west(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() - (self.width / 4, self.height / 2)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
+
     def north(self) -> momapy.geometry.Point:
         return self.self_angle(90)
+
+    def north_north_east(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 4, -self.height / 2)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
 
     def north_east(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
@@ -450,8 +488,22 @@ class Node(GroupLayout):
         angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
+    def east_north_east(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 2, -self.height / 4)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
+
     def east(self) -> momapy.geometry.Point:
         return self.self_angle(0)
+
+    def east_south_east(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 2, self.height / 4)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
 
     def south_east(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
@@ -460,8 +512,22 @@ class Node(GroupLayout):
         angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
+    def south_south_east(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (self.width / 4, self.height / 2)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
+
     def south(self) -> momapy.geometry.Point:
         return self.self_angle(270)
+
+    def south_south_west(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (-self.width / 4, self.height / 2)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
 
     def south_west(self) -> momapy.geometry.Point:
         line = momapy.geometry.Line(
@@ -470,8 +536,22 @@ class Node(GroupLayout):
         angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
         return self.self_angle(angle, unit="radians")
 
+    def west_south_west(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() + (-self.width / 2, self.height / 4)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
+
     def west(self) -> momapy.geometry.Point:
         return self.self_angle(180)
+
+    def west_north_west(self) -> momapy.geometry.Point:
+        line = momapy.geometry.Line(
+            self.center(), self.center() - (self.width / 2, self.height / 4)
+        )
+        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        return self.self_angle(angle, unit="radians")
 
     def center(self) -> momapy.geometry.Point:
         return self.position
