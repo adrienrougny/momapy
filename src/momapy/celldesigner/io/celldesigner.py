@@ -8649,12 +8649,15 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=cd_element,
                     )
                 )
+        cd_x = float(cd_element.bounds.x)
+        cd_y = float(cd_element.bounds.y)
+        cd_w = float(cd_element.bounds.w)
+        cd_h = float(cd_element.bounds.h)
         layout_element.position = momapy.geometry.Point(
-            float(cd_element.bounds.x + cd_element.bounds.w / 2),
-            float(cd_element.bounds.y + cd_element.bounds.h / 2),
+            cd_x + cd_w / 2, cd_y + cd_h / 2
         )
-        layout_element.width = float(cd_element.bounds.w)
-        layout_element.height = float(cd_element.bounds.h)
+        layout_element.width = cd_w
+        layout_element.height = cd_h
         text = cd_species.name
         text_layout = momapy.core.TextLayout(
             text=text,
@@ -8793,12 +8796,15 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_cd_element=cd_element,
                     )
                 )
+        cd_x = float(cd_element.bounds.x)
+        cd_y = float(cd_element.bounds.y)
+        cd_w = float(cd_element.bounds.w)
+        cd_h = float(cd_element.bounds.h)
         layout_element.position = momapy.geometry.Point(
-            float(cd_element.bounds.x + cd_element.bounds.w / 2),
-            float(cd_element.bounds.y + cd_element.bounds.h / 2),
+            cd_x + cd_w / 2, cd_y + cd_h / 2
         )
-        layout_element.width = float(cd_element.bounds.w)
-        layout_element.height = float(cd_element.bounds.h)
+        layout_element.width = cd_w
+        layout_element.height = cd_h
         text = cd_species.name
         text_layout = momapy.core.TextLayout(
             text=text,
