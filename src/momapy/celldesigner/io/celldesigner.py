@@ -606,7 +606,7 @@ class CellDesignerReader(momapy.io.MapReader):
 
     @classmethod
     def read(
-        cls, file_path, **options
+        cls, file_path, with_layout=True
     ) -> momapy.celldesigner.core.CellDesignerMap:
         config = xsdata.formats.dataclass.parsers.config.ParserConfig(
             fail_on_unknown_properties=False
@@ -618,15 +618,17 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_sbml = parser.parse(
             file_path, momapy.celldesigner.io._celldesigner_parser.Sbml
         )
-        map_ = cls._make_map_from_cd(cd_sbml)
+        map_ = cls._make_map_from_cd(cd_sbml, with_layout=with_layout)
         return map_
 
     @classmethod
-    def _make_map_from_cd(cls, cd_element):
+    def _make_map_from_cd(cls, cd_element, with_layout=True):
         cd_id_to_model_element = {}
         cd_id_to_layout_element = {}
         map_element_to_annotations = collections.defaultdict(set)
-        map_ = cls._make_map_no_subelements_from_cd(cd_element)
+        map_ = cls._make_map_no_subelements_from_cd(
+            cd_element, with_layout=with_layout
+        )
         # we map the ids to their corresponding cd elements
         cd_id_to_cd_element = {}
         # compartments
@@ -781,6 +783,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         super_cd_element=None,
+                        with_layout=with_layout,
                     )
                 )
         # we make the compartments from the list of compartments that do not have
@@ -803,6 +806,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_layout=with_layout,
                         )
                     )
         # we make and add the species templates
@@ -823,6 +827,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_layout=with_layout,
             )
         # we make and add the species, from the species aliases
         # species aliases are the glyphs; in terms of model, a species is almost
@@ -854,6 +859,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_layout=with_layout,
                         )
                     )
         if (
@@ -878,6 +884,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_layout=with_layout,
                         )
                     )
         # we make and add the complexes, from the complex species aliases
@@ -897,6 +904,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         super_cd_element=None,
+                        with_layout=with_layout,
                     )
                 )
         for map_element, annotations in map_element_to_annotations.items():
@@ -904,22 +912,26 @@ class CellDesignerReader(momapy.io.MapReader):
         map_.map_element_to_annotations = frozendict.frozendict(
             map_element_to_annotations
         )
-        momapy.positioning.set_fit(
-            map_.layout,
-            momapy.builder.object_from_builder(map_.layout).layout_elements,
-            xsep=5.0,
-            ysep=5.0,
-        )
-        map_.layout.fill = momapy.coloring.white
-        map_.layout.stroke = momapy.coloring.red
+        if with_layout:
+            momapy.positioning.set_fit(
+                map_.layout,
+                momapy.builder.object_from_builder(
+                    map_.layout
+                ).layout_elements,
+                xsep=5.0,
+                ysep=5.0,
+            )
+            map_.layout.fill = momapy.coloring.white
+            map_.layout.stroke = momapy.coloring.red
         map_ = momapy.builder.object_from_builder(map_)
         return map_
 
     @classmethod
-    def _make_map_no_subelements_from_cd(cls, cd_element):
+    def _make_map_no_subelements_from_cd(cls, cd_element, with_layout=True):
         map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
         map_.model = map_.new_model()
-        map_.layout = map_.new_layout()
+        if with_layout:
+            map_.layout = map_.new_layout()
         return map_
 
     @classmethod
@@ -935,6 +947,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.ModificationResidue
@@ -966,6 +979,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Modification
@@ -1011,6 +1025,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.StructuralState
@@ -1033,6 +1048,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         cd_compartment = cd_id_to_cd_element[cd_element.compartment]
         # we make and add the model element from the cd compartment the cd element is
@@ -1048,54 +1064,60 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
-        if (
-            cd_element.class_value
-            is momapy.celldesigner.io._celldesigner_parser.ClassValue.OVAL
-        ):
-            layout_element_cls = momapy.celldesigner.core.OvalCompartmentLayout
-        else:
-            layout_element_cls = (
-                momapy.celldesigner.core.RectangleCompartmentLayout
+        if with_layout:
+            if (
+                cd_element.class_value
+                is momapy.celldesigner.io._celldesigner_parser.ClassValue.OVAL
+            ):
+                layout_element_cls = (
+                    momapy.celldesigner.core.OvalCompartmentLayout
+                )
+            else:
+                layout_element_cls = (
+                    momapy.celldesigner.core.RectangleCompartmentLayout
+                )
+            layout_element = map_.layout.new_element(layout_element_cls)
+            layout_element.position = momapy.geometry.Point(
+                float(cd_element.bounds.x + cd_element.bounds.w / 2),
+                float(cd_element.bounds.y + cd_element.bounds.h / 2),
             )
-        layout_element = map_.layout.new_element(layout_element_cls)
-        layout_element.position = momapy.geometry.Point(
-            float(cd_element.bounds.x + cd_element.bounds.w / 2),
-            float(cd_element.bounds.y + cd_element.bounds.h / 2),
-        )
-        layout_element.width = float(cd_element.bounds.w)
-        layout_element.height = float(cd_element.bounds.h)
-        layout_element.inner_stroke_width = float(
-            cd_element.double_line.inner_width
-        )
-        layout_element.border_stroke_width = float(
-            cd_element.double_line.outer_width
-        )
-        layout_element.sep = float(cd_element.double_line.thickness)
-        cd_element_color = cd_element.paint.color
-        cd_element_color = cd_element_color[2:] + cd_element_color[:2]
-        element_color = momapy.coloring.Color.from_hexa(cd_element_color)
-        layout_element.border_stroke = element_color
-        layout_element.inner_stroke = element_color
-        layout_element.border_fill = element_color.with_alpha(0.5)
-        layout_element.inner_fill = momapy.coloring.white
-        text = cd_compartment.name
-        text_position = momapy.geometry.Point(
-            float(cd_element.name_point.x),
-            float(cd_element.name_point.y),
-        )
-        text_layout = momapy.core.TextLayout(
-            text=text,
-            font_size=cls._DEFAULT_FONT_SIZE,
-            font_family=cls._DEFAULT_FONT_FAMILY,
-            fill=cls._DEFAULT_FONT_FILL,
-            stroke=momapy.drawing.NoneValue,
-            position=text_position,
-        )
-        text_layout = momapy.builder.object_from_builder(text_layout)
-        layout_element.label = text_layout
-        layout_element = momapy.builder.object_from_builder(layout_element)
-        map_.layout.layout_elements.append(layout_element)
+            layout_element.width = float(cd_element.bounds.w)
+            layout_element.height = float(cd_element.bounds.h)
+            layout_element.inner_stroke_width = float(
+                cd_element.double_line.inner_width
+            )
+            layout_element.border_stroke_width = float(
+                cd_element.double_line.outer_width
+            )
+            layout_element.sep = float(cd_element.double_line.thickness)
+            cd_element_color = cd_element.paint.color
+            cd_element_color = cd_element_color[2:] + cd_element_color[:2]
+            element_color = momapy.coloring.Color.from_hexa(cd_element_color)
+            layout_element.border_stroke = element_color
+            layout_element.inner_stroke = element_color
+            layout_element.border_fill = element_color.with_alpha(0.5)
+            layout_element.inner_fill = momapy.coloring.white
+            text = cd_compartment.name
+            text_position = momapy.geometry.Point(
+                float(cd_element.name_point.x),
+                float(cd_element.name_point.y),
+            )
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cls._DEFAULT_FONT_SIZE,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=text_position,
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            map_.layout.layout_elements.append(layout_element)
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod
@@ -1111,6 +1133,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Compartment
@@ -1136,6 +1159,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=None,
                         super_layout_element=None,
                         super_cd_element=None,
+                        with_layout=with_layout,
                     )
                 )
             model_element.outside = outside_model_element
@@ -1170,6 +1194,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1183,6 +1208,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1202,6 +1228,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1215,6 +1242,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1234,6 +1262,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1247,6 +1276,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1266,6 +1296,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1279,6 +1310,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1298,6 +1330,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1311,6 +1344,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1330,6 +1364,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1343,6 +1378,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1362,6 +1398,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = cls._make_species_template_from_cd_species_reference(
             map_=map_,
@@ -1375,6 +1412,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
+            with_layout=with_layout,
         )
         layout_element = None
         map_.model.species_templates.add(model_element)
@@ -1394,6 +1432,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1409,12 +1448,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1430,6 +1471,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1445,12 +1487,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1466,6 +1510,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1481,12 +1526,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1502,6 +1549,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1517,12 +1565,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1538,6 +1588,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1553,12 +1604,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1574,6 +1627,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1589,12 +1643,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1610,6 +1666,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1625,12 +1682,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1646,6 +1705,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1661,12 +1721,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1682,6 +1744,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1697,12 +1760,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1718,6 +1783,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1733,12 +1799,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1754,6 +1822,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1769,12 +1838,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1790,6 +1861,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1805,12 +1877,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1826,6 +1900,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1841,12 +1916,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1862,6 +1939,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
@@ -1877,12 +1955,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        map_.layout.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1898,6 +1978,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -1913,12 +1994,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1934,6 +2017,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -1949,12 +2033,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1970,6 +2056,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -1985,12 +2072,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2006,6 +2095,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2021,12 +2111,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2042,6 +2134,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2057,12 +2150,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2078,6 +2173,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2093,12 +2189,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2114,6 +2212,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2129,12 +2228,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2150,6 +2251,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2165,12 +2267,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2186,6 +2290,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2201,12 +2306,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2222,6 +2329,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2237,12 +2345,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2258,6 +2368,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2273,12 +2384,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2294,6 +2407,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2309,12 +2423,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2330,6 +2446,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2345,12 +2462,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2366,6 +2485,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
@@ -2381,12 +2501,14 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2402,6 +2524,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Reactant
@@ -2411,9 +2534,12 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_alias_id = cd_element.annotation.extension.alias
         species_model_element = cd_id_to_model_element[cd_alias_id]
         model_element.referred_species = species_model_element
-        layout_element = None
         super_model_element.reactants.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
+        if with_layout:
+            pass
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod
@@ -2429,6 +2555,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Product
@@ -2438,9 +2565,12 @@ class CellDesignerReader(momapy.io.MapReader):
         cd_alias_id = cd_element.annotation.extension.alias
         species_model_element = cd_id_to_model_element[cd_alias_id]
         model_element.referred_species = species_model_element
-        layout_element = None
         super_model_element.products.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
+        if with_layout:
+            pass
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod
@@ -2456,6 +2586,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2471,6 +2602,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2489,6 +2621,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2504,6 +2637,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2522,6 +2656,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2537,6 +2672,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2555,6 +2691,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2570,6 +2707,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2588,6 +2726,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2603,6 +2742,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2621,6 +2761,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2636,6 +2777,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2654,6 +2796,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
@@ -2669,6 +2812,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -2687,6 +2831,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2700,6 +2845,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2721,6 +2867,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2739,6 +2886,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2752,6 +2900,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2773,6 +2922,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2791,6 +2941,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2804,6 +2955,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2825,6 +2977,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2843,6 +2996,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2856,6 +3010,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2877,6 +3032,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2895,6 +3051,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2908,6 +3065,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2929,6 +3087,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2947,6 +3106,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -2960,6 +3120,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -2981,6 +3142,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -2999,6 +3161,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3012,6 +3175,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3033,6 +3197,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3051,6 +3216,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3064,6 +3230,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3085,6 +3252,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3103,6 +3271,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3116,6 +3285,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3137,6 +3307,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3155,6 +3326,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3168,6 +3340,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3189,6 +3362,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3207,6 +3381,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3220,6 +3395,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3241,6 +3417,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3259,6 +3436,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3272,6 +3450,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3293,6 +3472,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3311,6 +3491,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3324,6 +3505,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3345,6 +3527,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3363,6 +3546,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3376,6 +3560,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3397,6 +3582,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3415,6 +3601,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3428,6 +3615,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3449,6 +3637,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3467,6 +3656,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3480,6 +3670,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3501,6 +3692,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3519,6 +3711,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3532,6 +3725,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3553,6 +3747,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3571,6 +3766,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3584,6 +3780,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3605,6 +3802,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3623,6 +3821,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3636,6 +3835,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3657,6 +3857,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3675,6 +3876,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3688,6 +3890,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3709,6 +3912,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3727,6 +3931,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -3740,6 +3945,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3761,6 +3967,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3779,6 +3986,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -3792,6 +4000,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3813,6 +4022,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3831,6 +4041,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -3844,6 +4055,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3865,6 +4077,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3883,6 +4096,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -3896,6 +4110,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3917,6 +4132,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3935,6 +4151,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -3948,6 +4165,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3969,6 +4187,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3987,6 +4206,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4000,6 +4220,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4021,6 +4242,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4039,6 +4261,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4052,6 +4275,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4073,6 +4297,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4091,6 +4316,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4104,6 +4330,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4125,6 +4352,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4143,6 +4371,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4164,6 +4393,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4196,6 +4426,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4217,6 +4448,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4249,6 +4481,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4270,6 +4503,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4302,6 +4536,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4323,6 +4558,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4355,6 +4591,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4376,6 +4613,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4408,6 +4646,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4429,6 +4668,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4461,6 +4701,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4482,6 +4723,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4514,6 +4756,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4535,6 +4778,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4567,6 +4811,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4588,6 +4833,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4620,6 +4866,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4641,6 +4888,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4673,6 +4921,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4694,6 +4943,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4726,6 +4976,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4747,6 +4998,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4779,6 +5031,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4800,6 +5053,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4832,6 +5086,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4853,6 +5108,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4885,6 +5141,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4906,6 +5163,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4938,6 +5196,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4959,6 +5218,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4991,6 +5251,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5012,6 +5273,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5044,6 +5306,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5065,6 +5328,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5097,6 +5361,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5118,6 +5383,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5150,6 +5416,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5171,6 +5438,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5203,6 +5471,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5224,6 +5493,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5256,6 +5526,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5277,6 +5548,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5309,6 +5581,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5330,6 +5603,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5362,6 +5636,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5383,6 +5658,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5415,6 +5691,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5436,6 +5713,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5468,6 +5746,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5489,6 +5768,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5521,6 +5801,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5542,6 +5823,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5574,6 +5856,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5595,6 +5878,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5627,6 +5911,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5648,6 +5933,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5680,6 +5966,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5701,6 +5988,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5733,6 +6021,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5754,6 +6043,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5786,6 +6076,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5807,6 +6098,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5839,6 +6131,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5860,6 +6153,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5892,6 +6186,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5913,6 +6208,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5945,6 +6241,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5966,6 +6263,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5998,6 +6296,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6019,6 +6318,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6051,6 +6351,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6072,6 +6373,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6104,6 +6406,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6125,6 +6428,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6157,6 +6461,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6178,6 +6483,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6210,6 +6516,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6231,6 +6538,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6263,6 +6571,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6284,6 +6593,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6316,6 +6626,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6337,6 +6648,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6369,6 +6681,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6390,6 +6703,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6422,6 +6736,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6443,6 +6758,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6475,6 +6791,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6496,6 +6813,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6528,6 +6846,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6549,6 +6868,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6581,6 +6901,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6602,6 +6923,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6634,6 +6956,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6655,6 +6978,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6687,6 +7011,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6708,6 +7033,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6740,6 +7066,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6761,6 +7088,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6793,6 +7121,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6814,6 +7143,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6846,6 +7176,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6867,6 +7198,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6899,6 +7231,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6920,6 +7253,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6952,6 +7286,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6973,6 +7308,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7005,6 +7341,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7026,6 +7363,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7058,6 +7396,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7079,6 +7418,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7111,6 +7451,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -7126,6 +7467,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7148,6 +7490,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -7163,6 +7506,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7185,6 +7529,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -7200,6 +7545,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7222,6 +7568,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -7237,6 +7584,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7259,6 +7607,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7273,6 +7622,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7291,6 +7641,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7305,6 +7656,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7323,6 +7675,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7337,6 +7690,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7355,6 +7709,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7369,6 +7724,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7387,6 +7743,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7401,6 +7758,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7419,6 +7777,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7433,6 +7792,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7451,6 +7811,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7465,6 +7826,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7483,6 +7845,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7497,6 +7860,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7515,6 +7879,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             map_=map_,
@@ -7529,6 +7894,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7547,6 +7913,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7561,6 +7928,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7579,6 +7947,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7593,6 +7962,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7611,6 +7981,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7625,6 +7996,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7643,6 +8015,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7657,6 +8030,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7675,6 +8049,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7689,6 +8064,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7707,6 +8083,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7721,6 +8098,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7739,6 +8117,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7753,6 +8132,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7771,6 +8151,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7785,6 +8166,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7803,6 +8185,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7817,6 +8200,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7835,6 +8219,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7849,6 +8234,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7867,6 +8253,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7881,6 +8268,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7899,6 +8287,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7913,6 +8302,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7931,6 +8321,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7945,6 +8336,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7963,6 +8355,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             map_=map_,
@@ -7977,6 +8370,7 @@ class CellDesignerReader(momapy.io.MapReader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -7995,6 +8389,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8010,6 +8405,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8029,6 +8425,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8044,6 +8441,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8063,6 +8461,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8078,6 +8477,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8097,6 +8497,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8112,6 +8513,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8131,6 +8533,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8146,6 +8549,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8165,6 +8569,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8180,6 +8585,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8199,6 +8605,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8214,6 +8621,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8233,6 +8641,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8248,6 +8657,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8267,6 +8677,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8282,6 +8693,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8301,6 +8713,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8316,6 +8729,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8335,6 +8749,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8350,6 +8765,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8369,6 +8785,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8384,6 +8801,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8403,6 +8821,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8418,6 +8837,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8437,6 +8857,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -8452,6 +8873,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8472,6 +8894,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_element.id
@@ -8496,6 +8919,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=model_element,
                             super_layout_element=None,
                             super_cd_element=cd_element,
+                            with_layout=with_layout,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
@@ -8516,9 +8940,13 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
-        layout_element = map_.new_layout_element(layout_element_cls)
+        if with_layout:
+            layout_element = map_.new_layout_element(layout_element_cls)
+        else:
+            layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
         model_element.id = cd_species.id
         model_element.name = cd_species.name
@@ -8559,6 +8987,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_layout=with_layout,
                         )
                     )
                 # in most (but not all?) cases, empty state variables seem to be
@@ -8619,6 +9048,7 @@ class CellDesignerReader(momapy.io.MapReader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
+                    with_layout=with_layout,
                 )
         model_element.hypothetical = (
             cd_species_identity.hypothetical is True
@@ -8647,40 +9077,42 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_layout=with_layout,
                     )
                 )
-        cd_x = float(cd_element.bounds.x)
-        cd_y = float(cd_element.bounds.y)
-        cd_w = float(cd_element.bounds.w)
-        cd_h = float(cd_element.bounds.h)
-        layout_element.position = momapy.geometry.Point(
-            cd_x + cd_w / 2, cd_y + cd_h / 2
-        )
-        layout_element.width = cd_w
-        layout_element.height = cd_h
-        text = cd_species.name
-        text_layout = momapy.core.TextLayout(
-            text=text,
-            font_size=cd_element.font.size,
-            font_family=cls._DEFAULT_FONT_FAMILY,
-            fill=cls._DEFAULT_FONT_FILL,
-            stroke=momapy.drawing.NoneValue,
-            position=layout_element.position,
-        )
-        text_layout = momapy.builder.object_from_builder(text_layout)
-        layout_element.label = text_layout
-        layout_element.border_stroke_width = float(
-            cd_element.usual_view.single_line.width
-        )
-        cd_element_fill_color = cd_element.usual_view.paint.color
-        cd_element_fill_color = (
-            cd_element_fill_color[2:] + cd_element_fill_color[:2]
-        )
-        layout_element.border_fill = momapy.coloring.Color.from_hexa(
-            cd_element_fill_color
-        )
         model_element = momapy.builder.object_from_builder(model_element)
-        layout_element = momapy.builder.object_from_builder(layout_element)
+        if with_layout:
+            cd_x = float(cd_element.bounds.x)
+            cd_y = float(cd_element.bounds.y)
+            cd_w = float(cd_element.bounds.w)
+            cd_h = float(cd_element.bounds.h)
+            layout_element.position = momapy.geometry.Point(
+                cd_x + cd_w / 2, cd_y + cd_h / 2
+            )
+            layout_element.width = cd_w
+            layout_element.height = cd_h
+            text = cd_species.name
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cd_element.font.size,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element.border_stroke_width = float(
+                cd_element.usual_view.single_line.width
+            )
+            cd_element_fill_color = cd_element.usual_view.paint.color
+            cd_element_fill_color = (
+                cd_element_fill_color[2:] + cd_element_fill_color[:2]
+            )
+            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+                cd_element_fill_color
+            )
+            layout_element = momapy.builder.object_from_builder(layout_element)
         if cd_species.annotation is not None:
             if cd_species.annotation.rdf is not None:
                 annotations = cls._make_annotations_from_cd_annotation_rdf(
@@ -8704,9 +9136,13 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
-        layout_element = map_.new_layout_element(layout_element_cls)
+        if with_layout:
+            layout_element = map_.new_layout_element(layout_element_cls)
+        else:
+            layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
         model_element.id = cd_species.id
         model_element.name = cd_species.name
@@ -8746,6 +9182,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_layout=with_layout,
                         )
                     )
             if cd_species_state.list_of_structural_states is not None:
@@ -8766,6 +9203,7 @@ class CellDesignerReader(momapy.io.MapReader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
+                    with_layout=with_layout,
                 )
         model_element.hypothetical = (
             cd_species_identity.hypothetical is True
@@ -8794,40 +9232,42 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_layout=with_layout,
                     )
                 )
-        cd_x = float(cd_element.bounds.x)
-        cd_y = float(cd_element.bounds.y)
-        cd_w = float(cd_element.bounds.w)
-        cd_h = float(cd_element.bounds.h)
-        layout_element.position = momapy.geometry.Point(
-            cd_x + cd_w / 2, cd_y + cd_h / 2
-        )
-        layout_element.width = cd_w
-        layout_element.height = cd_h
-        text = cd_species.name
-        text_layout = momapy.core.TextLayout(
-            text=text,
-            font_size=cd_element.font.size,
-            font_family=cls._DEFAULT_FONT_FAMILY,
-            fill=cls._DEFAULT_FONT_FILL,
-            stroke=momapy.drawing.NoneValue,
-            position=layout_element.position,
-        )
-        text_layout = momapy.builder.object_from_builder(text_layout)
-        layout_element.label = text_layout
-        layout_element.border_stroke_width = float(
-            cd_element.usual_view.single_line.width
-        )
-        cd_element_fill_color = cd_element.usual_view.paint.color
-        cd_element_fill_color = (
-            cd_element_fill_color[2:] + cd_element_fill_color[:2]
-        )
-        layout_element.border_fill = momapy.coloring.Color.from_hexa(
-            cd_element_fill_color
-        )
         model_element = momapy.builder.object_from_builder(model_element)
-        layout_element = momapy.builder.object_from_builder(layout_element)
+        if with_layout:
+            cd_x = float(cd_element.bounds.x)
+            cd_y = float(cd_element.bounds.y)
+            cd_w = float(cd_element.bounds.w)
+            cd_h = float(cd_element.bounds.h)
+            layout_element.position = momapy.geometry.Point(
+                cd_x + cd_w / 2, cd_y + cd_h / 2
+            )
+            layout_element.width = cd_w
+            layout_element.height = cd_h
+            text = cd_species.name
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cd_element.font.size,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element.border_stroke_width = float(
+                cd_element.usual_view.single_line.width
+            )
+            cd_element_fill_color = cd_element.usual_view.paint.color
+            cd_element_fill_color = (
+                cd_element_fill_color[2:] + cd_element_fill_color[:2]
+            )
+            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+                cd_element_fill_color
+            )
+            layout_element = momapy.builder.object_from_builder(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -8845,6 +9285,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_element.id
@@ -8863,6 +9304,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=None,
                         super_cd_element=cd_element,
+                        with_layout=with_layout,
                     )
                 )
         if cd_element.list_of_products is not None:
@@ -8879,6 +9321,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=None,
                         super_cd_element=cd_element,
+                        with_layout=with_layout,
                     )
                 )
         cd_boolean_modifications = []
@@ -8919,6 +9362,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=None,
                         super_cd_element=cd_element,
+                        with_layout=with_layout,
                     )
                 )
             for cd_modification in cd_normal_modifications:
@@ -8935,6 +9379,7 @@ class CellDesignerReader(momapy.io.MapReader):
                             super_model_element=model_element,
                             super_layout_element=None,
                             super_cd_element=cd_element,
+                            with_layout=with_layout,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
@@ -8962,6 +9407,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         species_model_element = cd_id_to_model_element[cd_element.aliases]
@@ -8985,6 +9431,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_element.id
@@ -9021,6 +9468,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         for cd_boolean_input_id in cd_element.aliases.split(","):
@@ -9047,6 +9495,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id = cd_element.id
@@ -9140,6 +9589,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_layout=True,
     ):
         make_and_add_func = cls._get_make_and_add_func_from_cd(
             cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
@@ -9156,6 +9606,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_layout=with_layout,
             )
         else:
             model_element = None
