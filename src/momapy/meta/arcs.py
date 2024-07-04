@@ -100,9 +100,9 @@ class Bar(momapy.core.SingleHeadedArc):
 class ArcBarb(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
 
     def arrowhead_drawing_elements(self):
         shape = momapy.meta.shapes.ArcBarb(
@@ -118,9 +118,9 @@ class ArcBarb(momapy.core.SingleHeadedArc):
 class StraightBarb(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
 
     def arrowhead_drawing_elements(self):
         shape = momapy.meta.shapes.StraightBarb(
@@ -136,9 +136,9 @@ class StraightBarb(momapy.core.SingleHeadedArc):
 class To(momapy.core.SingleHeadedArc):
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
 
     def arrowhead_drawing_elements(self):
         shape = momapy.meta.shapes.To(
@@ -158,19 +158,19 @@ class DoubleTriangle(momapy.core.DoubleHeadedArc):
     end_arrowhead_height: float = 10.0
 
     def start_arrowhead_drawing_elements(self):
-        triangle = momapy.nodes.Triangle(
+        triangle = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(self.start_arrowhead_width / 2, 0),
             width=self.start_arrowhead_height,
             height=self.start_arrowhead_width,
             direction=momapy.core.Direction.RIGHT,
         )
-        return triangle.border_drawing_elements()
+        return triangle.drawing_elements()
 
     def end_arrowhead_drawing_elements(self):
-        triangle = momapy.nodes.Triangle(
+        triangle = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(self.end_arrowhead_width / 2, 0),
             width=self.end_arrowhead_height,
             height=self.end_arrowhead_width,
             direction=momapy.core.Direction.RIGHT,
         )
-        return triangle.border_drawing_elements()
+        return triangle.drawing_elements()
