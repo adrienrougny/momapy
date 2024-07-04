@@ -12,7 +12,7 @@ dependencies = [
     "numpy>=1.26.2",
     "pyparsing>=3.1.1",
     "skia-python>=87.5",
-    "xsdata[cli,lxml,soap]>=23.8",
+    "xsdata[cli,lxml,soap]==23.8",
     "ipykernel>=6.27.1",
     "shapely>=2.0.2",
     "colorama>=0.4.6",
