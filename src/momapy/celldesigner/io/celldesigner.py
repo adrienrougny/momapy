@@ -1,6 +1,7 @@
 import collections
 
 import momapy.core
+import momapy.geometry
 import momapy.positioning
 import momapy.io
 import momapy.coloring
@@ -594,6 +595,24 @@ class CellDesignerReader(momapy.io.MapReader):
         "is_derived_from": momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
         "biomodels_net_model_qualifiers_is_described_by": momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
         "is_instance_of": momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
+    }
+    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME = {
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NW: "north_west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NNW: "north_north_west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.N: "north",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NNE: "north_north_easr",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NE: "north_east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.ENE: "east_north_east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.E: "east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.ESE: "east_south_east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.SE: "south_east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.SSE: "south_south_east",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.S: "south",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.SSW: "south_south_west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.SW: "south_west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.WSW: "west_south_west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.W: "west",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.WNW: "west_north_west",
     }
 
     @classmethod
@@ -2512,7 +2531,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_reactant_from_cd(
+    def _make_and_add_reactant_from_cd_base_reactant(
         cls,
         map_,
         cd_element,
@@ -2523,19 +2542,25 @@ class CellDesignerReader(momapy.io.MapReader):
         map_element_to_annotations,
         super_model_element,
         super_layout_element,
-        super_cd_element=None,
+        super_cd_element,
         with_layout=True,
     ):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Reactant
         )
-        model_element.metaid = cd_element.metaid
-        model_element.stoichiometry = cd_element.stoichiometry
-        cd_alias_id = cd_element.annotation.extension.alias
-        species_model_element = cd_id_to_model_element[cd_alias_id]
+        cd_species_id = cd_element.species
+        if super_cd_element.list_of_reactants is not None:
+            for (
+                cd_reactant
+            ) in super_cd_element.list_of_reactants.species_reference:
+                if cd_reactant.species == cd_species_id:
+                    model_element.id = cd_reactant.metaid
+                    model_element.stoichiometry = cd_reactant.stoichiometry
+                    break
+        species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.reactants.add(model_element)
-        cd_id_to_model_element[cd_element.metaid] = model_element
+        cd_id_to_model_element[model_element.id] = model_element
         if with_layout:
             layout_element = None
         else:
@@ -2543,7 +2568,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_product_from_cd(
+    def _make_and_add_reactant_from_cd_reactant_link(
         cls,
         map_,
         cd_element,
@@ -2554,21 +2579,177 @@ class CellDesignerReader(momapy.io.MapReader):
         map_element_to_annotations,
         super_model_element,
         super_layout_element,
-        super_cd_element=None,
+        super_cd_element,
         with_layout=True,
     ):
         model_element = map_.new_model_element(
-            momapy.celldesigner.core.Product
+            momapy.celldesigner.core.Reactant
         )
-        model_element.metaid = cd_element.metaid
-        model_element.stoichiometry = cd_element.stoichiometry
-        cd_alias_id = cd_element.annotation.extension.alias
-        species_model_element = cd_id_to_model_element[cd_alias_id]
+        cd_species_id = cd_element.reactant
+        if super_cd_element.list_of_reactants is not None:
+            for (
+                cd_reactant
+            ) in super_cd_element.list_of_reactants.species_reference:
+                if cd_reactant.species == cd_species_id:
+                    model_element.id = cd_reactant.metaid
+                    model_element.stoichiometry = cd_reactant.stoichiometry
+                    break
+        species_model_element = cd_id_to_model_element[cd_element.alias]
+        model_element.referred_species = species_model_element
+        super_model_element.reactants.add(model_element)
+        cd_id_to_model_element[model_element.id] = model_element
+        if (
+            with_layout and super_layout_element is not None
+        ):  # to delete second part
+            layout_element = map_.new_layout_element(
+                momapy.celldesigner.core.ConsumptionLayout
+            )
+            cd_reactant_link_anchor = cd_element.link_anchor.position
+            reactant_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                cd_reactant_link_anchor
+            ]
+            reactant_layout_element = cd_id_to_layout_element[cd_element.alias]
+            start_point = getattr(
+                reactant_layout_element, reactant_anchor_name
+            )()
+            end_point = super_layout_element.left_connector_tip()
+            intermediate_points = []
+            segment = momapy.geometry.Segment(start_point, end_point)
+            if cd_element.edit_points is not None:
+                for cd_edit_point in cd_element.edit_points.value:
+                    fractions = [
+                        float(fraction)
+                        for fraction in cd_edit_point.split(",")
+                    ]
+                    intermediate_point = segment.p1 + (
+                        fractions[0] * segment.length(),
+                        fractions[1] * segment.length(),
+                    )
+                    angle = momapy.geometry.get_angle_to_horizontal_of_line(
+                        segment
+                    )
+                    rotation = momapy.geometry.Rotation(angle, segment.p1)
+                    intermediate_point = momapy.geometry.transform_point(
+                        intermediate_point, rotation
+                    )
+                    intermediate_points.append(intermediate_point)
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+            super_layout_element.layout_elements.append(layout_element)
+        else:
+            layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_product_from_cd_base_product(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_layout_element,
+        super_cd_element,
+        with_layout=True,
+    ):
+        model_element = map_.new_model_element(
+            momapy.celldesigner.core.Reactant
+        )
+        cd_species_id = cd_element.species
+        if super_cd_element.list_of_products is not None:
+            for (
+                cd_product
+            ) in super_cd_element.list_of_products.species_reference:
+                if cd_product.species == cd_species_id:
+                    model_element.id = cd_product.metaid
+                    model_element.stoichiometry = cd_product.stoichiometry
+                    break
+        species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.products.add(model_element)
-        cd_id_to_model_element[cd_element.metaid] = model_element
+        cd_id_to_model_element[model_element.id] = model_element
         if with_layout:
             layout_element = None
+        else:
+            layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_product_from_cd_product_link(
+        cls,
+        map_,
+        cd_element,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_layout_element,
+        super_cd_element,
+        with_layout=True,
+    ):
+        model_element = map_.new_model_element(
+            momapy.celldesigner.core.Reactant
+        )
+        cd_species_id = cd_element.product
+        if super_cd_element.list_of_products is not None:
+            for (
+                cd_product
+            ) in super_cd_element.list_of_products.species_reference:
+                if cd_product.species == cd_species_id:
+                    model_element.id = cd_product.metaid
+                    model_element.stoichiometry = cd_product.stoichiometry
+                    break
+        species_model_element = cd_id_to_model_element[cd_element.alias]
+        model_element.referred_species = species_model_element
+        super_model_element.products.add(model_element)
+        cd_id_to_model_element[model_element.id] = model_element
+        if (
+            with_layout and super_layout_element is not None
+        ):  # to delete second part
+            layout_element = map_.new_layout_element(
+                momapy.celldesigner.core.ProductionLayout
+            )
+            start_point = super_layout_element.right_connector_tip()
+            cd_product_link_anchor = cd_element.link_anchor.position
+            product_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                cd_product_link_anchor
+            ]
+            product_layout_element = cd_id_to_layout_element[cd_element.alias]
+            end_point = getattr(product_layout_element, product_anchor_name)()
+            intermediate_points = []
+            segment = momapy.geometry.Segment(start_point, end_point)
+            if cd_element.edit_points is not None:
+                for cd_edit_point in cd_element.edit_points.value:
+                    fractions = [
+                        float(fraction)
+                        for fraction in cd_edit_point.split(",")
+                    ]
+                    intermediate_point = segment.p1 + (
+                        fractions[0] * segment.length(),
+                        fractions[1] * segment.length(),
+                    )
+                    angle = momapy.geometry.get_angle_to_horizontal_of_line(
+                        segment
+                    )
+                    rotation = momapy.geometry.Rotation(angle, segment.p1)
+                    intermediate_point = momapy.geometry.transform_point(
+                        intermediate_point, rotation
+                    )
+                    intermediate_points.append(intermediate_point)
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+            super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -7613,7 +7794,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.StateTransition,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7626,6 +7807,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -7647,7 +7831,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.KnownTransitionOmitted,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7660,6 +7844,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -9290,43 +9477,173 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element = map_.new_model_element(model_element_cls)
         if with_layout:
             if layout_element_cls is not None:  # to delete
-                layout_element = map_.new_model_element(layout_element_cls)
+                layout_element = map_.new_layout_element(layout_element_cls)
+                layout_element.id = cd_element.id
+                if (
+                    cd_element.annotation.extension.base_reactants is not None
+                    and cd_element.annotation.extension.base_products
+                    is not None
+                    and len(
+                        cd_element.annotation.extension.base_reactants.base_reactant
+                    )
+                    == 1
+                    and len(
+                        cd_element.annotation.extension.base_products.base_product
+                    )
+                    == 1
+                ):
+                    cd_base_reactant = cd_element.annotation.extension.base_reactants.base_reactant[
+                        0
+                    ]
+                    cd_base_product = cd_element.annotation.extension.base_products.base_product[
+                        0
+                    ]
+                    cd_base_reactant_anchor = (
+                        cd_base_reactant.link_anchor.position
+                    )
+                    reactant_anchor_name = (
+                        cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                            cd_base_reactant_anchor
+                        ]
+                    )
+                    reactant_layout_element = cd_id_to_layout_element[
+                        cd_base_reactant.alias
+                    ]
+                    start_point = getattr(
+                        reactant_layout_element, reactant_anchor_name
+                    )()
+                    cd_base_product_anchor = (
+                        cd_base_product.link_anchor.position
+                    )
+                    product_anchor_name = (
+                        cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                            cd_base_product_anchor
+                        ]
+                    )
+                    product_layout_element = cd_id_to_layout_element[
+                        cd_base_product.alias
+                    ]
+                    end_point = getattr(
+                        product_layout_element, product_anchor_name
+                    )()
+                    intermediate_points = []
+                    segment = momapy.geometry.Segment(start_point, end_point)
+                    if cd_element.annotation.extension.edit_points is not None:
+                        for (
+                            cd_edit_point
+                        ) in cd_element.annotation.extension.edit_points.value:
+                            fractions = [
+                                float(fraction)
+                                for fraction in cd_edit_point.split(",")
+                            ]
+                            intermediate_point = segment.p1 + (
+                                fractions[0] * segment.length(),
+                                fractions[1] * segment.length(),
+                            )
+                            angle = momapy.geometry.get_angle_to_horizontal_of_line(
+                                segment
+                            )
+                            rotation = momapy.geometry.Rotation(
+                                angle, segment.p1
+                            )
+                            intermediate_point = (
+                                momapy.geometry.transform_point(
+                                    intermediate_point, rotation
+                                )
+                            )
+                            intermediate_points.append(intermediate_point)
+                    points = [start_point] + intermediate_points + [end_point]
+                    for i, point in enumerate(points[1:]):
+                        previous_point = points[i]
+                        segment = momapy.geometry.Segment(
+                            previous_point, point
+                        )
+                        layout_element.segments.append(segment)
+                    layout_element.reaction_node_segment = int(
+                        cd_element.annotation.extension.connect_scheme.rectangle_index
+                    )
             else:
                 layout_element = None
         else:
             layout_element = None
         model_element.id = cd_element.id
         model_element.reversible = cd_element.reversible
-        if cd_element.list_of_reactants is not None:
-            for cd_reactant in cd_element.list_of_reactants.species_reference:
+        if cd_element.annotation.extension.base_reactants is not None:
+            for (
+                cd_base_reactant
+            ) in cd_element.annotation.extension.base_reactants.base_reactant:
                 reactant_model_element, reactant_layout_element = (
-                    cls._make_and_add_reactant_from_cd(
+                    cls._make_and_add_reactant_from_cd_base_reactant(
                         map_=map_,
-                        cd_element=cd_reactant,
+                        cd_element=cd_base_reactant,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
                         map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
-                        super_layout_element=None,
+                        super_layout_element=layout_element,
                         super_cd_element=cd_element,
                         with_layout=with_layout,
                     )
                 )
-        if cd_element.list_of_products is not None:
-            for cd_product in cd_element.list_of_products.species_reference:
-                product_model_element, product_layout_element = (
-                    cls._make_and_add_product_from_cd(
+        if cd_element.annotation.extension.list_of_reactant_links is not None:
+            for (
+                cd_reactant_link
+            ) in (
+                cd_element.annotation.extension.list_of_reactant_links.reactant_link
+            ):
+                reactant_model_element, reactant_layout_element = (
+                    cls._make_and_add_reactant_from_cd_reactant_link(
                         map_=map_,
-                        cd_element=cd_product,
+                        cd_element=cd_reactant_link,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
                         map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
-                        super_layout_element=None,
+                        super_layout_element=layout_element,
+                        super_cd_element=cd_element,
+                        with_layout=with_layout,
+                    )
+                )
+        if cd_element.annotation.extension.base_products is not None:
+            for (
+                cd_base_product
+            ) in cd_element.annotation.extension.base_products.base_product:
+                product_model_element, product_layout_element = (
+                    cls._make_and_add_product_from_cd_base_product(
+                        map_=map_,
+                        cd_element=cd_base_product,
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
+                        super_cd_element=cd_element,
+                        with_layout=with_layout,
+                    )
+                )
+        if cd_element.annotation.extension.list_of_product_links is not None:
+            for (
+                cd_product_link
+            ) in (
+                cd_element.annotation.extension.list_of_product_links.product_link
+            ):
+                product_model_element, product_layout_element = (
+                    cls._make_and_add_product_from_cd_product_link(
+                        map_=map_,
+                        cd_element=cd_product_link,
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
                         super_cd_element=cd_element,
                         with_layout=with_layout,
                     )
@@ -9390,15 +9707,12 @@ class CellDesignerReader(momapy.io.MapReader):
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
-        if with_layout:
-            pass
         if cd_element.annotation is not None:
             if cd_element.annotation.rdf is not None:
                 annotations = cls._make_annotations_from_cd_annotation_rdf(
                     cd_element.annotation.rdf
                 )
                 map_element_to_annotations[model_element].update(annotations)
-        layout_element = None
         return model_element, layout_element
 
     @classmethod

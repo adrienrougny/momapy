@@ -487,13 +487,29 @@ class CellDesignerNode(momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerSingleHeadedArc(momapy.sbgn.core.SBGNSingleHeadedArc):
-    pass
+class CellDesignerSingleHeadedArc(momapy.core.SingleHeadedArc):
+    arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    arrowhead_stroke_width: float | None = 1.0
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    path_stroke_width: float | None = 1.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerDoubleHeadedArc(momapy.core.DoubleHeadedArc):
-    pass
+    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    path_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    path_stroke_width: float | None = 1.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1193,8 +1209,28 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class ConsumptionLayout(CellDesignerSingleHeadedArc):
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ProductionLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    arrowhead_height: float = 15.0
+    arrowhead_width: float = 8.0
+
+    def arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionLayout(CellDesignerDoubleHeadedArc):
     _reaction_node_text: str | None = None
+    _left_connector_fraction: float = 0.4
+    _right_connector_fraction: float = 0.6
     reaction_node_height: float = 10.0
     reaction_node_width: float = 10.0
     reaction_node_segment: int = 1
@@ -1218,11 +1254,25 @@ class ReactionLayout(CellDesignerDoubleHeadedArc):
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
     ) = None  # not inherited
 
+    def left_connector_tip(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(
+            self._left_connector_fraction
+        )
+        return position
+
+    def right_connector_tip(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(
+            self._right_connector_fraction
+        )
+        return position
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransitionLayout(ReactionLayout):
-    end_arrowhead_width: float = 10.0
-    end_arrowhead_height: float = 10.0
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
     end_arrowhead_stroke: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.black
