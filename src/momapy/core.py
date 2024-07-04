@@ -997,10 +997,9 @@ class DoubleHeadedArc(Arc):
         arrowhead_length = self._get_arrowhead_length(start_or_end)
         arrowhead_base = self._get_arrowhead_base(start_or_end)
         if start_or_end == "start":
-            segment = self.segments[-1]
-            segment = momapy.geometry.Segment(segment.p2, segment.p1)
-        else:
             segment = self.segments[0]
+        else:
+            segment = self.segments[-1]
         if arrowhead_length == 0:
             segment_coords = segment.to_shapely().coords
             p1 = momapy.geometry.Point.from_tuple(segment_coords[-2])
