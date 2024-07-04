@@ -2537,7 +2537,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element.reactants.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
         if with_layout:
-            pass
+            layout_element = None
         else:
             layout_element = None
         return model_element, layout_element
@@ -2568,7 +2568,7 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element.products.add(model_element)
         cd_id_to_model_element[cd_element.metaid] = model_element
         if with_layout:
-            pass
+            layout_element = None
         else:
             layout_element = None
         return model_element, layout_element
@@ -9288,6 +9288,13 @@ class CellDesignerReader(momapy.io.MapReader):
         with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
+        if with_layout:
+            if layout_element_cls is not None:  # to delete
+                layout_element = map_.new_model_element(layout_element_cls)
+            else:
+                layout_element = None
+        else:
+            layout_element = None
         model_element.id = cd_element.id
         model_element.reversible = cd_element.reversible
         if cd_element.list_of_reactants is not None:
@@ -9383,6 +9390,8 @@ class CellDesignerReader(momapy.io.MapReader):
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
+        if with_layout:
+            pass
         if cd_element.annotation is not None:
             if cd_element.annotation.rdf is not None:
                 annotations = cls._make_annotations_from_cd_annotation_rdf(
