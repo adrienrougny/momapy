@@ -1195,6 +1195,8 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ReactionLayout(CellDesignerDoubleHeadedArc):
     _reaction_node_text: str | None = None
+    reaction_node_height: float = 10.0
+    reaction_node_width: float = 10.0
     reaction_node_segment: int = 1
     reaction_node_stroke: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
@@ -1245,10 +1247,12 @@ class StateTransitionLayout(ReactionLayout):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
     def end_arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
 
     def self_drawing_elements(self):
-        drawing_elements = super().self_drawing_elements()
+        drawing_elements = ReactionLayout.self_drawing_elements(self)
         drawing_elements.append(
             self._make_rotated_reaction_node_drawing_element()
         )
@@ -1257,7 +1261,7 @@ class StateTransitionLayout(ReactionLayout):
     def _make_reaction_node(self):
         segment = self.segments[self.reaction_node_segment]
         position = segment.get_position_at_fraction(0.5)
-        reaction_node = momapy.meta.shape.Rectangle(
+        reaction_node = momapy.meta.shapes.Rectangle(
             height=self.reaction_node_height,
             position=position,
             width=self.reaction_node_width,
