@@ -2562,7 +2562,59 @@ class CellDesignerReader(momapy.io.MapReader):
         super_model_element.reactants.add(model_element)
         cd_id_to_model_element[model_element.id] = model_element
         if with_layout:
-            layout_element = None
+            for i, cd_base_reactant in enumerate(
+                super_cd_element.annotation.extension.base_reactants.base_reactant
+            ):
+                if cd_base_reactant == cd_element:
+                    break
+            cd_num_0 = super_cd_element.annotation.extension.edit_points.num0
+            cd_num_1 = super_cd_element.annotation.extension.edit_points.num1
+            if i == 0:
+                start_index = i
+                stop_index = cd_num_0
+            elif i == 1:
+                start_index = cd_num_0
+                stop_index = cd_num_0 + cd_num_1
+            layout_element = map_.new_layout_element(
+                momapy.celldesigner.core.ConsumptionLayout
+            )
+            cd_reactant_link_anchor = cd_element.link_anchor.position
+            reactant_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                cd_reactant_link_anchor
+            ]
+            reactant_layout_element = cd_id_to_layout_element[cd_element.alias]
+            end_point = getattr(
+                reactant_layout_element, reactant_anchor_name
+            )()
+            start_point = super_layout_element.points()[0]
+            intermediate_points = []
+            segment = momapy.geometry.Segment(start_point, end_point)
+            for (
+                cd_edit_point
+            ) in super_cd_element.annotation.extension.edit_points.value[
+                start_index:stop_index
+            ]:
+                fractions = [
+                    float(fraction) for fraction in cd_edit_point.split(",")
+                ]
+                intermediate_point = segment.p1 + (
+                    fractions[0] * segment.length(),
+                    fractions[1] * segment.length(),
+                )
+                angle = momapy.geometry.get_angle_to_horizontal_of_line(
+                    segment
+                )
+                rotation = momapy.geometry.Rotation(angle, segment.p1)
+                intermediate_point = momapy.geometry.transform_point(
+                    intermediate_point, rotation
+                )
+                intermediate_points.append(intermediate_point)
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+            super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -8004,7 +8056,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.HeterodimerAssociation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8017,6 +8069,10 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
+
         return model_element, layout_element
 
     @classmethod
@@ -9479,11 +9535,13 @@ class CellDesignerReader(momapy.io.MapReader):
             if layout_element_cls is not None:  # to delete
                 layout_element = map_.new_layout_element(layout_element_cls)
                 layout_element.id = cd_element.id
+                # Case where we have a linear reaction (one base reactant
+                # and one base product. The frame for the edit points
+                # is the orthonormal frame whose x axis goes from the
+                # base reactant anchor to the base product anchor and whose
+                # y axis is orthogonal to the x axis, going downwards
                 if (
-                    cd_element.annotation.extension.base_reactants is not None
-                    and cd_element.annotation.extension.base_products
-                    is not None
-                    and len(
+                    len(
                         cd_element.annotation.extension.base_reactants.base_reactant
                     )
                     == 1
@@ -9552,18 +9610,129 @@ class CellDesignerReader(momapy.io.MapReader):
                                 )
                             )
                             intermediate_points.append(intermediate_point)
-                    points = [start_point] + intermediate_points + [end_point]
-                    for i, point in enumerate(points[1:]):
-                        previous_point = points[i]
-                        segment = momapy.geometry.Segment(
-                            previous_point, point
-                        )
-                        layout_element.segments.append(segment)
                     layout_element.reaction_node_segment = int(
                         cd_element.annotation.extension.connect_scheme.rectangle_index
                     )
+                    # no consumption layouts since consumptions are represented
+                    # by the reaction layout
+                    make_base_reactant_layouts = False
+                # Case where we have a tshape reaction with two base reactants
+                # and one base product. The frame for the edit points are the
+                # axes going from the center of the first base reactant to
+                # the center of the second base reactant (x axis), and from the
+                # center of the first base reactant to the center of the base
+                # product (y axis).
+                elif (
+                    len(
+                        cd_element.annotation.extension.base_reactants.base_reactant
+                    )
+                    > 1
+                    and len(
+                        cd_element.annotation.extension.base_products.base_product
+                    )
+                    == 1
+                ):
+                    cd_base_reactant_0 = cd_element.annotation.extension.base_reactants.base_reactant[
+                        0
+                    ]
+                    cd_base_reactant_1 = cd_element.annotation.extension.base_reactants.base_reactant[
+                        1
+                    ]
+                    cd_base_product = cd_element.annotation.extension.base_products.base_product[
+                        0
+                    ]
+                    reactant_layout_element_0 = cd_id_to_layout_element[
+                        cd_base_reactant_0.alias
+                    ]
+                    reactant_layout_element_1 = cd_id_to_layout_element[
+                        cd_base_reactant_1.alias
+                    ]
+                    product_layout_element = cd_id_to_layout_element[
+                        cd_base_product.alias
+                    ]
+                    start_point_for_x_and_y = (
+                        reactant_layout_element_0.center()
+                    )
+                    # the edit point for the start of the reaction is always the
+                    # last one
+                    cd_edit_point = (
+                        cd_element.annotation.extension.edit_points.value[-1]
+                    )
+                    fractions = [
+                        float(fraction)
+                        for fraction in cd_edit_point.split(",")
+                    ]
+                    end_point_for_x = (
+                        reactant_layout_element_1.center()
+                        - start_point_for_x_and_y
+                    )
+                    end_point_for_y = (
+                        product_layout_element.center()
+                        - start_point_for_x_and_y
+                    )
+                    start_point = (
+                        end_point_for_x * fractions[0]
+                        + end_point_for_y * fractions[1]
+                        + start_point_for_x_and_y
+                    )
+                    cd_base_product_anchor = (
+                        cd_base_product.link_anchor.position
+                    )
+                    product_anchor_name = (
+                        cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                            cd_base_product_anchor
+                        ]
+                    )
+                    end_point = getattr(
+                        product_layout_element, product_anchor_name
+                    )()
+                    intermediate_points = []
+                    # The frame for the intermediate edit points becomes
+                    # the orthonormal frame whose x axis goes from the
+                    # start point of the reaction computed above to the base
+                    # product anchor and whose y axis is orthogonal to the x axis,
+                    # going downwards
+                    segment = momapy.geometry.Segment(start_point, end_point)
+                    # the index for the intermediate points of the reaction
+                    # starts after those for the two base reactants
+                    start_index = int(
+                        cd_element.annotation.extension.edit_points.num0
+                    ) + int(cd_element.annotation.extension.edit_points.num1)
+                    for (
+                        cd_edit_point
+                    ) in cd_element.annotation.extension.edit_points.value[
+                        start_index:-1
+                    ]:
+                        fractions = [
+                            float(fraction)
+                            for fraction in cd_edit_point.split(",")
+                        ]
+                        intermediate_point = segment.p1 + (
+                            fractions[0] * segment.length(),
+                            fractions[1] * segment.length(),
+                        )
+                        angle = (
+                            momapy.geometry.get_angle_to_horizontal_of_line(
+                                segment
+                            )
+                        )
+                        rotation = momapy.geometry.Rotation(angle, segment.p1)
+                        intermediate_point = momapy.geometry.transform_point(
+                            intermediate_point, rotation
+                        )
+                        intermediate_points.append(intermediate_point)
+                    layout_element.reaction_node_segment = int(
+                        cd_element.annotation.extension.edit_points.t_shape_index
+                    )
+                    make_base_reactant_layouts = True
+                points = [start_point] + intermediate_points + [end_point]
+                for i, point in enumerate(points[1:]):
+                    previous_point = points[i]
+                    segment = momapy.geometry.Segment(previous_point, point)
+                    layout_element.segments.append(segment)
             else:
                 layout_element = None
+                make_base_reactant_layouts = False
         else:
             layout_element = None
         model_element.id = cd_element.id
@@ -9584,7 +9753,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
+                        with_layout=make_base_reactant_layouts,
                     )
                 )
         if cd_element.annotation.extension.list_of_reactant_links is not None:
