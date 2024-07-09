@@ -1230,7 +1230,21 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionLayout(CellDesignerDoubleHeadedArc):
-    _reaction_node_text: str | None = None
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_size_func: typing.ClassVar[typing.Callable]
+    _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
+        momapy.drawing.FontStyle.NORMAL
+    )
+    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
+        momapy.drawing.FontWeight.NORMAL
+    )
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
     _left_connector_fraction: float = 0.4
     _right_connector_fraction: float = 0.6
     reaction_node_height: float = 10.0
@@ -1312,6 +1326,20 @@ class _ReactionLayout(CellDesignerDoubleHeadedArc):
 
     def _make_reaction_node(self):
         position = self._get_reaction_node_position()
+        if self._reaction_node_text is not None:
+            label = momapy.core.TextLayout(
+                text=self._reaction_node_text,
+                position=position,
+                font_family=self._font_family,
+                font_size=self._font_size_func(),
+                font_style=self._font_style,
+                font_weight=self._font_weight,
+                fill=self._font_fill,
+                stroke=self._font_stroke,
+                transform=(self._make_reaction_node_rotation(),),
+            )
+        else:
+            label = None
         reaction_node = momapy.meta.nodes.Rectangle(
             height=self.reaction_node_height,
             position=position,
@@ -1323,6 +1351,7 @@ class _ReactionLayout(CellDesignerDoubleHeadedArc):
             border_fill=self.reaction_node_fill,
             border_transform=self.reaction_node_transform,
             border_filter=self.reaction_node_filter,
+            label=label,
         )
         return reaction_node
 
@@ -1336,6 +1365,8 @@ class _ReactionLayout(CellDesignerDoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateTransitionLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_size_func: typing.ClassVar[typing.Callable | None] = None
     end_arrowhead_width: float = 8.0
     end_arrowhead_height: float = 15.0
     end_arrowhead_stroke: (
@@ -1358,6 +1389,171 @@ class StateTransitionLayout(_ReactionLayout):
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
     ) = None  # not inherited
     end_shorten: float = 2.0
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class KnonwTransitionOmittedLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = "//"
+    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
+        momapy.drawing.FontWeight.BOLD
+    )
+    _font_size_func: typing.ClassVar[typing.Callable | None] = (
+        lambda obj: obj.reaction_node_width / 1.1
+    )
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownTransitionLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = "?"
+    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
+        momapy.drawing.FontWeight.BOLD
+    )
+    _font_size_func: typing.ClassVar[typing.Callable | None] = (
+        lambda obj: obj.reaction_node_width / 1.1
+    )
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TranscriptionLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_size_func: typing.ClassVar[typing.Callable | None] = None
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4, 2, 4, 2, 4)
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TranslationLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_size_func: typing.ClassVar[typing.Callable | None] = None
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (
+        12,
+        4,
+        2,
+        4,
+    )
 
     def start_arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)

@@ -7885,7 +7885,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.KnownTransitionOmitted,
-            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
+            layout_element_cls=momapy.celldesigner.core.KnonwTransitionOmittedLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7922,7 +7922,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTransition,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7935,6 +7935,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -7956,7 +7959,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transcription,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TranscriptionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7969,6 +7972,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -7990,7 +7996,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Translation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TranslationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8003,6 +8009,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8037,6 +8046,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        # if with_layout:
+        #     map_.layout.layout_elements.append(layout_element)
+        #     cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8074,7 +8086,6 @@ class CellDesignerReader(momapy.io.MapReader):
         if with_layout:
             map_.layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
-
         return model_element, layout_element
 
     @classmethod
