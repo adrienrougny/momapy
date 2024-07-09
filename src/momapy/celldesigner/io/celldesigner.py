@@ -789,7 +789,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_compartment_alias
             ) in (
                 cd_element.model.annotation.extension.list_of_compartment_aliases.compartment_alias
-            ):
+            ):  # TODO: should be ordered so outside is before inside
                 model_element, layout_element = (
                     cls._make_and_add_compartment_from_cd_compartment_alias(
                         map_=map_,
@@ -2578,15 +2578,20 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element = map_.new_layout_element(
                 momapy.celldesigner.core.ConsumptionLayout
             )
-            cd_reactant_link_anchor = cd_element.link_anchor.position
-            reactant_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
-                cd_reactant_link_anchor
-            ]
             reactant_layout_element = cd_id_to_layout_element[cd_element.alias]
-            end_point = getattr(
-                reactant_layout_element, reactant_anchor_name
-            )()
             start_point = super_layout_element.points()[0]
+            if cd_element.link_anchor is not None:
+                cd_reactant_link_anchor = cd_element.link_anchor.position
+                reactant_anchor_name = (
+                    cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                        cd_reactant_link_anchor
+                    ]
+                )
+                end_point = getattr(
+                    reactant_layout_element, reactant_anchor_name
+                )()
+            else:
+                end_point = reactant_layout_element.self_border(start_point)
             intermediate_points = []
             segment = momapy.geometry.Segment(start_point, end_point)
             for (
@@ -2658,14 +2663,19 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element = map_.new_layout_element(
                 momapy.celldesigner.core.ConsumptionLayout
             )
-            cd_reactant_link_anchor = cd_element.link_anchor.position
-            reactant_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
-                cd_reactant_link_anchor
-            ]
             reactant_layout_element = cd_id_to_layout_element[cd_element.alias]
-            start_point = getattr(
-                reactant_layout_element, reactant_anchor_name
-            )()
+            if cd_element.link_anchor is not None:
+                cd_reactant_link_anchor = cd_element.link_anchor.position
+                reactant_anchor_name = (
+                    cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                        cd_reactant_link_anchor
+                    ]
+                )
+                start_point = getattr(
+                    reactant_layout_element, reactant_anchor_name
+                )()
+            else:
+                start_point = reactant_layout_element.center()
             end_point = super_layout_element.left_connector_tip()
             intermediate_points = []
             segment = momapy.geometry.Segment(start_point, end_point)
@@ -2771,13 +2781,18 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element = map_.new_layout_element(
                 momapy.celldesigner.core.ProductionLayout
             )
-            start_point = super_layout_element.right_connector_tip()
-            cd_product_link_anchor = cd_element.link_anchor.position
-            product_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
-                cd_product_link_anchor
-            ]
             product_layout_element = cd_id_to_layout_element[cd_element.alias]
-            end_point = getattr(product_layout_element, product_anchor_name)()
+            start_point = super_layout_element.right_connector_tip()
+            if cd_element.link_anchor is not None:
+                cd_product_link_anchor = cd_element.link_anchor.position
+                product_anchor_name = cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                    cd_product_link_anchor
+                ]
+                end_point = getattr(
+                    product_layout_element, product_anchor_name
+                )()
+            else:
+                end_point = product_layout_element.self_border(start_point)
             intermediate_points = []
             segment = momapy.geometry.Segment(start_point, end_point)
             if cd_element.edit_points is not None:
@@ -9566,37 +9581,43 @@ class CellDesignerReader(momapy.io.MapReader):
                     cd_base_reactant = cd_element.annotation.extension.base_reactants.base_reactant[
                         0
                     ]
-                    cd_base_product = cd_element.annotation.extension.base_products.base_product[
-                        0
-                    ]
-                    cd_base_reactant_anchor = (
-                        cd_base_reactant.link_anchor.position
-                    )
-                    reactant_anchor_name = (
-                        cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
-                            cd_base_reactant_anchor
-                        ]
-                    )
                     reactant_layout_element = cd_id_to_layout_element[
                         cd_base_reactant.alias
                     ]
-                    start_point = getattr(
-                        reactant_layout_element, reactant_anchor_name
-                    )()
-                    cd_base_product_anchor = (
-                        cd_base_product.link_anchor.position
-                    )
-                    product_anchor_name = (
-                        cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
-                            cd_base_product_anchor
-                        ]
-                    )
+                    if cd_base_reactant.link_anchor is not None:
+                        cd_base_reactant_anchor = (
+                            cd_base_reactant.link_anchor.position
+                        )
+                        reactant_anchor_name = (
+                            cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                                cd_base_reactant_anchor
+                            ]
+                        )
+                        start_point = getattr(
+                            reactant_layout_element, reactant_anchor_name
+                        )()
+                    else:
+                        start_point = reactant_layout_element.center()
+                    cd_base_product = cd_element.annotation.extension.base_products.base_product[
+                        0
+                    ]
                     product_layout_element = cd_id_to_layout_element[
                         cd_base_product.alias
                     ]
-                    end_point = getattr(
-                        product_layout_element, product_anchor_name
-                    )()
+                    if cd_base_product.link_anchor is not None:
+                        cd_base_product_anchor = (
+                            cd_base_product.link_anchor.position
+                        )
+                        product_anchor_name = (
+                            cls._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[
+                                cd_base_product_anchor
+                            ]
+                        )
+                        end_point = getattr(
+                            product_layout_element, product_anchor_name
+                        )()
+                    else:
+                        end_point = product_layout_element.center()
                     intermediate_points = []
                     segment = momapy.geometry.Segment(start_point, end_point)
                     if cd_element.annotation.extension.edit_points is not None:
@@ -9643,6 +9664,7 @@ class CellDesignerReader(momapy.io.MapReader):
                     and len(
                         cd_element.annotation.extension.base_products.base_product
                     )
+                    :wq
                     == 1
                 ):
                     cd_base_reactant_0 = cd_element.annotation.extension.base_reactants.base_reactant[
