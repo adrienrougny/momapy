@@ -2609,7 +2609,9 @@ class CellDesignerReader(momapy.io.MapReader):
                     intermediate_point, rotation
                 )
                 intermediate_points.append(intermediate_point)
-            points = [start_point] + intermediate_points + [end_point]
+            points = intermediate_points + [end_point]
+            start_point = super_layout_element.start_node_border(points[0])
+            points = [start_point] + points
             for i, point in enumerate(points[1:]):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
@@ -8056,7 +8058,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.HeterodimerAssociation,
-            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
+            layout_element_cls=momapy.celldesigner.core.HeterodimerAssociationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
