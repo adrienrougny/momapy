@@ -1210,6 +1210,7 @@ class RectangleCompartmentLayout(_SimpleMixin, CellDesignerNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ConsumptionLayout(CellDesignerSingleHeadedArc):
+
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
 
@@ -1221,13 +1222,14 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
     ) = momapy.coloring.black
     arrowhead_height: float = 15.0
     arrowhead_width: float = 8.0
+    end_shorten: float = 2.0
 
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReactionLayout(CellDesignerDoubleHeadedArc):
+class _ReactionLayout(CellDesignerDoubleHeadedArc):
     _reaction_node_text: str | None = None
     _left_connector_fraction: float = 0.4
     _right_connector_fraction: float = 0.6
@@ -1268,9 +1270,72 @@ class ReactionLayout(CellDesignerDoubleHeadedArc):
         )
         return position
 
+    def self_drawing_elements(self):
+        drawing_elements = CellDesignerDoubleHeadedArc.self_drawing_elements(
+            self
+        )
+        drawing_elements.append(
+            self._make_rotated_reaction_node_drawing_element()
+        )
+        return drawing_elements
+
+    def reaction_node_border(self, point):
+        reaction_node = self._make_reaction_node()
+        rotation = self._make_reaction_node_rotation()
+        rotated_point = point.transformed(rotation)
+        border_point = reaction_node.border(rotated_point)
+        border_point = border_point.transformed(rotation.inverted())
+        return border_point
+
+    def reaction_node_angle(self, angle):
+        reaction_node = self._make_reaction_node()
+        border_point = reaction_node.angle(angle)
+        rotation = self._make_reaction_node_rotation()
+        border_point = border_point.transformed(rotation)
+        return border_point
+
+    def _get_reaction_node_position(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(0.5)
+        return position
+
+    def _get_reaction_node_rotation_angle(self):
+        segment = self.segments[self.reaction_node_segment]
+        angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
+        return angle
+
+    def _make_reaction_node_rotation(self):
+        angle = self._get_reaction_node_rotation_angle()
+        position = self._get_reaction_node_position()
+        rotation = momapy.geometry.Rotation(angle, position)
+        return rotation
+
+    def _make_reaction_node(self):
+        position = self._get_reaction_node_position()
+        reaction_node = momapy.meta.nodes.Rectangle(
+            height=self.reaction_node_height,
+            position=position,
+            width=self.reaction_node_width,
+            border_stroke=self.reaction_node_stroke,
+            border_stroke_width=self.reaction_node_stroke_width,
+            border_stroke_dasharray=self.reaction_node_stroke_dasharray,
+            border_stroke_dashoffset=self.reaction_node_stroke_dashoffset,
+            border_fill=self.reaction_node_fill,
+            border_transform=self.reaction_node_transform,
+            border_filter=self.reaction_node_filter,
+        )
+        return reaction_node
+
+    def _make_rotated_reaction_node_drawing_element(self):
+        reaction_node = self._make_reaction_node()
+        drawing_element = reaction_node.drawing_elements()[0]
+        rotation = self._make_reaction_node_rotation()
+        drawing_element = drawing_element.transformed(rotation)
+        return drawing_element
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateTransitionLayout(ReactionLayout):
+class StateTransitionLayout(_ReactionLayout):
     end_arrowhead_width: float = 8.0
     end_arrowhead_height: float = 15.0
     end_arrowhead_stroke: (
@@ -1292,6 +1357,62 @@ class StateTransitionLayout(ReactionLayout):
     end_arrowhead_filter: (
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
     ) = None  # not inherited
+    end_shorten: float = 2.0
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class HeterodimerAssociationLayout(_ReactionLayout):
+    start_node_height: float = 4.0
+    start_node_width: float = 4.0
+    start_node_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    start_node_stroke_width: float | None = 1.0
+    start_node_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    start_node_stroke_dashoffset: float | None = None
+    start_node_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    start_node_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    start_node_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
 
     def start_arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
@@ -1302,40 +1423,56 @@ class StateTransitionLayout(ReactionLayout):
         )
 
     def self_drawing_elements(self):
-        drawing_elements = ReactionLayout.self_drawing_elements(self)
+        drawing_elements = _ReactionLayout.self_drawing_elements(self)
         drawing_elements.append(
-            self._make_rotated_reaction_node_drawing_element()
+            self._make_rotated_start_node_drawing_element()
         )
         return drawing_elements
 
-    def _make_reaction_node(self):
-        segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(0.5)
-        reaction_node = momapy.meta.shapes.Rectangle(
-            height=self.reaction_node_height,
-            position=position,
-            width=self.reaction_node_width,
-        )
-        return reaction_node
+    def start_node_border(self, point):
+        start_node = self._make_start_node()
+        rotation = self._make_start_node_rotation()
+        rotated_point = point.transformed(rotation)
+        border_point = start_node.border(rotated_point)
+        border_point = border_point.transformed(rotation.inverted())
+        return border_point
 
-    def _make_rotated_reaction_node_drawing_element(self):
-        reaction_node = self._make_reaction_node()
-        elements = reaction_node.drawing_elements()
-        group = momapy.drawing.Group(
-            stroke=self.reaction_node_stroke,
-            stroke_width=self.reaction_node_stroke_width,
-            stroke_dasharray=self.reaction_node_stroke_dasharray,
-            stroke_dashoffset=self.reaction_node_stroke_dashoffset,
-            fill=self.reaction_node_fill,
-            transform=self.reaction_node_transform,
-            filter=self.reaction_node_filter,
-            elements=elements,
-        )
-        segment = self.segments[self.reaction_node_segment]
+    def _get_start_node_position(self):
+        return self.points()[0]
+
+    def _get_start_node_rotation_angle(self):
+        segment = self.segments[0]
         angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
-        rotation = momapy.geometry.Rotation(angle, reaction_node.position)
-        group = group.transformed(rotation)
-        return group
+        return angle
+
+    def _make_start_node_rotation(self):
+        angle = self._get_start_node_rotation_angle()
+        position = self._get_start_node_position()
+        rotation = momapy.geometry.Rotation(angle, position)
+        return rotation
+
+    def _make_start_node(self):
+        position = self._get_start_node_position()
+        start_node = momapy.meta.nodes.Ellipse(
+            height=self.start_node_height,
+            position=position,
+            width=self.start_node_width,
+            border_stroke=self.start_node_stroke,
+            border_stroke_width=self.start_node_stroke_width,
+            border_stroke_dasharray=self.start_node_stroke_dasharray,
+            border_stroke_dashoffset=self.start_node_stroke_dashoffset,
+            border_fill=self.start_node_fill,
+            border_transform=self.start_node_transform,
+            border_filter=self.start_node_filter,
+        )
+        return start_node
+
+    def _make_rotated_start_node_drawing_element(self):
+        start_node = self._make_start_node()
+        drawing_element = start_node.drawing_elements()[0]
+        rotation = self._make_start_node_rotation()
+        drawing_element = drawing_element.transformed(rotation)
+        return drawing_element
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
