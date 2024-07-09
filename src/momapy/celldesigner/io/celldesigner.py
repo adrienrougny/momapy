@@ -600,7 +600,7 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NW: "north_west",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NNW: "north_north_west",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.N: "north",
-        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NNE: "north_north_easr",
+        momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NNE: "north_north_east",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.NE: "north_east",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.ENE: "east_north_east",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.E: "east",
