@@ -113,6 +113,9 @@ class LayoutElement(MapElement):
             ).geoms
         return shapely.GeometryCollection(geom_collection)
 
+    def anchor_point(self, anchor_name):
+        return getattr(self, anchor_name)()
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
