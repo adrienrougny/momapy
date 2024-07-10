@@ -1228,6 +1228,7 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
         return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
 
 
+# TODO: define mixins: _ReactionNodeMixin, _ReactionNodeTextMixin, _StartNodeMixin, _EndNodeMixin
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionLayout(CellDesignerDoubleHeadedArc):
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -1554,6 +1555,73 @@ class TranslationLayout(_ReactionLayout):
         2,
         4,
     )
+
+    def start_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+
+    def end_arrowhead_drawing_elements(self):
+        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TransportLayout(_ReactionLayout):
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_size_func: typing.ClassVar[typing.Callable | None] = None
+    end_arrowhead_width: float = 8.0
+    end_arrowhead_height: float = 15.0
+    end_arrowhead_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_stroke_width: float | None = 1.0
+    end_arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    end_arrowhead_stroke_dashoffset: float | None = None
+    end_arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    end_arrowhead_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    end_arrowhead_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+    end_shorten: float = 2.0
+    arrowhead_bar_height: float = 12.0
+    arrowhead_sep: float = 3.0
+    arrowhead_triangle_height: float = 10.0
+    arrowhead_triangle_width: float = 10.0
+
+    def arrowhead_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
+        ]
+        sep = momapy.drawing.Path(actions=actions)
+        triangle = momapy.meta.shapes.Triangle(
+            position=momapy.geometry.Point(
+                self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0
+            ),
+            width=self.arrowhead_triangle_width,
+            height=self.arrowhead_triangle_height,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return [bar, sep] + triangle.drawing_elements()
 
     def start_arrowhead_drawing_elements(self):
         return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
