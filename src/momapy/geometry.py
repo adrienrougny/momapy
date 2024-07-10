@@ -1045,14 +1045,14 @@ def get_angle_at_fraction_of_bezier_curve(
     bezier_curve,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_angle_at_fraction(segment, fraction)
+    return _get_angle_at_fraction(bezier_curve, fraction)
 
 
 def get_angle_at_fraction_of_elliptical_arc(
     elliptical_arc,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_angle_at_fraction(segment, fraction)
+    return _get_angle_at_fraction(elliptical_arc, fraction)
 
 
 def _get_position_and_angle_at_fraction(
@@ -1075,14 +1075,14 @@ def get_position_and_angle_at_fraction_of_bezier_curve(
     bezier_curve,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_position_angle_at_fraction(segment, fraction)
+    return _get_position_and_angle_at_fraction(bezier_curve, fraction)
 
 
 def get_position_and_angle_at_fraction_of_elliptical_arc(
     elliptical_arc,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
-    return _get_position_and_angle_at_fraction(segment, fraction)
+    return _get_position_and_angle_at_fraction(elliptical_arc, fraction)
 
 
 # angle is in radians between -pi and pi
@@ -1149,6 +1149,26 @@ def segment_has_point(segment, point, max_distance=0.01):
     if d <= max_distance:
         return True
     return False
+
+
+def get_transformation_for_frame(origin: Point, unit_x: Point, unit_y: Point):
+    m = numpy.array(
+        [
+            [
+                unit_x.x - origin.x,
+                unit_y.x - origin.x,
+                origin.x,
+            ],
+            [
+                unit_x.y - origin.y,
+                unit_y.y - origin.y,
+                origin.y,
+            ],
+            [0, 0, 1],
+        ],
+        dtype=float,
+    )
+    return MatrixTransformation(m)
 
 
 def _point_builder_add(self, xy):
