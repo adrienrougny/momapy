@@ -1151,6 +1151,10 @@ def segment_has_point(segment, point, max_distance=0.01):
     return False
 
 
+# Given a frame F defined in another reference frame by its origin,
+# unit x axis vector, and unit y axis vector, returns the transformation
+# that must be applied to a point defined in F to obtain its coordinates
+# in the reference frame.
 def get_transformation_for_frame(origin: Point, unit_x: Point, unit_y: Point):
     m = numpy.array(
         [
