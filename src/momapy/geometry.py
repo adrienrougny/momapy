@@ -571,12 +571,12 @@ def transform_bezier_curve(bezier_curve, transformation):
 
 def transform_elliptical_arc(elliptical_arc, transformation):
     east = momapy.geometry.Point(
-        math.cos(self.x_axis_rotation) * self.rx,
-        math.sin(self.x_axis_rotation) * self.rx,
+        math.cos(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
+        math.sin(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
     )
     north = momapy.geometry.Point(
-        math.cos(self.x_axis_rotation) * self.ry,
-        math.sin(self.x_axis_rotation) * self.ry,
+        math.cos(elliptical_arc.x_axis_rotation) * elliptical_arc.ry,
+        math.sin(elliptical_arc.x_axis_rotation) * elliptical_arc.ry,
     )
     new_center = momapy.geometry.transform_point(
         momapy.geometry.Point(0, 0), transformation
@@ -585,8 +585,12 @@ def transform_elliptical_arc(elliptical_arc, transformation):
     new_north = momapy.geometry.transform_point(north, transformation)
     new_rx = momapy.geometry.Segment(new_center, new_east).length()
     new_ry = momapy.geometry.Segment(new_center, new_north).length()
-    new_start_point = momapy.geometry.transform_point(self.p1, transformation)
-    new_end_point = momapy.geometry.transform_point(self.p2, transformation)
+    new_start_point = momapy.geometry.transform_point(
+        elliptical_arc.p1, transformation
+    )
+    new_end_point = momapy.geometry.transform_point(
+        elliptical_arc.p2, transformation
+    )
     new_x_axis_rotation = math.degrees(
         momapy.geometry.get_angle_of_line(
             momapy.geometry.Line(new_center, new_east)
@@ -597,8 +601,8 @@ def transform_elliptical_arc(elliptical_arc, transformation):
         new_rx,
         new_ry,
         new_x_axis_rotation,
-        self.arc_flag,
-        self.sweep_flag,
+        elliptical_arc.arc_flag,
+        elliptical_arc.sweep_flag,
     )
 
 
