@@ -791,6 +791,9 @@ class _EndNodeMixin(momapy.sbgn.core._SBGNMixin):
         border_point = border_point.transformed(rotation.inverted())
         return border_point
 
+    def _mixin_drawing_elements(self):
+        return [self._make_rotated_end_node_drawing_element()]
+
     def _get_end_node_position(self):
         return self.points()[-1]
 
@@ -805,21 +808,9 @@ class _EndNodeMixin(momapy.sbgn.core._SBGNMixin):
         rotation = momapy.geometry.Rotation(angle, position)
         return rotation
 
+    @abc.abstractmethod
     def _make_end_node(self):
-        position = self._get_end_node_position()
-        end_node = momapy.meta.nodes.Ellipse(
-            height=self.end_node_height,
-            position=position,
-            width=self.end_node_width,
-            border_stroke=self.end_node_stroke,
-            border_stroke_width=self.end_node_stroke_width,
-            border_stroke_dasharray=self.end_node_stroke_dasharray,
-            border_stroke_dashoffset=self.end_node_stroke_dashoffset,
-            border_fill=self.end_node_fill,
-            border_transform=self.end_node_transform,
-            border_filter=self.end_node_filter,
-        )
-        return end_node
+        pass
 
     def _make_rotated_end_node_drawing_element(self):
         end_node = self._make_end_node()
@@ -1901,7 +1892,7 @@ class ReversibleTransportLayout(_ReversibleReactionLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class IrreversibleHeterodimerAssociationLayout(
+class HeterodimerAssociationLayout(
     _IrreversibleReactionLayout, _StartNodeMixin
 ):
     arrowhead_width: float = 15.0
@@ -1933,41 +1924,31 @@ class IrreversibleHeterodimerAssociationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ReversibleHeterodimerAssociationLayout(
-    _ReversibleReactionLayout, _StartNodeMixin
-):
-    start_arrowhead_width: float = 15.0
-    start_arrowhead_height: float = 8.0
-    end_arrowhead_width: float = 15.0
-    end_arrowhead_height: float = 8.0
+class DissociationLayout(_IrreversibleReactionLayout, _EndNodeMixin):
+    end_node_width: float = 4.0
+    end_node_height: float = 4.0
+    end_node_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
 
-    def start_arrowhead_drawing_elements(self):
-        return (
-            momapy.meta.arcs.DoubleTriangle.start_arrowhead_drawing_elements(
-                self
-            )
-        )
+    def arrowhead_drawing_elements(self):
+        return []
 
-    def end_arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.DoubleTriangle.end_arrowhead_drawing_elements(
-            self
-        )
-
-    def _make_start_node(self):
-        position = self._get_start_node_position()
-        start_node = momapy.meta.nodes.Ellipse(
-            height=self.start_node_height,
+    def _make_end_node(self):
+        position = self._get_end_node_position()
+        end_node = momapy.meta.nodes.Ellipse(
+            height=self.end_node_height,
             position=position,
-            width=self.start_node_width,
-            border_stroke=self.start_node_stroke,
-            border_stroke_width=self.start_node_stroke_width,
-            border_stroke_dasharray=self.start_node_stroke_dasharray,
-            border_stroke_dashoffset=self.start_node_stroke_dashoffset,
-            border_fill=self.start_node_fill,
-            border_transform=self.start_node_transform,
-            border_filter=self.start_node_filter,
+            width=self.end_node_width,
+            border_stroke=self.end_node_stroke,
+            border_stroke_width=self.end_node_stroke_width,
+            border_stroke_dasharray=self.end_node_stroke_dasharray,
+            border_stroke_dashoffset=self.end_node_stroke_dashoffset,
+            border_fill=self.end_node_fill,
+            border_transform=self.end_node_transform,
+            border_filter=self.end_node_filter,
         )
-        return start_node
+        return end_node
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

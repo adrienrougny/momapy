@@ -8093,7 +8093,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.HeterodimerAssociation,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleHeterodimerAssociationLayout,
+            layout_element_cls=momapy.celldesigner.core.HeterodimerAssociationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8130,7 +8130,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Dissociation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.DissociationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8143,6 +8143,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -9677,9 +9680,10 @@ class CellDesignerReader(momapy.io.MapReader):
                     layout_element.reaction_node_segment = int(
                         cd_element.annotation.extension.connect_scheme.rectangle_index
                     )
-                    # no consumption layouts since consumptions are represented
-                    # by the reaction layout
+                    # no consumption nor production layouts since they are
+                    # represented by the reaction layout
                     make_base_reactant_layouts = False
+                    make_base_product_layouts = False
                 elif len(cd_base_reactants) > 1 and len(cd_base_products) == 1:
                     # Case where we have a tshape reaction with two base reactants
                     # and one base product. The frame for the edit points are the
@@ -9699,24 +9703,12 @@ class CellDesignerReader(momapy.io.MapReader):
                     product_layout_element = cd_id_to_layout_element[
                         cd_base_product.alias
                     ]
-                    reactant_0_anchor_name = cls._get_anchor_name_for_frame_from_cd_base_participant(
-                        cd_base_reactant_0
-                    )
-                    reactant_1_anchor_name = cls._get_anchor_name_for_frame_from_cd_base_participant(
-                        cd_base_reactant_1
-                    )
                     product_anchor_name = cls._get_anchor_name_for_frame_from_cd_base_participant(
                         cd_base_product
                     )
-                    origin = reactant_layout_element_0.anchor_point(
-                        reactant_0_anchor_name
-                    )
-                    unit_x = reactant_layout_element_1.anchor_point(
-                        reactant_1_anchor_name
-                    )
-                    unit_y = product_layout_element.anchor_point(
-                        product_anchor_name
-                    )
+                    origin = reactant_layout_element_0.center()
+                    unit_x = reactant_layout_element_1.center()
+                    unit_y = product_layout_element.center()
                     transformation = (
                         momapy.geometry.get_transformation_for_frame(
                             origin, unit_x, unit_y
@@ -9741,7 +9733,9 @@ class CellDesignerReader(momapy.io.MapReader):
                     # product's center or link anchor and whose y axis is
                     # orthogonal to the x axis, going downwards
                     origin = start_point
-                    unit_x = unit_y
+                    unit_x = product_layout_element.anchor_point(
+                        product_anchor_name
+                    )
                     unit_y = unit_x.transformed(
                         momapy.geometry.Rotation(math.radians(90), origin)
                     )
@@ -9779,6 +9773,96 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_edit_points.t_shape_index
                     )
                     make_base_reactant_layouts = True
+                    make_base_product_layouts = False
+                elif len(cd_base_reactants) == 1 and len(cd_base_products) > 1:
+                    # Case where we have a tshape reaction with one base reactant
+                    # and two base products. The frame for the edit points are the
+                    # axes going from the center of the first base product to
+                    # the center of the second base product (x axis), and from the
+                    # center of the first base product to the center of the base
+                    # reactant (y axis).
+                    cd_base_product_0 = cd_base_products[0]
+                    cd_base_product_1 = cd_base_products[1]
+                    cd_base_reactant = cd_base_reactants[0]
+                    product_layout_element_0 = cd_id_to_layout_element[
+                        cd_base_product_0.alias
+                    ]
+                    product_layout_element_1 = cd_id_to_layout_element[
+                        cd_base_product_1.alias
+                    ]
+                    reactant_layout_element = cd_id_to_layout_element[
+                        cd_base_reactant.alias
+                    ]
+                    reactant_anchor_name = cls._get_anchor_name_for_frame_from_cd_base_participant(
+                        cd_base_reactant
+                    )
+                    origin = reactant_layout_element.center()
+                    unit_x = product_layout_element_0.center()
+                    unit_y = product_layout_element_1.center()
+                    transformation = (
+                        momapy.geometry.get_transformation_for_frame(
+                            origin, unit_x, unit_y
+                        )
+                    )
+                    cd_edit_points = (
+                        cd_element.annotation.extension.edit_points
+                    )
+                    edit_points = [
+                        momapy.geometry.Point(
+                            *[
+                                float(coord)
+                                for coord in cd_edit_point.split(",")
+                            ]
+                        )
+                        for cd_edit_point in cd_edit_points.value
+                    ]
+                    end_point = edit_points[-1].transformed(transformation)
+                    # The frame for the intermediate edit points becomes
+                    # the orthonormal frame whose x axis goes from the
+                    # start point of the reaction computed above to the base
+                    # product's center or link anchor and whose y axis is
+                    # orthogonal to the x axis, going downwards
+                    origin = end_point
+                    unit_x = reactant_layout_element.anchor_point(
+                        reactant_anchor_name
+                    )
+                    unit_y = unit_x.transformed(
+                        momapy.geometry.Rotation(math.radians(90), origin)
+                    )
+                    transformation = (
+                        momapy.geometry.get_transformation_for_frame(
+                            origin, unit_x, unit_y
+                        )
+                    )
+                    intermediate_points = []
+                    # the index for the intermediate points of the reaction
+                    # starts at 0 and ends at before those for the two base products
+                    end_index = int(cd_edit_points.num0)
+                    edit_points = list(reversed(edit_points[:end_index]))
+                    for edit_point in edit_points:
+                        intermediate_point = edit_point.transformed(
+                            transformation
+                        )
+                        intermediate_points.append(intermediate_point)
+                    if cd_base_reactant.link_anchor is not None:
+                        start_point = reactant_layout_element.anchor_point(
+                            cls._get_anchor_name_for_frame_from_cd_base_participant(
+                                cd_base_reactant
+                            )
+                        )
+                    else:
+                        if intermediate_points:
+                            reference_point = intermediate_points[0]
+                        else:
+                            reference_point = end_point
+                        start_point = reactant_layout_element.border(
+                            reference_point
+                        )
+                    layout_element.reaction_node_segment = len(
+                        intermediate_points
+                    ) - int(cd_edit_points.t_shape_index)
+                    make_base_reactant_layouts = False
+                    make_base_product_layouts = True
                 points = [start_point] + intermediate_points + [end_point]
                 for i, point in enumerate(points[1:]):
                     previous_point = points[i]
@@ -9787,7 +9871,10 @@ class CellDesignerReader(momapy.io.MapReader):
             else:
                 layout_element = None
                 make_base_reactant_layouts = False
+                make_base_product_layouts = False
         else:
+            make_base_reactant_layouts = False
+            make_base_product_layouts = False
             layout_element = None
         model_element.id = cd_element.id
         model_element.reversible = cd_element.reversible
@@ -9847,7 +9934,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
+                        with_layout=make_base_product_layouts,
                     )
                 )
         if cd_element.annotation.extension.list_of_product_links is not None:
