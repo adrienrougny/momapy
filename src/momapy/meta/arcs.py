@@ -20,8 +20,8 @@ class Triangle(momapy.core.SingleHeadedArc):
     def arrowhead_drawing_elements(self):
         shape = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
-            width=self.arrowhead_height,
-            height=self.arrowhead_width,
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
             direction=momapy.core.Direction.RIGHT,
         )
         return shape.drawing_elements()
@@ -35,8 +35,8 @@ class ReversedTriangle(momapy.core.SingleHeadedArc):
     def arrowhead_drawing_elements(self):
         shape = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
-            width=self.arrowhead_height,
-            height=self.arrowhead_width,
+            width=self.arrowhead_width,
+            height=self.arrowhead_height,
             direction=momapy.core.Direction.LEFT,
         )
         return shape.drawing_elements()
@@ -159,18 +159,18 @@ class DoubleTriangle(momapy.core.DoubleHeadedArc):
 
     def start_arrowhead_drawing_elements(self):
         triangle = momapy.meta.shapes.Triangle(
-            position=momapy.geometry.Point(self.start_arrowhead_width / 2, 0),
-            width=self.start_arrowhead_height,
-            height=self.start_arrowhead_width,
-            direction=momapy.core.Direction.RIGHT,
+            position=momapy.geometry.Point(-self.start_arrowhead_width / 2, 0),
+            width=self.start_arrowhead_width,
+            height=self.start_arrowhead_height,
+            direction=momapy.core.Direction.LEFT,
         )
         return triangle.drawing_elements()
 
     def end_arrowhead_drawing_elements(self):
         triangle = momapy.meta.shapes.Triangle(
             position=momapy.geometry.Point(self.end_arrowhead_width / 2, 0),
-            width=self.end_arrowhead_height,
-            height=self.end_arrowhead_width,
+            width=self.end_arrowhead_width,
+            height=self.end_arrowhead_height,
             direction=momapy.core.Direction.RIGHT,
         )
         return triangle.drawing_elements()

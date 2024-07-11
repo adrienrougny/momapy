@@ -910,8 +910,8 @@ class DoubleHeadedArc(Arc):
         if math.isnan(width):
             arrowhead_length = 0
         else:
-            arrowhead_length = bbox.east().x
-        return round(arrowhead_length, 2)
+            arrowhead_length = bbox.east().x - bbox.west().x
+        return arrowhead_length
 
     def _get_arrowhead_tip(self, start_or_end: str):
         if start_or_end == "start":
@@ -968,12 +968,14 @@ class DoubleHeadedArc(Arc):
     def start_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        # base of the arrow if at (0, 0), and the direction to the left
         pass
 
     @abc.abstractmethod
     def end_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        # base of the arrow if at (0, 0), and the direction to the right
         pass
 
     def _make_arrowhead_drawing_element(self, start_or_end: str):
