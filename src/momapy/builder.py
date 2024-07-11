@@ -364,3 +364,13 @@ def issubclass_or_builder(cls, type_):
         type_ = (type_,)
     type_ += tuple([get_or_make_builder_cls(t) for t in type_])
     return issubclass(cls, type_)
+
+
+def super_or_builder(type_, obj):
+    try:
+        s = super(type_, obj)
+    except TypeError:
+        builder = get_or_make_builder_cls(type_)
+        s = super(builder, obj)
+    finally:
+        return s
