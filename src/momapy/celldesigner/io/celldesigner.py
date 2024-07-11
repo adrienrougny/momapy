@@ -933,13 +933,14 @@ class CellDesignerReader(momapy.io.MapReader):
             map_element_to_annotations
         )
         if with_layout:
-            momapy.positioning.set_fit(
-                map_.layout,
-                momapy.builder.object_from_builder(
-                    map_.layout
-                ).layout_elements,
-                xsep=5.0,
-                ysep=5.0,
+            map_.layout.width = (
+                cd_element.model.annotation.extension.model_display.size_x
+            )
+            map_.layout.height = (
+                cd_element.model.annotation.extension.model_display.size_y
+            )
+            map_.layout.position = momapy.geometry.Point(
+                map_.layout.width / 2, map_.layout.height / 2
             )
             map_.layout.fill = momapy.coloring.white
             map_.layout.stroke = momapy.coloring.red
