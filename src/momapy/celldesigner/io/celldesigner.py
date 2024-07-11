@@ -7866,7 +7866,11 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.StateTransition,
-            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
+            layout_element_cls=(
+                momapy.celldesigner.core.ReversibleStateTransitionLayout
+                if cd_element.reversible
+                else momapy.celldesigner.core.IrreversibleStateTransitionLayout
+            ),
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7903,7 +7907,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.KnownTransitionOmitted,
-            layout_element_cls=momapy.celldesigner.core.KnonwTransitionOmittedLayout,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleKnownTransitionOmittedLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7940,7 +7944,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTransition,
-            layout_element_cls=momapy.celldesigner.core.UnknownTransitionLayout,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleUnknownTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7977,7 +7981,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transcription,
-            layout_element_cls=momapy.celldesigner.core.TranscriptionLayout,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleTranscriptionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8014,7 +8018,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Translation,
-            layout_element_cls=momapy.celldesigner.core.TranslationLayout,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleTranslationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8051,7 +8055,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transport,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleTransportLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8064,9 +8068,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        # if with_layout:
-        #     map_.layout.layout_elements.append(layout_element)
-        #     cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8088,7 +8092,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.HeterodimerAssociation,
-            layout_element_cls=momapy.celldesigner.core.HeterodimerAssociationLayout,
+            layout_element_cls=momapy.celldesigner.core.IrreversibleHeterodimerAssociationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
