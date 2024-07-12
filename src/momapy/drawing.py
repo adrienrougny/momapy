@@ -136,7 +136,9 @@ class FilterUnits(enum.Enum):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Filter(object):
     id: str = dataclasses.field(
-        hash=False, compare=False, default_factory=momapy.utils.get_uuid4_as_str
+        hash=False,
+        compare=False,
+        default_factory=momapy.utils.get_uuid4_as_str,
     )
     filter_units: FilterUnits = FilterUnits.OBJECT_BOUNDING_BOX
     effects: tuple[FilterEffect] = dataclasses.field(default_factory=tuple)
@@ -363,7 +365,9 @@ class Group(DrawingElement):
     def to_shapely(self, to_polygons=False):
         geom_collection = []
         for element in self.elements:
-            geom_collection += element.to_shapely(to_polygons=to_polygons).geoms
+            geom_collection += element.to_shapely(
+                to_polygons=to_polygons
+            ).geoms
         return shapely.geometry.GeometryCollection(geom_collection)
 
 
@@ -475,7 +479,9 @@ class Rectangle(DrawingElement):
         actions.append(LineTo(momapy.geometry.Point(x, y + ry)))
         if rx > 0 and ry > 0:
             actions.append(
-                EllipticalArc(momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1)
+                EllipticalArc(
+                    momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1
+                )
             )
         actions.append(ClosePath())
         path = Path(
@@ -666,7 +672,9 @@ class QuadraticCurveTo(PathAction):
     def transformed(self, transformation, current_point):
         return QuadraticCurveTo(
             momapy.geometry.transform_point(self.point, transformation),
-            momapy.geometry.transform_point(self.control_point, transformation),
+            momapy.geometry.transform_point(
+                self.control_point, transformation
+            ),
         )
 
     def to_curve_to(self, current_point):
@@ -799,3 +807,30 @@ class Path(DrawingElement):
                     new_actions.append(new_action)
         new_path = dataclasses.replace(self, actions=new_actions)
         return new_path
+
+
+def collection_of_drawing_elements_to_shapely(drawing_elements):
+    geom_collection = []
+    for drawing_element in drawing_elements:
+        geom_collection += drawing_element.to_shapely(to_polygons=False).geoms
+    return shapely.GeometryCollection(geom_collection)
+
+
+def get_collection_of_drawing_elements_border(
+    drawing_elements, point, position=None
+):
+    shapely_obj = collection_of_drawing_elements_to_shapely(drawing_elements)
+    return momapy.geometry.get_shapely_object_border(
+        shapely_obj, point, position
+    )
+
+
+def get_collection_of_drawing_elements_angle(
+    drawing_elements, angle, unit="degrees", position=None, transform=None
+):
+    shapely_object = collection_of_drawing_elements_to_shapely(
+        drawing_elements
+    )
+    return momapy.geometry.get_shapely_object_angle(
+        shapely_object, angle, position
+    )

@@ -819,6 +819,59 @@ def get_intersection_of_line_and_drawing_element(line, drawing_element):
     return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
 
+def get_shapely_object_border(
+    shapely_object, point, position=None
+) -> Point | None:
+    if position is None:
+        bbox = momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+        position = bbox.center()
+    line = momapy.geometry.Line(position, point)
+    intersection = get_intersection_of_line_and_shapely_object(
+        line, shapely_object
+    )
+    candidate_points = []
+    for intersection_obj in intersection:
+        if isinstance(intersection_obj, momapy.geometry.Segment):
+            candidate_points.append(intersection_obj.p1)
+            candidate_points.append(intersection_obj.p2)
+        elif isinstance(intersection_obj, momapy.geometry.Point):
+            candidate_points.append(intersection_obj)
+    intersection_point = None
+    max_d = -1
+    ok_direction_exists = False
+    d1 = momapy.geometry.get_distance_between_points(point, position)
+    for candidate_point in candidate_points:
+        d2 = momapy.geometry.get_distance_between_points(
+            candidate_point, point
+        )
+        d3 = momapy.geometry.get_distance_between_points(
+            candidate_point, position
+        )
+        candidate_ok_direction = not d2 > d1 or d2 < d3
+        if candidate_ok_direction or not ok_direction_exists:
+            if candidate_ok_direction and not ok_direction_exists:
+                ok_direction_exists = True
+                max_d = -1
+            if d3 > max_d:
+                max_d = d3
+                intersection_point = candidate_point
+    return intersection_point
+
+
+def get_shapely_object_angle(
+    shapely_object, angle, unit="degrees", position=None
+) -> Point | None:
+    if unit == "degrees":
+        angle = math.radians(angle)
+    angle = -angle
+    d = 100
+    if position is None:
+        bbox = momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+        position = bbox.center()
+    point = position + (d * math.cos(angle), d * math.sin(angle))
+    return get_shapely_object_border(shapely_object, point, position)
+
+
 def get_angle_to_horizontal_of_point(point):
     line = Line(Point(0, 0), point)
     return line.get_angle_to_horizontal()
