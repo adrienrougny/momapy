@@ -357,7 +357,7 @@ class GroupLayout(LayoutElement):
 
     def self_to_shapely(self, to_polygons=False):
         return momapy.drawing.drawing_elements_to_shapely(
-            self.drawing_elements
+            self.drawing_elements()
         )
 
     def self_bbox(self) -> momapy.geometry.Bbox:
