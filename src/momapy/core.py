@@ -916,7 +916,7 @@ class DoubleHeadedArc(Arc):
         )
         if math.isnan(bbox.width):
             return 0.0
-        return bbox.east.x
+        return bbox.east().x
 
     def start_arrowhead_tip(self) -> momapy.geometry.Point:
         segment = self.segments[0]
@@ -960,7 +960,7 @@ class DoubleHeadedArc(Arc):
         )
         if math.isnan(bbox.width):
             return 0.0
-        return abs(bbox.west.x)
+        return abs(bbox.west().x)
 
     def end_arrowhead_tip(self) -> momapy.geometry.Point:
         segment = self.segments[-1]
@@ -1163,10 +1163,18 @@ class Layout(Node):
 
     def _border_drawing_elements(self):
         actions = [
-            momapy.drawing.MoveTo(self.self_bbox().north_west()),
-            momapy.drawing.LineTo(self.self_bbox().north_east()),
-            momapy.drawing.LineTo(self.self_bbox().south_east()),
-            momapy.drawing.LineTo(self.self_bbox().south_west()),
+            momapy.drawing.MoveTo(
+                self.position - (self.width / 2, self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.position + (self.width / 2, -self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.position + (self.width / 2, self.height / 2)
+            ),
+            momapy.drawing.LineTo(
+                self.position + (-self.width / 2, self.height / 2)
+            ),
             momapy.drawing.ClosePath(),
         ]
         path = momapy.drawing.Path(actions=actions)
