@@ -20,7 +20,7 @@ class Rectangle(momapy.core.Node):
     bottom_left_ry: float = 0.0
     bottom_left_rounded_or_cut: str = "rounded"
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Rectangle(
             position=self.position,
             width=self.width,
@@ -43,7 +43,7 @@ class Rectangle(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(momapy.core.Node):
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Ellipse(
             position=self.position,
             width=self.width,
@@ -54,7 +54,7 @@ class Ellipse(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Stadium(momapy.core.Node):
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Stadium(
             position=self.position,
             width=self.width,
@@ -68,7 +68,7 @@ class Hexagon(momapy.core.Node):
     left_angle: float = 60.0
     right_angle: float = 60.0
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Hexagon(
             position=self.position,
             width=self.width,
@@ -84,7 +84,7 @@ class TurnedHexagon(momapy.core.Node):
     top_angle: float = 80.0
     bottom_angle: float = 80.0
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.TurnedHexagon(
             position=self.position,
             width=self.width,
@@ -99,7 +99,7 @@ class TurnedHexagon(momapy.core.Node):
 class Parallelogram(momapy.core.Node):
     angle: float = 60.0
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Parallelogram(
             position=self.position,
             width=self.width,
@@ -111,7 +111,7 @@ class Parallelogram(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CrossPoint(momapy.core.Node):
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.CrossPoint(
             position=self.position,
             width=self.width,
@@ -124,7 +124,7 @@ class CrossPoint(momapy.core.Node):
 class Triangle(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Triangle(
             position=self.position,
             width=self.width,
@@ -136,7 +136,7 @@ class Triangle(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Diamond(momapy.core.Node):
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Diamond(
             position=self.position,
             width=self.width,
@@ -147,7 +147,7 @@ class Diamond(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.Node):
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.Bar(
             position=self.position,
             height=self.height,
@@ -159,7 +159,7 @@ class Bar(momapy.core.Node):
 class ArcBarb(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.ArcBarb(
             position=self.position,
             width=self.width,
@@ -173,7 +173,7 @@ class ArcBarb(momapy.core.Node):
 class StraightBarb(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.StraightBarb(
             position=self.position,
             width=self.width,
@@ -187,7 +187,7 @@ class StraightBarb(momapy.core.Node):
 class To(momapy.core.Node):
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         shape = momapy.meta.shapes.To(
             position=self.position,
             width=self.width,

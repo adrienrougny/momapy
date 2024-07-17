@@ -257,6 +257,7 @@ def get_initial_value(attr_name):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DrawingElement(abc.ABC):
+    class_: str | None = None
     fill: NoneValueType | momapy.coloring.Color | None = None
     fill_rule: FillRule | None = None
     filter: NoneValueType | Filter | None = (
@@ -266,6 +267,7 @@ class DrawingElement(abc.ABC):
     font_size: float | None = None
     font_style: FontStyle | None = None
     font_weight: FontWeight | float | None = None
+    id_: str | None = None
     stroke: NoneValueType | momapy.coloring.Color | None = None
     stroke_dasharray: tuple[float] | None = None
     stroke_dashoffset: float | None = None
@@ -321,7 +323,7 @@ class DrawingElement(abc.ABC):
                 height,
             )
         else:  # only absolute values
-            filter_regions = momapy.geometry.Bbox(
+            filter_region = momapy.geometry.Bbox(
                 momapy.geometry.Point(
                     self.filter.x + self.filter.width / 2,
                     self.filter.y + self.filter.height / 2,
@@ -363,12 +365,7 @@ class Group(DrawingElement):
         return dataclasses.replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False):
-        geom_collection = []
-        for element in self.elements:
-            geom_collection += element.to_shapely(
-                to_polygons=to_polygons
-            ).geoms
-        return shapely.geometry.GeometryCollection(geom_collection)
+        return drawing_elements_to_shapely(self.elements)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -809,28 +806,29 @@ class Path(DrawingElement):
         return new_path
 
 
-def collection_of_drawing_elements_to_shapely(drawing_elements):
+def drawing_elements_to_shapely(drawing_elements):
     geom_collection = []
     for drawing_element in drawing_elements:
         geom_collection += drawing_element.to_shapely(to_polygons=False).geoms
     return shapely.GeometryCollection(geom_collection)
 
 
-def get_collection_of_drawing_elements_border(
-    drawing_elements, point, position=None
-):
-    shapely_obj = collection_of_drawing_elements_to_shapely(drawing_elements)
+def get_drawing_elements_border(drawing_elements, point, position=None):
+    shapely_obj = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_border(
         shapely_obj, point, position
     )
 
 
-def get_collection_of_drawing_elements_angle(
+def get_drawing_elements_angle(
     drawing_elements, angle, unit="degrees", position=None, transform=None
 ):
-    shapely_object = collection_of_drawing_elements_to_shapely(
-        drawing_elements
-    )
+    shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_angle(
         shapely_object, angle, position
     )
+
+
+def get_drawing_elements_bbox(drawing_elements):
+    shapely_object = drawing_elements_to_shapely(drawing_elements)
+    return momapy.geometry.Bbox.from_bounds(shapely_object.bounds)

@@ -3313,11 +3313,11 @@ class _SBGNMLReader(momapy.io.MapReader):
                                 color = momapy.coloring.Color.from_hex(
                                     color_str
                                 )
-                            node_style_collection[f"border_{attr}"] = color
+                            node_style_collection[attr] = color
                     for attr in ["stroke_width"]:
                         value = getattr(style.g, attr)
                         if value is not None:
-                            node_style_collection[f"border_{attr}"] = value
+                            node_style_collection[attr] = value
                     if node_style_collection:
                         node_selector = momapy.styling.OrSelector(
                             tuple(
@@ -3986,9 +3986,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
 
         lattrs = []
         for attr_name in ["fill", "stroke", "stroke_width"]:
-            attr_value = getattr(layout_element, f"border_{attr_name}")
-            if attr_value is None:
-                attr_value = getattr(layout_element, attr_name)
+            attr_value = getattr(layout_element, attr_name)
             lattrs.append(
                 (
                     attr_name,

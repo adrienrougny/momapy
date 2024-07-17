@@ -303,7 +303,9 @@ class BiologicalActivityLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PhenotypeLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+class PhenotypeLayout(
+    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
+):
     width: float = 60.0
     height: float = 30.0
     angle: float = 70.0
@@ -381,8 +383,10 @@ class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
-    def arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.Diamond.arrowhead_drawing_elements(self)
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -390,8 +394,10 @@ class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
-    def arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -401,7 +407,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_triangle_height: float = 10.0
     arrowhead_triangle_width: float = 10.0
 
-    def arrowhead_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self):
         actions = [
             momapy.drawing.MoveTo(
                 momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
@@ -413,7 +419,9 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
         bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
@@ -431,20 +439,24 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
 
-    def arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.Bar.arrowhead_drawing_elements(self)
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Bar._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    def arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    def arrowhead_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

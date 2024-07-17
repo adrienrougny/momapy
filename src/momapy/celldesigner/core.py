@@ -570,135 +570,6 @@ class _MultiNodeMixin(momapy.sbgn.core._MultiMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
-    _reaction_node_text: typing.ClassVar[str | None] = None
-    _font_family: typing.ClassVar[str] = "Cantarell"
-    _font_size_func: typing.ClassVar[typing.Callable]
-    _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
-        momapy.drawing.FontStyle.NORMAL
-    )
-    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
-        momapy.drawing.FontWeight.NORMAL
-    )
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
-    _left_connector_fraction: float = 0.4
-    _right_connector_fraction: float = 0.6
-    reaction_node_height: float = 10.0
-    reaction_node_width: float = 10.0
-    reaction_node_segment: int = 1
-    reaction_node_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.black
-    reaction_node_stroke_width: float | None = 1.0
-    reaction_node_stroke_dasharray: (
-        momapy.drawing.NoneValueType | tuple[float] | None
-    ) = None
-    reaction_node_stroke_dashoffset: float | None = None
-    reaction_node_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.white
-    reaction_node_transform: (
-        momapy.drawing.NoneValueType
-        | tuple[momapy.geometry.Transformation]
-        | None
-    ) = None  # not inherited
-    reaction_node_filter: (
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ) = None  # not inherited
-
-    def left_connector_tip(self):
-        segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(
-            self._left_connector_fraction
-        )
-        return position
-
-    def right_connector_tip(self):
-        segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(
-            self._right_connector_fraction
-        )
-        return position
-
-    def reaction_node_border(self, point):
-        reaction_node = self._make_reaction_node()
-        rotation = self._make_reaction_node_rotation()
-        rotated_point = point.transformed(rotation)
-        border_point = reaction_node.border(rotated_point)
-        border_point = border_point.transformed(rotation.inverted())
-        return border_point
-
-    def reaction_node_angle(self, angle):
-        reaction_node = self._make_reaction_node()
-        border_point = reaction_node.angle(angle)
-        rotation = self._make_reaction_node_rotation()
-        border_point = border_point.transformed(rotation)
-        return border_point
-
-    def _mixin_drawing_elements(self):
-        return [self._make_rotated_reaction_node_drawing_element()]
-
-    def _get_reaction_node_position(self):
-        segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(0.5)
-        return position
-
-    def _get_reaction_node_rotation_angle(self):
-        segment = self.segments[self.reaction_node_segment]
-        angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
-        return angle
-
-    def _make_reaction_node_rotation(self):
-        angle = self._get_reaction_node_rotation_angle()
-        position = self._get_reaction_node_position()
-        rotation = momapy.geometry.Rotation(angle, position)
-        return rotation
-
-    def _make_reaction_node(self):
-        position = self._get_reaction_node_position()
-        if self._reaction_node_text is not None:
-            label = momapy.core.TextLayout(
-                text=self._reaction_node_text,
-                position=position,
-                font_family=self._font_family,
-                font_size=self._font_size_func(),
-                font_style=self._font_style,
-                font_weight=self._font_weight,
-                fill=self._font_fill,
-                stroke=self._font_stroke,
-                transform=(self._make_reaction_node_rotation(),),
-            )
-        else:
-            label = None
-        reaction_node = momapy.meta.nodes.Rectangle(
-            height=self.reaction_node_height,
-            position=position,
-            width=self.reaction_node_width,
-            border_stroke=self.reaction_node_stroke,
-            border_stroke_width=self.reaction_node_stroke_width,
-            border_stroke_dasharray=self.reaction_node_stroke_dasharray,
-            border_stroke_dashoffset=self.reaction_node_stroke_dashoffset,
-            border_fill=self.reaction_node_fill,
-            border_transform=self.reaction_node_transform,
-            border_filter=self.reaction_node_filter,
-            label=label,
-        )
-        return reaction_node
-
-    def _make_rotated_reaction_node_drawing_element(self):
-        reaction_node = self._make_reaction_node()
-        drawing_element = reaction_node.drawing_elements()[0]
-        rotation = self._make_reaction_node_rotation()
-        drawing_element = drawing_element.transformed(rotation)
-        return drawing_element
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class _StartNodeMixin(momapy.sbgn.core._SBGNMixin):
     start_node_height: float
     start_node_width: float
@@ -1520,6 +1391,135 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
 
     def arrowhead_drawing_elements(self):
         return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
+    _reaction_node_text: typing.ClassVar[str | None] = None
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_size_func: typing.ClassVar[typing.Callable]
+    _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
+        momapy.drawing.FontStyle.NORMAL
+    )
+    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
+        momapy.drawing.FontWeight.NORMAL
+    )
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _left_connector_fraction: float = 0.4
+    _right_connector_fraction: float = 0.6
+    reaction_node_height: float = 10.0
+    reaction_node_width: float = 10.0
+    reaction_node_segment: int = 1
+    reaction_node_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    reaction_node_stroke_width: float | None = 1.0
+    reaction_node_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = None
+    reaction_node_stroke_dashoffset: float | None = None
+    reaction_node_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    reaction_node_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None  # not inherited
+    reaction_node_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None  # not inherited
+
+    def left_connector_tip(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(
+            self._left_connector_fraction
+        )
+        return position
+
+    def right_connector_tip(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(
+            self._right_connector_fraction
+        )
+        return position
+
+    def reaction_node_border(self, point):
+        reaction_node = self._make_reaction_node()
+        rotation = self._make_reaction_node_rotation()
+        rotated_point = point.transformed(rotation)
+        border_point = reaction_node.border(rotated_point)
+        border_point = border_point.transformed(rotation.inverted())
+        return border_point
+
+    def reaction_node_angle(self, angle):
+        reaction_node = self._make_reaction_node()
+        border_point = reaction_node.angle(angle)
+        rotation = self._make_reaction_node_rotation()
+        border_point = border_point.transformed(rotation)
+        return border_point
+
+    def _mixin_drawing_elements(self):
+        return [self._make_rotated_reaction_node_drawing_element()]
+
+    def _get_reaction_node_position(self):
+        segment = self.segments[self.reaction_node_segment]
+        position = segment.get_position_at_fraction(0.5)
+        return position
+
+    def _get_reaction_node_rotation_angle(self):
+        segment = self.segments[self.reaction_node_segment]
+        angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
+        return angle
+
+    def _make_reaction_node_rotation(self):
+        angle = self._get_reaction_node_rotation_angle()
+        position = self._get_reaction_node_position()
+        rotation = momapy.geometry.Rotation(angle, position)
+        return rotation
+
+    def _make_reaction_node(self):
+        position = self._get_reaction_node_position()
+        if self._reaction_node_text is not None:
+            label = momapy.core.TextLayout(
+                text=self._reaction_node_text,
+                position=position,
+                font_family=self._font_family,
+                font_size=self._font_size_func(),
+                font_style=self._font_style,
+                font_weight=self._font_weight,
+                fill=self._font_fill,
+                stroke=self._font_stroke,
+                transform=(self._make_reaction_node_rotation(),),
+            )
+        else:
+            label = None
+        reaction_node = momapy.meta.nodes.Rectangle(
+            height=self.reaction_node_height,
+            position=position,
+            width=self.reaction_node_width,
+            border_stroke=self.reaction_node_stroke,
+            border_stroke_width=self.reaction_node_stroke_width,
+            border_stroke_dasharray=self.reaction_node_stroke_dasharray,
+            border_stroke_dashoffset=self.reaction_node_stroke_dashoffset,
+            border_fill=self.reaction_node_fill,
+            border_transform=self.reaction_node_transform,
+            border_filter=self.reaction_node_filter,
+            label=label,
+        )
+        return reaction_node
+
+    def _make_rotated_reaction_node_drawing_element(self):
+        reaction_node = self._make_reaction_node()
+        drawing_element = reaction_node.drawing_elements()[0]
+        rotation = self._make_reaction_node_rotation()
+        drawing_element = drawing_element.transformed(rotation)
+        return drawing_element
+
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

@@ -86,15 +86,15 @@ class SBGNMap(momapy.core.Map):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    border_fill: (
+    fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.white
-    border_stroke: (
+    stroke: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.black
-    border_stroke_width: float | None = 1.25
+    stroke_width: float | None = 1.25
 
-    def border_drawing_elements(self):
+    def _border_drawing_elements(self):
         drawing_elements = []
         done_bases = []
         for base in type(self).__mro__:
