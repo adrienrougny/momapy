@@ -9510,7 +9510,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 font_family=cls._DEFAULT_FONT_FAMILY,
                 fill=cls._DEFAULT_FONT_FILL,
                 stroke=momapy.drawing.NoneValue,
-                position=layout_element.position,
+                position=layout_element.label_center(),
             )
             text_layout = momapy.builder.object_from_builder(text_layout)
             layout_element.label = text_layout
@@ -9557,7 +9557,8 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
         model_element.id_ = cd_species.id
-        model_element.name = cd_species.name
+        cd_species_name = cls._prepare_name(cd_species.name)
+        model_element.name = cd_species_name
         if cd_species.compartment is not None:
             compartment_model_element = cd_id_to_model_element[
                 cd_species.compartment
@@ -9658,14 +9659,14 @@ class CellDesignerReader(momapy.io.MapReader):
             )
             layout_element.width = cd_w
             layout_element.height = cd_h
-            text = cd_species.name
+            text = cd_species_name
             text_layout = momapy.core.TextLayout(
                 text=text,
                 font_size=cd_element.font.size,
                 font_family=cls._DEFAULT_FONT_FAMILY,
                 fill=cls._DEFAULT_FONT_FILL,
                 stroke=momapy.drawing.NoneValue,
-                position=layout_element.position,
+                position=layout_element.label_center(),
             )
             text_layout = momapy.builder.object_from_builder(text_layout)
             layout_element.label = text_layout
