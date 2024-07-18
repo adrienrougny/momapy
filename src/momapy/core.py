@@ -753,12 +753,12 @@ class SingleHeadedArc(Arc):
         )
 
     def arrowhead_border(self, point):
-        drawing_elements = self.arrowhead_drawing_elements()
-        if drawing_elements:
-            return momapy.drawing.get_drawing_elements_border(
-                drawing_elements, point
-            )
-        return self.arrowhead_tip()
+        point = momapy.drawing.get_drawing_elements_border(
+            self.arrowhead_drawing_elements(), point
+        )
+        if point is None:
+            return self.arrowhead_tip()
+        return point
 
     @abc.abstractmethod
     def _arrowhead_border_drawing_elements(
@@ -940,12 +940,12 @@ class DoubleHeadedArc(Arc):
         )
 
     def start_arrowhead_border(self, point):
-        drawing_elements = self.start_arrowhead_drawing_elements()
-        if drawing_elements:
-            return momapy.drawing.get_drawing_elements_border(
-                drawing_elements, point
-            )
-        return self.start_arrowhead_tip()
+        point = momapy.drawing.get_drawing_elements_border(
+            self.start_arrowhead_drawing_elements(), point
+        )
+        if point is None:
+            return self.start_arrowhead_tip()
+        return point
 
     def end_arrowhead_length(self):
         bbox = momapy.drawing.get_drawing_elements_bbox(
@@ -980,12 +980,12 @@ class DoubleHeadedArc(Arc):
         )
 
     def end_arrowhead_border(self, point):
-        drawing_elements = self.end_arrowhead_drawing_elements()
-        if drawing_elements:
-            return momapy.drawing.get_drawing_elements_border(
-                drawing_elements, point
-            )
-        return self.end_arrowhead_tip()
+        point = momapy.drawing.get_drawing_elements_border(
+            self.end_arrowhead_drawing_elements(), point
+        )
+        if point is None:
+            return self.end_arrowhead_tip()
+        return point
 
     @abc.abstractmethod
     def _start_arrowhead_border_drawing_elements(
@@ -1528,7 +1528,7 @@ def _map_element_builder_hash(self):
 
 
 def _map_element_builder_eq(self, other):
-    return self.__class__ == other.__class__ and self.id == other.id
+    return self.__class__ == other.__class__ and self.id_ == other.id_
 
 
 MapElementBuilder = momapy.builder.get_or_make_builder_cls(

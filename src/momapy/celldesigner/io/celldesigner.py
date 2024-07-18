@@ -977,14 +977,14 @@ class CellDesignerReader(momapy.io.MapReader):
         # "rs1") and might be shared between residues of different species.
         # However we want a unique id, so we build it using the id of the
         # species as well.
-        model_element.id = f"{super_model_element.id}_{cd_element.id}"
+        model_element.id_ = f"{super_model_element.id_}_{cd_element.id}"
         model_element.name = cd_element.name
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         super_model_element.modification_residues.add(model_element)
         # exceptionally we take the model element's id and not the cd element's
         # id for the reasons explained above
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -1109,16 +1109,16 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element.inner_stroke_width = float(
                 cd_element.double_line.inner_width
             )
-            layout_element.border_stroke_width = float(
+            layout_element.stroke_width = float(
                 cd_element.double_line.outer_width
             )
             layout_element.sep = float(cd_element.double_line.thickness)
             cd_element_color = cd_element.paint.color
             cd_element_color = cd_element_color[2:] + cd_element_color[:2]
             element_color = momapy.coloring.Color.from_hexa(cd_element_color)
-            layout_element.border_stroke = element_color
+            layout_element.stroke = element_color
             layout_element.inner_stroke = element_color
-            layout_element.border_fill = element_color.with_alpha(0.5)
+            layout_element.fill = element_color.with_alpha(0.5)
             layout_element.inner_fill = momapy.coloring.white
             text = cd_compartment.name
             text_position = momapy.geometry.Point(
@@ -1159,7 +1159,7 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element = map_.new_model_element(
             momapy.celldesigner.core.Compartment
         )
-        model_element.id = cd_element.id
+        model_element.id_ = cd_element.id
         model_element.name = cd_element.name
         model_element.metaid = cd_element.metaid
         if cd_element.outside is not None:
@@ -1196,8 +1196,8 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
             map_.model.compartments,
-            func=lambda element, existing_element: element.id
-            < existing_element.id,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
         )
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
@@ -2556,13 +2556,13 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_reactant
             ) in super_cd_element.list_of_reactants.species_reference:
                 if cd_reactant.species == cd_species_id:
-                    model_element.id = cd_reactant.metaid
+                    model_element.id_ = cd_reactant.metaid
                     model_element.stoichiometry = cd_reactant.stoichiometry
                     break
         species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.reactants.add(model_element)
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         if with_layout:
             layout_element = map_.new_layout_element(
                 momapy.celldesigner.core.ConsumptionLayout
@@ -2605,17 +2605,25 @@ class CellDesignerReader(momapy.io.MapReader):
             for edit_point in edit_points[start_index:stop_index]:
                 intermediate_point = edit_point.transformed(transformation)
                 intermediate_points.append(intermediate_point)
-            start_point = origin
+            intermediate_points.reverse()
             if reactant_anchor_name == "center":
                 if intermediate_points:
-                    reference_point = intermediate_points[-1]
+                    reference_point = intermediate_points[0]
                 else:
-                    reference_point = start_point
-                end_point = reactant_layout_element.border(reference_point)
+                    reference_point = super_layout_element.start_point()
+
+                start_point = reactant_layout_element.border(reference_point)
             else:
-                end_point = reactant_layout_element.anchor_point(
+                start_point = reactant_layout_element.anchor_point(
                     reactant_anchor_name
                 )
+            if intermediate_points:
+                reference_point = intermediate_points[-1]
+            else:
+                reference_point = start_point
+            end_point = super_layout_element.start_arrowhead_border(
+                reference_point
+            )
             points = [start_point] + intermediate_points + [end_point]
             for i, point in enumerate(points[1:]):
                 previous_point = points[i]
@@ -2650,13 +2658,13 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_reactant
             ) in super_cd_element.list_of_reactants.species_reference:
                 if cd_reactant.species == cd_species_id:
-                    model_element.id = cd_reactant.metaid
+                    model_element.id_ = cd_reactant.metaid
                     model_element.stoichiometry = cd_reactant.stoichiometry
                     break
         species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.reactants.add(model_element)
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         if (
             with_layout and super_layout_element is not None
         ):  # to delete second part
@@ -2732,15 +2740,80 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_product
             ) in super_cd_element.list_of_products.species_reference:
                 if cd_product.species == cd_species_id:
-                    model_element.id = cd_product.metaid
+                    model_element.id_ = cd_product.metaid
                     model_element.stoichiometry = cd_product.stoichiometry
                     break
         species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.products.add(model_element)
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         if with_layout:
-            layout_element = None
+            layout_element = map_.new_layout_element(
+                momapy.celldesigner.core.ProductionLayout
+            )
+            cd_edit_points = super_cd_element.annotation.extension.edit_points
+            cd_num_0 = cd_edit_points.num0
+            cd_num_1 = cd_edit_points.num1
+            cd_num_2 = cd_edit_points.num2
+            for n_cd_base_product, cd_base_product in enumerate(
+                super_cd_element.annotation.extension.base_products.base_product
+            ):
+                if cd_base_product == cd_element:
+                    break
+            if n_cd_base_product == 0:
+                start_index = cd_num_0
+                stop_index = cd_num_0 + cd_num_1
+            elif n_cd_base_product == 1:
+                start_index = cd_num_0 + cd_num_1
+                stop_index = cd_num_0 + cd_num_1 + cd_num_2
+            product_layout_element = cd_id_to_layout_element[cd_element.alias]
+            product_anchor_name = (
+                cls._get_anchor_name_for_frame_from_cd_base_participant(
+                    cd_element
+                )
+            )
+            origin = super_layout_element.end_point()
+            unit_x = product_layout_element.anchor_point(product_anchor_name)
+            unit_y = unit_x.transformed(
+                momapy.geometry.Rotation(math.radians(90), origin)
+            )
+            transformation = momapy.geometry.get_transformation_for_frame(
+                origin, unit_x, unit_y
+            )
+            intermediate_points = []
+            edit_points = [
+                momapy.geometry.Point(
+                    *[float(coord) for coord in cd_edit_point.split(",")]
+                )
+                for cd_edit_point in cd_edit_points.value
+            ]
+            for edit_point in edit_points[start_index:stop_index]:
+                intermediate_point = edit_point.transformed(transformation)
+                intermediate_points.append(intermediate_point)
+            # intermediate_points.reverse()
+            if product_anchor_name == "center":
+                if intermediate_points:
+                    reference_point = intermediate_points[-1]
+                else:
+                    reference_point = super_layout_element.end_point()
+                end_point = product_layout_element.border(reference_point)
+            else:
+                end_point = product_layout_element.anchor_point(
+                    product_anchor_name
+                )
+            if intermediate_points:
+                reference_point = intermediate_points[0]
+            else:
+                reference_point = end_point
+            start_point = super_layout_element.end_arrowhead_border(
+                reference_point
+            )
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+            super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -2769,13 +2842,13 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_product
             ) in super_cd_element.list_of_products.species_reference:
                 if cd_product.species == cd_species_id:
-                    model_element.id = cd_product.metaid
+                    model_element.id_ = cd_product.metaid
                     model_element.stoichiometry = cd_product.stoichiometry
                     break
         species_model_element = cd_id_to_model_element[cd_element.alias]
         model_element.referred_species = species_model_element
         super_model_element.products.add(model_element)
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         if (
             with_layout and super_layout_element is not None
         ):  # to delete second part
@@ -7728,7 +7801,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # we use the id of the model element since the cd element does not have
         # one; this mapping is necessary when building the modification the
         # Boolean gate is the source of
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -7767,7 +7840,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # we use the id of the model element since the cd element does not have
         # one; this mapping is necessary when building the modification the
         # Boolean gate is the source of
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -7806,7 +7879,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # we use the id of the model element since the cd element does not have
         # one; this mapping is necessary when building the modification the
         # Boolean gate is the source of
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -7845,7 +7918,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # we use the id of the model element since the cd element does not have
         # one; this mapping is necessary when building the modification the
         # Boolean gate is the source of
-        cd_id_to_model_element[model_element.id] = model_element
+        cd_id_to_model_element[model_element.id_] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -7867,11 +7940,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.StateTransition,
-            layout_element_cls=(
-                momapy.celldesigner.core.ReversibleStateTransitionLayout
-                if cd_element.reversible
-                else momapy.celldesigner.core.IrreversibleStateTransitionLayout
-            ),
+            layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7908,7 +7977,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.KnownTransitionOmitted,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleKnownTransitionOmittedLayout,
+            layout_element_cls=momapy.celldesigner.core.KnownTransitionOmittedLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7945,7 +8014,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTransition,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleUnknownTransitionLayout,
+            layout_element_cls=momapy.celldesigner.core.UnknownTransitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -7982,7 +8051,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transcription,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleTranscriptionLayout,
+            layout_element_cls=momapy.celldesigner.core.TranscriptionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8019,7 +8088,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Translation,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleTranslationLayout,
+            layout_element_cls=momapy.celldesigner.core.TranslationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8056,7 +8125,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transport,
-            layout_element_cls=momapy.celldesigner.core.IrreversibleTransportLayout,
+            layout_element_cls=momapy.celldesigner.core.TransportLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8167,7 +8236,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Truncation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TruncationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8180,6 +8249,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -9179,7 +9251,7 @@ class CellDesignerReader(momapy.io.MapReader):
         with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
-        model_element.id = cd_element.id
+        model_element.id_ = cd_element.id
         model_element.name = cd_element.name
         if hasattr(cd_element, "list_of_modification_residues"):
             cd_list_of_modification_residues = (
@@ -9230,7 +9302,7 @@ class CellDesignerReader(momapy.io.MapReader):
         else:
             layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
-        model_element.id = cd_species.id
+        model_element.id_ = cd_species.id
         model_element.name = cd_species.name
         model_element.metaid = cd_species.metaid
         if cd_species.compartment is not None:
@@ -9384,14 +9456,14 @@ class CellDesignerReader(momapy.io.MapReader):
             )
             text_layout = momapy.builder.object_from_builder(text_layout)
             layout_element.label = text_layout
-            layout_element.border_stroke_width = float(
+            layout_element.stroke_width = float(
                 cd_element.usual_view.single_line.width
             )
             cd_element_fill_color = cd_element.usual_view.paint.color
             cd_element_fill_color = (
                 cd_element_fill_color[2:] + cd_element_fill_color[:2]
             )
-            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+            layout_element.fill = momapy.coloring.Color.from_hexa(
                 cd_element_fill_color
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
@@ -9426,7 +9498,7 @@ class CellDesignerReader(momapy.io.MapReader):
         else:
             layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
-        model_element.id = cd_species.id
+        model_element.id_ = cd_species.id
         model_element.name = cd_species.name
         if cd_species.compartment is not None:
             compartment_model_element = cd_id_to_model_element[
@@ -9539,14 +9611,14 @@ class CellDesignerReader(momapy.io.MapReader):
             )
             text_layout = momapy.builder.object_from_builder(text_layout)
             layout_element.label = text_layout
-            layout_element.border_stroke_width = float(
+            layout_element.stroke_width = float(
                 cd_element.usual_view.single_line.width
             )
             cd_element_fill_color = cd_element.usual_view.paint.color
             cd_element_fill_color = (
                 cd_element_fill_color[2:] + cd_element_fill_color[:2]
             )
-            layout_element.border_fill = momapy.coloring.Color.from_hexa(
+            layout_element.fill = momapy.coloring.Color.from_hexa(
                 cd_element_fill_color
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
@@ -9584,7 +9656,10 @@ class CellDesignerReader(momapy.io.MapReader):
         if with_layout:
             if layout_element_cls is not None:  # to delete
                 layout_element = map_.new_layout_element(layout_element_cls)
-                layout_element.id = cd_element.id
+                layout_element.id_ = cd_element.id
+                layout_element.reversible = cd_element.reversible
+                if not cd_element.reversible:
+                    layout_element.start_shorten = 0.0
                 cd_base_reactants = (
                     cd_element.annotation.extension.base_reactants.base_reactant
                 )
@@ -9876,7 +9951,7 @@ class CellDesignerReader(momapy.io.MapReader):
             make_base_reactant_layouts = False
             make_base_product_layouts = False
             layout_element = None
-        model_element.id = cd_element.id
+        model_element.id_ = cd_element.id
         model_element.reversible = cd_element.reversible
         if cd_element.annotation.extension.base_reactants is not None:
             for (
@@ -10067,7 +10142,7 @@ class CellDesignerReader(momapy.io.MapReader):
         with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
-        model_element.id = cd_element.id
+        model_element.id_ = cd_element.id
         if cd_element.list_of_reactants is not None:
             for cd_reactant in cd_element.list_of_reactants.species_reference:
                 source_model_element = cd_id_to_model_element[
@@ -10131,7 +10206,7 @@ class CellDesignerReader(momapy.io.MapReader):
         with_layout=True,
     ):
         model_element = map_.new_model_element(model_element_cls)
-        model_element.id = cd_element.id
+        model_element.id_ = cd_element.id
         # first we select the gate member corresponding to the boolean logic gate
         # as it contains the id of the source of the modulation
         for (
