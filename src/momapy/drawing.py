@@ -814,9 +814,9 @@ def drawing_elements_to_shapely(drawing_elements):
 
 
 def get_drawing_elements_border(drawing_elements, point, position=None):
-    shapely_obj = drawing_elements_to_shapely(drawing_elements)
+    shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_border(
-        shapely_obj, point, position
+        shapely_object=shapely_object, point=point, position=position
     )
 
 
@@ -825,7 +825,10 @@ def get_drawing_elements_angle(
 ):
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_angle(
-        shapely_object, angle, position
+        shapely_object=shapely_object,
+        angle=angle,
+        unit=unit,
+        position=position,
     )
 
 
