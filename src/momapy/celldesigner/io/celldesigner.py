@@ -2734,7 +2734,7 @@ class CellDesignerReader(momapy.io.MapReader):
                     cd_element
                 )
             )
-            origin = reactant_layout_element.anchor_point(reactant_anchor_name)
+            origin = reactant_layout_element.center()
             unit_x = super_layout_element.left_connector_tip()
             unit_y = unit_x.transformed(
                 momapy.geometry.Rotation(math.radians(90), origin)
@@ -2762,7 +2762,9 @@ class CellDesignerReader(momapy.io.MapReader):
                     reference_point = end_point
                 start_point = reactant_layout_element.border(reference_point)
             else:
-                start_point = origin
+                start_point = reactant_layout_element.anchor_point(
+                    reactant_anchor_name
+                )
             points = [start_point] + intermediate_points + [end_point]
             for i, point in enumerate(points[1:]):
                 previous_point = points[i]
@@ -2919,7 +2921,8 @@ class CellDesignerReader(momapy.io.MapReader):
                 )
             )
             origin = super_layout_element.right_connector_tip()
-            unit_x = product_layout_element.anchor_point(product_anchor_name)
+            unit_x = product_layout_element.center()
+            # unit_x = product_layout_element.anchor_point(product_anchor_name)
             unit_y = unit_x.transformed(
                 momapy.geometry.Rotation(math.radians(90), origin)
             )
@@ -2938,15 +2941,18 @@ class CellDesignerReader(momapy.io.MapReader):
                 for edit_point in edit_points:
                     intermediate_point = edit_point.transformed(transformation)
                     intermediate_points.append(intermediate_point)
-            end_point = unit_x
+            intermediate_points.reverse()
+            start_point = origin
             if product_anchor_name == "center":
                 if intermediate_points:
-                    reference_point = intermediate_points[0]
+                    reference_point = intermediate_points[-1]
                 else:
-                    reference_point = end_point
-                start_point = product_layout_element.border(reference_point)
+                    reference_point = start_point
+                end_point = product_layout_element.border(reference_point)
             else:
-                start_point = origin
+                end_point = product_layout_element.anchor_point(
+                    product_anchor_name
+                )
             points = [start_point] + intermediate_points + [end_point]
             for i, point in enumerate(points[1:]):
                 previous_point = points[i]
