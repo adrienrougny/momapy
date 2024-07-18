@@ -615,6 +615,63 @@ class CellDesignerReader(momapy.io.MapReader):
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.W: "west",
         momapy.celldesigner.io._celldesigner_parser.LinkAnchorPosition.WNW: "west_north_west",
     }
+    _TEXT_TO_CHARACTER = {
+        "_underscore_": "_",
+        "_br_": "\n",
+        "_BR_": "\n",
+        "_plus_": "+",
+        "_minus_": "-",
+        "_slash_": "/",
+        "_space_": " ",
+        "_Alpha_": "Α",
+        "_alpha_": "α",
+        "_Beta_": "Β",
+        "_beta_": "β",
+        "_Gamma_": "Γ",
+        "_gamma_": "γ",
+        "_Delta_": "Δ",
+        "_delta_": "δ",
+        "_Epsilon_": "Ε",
+        "_epsilon_": "ε",
+        "_Zeta_": "Ζ",
+        "_zeta_": "ζ",
+        "_Eta_": "Η",
+        "_eta_": "η",
+        "_Theta_": "Θ",
+        "_theta_": "θ",
+        "_Iota_": "Ι",
+        "_iota_": "ι",
+        "_Kappa_": "Κ",
+        "_kappa_": "κ",
+        "_Lambda_": "Λ",
+        "_lambda_": "λ",
+        "_Mu_": "Μ",
+        "_mu_": "μ",
+        "_Nu_": "Ν",
+        "_nu_": "ν",
+        "_Xi_": "Ξ",
+        "_xi_": "ξ",
+        "_Omicron_": "Ο",
+        "_omicron_": "ο",
+        "_Pi_": "Π",
+        "_pi_": "π",
+        "_Rho_": "Ρ",
+        "_rho_": "ρ",
+        "_Sigma_": "Σ",
+        "_sigma_": "σ",
+        "_Tau_": "Τ",
+        "_tau_": "τ",
+        "_Upsilon_": "Υ",
+        "_upsilon_": "υ",
+        "_Phi_": "Φ",
+        "_phi_": "φ",
+        "_Chi_": "Χ",
+        "_chi_": "χ",
+        "_Psi_": "Ψ",
+        "_psi_": "ψ",
+        "_Omega_": "Ω",
+        "_omega_": "ω",
+    }
 
     @classmethod
     def check_file(cls, file_path):
@@ -978,7 +1035,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # However we want a unique id, so we build it using the id of the
         # species as well.
         model_element.id_ = f"{super_model_element.id_}_{cd_element.id}"
-        model_element.name = cd_element.name
+        model_element.name = cls._prepare_name(cd_element.name)
         layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
         super_model_element.modification_residues.add(model_element)
@@ -1120,7 +1177,7 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element.inner_stroke = element_color
             layout_element.fill = element_color.with_alpha(0.5)
             layout_element.inner_fill = momapy.coloring.white
-            text = cd_compartment.name
+            text = cls._prepare_name(cd_compartment.name)
             text_position = momapy.geometry.Point(
                 float(cd_element.name_point.x),
                 float(cd_element.name_point.y),
@@ -1160,7 +1217,7 @@ class CellDesignerReader(momapy.io.MapReader):
             momapy.celldesigner.core.Compartment
         )
         model_element.id_ = cd_element.id
-        model_element.name = cd_element.name
+        model_element.name = cls._prepare_name(cd_element.name)
         model_element.metaid = cd_element.metaid
         if cd_element.outside is not None:
             outside_model_element = cd_id_to_model_element.get(
@@ -9252,7 +9309,7 @@ class CellDesignerReader(momapy.io.MapReader):
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id_ = cd_element.id
-        model_element.name = cd_element.name
+        model_element.name = cls._prepare_name(cd_element.name)
         if hasattr(cd_element, "list_of_modification_residues"):
             cd_list_of_modification_residues = (
                 cd_element.list_of_modification_residues
@@ -9303,7 +9360,8 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element = None
         cd_species = cd_id_to_cd_element[cd_element.species]
         model_element.id_ = cd_species.id
-        model_element.name = cd_species.name
+        cd_species_name = cls._prepare_name(cd_species.name)
+        model_element.name = cd_species_name
         model_element.metaid = cd_species.metaid
         if cd_species.compartment is not None:
             compartment_model_element = cd_id_to_model_element[
@@ -9445,7 +9503,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
             layout_element.width = cd_w
             layout_element.height = cd_h
-            text = cd_species.name
+            text = cd_species_name
             text_layout = momapy.core.TextLayout(
                 text=text,
                 font_size=cd_element.font.size,
@@ -10320,6 +10378,14 @@ class CellDesignerReader(momapy.io.MapReader):
             model_element = None
             layout_element = None
         return model_element, layout_element
+
+    @classmethod
+    def _prepare_name(cls, name: str | None):
+        if name is None:
+            return name
+        for s, char in cls._TEXT_TO_CHARACTER.items():
+            name = name.replace(s, char)
+        return name
 
     @classmethod
     def _get_make_and_add_func_from_cd(cls, cd_element, cd_id_to_cd_element):
