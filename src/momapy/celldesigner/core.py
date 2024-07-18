@@ -720,6 +720,11 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
             right_rectangle_width=self.right_rectangle_width,
         )
 
+    def label_center(self):
+        return momapy.geometry.Point(
+            self.position.x - self.right_rectangle_width / 2, self.position.y
+        )
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
@@ -746,6 +751,9 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
             bottom_right_ry=self.cut_corners,
             bottom_right_rounded_or_cut="cut",
         )
+
+    def label_center(self):
+        return self.south() - (0, 12)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
