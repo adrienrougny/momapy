@@ -726,12 +726,9 @@ class SingleHeadedArc(Arc):
         bbox = momapy.drawing.get_drawing_elements_bbox(
             self._arrowhead_border_drawing_elements()
         )
-        width = bbox.width
-        if math.isnan(width):
-            arrowhead_length = 0
-        else:
-            arrowhead_length = bbox.east().x
-        return arrowhead_length
+        if math.isnan(bbox.width):
+            return 0.0
+        return bbox.east().x
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
         segment = self.segments[-1]
@@ -756,14 +753,12 @@ class SingleHeadedArc(Arc):
         )
 
     def arrowhead_border(self, point):
-        transformation = self._get_arrowhead_transformation()
-        transformation_inverted = transformation.inverted()
-        point = point.transformed(transformation_inverted)
-        border_point = momapy.drawing.get_drawing_elements_border(
-            self._arrowhead_border_drawing_elements()
-        )
-        border_point = border_point.transformed(transformation)
-        return border_point
+        drawing_elements = self.arrowhead_drawing_elements()
+        if drawing_elements:
+            return momapy.drawing.get_drawing_elements_border(
+                drawing_elements, point
+            )
+        return self.arrowhead_tip()
 
     @abc.abstractmethod
     def _arrowhead_border_drawing_elements(
@@ -787,7 +782,7 @@ class SingleHeadedArc(Arc):
             arrowhead_base.x, arrowhead_base.y
         )
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
-        return translation * rotation
+        return rotation * translation
 
     def arrowhead_drawing_elements(
         self,
@@ -916,7 +911,7 @@ class DoubleHeadedArc(Arc):
         )
         if math.isnan(bbox.width):
             return 0.0
-        return bbox.east().x
+        return abs(bbox.west().x)
 
     def start_arrowhead_tip(self) -> momapy.geometry.Point:
         segment = self.segments[0]
@@ -945,14 +940,12 @@ class DoubleHeadedArc(Arc):
         )
 
     def start_arrowhead_border(self, point):
-        transformation = self._get_start_arrowhead_transformation()
-        transformation_inverted = transformation.inverted()
-        point = point.transformed(transformation_inverted)
-        border_point = momapy.drawing.get_drawing_elements_border(
-            self._start_arrowhead_border_drawing_elements()
-        )
-        border_point = border_point.transformed(transformation)
-        return border_point
+        drawing_elements = self.start_arrowhead_drawing_elements()
+        if drawing_elements:
+            return momapy.drawing.get_drawing_elements_border(
+                drawing_elements, point
+            )
+        return self.start_arrowhead_tip()
 
     def end_arrowhead_length(self):
         bbox = momapy.drawing.get_drawing_elements_bbox(
@@ -960,7 +953,7 @@ class DoubleHeadedArc(Arc):
         )
         if math.isnan(bbox.width):
             return 0.0
-        return abs(bbox.west().x)
+        return bbox.east().x
 
     def end_arrowhead_tip(self) -> momapy.geometry.Point:
         segment = self.segments[-1]
@@ -987,14 +980,12 @@ class DoubleHeadedArc(Arc):
         )
 
     def end_arrowhead_border(self, point):
-        transformation = self._get_end_arrowhead_transformation()
-        transformation_inverted = transformation.inverted()
-        point = point.transformed(transformation_inverted)
-        border_point = momapy.drawing.get_drawing_elements_border(
-            self._end_arrowhead_border_drawing_elements()
-        )
-        border_point = border_point.transformed(transformation)
-        return border_point
+        drawing_elements = self.end_arrowhead_drawing_elements()
+        if drawing_elements:
+            return momapy.drawing.get_drawing_elements_border(
+                drawing_elements, point
+            )
+        return self.end_arrowhead_tip()
 
     @abc.abstractmethod
     def _start_arrowhead_border_drawing_elements(
@@ -1022,11 +1013,12 @@ class DoubleHeadedArc(Arc):
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p1)
         angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle += math.pi
         translation = momapy.geometry.Translation(
             arrowhead_base.x, arrowhead_base.y
         )
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
-        return translation * rotation
+        return rotation * translation
 
     def start_arrowhead_drawing_elements(
         self,
@@ -1064,7 +1056,7 @@ class DoubleHeadedArc(Arc):
             arrowhead_base.x, arrowhead_base.y
         )
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
-        return translation * rotation
+        return rotation * translation
 
     def end_arrowhead_drawing_elements(
         self,
@@ -1532,7 +1524,7 @@ momapy.builder.register_builder(FrozendictBuilder)
 
 
 def _map_element_builder_hash(self):
-    return hash(self.id)
+    return hash(self.id_)
 
 
 def _map_element_builder_eq(self, other):
