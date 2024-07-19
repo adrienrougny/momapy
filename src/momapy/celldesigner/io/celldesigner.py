@@ -2983,7 +2983,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.CatalysisLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -2996,6 +2996,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3242,7 +3243,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3297,7 +3298,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3352,7 +3353,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3407,7 +3408,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3462,7 +3463,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3517,7 +3518,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3572,7 +3573,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3627,7 +3628,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3682,7 +3683,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3737,7 +3738,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3792,7 +3793,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3847,7 +3848,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3902,7 +3903,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -3957,7 +3958,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4012,7 +4013,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4067,7 +4068,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4122,7 +4123,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4177,7 +4178,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4232,7 +4233,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4287,7 +4288,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4342,7 +4343,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4397,7 +4398,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4452,7 +4453,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4507,7 +4508,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4562,7 +4563,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4617,7 +4618,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4672,7 +4673,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4727,7 +4728,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modifier is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modification
-        cd_element.aliases = gate_model_element.id
+        cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
                 map_=map_,
@@ -4789,7 +4790,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -4844,7 +4845,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -4899,7 +4900,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -4954,7 +4955,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5009,7 +5010,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5064,7 +5065,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5119,7 +5120,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5174,7 +5175,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5229,7 +5230,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5284,7 +5285,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5339,7 +5340,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5394,7 +5395,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5449,7 +5450,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5504,7 +5505,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5559,7 +5560,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5614,7 +5615,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5669,7 +5670,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5724,7 +5725,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5779,7 +5780,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5834,7 +5835,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5889,7 +5890,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5944,7 +5945,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -5999,7 +6000,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6054,7 +6055,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6109,7 +6110,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6164,7 +6165,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6219,7 +6220,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6274,7 +6275,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6329,7 +6330,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6384,7 +6385,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6439,7 +6440,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6494,7 +6495,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6549,7 +6550,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6604,7 +6605,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6659,7 +6660,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6714,7 +6715,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6769,7 +6770,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6824,7 +6825,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6879,7 +6880,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6934,7 +6935,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -6989,7 +6990,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7044,7 +7045,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7099,7 +7100,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7154,7 +7155,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7209,7 +7210,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7264,7 +7265,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7319,7 +7320,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7374,7 +7375,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7429,7 +7430,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7484,7 +7485,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7539,7 +7540,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7594,7 +7595,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7649,7 +7650,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7704,7 +7705,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7759,7 +7760,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -7814,7 +7815,7 @@ class CellDesignerReader(momapy.io.MapReader):
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
         # are the ids of its inputs; we replace it by the id of the newly built
         # model element so it can be found when transforming the modulation
-        cd_gate_member.aliases = gate_model_element.id
+        cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
                 map_=map_,
@@ -10115,7 +10116,10 @@ class CellDesignerReader(momapy.io.MapReader):
                 # modifications, and transform the Boolean modifications as well
                 # as the normal ones.
                 if cd_modification.type_value in [
-                    momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND
+                    momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_AND,
+                    momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_OR,
+                    momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_NOT,
+                    momapy.celldesigner.io._celldesigner_parser.ModificationType.BOOLEAN_LOGIC_GATE_UNKNOWN,
                 ]:
                     cd_boolean_modifications.append(cd_modification)
                     cd_boolean_input_ids += cd_modification.modifiers.split(
@@ -10134,7 +10138,7 @@ class CellDesignerReader(momapy.io.MapReader):
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
                         map_element_to_annotations=map_element_to_annotations,
                         super_model_element=model_element,
-                        super_layout_element=None,
+                        super_layout_element=layout_element,
                         super_cd_element=cd_element,
                         with_layout=with_layout,
                     )
@@ -10151,12 +10155,13 @@ class CellDesignerReader(momapy.io.MapReader):
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
                             map_element_to_annotations=map_element_to_annotations,
                             super_model_element=model_element,
-                            super_layout_element=None,
+                            super_layout_element=layout_element,
                             super_cd_element=cd_element,
                             with_layout=with_layout,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
+        layout_element = momapy.builder.object_from_builder(layout_element)
         if cd_element.annotation is not None:
             if cd_element.annotation.rdf is not None:
                 annotations = cls._make_annotations_from_cd_annotation_rdf(
@@ -10185,8 +10190,65 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element = map_.new_model_element(model_element_cls)
         species_model_element = cd_id_to_model_element[cd_element.aliases]
         model_element.referred_species = species_model_element
-        layout_element = None
+        if (
+            with_layout and layout_element_cls is not None
+        ):  # to delete second part
+            layout_element = map_.new_layout_element(layout_element_cls)
+            cd_link_target = cd_element.link_target[0]
+            source_layout_element = cd_id_to_layout_element[
+                cd_link_target.alias
+            ]
+            if cd_link_target.link_anchor is not None:
+                source_anchor_name = (
+                    cls._get_anchor_name_for_frame_from_cd_base_participant(
+                        cd_link_target
+                    )
+                )
+            else:
+                source_anchor_name = "center"
+            origin = source_layout_element.anchor_point(source_anchor_name)
+            unit_x = super_layout_element._get_reaction_node_position()
+            unit_y = unit_x.transformed(
+                momapy.geometry.Rotation(math.radians(90), origin)
+            )
+            transformation = momapy.geometry.get_transformation_for_frame(
+                origin, unit_x, unit_y
+            )
+            intermediate_points = []
+            cd_edit_points = cd_element.edit_points
+            edit_points = [
+                momapy.geometry.Point(
+                    *[float(coord) for coord in cd_edit_point.split(",")]
+                )
+                for cd_edit_point in cd_edit_points
+            ]
+            for edit_point in edit_points:
+                intermediate_point = edit_point.transformed(transformation)
+                intermediate_points.append(intermediate_point)
+            if source_anchor_name == "center":
+                if intermediate_points:
+                    reference_point = intermediate_points[0]
+                else:
+                    reference_point = unit_x
+                start_point = source_layout_element.border(reference_point)
+            else:
+                start_point = origin
+            if intermediate_points:
+                reference_point = intermediate_points[-1]
+            else:
+                reference_point = start_point
+            end_point = super_layout_element.reaction_node_border(
+                reference_point
+            )
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+        else:
+            layout_element = None
         model_element = momapy.builder.object_from_builder(model_element)
+        layout_element = momapy.builder.object_from_builder(layout_element)
         return model_element, layout_element
 
     @classmethod

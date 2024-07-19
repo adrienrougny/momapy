@@ -1284,6 +1284,20 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class CatalysisLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 7.0
+    arrowhead_width: float = 7.0
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Ellipse._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionLayout(CellDesignerDoubleHeadedArc):
     reversible: bool = False
 
@@ -1354,9 +1368,13 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
 
     def reaction_node_angle(self, angle):
         reaction_node = self._make_reaction_node()
-        border_point = reaction_node.angle(angle)
+        border_point = reaction_node.angle(
+            angle, self._get_reaction_node_position()
+        )
         rotation = self._make_reaction_node_rotation()
-        border_point = border_point.transformed(rotation)
+        border_point = border_point.transformed(
+            rotation, self._get_reaction_node_position()
+        )
         return border_point
 
     def _mixin_drawing_elements(self):
