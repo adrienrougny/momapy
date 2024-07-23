@@ -568,6 +568,44 @@ class _MultiNodeMixin(momapy.sbgn.core._MultiMixin):
     def _n(self):
         return self.n
 
+    def cd_north_west(self):
+        return self.north_west()
+
+    def cd_north_north_west(self):
+        return self.north_north_west()
+
+    def cd_north(self):
+        return self.north()
+
+    def cd_north_north_east(self):
+        return self.north_east()
+
+    def cd_north_east(self):
+        return self.north_east()
+
+    def cd_east_north_east(self):
+        return self.east_north_east()
+
+    def cd_east(self):
+        return self.east()
+
+    def cd_east_south_east(self):
+        return self.east_south_east()
+
+    def cd_south_east(self):
+        return self.cd_south_east()
+
+    def cd_south_south_east(self):
+        return self.cd_south_south_east()
+
+    def cd_south(self):
+        return self.south()
+
+    def cd_south_south_west(self):
+        return self.south_south_west()
+
+    /RNA
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
@@ -863,6 +901,54 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return momapy.meta.shapes.Parallelogram(
             position=position, width=width, height=height, angle=self.angle
         )
+
+    def cd_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        return self._make_subunit_shape(position, width, height).joint1()
+
+    def cd_north_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.75 + shape.joint2() * 0.25
+
+    def cd_north(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() / 2 + shape.joint2() / 2
+
+    def cd_north_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.25 + shape.joint2() * 0.75
+
+    def cd_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        return self._make_subunit_shape(position, width, height).joint2()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
