@@ -42,7 +42,7 @@ class Point(GeometryObject):
     def __mul__(self, scalar):
         return Point(self.x * scalar, self.y * scalar)
 
-    def __div__(self, scalar):
+    def __truediv__(self, scalar):
         return Point(self.x / scalar, self.y / scalar)
 
     def __iter__(self):
