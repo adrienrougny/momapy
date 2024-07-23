@@ -3019,7 +3019,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.UnknownCatalysisLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3032,6 +3032,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3054,7 +3055,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3067,6 +3068,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3089,7 +3091,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3102,6 +3104,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3124,7 +3127,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.PhysicalStimulationLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3137,6 +3140,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3159,7 +3163,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.ModulationLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3172,6 +3176,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3194,7 +3199,7 @@ class CellDesignerReader(momapy.io.MapReader):
                 map_=map_,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
-                layout_element_cls=None,
+                layout_element_cls=momapy.celldesigner.core.TriggeringLayout,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
@@ -3207,6 +3212,7 @@ class CellDesignerReader(momapy.io.MapReader):
             )
         )
         super_model_element.modifiers.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -8337,7 +8343,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Catalysis,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.CatalysisLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8350,6 +8356,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8371,7 +8380,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownCatalysis,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownCatalysisLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8384,6 +8393,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8405,7 +8417,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Inhibition,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8418,6 +8430,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8439,7 +8454,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownInhibition,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8452,6 +8467,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8473,7 +8491,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.PhysicalStimulation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.PhysicalStimulationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8486,6 +8504,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8507,7 +8528,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Modulation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.ModulationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8520,6 +8541,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8541,7 +8565,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Triggering,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.TriggeringLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8554,6 +8578,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8575,7 +8602,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.PositiveInfluence,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.PositiveInfluenceLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8588,6 +8615,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8609,7 +8639,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.NegativeInfluence,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8622,6 +8652,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8643,7 +8676,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownPositiveInfluence,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownPositiveInfluenceLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8656,6 +8689,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8677,7 +8713,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownNegativeInfluence,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8690,6 +8726,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8711,7 +8750,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8724,6 +8763,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8745,7 +8787,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownModulation,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownModulationLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8758,6 +8800,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -8779,7 +8824,7 @@ class CellDesignerReader(momapy.io.MapReader):
             map_=map_,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTriggering,
-            layout_element_cls=None,
+            layout_element_cls=momapy.celldesigner.core.UnknownTriggeringLayout,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
@@ -8792,6 +8837,9 @@ class CellDesignerReader(momapy.io.MapReader):
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
+        if with_layout:
+            map_.layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -10270,22 +10318,88 @@ class CellDesignerReader(momapy.io.MapReader):
     ):
         model_element = map_.new_model_element(model_element_cls)
         model_element.id_ = cd_element.id
-        if cd_element.list_of_reactants is not None:
-            for cd_reactant in cd_element.list_of_reactants.species_reference:
-                source_model_element = cd_id_to_model_element[
-                    cd_reactant.annotation.extension.alias
-                ]
-                model_element.source = source_model_element
-                break
-        if cd_element.list_of_products is not None:
-            for cd_product in cd_element.list_of_products.species_reference:
-                target_model_element = cd_id_to_model_element[
-                    cd_product.annotation.extension.alias
-                ]
-                model_element.target = target_model_element
-                break
+        cd_base_reactant = (
+            cd_element.annotation.extension.base_reactants.base_reactant[0]
+        )
+        source_model_element = cd_id_to_model_element[cd_base_reactant.alias]
+        model_element.source = source_model_element
+        cd_base_product = (
+            cd_element.annotation.extension.base_products.base_product[0]
+        )
+        target_model_element = cd_id_to_model_element[cd_base_product.alias]
+        model_element.target = target_model_element
         model_element = momapy.builder.object_from_builder(model_element)
-        layout_element = None
+        if (
+            with_layout and layout_element_cls is not None
+        ):  # to delete second part
+            layout_element = map_.new_layout_element(layout_element_cls)
+            source_layout_element = cd_id_to_layout_element[
+                cd_base_reactant.alias
+            ]
+            if cd_base_reactant.link_anchor is not None:
+                source_anchor_name = (
+                    cls._get_anchor_name_for_frame_from_cd_base_participant(
+                        cd_base_reactant
+                    )
+                )
+            else:
+                source_anchor_name = "center"
+            target_layout_element = cd_id_to_layout_element[
+                cd_base_product.alias
+            ]
+            if cd_base_product.link_anchor is not None:
+                target_anchor_name = (
+                    cls._get_anchor_name_for_frame_from_cd_base_participant(
+                        cd_base_product
+                    )
+                )
+            else:
+                target_anchor_name = "center"
+            origin = source_layout_element.anchor_point(source_anchor_name)
+            unit_x = target_layout_element.anchor_point(target_anchor_name)
+            unit_y = unit_x.transformed(
+                momapy.geometry.Rotation(math.radians(90), origin)
+            )
+            transformation = momapy.geometry.get_transformation_for_frame(
+                origin, unit_x, unit_y
+            )
+            intermediate_points = []
+            cd_edit_points = cd_element.annotation.extension.edit_points
+            if cd_edit_points is not None:
+                edit_points = [
+                    momapy.geometry.Point(
+                        *[float(coord) for coord in cd_edit_point.split(",")]
+                    )
+                    for cd_edit_point in cd_edit_points.value
+                ]
+                for edit_point in edit_points:
+                    intermediate_point = edit_point.transformed(transformation)
+                    intermediate_points.append(intermediate_point)
+            if source_anchor_name == "center":
+                if intermediate_points:
+                    reference_point = intermediate_points[0]
+                else:
+                    reference_point = unit_x
+                start_point = source_layout_element.border(reference_point)
+            else:
+                start_point = origin
+            if target_anchor_name == "center":
+                if intermediate_points:
+                    reference_point = intermediate_points[-1]
+                else:
+                    reference_point = start_point
+                end_point = target_layout_element.border(reference_point)
+            else:
+                end_point = target_layout_element.anchor_point(
+                    target_anchor_name
+                )
+            points = [start_point] + intermediate_points + [end_point]
+            for i, point in enumerate(points[1:]):
+                previous_point = points[i]
+                segment = momapy.geometry.Segment(previous_point, point)
+                layout_element.segments.append(segment)
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod

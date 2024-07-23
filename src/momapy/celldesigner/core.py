@@ -1298,6 +1298,224 @@ class CatalysisLayout(CellDesignerSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownCatalysisLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 7.0
+    arrowhead_width: float = 7.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Ellipse._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class InhibitionLayout(CellDesignerSingleHeadedArc):
+    arrowhead_height: float = 10.0
+    end_shorten: float = 3.0
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Bar._arrowhead_border_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownInhibitionLayout(CellDesignerSingleHeadedArc):
+    arrowhead_height: float = 10.0
+    end_shorten: float = 3.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Bar._arrowhead_border_drawing_elements(self)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class PhysicalStimulationLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 10.0
+    arrowhead_width: float = 10.0
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownPhysicalStimulationLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 10.0
+    arrowhead_width: float = 10.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class ModulationLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 8.0
+    arrowhead_width: float = 15.0
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownModulationLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_height: float = 8.0
+    arrowhead_width: float = 15.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class PositiveInfluenceLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
+    arrowhead_height: float = 10.0
+    arrowhead_stroke_width: float | None = 2.0
+    arrowhead_width: float = 10.0
+
+    def _arrowhead_border_drawing_elements(self):
+        return (
+            momapy.meta.arcs.StraightBarb._arrowhead_border_drawing_elements(
+                self
+            )
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownPositiveInfluenceLayout(CellDesignerSingleHeadedArc):
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
+    arrowhead_height: float = 10.0
+    arrowhead_stroke_width: float | None = 2.0
+    arrowhead_width: float = 10.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        return (
+            momapy.meta.arcs.StraightBarb._arrowhead_border_drawing_elements(
+                self
+            )
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TriggeringLayout(CellDesignerSingleHeadedArc):
+    arrowhead_bar_height: float = 8.0
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_sep: float = 5.0
+    arrowhead_triangle_height: float = 10.0
+    arrowhead_triangle_width: float = 15.0
+
+    def _arrowhead_border_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
+        ]
+        sep = momapy.drawing.Path(actions=actions)
+        triangle = momapy.meta.shapes.Triangle(
+            position=momapy.geometry.Point(
+                self.arrowhead_sep + self.arrowhead_triangle_width / 2,
+                0,
+            ),
+            width=self.arrowhead_triangle_width,
+            height=self.arrowhead_triangle_height,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return [bar, sep] + triangle.drawing_elements()
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
+    arrowhead_bar_height: float = 8.0
+    arrowhead_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.white
+    arrowhead_sep: float = 5.0
+    arrowhead_triangle_height: float = 10.0
+    arrowhead_triangle_width: float = 15.0
+    path_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (12, 4)
+
+    def _arrowhead_border_drawing_elements(self):
+        actions = [
+            momapy.drawing.MoveTo(
+                momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
+            ),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
+            ),
+        ]
+        bar = momapy.drawing.Path(actions=actions)
+        actions = [
+            momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
+            momapy.drawing.LineTo(
+                momapy.geometry.Point(self.arrowhead_sep, 0)
+            ),
+        ]
+        sep = momapy.drawing.Path(actions=actions)
+        triangle = momapy.meta.shapes.Triangle(
+            position=momapy.geometry.Point(
+                self.arrowhead_sep + self.arrowhead_triangle_width / 2,
+                0,
+            ),
+            width=self.arrowhead_triangle_width,
+            height=self.arrowhead_triangle_height,
+            direction=momapy.core.Direction.RIGHT,
+        )
+        return [bar, sep] + triangle.drawing_elements()
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionLayout(CellDesignerDoubleHeadedArc):
     reversible: bool = False
 
