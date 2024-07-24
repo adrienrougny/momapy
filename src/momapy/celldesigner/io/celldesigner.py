@@ -1135,13 +1135,12 @@ class CellDesignerReader(momapy.io.MapReader):
                 residue_text_layout.font_family = cls._DEFAULT_FONT_FAMILY
                 residue_text_layout.fill = cls._DEFAULT_FONT_FILL
                 residue_text_layout.stroke = momapy.drawing.NoneValue
-                residue_text_layout.position = momapy.geometry.Point(0, 0)
                 segment = momapy.geometry.Segment(
                     layout_element.center(), super_layout_element.center()
                 )
                 fraction = (
                     layout_element.height + cls._DEFAULT_MODIFICATION_FONT_SIZE
-                ) / (2 * segment.length())
+                ) / segment.length()
                 residue_text_layout.position = (
                     segment.get_position_at_fraction(fraction)
                 )
