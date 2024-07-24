@@ -19,6 +19,7 @@ import xsdata.formats.dataclass.parsers.config
 class CellDesignerReader(momapy.io.MapReader):
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 12.0
+    _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
     _KEY_TO_MAKE_AND_ADD_FUNC_NAME = {
         momapy.celldesigner.io._celldesigner_parser.ModificationResidue: "_make_and_add_modification_residue_from_cd_modification_residue",
@@ -735,6 +736,18 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_id_to_cd_element[cd_species_template.id] = (
                     cd_species_template
                 )
+                if (
+                    cd_species_template.list_of_modification_residues
+                    is not None
+                ):
+                    for (
+                        cd_modification_residue
+                    ) in (
+                        cd_species_template.list_of_modification_residues.modification_residue
+                    ):
+                        cd_id_to_cd_element[cd_modification_residue.id] = (
+                            cd_modification_residue
+                        )
         # gene references
         if cd_element.model.annotation.extension.list_of_genes is not None:
             for (
@@ -1087,7 +1100,59 @@ class CellDesignerReader(momapy.io.MapReader):
         model_element.state = modification_state
         model_element = momapy.builder.object_from_builder(model_element)
         super_model_element.modifications.add(model_element)
-        layout_element = None
+        if with_layout:
+            layout_element = map_.layout.new_element(
+                momapy.celldesigner.core.ModificationLayout
+            )
+            cd_modification_residue = cd_id_to_cd_element[cd_element.residue]
+            cd_angle = cd_modification_residue.angle
+            point = momapy.geometry.Point(
+                super_layout_element.width * math.cos(cd_angle),
+                super_layout_element.height * math.sin(cd_angle),
+            )
+            angle = math.atan2(point.y, point.x)
+            layout_element.position = super_layout_element.angle(
+                angle, unit="radians"
+            )
+            text = modification_state.value
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.label_center(),
+            )
+            layout_element.label = text_layout
+            if cd_modification_residue.name is not None:
+                residue_text_layout = map_.new_layout_element(
+                    momapy.core.TextLayout
+                )
+                residue_text_layout.text = cd_modification_residue.name
+                residue_text_layout.font_size = (
+                    cls._DEFAULT_MODIFICATION_FONT_SIZE
+                )
+                residue_text_layout.font_family = cls._DEFAULT_FONT_FAMILY
+                residue_text_layout.fill = cls._DEFAULT_FONT_FILL
+                residue_text_layout.stroke = momapy.drawing.NoneValue
+                residue_text_layout.position = momapy.geometry.Point(0, 0)
+                segment = momapy.geometry.Segment(
+                    layout_element.center(), super_layout_element.center()
+                )
+                fraction = (
+                    layout_element.height + cls._DEFAULT_MODIFICATION_FONT_SIZE
+                ) / (2 * segment.length())
+                residue_text_layout.position = (
+                    segment.get_position_at_fraction(fraction)
+                )
+                residue_text_layout = momapy.builder.object_from_builder(
+                    residue_text_layout
+                )
+                layout_element.layout_elements.append(residue_text_layout)
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            super_layout_element.layout_elements.append(layout_element)
+        else:
+            layout_element = None
         return model_element, layout_element
 
     @classmethod
@@ -1157,12 +1222,15 @@ class CellDesignerReader(momapy.io.MapReader):
                     momapy.celldesigner.core.RectangleCompartmentLayout
                 )
             layout_element = map_.layout.new_element(layout_element_cls)
+            cd_x = float(cd_element.bounds.x)
+            cd_y = float(cd_element.bounds.y)
+            cd_w = float(cd_element.bounds.w)
+            cd_h = float(cd_element.bounds.h)
             layout_element.position = momapy.geometry.Point(
-                float(cd_element.bounds.x + cd_element.bounds.w / 2),
-                float(cd_element.bounds.y + cd_element.bounds.h / 2),
+                cd_x + cd_w / 2, cd_y + cd_h / 2
             )
-            layout_element.width = float(cd_element.bounds.w)
-            layout_element.height = float(cd_element.bounds.h)
+            layout_element.width = cd_w
+            layout_element.height = cd_h
             layout_element.inner_stroke_width = float(
                 cd_element.double_line.inner_width
             )
@@ -1190,7 +1258,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 stroke=momapy.drawing.NoneValue,
                 position=text_position,
             )
-            text_layout = momapy.builder.object_from_builder(text_layout)
             layout_element.label = text_layout
             layout_element = momapy.builder.object_from_builder(layout_element)
             map_.layout.layout_elements.append(layout_element)
@@ -9408,14 +9475,55 @@ class CellDesignerReader(momapy.io.MapReader):
         super_cd_element=None,
         with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
+        cd_species = cd_id_to_cd_element[cd_element.species]
+        cd_species_name = cls._prepare_name(cd_species.name)
+        cd_species_identity = cd_species.annotation.extension.species_identity
+        cd_species_state = cd_species_identity.state
         if with_layout:
             layout_element = map_.new_layout_element(layout_element_cls)
+            cd_x = float(cd_element.bounds.x)
+            cd_y = float(cd_element.bounds.y)
+            cd_w = float(cd_element.bounds.w)
+            cd_h = float(cd_element.bounds.h)
+            layout_element.position = momapy.geometry.Point(
+                cd_x + cd_w / 2, cd_y + cd_h / 2
+            )
+            layout_element.width = cd_w
+            layout_element.height = cd_h
+            text = cd_species_name
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cd_element.font.size,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.label_center(),
+            )
+            text_layout = momapy.builder.object_from_builder(text_layout)
+            layout_element.label = text_layout
+            layout_element.stroke_width = float(
+                cd_element.usual_view.single_line.width
+            )
+            cd_element_fill_color = cd_element.usual_view.paint.color
+            cd_element_fill_color = (
+                cd_element_fill_color[2:] + cd_element_fill_color[:2]
+            )
+            layout_element.fill = momapy.coloring.Color.from_hexa(
+                cd_element_fill_color
+            )
+            layout_element.active = (
+                cd_element.activity
+                == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
+            )
+            if (
+                cd_species_state is not None
+                and cd_species_state.homodimer is not None
+            ):
+                layout_element.n = cd_species_state.homodimer
         else:
             layout_element = None
-        cd_species = cd_id_to_cd_element[cd_element.species]
+        model_element = map_.new_model_element(model_element_cls)
         model_element.id_ = cd_species.id
-        cd_species_name = cls._prepare_name(cd_species.name)
         model_element.name = cd_species_name
         model_element.metaid = cd_species.metaid
         if cd_species.compartment is not None:
@@ -9433,8 +9541,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_species_template.id
             ]
             model_element.template = species_template_model_element
-        cd_species_identity = cd_species.annotation.extension.species_identity
-        cd_species_state = cd_species_identity.state
         if cd_species_state is not None:
             if cd_species_state.homodimer is not None:
                 model_element.homomultimer = cd_species_state.homodimer
@@ -9549,6 +9655,38 @@ class CellDesignerReader(momapy.io.MapReader):
                 )
         model_element = momapy.builder.object_from_builder(model_element)
         if with_layout:
+            layout_element = momapy.builder.object_from_builder(layout_element)
+        if cd_species.annotation is not None:
+            if cd_species.annotation.rdf is not None:
+                annotations = cls._make_annotations_from_cd_annotation_rdf(
+                    cd_species.annotation.rdf
+                )
+                map_element_to_annotations[model_element] = annotations
+        return model_element, layout_element
+
+    @classmethod
+    def _make_included_species_from_cd_included_species_alias(
+        cls,
+        map_,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        super_model_element,
+        super_layout_element,
+        super_cd_element=None,
+        with_layout=True,
+    ):
+        cd_species = cd_id_to_cd_element[cd_element.species]
+        cd_species_name = cls._prepare_name(cd_species.name)
+        cd_species_identity = cd_species.annotation.species_identity
+        cd_species_state = cd_species_identity.state
+        if with_layout:
+            layout_element = map_.new_layout_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
             cd_y = float(cd_element.bounds.y)
             cd_w = float(cd_element.bounds.w)
@@ -9579,40 +9717,19 @@ class CellDesignerReader(momapy.io.MapReader):
             layout_element.fill = momapy.coloring.Color.from_hexa(
                 cd_element_fill_color
             )
-            layout_element = momapy.builder.object_from_builder(layout_element)
-        if cd_species.annotation is not None:
-            if cd_species.annotation.rdf is not None:
-                annotations = cls._make_annotations_from_cd_annotation_rdf(
-                    cd_species.annotation.rdf
-                )
-                map_element_to_annotations[model_element] = annotations
-        return model_element, layout_element
-
-    @classmethod
-    def _make_included_species_from_cd_included_species_alias(
-        cls,
-        map_,
-        cd_element,
-        model_element_cls,
-        layout_element_cls,
-        cd_id_to_model_element,
-        cd_id_to_layout_element,
-        cd_id_to_cd_element,
-        cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
-        super_model_element,
-        super_layout_element,
-        super_cd_element=None,
-        with_layout=True,
-    ):
-        model_element = map_.new_model_element(model_element_cls)
-        if with_layout:
-            layout_element = map_.new_layout_element(layout_element_cls)
+            layout_element.active = (
+                cd_element.activity
+                == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
+            )
+            if (
+                cd_species_state is not None
+                and cd_species_state.homodimer is not None
+            ):
+                layout_element.n = cd_species_state.homodimer
         else:
             layout_element = None
-        cd_species = cd_id_to_cd_element[cd_element.species]
+        model_element = map_.new_model_element(model_element_cls)
         model_element.id_ = cd_species.id
-        cd_species_name = cls._prepare_name(cd_species.name)
         model_element.name = cd_species_name
         if cd_species.compartment is not None:
             compartment_model_element = cd_id_to_model_element[
@@ -9629,8 +9746,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 cd_species_template.id
             ]
             model_element.template = species_template_model_element
-        cd_species_identity = cd_species.annotation.species_identity
-        cd_species_state = cd_species_identity.state
         if cd_species_state is not None:
             if cd_species_state.homodimer is not None:
                 model_element.homomultimer = cd_species_state.homodimer
@@ -9705,36 +9820,6 @@ class CellDesignerReader(momapy.io.MapReader):
                 )
         model_element = momapy.builder.object_from_builder(model_element)
         if with_layout:
-            cd_x = float(cd_element.bounds.x)
-            cd_y = float(cd_element.bounds.y)
-            cd_w = float(cd_element.bounds.w)
-            cd_h = float(cd_element.bounds.h)
-            layout_element.position = momapy.geometry.Point(
-                cd_x + cd_w / 2, cd_y + cd_h / 2
-            )
-            layout_element.width = cd_w
-            layout_element.height = cd_h
-            text = cd_species_name
-            text_layout = momapy.core.TextLayout(
-                text=text,
-                font_size=cd_element.font.size,
-                font_family=cls._DEFAULT_FONT_FAMILY,
-                fill=cls._DEFAULT_FONT_FILL,
-                stroke=momapy.drawing.NoneValue,
-                position=layout_element.label_center(),
-            )
-            text_layout = momapy.builder.object_from_builder(text_layout)
-            layout_element.label = text_layout
-            layout_element.stroke_width = float(
-                cd_element.usual_view.single_line.width
-            )
-            cd_element_fill_color = cd_element.usual_view.paint.color
-            cd_element_fill_color = (
-                cd_element_fill_color[2:] + cd_element_fill_color[:2]
-            )
-            layout_element.fill = momapy.coloring.Color.from_hexa(
-                cd_element_fill_color
-            )
             layout_element = momapy.builder.object_from_builder(layout_element)
         return model_element, layout_element
 

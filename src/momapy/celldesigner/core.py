@@ -557,54 +557,107 @@ class CellDesignerDoubleHeadedArc(momapy.core.DoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleNodeMixin(momapy.sbgn.core._SimpleMixin):
-    pass
+    active: bool = False
+    active_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
+    active_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None
+    active_sep: float = 4.0
+    active_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    active_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (
+        4,
+        2,
+    )
+    active_stroke_dashoffset: float | None = None
+    active_stroke_width: float | None = 1.0
+    active_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
+
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        if obj.active:
+            layout_element = dataclasses.replace(
+                obj,
+                width=obj.width + obj.active_sep * 2,
+                height=obj.height + obj.active_sep * 2,
+                label=None,
+                fill=obj.active_fill,
+                stroke=obj.active_stroke,
+                stroke_width=obj.active_stroke_width,
+            )
+            drawing_elements = layout_element.obj_drawing_elements()
+        else:
+            drawing_elements = []
+        drawing_elements += (
+            momapy.sbgn.core._SimpleMixin._mixin_drawing_elements(obj)
+        )
+        return drawing_elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiNodeMixin(momapy.sbgn.core._MultiMixin):
+    active: bool = False
+    active_fill: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.drawing.NoneValue
+    active_filter: (
+        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
+    ) = None
+    active_sep: float = 4.0
+    active_stroke: (
+        momapy.drawing.NoneValueType | momapy.coloring.Color | None
+    ) = momapy.coloring.black
+    active_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float] | None
+    ) = (
+        4,
+        2,
+    )
+    active_stroke_dashoffset: float | None = None
+    active_stroke_width: float | None = 1.0
+    active_transform: (
+        momapy.drawing.NoneValueType
+        | tuple[momapy.geometry.Transformation]
+        | None
+    ) = None
     n: int = 1
 
     @property
     def _n(self):
         return self.n
 
-    def cd_north_west(self):
-        return self.north_west()
-
-    def cd_north_north_west(self):
-        return self.north_north_west()
-
-    def cd_north(self):
-        return self.north()
-
-    def cd_north_north_east(self):
-        return self.north_east()
-
-    def cd_north_east(self):
-        return self.north_east()
-
-    def cd_east_north_east(self):
-        return self.east_north_east()
-
-    def cd_east(self):
-        return self.east()
-
-    def cd_east_south_east(self):
-        return self.east_south_east()
-
-    def cd_south_east(self):
-        return self.cd_south_east()
-
-    def cd_south_south_east(self):
-        return self.cd_south_south_east()
-
-    def cd_south(self):
-        return self.south()
-
-    def cd_south_south_west(self):
-        return self.south_south_west()
-
-    /RNA
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        if obj.active:
+            layout_element = dataclasses.replace(
+                obj,
+                active=False,
+                fill=obj.active_fill,
+                filter=obj.active_filter,
+                height=obj.height + obj.active_sep * 2,
+                label=None,
+                stroke=obj.active_stroke,
+                stroke_width=obj.active_stroke_width,
+                stroke_dasharray=obj.active_stroke_dasharray,
+                stroke_dashoffset=obj.active_stroke_dashoffset,
+                width=obj.width + obj.active_sep * 2,
+            )
+            drawing_elements = layout_element.self_drawing_elements()
+        else:
+            drawing_elements = []
+        drawing_elements += (
+            momapy.sbgn.core._MultiMixin._mixin_drawing_elements(obj)
+        )
+        return drawing_elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1681,8 +1734,9 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
         )
         return border_point
 
-    def _mixin_drawing_elements(self):
-        return [self._make_rotated_reaction_node_drawing_element()]
+    @classmethod
+    def _mixin_drawing_elements(cls, obj):
+        return [obj._make_rotated_reaction_node_drawing_element()]
 
     def _get_reaction_node_position(self):
         segment = self.segments[self.reaction_node_segment]
