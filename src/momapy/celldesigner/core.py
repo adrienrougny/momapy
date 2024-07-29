@@ -943,6 +943,166 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
             right_angle=self.angle,
         )
 
+    def north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1()
+
+    def north_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.75 + shape.joint2() * 0.25
+
+    def north(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() / 2 + shape.joint2() / 2
+
+    def north_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.25 + shape.joint2() * 0.75
+
+    def north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint2()
+
+    def east_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() / 2 + shape.joint2() / 2
+
+    def east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3()
+
+    def east_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint3() / 2
+
+    def south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4()
+
+    def south_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5() * 0.25 + shape.joint4() * 0.75
+
+    def south(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5() / 2 + shape.joint4() / 2
+
+    def south_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5() * 0.75 + shape.joint4() * 0.25
+
+    def south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5()
+
+    def west_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() / 2 + shape.joint5() / 2
+
+    def west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6()
+
+    def west_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() / 2 + shape.joint1() / 2
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNALayout(_MultiNodeMixin, CellDesignerNode):
@@ -955,16 +1115,17 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
             position=position, width=width, height=height, angle=self.angle
         )
 
-    def cd_north_west(self) -> momapy.geometry.Point:
+    def north_west(self) -> momapy.geometry.Point:
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
             self.width / 2 - width / 2,
             self.height / 2 - height / 2,
         )
-        return self._make_subunit_shape(position, width, height).joint1()
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1()
 
-    def cd_north_north_west(self) -> momapy.geometry.Point:
+    def north_north_west(self) -> momapy.geometry.Point:
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -974,7 +1135,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         shape = self._make_subunit_shape(position, width, height)
         return shape.joint1() * 0.75 + shape.joint2() * 0.25
 
-    def cd_north(self) -> momapy.geometry.Point:
+    def north(self) -> momapy.geometry.Point:
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -984,7 +1145,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         shape = self._make_subunit_shape(position, width, height)
         return shape.joint1() / 2 + shape.joint2() / 2
 
-    def cd_north_north_east(self) -> momapy.geometry.Point:
+    def north_north_east(self) -> momapy.geometry.Point:
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -994,14 +1155,125 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         shape = self._make_subunit_shape(position, width, height)
         return shape.joint1() * 0.25 + shape.joint2() * 0.75
 
-    def cd_north_east(self) -> momapy.geometry.Point:
+    def north_east(self) -> momapy.geometry.Point:
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
             self.width / 2 - width / 2,
             self.height / 2 - height / 2,
         )
-        return self._make_subunit_shape(position, width, height).joint2()
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint2()
+
+    def east_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() * 0.25 + shape.joint2() * 0.75
+
+    def east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() / 2 + shape.joint2() / 2
+
+    def east_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() * 0.75 + shape.joint2() * 0.25
+
+    def south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3()
+
+    def south_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.25 + shape.joint3() * 0.75
+
+    def south(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint3() / 2
+
+    def south_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.75 + shape.joint3() * 0.25
+
+    def south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4()
+
+    def west_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.75 + shape.joint1() * 0.25
+
+    def west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint1() / 2
+
+    def west_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.25 + shape.joint1() * 0.75
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1017,6 +1289,166 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
             height=height,
             angle=180 - self.angle,
         )
+
+    def north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1()
+
+    def north_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.75 + shape.joint2() * 0.25
+
+    def north(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() / 2 + shape.joint2() / 2
+
+    def north_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() * 0.25 + shape.joint2() * 0.75
+
+    def north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint2()
+
+    def east_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() * 0.25 + shape.joint2() * 0.75
+
+    def east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() / 2 + shape.joint2() / 2
+
+    def east_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3() * 0.75 + shape.joint2() * 0.25
+
+    def south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3()
+
+    def south_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.25 + shape.joint3() * 0.75
+
+    def south(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint3() / 2
+
+    def south_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.75 + shape.joint3() * 0.25
+
+    def south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4()
+
+    def west_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.75 + shape.joint1() * 0.25
+
+    def west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint1() / 2
+
+    def west_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.25 + shape.joint1() * 0.75
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1146,6 +1578,166 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
             top_angle=180 - angle,
             bottom_angle=angle,
         )
+
+    def north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1()
+
+    def north_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint1() / 2 + shape.joint2() / 2
+
+    def north(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint2()
+
+    def north_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint2() * 0.25 + shape.joint3() * 0.75
+
+    def north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint3()
+
+    def east_north_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.25 + shape.joint3() * 0.75
+
+    def east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() / 2 + shape.joint3() / 2
+
+    def east_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4() * 0.75 + shape.joint3() * 0.25
+
+    def south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint4()
+
+    def south_south_east(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5() / 2 + shape.joint4() / 2
+
+    def south(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint5()
+
+    def south_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() / 2 + shape.joint5() / 2
+
+    def south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6()
+
+    def west_south_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() * 0.75 + shape.joint1() * 0.25
+
+    def west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() / 2 + shape.joint1() / 2
+
+    def west_north_west(self) -> momapy.geometry.Point:
+        width = self.width - self.offset * (self._n - 1)
+        height = self.height - self.offset * (self._n - 1)
+        position = self.position + (
+            self.width / 2 - width / 2,
+            self.height / 2 - height / 2,
+        )
+        shape = self._make_subunit_shape(position, width, height)
+        return shape.joint6() * 0.25 + shape.joint1() * 0.75
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
