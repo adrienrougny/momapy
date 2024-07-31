@@ -80,6 +80,9 @@ class Point(GeometryObject):
     def bbox(self):
         return Bbox(copy.deepcopy(self), 0, 0)
 
+    def isnan(self):
+        return math.isnan(self.x) or math.isnan(self.y)
+
     @classmethod
     def from_shapely(cls, point: shapely.Point):
         return cls(point.x, point.y)
@@ -385,6 +388,9 @@ class Bbox(object):
     def size(self):
         return (self.width, self.height)
 
+    def anchor_point(self, anchor_point: str):
+        return getattr(self, anchor_point)()
+
     def north_west(self):
         return Point(self.x - self.width / 2, self.y - self.height / 2)
 
@@ -435,6 +441,9 @@ class Bbox(object):
 
     def center(self):
         return Point(self.x, self.y)
+
+    def isnan(self):
+        return self.position.isnan()
 
     @classmethod
     def from_bounds(cls, bounds):  # (min_x, min_y, max_x, max_y)
@@ -819,11 +828,17 @@ def get_intersection_of_line_and_drawing_element(line, drawing_element):
     return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
 
+def get_shapely_object_bbox(shapely_object):
+    return Bbox.from_bounds(shapely_object.bounds)
+
+
 def get_shapely_object_border(
     shapely_object, point, position=None
 ) -> Point | None:
     if position is None:
-        bbox = momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+        bbox = get_shapely_object_bbox(shapely_object)
+        if position.isnan():
+            return momapy.geometry.Point(float("nan"), float("nan"))
         position = bbox.center()
     line = momapy.geometry.Line(position, point)
     intersection = get_intersection_of_line_and_shapely_object(
@@ -866,10 +881,24 @@ def get_shapely_object_angle(
     angle = -angle
     d = 100
     if position is None:
-        bbox = momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+        bbox = get_shapely_object_bbox(shapely_object)
         position = bbox.center()
+        if position.isnan():
+            return momapy.geometry.Point(float("nan"), float("nan"))
     point = position + (d * math.cos(angle), d * math.sin(angle))
     return get_shapely_object_border(shapely_object, point, position)
+
+
+def get_shapely_object_anchor_point(
+    shapely_object, anchor_point: str
+) -> momapy.geometry.Point:
+    bbox = get_shapely_object_bbox(shapely_object)
+    if bbox.isnan():
+        return momapy.geometry.Point(float("nan"), float("nan"))
+    point = bbox.anchor_point(anchor_point)
+    return get_shapely_object_border(
+        shapely_object, point, position=bbox.center()
+    )
 
 
 def get_angle_to_horizontal_of_point(point):

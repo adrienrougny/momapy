@@ -813,25 +813,33 @@ def drawing_elements_to_shapely(drawing_elements):
     return shapely.GeometryCollection(geom_collection)
 
 
-def get_drawing_elements_border(drawing_elements, point, position=None):
+def get_drawing_elements_border(drawing_elements, point):
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_border(
-        shapely_object=shapely_object, point=point, position=position
+        shapely_object=shapely_object, point=point
     )
 
 
 def get_drawing_elements_angle(
-    drawing_elements, angle, unit="degrees", position=None, transform=None
+    drawing_elements, angle, unit="degrees"
 ):
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_angle(
         shapely_object=shapely_object,
         angle=angle,
         unit=unit,
-        position=position,
     )
 
 
 def get_drawing_elements_bbox(drawing_elements):
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+
+
+def get_drawing_elements_anchor_point(
+    drawing_elements, anchor_point: str
+) -> momapy.geometry.Point:
+    shapely_object = drawing_elements_to_shapely(drawing_elements)
+    return momapy.geometry.get_shapely_object_anchor_point(
+        shapely_object, anchor_point
+    )
