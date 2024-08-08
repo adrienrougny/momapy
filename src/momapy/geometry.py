@@ -448,9 +448,7 @@ class Bbox(object):
     @classmethod
     def from_bounds(cls, bounds):  # (min_x, min_y, max_x, max_y)
         return cls(
-            momapy.geometry.Point(
-                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            ),
+            Point((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2),
             bounds[2] - bounds[0],
             bounds[3] - bounds[1],
         )
@@ -579,31 +577,23 @@ def transform_bezier_curve(bezier_curve, transformation):
 
 
 def transform_elliptical_arc(elliptical_arc, transformation):
-    east = momapy.geometry.Point(
+    east = Point(
         math.cos(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
         math.sin(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
     )
-    north = momapy.geometry.Point(
+    north = Point(
         math.cos(elliptical_arc.x_axis_rotation) * elliptical_arc.ry,
         math.sin(elliptical_arc.x_axis_rotation) * elliptical_arc.ry,
     )
-    new_center = momapy.geometry.transform_point(
-        momapy.geometry.Point(0, 0), transformation
-    )
-    new_east = momapy.geometry.transform_point(east, transformation)
-    new_north = momapy.geometry.transform_point(north, transformation)
-    new_rx = momapy.geometry.Segment(new_center, new_east).length()
-    new_ry = momapy.geometry.Segment(new_center, new_north).length()
-    new_start_point = momapy.geometry.transform_point(
-        elliptical_arc.p1, transformation
-    )
-    new_end_point = momapy.geometry.transform_point(
-        elliptical_arc.p2, transformation
-    )
+    new_center = transform_point(Point(0, 0), transformation)
+    new_east = transform_point(east, transformation)
+    new_north = transform_point(north, transformation)
+    new_rx = Segment(new_center, new_east).length()
+    new_ry = Segment(new_center, new_north).length()
+    new_start_point = transform_point(elliptical_arc.p1, transformation)
+    new_end_point = transform_point(elliptical_arc.p2, transformation)
     new_x_axis_rotation = math.degrees(
-        momapy.geometry.get_angle_of_line(
-            momapy.geometry.Line(new_center, new_east)
-        )
+        get_angle_to_horizontal_of_line(Line(new_center, new_east))
     )
     return EllipticalArc(
         new_end_point,
@@ -755,7 +745,7 @@ def get_intersection_of_lines(line1, line2):
 
 
 def get_intersection_of_line_and_segment(line, segment):
-    line2 = momapy.geometry.Line(segment.p1, segment.p2)
+    line2 = Line(segment.p1, segment.p2)
     intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
         if not segment.has_point(intersection[0]):
@@ -838,30 +828,26 @@ def get_shapely_object_border(
     if position is None:
         bbox = get_shapely_object_bbox(shapely_object)
         if position.isnan():
-            return momapy.geometry.Point(float("nan"), float("nan"))
+            return Point(float("nan"), float("nan"))
         position = bbox.center()
-    line = momapy.geometry.Line(position, point)
+    line = Line(position, point)
     intersection = get_intersection_of_line_and_shapely_object(
         line, shapely_object
     )
     candidate_points = []
     for intersection_obj in intersection:
-        if isinstance(intersection_obj, momapy.geometry.Segment):
+        if isinstance(intersection_obj, Segment):
             candidate_points.append(intersection_obj.p1)
             candidate_points.append(intersection_obj.p2)
-        elif isinstance(intersection_obj, momapy.geometry.Point):
+        elif isinstance(intersection_obj, Point):
             candidate_points.append(intersection_obj)
     intersection_point = None
     max_d = -1
     ok_direction_exists = False
-    d1 = momapy.geometry.get_distance_between_points(point, position)
+    d1 = get_distance_between_points(point, position)
     for candidate_point in candidate_points:
-        d2 = momapy.geometry.get_distance_between_points(
-            candidate_point, point
-        )
-        d3 = momapy.geometry.get_distance_between_points(
-            candidate_point, position
-        )
+        d2 = get_distance_between_points(candidate_point, point)
+        d3 = get_distance_between_points(candidate_point, position)
         candidate_ok_direction = not d2 > d1 or d2 < d3
         if candidate_ok_direction or not ok_direction_exists:
             if candidate_ok_direction and not ok_direction_exists:
@@ -884,17 +870,17 @@ def get_shapely_object_angle(
         bbox = get_shapely_object_bbox(shapely_object)
         position = bbox.center()
         if position.isnan():
-            return momapy.geometry.Point(float("nan"), float("nan"))
+            return Point(float("nan"), float("nan"))
     point = position + (d * math.cos(angle), d * math.sin(angle))
     return get_shapely_object_border(shapely_object, point, position)
 
 
 def get_shapely_object_anchor_point(
     shapely_object, anchor_point: str
-) -> momapy.geometry.Point:
+) -> Point:
     bbox = get_shapely_object_bbox(shapely_object)
     if bbox.isnan():
-        return momapy.geometry.Point(float("nan"), float("nan"))
+        return Point(float("nan"), float("nan"))
     point = bbox.anchor_point(anchor_point)
     return get_shapely_object_border(
         shapely_object, point, position=bbox.center()
