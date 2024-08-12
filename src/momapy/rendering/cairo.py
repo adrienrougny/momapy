@@ -242,7 +242,7 @@ class CairoRenderer(momapy.rendering.core.Renderer):
         self._stroke_and_fill()
 
     def _render_rectangle(self, rectangle):
-        actions.append(rectangle.to_path()
+        actions.append(rectangle.to_path())
         self._render_path(path)
 
     def _render_MoveTo(self, move_to):
