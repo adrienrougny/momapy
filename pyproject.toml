@@ -17,6 +17,11 @@ dependencies = [
     "shapely>=2.0.2",
     "colorama>=0.4.6",
     "bezier>=2023.7.28",
+    "mkdocs>=1.6.0",
+    "mkdocstrings[python]>=0.25.2",
+    "mkdocs-material>=9.5.31",
+    "griffe-fieldz>=0.1.2",
+    "sphinx>=8.0.2",
 ]
 requires-python = ">=3.10, <=3.11"
 readme = "README.md"
@@ -25,3 +30,5 @@ license = {text = "GPL-3.0-or-later"}
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pdm]

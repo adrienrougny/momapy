@@ -1,8 +1,11 @@
-from dataclasses import dataclass, replace
+import dataclasses
+import typing
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Color(object):
+    """Class for colors"""
+
     red: int
     green: int
     blue: int
@@ -13,47 +16,68 @@ class Color(object):
             raise ValueError("alpha should be a number between 0 and 100")
         return replace(self, alpha=alpha / 100)
 
-    def to_rgba(self, rgb_range=(0, 255), alpha_range=(0, 1), rgba_range=None):
+    def to_rgba(
+        self,
+        rgb_range: tuple[float, float] = (0, 255),
+        alpha_range: tuple[float, float] = (0.0, 1.0),
+        rgba_range: tuple[float, float] | None = None,
+    ) -> tuple[int, int, int, float]:
+        """Return the `Color` in the RBGA format"""
         if rgba_range is not None:
             rgb_range = rgba_range
             alpha_range = rgba_range
         rgb_width = rgb_range[1] - rgb_range[0]
         alpha_width = alpha_range[1] - alpha_range[0]
-        red = rgb_range[0] + (self.red / 255) * rgb_width
-        green = rgb_range[0] + (self.green / 255) * rgb_width
-        blue = rgb_range[0] + (self.blue / 255) * rgb_width
+        red = round(rgb_range[0] + (self.red / 255) * rgb_width)
+        green = round(rgb_range[0] + (self.green / 255) * rgb_width)
+        blue = round(rgb_range[0] + (self.blue / 255) * rgb_width)
         alpha = alpha_range[0] + self.alpha * alpha_width
         return (red, green, blue, alpha)
 
-    def to_rgb(self, rgb_range=(0, 255)):
-        width = rgb_range[1] - rgb_range[0]
-        red = rgb_range[0] + (self.red / 255) * width
-        green = rgb_range[0] + (self.green / 255) * width
-        blue = rgb_range[0] + (self.blue / 255) * width
+    def to_rgb(
+        self, rgb_range: tuple[float, float] = (0, 255)
+    ) -> tuple[int, int, int]:
+        """Return the `Color` in the RBG format"""
+        width = int(rgb_range[1] - rgb_range[0])
+        red = round(rgb_range[0] + (self.red / 255) * width)
+        green = round(rgb_range[0] + (self.green / 255) * width)
+        blue = round(rgb_range[0] + (self.blue / 255) * width)
         return (red, green, blue)
 
-    def to_hex(self):
+    def to_hex(self) -> str:
+        """Return the `Color` in the HEX format"""
         color_str = f"#{format(self.red, '02x')}{format(self.green, '02x')}{format(self.blue, '02x')}"
         return color_str
 
-    def to_hexa(self):
+    def to_hexa(self) -> str:
+        """Return the `Color` in the HEXA format"""
         color_str = f"{self.to_hex()}{format(int(self.alpha * 255), '02x')}"
         return color_str
 
-    def with_alpha(self, alpha, alpha_range=(0, 1)):
+    def with_alpha(
+        self, alpha: float, alpha_range: tuple[float, float] = (0, 1)
+    ) -> typing.Self:
+        """Return the a copy of the `Color` with its alpha component set to the given number"""
         alpha_width = alpha_range[1] - alpha_range[0]
-        return replace(self, alpha=alpha_range[0] + alpha * alpha_width)
+        return dataclasses.replace(
+            self, alpha=alpha_range[0] + alpha * alpha_width
+        )
 
     @classmethod
-    def from_rgba(cls, red, green, blue, alpha):
+    def from_rgba(
+        cls, red: int, green: int, blue: int, alpha: float
+    ) -> typing.Self:
+        """Return a `Color` from its RGBA components"""
         return cls(red, green, blue, alpha)
 
     @classmethod
-    def from_rgb(cls, red, green, blue):
+    def from_rgb(cls, red: int, green: int, blue: int):
+        """Return a `Color` from its RGB components"""
         return cls(red, green, blue)
 
     @classmethod
-    def from_hex(cls, color_str):
+    def from_hex(cls, color_str: str):
+        """Return a `Color` from its HEX value"""
         color_str = color_str.lstrip("#")
         if len(color_str) != 6:
             raise ValueError(f"invalid hexadecimal RBG value {color_str}")
@@ -64,6 +88,7 @@ class Color(object):
 
     @classmethod
     def from_hexa(cls, color_str):
+        """Return a `Color` from its HEXA value"""
         color_str = color_str.lstrip("#")
         if len(color_str) != 8:
             raise ValueError(f"invalid hexadecimal RBGA value {color_str}")
@@ -75,6 +100,7 @@ class Color(object):
 
 
 def list_colors():
+    """List all available named `Color`s"""
     return [
         (color_name, color)
         for color_name, color in globals().items()
@@ -83,11 +109,13 @@ def list_colors():
 
 
 def print_colors():
+    """Print all available named `Color`s"""
     for color_name, color in list_colors():
         print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
 
 
 def has_color(color_name):
+    """Return `true` if a `Color` with the given name is available, `false` otherwise"""
     for color_name2, color in globals().items():
         if isinstance(color, Color) and color_name2 == color_name:
             return True

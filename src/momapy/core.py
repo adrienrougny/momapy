@@ -2,13 +2,11 @@ import abc
 import dataclasses
 import frozendict
 import typing
-import uuid
 import enum
 import math
 import collections
 import copy
 import shapely
-import cairo
 import gi
 
 gi.require_version("Pango", "1.0")
@@ -45,7 +43,9 @@ class VAlignment(enum.Enum):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MapElement(abc.ABC):
+class MapElement:
+    """Class for an element of a map"""
+
     id_: str = dataclasses.field(
         hash=False,
         compare=False,
@@ -55,28 +55,37 @@ class MapElement(abc.ABC):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModelElement(MapElement):
+    """Class for an element of a model"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LayoutElement(MapElement):
+    """Abstract class for an element of a layout"""
+
     def bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the `LayoutElement`"""
         bounds = self.to_shapely().bounds
         return momapy.geometry.Bbox.from_bounds(bounds)
 
     @abc.abstractmethod
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the `LayoutElement`"""
         pass
 
     @abc.abstractmethod
     def children(self) -> list["LayoutElement"]:
+        """Return the children of the `LayoutElement`"""
         pass
 
     @abc.abstractmethod
-    def childless(self) -> "LayoutElement":
+    def childless(self) -> typing.Self:
+        """Return a copy of the `LayoutElement` with no children"""
         pass
 
     def descendants(self) -> list["LayoutElement"]:
+        """Return the descendants of the `LayoutElement`"""
         descendants = []
         for child in self.children():
             descendants.append(child)
@@ -84,12 +93,14 @@ class LayoutElement(MapElement):
         return descendants
 
     def flattened(self) -> list["LayoutElement"]:
+        """Return a list containing copy of the `LayoutElement` with no children and all its descendants with no children"""
         flattened = [self.childless()]
         for child in self.children():
             flattened += child.flattened()
         return flattened
 
-    def equals(self, other, flattened=False, unordered=False):
+    def equals(self, other, flattened=False, unordered=False) -> bool:
+        """Return `true` if the `LayoutElement` is equal to another `LayoutElement`, `false` otherwise"""
         if type(self) is type(other):
             if not flattened:
                 return self == other
@@ -100,10 +111,12 @@ class LayoutElement(MapElement):
                     return set(self.flattened()) == set(other.flattened())
         return False
 
-    def contains(self, other):
+    def contains(self, other) -> bool:
+        """Return `true` if another `LayoutElement` is a descendant of the `LayoutElement`, `false` otherwise"""
         return other in self.descendants()
 
-    def to_shapely(self, to_polygons=False):
+    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
+        """Return a `shapely.GeometryCollection` built from drawing elements of the `LayoutElement`"""
         geom_collection = []
         for drawing_element in self.drawing_elements():
             geom_collection += drawing_element.to_shapely(
@@ -111,12 +124,15 @@ class LayoutElement(MapElement):
             ).geoms
         return shapely.GeometryCollection(geom_collection)
 
-    def anchor_point(self, anchor_name):
+    def anchor_point(self, anchor_name) -> momapy.geometry.Point:
+        """Return an anchor point of the `LayoutElement`"""
         return getattr(self, anchor_name)()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
+    """Class of a text layout element"""
+
     text: str
     font_family: str = momapy.drawing.get_initial_value("font_family")
     font_size: float = momapy.drawing.get_initial_value("font_size")
@@ -148,11 +164,13 @@ class TextLayout(LayoutElement):
     ) = None
 
     @property
-    def x(self):
+    def x(self) -> float:
+        """Return the y coordinate of the `TextLayoutElement`"""
         return self.position.x
 
     @property
-    def y(self):
+    def y(self) -> float:
+        """Return the y coordinate of the `TextLayoutElement`"""
         return self.position.y
 
     def _make_pango_layout(self):
@@ -217,17 +235,20 @@ class TextLayout(LayoutElement):
             pango_layout_extents.height,
         )
 
-    def logical_bbox(self):
+    def logical_bbox(self) -> momapy.geometry.Bbox:
+        """Return the logical bounding box of the `TextLayoutElement`"""
         pango_layout = self._make_pango_layout()
         _, pango_layout_extents = pango_layout.get_pixel_extents()
         return self._get_bbox(pango_layout, pango_layout_extents)
 
-    def ink_bbox(self):
+    def ink_bbox(self) -> momapy.geometry.Bbox:
+        """Return the ink bounding box of the `TextLayoutElement`"""
         pango_layout = self._make_pango_layout()
         pango_layout_extents, _ = pango_layout.get_pixel_extents()
         return self._get_bbox(pango_layout, pango_layout_extents)
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the `LayoutElement`"""
         drawing_elements = []
         pango_layout = self._make_pango_layout()
         pango_layout_iter = pango_layout.get_iter()
@@ -262,72 +283,105 @@ class TextLayout(LayoutElement):
                 pango_layout_iter.next_line()
         return drawing_elements
 
-    def children(self):
+    def children(self) -> list[LayoutElement]:
+        """Return the children of the `TextLayoutElement`.
+        The `TextLayoutElement` has no children, so return an empty list"""
         return []
 
-    def childless(self):
+    def childless(self) -> typing.Self:
+        """Return a copy of the `TextLayoutElement` with no children.
+        The `TextLayoutElement` has no children, so return a copy of the `TextLayoutElement`
+        """
         return copy.deepcopy(self)
 
-    def north_west(self):
+    def north_west(self) -> momapy.geometry.Point:
+        """Return the north west anchor of the `TextLayoutElement`"""
         return self.bbox().north_west()
 
-    def north_north_west(self):
+    def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north north west anchor of the `TextLayoutElement`"""
         return self.bbox().north_north_west()
 
-    def north(self):
+    def north(self) -> momapy.geometry.Point:
+        """Return the north anchor of the `TextLayoutElement`"""
         return self.bbox().north()
 
-    def north_north_east(self):
+    def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north north east anchor of the `TextLayoutElement`"""
         return self.bbox().north_north_east()
 
-    def north_east(self):
+    def north_east(self) -> momapy.geometry.Point:
+        """Return the north east anchor of the `TextLayoutElement`"""
         return self.bbox().north_east()
 
-    def east_north_east(self):
+    def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east north east anchor of the `TextLayoutElement`"""
         return self.bbox().east_north_east()
 
-    def east(self):
+    def east(self) -> momapy.geometry.Point:
+        """Return the east anchor of the `TextLayoutElement`"""
         return self.bbox().east()
 
-    def east_south_east(self):
+    def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east south east anchor of the `TextLayoutElement`"""
         return self.bbox().east_south_east()
 
-    def south_east(self):
+    def south_east(self) -> momapy.geometry.Point:
+        """Return the south east anchor of the `TextLayoutElement`"""
         return self.bbox().south_east()
 
-    def south_south_east(self):
+    def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south south east anchor of the `TextLayoutElement`"""
         return self.bbox().south_south_east()
 
-    def south(self):
+    def south(self) -> momapy.geometry.Point:
+        """Return the south anchor of the `TextLayoutElement`"""
         return self.bbox().south()
 
-    def south_south_west(self):
+    def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south south west anchor of the `TextLayoutElement`"""
         return self.bbox().south_south_west()
 
-    def south_west(self):
+    def south_west(self) -> momapy.geometry.Point:
+        """Return the south west anchor of the `TextLayoutElement`"""
         return self.bbox().south_west()
 
-    def west_south_west(self):
+    def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west south west anchor of the `TextLayoutElement`"""
         return self.bbox().west_south_west()
 
-    def west(self):
+    def west(self) -> momapy.geometry.Point:
+        """Return the west anchor of the `TextLayoutElement`"""
         return self.bbox().west()
 
-    def west_north_west(self):
+    def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west north west anchor of the `TextLayoutElement`"""
         return self.bbox().west_north_west()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Shape(LayoutElement):
-    def childless(self):
+    """Class for basic shapes. The `Shape` is the most simple `LayoutElement`.
+    It has no children."""
+
+    def childless(self) -> typing.self:
+        """Return a copy of the `Shape` with no children.
+        A `Shape` has no children, so return a copy of the `Shape`"""
         return copy.deepcopy(self)
 
-    def children(self):
+    def children(self) -> list[LayoutElement]:
+        """Return the children of the `Shape`.
+        A `Shape` has no children, so return an empty list"""
         return []
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
+    """Abstract class for layout elements grouping other layout elements.
+    A `GroupLayoutElement` has its own drawing elements, and a set of children.
+    The drawing elements of a `GroupLayoutElement` is a `momapy.drawing.Group` formed of its own drawing elements and those of its children
+    """
+
     layout_elements: tuple[LayoutElement] = dataclasses.field(
         default_factory=tuple
     )
@@ -356,23 +410,30 @@ class GroupLayout(LayoutElement):
     ) = None
 
     def self_to_shapely(self, to_polygons=False):
+        """Compute and return a `shapely.GeometryCollection` built from the `GroupLayoutElement`'s own drawing elements"""
         return momapy.drawing.drawing_elements_to_shapely(
             self.drawing_elements()
         )
 
     def self_bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the `GroupLayoutElement`'s own drawing elements"""
         bounds = self.self_to_shapely().bounds
         return momapy.geometry.Bbox.from_bounds(bounds)
 
     @abc.abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the `GroupLayoutElement`'s own drawing elements"""
         pass
 
     @abc.abstractmethod
     def self_children(self) -> list[LayoutElement]:
+        """Return the `GroupLayoutElement`'s own children"""
         pass
 
     def drawing_elements(self):
+        """Return the drawing elements of the `GroupLayoutElement`.
+        The returned drawing elements are a `momapy.drawing.Group` formed of the `GroupLayoutElement`'s own drawing elements and those of its children
+        """
         drawing_elements = self.self_drawing_elements()
         for child in self.children():
             if child is not None:
@@ -398,11 +459,16 @@ class GroupLayout(LayoutElement):
         return [group]
 
     def children(self):
+        """Return the children of the `GroupLayoutElement`.
+        These are the `GroupLayoutElement`'s own children (returned by the `self_children` method) and the `GroupLayoutElement`'s other children (given by the `layout_element` attribute)
+        """
         return self.self_children() + list(self.layout_elements)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Node(GroupLayout):
+    """Class for nodes. A `Node` is a layout element with a `position`, a `width`, a `height` and an optional `label`."""
+
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
     filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = None
     height: float
@@ -420,18 +486,21 @@ class Node(GroupLayout):
     width: float
 
     @property
-    def x(self):
+    def x(self) -> float:
+        """Return the x coordinate of the `Node`"""
         return self.position.x
 
     @property
-    def y(self):
+    def y(self) -> float:
+        """Return the y coordinate of the `Node`"""
         return self.position.y
 
     @abc.abstractmethod
     def _border_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
-    def self_drawing_elements(self):
+    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the `Node`'s own drawing elements"""
         elements = self._border_drawing_elements()
         group = momapy.drawing.Group(
             class_=type(self).__name__,
@@ -447,15 +516,18 @@ class Node(GroupLayout):
         )
         return [group]
 
-    def self_children(self):
+    def self_children(self) -> list[LayoutElement]:
+        """Return the `Node`'s own children"""
         if self.label is not None:
             return [self.label]
         return []
 
-    def size(self):
+    def size(self) -> tuple[float, float]:
+        """Return the size of the `Node`"""
         return (self.width, self.height)
 
     def north_west(self) -> momapy.geometry.Point:
+        """Return the north west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 2)
         )
@@ -463,6 +535,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north north west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 4, self.height / 2)
         )
@@ -470,9 +543,11 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def north(self) -> momapy.geometry.Point:
+        """Return the north anchor of the `TextLayoutElement`"""
         return self.self_angle(90)
 
     def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north north east anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 4, -self.height / 2)
         )
@@ -480,6 +555,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def north_east(self) -> momapy.geometry.Point:
+        """Return the north east anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, -self.height / 2)
         )
@@ -487,6 +563,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east north east anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, -self.height / 4)
         )
@@ -494,9 +571,11 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def east(self) -> momapy.geometry.Point:
+        """Return the east anchor of the `TextLayoutElement`"""
         return self.self_angle(0)
 
     def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east south east west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 4)
         )
@@ -504,6 +583,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def south_east(self) -> momapy.geometry.Point:
+        """Return the south east anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 2)
         )
@@ -511,6 +591,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south south east anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 4, self.height / 2)
         )
@@ -518,9 +599,11 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def south(self) -> momapy.geometry.Point:
+        """Return the south anchor of the `TextLayoutElement`"""
         return self.self_angle(270)
 
     def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south south west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 4, self.height / 2)
         )
@@ -528,6 +611,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def south_west(self) -> momapy.geometry.Point:
+        """Return the south west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 2, self.height / 2)
         )
@@ -535,6 +619,7 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west south west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 2, self.height / 4)
         )
@@ -542,9 +627,11 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def west(self) -> momapy.geometry.Point:
+        """Return the west anchor of the `TextLayoutElement`"""
         return self.self_angle(180)
 
     def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west north west anchor of the `TextLayoutElement`"""
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 4)
         )
@@ -552,12 +639,17 @@ class Node(GroupLayout):
         return self.self_angle(angle, unit="radians")
 
     def center(self) -> momapy.geometry.Point:
+        """Return the center anchor of the `TextLayoutElement`"""
         return self.position
 
     def label_center(self) -> momapy.geometry.Point:
+        """Return the label center anchor of the `TextLayoutElement`"""
         return self.position
 
     def self_border(self, point) -> momapy.geometry.Point:
+        """Return the point on the border of the `Node` that intersects the `Node`'s own drawing elements with the line formed of the center anchor point of the `Node` and the given point.
+        When there are multiple intersection points, the one closest to the given point is returned
+        """
         return momapy.drawing.get_drawing_elements_border(
             drawing_elements=self.self_drawing_elements(),
             point=point,
@@ -565,6 +657,9 @@ class Node(GroupLayout):
         )
 
     def border(self, point) -> momapy.geometry.Point:
+        """Return the point on the border of the `Node` that intersects the `Node`'s drawing elements with the line formed of the center anchor point of the `Node` and the given point.
+        When there are multiple intersection points, the one closest to the given point is returned
+        """
         return momapy.drawing.get_drawing_elements_border(
             drawing_elements=self.drawing_elements(),
             point=point,
@@ -572,6 +667,7 @@ class Node(GroupLayout):
         )
 
     def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+        """Return the point on the border of the `Node` that intersects the `Node`'s own drawing elements with the line passing through the center anchor point of the `Node` and at a given angle from the horizontal."""
         return momapy.drawing.get_drawing_elements_angle(
             drawing_elements=self.self_drawing_elements(),
             angle=angle,
@@ -580,6 +676,7 @@ class Node(GroupLayout):
         )
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
+        """Return the point on the border of the `Node` that intersects the `Node`'s drawing elements with the line passing through the center anchor point of the `Node` and at a given angle from the horizontal."""
         return momapy.drawing.get_drawing_elements_angle(
             drawing_elements=self.drawing_elements(),
             angle=angle,
@@ -588,11 +685,12 @@ class Node(GroupLayout):
         )
 
     def childless(self):
+        """Return a copy of the `Node` with no children"""
         return dataclasses.replace(self, label=None, layout_elements=None)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Arc(GroupLayout):
+class _Arc(GroupLayout):
     end_shorten: float = 0.0
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
     filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = None
@@ -701,7 +799,9 @@ class Arc(GroupLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SingleHeadedArc(Arc):
+class SingleHeadedArc(_Arc):
+    """Class for single-headed arcs. The `SingleHeadedArc` is formed of a path and a unique arrowhead at its end"""
+
     arrowhead_fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = None
@@ -723,6 +823,7 @@ class SingleHeadedArc(Arc):
     ) = None
 
     def arrowhead_length(self) -> float:
+        """Return the length of the `SingleHeadedArc`'s arrowhead"""
         bbox = momapy.drawing.get_drawing_elements_bbox(
             self._arrowhead_border_drawing_elements()
         )
@@ -731,6 +832,7 @@ class SingleHeadedArc(Arc):
         return bbox.east().x
 
     def arrowhead_tip(self) -> momapy.geometry.Point:
+        """Return the arrowhead tip anchor point of the `SingleHeadedArc`"""
         segment = self.segments[-1]
         segment_length = segment.length()
         if segment_length == 0:
@@ -739,6 +841,7 @@ class SingleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def arrowhead_base(self) -> momapy.geometry.Point:
+        """Return the arrowhead base anchor point of the `SingleHeadedArc`"""
         arrowhead_length = self.arrowhead_length()
         segment = self.segments[-1]
         segment_length = segment.length()
@@ -748,11 +851,16 @@ class SingleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def arrowhead_bbox(self) -> momapy.geometry.Bbox:
+        """Return the bounding box of the `SingleHeadedArc`'s arrowhead"""
         return momapy.drawing.get_drawing_elements_bbox(
             self.arrowhead_drawing_elements()
         )
 
-    def arrowhead_border(self, point):
+    def arrowhead_border(self, point) -> momapy.geometry.Point:
+        """Return the point at the intersection of the drawing elements of the `SingleHeadedArc`'s arrowhead and the line going through the center of these drawing elements and the given point.
+        When there are multiple intersection points, the one closest to the given point is returned
+        """
+
         point = momapy.drawing.get_drawing_elements_border(
             self.arrowhead_drawing_elements(), point
         )
@@ -787,6 +895,7 @@ class SingleHeadedArc(Arc):
     def arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the `SingleHeadedArc`'s arrowhead"""
         elements = self._arrowhead_border_drawing_elements()
         group = momapy.drawing.Group(
             class_=f"{type(self).__name__}_arrowhead",
@@ -805,6 +914,7 @@ class SingleHeadedArc(Arc):
         return [group]
 
     def path_drawing_elements(self) -> list[momapy.drawing.Path]:
+        """Return the drawing elements of the `SingleHeadedArc`'s path"""
         arrowhead_length = self.arrowhead_length()
         if len(self.segments) == 1:
             segment = (
@@ -846,6 +956,7 @@ class SingleHeadedArc(Arc):
         return [path]
 
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the `SingleHeadedArc`'s own drawing elements"""
         elements = (
             self.path_drawing_elements() + self.arrowhead_drawing_elements()
         )
@@ -865,7 +976,9 @@ class SingleHeadedArc(Arc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class DoubleHeadedArc(Arc):
+class DoubleHeadedArc(_Arc):
+    """Class for double-headed arcs. The `DoubleHeadedArc` is formed of a path and two arrowheads, on at the beginning of the path and one at its end"""
+
     end_arrowhead_fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = None
@@ -905,7 +1018,8 @@ class DoubleHeadedArc(Arc):
         | None
     ) = None
 
-    def start_arrowhead_length(self):
+    def start_arrowhead_length(self) -> float:
+        """Return the length of the `DoubleHeadedArc`'s start arrowhead"""
         bbox = momapy.drawing.get_drawing_elements_bbox(
             self._start_arrowhead_border_drawing_elements()
         )
@@ -914,6 +1028,7 @@ class DoubleHeadedArc(Arc):
         return abs(bbox.west().x)
 
     def start_arrowhead_tip(self) -> momapy.geometry.Point:
+        """Return the tip anchor point of the `DoubleHeadedArc`'s start arrowhead"""
         segment = self.segments[0]
         segment = momapy.geometry.Segment(segment.p2, segment.p1)
         segment_length = segment.length()
@@ -923,6 +1038,7 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def start_arrowhead_base(self) -> momapy.geometry.Point:
+        """Return the base anchor point of the `DoubleHeadedArc`'s start arrowhead"""
         arrowhead_length = self.start_arrowhead_length()
         if arrowhead_length == 0:
             return self.start_point()
@@ -934,12 +1050,17 @@ class DoubleHeadedArc(Arc):
         fraction = 1 - (arrowhead_length + self.start_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def start_arrowhead_bbox(self):
+    def start_arrowhead_bbox(self) -> momapy.geometry.Bbox:
+        """Return the bounding box of the `DoubleHeadedArc`'s start arrowhead"""
         return momapy.drawing.get_drawing_elements_bbox(
             self.start_arrowhead_drawing_elements()
         )
 
-    def start_arrowhead_border(self, point):
+    def start_arrowhead_border(self, point) -> momapy.geometry.Point:
+        """Return the point at the intersection of the drawing elements of the `DoubleHeadedArc`'s start arrowhead and the line going through the center of these drawing elements and the given point.
+        When there are multiple intersection points, the one closest to the given point is returned
+        """
+
         point = momapy.drawing.get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
         )
@@ -947,7 +1068,8 @@ class DoubleHeadedArc(Arc):
             return self.start_arrowhead_tip()
         return point
 
-    def end_arrowhead_length(self):
+    def end_arrowhead_length(self) -> float:
+        """Return the length of the `DoubleHeadedArc`'s end arrowhead"""
         bbox = momapy.drawing.get_drawing_elements_bbox(
             self._end_arrowhead_border_drawing_elements()
         )
@@ -956,6 +1078,7 @@ class DoubleHeadedArc(Arc):
         return bbox.east().x
 
     def end_arrowhead_tip(self) -> momapy.geometry.Point:
+        """Return the tip anchor point of the `DoubleHeadedArc`'s end arrowhead"""
         segment = self.segments[-1]
         segment_length = segment.length()
         if segment_length == 0:
@@ -964,6 +1087,7 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def end_arrowhead_base(self) -> momapy.geometry.Point:
+        """Return the base anchor point of the `DoubleHeadedArc`'s end arrowhead"""
         arrowhead_length = self.end_arrowhead_length()
         if arrowhead_length == 0:
             return self.end_point()
@@ -975,11 +1099,16 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def end_arrowhead_bbox(self):
+        """Return the bounding box of the `DoubleHeadedArc`'s start arrowhead"""
         return momapy.drawing.get_drawing_elements_bbox(
             self.end_arrowhead_drawing_elements()
         )
 
     def end_arrowhead_border(self, point):
+        """Return the point at the intersection of the drawing elements of the `DoubleHeadedArc`'s end arrowhead and the line going through the center of these drawing elements and the given point.
+        When there are multiple intersection points, the one closest to the given point is returned
+        """
+
         point = momapy.drawing.get_drawing_elements_border(
             self.end_arrowhead_drawing_elements(), point
         )
@@ -1023,6 +1152,7 @@ class DoubleHeadedArc(Arc):
     def start_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the `DoubleHeadedArc`'s start arrowhead"""
         elements = self._start_arrowhead_border_drawing_elements()
         group = momapy.drawing.Group(
             class_=f"{type(self).__name__}_start_arrowhead",
@@ -1061,6 +1191,7 @@ class DoubleHeadedArc(Arc):
     def end_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the `DoubleHeadedArc`'s end arrowhead"""
         elements = self._end_arrowhead_border_drawing_elements()
         group = momapy.drawing.Group(
             class_=f"{type(self).__name__}_end_arrowhead",
@@ -1079,6 +1210,7 @@ class DoubleHeadedArc(Arc):
         return [group]
 
     def path_drawing_elements(self) -> list[momapy.drawing.Path]:
+        """Return the drawing elements of the `DoubleHeadedArc`'s path"""
         start_arrowhead_length = self.start_arrowhead_length()
         end_arrowhead_length = self.end_arrowhead_length()
         if len(self.segments) == 1:
@@ -1123,11 +1255,13 @@ class DoubleHeadedArc(Arc):
         return [path]
 
     def self_drawing_elements(self):
+        """Return the `DoubleHeadedArc`'s own drawing elements"""
         elements = (
             self.path_drawing_elements()
             + self.start_arrowhead_drawing_elements()
             + self.end_arrowhead_drawing_elements()
         )
+
         group = momapy.drawing.Group(
             class_=type(self).__name__,
             elements=elements,
@@ -1145,6 +1279,8 @@ class DoubleHeadedArc(Arc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Model(MapElement):
+    """Abstract class for models"""
+
     @abc.abstractmethod
     def is_submodel(self, other):
         pass
@@ -1152,6 +1288,7 @@ class Model(MapElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Layout(Node):
+    """Class for layouts"""
 
     def _border_drawing_elements(self):
         actions = [
@@ -1173,6 +1310,8 @@ class Layout(Node):
         return [path]
 
     def is_sublayout(self, other, flattened=False, unordered=False):
+        """Return `ture` if another given layout is a sublayout of the `Layout`, `false` otherwise"""
+
         def _is_sublist(list1, list2, unordered=False) -> bool:
             if not unordered:
                 i = 0
@@ -1224,6 +1363,8 @@ _SetToSetMappingType: typing.TypeAlias = frozendict.frozendict[
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LayoutModelMapping(collections.abc.Mapping):
+    """Class for the mapping between model elements and layout elements"""
+
     _singleton_to_set_mapping: _SingletonToSetMappingType = dataclasses.field(
         default_factory=frozendict.frozendict
     )
@@ -1261,7 +1402,7 @@ class LayoutModelMapping(collections.abc.Mapping):
         key: ModelElement | _MappingElementType | _MappingKeyType,
         expand: bool = True,
         unpack: bool = False,
-    ):
+    ) -> frozenset[frozenset[LayoutElement]] | frozenset[LayoutElement]:
         if (
             isinstance(key, ModelElement)
             or isinstance(key, LayoutElement)
@@ -1295,7 +1436,8 @@ class LayoutModelMapping(collections.abc.Mapping):
 
         return value
 
-    def is_submapping(self, other):
+    def is_submapping(self, other) -> bool:
+        """Return `true` if another mapping is a submapping of the `LayoutModelMapping`, `false` otherwise"""
         for left_element, right_elements in self._set_to_set_mapping.items():
             other_right_elements = other._set_to_set_mapping.get(left_element)
             if other_right_elements is None or not right_elements.issubset(
@@ -1307,11 +1449,14 @@ class LayoutModelMapping(collections.abc.Mapping):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
+    """Class for maps"""
+
     model: Model | None = None
     layout: Layout | None = None
     layout_model_mapping: LayoutModelMapping | None = None
 
     def is_submap(self, other):
+        """Return `true` if another given map is a submap of the `Map`, `false` otherwise"""
         return (
             self.model.is_submodel(other.model)
             and self.layout.is_sublayout(other.layout)
@@ -1332,6 +1477,8 @@ class Map(MapElement):
 
 
 class TupleBuilder(list, momapy.builder.Builder):
+    """Builder class for tuples"""
+
     _cls_to_build = tuple
 
     def build(
@@ -1385,6 +1532,8 @@ class TupleBuilder(list, momapy.builder.Builder):
 
 
 class FrozensetBuilder(set, momapy.builder.Builder):
+    """Builder class for frozensets"""
+
     _cls_to_build = frozenset
 
     def build(
@@ -1438,6 +1587,8 @@ class FrozensetBuilder(set, momapy.builder.Builder):
 
 
 class FrozendictBuilder(dict, momapy.builder.Builder):
+    """Builder class for frozendicts"""
+
     _cls_to_build = frozendict.frozendict
 
     def build(
@@ -1542,7 +1693,6 @@ MapElementBuilder = momapy.builder.get_or_make_builder_cls(
 ModelElementBuilder = momapy.builder.get_or_make_builder_cls(ModelElement)
 LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(LayoutElement)
 NodeBuilder = momapy.builder.get_or_make_builder_cls(Node)
-ArcBuilder = momapy.builder.get_or_make_builder_cls(Arc)
 TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(TextLayout)
 
 
