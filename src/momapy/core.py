@@ -364,7 +364,7 @@ class Shape(LayoutElement):
     """Class for basic shapes. The `Shape` is the most simple `LayoutElement`.
     It has no children."""
 
-    def childless(self) -> typing.self:
+    def childless(self) -> typing.Self:
         """Return a copy of the `Shape` with no children.
         A `Shape` has no children, so return a copy of the `Shape`"""
         return copy.deepcopy(self)
