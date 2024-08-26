@@ -1,10 +1,10 @@
 
     SBGNPDLayout {
-        border-stroke: red;
-        border-fill: lightyellow;
+        stroke: red;
+        fill: lightyellow;
     }
     
     MacromoleculeLayout {
-        border-fill: green;
+        fill: green;
     }
     

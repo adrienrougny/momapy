@@ -23,7 +23,9 @@ def display(obj, width=600, height=450):
         renderer.render_map(obj)
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.LayoutElement):
         renderer.render_layout_element(obj)
-    if momapy.builder.isinstance_or_builder(obj, momapy.drawing.DrawingElement):
+    if momapy.builder.isinstance_or_builder(
+        obj, momapy.drawing.DrawingElement
+    ):
         renderer.render_drawing_element(obj)
     image = surface.makeImageSnapshot()
     renderer.end_session()
@@ -81,27 +83,29 @@ def make_toy_node(
         StateVariableLayoutBuilder = momapy.builder.get_or_make_builder_cls(
             momapy.sbgn.pd.StateVariableLayout
         )
-        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.UnitOfInformationLayout
+        UnitOfInformationLayoutBuilder = (
+            momapy.builder.get_or_make_builder_cls(
+                momapy.sbgn.pd.UnitOfInformationLayout
+            )
         )
         s1 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
             position=m.self_angle(130),
         )
-        m.state_variables.add(s1)
+        m.layout_elements.append(s1)
         s2 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
             position=m.self_angle(50),
         )
-        m.state_variables.add(s1)
+        m.layout_elements.append(s2)
         u1 = UnitOfInformationLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
             position=m.south(),
         )
-        m.unit_of_informations.add(s1)
+        m.layout_elements.append(u1)
     return m
 
 
@@ -151,15 +155,17 @@ def make_toy_arc(
         [momapy.geometry.Segment(start_point, end_point)]
     )
     if make_auxiliary:
-        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.UnitOfInformationLayout
+        UnitOfInformationLayoutBuilder = (
+            momapy.builder.get_or_make_builder_cls(
+                momapy.sbgn.pd.UnitOfInformationLayout
+            )
         )
         u1 = UnitOfInformationLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
         )
         momapy.positioning.set_fraction_of(u1, m, 0.5, "south")
-        m.unit_of_informations.add(u1)
+        m.layout_elements.append(u1)
     return m
 
 
@@ -241,8 +247,8 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                border_stroke_width=1.5,
-                border_stroke=momapy.coloring.red,
+                stroke_width=1.5,
+                stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
@@ -277,7 +283,9 @@ def show_room(cls, type_="anchor"):
             )
             m.layout_elements.append(cross)
 
-    elif momapy.builder.issubclass_or_builder(cls, momapy.core.Arc):
+    elif momapy.builder.issubclass_or_builder(
+        cls, (momapy.core.SingleHeadedArc, momapy.core.DoubleHeadedArc)
+    ):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)
@@ -303,8 +311,8 @@ def show_room(cls, type_="anchor"):
                 width=CROSS_SIZE,
                 height=CROSS_SIZE,
                 position=position,
-                border_stroke_width=1.5,
-                border_stroke=momapy.coloring.red,
+                stroke_width=1.5,
+                stroke=momapy.coloring.red,
                 label=momapy.core.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
