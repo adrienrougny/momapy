@@ -1,31 +1,35 @@
-from dataclasses import dataclass, field, replace
-from typing import Optional, Any, Callable, Union
-from abc import ABC, abstractmethod
-
+import dataclasses
+import typing
+import abc
 import math
-import numpy
 import decimal
 import copy
 
+import numpy
 import shapely
+import bezier.curve
 
 import momapy.builder
 
-import bezier.curve
 
 ROUNDING = 2
 decimal.getcontext().prec = ROUNDING
 
 
-@dataclass(frozen=True)
-class GeometryObject(ABC):
-    @abstractmethod
-    def to_shapely(self):
+@dataclasses.dataclass(frozen=True)
+class GeometryObject(abc.ABC):
+    """Abstract class for geometry objects"""
+
+    @abc.abstractmethod
+    def to_shapely(self) -> shapely.Geometry:
+        """Compute and return a `shapely.Geometry` that reproduces the `GeometryObject`"""
         pass
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Point(GeometryObject):
+    """Class for points"""
+
     x: float
     y: float
 
@@ -49,11 +53,13 @@ class Point(GeometryObject):
         yield self.x
         yield self.y
 
-    def to_matrix(self):
+    def to_matrix(self) -> numpy.array:
+        """Return a `numpy.array` representation of the `Point`"""
         m = numpy.array([[self.x], [self.y], [1]], dtype=float)
         return m
 
-    def to_tuple(self):
+    def to_tuple(self) -> tuple[float, float]:
+        """Return a tuple representation of the `Point`"""
         return (
             self.x,
             self.y,
@@ -63,40 +69,50 @@ class Point(GeometryObject):
         return get_intersection_of_line_and_point(line, self)
 
     def get_angle_to_horizontal(self):
+        """Return the angle to the horizontal of the line passing through the origin and the `Point`"""
         return get_angle_to_horizontal_of_point(self)
 
-    def transformed(self, transformation):
+    def transformed(self, transformation: "Transformation") -> "Point":
+        """Return the `Point` transformed by the given transformation"""
         return transform_point(self, transformation)
 
-    def reversed(self):
+    def reversed(self) -> "Point":
+        """Return the `Point` reversed"""
         return reverse_point(self)
 
-    def to_shapely(self):
+    def to_shapely(self) -> shapely.Point:
+        """Return a `shapely.Point` that reproduces the `Point`"""
         return shapely.Point(self.x, self.y)
 
     def to_fortranarray(self):
+        """Return a `numpy.fortranarray` representation of the `Point`"""
         return numpy.asfortranarray([[self.x], [self.y]])
 
     def bbox(self):
+        """Return the bounding box of the `Point`"""
         return Bbox(copy.deepcopy(self), 0, 0)
 
     def isnan(self):
+        """Return `true` if the `Point` has a nan coordinate, `false` otherwise"""
         return math.isnan(self.x) or math.isnan(self.y)
 
     @classmethod
-    def from_shapely(cls, point: shapely.Point):
+    def from_shapely(cls, point: shapely.Point) -> typing.Self:
+        """Return a `Point` reproducing a `shapely.Point`"""
         return cls(point.x, point.y)
 
     @classmethod
-    def from_fortranarray(cls, fortranarray):
+    def from_fortranarray(cls, fortranarray: typing.Any) -> typing.Self:
+        """Return a `Point` from a `numpy.fortranarray` representation"""
         return cls(fortranarray[0][0], fortranarray[1][1])
 
     @classmethod
-    def from_tuple(cls, t):
+    def from_tuple(cls, t: tuple[float, float]) -> typing.Self:
+        """Return a `Point` from a tuple representation"""
         return cls(t[0], t[1])
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Line(GeometryObject):
     p1: Point
     p2: Point
@@ -143,7 +159,7 @@ class Line(GeometryObject):
         return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Segment(GeometryObject):
     p1: Point
     p2: Point
@@ -198,11 +214,11 @@ class Segment(GeometryObject):
         )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class BezierCurve(GeometryObject):
     p1: Point
     p2: Point
-    control_points: tuple[Point] = field(default_factory=tuple)
+    control_points: tuple[Point] = dataclasses.field(default_factory=tuple)
 
     def _to_bezier(self):
         x = []
@@ -266,7 +282,7 @@ class BezierCurve(GeometryObject):
         return Bbox.from_bounds(self.to_shapely().bounds)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class EllipticalArc(GeometryObject):
     p1: Point
     p2: Point
@@ -371,7 +387,7 @@ class EllipticalArc(GeometryObject):
         return transform_elliptical_arc_to_bezier_curves(self)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Bbox(object):
     position: Point
     width: float
@@ -454,15 +470,15 @@ class Bbox(object):
         )
 
 
-@dataclass(frozen=True)
-class Transformation(ABC):
+@dataclasses.dataclass(frozen=True)
+class Transformation(abc.ABC):
     pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def to_matrix(self):
         pass
 
-    @abstractmethod
+    @abc.abstractmethod
     def inverted(self):
         pass
 
@@ -472,7 +488,7 @@ class Transformation(ABC):
         )
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class MatrixTransformation(Transformation):
     m: numpy.array
 
@@ -483,10 +499,10 @@ class MatrixTransformation(Transformation):
         return invert_matrix_transformation(self)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Rotation(Transformation):
     angle: float
-    point: Optional[Point] = None
+    point: Point | None = None
 
     def to_matrix(self):
         m = numpy.array(
@@ -509,7 +525,7 @@ class Rotation(Transformation):
         return invert_rotation(self)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Translation(Transformation):
     tx: float
     ty: float
@@ -524,7 +540,7 @@ class Translation(Transformation):
         return invert_translation(self)
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Scaling(Transformation):
     sx: float
     sy: float
@@ -685,7 +701,9 @@ def shorten_elliptical_arc(elliptical_arc, length, start_or_end="end"):
         else:
             fraction = 1 - length / elliptical_arc.length()
             point = elliptical_arc.get_position_at_fraction(fraction)
-            shortened_elliptical_arc = replace(elliptical_arc, p2=point)
+            shortened_elliptical_arc = dataclasses.replace(
+                elliptical_arc, p2=point
+            )
     return shortened_elliptical_arc
 
 
@@ -1084,7 +1102,7 @@ def transform_elliptical_arc_to_bezier_curves(elliptical_arc):
 
 
 def _get_angle_at_fraction(
-    segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
+    segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
     line_string = segment_or_curve.to_shapely()
@@ -1124,7 +1142,7 @@ def get_angle_at_fraction_of_elliptical_arc(
 
 
 def _get_position_and_angle_at_fraction(
-    segment_or_curve: Union[Segment, BezierCurve, EllipticalArc],
+    segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
 ) -> Point:  # fraction in [0, 1]
     position = _get_position_at_fraction(segment_or_curve, fraction)
