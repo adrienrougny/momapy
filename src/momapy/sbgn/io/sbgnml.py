@@ -3753,7 +3753,10 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             render_information.id = momapy.utils.get_uuid4_as_str()
             render_information.program_name = momapy.__about__.__name__
             render_information.program_version = momapy.__about__.__version__
-            if map_.layout.fill is not None:
+            if (
+                map_.layout.fill is not None
+                and map_.layout.fill != momapy.drawing.NoneValue
+            ):
                 render_information.background_color = (
                     map_.layout.fill.to_hexa()
                 )
