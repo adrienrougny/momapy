@@ -522,7 +522,7 @@ MacromoleculeLayout {
 
 MacromoleculeLayout > TextLayout {
     font-family: "Cantarell";
-    group-font-size: 14.0;
+    font-size: 14.0;
 }
 
 
@@ -1190,7 +1190,7 @@ StateVariableLayout {
 
 StateVariableLayout > TextLayout {
     font-family: "Cantarell";
-    group-font-size: 10.0;
+    font-size: 10.0;
 }
 
 
