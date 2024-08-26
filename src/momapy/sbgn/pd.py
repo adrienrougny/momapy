@@ -1211,7 +1211,9 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ConsumptionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine.arrowhead_drawing_elements(self)
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1223,7 +1225,9 @@ class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Triangle.arrowhead_drawing_elements(self)
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
+            self
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
