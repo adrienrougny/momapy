@@ -1290,6 +1290,10 @@ class Model(MapElement):
 class Layout(Node):
     """Class for layouts"""
 
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+
     def _border_drawing_elements(self):
         actions = [
             momapy.drawing.MoveTo(
