@@ -840,15 +840,13 @@ def get_shapely_object_bbox(shapely_object):
     return Bbox.from_bounds(shapely_object.bounds)
 
 
-def get_shapely_object_border(
-    shapely_object, point, position=None
-) -> Point | None:
-    if position is None:
+def get_shapely_object_border(shapely_object, point, center) -> Point | None:
+    if center is None:
         bbox = get_shapely_object_bbox(shapely_object)
-        if position.isnan():
-            return Point(float("nan"), float("nan"))
-        position = bbox.center()
-    line = Line(position, point)
+        center = bbox.center()
+    if center.isnan():
+        return Point(float("nan"), float("nan"))
+    line = Line(center, point)
     intersection = get_intersection_of_line_and_shapely_object(
         line, shapely_object
     )
@@ -862,10 +860,10 @@ def get_shapely_object_border(
     intersection_point = None
     max_d = -1
     ok_direction_exists = False
-    d1 = get_distance_between_points(point, position)
+    d1 = get_distance_between_points(point, center)
     for candidate_point in candidate_points:
         d2 = get_distance_between_points(candidate_point, point)
-        d3 = get_distance_between_points(candidate_point, position)
+        d3 = get_distance_between_points(candidate_point, center)
         candidate_ok_direction = not d2 > d1 or d2 < d3
         if candidate_ok_direction or not ok_direction_exists:
             if candidate_ok_direction and not ok_direction_exists:
@@ -878,31 +876,31 @@ def get_shapely_object_border(
 
 
 def get_shapely_object_angle(
-    shapely_object, angle, unit="degrees", position=None
+    shapely_object, angle, unit="degrees", center=None
 ) -> Point | None:
     if unit == "degrees":
         angle = math.radians(angle)
     angle = -angle
     d = 100
-    if position is None:
+    if center is None:
         bbox = get_shapely_object_bbox(shapely_object)
-        position = bbox.center()
-        if position.isnan():
+        center = bbox.center()
+        if center.isnan():
             return Point(float("nan"), float("nan"))
-    point = position + (d * math.cos(angle), d * math.sin(angle))
-    return get_shapely_object_border(shapely_object, point, position)
+    point = center + (d * math.cos(angle), d * math.sin(angle))
+    return get_shapely_object_border(shapely_object, point, center)
 
 
 def get_shapely_object_anchor_point(
-    shapely_object, anchor_point: str
+    shapely_object, anchor_point: str, center
 ) -> Point:
     bbox = get_shapely_object_bbox(shapely_object)
-    if bbox.isnan():
+    if center is None:
+        center = bbox.center()
+    if center.isnan():
         return Point(float("nan"), float("nan"))
     point = bbox.anchor_point(anchor_point)
-    return get_shapely_object_border(
-        shapely_object, point, position=bbox.center()
-    )
+    return get_shapely_object_border(shapely_object, point, center)
 
 
 def get_angle_to_horizontal_of_point(point):

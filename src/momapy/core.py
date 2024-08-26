@@ -653,7 +653,7 @@ class Node(GroupLayout):
         return momapy.drawing.get_drawing_elements_border(
             drawing_elements=self.self_drawing_elements(),
             point=point,
-            position=self.center(),
+            center=self.center(),
         )
 
     def border(self, point) -> momapy.geometry.Point:
@@ -663,7 +663,7 @@ class Node(GroupLayout):
         return momapy.drawing.get_drawing_elements_border(
             drawing_elements=self.drawing_elements(),
             point=point,
-            position=self.center(),
+            center=self.center(),
         )
 
     def self_angle(self, angle, unit="degrees") -> momapy.geometry.Point:
@@ -672,7 +672,7 @@ class Node(GroupLayout):
             drawing_elements=self.self_drawing_elements(),
             angle=angle,
             unit=unit,
-            position=self.center(),
+            center=self.center(),
         )
 
     def angle(self, angle, unit="degrees") -> momapy.geometry.Point:
@@ -681,7 +681,7 @@ class Node(GroupLayout):
             drawing_elements=self.drawing_elements(),
             angle=angle,
             unit=unit,
-            position=self.center(),
+            center=self.center(),
         )
 
     def childless(self):

@@ -959,11 +959,12 @@ def drawing_elements_to_shapely(
 def get_drawing_elements_border(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     point: momapy.geometry.Point,
+    center: momapy.geometry.Point | None = None,
 ) -> momapy.geometry.Point:
     """Compute and return the point at the intersection of the given drawing elements and the line passing through the given point and the center of the given drawing elements"""
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_border(
-        shapely_object=shapely_object, point=point
+        shapely_object=shapely_object, point=point, center=center
     )
 
 
@@ -971,13 +972,12 @@ def get_drawing_elements_angle(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     angle: float,
     unit="degrees",
+    center: momapy.geometry.Point | None = None,
 ) -> momapy.geometry.Point:
     """Compute and return the point at the intersection of the given drawing elements and the line passing through the and the center of the given drawing elements and at the given angle from the horizontal"""
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_angle(
-        shapely_object=shapely_object,
-        angle=angle,
-        unit=unit,
+        shapely_object=shapely_object, angle=angle, unit=unit, center=center
     )
 
 
@@ -990,9 +990,11 @@ def get_drawing_elements_bbox(
 
 
 def get_drawing_elements_anchor_point(
-    drawing_elements, anchor_point: str
+    drawing_elements,
+    anchor_point: str,
+    center: momapy.geometry.Point | None = None,
 ) -> momapy.geometry.Point:
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_anchor_point(
-        shapely_object, anchor_point
+        shapely_object=shapely_object, anchor_point=anchor_point, center=center
     )
