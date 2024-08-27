@@ -114,6 +114,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_render_information=True,
         with_annotations=True,
         with_notes=True,
+        from_top_left=True,
     ):
         config = xsdata.formats.dataclass.parsers.config.ParserConfig()
         parser = xsdata.formats.dataclass.parsers.XmlParser(
@@ -128,6 +129,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             with_render_information=with_render_information,
             with_annotations=with_annotations,
             with_notes=with_notes,
+            from_top_left=from_top_left,
         )
         return map_
 
@@ -138,6 +140,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_render_information=True,
         with_annotations=True,
         with_notes=True,
+        from_top_left=True,
     ):
         sbgnml_id_to_model_element = {}
         sbgnml_id_to_layout_element = {}
@@ -257,12 +260,19 @@ class _SBGNMLReader(momapy.io.MapReader):
             map_.layout.width = sbgnml_map.bbox.w
             map_.layout.height = sbgnml_map.bbox.h
         else:
-            momapy.positioning.set_fit(
-                map_.layout,
-                momapy.builder.object_from_builder(
-                    map_.layout
-                ).layout_elements,
+            position, width, height = momapy.positioning.fit(
+                map_.layout.layout_elements
             )
+            if from_top_left:
+                map_.layout.width = position.x + width / 2
+                map_.layout.height = position.y + height / 2
+                map_.layout.position = momapy.geometry.Point(
+                    map_.layout.width / 2, map_.layout.height / 2
+                )
+            else:
+                map_.layout.width = width
+                map_.layout.height = height
+                map_.layout.position = position
         if with_annotations:
             if (
                 sbgnml_map.extension is not None
