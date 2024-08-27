@@ -682,7 +682,7 @@ class CompartmentLayout(
     width: float = 80.0
     height: float = 80.0
     rounded_corners: float = 5.0
-    border_stroke_width: float = 3.25
+    stroke_width: float = 3.25
 
     def _make_shape(self):
         return MacromoleculeLayout._make_shape(self)
@@ -695,7 +695,7 @@ class SubmapLayout(
 ):
     width: float = 80.0
     height: float = 80.0
-    border_stroke_width: float = 2.25
+    stroke_width: float = 2.25
 
     def _make_shape(self):
         return momapy.meta.shapes.Rectangle(
@@ -1099,7 +1099,7 @@ class AssociationLayout(
     width: float = 20.0
     height: float = 20.0
 
-    border_fill: (
+    fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.black
 

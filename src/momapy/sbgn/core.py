@@ -69,7 +69,7 @@ class SBGNModel(momapy.core.Model):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    border_fill: (
+    fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
     ) = momapy.coloring.white
 
