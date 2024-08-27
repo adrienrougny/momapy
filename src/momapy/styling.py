@@ -1,7 +1,6 @@
 import abc
+import collections.abc
 import dataclasses
-import typing
-import uuid
 import pyparsing as pp
 import copy
 
@@ -12,10 +11,14 @@ import momapy.core
 
 
 class StyleCollection(dict):
+    """Class for a style collection"""
+
     pass
 
 
 class StyleSheet(dict):
+    """Class for a style sheet"""
+
     def __or__(self, other):
         d = copy.deepcopy(self)
         for key, value in other.items():
@@ -29,17 +32,22 @@ class StyleSheet(dict):
         return self.__or__(other)
 
     @classmethod
-    def from_file(cls, file_path):
+    def from_file(cls, file_path: str) -> "StyleSheet":
+        """Return a `StyleSheet` from a file"""
         style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
         return style_sheet
 
     @classmethod
-    def from_string(cls, s):
+    def from_string(cls, s: str) -> "StyleSheet":
+        """Return a `StyleSheet` from a string"""
         style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
 
     @classmethod
-    def from_files(cls, file_paths):
+    def from_files(
+        cls, file_paths: collections.abc.Collection[str]
+    ) -> "StyleSheet":
+        """Return a `StyleSheet` from a collection of files"""
         style_sheets = []
         for file_path in file_paths:
             style_sheet = StyleSheet.from_file(file_path)
@@ -48,7 +56,10 @@ class StyleSheet(dict):
         return style_sheet
 
 
-def combine_style_sheets(style_sheets):
+def combine_style_sheets(
+    style_sheets: collections.abc.Collection[StyleSheet],
+) -> StyleSheet:
+    """Merge a collection of `StyleSheet` and return the resulting `StyleSheet`"""
     if not style_sheets:
         return None
     output_style_sheet = style_sheets[0]
@@ -57,91 +68,116 @@ def combine_style_sheets(style_sheets):
     return output_style_sheet
 
 
-def _apply_style_collection_to_builder(
-    layout_element_builder: momapy.core.LayoutElementBuilder,
+def apply_style_collection(
+    layout_element: (
+        momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+    ),
     style_collection: StyleCollection,
-    strict=True,
-):
+    strict: bool = True,
+) -> momapy.core.LayoutElement | momapy.core.LayoutElementBuilder:
+    """Apply a `StyleCollection` to a `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder`"""
+    if not isinstance(layout_element, momapy.builder.Builder):
+        layout_element = momapy.builder.builder_from_object(layout_element)
+        is_builder = False
+    else:
+        is_builder = True
     for attribute, value in style_collection.items():
-        if hasattr(layout_element_builder, attribute):
-            setattr(layout_element_builder, attribute, value)
+        if hasattr(layout_element, attribute):
+            setattr(layout_element, attribute, value)
         else:
             if strict:
                 raise AttributeError(
-                    f"{type(layout_element_builder)} object has no "
+                    f"{type(layout_element)} object has no "
                     f"attribute '{attribute}'"
                 )
+    if is_builder:
+        return layout_element
+    return momapy.builder.object_from_builder(layout_element)
 
 
-def apply_style_collection(
-    layout_element: momapy.core.LayoutElement,
-    style_collection: StyleCollection,
-    strict=True,
-):
-    layout_element_builder = momapy.builder.builder_from_object(layout_element)
-    _apply_style_collection_to_builder(
-        layout_element_builder, style_collection, strict=strict
-    )
-    return momapy.builder.object_from_builder(layout_element_builder)
-
-
-def _apply_style_sheet_to_builder(
-    map_or_layout_element_builder: (
-        momapy.core.MapBuilder | momapy.core.LayoutElementBuilder
+def apply_style_sheet(
+    map_or_layout_element: (
+        momapy.core.Map
+        | momapy.core.LayoutElement
+        | momapy.core.MapBuilder
+        | momapy.core.LayoutElementBuilder
     ),
     style_sheet: StyleSheet,
-    strict=True,
-    ancestors=None,
+    strict: bool = True,
+    ancestors: collections.abc.Collection[
+        momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+    ] = None,
+) -> (
+    momapy.core.Map
+    | momapy.core.LayoutElement
+    | momapy.core.LayoutElementBuilder
+    | momapy.core.MapBuilder
 ):
-    if isinstance(map_or_layout_element_builder, momapy.core.MapBuilder):
-        layout_element_builder = map_or_layout_element_builder.layout
+    """Apply a `StyleSheet` to a `momapy.core.LayoutElement`, a `momapy.core.Map`, a `momapy.core.LayoutElementBuilder` or a `momapy.core.MapBuilder"""
+    if not isinstance(map_or_layout_element, momapy.builder.Builder):
+        map_or_layout_element = momapy.builder.builder_from_object(
+            map_or_layout_element
+        )
+        is_builder = False
     else:
-        layout_element_builder = map_or_layout_element_builder
+        is_builder = True
+    if isinstance(map_or_layout_element, momapy.core.MapBuilder):
+        layout_element = map_or_layout_element.layout
+    else:
+        layout_element = map_or_layout_element
     if style_sheet is not None:
         if ancestors is None:
             ancestors = []
         for selector, style_collection in style_sheet.items():
-            if selector.select(layout_element_builder, ancestors):
-                _apply_style_collection_to_builder(
-                    layout_element_builder, style_collection, strict
+            if selector.select(layout_element, ancestors):
+                apply_style_collection(
+                    layout_element=layout_element,
+                    style_collection=style_collection,
+                    strict=strict,
                 )
-        ancestors = ancestors + [layout_element_builder]
-        for child_builder in layout_element_builder.children():
-            _apply_style_sheet_to_builder(
-                child_builder, style_sheet, strict=strict, ancestors=ancestors
+        ancestors = ancestors + [layout_element]
+        for child in layout_element.children():
+            apply_style_sheet(
+                map_or_layout_element=child,
+                style_sheet=style_sheet,
+                strict=strict,
+                ancestors=ancestors,
             )
-
-
-def apply_style_sheet(
-    map_or_layout_element: momapy.core.Map | momapy.core.LayoutElement,
-    style_sheet: StyleSheet,
-    strict=True,
-    ancestors=None,
-):
-    map_or_layout_element_builder = momapy.builder.builder_from_object(
-        map_or_layout_element
-    )
-    _apply_style_sheet_to_builder(
-        map_or_layout_element_builder,
-        style_sheet,
-        strict=strict,
-        ancestors=ancestors,
-    )
-    return momapy.builder.object_from_builder(map_or_layout_element_builder)
+    if is_builder:
+        return map_or_layout_element
+    return momapy.builder.object_from_builder(map_or_layout_element)
 
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
+    """Abstract class for a selector"""
+
     @abc.abstractmethod
-    def select(self, obj, ancestors) -> bool:
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ) -> bool:
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         pass
 
 
 @dataclasses.dataclass(frozen=True)
 class TypeSelector(Selector):
+    """Class for a type selector"""
+
     class_name: str
 
-    def select(self, obj, ancestors):
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         obj_cls_name = type(obj).__name__
         return (
             obj_cls_name == self.class_name
@@ -151,9 +187,18 @@ class TypeSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class ClassSelector(Selector):
+    """Class for a class selector"""
+
     class_name: str
 
-    def select(self, obj, ancestors):
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         for cls in type(obj).__mro__:
             cls_name = cls.__name__
             if (
@@ -166,18 +211,36 @@ class ClassSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class IdSelector(Selector):
-    id_: typing.Union[str, uuid.UUID]
+    """Class for an id selector"""
 
-    def select(self, obj, ancestors):
-        return hasattr(obj, "id") and obj.id == self.id_
+    id_: str
+
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        return hasattr(obj, "id_") and obj.id_ == self.id_
 
 
 @dataclasses.dataclass(frozen=True)
 class ChildSelector(Selector):
+    """Class for a child selector"""
+
     parent_selector: Selector
     child_selector: Selector
 
-    def select(self, obj, ancestors):
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         if not ancestors:
             return False
         return self.child_selector.select(
@@ -187,10 +250,19 @@ class ChildSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class DescendantSelector(Selector):
+    """Class for a descendant selector"""
+
     ancestor_selector: Selector
     descendant_selector: Selector
 
-    def select(self, obj, ancestors):
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         if not ancestors:
             return False
         return self.descendant_selector.select(obj, ancestors) and any(
@@ -203,9 +275,18 @@ class DescendantSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class OrSelector(Selector):
+    """Class for an or selector"""
+
     selectors: tuple[Selector]
 
-    def select(self, obj, ancestors):
+    def select(
+        self,
+        obj: momapy.core.LayoutElement | momapy.core.LayoutElementBuilder,
+        ancestors: collections.abc.Collection[
+            momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
+        ],
+    ):
+        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
         return any(
             [selector.select(obj, ancestors) for selector in self.selectors]
         )
