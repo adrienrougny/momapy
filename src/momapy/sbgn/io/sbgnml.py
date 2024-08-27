@@ -1,5 +1,4 @@
 import abc
-import uuid
 import collections
 
 import frozendict
@@ -42,7 +41,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         "COMPLEX_MULTIMER_SUBUNIT": "_make_and_add_complex_multimer_subunit_from_sbgnml",
         "COMPARTMENT": "_make_and_add_compartment_from_sbgnml",
         "SUBMAP": "_make_and_add_submap_from_sbgnml",
-        # "BIOLOGICAL_ACTIVITY": "_biological_activity_from_sbgnml",
+        "BIOLOGICAL_ACTIVITY": "_make_and_add_biological_activity_from_sbgnml",
         "UNSPECIFIED_ENTITY": "_make_and_add_unspecified_entity_from_sbgnml",
         "MACROMOLECULE": "_make_and_add_macromolecule_from_sbgnml",
         "MACROMOLECULE_MULTIMER": "_make_and_add_macromolecule_multimer_from_sbgnml",
@@ -69,7 +68,7 @@ class _SBGNMLReader(momapy.io.MapReader):
         "AND": "_make_and_add_and_operator_from_sbgnml",
         "OR": "_make_and_add_or_operator_from_sbgnml",
         "NOT": "_make_and_add_not_operator_from_sbgnml",
-        # "DELAY": "_delay_operator_elements_from_sbgnml",
+        "DELAY": "_make_and_add_delay_operator_from_sbgnml",
         "CONSUMPTION": "_make_and_add_consumption_from_sbgnml",
         "PRODUCTION": "_make_and_add_production_from_sbgnml",
         "MODULATION": "_make_and_add_modulation_from_sbgnml",
@@ -77,9 +76,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         "CATALYSIS": "_make_and_add_catalysis_from_sbgnml",
         "NECESSARY_STIMULATION": "_make_and_add_necessary_stimulation_from_sbgnml",
         "INHIBITION": "_make_and_add_inhibition_from_sbgnml",
-        # "POSITIVE_INFLUENCE": "_positive_influence_elements_from_arc",
-        # "NEGATIVE_INFLUENCE": "_negative_influence_elements_from_arc",
-        # "UNKNOWN_INFLUENCE": "_unknown_influence_elements_from_arc",
+        "POSITIVE_INFLUENCE": "_make_and_add_positive_influence_from_sbgnml",
+        "NEGATIVE_INFLUENCE": "_make_and_add_negative_influence_from_sbgnml",
+        "UNKNOWN_INFLUENCE": "_make_and_add_unknown_influence_from_sbgnml",
         "LOGIC_ARC_LOGICAL_OPERATOR": "_make_and_add_logical_operator_input_from_sbgnml",
         "LOGIC_ARC_EQUIVALENCE_OPERATOR": "_make_and_add_equivalence_operator_input_from_sbgnml",
         # "EQUIVALENCE_ARC": "_equivalence_arc_elements_from_arc",
@@ -132,6 +131,17 @@ class _SBGNMLReader(momapy.io.MapReader):
             from_top_left=from_top_left,
         )
         return map_
+
+    @classmethod
+    def _get_sbgn_module_from_map(cls, map_):
+        if momapy.builder.momapy.builder.isinstance_or_builder(
+            map_, momapy.sbgn.pd.SBGNPDMap
+        ):
+            return momapy.sbgn.pd
+        if momapy.builder.momapy.builder.isinstance_or_builder(
+            map_, momapy.sbgn.af.SBGNAFMap
+        ):
+            return momapy.sbgn.af
 
     @classmethod
     def _make_map_from_sbgnml(
@@ -898,7 +908,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_annotations=True,
     ):
         # We make the model element
-        model_element = map_.new_model_element(momapy.sbgn.pd.Compartment)
+        model_element = map_.new_model_element(
+            cls._get_module_from_map(map_).Compartment
+        )
         model_element.id_ = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
         )
@@ -961,7 +973,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.compartments,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         # We save the elements
         sbgnml_id_to_model_element[sbgnml_element.id] = model_element
@@ -987,7 +999,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_annotations=True,
     ):
         # We make the model element
-        model_element = map_.new_model_element(momapy.sbgn.pd.Submap)
+        model_element = map_.new_model_element(
+            cls._get_module_from_map(map_).Submap
+        )
         model_element.id_ = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
         )
@@ -1047,7 +1061,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.submaps,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1090,7 +1104,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1134,7 +1148,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1177,7 +1191,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1220,7 +1234,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1263,7 +1277,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1306,7 +1320,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1349,7 +1363,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1392,7 +1406,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1435,7 +1449,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1478,7 +1492,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1521,7 +1535,50 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.entity_pools,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
+        )
+        map_.layout.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append((sbgnml_element.id, None))
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_biological_activity_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = cls._make_activity_from_sbgnml(
+            map_=map_,
+            sbgnml_element=sbgnml_element,
+            model_element_cls=momapy.sbgn.af.BiologicalActivity,
+            layout_element_cls=momapy.sbgn.af.BiologicalActivityLayout,
+            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+            super_sbgnml_element=super_sbgnml_element,
+        )
+        # We add the model and layout elements to the map_, and to the mapping
+        model_element = momapy.utils.add_or_replace_element_in_set(
+            model_element,
+            map_.model.activities,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1564,7 +1621,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1607,7 +1664,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1650,7 +1707,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1693,7 +1750,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1736,7 +1793,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.processes,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -1763,7 +1820,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_annotations=True,
     ):
         # We make the model element
-        model_element = map_.new_model_element(momapy.sbgn.pd.Phenotype)
+        model_element = map_.new_model_element(
+            cls._get_module_from_map(map_).Phenotype
+        )
         model_element.id_ = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
         )
@@ -1774,7 +1833,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element.label = sbgnml_element.label.text
         # We make the layout element
         layout_element = map_.new_layout_element(
-            momapy.sbgn.pd.PhenotypeLayout
+            cls._get_module_from_map(map_).PhenotypeLayout
         )
         layout_element.id_ = sbgnml_element.id
         position = cls._make_position_from_sbgnml(
@@ -1819,16 +1878,17 @@ class _SBGNMLReader(momapy.io.MapReader):
                     n_undefined_state_variables += 1
         # We build the model and layout elements
         model_element = momapy.builder.object_from_builder(model_element)
-        model_element = momapy.utils.get_or_return_element_from_collection(
-            model_element, map_.model.processes
-        )
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
-            map_.model.processes,
+            (
+                map_.model.processes
+                if cls._get_module_from_map(map_) is momapy.sbgn.pd
+                else map_.model.activities
+            ),
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2041,7 +2101,7 @@ class _SBGNMLReader(momapy.io.MapReader):
     ):
         # We make the model element
         model_element = map_.new_model_element(
-            momapy.sbgn.pd.LogicalOperatorInput
+            cls._get_module_from_map(map_).LogicalOperatorInput
         )
         model_element.id_ = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
@@ -2070,7 +2130,9 @@ class _SBGNMLReader(momapy.io.MapReader):
             )
         model_element.element = role_model_element
         # We make the layout element
-        layout_element = map_.new_layout_element(momapy.sbgn.pd.LogicArcLayout)
+        layout_element = map_.new_layout_element(
+            cls._get_module_from_map(map_).LogicArcLayout
+        )
         sbgnml_points = (
             [sbgnml_element.end]
             + sbgnml_element.next[::-1]
@@ -2137,7 +2199,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2180,7 +2242,50 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
+        )
+        map_.layout.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append((sbgnml_element.id, None))
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unknown_influence_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = cls._make_modulation_from_sbgnml(
+            map_=map_,
+            sbgnml_element=sbgnml_element,
+            model_element_cls=momapy.sbgn.af.UnknownInfluence,
+            layout_element_cls=momapy.sbgn.af.UnknownInfluenceLayout,
+            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+            super_sbgnml_element=super_sbgnml_element,
+        )
+        # We add the elements
+        model_element = momapy.utils.add_or_replace_element_in_set(
+            model_element,
+            map_.model.influences,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2223,7 +2328,93 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
+        )
+        map_.layout.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append((sbgnml_element.id, None))
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_positive_influence_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = cls._make_modulation_from_sbgnml(
+            map_=map_,
+            sbgnml_element=sbgnml_element,
+            model_element_cls=momapy.sbgn.af.PositiveInfluence,
+            layout_element_cls=momapy.sbgn.af.PositiveInfluenceLayout,
+            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+            super_sbgnml_element=super_sbgnml_element,
+        )
+        # We add the elements
+        model_element = momapy.utils.add_or_replace_element_in_set(
+            model_element,
+            map_.model.influences,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
+        )
+        map_.layout.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append((sbgnml_element.id, None))
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_negative_influence_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = cls._make_modulation_from_sbgnml(
+            map_=map_,
+            sbgnml_element=sbgnml_element,
+            model_element_cls=momapy.sbgn.af.NegativeInfluence,
+            layout_element_cls=momapy.sbgn.af.NegativeInfluenceLayout,
+            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+            super_sbgnml_element=super_sbgnml_element,
+        )
+        # We add the elements
+        model_element = momapy.utils.add_or_replace_element_in_set(
+            model_element,
+            map_.model.influences,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2266,7 +2457,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.modulations,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2295,8 +2486,12 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element, layout_element = cls._make_modulation_from_sbgnml(
             map_=map_,
             sbgnml_element=sbgnml_element,
-            model_element_cls=momapy.sbgn.pd.NecessaryStimulation,
-            layout_element_cls=momapy.sbgn.pd.NecessaryStimulationLayout,
+            model_element_cls=cls._get_module_from_map(
+                map_
+            ).NecessaryStimulation,
+            layout_element_cls=cls._get_module_from_map(
+                map_
+            ).NecessaryStimulationLayout,
             sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
             sbgnml_id_to_model_element=sbgnml_id_to_model_element,
             sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
@@ -2307,9 +2502,13 @@ class _SBGNMLReader(momapy.io.MapReader):
         # We add the elements
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
-            map_.model.modulations,
+            (
+                map_.model.modulations
+                if cls._get_module_from_map(map_) is momapy.sbgn.pd
+                else map_.model.influences
+            ),
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2338,8 +2537,10 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
             sbgnml_element=sbgnml_element,
-            model_element_cls=momapy.sbgn.pd.AndOperator,
-            layout_element_cls=momapy.sbgn.pd.AndOperatorLayout,
+            model_element_cls=cls._get_module_from_map(map_).AndOperator,
+            layout_element_cls=cls._get_module_from_map(
+                map_
+            ).AndOperatorLayout,
             sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
             sbgnml_id_to_model_element=sbgnml_id_to_model_element,
             sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
@@ -2352,7 +2553,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2381,8 +2582,8 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
             sbgnml_element=sbgnml_element,
-            model_element_cls=momapy.sbgn.pd.OrOperator,
-            layout_element_cls=momapy.sbgn.pd.OrOperatorLayout,
+            model_element_cls=cls._get_module_from_map(map_).OrOperator,
+            layout_element_cls=cls._get_module_from_map(map_).OrOperatorLayout,
             sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
             sbgnml_id_to_model_element=sbgnml_id_to_model_element,
             sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
@@ -2395,7 +2596,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2424,8 +2625,10 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element, layout_element = cls._make_operator_from_sbgnml(
             map_=map_,
             sbgnml_element=sbgnml_element,
-            model_element_cls=momapy.sbgn.pd.NotOperator,
-            layout_element_cls=momapy.sbgn.pd.NotOperatorLayout,
+            model_element_cls=cls._get_module_from_map(map_).NotOperator,
+            layout_element_cls=cls._get_module_from_map(
+                map_
+            ).NotOperatorLayout,
             sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
             sbgnml_id_to_model_element=sbgnml_id_to_model_element,
             sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
@@ -2438,7 +2641,52 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.logical_operators,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
+        )
+        map_.layout.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append((sbgnml_element.id, None))
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_delay_operator_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = cls._make_operator_from_sbgnml(
+            map_=map_,
+            sbgnml_element=sbgnml_element,
+            model_element_cls=cls._get_module_from_map(map_).DelayOperator,
+            layout_element_cls=cls._get_module_from_map(
+                map_
+            ).DelayOperatorLayout,
+            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+            super_sbgnml_element=super_sbgnml_element,
+        )
+        # We add the elements
+        model_element = momapy.utils.add_or_replace_element_in_set(
+            model_element,
+            map_.model.logical_operators,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2465,7 +2713,9 @@ class _SBGNMLReader(momapy.io.MapReader):
         with_annotations=True,
     ):
         # We make the model element
-        model_element = map_.new_model_element(momapy.sbgn.pd.Tag)
+        model_element = map_.new_model_element(
+            cls._get_module_from_map(map_).Tag
+        )
         model_element.id_ = cls._make_model_element_id_from_sbgnml(
             sbgnml_element
         )
@@ -2505,7 +2755,7 @@ class _SBGNMLReader(momapy.io.MapReader):
             model_element,
             map_.model.tags,
             func=lambda element, existing_element: element.id_
-            < existing_element.id,
+            < existing_element.id_,
         )
         map_.layout.layout_elements.append(layout_element)
         # We save the elements
@@ -2612,6 +2862,100 @@ class _SBGNMLReader(momapy.io.MapReader):
                     or not sbgnml_sub_element.state.variable
                 ):
                     n_undefined_state_variables += 1
+        # We build the model and layout elements
+        model_element = momapy.builder.object_from_builder(model_element)
+        layout_element = momapy.builder.object_from_builder(layout_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_activity_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        model_element_cls,
+        layout_element_cls,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        with_annotations=True,
+    ):
+        # We make the model element
+        model_element = map_.new_model_element(model_element_cls)
+        model_element.id_ = cls._make_model_element_id_from_sbgnml(
+            sbgnml_element
+        )
+        if sbgnml_element.compartment_ref is not None:
+            compartment_model_element = sbgnml_id_to_model_element.get(
+                sbgnml_element.compartment_ref
+            )
+            if compartment_model_element is None:
+                sbgnml_compartment = sbgnml_id_to_sbgnml_element[
+                    sbgnml_element.compartment_ref
+                ]
+                compartment_mode_element, _ = (
+                    cls._make_and_add_elements_from_sbgnml(
+                        map_=map_,
+                        sbgnml_element=sbgnml_compartment,
+                        sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                        sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                        sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                        sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                        sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                    )
+                )
+            model_element.compartment = compartment_model_element
+        if (
+            sbgnml_element.label is not None
+            and sbgnml_element.label.text is not None
+        ):
+            model_element.label = sbgnml_element.label.text
+        if (
+            sbgnml_element.extension is not None
+            and sbgnml_element.extension.annotation is not None
+        ):
+            annotations = cls._annotations_from_sbgnml(
+                map_, sbgnml_element.extension.annotation
+            )
+            for annotation in annotations:
+                model_element.annotations.add(annotation)
+        # We make the layout element
+        layout_element = map_.new_layout_element(layout_element_cls)
+        layout_element.id_ = sbgnml_element.id
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
+        layout_element.position = position
+        layout_element.width = sbgnml_element.bbox.w
+        layout_element.height = sbgnml_element.bbox.h
+        if (
+            sbgnml_element.label is not None
+            and sbgnml_element.label.text is not None
+        ):
+            text_layout = cls._make_text_layout_from_sbgnml(
+                sbgnml_label=sbgnml_element.label, position=position
+            )
+            layout_element.label = text_layout
+        # We make and add the state variables, units of information, and
+        # subunits to the model and layout elements.
+        for sbgnml_sub_element in sbgnml_element.glyph:
+            sub_model_element, sub_layout_element = (
+                cls._make_and_add_elements_from_sbgnml(
+                    map_=map_,
+                    sbgnml_element=sbgnml_sub_element,
+                    sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                    sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                    sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                    sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                    sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                    super_sbgnml_element=sbgnml_element,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
+                    order=None,
+                )
+            )
         # We build the model and layout elements
         model_element = momapy.builder.object_from_builder(model_element)
         layout_element = momapy.builder.object_from_builder(layout_element)
@@ -3187,11 +3531,10 @@ class _SBGNMLReader(momapy.io.MapReader):
                 or sbgnml_port.x
                 >= sbgnml_process.bbox.x + sbgnml_process.bbox.w
             ):  # LEFT OR RIGHT
-                direction = momapy.core.Direction.HORIZONTAL
+                return momapy.core.Direction.HORIZONTAL
             else:
-                direction = momapy.core.Direction.VERTICAL
-            break
-        return direction
+                return momapy.core.Direction.VERTICAL
+        return momapy.core.Direction.VERTICAL  # default is vertical
 
     @classmethod
     def _get_sbgnml_tag_direction(cls, sbgnml_tag):
@@ -3481,7 +3824,7 @@ class SBGNML0_2Reader(_SBGNMLReader):
     def check_file(cls, file_path):
         with open(file_path) as f:
             for line in f:
-                if "sbgn" in line and "http://sbgn.org/libsbgn/0.2" in line:
+                if "http://sbgn.org/libsbgn/0.2" in line:
                     return True
         return False
 
@@ -3545,7 +3888,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
     def check_file(cls, file_path):
         with open(file_path) as f:
             for line in f:
-                if "sbgn" in line and "http://sbgn.org/libsbgn/0.3" in line:
+                if "http://sbgn.org/libsbgn/0.3" in line:
                     return True
         return False
 
@@ -3824,7 +4167,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
                     notes_element = cls._notes_element_from_notes(
                         model_element.notes
                     )
-                    sbgn_element[0].notes = notes
+                    sbgn_elements[0].notes = notes_element
         else:
             print(
                 f"object {layout_element.id}: unknown class value '{type(layout_element)}' for transformation"

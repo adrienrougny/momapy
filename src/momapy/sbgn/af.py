@@ -315,7 +315,7 @@ class PhenotypeLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _LogicalOperatorLayout(
+class AndOperatorLayout(
     momapy.sbgn.core._ConnectorsMixin,
     momapy.sbgn.core._SimpleMixin,
     momapy.sbgn.core._TextMixin,
@@ -328,43 +328,98 @@ class _LogicalOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _text: typing.ClassVar[str] = "AND"
     width: float = 30.0
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd._LogicalOperatorLayout._make_shape(self)
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class AndOperatorLayout(_LogicalOperatorLayout):
-    _text: typing.ClassVar[str] = "AND"
+class OrOperatorLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core.SBGNNode,
+):
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 3
     )
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class OrOperatorLayout(_LogicalOperatorLayout):
     _text: typing.ClassVar[str] = "OR"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NotOperatorLayout(_LogicalOperatorLayout):
+class NotOperatorLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core.SBGNNode,
+):
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
     _text: typing.ClassVar[str] = "NOT"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class DelayOperatorLayout(_LogicalOperatorLayout):
-    _text: typing.ClassVar[str] = "τ"
+class DelayOperatorLayout(
+    momapy.sbgn.core._ConnectorsMixin,
+    momapy.sbgn.core._SimpleMixin,
+    momapy.sbgn.core._TextMixin,
+    momapy.sbgn.core.SBGNNode,
+):
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = (
         lambda obj: obj.width / 2
     )
+    _text: typing.ClassVar[str] = "τ"
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

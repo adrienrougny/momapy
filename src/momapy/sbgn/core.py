@@ -69,9 +69,9 @@ class SBGNModel(momapy.core.Model):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.white
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -86,12 +86,12 @@ class SBGNMap(momapy.core.Map):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.white
-    stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.black
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
+    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
     stroke_width: float | None = 1.25
 
     def _border_drawing_elements(self):
