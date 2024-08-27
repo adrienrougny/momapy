@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.3" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
-  <sbgn:map language="process description" version="http://identifiers.org/combine.specifications/sbgn.pd.level-1.version-2.0" id="07c26a40-9a31-449a-902c-1d99a2a57680">
+  <sbgn:map language="process description" version="http://identifiers.org/combine.specifications/sbgn.pd.level-1.version-2.0" id="9574cdf7-98b9-4863-ba3a-7b0530761744">
     <sbgn:extension>
-      <render:renderInformation id="c40c00d4-7ac5-4498-ab84-1ad309e99c4a" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
+      <render:renderInformation id="60a8f0dd-373d-40a1-b4c1-2980636106aa" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
         <render:listOfColorDefinitions>
-          <render:colorDefinition id="208aa195-e1d6-448f-96a7-85d827187964" value="#000000ff"/>
-          <render:colorDefinition id="e1a4d94e-7641-4d5f-a45a-2f2aa536a688" value="#ffffffff"/>
+          <render:colorDefinition id="a7d9194f-4cd3-466c-84ba-22d2eec06440" value="#000000ff"/>
+          <render:colorDefinition id="794bd781-99cb-402e-827a-829b28c5653b" value="#ffffffff"/>
         </render:listOfColorDefinitions>
         <render:listOfStyles>
-          <render:style id="20944348-8cdb-4d73-85a2-94c640b19070" idList="glyph2a glyph1a">
-            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
+          <render:style id="0e24629d-651d-4de7-accc-9bdd3f1a93f2" idList="glyph2a glyph1a">
+            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="a7d9194f-4cd3-466c-84ba-22d2eec06440" stroke-width="1.25" fill="794bd781-99cb-402e-827a-829b28c5653b"/>
           </render:style>
-          <render:style id="fcf4d308-ce19-4e74-9ccd-8db884fa786c" idList="glyph2 glyph1 glyph3">
-            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
+          <render:style id="6c7f4274-7a83-4818-9a53-3b473e100641" idList="glyph2 glyph1 glyph3">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="a7d9194f-4cd3-466c-84ba-22d2eec06440" stroke-width="1.25" fill="794bd781-99cb-402e-827a-829b28c5653b"/>
           </render:style>
-          <render:style id="21bb502c-f7a2-4bf0-9b86-bbe9feccba3b" idList="41c02bd6-b675-4183-891f-0c81d6ba570b glyph4 5deeab25-019c-4e1b-83d2-0f08e26bc276">
-            <render:g stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
+          <render:style id="375f5c3a-6cda-48e9-b974-ee0419be57fd" idList="eb6c2f76-121f-4d9e-87d2-e6a7606d2430 glyph4 568fdfa0-271f-472b-bb2e-7504616c4280">
+            <render:g stroke="a7d9194f-4cd3-466c-84ba-22d2eec06440" stroke-width="1.25" fill="794bd781-99cb-402e-827a-829b28c5653b"/>
           </render:style>
-          <render:style id="9c832929-5ff6-47cf-be52-ea91b13605e9" idList="d3957018-fb20-44c0-bcb3-088f923c00f2">
-            <render:g stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="208aa195-e1d6-448f-96a7-85d827187964"/>
+          <render:style id="8383d6ba-f816-4a46-aed4-ea0d7e0a569e" idList="31b31385-a7b4-4119-8109-0b98e940ec4c">
+            <render:g stroke="a7d9194f-4cd3-466c-84ba-22d2eec06440" stroke-width="1.25" fill="a7d9194f-4cd3-466c-84ba-22d2eec06440"/>
           </render:style>
         </render:listOfStyles>
       </render:renderInformation>
@@ -55,15 +55,15 @@
       <sbgn:port x="206.0" y="270.0" id="glyph4_left_port"/>
       <sbgn:port x="254.0" y="270.0" id="glyph4_right_port"/>
     </sbgn:glyph>
-    <sbgn:arc class="consumption" id="41c02bd6-b675-4183-891f-0c81d6ba570b" source="glyph2" target="glyph4_left_port">
+    <sbgn:arc class="consumption" id="eb6c2f76-121f-4d9e-87d2-e6a7606d2430" source="glyph2" target="glyph4_left_port">
       <sbgn:start x="139.0" y="270.0"/>
       <sbgn:end x="206.0" y="270.0"/>
     </sbgn:arc>
-    <sbgn:arc class="production" id="d3957018-fb20-44c0-bcb3-088f923c00f2" source="glyph4_right_port" target="glyph1">
+    <sbgn:arc class="production" id="31b31385-a7b4-4119-8109-0b98e940ec4c" source="glyph4_right_port" target="glyph1">
       <sbgn:start x="254.0" y="270.0"/>
       <sbgn:end x="336.0" y="270.0"/>
     </sbgn:arc>
-    <sbgn:arc class="catalysis" id="5deeab25-019c-4e1b-83d2-0f08e26bc276" source="glyph3" target="glyph4">
+    <sbgn:arc class="catalysis" id="568fdfa0-271f-472b-bb2e-7504616c4280" source="glyph3" target="glyph4">
       <sbgn:start x="230.0" y="165.0"/>
       <sbgn:end x="230.0" y="258.0"/>
     </sbgn:arc>
