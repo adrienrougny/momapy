@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.3" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
-  <sbgn:map language="process description" version="http://identifiers.org/combine.specifications/sbgn.pd.level-1.version-2.0" id="68f2d2ba-2723-4b34-be14-8cb00bd50bb4">
+  <sbgn:map language="process description" version="http://identifiers.org/combine.specifications/sbgn.pd.level-1.version-2.0" id="07c26a40-9a31-449a-902c-1d99a2a57680">
     <sbgn:extension>
-      <render:renderInformation id="990392bb-3d6a-4b0b-b9aa-a0754ec51560" program-name="momapy" program-version="0.1.0">
+      <render:renderInformation id="c40c00d4-7ac5-4498-ab84-1ad309e99c4a" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
         <render:listOfColorDefinitions>
-          <render:colorDefinition id="80d8289d-b79b-4a43-8f5d-fded6340f8a1" value="#000000ff"/>
-          <render:colorDefinition id="0e2eb1ec-707d-4f6e-b50e-8e48b9fb4f68" value="#ffffffff"/>
+          <render:colorDefinition id="208aa195-e1d6-448f-96a7-85d827187964" value="#000000ff"/>
+          <render:colorDefinition id="e1a4d94e-7641-4d5f-a45a-2f2aa536a688" value="#ffffffff"/>
         </render:listOfColorDefinitions>
         <render:listOfStyles>
-          <render:style id="b381e171-783a-4902-8adf-ecd06b6103b2" idList="glyph2a glyph1a">
-            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="80d8289d-b79b-4a43-8f5d-fded6340f8a1" stroke-width="1.25" fill="0e2eb1ec-707d-4f6e-b50e-8e48b9fb4f68"/>
+          <render:style id="20944348-8cdb-4d73-85a2-94c640b19070" idList="glyph2a glyph1a">
+            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
           </render:style>
-          <render:style id="3bc51564-59db-4cff-877e-63d4053d3c7a" idList="glyph2 glyph1 glyph3">
-            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="80d8289d-b79b-4a43-8f5d-fded6340f8a1" stroke-width="1.25" fill="0e2eb1ec-707d-4f6e-b50e-8e48b9fb4f68"/>
+          <render:style id="fcf4d308-ce19-4e74-9ccd-8db884fa786c" idList="glyph2 glyph1 glyph3">
+            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
           </render:style>
-          <render:style id="887da7c2-40d2-4161-8104-aa0c011ff2ed" idList="f61aefd1-f92d-4eeb-9f77-540269cd42e9 glyph4 96133135-c34d-45fa-b284-fa497974d679">
-            <render:g stroke="80d8289d-b79b-4a43-8f5d-fded6340f8a1" stroke-width="1.25" fill="0e2eb1ec-707d-4f6e-b50e-8e48b9fb4f68"/>
+          <render:style id="21bb502c-f7a2-4bf0-9b86-bbe9feccba3b" idList="41c02bd6-b675-4183-891f-0c81d6ba570b glyph4 5deeab25-019c-4e1b-83d2-0f08e26bc276">
+            <render:g stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="e1a4d94e-7641-4d5f-a45a-2f2aa536a688"/>
           </render:style>
-          <render:style id="cbff756f-6bf3-4d5e-a573-22a2305b41d1" idList="1c458351-a764-4114-9cfe-eb4876f0c727">
-            <render:g stroke="80d8289d-b79b-4a43-8f5d-fded6340f8a1" stroke-width="1.25" fill="80d8289d-b79b-4a43-8f5d-fded6340f8a1"/>
+          <render:style id="9c832929-5ff6-47cf-be52-ea91b13605e9" idList="d3957018-fb20-44c0-bcb3-088f923c00f2">
+            <render:g stroke="208aa195-e1d6-448f-96a7-85d827187964" stroke-width="1.25" fill="208aa195-e1d6-448f-96a7-85d827187964"/>
           </render:style>
         </render:listOfStyles>
       </render:renderInformation>
@@ -26,7 +26,7 @@
     <sbgn:bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
     <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph2">
       <sbgn:label text="A">
-        <sbgn:bbox x="81.0" y="260.5" w="10" h="11"/>
+        <sbgn:bbox x="80.5" y="262.5" w="10" h="11"/>
       </sbgn:label>
       <sbgn:bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
       <sbgn:glyph class="state variable" orientation="horizontal" id="glyph2a">
@@ -36,7 +36,7 @@
     </sbgn:glyph>
     <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph1">
       <sbgn:label text="A">
-        <sbgn:bbox x="386.0" y="260.5" w="10" h="11"/>
+        <sbgn:bbox x="385.5" y="262.5" w="10" h="11"/>
       </sbgn:label>
       <sbgn:bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
       <sbgn:glyph class="state variable" orientation="horizontal" id="glyph1a">
@@ -46,7 +46,7 @@
     </sbgn:glyph>
     <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph3">
       <sbgn:label text="B">
-        <sbgn:bbox x="227.0" y="125.5" w="8" h="11"/>
+        <sbgn:bbox x="226.5" y="127.5" w="8" h="11"/>
       </sbgn:label>
       <sbgn:bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
     </sbgn:glyph>
@@ -55,15 +55,15 @@
       <sbgn:port x="206.0" y="270.0" id="glyph4_left_port"/>
       <sbgn:port x="254.0" y="270.0" id="glyph4_right_port"/>
     </sbgn:glyph>
-    <sbgn:arc class="consumption" id="f61aefd1-f92d-4eeb-9f77-540269cd42e9" source="glyph2" target="glyph4_left_port">
+    <sbgn:arc class="consumption" id="41c02bd6-b675-4183-891f-0c81d6ba570b" source="glyph2" target="glyph4_left_port">
       <sbgn:start x="139.0" y="270.0"/>
       <sbgn:end x="206.0" y="270.0"/>
     </sbgn:arc>
-    <sbgn:arc class="production" id="1c458351-a764-4114-9cfe-eb4876f0c727" source="glyph4_right_port" target="glyph1">
+    <sbgn:arc class="production" id="d3957018-fb20-44c0-bcb3-088f923c00f2" source="glyph4_right_port" target="glyph1">
       <sbgn:start x="254.0" y="270.0"/>
       <sbgn:end x="336.0" y="270.0"/>
     </sbgn:arc>
-    <sbgn:arc class="catalysis" id="96133135-c34d-45fa-b284-fa497974d679" source="glyph3" target="glyph4">
+    <sbgn:arc class="catalysis" id="5deeab25-019c-4e1b-83d2-0f08e26bc276" source="glyph3" target="glyph4">
       <sbgn:start x="230.0" y="165.0"/>
       <sbgn:end x="230.0" y="258.0"/>
     </sbgn:arc>
