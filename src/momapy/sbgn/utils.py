@@ -4,11 +4,11 @@ import momapy.positioning
 import momapy.builder
 
 
-def set_compartments_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     compartment_entities_mapping = collections.defaultdict(list)
     model = map_builder.model
     if momapy.builder.isinstance_or_builder(
@@ -24,34 +24,40 @@ def set_compartments_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
             if compartment is not None:
                 compartment_entities_mapping[compartment].append(activity)
     for compartment in compartment_entities_mapping:
-        for compartment_layout in map_builder.layout_model_mapping[compartment]:
+        for compartment_layout in map_builder.layout_model_mapping[
+            compartment
+        ]:
             compartment_layout, *_ = compartment_layout
             elements = []
             for entity in compartment_entities_mapping[compartment]:
                 for entity_layout in map_builder.layout_model_mapping[entity]:
                     entity_layout, *_ = entity_layout
                     elements.append(entity_layout)
-            momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
+            momapy.positioning.set_fit(
+                compartment_layout, elements, xsep, ysep
+            )
             if compartment_layout.label is not None:
                 compartment_layout.label.position = compartment_layout.position
                 compartment_layout.label.width = compartment_layout.width
                 compartment_layout.label.height = compartment_layout.height
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def set_complexes_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     for entity_pool in map_builder.model.entity_pools:
         if isinstance(
             entity_pool,
             momapy.builder.get_or_make_builder_cls(momapy.sbgn.pd.Complex),
         ):
-            for complex_layout in map_builder.layout_model_mapping[entity_pool]:
+            for complex_layout in map_builder.layout_model_mapping[
+                entity_pool
+            ]:
                 complex_layout, *_ = complex_layout
                 elements = []
                 for subunit in entity_pool.subunits:
@@ -70,16 +76,16 @@ def set_complexes_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
                         complex_layout.label.position = complex_layout.position
                         complex_layout.label.width = complex_layout.width
                         complex_layout.label.height = complex_layout.height
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def set_submaps_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     for submap in map_builder.model.submaps:
         for submap_layout in map_builder.layout_model_mapping[submap]:
             submap_layout, *_ = submap_layout
@@ -98,13 +104,13 @@ def set_submaps_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
                     submap_layout.label.position = submap_layout.position
                     submap_layout.label.width = submap_layout.width
                     submap_layout.label.height = submap_layout.height
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
 def set_nodes_to_fit_labels(
-    map_or_map_builder,
+    map_,
     xsep=0,
     ysep=0,
     omit_width=False,
@@ -112,10 +118,10 @@ def set_nodes_to_fit_labels(
     restrict_to=None,
     exclude=None,
 ):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     if restrict_to is None:
         restrict_to = []
     if not restrict_to:
@@ -147,12 +153,12 @@ def set_nodes_to_fit_labels(
             momapy.positioning.set_position(
                 layout_element, position, anchor="label_center"
             )
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def set_arcs_to_borders(map_or_map_builder):
+def set_arcs_to_borders(map_):
     def _set_arc_to_borders(
         arc_layout_element, source, source_type, target, target_type
     ):
@@ -190,14 +196,14 @@ def set_arcs_to_borders(map_or_map_builder):
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )
-        arc_layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
-            end_point
+        arc_layout_element.segments[-1].p2 = (
+            momapy.builder.builder_from_object(end_point)
         )
 
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     for layout_element in map_builder.layout.layout_elements:
         # Flux arcs
         if momapy.builder.isinstance_or_builder(
@@ -336,12 +342,12 @@ def set_arcs_to_borders(map_or_map_builder):
                 layout_element.target,
                 "border",
             )
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def set_auxilliary_units_to_borders(map_or_map_builder):
+def set_auxilliary_units_to_borders(map_):
     def _rec_set_auxilliary_units_to_borders(layout_element):
         for child in layout_element.children():
             if isinstance(
@@ -379,31 +385,31 @@ def set_auxilliary_units_to_borders(map_or_map_builder):
                     child.label.position = position
             _rec_set_auxilliary_units_to_borders(child)
 
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     _rec_set_auxilliary_units_to_borders(map_builder.layout)
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def set_layout_to_fit_content(map_or_map_builder, xsep=0, ysep=0):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+def set_layout_to_fit_content(map_, xsep=0, ysep=0):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     momapy.positioning.set_fit(
         map_builder.layout, map_builder.layout.layout_elements, xsep, ysep
     )
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
 def tidy(
-    map_or_map_builder,
+    map_,
     auxiliary_units_omit_width=False,
     auxiliary_units_omit_height=False,
     nodes_xsep=0,
@@ -417,10 +423,10 @@ def tidy(
     layout_xsep=0,
     layout_ysep=0,
 ):
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_or_map_builder)
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
     else:
-        map_builder = map_or_map_builder
+        map_builder = map_
     set_nodes_to_fit_labels(
         map_builder,
         xsep=nodes_xsep,
@@ -455,14 +461,14 @@ def tidy(
     )
     set_arcs_to_borders(map_builder)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
-    if isinstance(map_or_map_builder, momapy.sbgn.core.SBGNMap):
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
 
 
-def sbgned_tidy(map_or_map_builder):
+def sbgned_tidy(map_):
     return tidy(
-        map_or_map_builder,
+        map_,
         auxiliary_units_omit_width=False,
         auxiliary_units_omit_height=True,
         nodes_xsep=0,
@@ -478,9 +484,9 @@ def sbgned_tidy(map_or_map_builder):
     )
 
 
-def newt_tidy(map_or_map_builder):
+def newt_tidy(map_):
     return tidy(
-        map_or_map_builder,
+        map_,
         auxiliary_units_omit_width=False,
         auxiliary_units_omit_height=True,
         nodes_xsep=0,
