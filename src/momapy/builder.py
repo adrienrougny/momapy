@@ -3,7 +3,6 @@ import dataclasses
 import typing
 import types
 import inspect
-import collections.abc
 
 import frozendict
 
@@ -11,6 +10,8 @@ import momapy.monitoring
 
 
 class Builder(abc.ABC, momapy.monitoring.Monitored):
+    """Class for builder objects"""
+
     _cls_to_build: typing.ClassVar[type]
 
     @abc.abstractmethod
@@ -19,24 +20,26 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
+        """Build the builder object into an object"""
         pass
 
     @classmethod
     @abc.abstractmethod
     def from_object(
         cls,
-        obj,
+        obj: typing.Any,
         inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ):
+        """Create and return a builder object from an object"""
         pass
 
 
 builders = {}
 
 
-def transform_type(type_, make_optional=False, make_union=False):
+def _transform_type(type_, make_optional=False, make_union=False):
     if isinstance(
         type_, typing.ForwardRef
     ):  # TO DO: should find if type is already in builders first
@@ -55,7 +58,7 @@ def transform_type(type_, make_optional=False, make_union=False):
             new_type = new_o_type[
                 tuple(
                     [
-                        transform_type(a_type)
+                        _transform_type(a_type)
                         for a_type in typing.get_args(type_)
                     ]
                 )
@@ -74,7 +77,7 @@ def transform_type(type_, make_optional=False, make_union=False):
     return new_type
 
 
-def make_builder_cls(
+def _make_builder_cls(
     cls, builder_fields=None, builder_bases=None, builder_namespace=None
 ):
     def _builder_build(
@@ -145,7 +148,7 @@ def make_builder_cls(
             has_default = False
             if field_.default_factory != dataclasses.MISSING:
                 if isinstance(field_.default_factory, type):
-                    field_dict["default_factory"] = transform_type(
+                    field_dict["default_factory"] = _transform_type(
                         field_.default_factory
                     )
                 else:  # in case of a func for example
@@ -156,7 +159,7 @@ def make_builder_cls(
                 has_default = True
             if not has_default:
                 field_dict["default"] = None
-            field_type = transform_type(
+            field_type = _transform_type(
                 field_.type, make_optional=not has_default, make_union=True
             )
             builder_fields.append(
@@ -202,10 +205,11 @@ def make_builder_cls(
 
 
 def object_from_builder(
-    builder,
+    builder: Builder,
     inside_collections=True,
     builder_to_object: dict[int, typing.Any] | None = None,
 ):
+    """Create an object from a builder object by building it"""
     if builder_to_object is not None:
         if id(builder) in builder_to_object:
             return builder_to_object[id(builder)]
@@ -252,11 +256,12 @@ def object_from_builder(
 
 
 def builder_from_object(
-    obj,
+    obj: typing.Any,
     inside_collections=True,
     omit_keys=True,
     object_to_builder: dict[int, "Builder"] | None = None,
-):
+) -> Builder:
+    """Create a builder object from an object and return it"""
     if object_to_builder is not None:
         builder = object_to_builder.get(id(obj))
         if builder is not None:
@@ -319,19 +324,26 @@ def builder_from_object(
     return obj
 
 
-def new_builder(cls, *args, **kwargs):
+def new_builder_object(cls: typing.Type, *args, **kwargs) -> Builder:
+    """Return a builder object from an object or a builder class"""
     if not issubclass(cls, Builder):
         cls = get_or_make_builder_cls(cls)
     return cls(*args, **kwargs)
 
 
 def get_or_make_builder_cls(
-    cls, builder_fields=None, builder_bases=None, builder_namespace=None
-):
+    cls: typing.Type,
+    builder_fields: (
+        typing.Collection[tuple[str, typing.Type, dataclasses.Field]] | None
+    ) = None,
+    builder_bases: typing.Collection[typing.Type] | None = None,
+    builder_namespace: dict[str, typing.Any] | None = None,
+) -> typing.Type:
+    """Get and return an existing builder class for the given class or make one and return it"""
     builder_cls = get_builder(cls)
     if builder_cls is None:
         if dataclasses.is_dataclass(cls):
-            builder_cls = make_builder_cls(
+            builder_cls = _make_builder_cls(
                 cls, builder_fields, builder_bases, builder_namespace
             )
             register_builder(builder_cls)
@@ -340,33 +352,43 @@ def get_or_make_builder_cls(
     return builder_cls
 
 
-def has_builder(cls):
+def has_builder(cls: typing.Type) -> bool:
+    """Return `true` if there is a registered builder class for the given class, and `false` otherwise"""
     return cls in builders
 
 
-def get_builder(cls):
+def get_builder(cls: typing.Type) -> typing.Type:
+    """Return the builder class registered for the given class or `None` if no builder class is registered for that class"""
     return builders.get(cls)
 
 
-def register_builder(builder_cls):
+def register_builder(builder_cls: typing.Type) -> None:
+    """Register a builder class"""
     builders[builder_cls._cls_to_build] = builder_cls
 
 
-def isinstance_or_builder(obj, type_):
+def isinstance_or_builder(
+    obj: typing.Any, type_: typing.Type | tuple[typing.Type]
+) -> bool:
+    """Return `true` if the object is an istance of the given classes or of their registered builder classes, and `false` otherwise"""
     if isinstance(type_, type):
         type_ = (type_,)
     type_ += tuple([get_or_make_builder_cls(t) for t in type_])
     return isinstance(obj, type_)
 
 
-def issubclass_or_builder(cls, type_):
+def issubclass_or_builder(
+    cls: typing.Type, type_: typing.Type | tuple[typing.Type]
+) -> bool:
+    """Return `true` if the class is a subclass of the given classes or of their registered builder classes, and `false` otherwise"""
     if isinstance(type_, type):
         type_ = (type_,)
     type_ += tuple([get_or_make_builder_cls(t) for t in type_])
     return issubclass(cls, type_)
 
 
-def super_or_builder(type_, obj):
+def super_or_builder(type_: typing.Type, obj: typing.Any) -> typing.Type:
+    """Return the super class for a given class or its builder class and an object"""
     try:
         s = super(type_, obj)
     except TypeError:
