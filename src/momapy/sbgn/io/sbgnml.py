@@ -59,12 +59,12 @@ class _SBGNMLReader(momapy.io.MapReader):
         "UNCERTAIN_PROCESS": "_make_and_add_uncertain_process_from_sbgnml",
         "OMITTED_PROCESS": "_make_and_add_omitted_process_from_sbgnml",
         "PHENOTYPE": "_make_and_add_phenotype_from_sbgnml",
-        # "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": "_unit_of_information_unspecified_entity_elements_from_sbgnml",
-        # "UNIT_OF_INFORMATION_MACROMOLECULE": "_unit_of_information_macromolecule_elements_from_sbgnml",
-        # "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": "_unit_of_information_simple_chemical_elements_from_sbgnml",
-        # "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": "_unit_of_information_nucleic_acid_feature_elements_from_sbgnml",
-        # "UNIT_OF_INFORMATION_COMPLEX": "_unit_of_information_complex_elements_from_sbgnml",
-        # "UNIT_OF_INFORMATION_PERTURBATION": "_unit_of_information_perturbation_elements_from_sbgnml",
+        "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": "_make_and_add_unspecified_entity_unit_of_information_from_sbgnml",
+        "UNIT_OF_INFORMATION_MACROMOLECULE": "_make_and_add_macromolecule_unit_of_information_from_sbgnml",
+        "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": "_make_and_add_simple_chemical_unit_of_information_from_sbgnml",
+        "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": "_make_and_add_nucleic_acid_feature_unit_of_information_from_sbgnml",
+        "UNIT_OF_INFORMATION_COMPLEX": "_make_and_add_complex_unit_of_information_from_sbgnml",
+        "UNIT_OF_INFORMATION_PERTURBATION": "_make_and_add_perturbation_unit_of_information_from_sbgnml",
         "AND": "_make_and_add_and_operator_from_sbgnml",
         "OR": "_make_and_add_or_operator_from_sbgnml",
         "NOT": "_make_and_add_not_operator_from_sbgnml",
@@ -457,6 +457,258 @@ class _SBGNMLReader(momapy.io.MapReader):
         model_element = momapy.builder.object_from_builder(model_element)
         layout_element = momapy.builder.object_from_builder(layout_element)
         # We add the elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_macromolecule_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.MacromoleculeUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_unspecified_entity_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.UnspecifiedEntityUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_simple_chemical_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.SimpleChemicalUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_nucleic_acid_feature_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_complex_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.ComplexUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.ComplexUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
+        super_model_element.units_of_information.add(model_element)
+        super_layout_element.layout_elements.append(layout_element)
+        # We save the elements
+        sbgnml_id_to_model_element[sbgnml_element.id] = model_element
+        sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+        # We save the ids for the mapping
+        sbgnml_id_super_sbgnml_id_for_mapping.append(
+            (sbgnml_element.id, super_sbgnml_element.id)
+        )
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_perturbation_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        super_model_element=None,
+        super_layout_element=None,
+        order=None,
+        with_annotations=True,
+    ):
+        model_element, layout_element = (
+            cls._make_typed_unit_of_information_from_sbgnml(
+                map_=map_,
+                sbgnml_element=sbgnml_element,
+                model_element_cls=momapy.sbgn.af.PerturbationUnitOfInformation,
+                layout_element_cls=momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
+                super_sbgnml_element=super_sbgnml_element,
+            )
+        )
+        # We add the model and layout elements
         super_model_element.units_of_information.add(model_element)
         super_layout_element.layout_elements.append(layout_element)
         # We save the elements
@@ -3298,6 +3550,62 @@ class _SBGNMLReader(momapy.io.MapReader):
             layout_element.segments.append(segment)
         layout_element.source = source_layout_element
         layout_element.target = target_layout_element
+        # We build the model and layout elements
+        model_element = momapy.builder.object_from_builder(model_element)
+        layout_element = momapy.builder.object_from_builder(layout_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _make_typed_unit_of_information_from_sbgnml(
+        cls,
+        map_,
+        sbgnml_element,
+        model_element_cls,
+        layout_element_cls,
+        sbgnml_id_to_sbgnml_element,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_glyph_id_to_sbgnml_arcs,
+        sbgnml_id_super_sbgnml_id_for_mapping,
+        super_sbgnml_element=None,
+        with_annotations=True,
+    ):
+        # We make the model element
+        model_element = map_.new_model_element(model_element_cls)
+        model_element.id_ = cls._make_model_element_id_from_sbgnml(
+            sbgnml_element
+        )
+        if (
+            sbgnml_element.label is not None
+            and sbgnml_element.label.text is not None
+        ):
+            model_element.label = sbgnml_element.label.text
+        if (
+            sbgnml_element.extension is not None
+            and sbgnml_element.extension.annotation is not None
+        ):
+            annotations = cls._annotations_from_sbgnml(
+                map_, sbgnml_element.extension.annotation
+            )
+            for annotation in annotations:
+                model_element.annotations.add(annotation)
+        # We make the layout element
+        layout_element = map_.new_layout_element(layout_element_cls)
+        layout_element.id_ = sbgnml_element.id
+        position = cls._make_position_from_sbgnml(
+            sbgnml_element=sbgnml_element
+        )
+        layout_element.position = position
+        layout_element.width = sbgnml_element.bbox.w
+        layout_element.height = sbgnml_element.bbox.h
+        if (
+            sbgnml_element.label is not None
+            and sbgnml_element.label.text is not None
+        ):
+            text_layout = cls._make_text_layout_from_sbgnml(
+                sbgnml_label=sbgnml_element.label, position=position
+            )
+            layout_element.label = text_layout
         # We build the model and layout elements
         model_element = momapy.builder.object_from_builder(model_element)
         layout_element = momapy.builder.object_from_builder(layout_element)
