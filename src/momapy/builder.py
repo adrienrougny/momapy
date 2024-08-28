@@ -10,7 +10,7 @@ import momapy.monitoring
 
 
 class Builder(abc.ABC, momapy.monitoring.Monitored):
-    """Class for builder objects"""
+    """Abstract class for builder objects"""
 
     _cls_to_build: typing.ClassVar[type]
 
@@ -20,7 +20,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        """Build the builder object into an object"""
+        """Builder and return an object from the builder object"""
         pass
 
     @classmethod
@@ -209,7 +209,7 @@ def object_from_builder(
     inside_collections=True,
     builder_to_object: dict[int, typing.Any] | None = None,
 ):
-    """Create an object from a builder object by building it"""
+    """Create and return an object from a builder object"""
     if builder_to_object is not None:
         if id(builder) in builder_to_object:
             return builder_to_object[id(builder)]
@@ -261,7 +261,7 @@ def builder_from_object(
     omit_keys=True,
     object_to_builder: dict[int, "Builder"] | None = None,
 ) -> Builder:
-    """Create a builder object from an object and return it"""
+    """Create and return a builder object from an object"""
     if object_to_builder is not None:
         builder = object_to_builder.get(id(obj))
         if builder is not None:
@@ -325,7 +325,7 @@ def builder_from_object(
 
 
 def new_builder_object(cls: typing.Type, *args, **kwargs) -> Builder:
-    """Return a builder object from an object or a builder class"""
+    """Create and return a builder object from an object class or a builder class"""
     if not issubclass(cls, Builder):
         cls = get_or_make_builder_cls(cls)
     return cls(*args, **kwargs)
@@ -339,7 +339,7 @@ def get_or_make_builder_cls(
     builder_bases: typing.Collection[typing.Type] | None = None,
     builder_namespace: dict[str, typing.Any] | None = None,
 ) -> typing.Type:
-    """Get and return an existing builder class for the given class or make one and return it"""
+    """Get and return an existing builder class for the given class or make and return a new builder class for it"""
     builder_cls = get_builder(cls)
     if builder_cls is None:
         if dataclasses.is_dataclass(cls):
