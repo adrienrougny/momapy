@@ -22,7 +22,7 @@ class GeometryObject(abc.ABC):
 
     @abc.abstractmethod
     def to_shapely(self) -> shapely.Geometry:
-        """Compute and return a `shapely.Geometry` that reproduces the `GeometryObject`"""
+        """Compute and return a shapely geometry object that reproduces the geometry object"""
         pass
 
 
@@ -54,159 +54,197 @@ class Point(GeometryObject):
         yield self.y
 
     def to_matrix(self) -> numpy.array:
-        """Return a `numpy.array` representation of the `Point`"""
+        """Return a `numpy.array` representation of the point"""
         m = numpy.array([[self.x], [self.y], [1]], dtype=float)
         return m
 
     def to_tuple(self) -> tuple[float, float]:
-        """Return a tuple representation of the `Point`"""
+        """Return a tuple representation of the point"""
         return (
             self.x,
             self.y,
         )
 
-    def get_intersection_with_line(self, line):
+    def get_intersection_with_line(self, line: "Line") -> list["Point"]:
+        """Compute and return a list of the intersections of the point and a given line"""
         return get_intersection_of_line_and_point(line, self)
 
-    def get_angle_to_horizontal(self):
-        """Return the angle to the horizontal of the line passing through the origin and the `Point`"""
+    def get_angle_to_horizontal(self) -> float:
+        """Return the angle in radians formed by the line passing through the origin and the point and the horizontal"""
         return get_angle_to_horizontal_of_point(self)
 
     def transformed(self, transformation: "Transformation") -> "Point":
-        """Return the `Point` transformed by the given transformation"""
+        """Return a copy of the the point transformed by the given transformation"""
         return transform_point(self, transformation)
 
     def reversed(self) -> "Point":
-        """Return the `Point` reversed"""
+        """Return a reversed copy of the point"""
         return reverse_point(self)
 
     def to_shapely(self) -> shapely.Point:
-        """Return a `shapely.Point` that reproduces the `Point`"""
+        """Return a shapely point that reproduces the point"""
         return shapely.Point(self.x, self.y)
 
-    def to_fortranarray(self):
-        """Return a `numpy.fortranarray` representation of the `Point`"""
+    def to_fortranarray(self) -> typing.Any:
+        """Return a numpy fortran array representation of the point"""
         return numpy.asfortranarray([[self.x], [self.y]])
 
-    def bbox(self):
-        """Return the bounding box of the `Point`"""
+    def bbox(self) -> "Bbox":
+        """Return the bounding box of the point"""
         return Bbox(copy.deepcopy(self), 0, 0)
 
-    def isnan(self):
-        """Return `true` if the `Point` has a nan coordinate, `false` otherwise"""
+    def isnan(self) -> bool:
+        """Return `true` if the point has a nan coordinate, `false` otherwise"""
         return math.isnan(self.x) or math.isnan(self.y)
 
     @classmethod
     def from_shapely(cls, point: shapely.Point) -> typing.Self:
-        """Return a `Point` reproducing a `shapely.Point`"""
+        """Return a point reproducing a given shapely point"""
         return cls(point.x, point.y)
 
     @classmethod
     def from_fortranarray(cls, fortranarray: typing.Any) -> typing.Self:
-        """Return a `Point` from a `numpy.fortranarray` representation"""
+        """Return a point from a numpy fortran array representation"""
         return cls(fortranarray[0][0], fortranarray[1][1])
 
     @classmethod
     def from_tuple(cls, t: tuple[float, float]) -> typing.Self:
-        """Return a `Point` from a tuple representation"""
+        """Return a point from a tuple representation"""
         return cls(t[0], t[1])
 
 
 @dataclasses.dataclass(frozen=True)
 class Line(GeometryObject):
+    """Class for lines"""
+
     p1: Point
     p2: Point
 
-    def slope(self):
+    def slope(self) -> float:
+        """Return the slope of the line"""
         if self.p1.x != self.p2.x:
             return round(
                 (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x), ROUNDING
             )
         return float("NAN")  # infinite slope
 
-    def intercept(self):
+    def intercept(self) -> float:
+        """Return the intercept of the line"""
         slope = self.slope()
         if not math.isnan(slope):
             return self.p1.y - slope * self.p1.x
         else:
             return float("NAN")
 
-    def get_angle_to_horizontal(self):
+    def get_angle_to_horizontal(self) -> str:
+        """Return the angle in radians formed by the line and the horizontal"""
         return get_angle_to_horizontal_of_line(self)
 
-    def is_parallel_to_line(self, line):
+    def is_parallel_to_line(self, line: "Line") -> bool:
+        """Return `true` if the line is parallel to another given line, and `false` otherwise"""
         return are_lines_parallel(self, line)
 
-    def is_coincident_to_line(self, line):
+    def is_coincident_to_line(self, line: "Line") -> bool:
+        """Return `true` if the line is coincident to another given line, and `false` otherwise"""
         return are_lines_coincident(self, line)
 
-    def get_intersection_with_line(self, line):
+    def get_intersection_with_line(self, line: "Line") -> list["Line" | Point]:
+        """Compute and return the instersection of the line with another given line"""
         return get_intersection_of_lines(self, line)
 
-    def get_distance_to_point(self, point):
+    def get_distance_to_point(self, point: Point) -> float:
+        """Compute and return the distance of a given point to the line"""
         return get_distance_between_line_and_point(self, point)
 
-    def has_point(self, point, max_distance=0.01):
+    def has_point(self, point: Point, max_distance: float = 0.01) -> bool:
+        """Return `true` if a given point is on the line, `false` otherwise"""
         return line_has_point(self, point, max_distance)
 
-    def transformed(self, transformation):
+    def transformed(self, transformation: "Transformation") -> "Line":
+        """Return a copy of the line transformed with the given transformation"""
         return transform_line(self, transformation)
 
-    def reversed(self):
+    def reversed(self) -> "Line":
+        """Return a reversed copy of the line"""
         return reverse_line(self)
 
-    def to_shapely(self):
+    def to_shapely(self) -> shapely.LineString:
+        """Return a shapeply line string reproducing the line"""
         return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
 
 @dataclasses.dataclass(frozen=True)
 class Segment(GeometryObject):
+    """Class for segments"""
+
     p1: Point
     p2: Point
 
-    def length(self):
+    def length(self) -> float:
+        """Return the length of the segment"""
         return math.sqrt(
             (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
         )
 
-    def get_distance_to_point(self, point):
+    def get_distance_to_point(self, point: Point) -> float:
+        """Return the distance of a given point to the segment"""
         return get_distance_between_segment_and_point(self, point)
 
-    def has_point(self, point, max_distance=0.01):
+    def has_point(self, point: Point, max_distance: float = 0.01) -> bool:
+        """Return `true` if the given point is on the segment, `false` otherwise"""
         return segment_has_point(self, point, max_distance)
 
-    def get_angle_to_horizontal(self):
+    def get_angle_to_horizontal(self) -> float:
+        """Compute and return the angle formed by the segment and the horizontal"""
         return get_angle_to_horizontal_of_line(self)
 
-    def get_intersection_with_line(self, line):
+    def get_intersection_with_line(
+        self, line: Line
+    ) -> list[Point | "Segment"]:
+        """Compute and return the intersection of the segment with a given line"""
         return get_intersection_of_line_and_segment(line, self)
 
-    def get_position_at_fraction(self, fraction):
+    def get_position_at_fraction(self, fraction: float) -> Point:
+        """Compute and return the position on the segment at a given fraction (of the total length)"""
         return get_position_at_fraction_of_segment(self, fraction)
 
-    def get_angle_at_fraction(self, fraction):
+    def get_angle_at_fraction(self, fraction: float) -> float:
+        """Compute and return the angle in radians formed by the segment and the horizontal at a given fraction (of the total length)"""
         return get_angle_at_fraction_of_segment(self, fraction)
 
-    def get_position_and_angle_at_fraction(self, fraction):
+    def get_position_and_angle_at_fraction(
+        self, fraction: float
+    ) -> tuple[Point, float]:
+        """Compute and return the position on the segment at a given fraction and the angle in radians formed of the segment and the horizontal at that position"""
         return get_position_and_angle_at_fraction_of_segment(self, fraction)
 
-    def shortened(self, length, start_or_end="end"):
+    def shortened(
+        self,
+        length: float,
+        start_or_end: typing.Literal["start", "end"] = "end",
+    ) -> "Segment":
+        """Compute and return a copy of the segment shortened by a given length"""
         return shorten_segment(self, length, start_or_end)
 
-    def transformed(self, transformation):
+    def transformed(self, transformation: "Transformation") -> "Segment":
+        """Compute and return a copy of the segment transformed with a given transformation"""
         return transform_segment(self, transformation)
 
-    def reversed(self):
+    def reversed(self) -> "Segment":
+        """Compute and return a reversed copy of the segment"""
         return reverse_segment(self)
 
-    def to_shapely(self):
+    def to_shapely(self) -> shapely.LineString:
+        """Return a shapely line string reproducing the segment"""
         return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
 
-    def bbox(self):
+    def bbox(self) -> "Bbox":
+        """Compute and return the bounding box of the segment"""
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     @classmethod
-    def from_shapely(cls, line_string: shapely.LineString):
+    def from_shapely(cls, line_string: shapely.LineString) -> typing.Self:
+        """Compute and return the segment reproducing a shapely line string"""
         shapely_points = line_string.boundary.geoms
         return cls(
             Point.from_shapely(shapely_points[0]),
@@ -216,6 +254,8 @@ class Segment(GeometryObject):
 
 @dataclasses.dataclass(frozen=True)
 class BezierCurve(GeometryObject):
+    """Class for bezier curves"""
+
     p1: Point
     p2: Point
     control_points: tuple[Point] = dataclasses.field(default_factory=tuple)
@@ -238,47 +278,61 @@ class BezierCurve(GeometryObject):
         points = [Point.from_tuple(t) for t in bezier_curve.nodes.T]
         return cls(points[0], points[-1], points[1:-1])
 
-    def length(self):
+    def length(self) -> float:
+        """Compute and return the length of the bezier curve"""
         return self._to_bezier().length
 
-    def evaluate(self, s):
+    def evaluate(self, s: float) -> Point:
+        """Compute and return the point at a given parameter value"""
         evaluation = self._to_bezier().evaluate(s)
         return Point.from_fortranarray(evaluation)
 
-    def evaluate_multi(self, s):
+    def evaluate_multi(self, s: float) -> list[Point]:
+        """Compute and return the points at given parameter values"""
         evaluation = self._to_bezier().evaluate_multi(s)
         return [Point(e[0], e[1]) for e in evaluation.T]
 
-    def get_intersection_with_line(self, line):
+    def get_intersection_with_line(self, line: Line) -> list[Point]:
+        """Compute and return the intersection of the bezier curve with a given line"""
         return get_intersection_of_line_and_bezier_curve(line, self)
 
-    def get_position_at_fraction(self, fraction):
+    def get_position_at_fraction(self, fraction: float):
+        """Compute and return the position on the bezier curve at a given fraction (of the total length)"""
+
         return get_position_at_fraction_of_bezier_curve(self, fraction)
 
-    def get_angle_at_fraction(self, fraction):
+    def get_angle_at_fraction(self, fraction: float):
+        """Compute and return the angle in radians formed by the tangent of the bezier curve and the horizontal at a given fraction (of the total length)"""
         return get_angle_at_fraction_of_bezier_curve(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction):
+        """Compute and return the position on the bezier curve at a given fraction and the angle in radians formed of the tangent of the bezier curve and the horizontal at that position"""
         return get_position_and_angle_at_fraction_of_bezier_curve(
             self, fraction
         )
 
     def shortened(self, length, start_or_end="end"):
+        """Compute and return a copy of the bezier curve shortened by a given length"""
         return shorten_bezier_curve(self, length, start_or_end)
 
     def transformed(self, transformation):
+        """Compute and return a copy of the bezier curve transformed with a given transformation"""
         return transform_bezier_curve(self, transformation)
 
     def reversed(self):
+        """Compute and return a reversed copy of the bezier curve"""
         return reverse_bezier_curve(self)
 
     def to_shapely(self, n_segs=50):
+        """Compute and return a shapely line string reproducing the bezier curve"""
+
         points = self.evaluate_multi(
             numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
         )
         return shapely.LineString([point.to_tuple() for point in points])
 
     def bbox(self):
+        """Compute and return the bounding box of the bezier curve"""
         return Bbox.from_bounds(self.to_shapely().bounds)
 
 
