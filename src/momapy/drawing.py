@@ -46,7 +46,7 @@ class DropShadowEffect(FilterEffect):
     flood_color: momapy.coloring.Color = momapy.coloring.black
 
     def to_compat(self) -> list[FilterEffect]:
-        """Return a list of `FilterEffect`s better supported that is equivalent to the `DropShadowEffect`"""
+        """Return a list of filter effects better supported that is equivalent to the given drop-shadow effect"""
         flood_effect = FloodEffect(
             result=momapy.utils.get_uuid4_as_str(),
             flood_opacity=self.flood_opacity,
@@ -174,7 +174,7 @@ class Filter(object):
     y: float | str = "-10%"
 
     def to_compat(self) -> typing.Self:
-        """Return a `Filter` with its `FilterEffect`s replaced by better supported ones and equivalent to the `Filter`"""
+        """Return a filter equivalent to the given filter with its filter effects replaced by better supported"""
         effects = []
         for effect in self.effects:
             if hasattr(effect, "to_compat"):
@@ -315,11 +315,11 @@ class DrawingElement(abc.ABC):
 
     @abc.abstractmethod
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Compute and return a `shapely.GeometryCollection` built from the `DrawingElement`"""
+        """Compute and return a geometry collection built from the given drawing elements"""
         pass
 
     def bbox(self) -> momapy.geometry.Bbox:
-        """Compute and return the bounding box of the `DrawingElement`"""
+        """Compute and return the bounding box of the drawing element"""
         bounds = self.to_shapely().bounds
         return momapy.geometry.Bbox(
             momapy.geometry.Point(
@@ -330,7 +330,7 @@ class DrawingElement(abc.ABC):
         )
 
     def get_filter_region(self) -> momapy.geometry.Bbox:
-        """Compute and return the filter region of the `DrawingElement`"""
+        """Compute and return the filter region of the drawing element"""
 
         if self.filter is None or self.filter is NoneValue:
             return None
@@ -394,11 +394,11 @@ class Text(DrawingElement):
     def transformed(
         self, transformation: momapy.geometry.Transformation
     ) -> typing.Self:
-        """Return a copy of the `Text`"""
+        """Return a copy of the text element"""
         return copy.deepcopy(self)
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a `shapely.GeometryCollection` built from the `Text`'s point"""
+        """Return a geometry collection built from the text element's point"""
         return shapely.geometry.GeometryCollection([self.point.to_shapely()])
 
 
@@ -411,14 +411,14 @@ class Group(DrawingElement):
     def transformed(
         self, transformation: momapy.geometry.Transformation
     ) -> typing.Self:
-        """Compute and return a copy of the `Group` transformed with the given transformation"""
+        """Compute and return a copy of the group transformed with the given transformation"""
         elements = []
         for element in self.elements:
             elements.append(element.transformed(transformation))
         return dataclasses.replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a `shapely.GeometryCollection` built from elements of the `Group`"""
+        """Return a geometry collection built from the elements of the group's elements"""
         return drawing_elements_to_shapely(self.elements)
 
 
@@ -448,7 +448,7 @@ class MoveTo(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ) -> "MoveTo":
-        """Compute and return a copy of the `MoveTo` transformed with the given transformation and current point"""
+        """Compute and return a copy of the move-to path action transformed with the given transformation and current point"""
         return MoveTo(
             momapy.geometry.transform_point(self.point, transformation)
         )
@@ -473,7 +473,7 @@ class LineTo(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ):
-        """Compute and return a copy of the `LineTo` transformed with the given transformation and current point"""
+        """Compute and return a copy of the line-to path action transformed with the given transformation and current point"""
         return LineTo(
             momapy.geometry.transform_point(self.point, transformation)
         )
@@ -481,13 +481,13 @@ class LineTo(PathAction):
     def to_geometry(
         self, current_point: momapy.geometry.Point
     ) -> momapy.geometry.Segment:
-        """Return a `Segment` from the `LineTo` and the given current point"""
+        """Return a segment from the line-to path action and the given current point"""
         return momapy.geometry.Segment(current_point, self.point)
 
     def to_shapely(
         self, current_point: momapy.geometry.Point
     ) -> shapely.LineString:
-        """Return a `shapely.LineString` reproducing the `LineTo` from the given current point"""
+        """Return a line string from the line-to path action and the given current point"""
         return self.to_geometry(current_point).to_shapely()
 
 
@@ -515,7 +515,7 @@ class EllipticalArc(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ) -> "EllipticalArc":
-        """Compute and return a copy of the `EllipticalArc` transformed with the given transformation and current point"""
+        """Compute and return a copy of the elliptical-arc path action transformed with the given transformation and current point"""
         east = momapy.geometry.Point(
             math.cos(self.x_axis_rotation) * self.rx,
             math.sin(self.x_axis_rotation) * self.rx,
@@ -531,9 +531,6 @@ class EllipticalArc(PathAction):
         new_north = momapy.geometry.transform_point(north, transformation)
         new_rx = momapy.geometry.Segment(new_center, new_east).length()
         new_ry = momapy.geometry.Segment(new_center, new_north).length()
-        new_start_point = momapy.geometry.transform_point(
-            current_point, transformation
-        )
         new_end_point = momapy.geometry.transform_point(
             self.point, transformation
         )
@@ -554,7 +551,7 @@ class EllipticalArc(PathAction):
     def to_geometry(
         self, current_point: momapy.geometry.Point
     ) -> momapy.geometry.EllipticalArc:
-        """Return a `momapy.geometry.EllipticalArc` from the `EllipticalArc`"""
+        """Return an elliptical arc from the elliptical-arc path action and the given current point"""
         return momapy.geometry.EllipticalArc(
             current_point,
             self.point,
@@ -568,7 +565,7 @@ class EllipticalArc(PathAction):
     def to_shapely(
         self, current_point: momapy.geometry.Point
     ) -> shapely.GeometryCollection:
-        """Return a `shapely.LineString` reproducing the `EllipticalArc` from the given current point"""
+        """Return a line string reproducing the elliptical-arc path action from the given current point"""
         elliptical_arc = self.to_geometry(current_point)
         return elliptical_arc.to_shapely()
 
@@ -594,7 +591,7 @@ class CurveTo(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ) -> "CurveTo":
-        """Compute and return a copy of the `CurveTo` transformed with the given transformation and current point"""
+        """Compute and return a copy of the curve-to path action transformed with the given transformation and current point"""
         return CurveTo(
             momapy.geometry.transform_point(self.point, transformation),
             momapy.geometry.transform_point(
@@ -608,7 +605,7 @@ class CurveTo(PathAction):
     def to_geometry(
         self, current_point: momapy.geometry.Point
     ) -> momapy.geometry.BezierCurve:
-        """Return a `momapy.geometry.BezierCurve` from the `CurveTo` and the given current point"""
+        """Return a bezier curve from the curve-to path action and the given current point"""
         return momapy.geometry.BezierCurve(
             current_point,
             self.point,
@@ -618,7 +615,7 @@ class CurveTo(PathAction):
     def to_shapely(
         self, current_point: momapy.geometry.Point, n_segs: int = 50
     ) -> shapely.GeometryCollection:
-        """Return a `shapely.LineString` reproducing the `CurveTo` from the given current point"""
+        """Return a line string reproducing the curve-to path action from the given current point"""
         bezier_curve = self.to_geometry(current_point)
         return bezier_curve.to_shapely(n_segs)
 
@@ -643,7 +640,7 @@ class QuadraticCurveTo(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ) -> "QuadraticCurveTo":
-        """Compute and return a copy of the `QuadraticCurveTo` transformed with the given transformation and current point"""
+        """Compute and return a copy of the quadratic-curve-to transformed with the given transformation and current point"""
         return QuadraticCurveTo(
             momapy.geometry.transform_point(self.point, transformation),
             momapy.geometry.transform_point(
@@ -652,7 +649,7 @@ class QuadraticCurveTo(PathAction):
         )
 
     def to_curve_to(self, current_point: momapy.geometry.Point) -> CurveTo:
-        """Return a `CurveTo` repdroducing the `QuadraticCurveTo` from the given current point"""
+        """Return a curve-to path action repdroducing the quadratic-curve-to path action from the given current point"""
         p1 = current_point
         p2 = self.point
         control_point1 = p1 + (self.control_point - p1) * (2 / 3)
@@ -662,7 +659,7 @@ class QuadraticCurveTo(PathAction):
     def to_geometry(
         self, current_point: momapy.geometry.Point
     ) -> momapy.geometry.BezierCurve:
-        """Return a `momapy.geometry.BezierCurve` from the `QuadraticCurveTo` and the given current point"""
+        """Return a bezier curve from the quadratic-curve-to path action and the given current point"""
         return momapy.geometry.BezierCurve(
             current_point,
             self.point,
@@ -670,7 +667,7 @@ class QuadraticCurveTo(PathAction):
         )
 
     def to_shapely(self, current_point, n_segs=50):
-        """Return a `shapely.LineString` reproducing the `QuadraticCurveTo` from the given current point"""
+        """Return a line string reproducing the quadratic-curve-to from the given current point"""
         bezier_curve = self.to_geometry(current_point)
         return bezier_curve.to_shapely()
 
@@ -684,7 +681,7 @@ class ClosePath(PathAction):
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
     ) -> "ClosePath":
-        """Return a copy of the `ClosePath`"""
+        """Return a copy of the close-path path action"""
         return ClosePath()
 
 
@@ -697,7 +694,7 @@ class Path(DrawingElement):
     def transformed(
         self, transformation: momapy.geometry.Transformation
     ) -> typing.Self:
-        """Compute and return a copy of the `Path` transformed with the given transformation"""
+        """Compute and return a copy of the path element transformed with the given transformation"""
         actions = []
         current_point = None
         for action in self.actions:
@@ -710,7 +707,7 @@ class Path(DrawingElement):
         return dataclasses.replace(self, actions=tuple(actions))
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Compute and return a `shapely.GeometryCollection` reproducing the `Path`"""
+        """Compute and return a geometry collection reproducing the path element"""
         current_point = momapy.geometry.Point(
             0, 0
         )  # in case the path does not start with a move_to command;
@@ -763,7 +760,7 @@ class Path(DrawingElement):
         return shapely.geometry.GeometryCollection(geom_collection)
 
     def to_path_with_bezier_curves(self) -> typing.Self:
-        """Compute and return a `Path` reproducing the `Path` with curves and ellipses transformed to bezier curves"""
+        """Compute and return a path element reproducing the path element with curves and ellipses transformed to bezier curves"""
         new_actions = []
         current_point = momapy.geometry.Point(
             0, 0
@@ -819,7 +816,7 @@ class Ellipse(DrawingElement):
         return self.point.y
 
     def to_path(self) -> Path:
-        """Return a `Path` reproducing the `Ellipse`"""
+        """Return a path element reproducing the ellipse element"""
         north = self.point + (0, -self.ry)
         east = self.point + (self.rx, 0)
         south = self.point + (0, self.ry)
@@ -844,12 +841,12 @@ class Ellipse(DrawingElement):
         return path
 
     def transformed(self, transformation) -> Path:
-        """Compute and return a copy of the `Ellipse` transformed with the given transformation"""
+        """Compute and return a copy of the ellipse element transformed with the given transformation"""
         path = self.to_path()
         return path.transformed(transformation)
 
     def to_shapely(self, to_polygons=False):
-        """Return a `shapely.GeometryCollection` reproducing the `Ellipse`"""
+        """Return a geometry collection reproducing the ellipse element"""
         point = self.point.to_shapely()
         circle = point.buffer(1)
         ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
@@ -877,7 +874,7 @@ class Rectangle(DrawingElement):
         return self.point.y
 
     def to_path(self) -> Path:
-        """Return a `Path` reproducing the `Rectangle`"""
+        """Return a path element reproducing the rectangle element"""
         x = self.point.x
         y = self.point.y
         rx = self.rx
@@ -937,19 +934,19 @@ class Rectangle(DrawingElement):
     def transformed(
         self, transformation: momapy.geometry.Transformation
     ) -> Path:
-        """Compute and return a copy of the `Rectangle` transformed with the given transformation"""
+        """Compute and return a copy of the rectangle element transformed with the given transformation"""
         path = self.to_path()
         return path.transformed(transformation)
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a `shapely.GeometryCollection` reproducing the `Rectangle`"""
+        """Return a geometry collection reproducing the rectangle element"""
         return self.to_path().to_shapely(to_polygons=to_polygons)
 
 
 def drawing_elements_to_shapely(
     drawing_elements: collections.abc.Sequence[DrawingElement],
 ) -> shapely.GeometryCollection:
-    """Return a `shapely.GeometryCollection` reproducing the given drawing elements"""
+    """Return a geometry collection reproducing the given drawing elements"""
     geom_collection = []
     for drawing_element in drawing_elements:
         geom_collection += drawing_element.to_shapely(to_polygons=False).geoms

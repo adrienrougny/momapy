@@ -33,13 +33,13 @@ class StyleSheet(dict):
 
     @classmethod
     def from_file(cls, file_path: str) -> "StyleSheet":
-        """Return a `StyleSheet` from a file"""
+        """Return a style sheet from a file"""
         style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
         return style_sheet
 
     @classmethod
     def from_string(cls, s: str) -> "StyleSheet":
-        """Return a `StyleSheet` from a string"""
+        """Return a style sheet from a string"""
         style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
 
@@ -47,7 +47,7 @@ class StyleSheet(dict):
     def from_files(
         cls, file_paths: collections.abc.Collection[str]
     ) -> "StyleSheet":
-        """Return a `StyleSheet` from a collection of files"""
+        """Return a style sheet from a collection of files"""
         style_sheets = []
         for file_path in file_paths:
             style_sheet = StyleSheet.from_file(file_path)
@@ -59,7 +59,7 @@ class StyleSheet(dict):
 def combine_style_sheets(
     style_sheets: collections.abc.Collection[StyleSheet],
 ) -> StyleSheet:
-    """Merge a collection of `StyleSheet` and return the resulting `StyleSheet`"""
+    """Merge and return a collection of stylesheets"""
     if not style_sheets:
         return None
     output_style_sheet = style_sheets[0]
@@ -75,7 +75,7 @@ def apply_style_collection(
     style_collection: StyleCollection,
     strict: bool = True,
 ) -> momapy.core.LayoutElement | momapy.core.LayoutElementBuilder:
-    """Apply a `StyleCollection` to a `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder`"""
+    """Apply a style collection to a layout element"""
     if not isinstance(layout_element, momapy.builder.Builder):
         layout_element = momapy.builder.builder_from_object(layout_element)
         is_builder = False
@@ -113,7 +113,7 @@ def apply_style_sheet(
     | momapy.core.LayoutElementBuilder
     | momapy.core.MapBuilder
 ):
-    """Apply a `StyleSheet` to a `momapy.core.LayoutElement`, a `momapy.core.Map`, a `momapy.core.LayoutElementBuilder` or a `momapy.core.MapBuilder"""
+    """Apply a style sheet to a layout element or (layout of) a map"""
     if not isinstance(map_or_layout_element, momapy.builder.Builder):
         map_or_layout_element = momapy.builder.builder_from_object(
             map_or_layout_element
@@ -160,7 +160,7 @@ class Selector(object):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ) -> bool:
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         pass
 
 
@@ -177,7 +177,7 @@ class TypeSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         obj_cls_name = type(obj).__name__
         return (
             obj_cls_name == self.class_name
@@ -198,7 +198,7 @@ class ClassSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         for cls in type(obj).__mro__:
             cls_name = cls.__name__
             if (
@@ -222,7 +222,7 @@ class IdSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         return hasattr(obj, "id_") and obj.id_ == self.id_
 
 
@@ -240,7 +240,7 @@ class ChildSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         if not ancestors:
             return False
         return self.child_selector.select(
@@ -262,7 +262,7 @@ class DescendantSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         if not ancestors:
             return False
         return self.descendant_selector.select(obj, ancestors) and any(
@@ -286,7 +286,7 @@ class OrSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the `momapy.core.LayoutElement` or `momapy.core.LayoutElementBuilder` satisfies the `Selector`, `false` otherwise"""
+        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         return any(
             [selector.select(obj, ancestors) for selector in self.selectors]
         )
