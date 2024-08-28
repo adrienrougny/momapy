@@ -5298,6 +5298,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
     def _arc_layout_to_sbgn_elements(
         cls,
         layout_element,
+        map_,
         class_value,
         source_id,
         target_id,
@@ -5369,6 +5370,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             target_id = f"{super_layout_element.id_}_right_port"
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5389,6 +5391,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             source_id = f"{super_layout_element.id_}_left_port"
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5406,6 +5409,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5423,6 +5427,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5440,6 +5445,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5457,6 +5463,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5474,6 +5481,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5491,6 +5499,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5508,6 +5517,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5525,6 +5535,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = layout_element.target.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5545,6 +5556,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
             target_id = f"{super_layout_element.id_}_right_port"
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5562,6 +5574,7 @@ class _SBGNMLWriter(momapy.io.MapWriter):
         target_id = super_layout_element.id_
         sbgn_elements = cls._arc_layout_to_sbgn_elements(
             layout_element,
+            map_,
             class_value,
             source_id,
             target_id,
@@ -5616,7 +5629,7 @@ class SBGNML0_3Writer(_SBGNMLWriter):
             sbgn_version = cls._parser_module.MapVersion[
                 "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_2_0"
             ]
-        elif sbgn_language == "ACTIVITY_FLOW":
+        elif sbgn_language.name == "ACTIVITY_FLOW":
             sbgn_version = cls._parser_module.MapVersion[
                 "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_AF_LEVEL_1_VERSION_1_2"
             ]
