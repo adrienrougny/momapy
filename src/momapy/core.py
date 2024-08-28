@@ -1705,7 +1705,7 @@ def _model_builder_new_element(self, element_cls, *args, **kwargs):
         raise TypeError(
             "element class must be a subclass of ModelElementBuilder or ModelElement"
         )
-    return momapy.builder.new_builder(element_cls, *args, **kwargs)
+    return momapy.builder.new_builder_object(element_cls, *args, **kwargs)
 
 
 ModelBuilder = momapy.builder.get_or_make_builder_cls(
@@ -1719,7 +1719,7 @@ def _layout_builder_new_element(self, element_cls, *args, **kwargs):
         raise TypeError(
             "element class must be a subclass of LayoutElementBuilder or LayoutElement"
         )
-    return momapy.builder.new_builder(element_cls, *args, **kwargs)
+    return momapy.builder.new_builder_object(element_cls, *args, **kwargs)
 
 
 LayoutBuilder = momapy.builder.get_or_make_builder_cls(
