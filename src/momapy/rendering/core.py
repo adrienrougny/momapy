@@ -2,6 +2,7 @@ import dataclasses
 import copy
 import abc
 import typing
+import collections.abc
 
 import momapy.drawing
 import momapy.styling
@@ -13,30 +14,34 @@ renderers = {}
 
 
 def register_renderer(name, renderer_cls):
+    """Register a renderer class"""
     renderers[name] = renderer_cls
 
 
 def render_map(
-    map_,
-    output_file,
-    format_="pdf",
-    renderer="skia",
-    style_sheet=None,
-    to_top_left=False,
+    map_: momapy.core.Map,
+    output_file: str,
+    format_: str = "pdf",
+    renderer: str = "skia",
+    style_sheet: momapy.styling.StyleSheet | None = None,
+    to_top_left: bool = False,
 ):
+    """Render a map to a file in a given format and with a given registered renderer"""
     maps = [map_]
     render_maps(maps, output_file, format_, renderer, style_sheet, to_top_left)
 
 
 def render_maps(
-    maps,
-    output_file,
-    format_="pdf",
-    renderer="skia",
-    style_sheet=None,
-    to_top_left=False,
-    multi_pages=True,
+    maps: collections.abc.Collection[momapy.core.Map],
+    output_file: str,
+    format_: str = "pdf",
+    renderer: str = "skia",
+    style_sheet: momapy.styling.StyleSheet | None = None,
+    to_top_left: bool = False,
+    multi_pages: bool = True,
 ):
+    """Render a collection of maps to a file in a given format and with a given registered renderer"""
+
     def _prepare_maps(maps, style_sheet=None, to_top_left=False):
         bboxes = [map_.layout.self_bbox() for map_ in maps]
         position, width, height = momapy.positioning.fit(bboxes)
@@ -48,11 +53,11 @@ def render_maps(
                 if isinstance(map_, momapy.core.Map):
                     new_maps.append(momapy.builder.builder_from_object(map_))
                 elif isinstance(map_, momapy.core.MapBuilder):
-                    new_maps.append(deepcopy(map_))
+                    new_maps.append(copy.deepcopy(map_))
             maps = new_maps
         if style_sheet is not None:
             if (
-                not isinstance(style_sheet, Collection)
+                not isinstance(style_sheet, collections.abc.Collection)
                 or isinstance(style_sheet, str)
                 or isinstance(style_sheet, momapy.styling.StyleSheet)
             ):
@@ -60,9 +65,11 @@ def render_maps(
             else:
                 style_sheets = style_sheet
             style_sheets = [
-                momapy.styling.StyleSheet.from_file(style_sheet)
-                if not isinstance(style_sheet, momapy.styling.StyleSheet)
-                else style_sheet
+                (
+                    momapy.styling.StyleSheet.from_file(style_sheet)
+                    if not isinstance(style_sheet, momapy.styling.StyleSheet)
+                    else style_sheet
+                )
                 for style_sheet in style_sheets
             ]
             style_sheet = momapy.styling.combine_style_sheets(style_sheets)
@@ -91,7 +98,9 @@ def render_maps(
         renderer.end_session()
     else:
         for i, map_ in enumerate(maps):
-            maps, max_x, max_y = _prepare_maps([map_], style_sheet, to_top_left)
+            maps, max_x, max_y = _prepare_maps(
+                [map_], style_sheet, to_top_left
+            )
             map_ = maps[0]
             if i == 0:
                 renderer = renderers[renderer].from_file(
@@ -106,6 +115,8 @@ def render_maps(
 
 @dataclasses.dataclass
 class Renderer(abc.ABC):
+    """Abstract class for renderers"""
+
     initial_values: typing.ClassVar[dict] = {
         "font_family": "Arial",
         "font_weight": 16.0,
@@ -117,34 +128,43 @@ class Renderer(abc.ABC):
 
     @abc.abstractmethod
     def begin_session(self):
+        """Begin a session"""
         pass
 
     @abc.abstractmethod
     def end_session(self):
+        """End a session"""
         pass
 
     @abc.abstractmethod
     def new_page(self, width, height):
+        """Make a new page"""
         pass
 
     @abc.abstractmethod
-    def render_map(self, map):
+    def render_map(self, map_: momapy.core.Map):
+        """Render a map"""
         pass
 
     @abc.abstractmethod
-    def render_layout_element(self, layout_element):
+    def render_layout_element(self, layout_element: momapy.core.LayoutElement):
+        """Render a layout element"""
         pass
 
     @abc.abstractmethod
-    def render_drawing_element(self, drawing_element):
+    def render_drawing_element(
+        self, drawing_element: momapy.drawing.DrawingElement
+    ):
+        """Render a drawing element"""
         pass
 
     @classmethod
     def get_lighter_font_weight(
         cls, font_weight: momapy.drawing.FontWeight | float
     ) -> float:
+        """Return the boldest font weight lighter than the given font weight"""
         if isinstance(font_weight, momapy.drawing.FontWeight):
-            font_weight = self.font_weight_value_mapping.get(font_weight)
+            font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
                 raise ValueError(
                     f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
@@ -161,8 +181,9 @@ class Renderer(abc.ABC):
     def get_bolder_font_weight(
         cls, font_weight: momapy.drawing.FontWeight | float
     ) -> float:
+        """Return the lightest font weight bolder than the given font weight"""
         if isinstance(font_weight, momapy.drawing.FontWeight):
-            font_weight = self.font_weight_value_mapping.get(font_weight)
+            font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
                 raise ValueError(
                     f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
@@ -178,6 +199,8 @@ class Renderer(abc.ABC):
 
 @dataclasses.dataclass
 class StatefulRenderer(Renderer):
+    """Abstract class for stateful renderers"""
+
     _current_state: dict = dataclasses.field(default_factory=dict)
     _states: list[dict] = dataclasses.field(default_factory=list)
 
@@ -195,7 +218,10 @@ class StatefulRenderer(Renderer):
     @classmethod
     def _make_initial_current_state(cls):
         state = {}
-        for attr_name, attr_d in momapy.drawing.PRESENTATION_ATTRIBUTES.items():
+        for (
+            attr_name,
+            attr_d,
+        ) in momapy.drawing.PRESENTATION_ATTRIBUTES.items():
             if attr_name in cls.initial_values:
                 attr_value = cls.initial_values[attr_name]
             else:
@@ -208,10 +234,12 @@ class StatefulRenderer(Renderer):
         self.set_current_state(state)
 
     def save(self):
+        """Save the current state"""
         self._states.append(copy.deepcopy(self.get_current_state()))
         self.self_save()
 
     def restore(self):
+        """Set the current state to the last saved"""
         if len(self._states) > 0:
             state = self._states.pop()
             self.set_current_state(state)
@@ -219,7 +247,8 @@ class StatefulRenderer(Renderer):
         else:
             raise Exception("no state to be restored")
 
-    def get_initial_value(self, attr_name):
+    def get_initial_value(self, attr_name: str) -> typing.Any:
+        """Return the initial value for an attribute"""
         attr_value = self.initial_values.get(attr_name)
         if attr_value is None:
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
@@ -228,13 +257,16 @@ class StatefulRenderer(Renderer):
                 attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
         return attr_value
 
-    def get_current_value(self, attr_name):
+    def get_current_value(self, attr_name: str) -> typing.Any:
+        """Return the current value for an attribute"""
         return self.get_current_state()[attr_name]
 
-    def get_current_state(self):
+    def get_current_state(self) -> dict[str, typing.Any]:
+        """Return the current state"""
         return self._current_state
 
-    def set_current_value(self, attr_name, attr_value):
+    def set_current_value(self, attr_name: str, attr_value: typing.Any):
+        """Set the current value for an attribute"""
         if attr_value is None:
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
@@ -262,6 +294,7 @@ class StatefulRenderer(Renderer):
             self._current_state[attr_name] = attr_value
 
     def set_current_state(self, state: dict):
+        """Set the current state to a given state"""
         for attr_name, attr_value in state.items():
             self.set_current_value(attr_name, attr_value)
 
@@ -271,6 +304,9 @@ class StatefulRenderer(Renderer):
             state[attr_name] = getattr(drawing_element, attr_name)
         return state
 
-    def set_current_state_from_drawing_element(self, drawing_element):
+    def set_current_state_from_drawing_element(
+        self, drawing_element: momapy.drawing.DrawingElement
+    ):
+        """Set the current state to a state given by a drawing element"""
         state = self._get_state_from_drawing_element(drawing_element)
         self.set_current_state(state)

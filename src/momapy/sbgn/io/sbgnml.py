@@ -4105,6 +4105,8 @@ class _SBGNMLReader(momapy.io.MapReader):
 
 
 class SBGNML0_2Reader(_SBGNMLReader):
+    """Class for SBGN-ML 0.3 reader objects"""
+
     _parser_module = momapy.sbgn.io._sbgnml_parser_0_2
 
     @classmethod
@@ -4130,6 +4132,7 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
     @classmethod
     def check_file(cls, file_path):
+        """Return `true` if the given file is an SBGN-ML 0.2 document, `false` otherwise"""
         with open(file_path) as f:
             for line in f:
                 if "http://sbgn.org/libsbgn/0.2" in line:
@@ -4138,6 +4141,8 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
+    """Class for SBGN-ML 0.3 reader objects"""
+
     _parser_module = momapy.sbgn.io._sbgnml_parser_0_3
     _SBGNML_VERSION_URI_TO_MAP_CLASS = {
         "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_2_0": momapy.sbgn.pd.SBGNPDMapBuilder,
@@ -4194,6 +4199,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
 
     @classmethod
     def check_file(cls, file_path):
+        """Return `true` if the given file is an SBGN-ML 2.0 document, `false` otherwise"""
         with open(file_path) as f:
             for line in f:
                 if "http://sbgn.org/libsbgn/0.3" in line:

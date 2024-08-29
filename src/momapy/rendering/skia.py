@@ -11,6 +11,8 @@ import momapy.rendering.core
 
 @dataclasses.dataclass(kw_only=True)
 class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
+    """Class for skia renderers"""
+
     formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "jpeg", "webp"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",

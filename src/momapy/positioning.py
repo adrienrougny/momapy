@@ -16,7 +16,8 @@ def right_of(
         | momapy.core.LayoutElementBuilder
     ),
     distance: float,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point right of the given object at a given distance"""
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
@@ -36,7 +37,8 @@ def left_of(
         | momapy.core.LayoutElementBuilder
     ),
     distance: float,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point left of the given object at a given distance"""
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
@@ -56,7 +58,8 @@ def above_of(
         | momapy.core.LayoutElementBuilder
     ),
     distance: float,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point above of the given object at a given distance"""
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
@@ -76,7 +79,8 @@ def below_of(
         | momapy.core.LayoutElementBuilder
     ),
     distance: float,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point below of the given object at a given distance"""
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.Node):
@@ -97,7 +101,8 @@ def above_left_of(
     ),
     distance1: float,
     distance2: float | None = None,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point above left of the given object at a given distance"""
     if distance2 is None:
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
@@ -120,7 +125,8 @@ def above_right_of(
     ),
     distance1: float,
     distance2: float | None = None,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point above right of the given object at a given distance"""
     if distance2 is None:
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
@@ -143,7 +149,8 @@ def below_left_of(
     ),
     distance1: float,
     distance2: float | None = None,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point below left of the given object at a given distance"""
     if distance2 is None:
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
@@ -166,7 +173,8 @@ def below_right_of(
     ),
     distance1: float,
     distance2: float | None = None,
-):
+) -> momapy.geometry.Point:
+    """Compute and return the point below right of the given object at a given distance"""
     if distance2 is None:
         distance2 = distance1
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
@@ -189,7 +197,8 @@ def fit(
     ],
     xsep: float = 0,
     ysep: float = 0,
-):
+) -> tuple[momapy.geometry.Point, float, float]:
+    """Compute and return the bounding box fitting a collection of objects, with given margins"""
     if not elements:
         raise ValueError("elements must contain at least one element")
     points = []
@@ -231,11 +240,12 @@ def fit(
     min_y -= ysep
     width = max_x - min_x
     height = max_y - min_y
-    return (
+    bbox = momapy.geometry.Bbox(
         momapy.geometry.Point(min_x + width / 2, min_y + height / 2),
         width,
         height,
     )
+    return bbox
 
 
 def fraction_of(
@@ -243,10 +253,10 @@ def fraction_of(
         momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
     ),
     fraction: float,
-):
+) -> tuple[momapy.geometry.Point, float]:
+    """Return the position on an arc at a given fraction and the angle formed of the tangant of the arc at that position and the horizontal"""
     position, angle = arc_layout_element.fraction(fraction)
-    transform = tuple([momapy.geometry.Rotation(angle, position)])
-    return position, transform
+    return position, angle
 
 
 def set_position(
@@ -254,6 +264,7 @@ def set_position(
     position: momapy.geometry.Point | momapy.geometry.PointBuilder,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object"""
     obj.position = position
     if anchor is not None:
         p = getattr(obj, anchor)()
@@ -273,6 +284,7 @@ def set_right_of(
     distance: float,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object right of another given object at a given distance"""
     position = right_of(obj2, distance)
     set_position(obj1, position, anchor)
 
@@ -290,6 +302,7 @@ def set_left_of(
     distance: float,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object left of another given object at a given distance"""
     position = left_of(obj2, distance)
     set_position(obj1, position, anchor)
 
@@ -307,6 +320,7 @@ def set_above_of(
     distance: float,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object above of another given object at a given distance"""
     position = above_of(obj2, distance)
     set_position(obj1, position, anchor)
 
@@ -324,6 +338,7 @@ def set_below_of(
     distance: float,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object below of another given object at a given distance"""
     position = below_of(obj2, distance)
     set_position(obj1, position, anchor)
 
@@ -342,6 +357,7 @@ def set_above_left_of(
     distance2: float | None = None,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object above left of another given object at a given distance"""
     position = above_left_of(obj2, distance1, distance2)
     set_position(obj1, position, anchor)
 
@@ -360,6 +376,7 @@ def set_above_right_of(
     distance2: float | None = None,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object above right of another given object at a given distance"""
     position = above_right_of(obj2, distance1, distance2)
     set_position(obj1, position, anchor)
 
@@ -378,6 +395,7 @@ def set_below_left_of(
     distance2: float | None = None,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object below left of another given object at a given distance"""
     position = below_left_of(obj2, distance1, distance2)
     set_position(obj1, position, anchor)
 
@@ -396,6 +414,7 @@ def set_below_right_of(
     distance2: float | None = None,
     anchor: str | None = None,
 ):
+    """Set the position of a given builder object below right of another given object at a given distance"""
     position = below_right_of(obj2, distance1, distance2)
     set_position(obj1, position, anchor)
 
@@ -414,8 +433,11 @@ def set_fit(
     ysep: float = 0,
     anchor: str | None = None,
 ):
-    position, obj.width, obj.height = fit(elements, xsep, ysep)
-    set_position(obj, position, anchor)
+    """Set the position, width and height of a given builder object to fit a given collection of other objects"""
+    bbox = fit(elements, xsep, ysep)
+    obj.width = bbox.width
+    obj.height = bbox.height
+    set_position(obj, bbox.position, anchor)
 
 
 def set_fraction_of(
@@ -426,6 +448,7 @@ def set_fraction_of(
     fraction: float,
     anchor: str | None = None,
 ):
+    """Set the position and rotation of a given builder object to lay at a given fraction of a given arc"""
     position, transform = fraction_of(arc_layout_element, fraction)
     set_position(obj, position, anchor)
     obj.transform = transform

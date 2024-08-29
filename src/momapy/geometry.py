@@ -148,7 +148,9 @@ class Line(GeometryObject):
         """Return `true` if the line is coincident to another given line, and `false` otherwise"""
         return are_lines_coincident(self, line)
 
-    def get_intersection_with_line(self, line: "Line") -> list["Line" | Point]:
+    def get_intersection_with_line(
+        self, line: "Line"
+    ) -> list["Line"] | list["Point"]:
         """Compute and return the instersection of the line with another given line"""
         return get_intersection_of_lines(self, line)
 
@@ -200,7 +202,7 @@ class Segment(GeometryObject):
 
     def get_intersection_with_line(
         self, line: Line
-    ) -> list[Point | "Segment"]:
+    ) -> list[Point] | list["Segment"]:
         """Compute and return the intersection of the segment with a given line"""
         return get_intersection_of_line_and_segment(line, self)
 
@@ -577,7 +579,7 @@ class Transformation(abc.ABC):
     """Abstract class for transformations"""
 
     @abc.abstractmethod
-    def to_matrix(self) -> numpy.typing.NDarray:
+    def to_matrix(self) -> numpy.typing.NDArray:
         """Return a matrix representation of the transformation"""
         pass
 
@@ -639,6 +641,8 @@ class Rotation(Transformation):
 
 @dataclasses.dataclass(frozen=True)
 class Translation(Transformation):
+    """Class for translations"""
+
     tx: float
     ty: float
 
@@ -724,7 +728,6 @@ def transform_elliptical_arc(elliptical_arc, transformation):
     new_north = transform_point(north, transformation)
     new_rx = Segment(new_center, new_east).length()
     new_ry = Segment(new_center, new_north).length()
-    new_start_point = transform_point(elliptical_arc.p1, transformation)
     new_end_point = transform_point(elliptical_arc.p2, transformation)
     new_x_axis_rotation = math.degrees(
         get_angle_to_horizontal_of_line(Line(new_center, new_east))

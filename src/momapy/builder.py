@@ -20,7 +20,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        """Builder and return an object from the builder object"""
+        """Build and return an object from the builder object"""
         pass
 
     @classmethod

@@ -27,10 +27,11 @@ autoapi_dirs = ["../../src/momapy"]
 autoapi_type = "python"
 autoapi_options = [
     "members",
-    "undoc-members",
+    # "undoc-members",
     "show-inheritance",
     "show-module-summary",
     "imported-members",
+    "inherited-members",
 ]
 autoclass_content = "both"
 

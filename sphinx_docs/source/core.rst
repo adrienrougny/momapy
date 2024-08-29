@@ -1,2 +1,0 @@
-.. automodule:: momapy.core
-   :members:

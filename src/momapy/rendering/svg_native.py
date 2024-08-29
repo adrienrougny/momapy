@@ -2,8 +2,6 @@ import dataclasses
 import typing
 import math
 
-import skia
-
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
@@ -11,12 +9,15 @@ import momapy.rendering.core
 
 @dataclasses.dataclass
 class SVGElement(object):
+    """Class for SVG elements"""
+
     name: str
     value: typing.Optional[str] = None
     attributes: dict = dataclasses.field(default_factory=dict)
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
-    def to_string(self, indent=0):
+    def to_string(self, indent: int = 0):
+        """Return the SVG string representing the element"""
         s_indent = "\t" * indent
         s_value = f"{s_indent}{self.value}\n" if self.value is not None else ""
         if self.attributes:
@@ -42,11 +43,14 @@ class SVGElement(object):
         return self.to_string()
 
     def add_element(self, element):
+        """Add an sub-element to the SVG element"""
         self.elements.append(element)
 
 
 @dataclasses.dataclass
 class SVGNativeRenderer(momapy.rendering.core.Renderer):
+    """Class for SVG native renderers"""
+
     formats: typing.ClassVar[list[str]] = ["svg"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_make_group_element",
@@ -234,7 +238,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                 attributes[attr_name] = attr_value
         return attributes
 
-    def _make_filter_element(self, filter):
+    def _make_filter_element(self, filter_):
         name = "filter"
         attributes = {}
         attributes["id"] = filter.id
@@ -326,9 +330,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
             attributes["in"] = filter_effect.in_
         attributes["stdDeviation"] = filter_effect.std_deviation
         if filter_effect.edge_mode is not None:
-            attributes["edgeMode"] = _fe_gaussian_blur_edgemode_value_mapping[
-                filter_effect.edge_mode
-            ]
+            attributes["edgeMode"] = (
+                self._fe_gaussian_blur_edgemode_value_mapping[
+                    filter_effect.edge_mode
+                ]
+            )
         if filter_effect.result is not None:
             attributes["result"] = filter_effect.result
         element = SVGElement(
@@ -492,6 +498,8 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
 @dataclasses.dataclass
 class SVGNativeCompatRenderer(SVGNativeRenderer):
+    """Class for SVG native compat renderers"""
+
     def _make_filter_element(self, filter_):
         filter_ = filter_.to_compat()
         element = super()._make_filter_element(filter_)

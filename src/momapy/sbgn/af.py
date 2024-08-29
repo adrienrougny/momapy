@@ -9,51 +9,71 @@ import momapy.sbgn.pd
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(momapy.sbgn.core.SBGNModelElement):
+    """Class for compartments"""
+
     label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
+    """Abstract class for units of information"""
+
     label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeUnitOfInformation(UnitOfInformation):
+    """Class for maromolecule units of information"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureUnitOfInformation(UnitOfInformation):
+    """Class for nucleic acid feature units of information"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexUnitOfInformation(UnitOfInformation):
+    """Class for complex units of information"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalUnitOfInformation(UnitOfInformation):
+    """Class for simple chemical units of information"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityUnitOfInformation(UnitOfInformation):
+    """Class for unspecified entity units of information"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbationUnitOfInformation(UnitOfInformation):
+    """Class for perturbation units of information"""
+
     pass
 
 
 class Activity(momapy.sbgn.core.SBGNModelElement):
+    """Class for activities"""
+
     label: typing.Optional[str] = None
     compartment: typing.Optional[Compartment] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BiologicalActivity(Activity):
+    """Class for biological activities"""
+
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
@@ -61,16 +81,22 @@ class BiologicalActivity(Activity):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Activity):
+    """Class for phenotypes"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
+    """Class for inputs of logical operators"""
+
     element: typing.Union[BiologicalActivity, "LogicalOperator"]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
+    """Class for logical operators"""
+
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
         default_factory=frozenset
     )
@@ -78,74 +104,102 @@ class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperator(LogicalOperator):
+    """Class for or operators"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperator(LogicalOperator):
+    """Class for and operators"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperator(LogicalOperator):
+    """Class for not operators"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DelayOperator(LogicalOperator):
+    """Class for delay operators"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Influence(momapy.sbgn.core.SBGNModelElement):
+    """Class for influences"""
+
     source: BiologicalActivity | LogicalOperator
     target: Activity
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluence(Influence):
+    """Class for unknown influences"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluence(Influence):
+    """Class for positive influences"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluence(Influence):
+    """Class for negative influences"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulation(Influence):
+    """Class for necessary stimulations"""
+
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(momapy.sbgn.core.SBGNRole):
+    """Class for references of terminals"""
+
     element: typing.Union[Activity, Compartment]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(momapy.sbgn.core.SBGNRole):
+    """Class for references of tags"""
+
     element: typing.Union[Activity, Compartment]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(momapy.sbgn.core.SBGNModelElement):
+    """Class for terminals"""
+
     label: typing.Optional[str] = None
     refers_to: typing.Optional[TerminalReference] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
+    """Class for tags"""
+
     label: typing.Optional[str] = None
     refers_to: typing.Optional[TagReference] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Submap(momapy.sbgn.core.SBGNModelElement):
+    """Class for submaps"""
+
     label: typing.Optional[str] = None
     terminals: frozenset[Terminal] = dataclasses.field(
         default_factory=frozenset
@@ -154,6 +208,8 @@ class Submap(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFModel(momapy.sbgn.core.SBGNModel):
+    """Class for SBGN-AF models"""
+
     activities: frozenset[Activity] = dataclasses.field(
         default_factory=frozenset
     )
@@ -169,7 +225,8 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
     submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
     tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
-    def is_submodel(self, other):
+    def is_submodel(self, other: "SBGNAFModel") -> bool:
+        """Return `true` if the another given SBGN-AF model is a submodel of the SBGN-AF model, `false` otherwise"""
         return (
             self.activities.issubset(other.activities)
             and self.compartments.issubset(other.compartments)
@@ -182,6 +239,8 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
+    """Class for SBGN-AF layouts"""
+
     pass
 
 
@@ -189,6 +248,8 @@ class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
 class UnspecifiedEntityUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for unspecified entity unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
 
@@ -200,6 +261,8 @@ class UnspecifiedEntityUnitOfInformationLayout(
 class SimpleChemicalUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for simple chemical unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
 
@@ -211,6 +274,8 @@ class SimpleChemicalUnitOfInformationLayout(
 class MacromoleculeUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for macromolecule unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
     rounded_corners: float = 5.0
@@ -223,6 +288,8 @@ class MacromoleculeUnitOfInformationLayout(
 class NucleicAcidFeatureUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for nucleic acid feature unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
     rounded_corners: float = 5.0
@@ -235,6 +302,8 @@ class NucleicAcidFeatureUnitOfInformationLayout(
 class ComplexUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for complex unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
     cut_corners: float = 5.0
@@ -247,6 +316,8 @@ class ComplexUnitOfInformationLayout(
 class PerturbationUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for perturbation unit of information layouts"""
+
     width: float = 12.0
     height: float = 12.0
     angle: float = 70.0
@@ -257,6 +328,8 @@ class PerturbationUnitOfInformationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    """Class for terminal layouts"""
+
     width: float = 35.0
     height: float = 35.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
@@ -270,6 +343,8 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class CompartmentLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for compartment layouts"""
+
     width: float = 80.0
     height: float = 80.0
     rounded_corners: float = 5.0
@@ -281,6 +356,8 @@ class CompartmentLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    """Class for submap layouts"""
+
     width: float = 80.0
     height: float = 80.0
     border_stroke_width: float | None = 2.25
@@ -293,6 +370,8 @@ class SubmapLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class BiologicalActivityLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for biological activity layouts"""
+
     width: float = 60.0
     height: float = 30.0
 
@@ -306,6 +385,8 @@ class BiologicalActivityLayout(
 class PhenotypeLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
+    """Class for phenotype layouts"""
+
     width: float = 60.0
     height: float = 30.0
     angle: float = 70.0
@@ -321,6 +402,8 @@ class AndOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
+    """Class for and operator layouts"""
+
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
@@ -348,6 +431,8 @@ class OrOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
+    """Class for or operator layouts"""
+
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
@@ -375,6 +460,8 @@ class NotOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
+    """Class for not operator layouts"""
+
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
@@ -402,6 +489,8 @@ class DelayOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
+    """Class for delay operator layouts"""
+
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
@@ -424,6 +513,8 @@ class DelayOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(momapy.sbgn.pd.TagLayout):
+    """Class for tag layouts"""
+
     width: float = 35.0
     height: float = 35.0
     direction: momapy.core.Direction = momapy.core.Direction.RIGHT
@@ -435,6 +526,8 @@ class TagLayout(momapy.sbgn.pd.TagLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for unknown influence layouts"""
+
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -446,6 +539,8 @@ class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for positive influence layouts"""
+
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -457,6 +552,8 @@ class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for necessary stimulation layouts"""
+
     arrowhead_bar_height: float = 12.0
     arrowhead_sep: float = 3.0
     arrowhead_triangle_height: float = 10.0
@@ -492,6 +589,8 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for negative influence layouts"""
+
     arrowhead_height: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
@@ -500,6 +599,8 @@ class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for logic arc layouts"""
+
     def _arrowhead_border_drawing_elements(self):
         return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
             self
@@ -508,6 +609,8 @@ class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
+    """Class for equivalence arc layouts"""
+
     def _arrowhead_border_drawing_elements(self):
         return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
             self
@@ -516,12 +619,16 @@ class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFMap(momapy.sbgn.core.SBGNMap):
+    """Class for SBGN-AF maps"""
+
     model: typing.Optional[SBGNAFModel] = None
     layout: typing.Optional[SBGNAFLayout] = None
 
 
 SBGNAFModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFModel)
+"""Class for SBGN-AF model builders"""
 SBGNAFLayoutBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFLayout)
+"""Class for SBGN-AF layout builders"""
 
 
 def _sbgnaf_map_builder_new_model(self, *args, **kwargs):
@@ -539,3 +646,4 @@ SBGNAFMapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout": _sbgnaf_map_builder_new_layout,
     },
 )
+"""Class for SBGN-AF map builders"""
