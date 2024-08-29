@@ -338,6 +338,8 @@ class BezierCurve(GeometryObject):
 
 @dataclasses.dataclass(frozen=True)
 class EllipticalArc(GeometryObject):
+    """Class for elliptical arcs"""
+
     p1: Point
     p2: Point
     rx: float
@@ -346,27 +348,39 @@ class EllipticalArc(GeometryObject):
     arc_flag: int
     sweep_flag: int
 
-    def get_intersection_with_line(self, line):
+    def get_intersection_with_line(self, line: Line) -> list[Point]:
+        """Compute and return the intersection of the elliptical arc with a given line"""
         return get_intersection_of_line_and_elliptical_arc(self, line)
 
-    def get_center_parameterization(self):
+    def get_center_parameterization(
+        self,
+    ) -> tuple[float, float, float, float, float, float, float, float]:
+        """Compute and return the center paramaterizaion of the elliptical arc (cx, cy, rx, ry, sigma, theta1, theta2, delta_theta)"""
         return get_center_parameterization_of_elliptical_arc(self)
 
-    def get_center(self):
+    def get_center(self) -> Point:
+        """Compute and return the center of the elliptical arc"""
         return get_center_of_elliptical_arc(self)
 
-    def get_position_at_fraction(self, fraction):
+    def get_position_at_fraction(self, fraction: float) -> Point:
+        """Compute and return the position on the elliptical arc at a given fraction (of the total length)"""
         return get_position_at_fraction_of_elliptical_arc(self, fraction)
 
-    def get_angle_at_fraction(self, fraction):
+    def get_angle_at_fraction(self, fraction: float) -> float:
+        """Compute and return the angle in radians formed by the tangent of the elliptical arc and the horizontal at a given fraction (of the total length)"""
         return get_angle_at_fraction_of_elliptical_arc(self, fraction)
 
-    def get_position_and_angle_at_fraction(self, fraction):
+    def get_position_and_angle_at_fraction(
+        self, fraction: float
+    ) -> tuple[Point, float]:
+        """Compute and return the position on the elliptical arc at a given fraction and the angle in radians formed of the tangent of the bezier curve at that position and the horizontal"""
         return get_position_and_angle_at_fraction_of_elliptical_arc(
             self, fraction
         )
 
     def to_shapely(self):
+        """Compute and return a shapely linestring reproducing the elliptical arc"""
+
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
@@ -425,98 +439,132 @@ class EllipticalArc(GeometryObject):
         shapely_arc = second_split[0]
         return shapely_arc
 
-    def bbox(self):
+    def bbox(self) -> "Bbox":
+        """Compute and return the bounding box of the elliptical arc"""
         return Bbox.from_bounds(self.to_shapely().bounds)
 
-    def shortened(self, length, start_or_end="end"):
+    def shortened(
+        self,
+        length: float,
+        start_or_end: typing.Literal["start", "end"] = "end",
+    ) -> "EllipticalArc":
+        """Compute and return a copy of the elliptical arc shortened by a given length"""
         return shorten_elliptical_arc(self, length, start_or_end)
 
-    def transformed(self, transformation):
+    def transformed(self, transformation: "Transformation") -> "EllipticalArc":
+        """Compute and return a copy of the elliptical arc transformed by a given transformation"""
         return transform_elliptical_arc(self, transformation)
 
-    def reversed(self):
+    def reversed(self) -> "EllipticalArc":
+        """Compute and return a reversed copy of the elliptical arc"""
         return reverse_elliptical_arc(self)
 
-    def to_bezier_curves(self):
+    def to_bezier_curves(self) -> BezierCurve:
+        """Compute and return a bezier curve reproducing the elliptical arc"""
         return transform_elliptical_arc_to_bezier_curves(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Bbox(object):
+    """Class for bounding boxes"""
+
     position: Point
     width: float
     height: float
 
     @property
-    def x(self):
+    def x(self) -> float:
+        """The x coordinate of the bounding box"""
         return self.position.x
 
     @property
-    def y(self):
+    def y(self) -> float:
+        """The y coordinate of the bounding box"""
         return self.position.y
 
-    def size(self):
+    def size(self) -> tuple[float, float]:
+        """The size of the bounding box"""
         return (self.width, self.height)
 
-    def anchor_point(self, anchor_point: str):
+    def anchor_point(self, anchor_point: str) -> Point:
+        """Return a given anchor point of the bounding box"""
         return getattr(self, anchor_point)()
 
-    def north_west(self):
+    def north_west(self) -> Point:
+        """Return the north west anchor point of the bounding box"""
         return Point(self.x - self.width / 2, self.y - self.height / 2)
 
-    def north_north_west(self):
+    def north_north_west(self) -> Point:
+        """Return the north north west anchor point of the bounding box"""
         return Point(self.x - self.width / 4, self.y - self.height / 2)
 
-    def north(self):
+    def north(self) -> Point:
+        """Return the north anchor point of the bounding box"""
         return Point(self.x, self.y - self.height / 2)
 
-    def north_north_east(self):
+    def north_north_east(self) -> Point:
+        """Return the north north east anchor point of the bounding box"""
         return Point(self.x + self.width / 4, self.y - self.height / 2)
 
-    def north_east(self):
+    def north_east(self) -> Point:
+        """Return the north east anchor point of the bounding box"""
         return Point(self.x + self.width / 2, self.y - self.height / 2)
 
-    def east_north_east(self):
+    def east_north_east(self) -> Point:
+        """Return the east north east anchor point of the bounding box"""
         return Point(self.x + self.width / 2, self.y - self.height / 4)
 
-    def east(self):
+    def east(self) -> Point:
+        """Return the east anchor point of the bounding box"""
         return Point(self.x + self.width / 2, self.y)
 
-    def east_south_east(self):
+    def east_south_east(self) -> Point:
+        """Return the east south east anchor point of the bounding box"""
         return Point(self.x + self.width / 2, self.y + self.width / 4)
 
-    def south_east(self):
+    def south_east(self) -> Point:
+        """Return the south east anchor point of the bounding box"""
         return Point(self.x + self.width / 2, self.y + self.height / 2)
 
-    def south_south_east(self):
+    def south_south_east(self) -> Point:
+        """Return the south south east anchor point of the bounding box"""
         return Point(self.x + self.width / 4, self.y + self.height / 2)
 
-    def south(self):
+    def south(self) -> Point:
+        """Return the south anchor point of the bounding box"""
         return Point(self.x, self.y + self.height / 2)
 
-    def south_south_west(self):
+    def south_south_west(self) -> Point:
+        """Return the south south west anchor point of the bounding box"""
         return Point(self.x - self.width / 4, self.y + self.height / 2)
 
-    def south_west(self):
+    def south_west(self) -> Point:
+        """Return the south west anchor point of the bounding box"""
         return Point(self.x - self.width / 2, self.y + self.height / 2)
 
-    def west_south_west(self):
+    def west_south_west(self) -> Point:
+        """Return the west south west anchor point of the bounding box"""
         return Point(self.x - self.width / 2, self.y + self.height / 4)
 
-    def west(self):
+    def west(self) -> Point:
+        """Return the west anchor point of the bounding box"""
         return Point(self.x - self.width / 2, self.y)
 
-    def west_north_west(self):
+    def west_north_west(self) -> Point:
+        """Return the west north west anchor point of the bounding box"""
         return Point(self.x - self.width / 2, self.y - self.height / 4)
 
-    def center(self):
+    def center(self) -> Point:
+        """Return the center anchor point of the bounding box"""
         return Point(self.x, self.y)
 
-    def isnan(self):
+    def isnan(self) -> bool:
+        """Return `true` if the position of the bounding box has a `nan` coordinate, `false` otherwise"""
         return self.position.isnan()
 
     @classmethod
-    def from_bounds(cls, bounds):  # (min_x, min_y, max_x, max_y)
+    def from_bounds(cls, bounds: tuple[float, float, float, float]):
+        """Create and return a bounding box from shaply bounds (min_x, min_y, max_x, max_y)"""
         return cls(
             Point((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2),
             bounds[2] - bounds[0],
@@ -526,14 +574,16 @@ class Bbox(object):
 
 @dataclasses.dataclass(frozen=True)
 class Transformation(abc.ABC):
-    pass
+    """Abstract class for transformations"""
 
     @abc.abstractmethod
-    def to_matrix(self):
+    def to_matrix(self) -> numpy.typing.NDarray:
+        """Return a matrix representation of the transformation"""
         pass
 
     @abc.abstractmethod
-    def inverted(self):
+    def inverted(self) -> "MatrixTransformation":
+        """Compute and return the inverse transformation"""
         pass
 
     def __mul__(self, other):
@@ -544,21 +594,28 @@ class Transformation(abc.ABC):
 
 @dataclasses.dataclass(frozen=True)
 class MatrixTransformation(Transformation):
-    m: numpy.array
+    """Class for matrix transformations"""
 
-    def to_matrix(self):
+    m: numpy.typing.NDArray
+
+    def to_matrix(self) -> numpy.typing.NDArray:
+        """Return a matrix representation of the matrix transformation"""
         return self.m
 
-    def inverted(self):
+    def inverted(self) -> "MatrixTransformation":
+        """Compute and return the inverse of the matrix transformation"""
         return invert_matrix_transformation(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Rotation(Transformation):
+    """Class for rotations"""
+
     angle: float
     point: Point | None = None
 
-    def to_matrix(self):
+    def to_matrix(self) -> numpy.typing.NDArray:
+        """Compute and return a matrix representation of the rotation"""
         m = numpy.array(
             [
                 [math.cos(self.angle), -math.sin(self.angle), 0],
@@ -575,7 +632,8 @@ class Rotation(Transformation):
             )
         return m
 
-    def inverted(self):
+    def inverted(self) -> "MatrixTransformation":
+        """Compute and return the inverse of the rotation"""
         return invert_rotation(self)
 
 
@@ -584,22 +642,27 @@ class Translation(Transformation):
     tx: float
     ty: float
 
-    def to_matrix(self):
+    def to_matrix(self) -> numpy.typing.NDArray:
+        """Return a matrix representation of the translation"""
         m = numpy.array(
             [[1, 0, self.tx], [0, 1, self.ty], [0, 0, 1]], dtype=float
         )
         return m
 
-    def inverted(self):
+    def inverted(self) -> MatrixTransformation:
+        """Compute and return the inverse of the translation"""
         return invert_translation(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Scaling(Transformation):
+    """Class for scalings"""
+
     sx: float
     sy: float
 
-    def to_matrix(self):
+    def to_matrix(self) -> numpy.typing.NDArray:
+        """Return a matrix representation of the transformation"""
         m = numpy.array(
             [
                 [self.sx, 0, 0],
@@ -610,7 +673,8 @@ class Scaling(Transformation):
         )
         return m
 
-    def inverted(self):
+    def inverted(self) -> MatrixTransformation:
+        """Compute and return the inverse of the scaling"""
         return invert_scaling(self)
 
 
