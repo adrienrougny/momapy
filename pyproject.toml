@@ -1,7 +1,7 @@
 [project]
 name = "momapy"
 version = "0.1.0"
-description = ""
+description = "A library for working with molecular maps"
 authors = [
     {name = "Adrien Rougny", email = "adrienrougny@gmail.com"},
 ]
