@@ -449,6 +449,7 @@ def set_fraction_of(
     anchor: str | None = None,
 ):
     """Set the position and rotation of a given builder object to lay at a given fraction of a given arc"""
-    position, transform = fraction_of(arc_layout_element, fraction)
+    position, angle = fraction_of(arc_layout_element, fraction)
+    rotation = momapy.geometry.Rotation(angle, position)
     set_position(obj, position, anchor)
-    obj.transform = transform
+    obj.transform = momapy.core.TupleBuilder([rotation])
