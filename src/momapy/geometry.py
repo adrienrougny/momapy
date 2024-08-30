@@ -980,21 +980,6 @@ def get_intersection_of_line_and_shapely_object(
     return intersection
 
 
-def get_intersection_of_line_and_layout_element(
-    line: Line, layout_element: momapy.core.LayoutElement
-) -> list[Point] | list[Segment]:
-    shapely_object = layout_element.to_shapely()
-    return get_intersection_of_line_and_shapely_object(line, shapely_object)
-
-
-def get_intersection_of_line_and_drawing_element(
-    line: Line,
-    drawing_element: collections.abc.Collection[momapy.drawing.DrawingElement],
-) -> list[Point] | list[Segment]:
-    shapely_object = drawing_element.to_shapely()
-    return get_intersection_of_line_and_shapely_object(line, shapely_object)
-
-
 def get_shapely_object_bbox(shapely_object: shapely.Geometry) -> Bbox:
     return Bbox.from_bounds(shapely_object.bounds)
 
