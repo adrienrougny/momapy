@@ -13,19 +13,9 @@ dependencies = [
     "pyparsing>=3.1.1",
     "skia-python>=87.5",
     "xsdata[cli,lxml,soap]==23.8",
-    "ipykernel>=6.27.1",
     "shapely>=2.0.2",
     "colorama>=0.4.6",
     "bezier>=2023.7.28",
-    "mkdocs>=1.6.0",
-    "mkdocstrings[python]>=0.25.2",
-    "mkdocs-material>=9.5.31",
-    "griffe-fieldz>=0.1.2",
-    "sphinx>=8.0.2",
-    "sphinx-autodoc-typehints>=2.2.3",
-    "furo>=2024.8.6",
-    "sphinx-autoapi>=3.2.1",
-    "notebook>=7.2.1",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -35,4 +25,13 @@ license = {text = "GPL-3.0-or-later"}
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = [
+    "griffe-fieldz>=0.1.2",
+    "sphinx>=8.0.2",
+    "sphinx-autodoc-typehints>=2.2.3",
+    "furo>=2024.8.6",
+    "sphinx-autoapi>=3.2.1",
+    "notebook>=7.2.1",
+    "ipykernel>=6.27.1",
+]
