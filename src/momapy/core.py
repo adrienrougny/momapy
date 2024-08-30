@@ -745,6 +745,10 @@ class _Arc(GroupLayout):
         | None
     ) = None
 
+    def self_children(self) -> list[LayoutElement]:
+        """Return the arc's own children"""
+        return []
+
     def points(self) -> list[momapy.geometry.Point]:
         """Return the points of the arc's path"""
         points = []
