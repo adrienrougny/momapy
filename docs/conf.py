@@ -17,17 +17,14 @@ release = "0.1"
 extensions = [
     "sphinx.ext.autodoc",
     "autoapi.extension",
-    # "sphinx.ext.napoleon",
-    # "sphinx_autodoc_typehints",
 ]
 
 autodoc_typehints = "description"
 
-autoapi_dirs = ["../../src/momapy"]
+autoapi_dirs = ["../src/momapy"]
 autoapi_type = "python"
 autoapi_options = [
     "members",
-    # "undoc-members",
     "show-inheritance",
     "show-module-summary",
     "imported-members",
