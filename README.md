@@ -7,7 +7,7 @@ This definition is borrowed from SBML and its layout/render extensions, that all
 
 `MomaPy` offers the following features:
 
-* support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes)
+* support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read only, with annotations)
 * decomposition of a map object into:
     - a model object;
     - a layout object;
@@ -19,7 +19,6 @@ This definition is borrowed from SBML and its layout/render extensions, that all
 * local positioning (e.g. right of shape, fit set of shapes)
 * easy extension with new model and layout subelements
 
-`MomaPy` is still in its initial development phase.
-As such, it is not yet released nor documented, and may change at any time.
+A first documentation for `MomaPy` is available [here](https://momapy.readthedocs.io/en/latest/).
 
-However, the features of `MomaPy` are demonstrated in a jupyter notebook that can be found [here](https://github.com/adrienrougny/momapy/blob/main/src/momapy/demo/demo.ipynb).
+The features of `MomaPy` are demonstrated in a jupyter notebook that can be found [here](https://github.com/adrienrougny/momapy/blob/main/demo/demo.ipynb).
