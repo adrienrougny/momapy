@@ -44,9 +44,9 @@ def render_maps(
 
     def _prepare_maps(maps, style_sheet=None, to_top_left=False):
         bboxes = [map_.layout.self_bbox() for map_ in maps]
-        position, width, height = momapy.positioning.fit(bboxes)
-        max_x = position.x + width / 2
-        max_y = position.y + height / 2
+        bbox = momapy.positioning.fit(bboxes)
+        max_x = bbox.x + bbox.width / 2
+        max_y = bbox.y + bbox.height / 2
         if style_sheet is not None or to_top_left:
             new_maps = []
             for map_ in maps:
@@ -76,8 +76,8 @@ def render_maps(
             for map_ in maps:
                 momapy.styling.apply_style_sheet(map_.layout, style_sheet)
         if to_top_left:
-            min_x = position.x - width / 2
-            min_y = position.y - height / 2
+            min_x = bbox.x - bbox.width / 2
+            min_y = bbox.y - bbox.height / 2
             max_x -= min_x
             max_y -= min_y
             translation = momapy.geometry.Translation(-min_x, -min_y)

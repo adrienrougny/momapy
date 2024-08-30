@@ -270,19 +270,17 @@ class _SBGNMLReader(momapy.io.MapReader):
             map_.layout.width = sbgnml_map.bbox.w
             map_.layout.height = sbgnml_map.bbox.h
         else:
-            position, width, height = momapy.positioning.fit(
-                map_.layout.layout_elements
-            )
+            bbox = momapy.positioning.fit(map_.layout.layout_elements)
             if from_top_left:
-                map_.layout.width = position.x + width / 2
-                map_.layout.height = position.y + height / 2
+                map_.layout.width = bbox.x + bbox.width / 2
+                map_.layout.height = bbox.y + bbox.height / 2
                 map_.layout.position = momapy.geometry.Point(
                     map_.layout.width / 2, map_.layout.height / 2
                 )
             else:
-                map_.layout.width = width
-                map_.layout.height = height
-                map_.layout.position = position
+                map_.layout.width = bbox.width
+                map_.layout.height = bbox.height
+                map_.layout.position = bbox.position
         if with_annotations:
             if (
                 sbgnml_map.extension is not None

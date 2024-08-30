@@ -141,17 +141,17 @@ def set_nodes_to_fit_labels(
             and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
-            position, width, height = momapy.positioning.fit(
+            bbox = momapy.positioning.fit(
                 [layout_element.label.logical_bbox()], xsep, ysep
             )
             if not omit_width:
-                if width > layout_element.width:
-                    layout_element.width = width
+                if bbox.width > layout_element.width:
+                    layout_element.width = bbox.width
             if not omit_height:
-                if height > layout_element.height:
-                    layout_element.height = height
+                if bbox.height > layout_element.height:
+                    layout_element.height = bbox.height
             momapy.positioning.set_position(
-                layout_element, position, anchor="label_center"
+                layout_element, bbox.position, anchor="label_center"
             )
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
