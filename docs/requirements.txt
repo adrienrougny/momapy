@@ -1,0 +1,5 @@
+griffe-fieldz>=0.1.2
+sphinx-autodoc-typehints>=2.2.3
+furo>=2024.8.6
+sphinx-autoapi>=3.2.1
+notebook>=7.2.1
