@@ -1,6 +1,5 @@
 import math
 import dataclasses
-import copy
 
 import momapy.core
 import momapy.geometry
@@ -9,6 +8,8 @@ import momapy.drawing
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(momapy.core.Shape):
+    """Class for rectangle shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -142,6 +143,8 @@ class Rectangle(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(momapy.core.Shape):
+    """Class for ellipse shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -155,6 +158,8 @@ class Ellipse(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Stadium(momapy.core.Shape):
+    """Class for stadium shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -200,6 +205,8 @@ class Stadium(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Hexagon(momapy.core.Shape):
+    """Class for hexagon shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -211,7 +218,10 @@ class Hexagon(momapy.core.Shape):
             return self.position + (-self.width / 2, -self.height / 2)
         angle = math.radians(self.left_angle)
         side_length = abs(self.height / (math.tan(angle)))
-        return self.position + (-self.width / 2 + side_length, -self.height / 2)
+        return self.position + (
+            -self.width / 2 + side_length,
+            -self.height / 2,
+        )
 
     def joint2(self):
         if self.right_angle > 90:
@@ -240,7 +250,6 @@ class Hexagon(momapy.core.Shape):
         angle = math.radians(self.left_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (-self.width / 2 + side_length, self.height / 2)
-        return p
 
     def joint6(self):
         if self.left_angle <= 90:
@@ -265,6 +274,8 @@ class Hexagon(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TurnedHexagon(momapy.core.Shape):
+    """Class for hexagon turned by 90 degrees shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -387,6 +398,8 @@ class TurnedHexagon(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Parallelogram(momapy.core.Shape):
+    """Class for parallelogram shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -397,7 +410,10 @@ class Parallelogram(momapy.core.Shape):
             return self.position + (-self.width / 2, -self.height / 2)
         angle = math.radians(self.angle)
         side_length = abs(self.height / math.tan(angle))
-        return self.position + (-self.width / 2 + side_length, -self.height / 2)
+        return self.position + (
+            -self.width / 2 + side_length,
+            -self.height / 2,
+        )
 
     def joint2(self):
         if self.angle <= 90:
@@ -434,6 +450,8 @@ class Parallelogram(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CrossPoint(momapy.core.Shape):
+    """Class for cross point shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -454,6 +472,8 @@ class CrossPoint(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Triangle(momapy.core.Shape):
+    """Class for triangle shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -508,6 +528,8 @@ class Triangle(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Diamond(momapy.core.Shape):
+    """Class for diamond shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -538,6 +560,8 @@ class Diamond(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Bar(momapy.core.Shape):
+    """Class for bar shapes"""
+
     position: momapy.geometry.Point
     height: float
 
@@ -558,6 +582,8 @@ class Bar(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ArcBarb(momapy.core.Shape):
+    """Class for arc barb shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -642,6 +668,8 @@ class ArcBarb(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StraightBarb(momapy.core.Shape):
+    """Class for straight barb shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
@@ -714,6 +742,8 @@ class StraightBarb(momapy.core.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class To(momapy.core.Shape):
+    """Class for to shapes"""
+
     position: momapy.geometry.Point
     width: float
     height: float
