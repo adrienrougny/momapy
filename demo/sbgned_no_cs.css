@@ -1,0 +1,1416 @@
+AndOperatorLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 42.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 42.0;
+}
+
+
+AssociationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 24.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 24.0;
+}
+
+
+BiologicalActivityLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+CardinalityLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 18.5;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 23.5;
+}
+
+
+CatalysisLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 12.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-width: 12.0;
+	end-shorten: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+CompartmentLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 3.25;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 80.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 80.0;
+}
+
+
+ComplexLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	cut-corners: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 44.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 44.0;
+}
+
+
+ComplexMultimerLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	cut-corners: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 125.0;
+	offset: 10.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 221.0;
+}
+
+
+ComplexMultimerSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	cut-corners: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	offset: 10.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+ComplexSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	cut-corners: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+ComplexUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	cut-corners: 5.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
+
+
+ConsumptionLayout {
+	arrowhead-filter: unset;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+DelayOperatorLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 42.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 42.0;
+}
+
+
+DissociationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 24.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 24.0;
+}
+
+
+EmptySetLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 22.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 22.0;
+}
+
+
+EquivalenceArcLayout {
+	arrowhead-filter: unset;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+EquivalenceOperatorLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 42.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 42.0;
+}
+
+
+GenericProcessLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 24.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 24.0;
+}
+
+
+InhibitionLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+LogicArcLayout {
+	arrowhead-filter: unset;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+MacromoleculeLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	rounded-corners: 10.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+MacromoleculeLayout > TextLayout {
+    font-family: "Cantarell";
+    font-size: 14.0;
+}
+
+
+MacromoleculeMultimerLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 65.0;
+	offset: 10.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 113.0;
+}
+
+
+MacromoleculeMultimerSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	offset: 10.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+MacromoleculeSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+MacromoleculeUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
+
+
+ModulationLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-width: 10.0;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+NecessaryStimulationLayout {
+	arrowhead-bar-height: 12.0;
+	arrowhead-filter: unset;
+	arrowhead-sep: 3.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-triangle-height: 10.0;
+	arrowhead-triangle-width: 10.0;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+NegativeInfluenceLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+NotOperatorLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 42.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 42.0;
+}
+
+
+NucleicAcidFeatureLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+NucleicAcidFeatureMultimerLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	offset: 10.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+NucleicAcidFeatureMultimerSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	offset: 10.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+NucleicAcidFeatureSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+NucleicAcidFeatureUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	rounded-corners: 5.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
+
+
+OmittedProcessLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 24.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 24.0;
+}
+
+
+OrOperatorLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 42.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 42.0;
+}
+
+
+PerturbationUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
+
+
+PerturbingAgentLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+PhenotypeLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+PositiveInfluenceLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-width: 10.0;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+ProductionLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 12.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-width: 12.0;
+	end-shorten: 2.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+SBGNAFLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+SBGNPDLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+SimpleChemicalLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 60.0;
+}
+
+
+SimpleChemicalMultimerLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 65.0;
+	offset: 10.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 65.0;
+}
+
+
+SimpleChemicalMultimerSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	offset: 10.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	subunits-filter: unset;
+	subunits-stroke-dasharray: unset;
+	subunits-stroke-dashoffset: unset;
+	subunits-stroke-width: unset;
+	subunits-transform: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+SimpleChemicalSubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 60.0;
+}
+
+
+SimpleChemicalUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
+
+
+StateVariableLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 18.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 18.0;
+}
+
+
+StateVariableLayout > TextLayout {
+    font-family: "Cantarell";
+    font-size: 10.0;
+}
+
+
+StimulationLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: unset;
+	arrowhead-transform: unset;
+	arrowhead-width: 10.0;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: unset;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+SubmapLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.25;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 120.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 216.0;
+}
+
+
+TagLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+TerminalLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+UncertainProcessLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 24.0;
+	left-connector-filter: unset;
+	left-connector-length: 10.0;
+	left-connector-stroke-dasharray: unset;
+	left-connector-stroke-dashoffset: unset;
+	left-connector-stroke-width: unset;
+	right-connector-filter: unset;
+	right-connector-length: 10.0;
+	right-connector-stroke-dasharray: unset;
+	right-connector-stroke-dashoffset: unset;
+	right-connector-stroke-width: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 24.0;
+}
+
+
+UnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 18.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 18.0;
+}
+
+
+UnknownInfluenceLayout {
+	arrowhead-filter: unset;
+	arrowhead-height: 10.0;
+	arrowhead-stroke-dasharray: unset;
+	arrowhead-stroke-dashoffset: unset;
+	arrowhead-stroke-width: 2.0;
+	arrowhead-transform: unset;
+	arrowhead-width: 10.0;
+	end-shorten: 0.0;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	path-filter: unset;
+	path-stroke-dashoffset: unset;
+	path-stroke-width: 2.0;
+	path-transform: unset;
+	start-shorten: 0.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+}
+
+
+UnspecifiedEntityLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+UnspecifiedEntitySubunitLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 60.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 108.0;
+}
+
+
+UnspecifiedEntityUnitOfInformationLayout {
+	filter: unset;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: 2.0;
+	transform: unset;
+	filter: unset;
+	group-font-family: unset;
+	group-font-size: unset;
+	group-font-style: unset;
+	group-font-weight: unset;
+	height: 12.0;
+	stroke-dasharray: unset;
+	stroke-dashoffset: unset;
+	stroke-width: unset;
+	transform: unset;
+	width: 12.0;
+}
