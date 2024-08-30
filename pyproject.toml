@@ -20,6 +20,15 @@ dependencies = [
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/adrienrougny/momapy"
+Issues = "https://github.com/adrienrougny/momapy/issues"
 
 [build-system]
 requires = ["hatchling"]
