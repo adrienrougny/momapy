@@ -42,5 +42,4 @@ dev = [
     "furo>=2024.8.6",
     "sphinx-autoapi>=3.2.1",
     "notebook>=7.2.1",
-    "ipykernel>=6.27.1",
 ]
