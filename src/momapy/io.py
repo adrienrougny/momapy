@@ -1,61 +1,85 @@
+import dataclasses
 import abc
 import typing
 
-import momapy.core
-
-_readers = {}
-_writers = {}
+readers = {}
+writers = {}
 
 
 def register_reader(name: str, reader_cls: typing.Type):
     """Register a reader"""
-    _readers[name] = reader_cls
+    readers[name] = reader_cls
 
 
 def register_writer(name, writer_cls):
     """Register a writer"""
-    _writers[name] = writer_cls
+    writers[name] = writer_cls
 
 
-def read(
-    file_path: str, reader: str | None = None, **options
-) -> momapy.core.Map:
+@dataclasses.dataclass
+class IOResult:
+    exceptions: list[Exception] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
+class ReaderResult(IOResult):
+    obj: typing.Any | None = None
+    annotations: dict | None = None
+    notes: dict | None = None
+    file_path: str | None = None
+
+
+@dataclasses.dataclass
+class WriterResult(IOResult):
+    obj: typing.Any | None = None
+    exceptions: str | None = None
+    file_path: str | None = None
+
+
+def read_file(
+    file_path: str,
+    reader: str | None = None,
+    **options,
+) -> ReaderResult:
     """Read and return a map from a file. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method. If there is more than one appropriate reader, will use the first one."""
     reader_cls = None
     if reader is not None:
-        reader_cls = _readers.get(reader)
+        reader_cls = readers.get(reader)
         if reader_cls is None:
             raise ValueError(f"no registered reader named '{reader}'")
     else:
-        for candidate_reader_cls in _readers.values():
+        for candidate_reader_cls in readers.values():
             if candidate_reader_cls.check_file(file_path):
                 reader_cls = candidate_reader_cls
                 break
     if reader_cls is not None:
-        map_ = reader_cls.read(file_path, **options)
+        result = reader_cls.read_file(file_path, **options)
     else:
         raise ValueError(
             f"could not find a suitable registered reader for file '{file_path}'"
         )
-    return map_
+    return result
 
 
-def write(map_: momapy.core.Map, file_path: str, writer: str, **options):
+def write_file(
+    obj: typing.Any, file_path: str, writer: str, **options
+) -> WriterResult:
     """Write a map to a file, using the given writer"""
     writer_cls = None
-    writer_cls = _writers.get(writer)
+    writer_cls = writers.get(writer)
     if writer_cls is None:
         raise ValueError(f"no registered writer named '{writer}'")
-    writer_cls.write(map_, file_path, **options)
+    result = writer_cls.write(obj, file_path, **options)
+    return result
 
 
-class MapReader(abc.ABC):
-    """Abstract class for map reader objects"""
+class Reader(abc.ABC):
+    """Abstract class for readers"""
 
     @classmethod
     @abc.abstractmethod
-    def read(cls, file_path, **options) -> momapy.core.Map:
-        """Read and return a map from a file using the reader"""
+    def read_file(cls, file_path, **options) -> ReaderResult:
+        """Read and return a reader result from a file using the reader"""
         pass
 
     @classmethod
@@ -64,14 +88,14 @@ class MapReader(abc.ABC):
         pass
 
 
-class MapWriter(abc.ABC):
+class Writer(abc.ABC):
     @classmethod
     @abc.abstractmethod
-    def write(
+    def write_file(
         cls,
-        map_: momapy.core.Map | momapy.core.MapBuilder,
-        file_path,
+        obj: typing.Any,
+        file_path: str,
         **options,
-    ):
-        """Write a map to a file"""
+    ) -> WriterResult:
+        """Write an object to a file"""
         pass
