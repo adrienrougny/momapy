@@ -16,7 +16,7 @@ import xsdata.formats.dataclass.parsers
 import xsdata.formats.dataclass.parsers.config
 
 
-class CellDesignerReader(momapy.io.MapReader):
+class CellDesignerReader(momapy.io.Reader):
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 12.0
     _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
@@ -683,9 +683,7 @@ class CellDesignerReader(momapy.io.MapReader):
         return False
 
     @classmethod
-    def read(
-        cls, file_path, with_layout=True
-    ) -> momapy.celldesigner.core.CellDesignerMap:
+    def read_file(cls, file_path, with_layout=True) -> momapy.io.ReaderResult:
         config = xsdata.formats.dataclass.parsers.config.ParserConfig(
             fail_on_unknown_properties=False
         )
@@ -697,7 +695,10 @@ class CellDesignerReader(momapy.io.MapReader):
             file_path, momapy.celldesigner.io._celldesigner_parser.Sbml
         )
         map_ = cls._make_map_from_cd(cd_sbml, with_layout=with_layout)
-        return map_
+        result = momapy.io.ReaderResult(
+            obj=map_, file_path=file_path, annotations=map_.annotations
+        )
+        return result
 
     @classmethod
     def _make_map_from_cd(cls, cd_element, with_layout=True):
