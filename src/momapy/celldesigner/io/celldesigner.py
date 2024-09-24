@@ -1,5 +1,6 @@
 import collections
 import math
+import re
 
 import momapy.core
 import momapy.geometry
@@ -14,6 +15,7 @@ import frozendict
 import xsdata.formats.dataclass.context
 import xsdata.formats.dataclass.parsers
 import xsdata.formats.dataclass.parsers.config
+import xsdata.formats.dataclass.serializers
 
 
 class CellDesignerReader(momapy.io.Reader):
@@ -696,7 +698,9 @@ class CellDesignerReader(momapy.io.Reader):
         )
         map_ = cls._make_map_from_cd(cd_sbml, with_layout=with_layout)
         result = momapy.io.ReaderResult(
-            obj=map_, file_path=file_path, annotations=map_.annotations
+            obj=map_,
+            file_path=file_path,
+            annotations=map_.map_element_to_annotations,
         )
         return result
 
@@ -1115,7 +1119,11 @@ class CellDesignerReader(momapy.io.Reader):
             layout_element.position = super_layout_element.angle(
                 angle, unit="radians"
             )
-            text = modification_state.value
+            text = (
+                modification_state.value
+                if modification_state is not None
+                else ""
+            )
             text_layout = momapy.core.TextLayout(
                 text=text,
                 font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
@@ -9821,6 +9829,23 @@ class CellDesignerReader(momapy.io.Reader):
         model_element = momapy.builder.object_from_builder(model_element)
         if with_layout:
             layout_element = momapy.builder.object_from_builder(layout_element)
+        if cd_species.notes is not None:
+            serializer = xsdata.formats.dataclass.serializers.XmlSerializer()
+            notes_string = serializer.render(cd_species.notes)
+            regexp = re.compile("<ns1:RDF.*</ns1:RDF>")
+            s = regexp.search(notes_string)
+            config = xsdata.formats.dataclass.parsers.config.ParserConfig(
+                fail_on_unknown_properties=False
+            )
+            parser = xsdata.formats.dataclass.parsers.XmlParser(
+                config=config,
+                context=xsdata.formats.dataclass.context.XmlContext(),
+            )
+            cd_rdf = parser.from_string(
+                s.group(0), momapy.celldesigner.io._celldesigner_parser.Rdf
+            )
+            annotations = cls._make_annotations_from_cd_annotation_rdf(cd_rdf)
+            map_element_to_annotations[model_element].update(annotations)
         return model_element, layout_element
 
     @classmethod
