@@ -316,6 +316,26 @@ class _SBGNMLReader(momapy.io.Reader):
                 sbgnml_id_to_layout_element,
             )
             layout = momapy.styling.apply_style_sheet(layout, style_sheet)
+        # If the map has a bbox, we use it for the dimensions of the layout;
+        # otherwise, we compute the dimensions from the layout elements
+        if layout is not None:
+            if sbgnml_map.bbox is not None:
+                position = cls._make_position_from_sbgnml(sbgnml_map)
+                layout.position = position
+                layout.width = sbgnml_map.bbox.w
+                layout.height = sbgnml_map.bbox.h
+            else:
+                bbox = momapy.positioning.fit(map_.layout.layout_elements)
+                if from_top_left:
+                    layout.width = bbox.x + bbox.width / 2
+                    layout.height = bbox.y + bbox.height / 2
+                    layout.position = momapy.geometry.Point(
+                        map_.layout.width / 2, map_.layout.height / 2
+                    )
+                else:
+                    layout.width = bbox.width
+                    layout.height = bbox.height
+                    layout.position = bbox.position
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
         elif return_type == "layout":
@@ -342,25 +362,6 @@ class _SBGNMLReader(momapy.io.Reader):
                     map_.add_mapping(
                         (model_element, super_model_element), layout_element
                     )
-            # If the map has a bbox, we use it for the dimensions of the layout;
-            # otherwise, we compute the dimensions from the layout elements
-            if sbgnml_map.bbox is not None:
-                position = cls._make_position_from_sbgnml(sbgnml_map)
-                map_.layout.position = position
-                map_.layout.width = sbgnml_map.bbox.w
-                map_.layout.height = sbgnml_map.bbox.h
-            else:
-                bbox = momapy.positioning.fit(map_.layout.layout_elements)
-                if from_top_left:
-                    map_.layout.width = bbox.x + bbox.width / 2
-                    map_.layout.height = bbox.y + bbox.height / 2
-                    map_.layout.position = momapy.geometry.Point(
-                        map_.layout.width / 2, map_.layout.height / 2
-                    )
-                else:
-                    map_.layout.width = bbox.width
-                    map_.layout.height = bbox.height
-                    map_.layout.position = bbox.position
             if with_annotations:
                 if (
                     sbgnml_map.extension is not None
