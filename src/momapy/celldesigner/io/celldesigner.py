@@ -1,6 +1,12 @@
 import collections
 import math
 import re
+import typing
+
+import xsdata.formats.dataclass.context
+import xsdata.formats.dataclass.parsers
+import xsdata.formats.dataclass.parsers.config
+import xsdata.formats.dataclass.serializers
 
 import momapy.core
 import momapy.geometry
@@ -10,12 +16,6 @@ import momapy.coloring
 import momapy.celldesigner.core
 import momapy.celldesigner.io._celldesigner_parser
 import momapy.sbgn.pd
-
-import frozendict
-import xsdata.formats.dataclass.context
-import xsdata.formats.dataclass.parsers
-import xsdata.formats.dataclass.parsers.config
-import xsdata.formats.dataclass.serializers
 
 
 class CellDesignerReader(momapy.io.Reader):
@@ -685,7 +685,15 @@ class CellDesignerReader(momapy.io.Reader):
         return False
 
     @classmethod
-    def read_file(cls, file_path, with_layout=True) -> momapy.io.ReaderResult:
+    def read_file(
+        cls,
+        file_path,
+        return_type: typing.Literal["map", "model", "layout"] = "map",
+        with_model=True,
+        with_layout=True,
+        with_annotations=True,
+        with_notes=True,
+    ) -> momapy.io.ReaderResult:
         config = xsdata.formats.dataclass.parsers.config.ParserConfig(
             fail_on_unknown_properties=False
         )
@@ -696,417 +704,545 @@ class CellDesignerReader(momapy.io.Reader):
         cd_sbml = parser.parse(
             file_path, momapy.celldesigner.io._celldesigner_parser.Sbml
         )
-        map_ = cls._make_map_from_cd(cd_sbml, with_layout=with_layout)
+        obj, annotations, notes = cls._make_main_obj_from_cd(
+            cd_sbml,
+            return_type=return_type,
+            with_model=with_model,
+            with_layout=with_layout,
+            with_annotations=with_annotations,
+            with_notes=with_notes,
+        )
         result = momapy.io.ReaderResult(
-            obj=map_,
+            obj=obj,
+            notes=notes,
+            annotations=annotations,
             file_path=file_path,
-            annotations=map_.map_element_to_annotations,
         )
         return result
 
     @classmethod
-    def _make_map_from_cd(cls, cd_element, with_layout=True):
-        cd_id_to_model_element = {}
-        cd_id_to_layout_element = {}
-        map_element_to_annotations = collections.defaultdict(set)
-        map_ = cls._make_map_no_subelements_from_cd(
-            cd_element, with_layout=with_layout
-        )
-        # we map the ids to their corresponding cd elements
-        cd_id_to_cd_element = {}
-        # compartments
-        if cd_element.model.list_of_compartments is not None:
-            for (
-                cd_compartment
-            ) in cd_element.model.list_of_compartments.compartment:
-                cd_id_to_cd_element[cd_compartment.id] = cd_compartment
-        # compartment aliases
-        if (
-            cd_element.model.annotation.extension.list_of_compartment_aliases
-            is not None
-        ):
-            for (
-                cd_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_compartment_aliases.compartment_alias
-            ):
-                cd_id_to_cd_element[cd_alias.id] = cd_alias
-        # protein references
-        if cd_element.model.annotation.extension.list_of_proteins is not None:
-            for (
-                cd_species_template
-            ) in (
-                cd_element.model.annotation.extension.list_of_proteins.protein
-            ):
-                cd_id_to_cd_element[cd_species_template.id] = (
-                    cd_species_template
-                )
-                if (
-                    cd_species_template.list_of_modification_residues
-                    is not None
-                ):
-                    for (
-                        cd_modification_residue
-                    ) in (
-                        cd_species_template.list_of_modification_residues.modification_residue
-                    ):
-                        cd_id_to_cd_element[cd_modification_residue.id] = (
-                            cd_modification_residue
-                        )
-        # gene references
-        if cd_element.model.annotation.extension.list_of_genes is not None:
-            for (
-                cd_species_template
-            ) in cd_element.model.annotation.extension.list_of_genes.gene:
-                cd_id_to_cd_element[cd_species_template.id] = (
-                    cd_species_template
-                )
-        # rna references
-        if cd_element.model.annotation.extension.list_of_rnas is not None:
-            for (
-                cd_species_template
-            ) in cd_element.model.annotation.extension.list_of_rnas.rna:
-                cd_id_to_cd_element[cd_species_template.id] = (
-                    cd_species_template
-                )
-        # anitsense rna references
-        if (
-            cd_element.model.annotation.extension.list_of_antisense_rnas
-            is not None
-        ):
-            for (
-                cd_species_template
-            ) in (
-                cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
-            ):
-                cd_id_to_cd_element[cd_species_template.id] = (
-                    cd_species_template
-                )
-
-        # species
-        if cd_element.model.list_of_species is not None:
-            for cd_species in cd_element.model.list_of_species.species:
-                cd_id_to_cd_element[cd_species.id] = cd_species
-        # included species
-        if (
-            cd_element.model.annotation.extension.list_of_included_species
-            is not None
-        ):
-            for (
-                cd_species
-            ) in (
-                cd_element.model.annotation.extension.list_of_included_species.species
-            ):
-                cd_id_to_cd_element[cd_species.id] = cd_species
-        # species aliases
-        if (
-            cd_element.model.annotation.extension.list_of_species_aliases
-            is not None
-        ):
-            for (
-                cd_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_species_aliases.species_alias
-            ):
-                cd_id_to_cd_element[cd_alias.id] = cd_alias
-        # complex species aliases
-        if (
-            cd_element.model.annotation.extension.list_of_complex_species_aliases
-            is not None
-        ):
-            for (
-                cd_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
-            ):
-                cd_id_to_cd_element[cd_alias.id] = cd_alias
-        # we map the ids of complex aliases to the list of the ids of the
-        # species aliases they include, and we store the species aliases
-        cd_complex_alias_id_to_cd_included_species_ids = (
-            collections.defaultdict(list)
-        )
-        cd_included_species_alias_ids = set([])
-        if (
-            cd_element.model.annotation.extension.list_of_species_aliases
-            is not None
-        ):
-            for (
-                cd_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_species_aliases.species_alias
-            ):
-                if cd_alias.complex_species_alias is not None:
-                    cd_complex_alias_id_to_cd_included_species_ids[
-                        cd_alias.complex_species_alias
-                    ].append(cd_alias.id)
-                    cd_included_species_alias_ids.add(cd_alias.id)
-        if (
-            cd_element.model.annotation.extension.list_of_complex_species_aliases
-            is not None
-        ):
-            for (
-                cd_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
-            ):
-                if cd_alias.complex_species_alias is not None:
-                    cd_complex_alias_id_to_cd_included_species_ids[
-                        cd_alias.complex_species_alias
-                    ].append(cd_alias.id)
-                    cd_included_species_alias_ids.add(cd_alias.id)
-
-        # we make and add the  model and layout elements from the cd objects
-        # we make and add the compartments from the compartment aliases
-        if (
-            cd_element.model.annotation.extension.list_of_compartment_aliases
-            is not None
-        ):
-            for (
-                cd_compartment_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_compartment_aliases.compartment_alias
-            ):  # TODO: should be ordered so outside is before inside
-                model_element, layout_element = (
-                    cls._make_and_add_compartment_from_cd_compartment_alias(
-                        map_=map_,
-                        cd_element=cd_compartment_alias,
-                        cd_id_to_model_element=cd_id_to_model_element,
-                        cd_id_to_layout_element=cd_id_to_layout_element,
-                        cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
-                        super_model_element=None,
-                        super_layout_element=None,
-                        super_cd_element=None,
-                        with_layout=with_layout,
-                    )
-                )
-        # we make the compartments from the list of compartments that do not have
-        # an alias (e.g., the "default" compartment
-        # since these have no alias, we only produce a model element
-        if cd_element.model.list_of_compartments is not None:
-            for (
-                cd_compartment
-            ) in cd_element.model.list_of_compartments.compartment:
-                if cd_compartment.id not in cd_id_to_model_element:
-                    model_element, _ = (
-                        cls._make_and_add_compartment_from_cd_compartment(
-                            map_=map_,
-                            cd_element=cd_compartment,
-                            cd_id_to_model_element=cd_id_to_model_element,
-                            cd_id_to_layout_element=cd_id_to_layout_element,
-                            cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
-                            super_model_element=None,
-                            super_layout_element=None,
-                            super_cd_element=None,
-                            with_layout=with_layout,
-                        )
-                    )
-        # we make and add the species templates
-        for cd_species_template in (
-            cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
-            + cd_element.model.annotation.extension.list_of_rnas.rna
-            + cd_element.model.annotation.extension.list_of_genes.gene
-            + cd_element.model.annotation.extension.list_of_proteins.protein
-        ):
-            model_element, layout_element = cls._make_and_add_elements_from_cd(
-                map_=map_,
-                cd_element=cd_species_template,
-                cd_id_to_model_element=cd_id_to_model_element,
-                cd_id_to_layout_element=cd_id_to_layout_element,
-                cd_id_to_cd_element=cd_id_to_cd_element,
-                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
-                super_model_element=None,
-                super_layout_element=None,
-                super_cd_element=None,
-                with_layout=with_layout,
+    def _make_main_obj_from_cd(
+        cls,
+        cd_element,
+        return_type: typing.Literal["map", "model", "layout"] = "map",
+        with_model=True,
+        with_layout=True,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        if return_type == "model" or return_type == "map" and with_model:
+            model = cls._make_model_no_subelements_from_cd(cd_element)
+        else:
+            model = None
+        if return_type == "layout" or return_type == "map" and with_layout:
+            layout = cls._make_layout_no_subelements_from_cd_element(
+                cd_element
             )
-        # we make and add the species, from the species aliases
-        # species aliases are the glyphs; in terms of model, a species is almost
-        # a model element on its own: the only attribute that is not on the
-        # species but on the species alias is the activity (active or inactive);
-        # hence two species aliases can be associated to only one species
-        # but correspond to two different model elements; we do not make the
-        # species that are included, they are made when we make their
-        # containing complex
-        if (
-            cd_element.model.annotation.extension.list_of_species_aliases
-            is not None
-        ):
-            for (
-                cd_species_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_species_aliases.species_alias
+        else:
+            layout = None
+        if model is not None or layout is not None:
+            cd_id_to_model_element = {}
+            cd_id_to_layout_element = {}
+            map_element_to_annotations = collections.defaultdict(set)
+            map_ = cls._make_map_no_subelements_from_cd(
+                cd_element,
+                with_model=with_model,
+                with_layout=with_layout,
+                with_annotations=with_annotations,
+            )
+            # we map the ids to their corresponding cd elements
+            cd_id_to_cd_element = {}
+            # compartments
+            if cd_element.model.list_of_compartments is not None:
+                for (
+                    cd_compartment
+                ) in cd_element.model.list_of_compartments.compartment:
+                    cd_id_to_cd_element[cd_compartment.id] = cd_compartment
+            # compartment aliases
+            if (
+                cd_element.model.annotation.extension.list_of_compartment_aliases
+                is not None
             ):
-                if cd_species_alias.id not in cd_included_species_alias_ids:
+                for (
+                    cd_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_compartment_aliases.compartment_alias
+                ):
+                    cd_id_to_cd_element[cd_alias.id] = cd_alias
+            # protein references
+            if (
+                cd_element.model.annotation.extension.list_of_proteins
+                is not None
+            ):
+                for (
+                    cd_species_template
+                ) in (
+                    cd_element.model.annotation.extension.list_of_proteins.protein
+                ):
+                    cd_id_to_cd_element[cd_species_template.id] = (
+                        cd_species_template
+                    )
+                    if (
+                        cd_species_template.list_of_modification_residues
+                        is not None
+                    ):
+                        for (
+                            cd_modification_residue
+                        ) in (
+                            cd_species_template.list_of_modification_residues.modification_residue
+                        ):
+                            cd_id_to_cd_element[cd_modification_residue.id] = (
+                                cd_modification_residue
+                            )
+            # gene references
+            if cd_element.model.annotation.extension.list_of_genes is not None:
+                for (
+                    cd_species_template
+                ) in cd_element.model.annotation.extension.list_of_genes.gene:
+                    cd_id_to_cd_element[cd_species_template.id] = (
+                        cd_species_template
+                    )
+            # rna references
+            if cd_element.model.annotation.extension.list_of_rnas is not None:
+                for (
+                    cd_species_template
+                ) in cd_element.model.annotation.extension.list_of_rnas.rna:
+                    cd_id_to_cd_element[cd_species_template.id] = (
+                        cd_species_template
+                    )
+            # anitsense rna references
+            if (
+                cd_element.model.annotation.extension.list_of_antisense_rnas
+                is not None
+            ):
+                for (
+                    cd_species_template
+                ) in (
+                    cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
+                ):
+                    cd_id_to_cd_element[cd_species_template.id] = (
+                        cd_species_template
+                    )
+
+            # species
+            if cd_element.model.list_of_species is not None:
+                for cd_species in cd_element.model.list_of_species.species:
+                    cd_id_to_cd_element[cd_species.id] = cd_species
+            # included species
+            if (
+                cd_element.model.annotation.extension.list_of_included_species
+                is not None
+            ):
+                for (
+                    cd_species
+                ) in (
+                    cd_element.model.annotation.extension.list_of_included_species.species
+                ):
+                    cd_id_to_cd_element[cd_species.id] = cd_species
+            # species aliases
+            if (
+                cd_element.model.annotation.extension.list_of_species_aliases
+                is not None
+            ):
+                for (
+                    cd_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_species_aliases.species_alias
+                ):
+                    cd_id_to_cd_element[cd_alias.id] = cd_alias
+            # complex species aliases
+            if (
+                cd_element.model.annotation.extension.list_of_complex_species_aliases
+                is not None
+            ):
+                for (
+                    cd_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
+                ):
+                    cd_id_to_cd_element[cd_alias.id] = cd_alias
+            # we map the ids of complex aliases to the list of the ids of the
+            # species aliases they include, and we store the species aliases
+            cd_complex_alias_id_to_cd_included_species_ids = (
+                collections.defaultdict(list)
+            )
+            cd_included_species_alias_ids = set([])
+            if (
+                cd_element.model.annotation.extension.list_of_species_aliases
+                is not None
+            ):
+                for (
+                    cd_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_species_aliases.species_alias
+                ):
+                    if cd_alias.complex_species_alias is not None:
+                        cd_complex_alias_id_to_cd_included_species_ids[
+                            cd_alias.complex_species_alias
+                        ].append(cd_alias.id)
+                        cd_included_species_alias_ids.add(cd_alias.id)
+            if (
+                cd_element.model.annotation.extension.list_of_complex_species_aliases
+                is not None
+            ):
+                for (
+                    cd_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
+                ):
+                    if cd_alias.complex_species_alias is not None:
+                        cd_complex_alias_id_to_cd_included_species_ids[
+                            cd_alias.complex_species_alias
+                        ].append(cd_alias.id)
+                        cd_included_species_alias_ids.add(cd_alias.id)
+            cd_id_to_annotations = {}
+            cd_id_to_notes = {}
+            cd_id_super_cd_id_for_mapping = []
+            # we make and add the  model and layout elements from the cd objects
+            # we make and add the compartments from the compartment aliases
+            if (
+                cd_element.model.annotation.extension.list_of_compartment_aliases
+                is not None
+            ):
+                for (
+                    cd_compartment_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_compartment_aliases.compartment_alias
+                ):  # TODO: should be ordered so outside is before inside
                     model_element, layout_element = (
-                        cls._make_and_add_elements_from_cd(
-                            map_=map_,
-                            cd_element=cd_species_alias,
+                        cls._make_and_add_compartment_from_cd_compartment_alias(
+                            model=model,
+                            layout=layout,
+                            cd_element=cd_compartment_alias,
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
+                            cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
-                            with_layout=with_layout,
                         )
                     )
-        if (
-            cd_element.model.annotation.extension.list_of_complex_species_aliases
-            is not None
-        ):
-            for (
-                cd_species_alias
-            ) in (
-                cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
+            # we make the compartments from the list of compartments that do not have
+            # an alias (e.g., the "default" compartment
+            # since these have no alias, we only produce a model element
+            if cd_element.model.list_of_compartments is not None:
+                for (
+                    cd_compartment
+                ) in cd_element.model.list_of_compartments.compartment:
+                    if cd_compartment.id not in cd_id_to_model_element:
+                        model_element, _ = (
+                            cls._make_and_add_compartment_from_cd_compartment(
+                                model=model,
+                                layout=layout,
+                                cd_element=cd_compartment,
+                                cd_id_to_model_element=cd_id_to_model_element,
+                                cd_id_to_layout_element=cd_id_to_layout_element,
+                                cd_id_to_cd_element=cd_id_to_cd_element,
+                                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                                cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                                cd_id_to_annotations=cd_id_to_annotations,
+                                cd_id_to_notes=cd_id_to_notes,
+                                super_model_element=None,
+                                super_layout_element=None,
+                                super_cd_element=None,
+                            )
+                        )
+            # we make and add the species templates
+            for cd_species_template in (
+                cd_element.model.annotation.extension.list_of_antisense_rnas.antisense_rna
+                + cd_element.model.annotation.extension.list_of_rnas.rna
+                + cd_element.model.annotation.extension.list_of_genes.gene
+                + cd_element.model.annotation.extension.list_of_proteins.protein
             ):
-                if cd_species_alias.id not in cd_included_species_alias_ids:
-                    model_element, layout_element = (
-                        cls._make_and_add_elements_from_cd(
-                            map_=map_,
-                            cd_element=cd_species_alias,
-                            cd_id_to_model_element=cd_id_to_model_element,
-                            cd_id_to_layout_element=cd_id_to_layout_element,
-                            cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
-                            super_model_element=None,
-                            super_layout_element=None,
-                            super_cd_element=None,
-                            with_layout=with_layout,
-                        )
-                    )
-        # we make and add the complexes, from the complex species aliases
-        # we make and add the reactions
-        # celldesigner reactions also include modulations
-        if cd_element.model.list_of_reactions is not None:
-            for cd_reaction in cd_element.model.list_of_reactions.reaction:
                 model_element, layout_element = (
                     cls._make_and_add_elements_from_cd(
-                        map_=map_,
-                        cd_element=cd_reaction,
+                        model=model,
+                        layout=layout,
+                        cd_element=cd_species_template,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=None,
                         super_layout_element=None,
                         super_cd_element=None,
-                        with_layout=with_layout,
                     )
                 )
-        for map_element, annotations in map_element_to_annotations.items():
-            map_element_to_annotations[map_element] = frozenset(annotations)
-        map_.map_element_to_annotations = frozendict.frozendict(
-            map_element_to_annotations
-        )
-        if with_layout:
-            map_.layout.width = (
+            # we make and add the species, from the species aliases
+            # species aliases are the glyphs; in terms of model, a species is almost
+            # a model element on its own: the only attribute that is not on the
+            # species but on the species alias is the activity (active or inactive);
+            # hence two species aliases can be associated to only one species
+            # but correspond to two different model elements; we do not make the
+            # species that are included, they are made when we make their
+            # containing complex
+            if (
+                cd_element.model.annotation.extension.list_of_species_aliases
+                is not None
+            ):
+                for (
+                    cd_species_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_species_aliases.species_alias
+                ):
+                    if (
+                        cd_species_alias.id
+                        not in cd_included_species_alias_ids
+                    ):
+                        model_element, layout_element = (
+                            cls._make_and_add_elements_from_cd(
+                                model=model,
+                                layout=layout,
+                                cd_element=cd_species_alias,
+                                cd_id_to_model_element=cd_id_to_model_element,
+                                cd_id_to_layout_element=cd_id_to_layout_element,
+                                cd_id_to_cd_element=cd_id_to_cd_element,
+                                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                                cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                                cd_id_to_annotations=cd_id_to_annotations,
+                                cd_id_to_notes=cd_id_to_notes,
+                                super_model_element=None,
+                                super_layout_element=None,
+                                super_cd_element=None,
+                            )
+                        )
+            if (
+                cd_element.model.annotation.extension.list_of_complex_species_aliases
+                is not None
+            ):
+                for (
+                    cd_species_alias
+                ) in (
+                    cd_element.model.annotation.extension.list_of_complex_species_aliases.complex_species_alias
+                ):
+                    if (
+                        cd_species_alias.id
+                        not in cd_included_species_alias_ids
+                    ):
+                        model_element, layout_element = (
+                            cls._make_and_add_elements_from_cd(
+                                model=model,
+                                layout=layout,
+                                cd_element=cd_species_alias,
+                                cd_id_to_model_element=cd_id_to_model_element,
+                                cd_id_to_layout_element=cd_id_to_layout_element,
+                                cd_id_to_cd_element=cd_id_to_cd_element,
+                                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                                cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                                cd_id_to_annotations=cd_id_to_annotations,
+                                cd_id_to_notes=cd_id_to_notes,
+                                super_model_element=None,
+                                super_layout_element=None,
+                                super_cd_element=None,
+                            )
+                        )
+            # we make and add the complexes, from the complex species aliases
+            # we make and add the reactions
+            # celldesigner reactions also include modulations
+            if cd_element.model.list_of_reactions is not None:
+                for cd_reaction in cd_element.model.list_of_reactions.reaction:
+                    model_element, layout_element = (
+                        cls._make_and_add_elements_from_cd(
+                            model=model,
+                            layout=layout,
+                            cd_element=cd_reaction,
+                            cd_id_to_model_element=cd_id_to_model_element,
+                            cd_id_to_layout_element=cd_id_to_layout_element,
+                            cd_id_to_cd_element=cd_id_to_cd_element,
+                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            cd_id_super_cd_id_for_mapping=cd_id_super_cd_id_for_mapping,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
+                            super_model_element=None,
+                            super_layout_element=None,
+                            super_cd_element=None,
+                        )
+                    )
+        if layout is not None:
+            layout.width = (
                 cd_element.model.annotation.extension.model_display.size_x
             )
-            map_.layout.height = (
+            layout.height = (
                 cd_element.model.annotation.extension.model_display.size_y
             )
-            map_.layout.position = momapy.geometry.Point(
-                map_.layout.width / 2, map_.layout.height / 2
+            layout.position = momapy.geometry.Point(
+                layout.width / 2, layout.height / 2
             )
-            map_.layout.fill = momapy.coloring.white
-            map_.layout.stroke = momapy.coloring.red
-        map_ = momapy.builder.object_from_builder(map_)
-        return map_
+            layout.fill = momapy.coloring.white
+            layout.stroke = momapy.coloring.red
+        if return_type == "model":
+            obj = momapy.builder.object_from_builder(model)
+        elif return_type == "layout":
+            obj = momapy.builder.object_from_builder(layout)
+        elif return_type == "map":
+            map_ = cls._make_map_no_subelements_from_cd(cd_element)
+            map_.model = model
+            map_.layout = layout
+            if model is not None and layout is not None:
+                # We make the layout_model_mapping
+                map_.layout_model_mapping = map_.new_layout_model_mapping()
+                for (
+                    cd_id,
+                    super_cd_id,
+                ) in cd_id_super_cd_id_for_mapping:
+                    model_element = cd_id_to_model_element[cd_id]
+                    if super_cd_id is not None:
+                        super_model_element = cd_id_to_model_element[
+                            super_cd_id
+                        ]
+                    else:
+                        super_model_element = None
+                    layout_element = cd_id_to_layout_element[cd_id]
+                    map_.add_mapping(
+                        (model_element, super_model_element), layout_element
+                    )
+            obj = momapy.builder.object_from_builder(map_)
+        map_element_to_annotations = {}
+        if with_annotations:
+            for cd_id, annotations in cd_id_to_annotations.items():
+                model_element = cd_id_to_model_element.get(cd_id)
+                if model_element is not None:
+                    if model_element in map_element_to_annotations:
+                        map_element_to_annotations[model_element].update(
+                            annotations
+                        )
+                    else:
+                        map_element_to_annotations[model_element] = annotations
+                layout_element = cd_id_to_layout_element.get(cd_id)
+                if layout_element is not None:
+                    map_element_to_annotations[layout_element] = annotations
+        map_element_to_notes = {}
+        if with_notes:
+            for cd_id, notes in cd_id_to_notes.items():
+                model_element = cd_id_to_model_element.get(cd_id)
+                if model_element is not None:
+                    if model_element in notes:
+                        map_element_to_notes[model_element].update(notes)
+                    else:
+                        map_element_to_notes[model_element] = notes
+                layout_element = cd_id_to_layout_element.get(cd_id)
+                if layout_element is not None:
+                    map_element_to_notes[layout_element] = notes
+        return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
-    def _make_map_no_subelements_from_cd(cls, cd_element, with_layout=True):
+    def _make_model_no_subelements_from_cd(
+        cls,
+        cd_element,
+    ):
+        model = momapy.celldesigner.core.CellDesignerModelBuilder()
+        return model
+
+    @classmethod
+    def _make_layout_no_subelements_from_cd(
+        cls,
+        cd_element,
+    ):
+        layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
+        return layout
+
+    @classmethod
+    def _make_map_no_subelements_from_cd(
+        cls,
+        cd_element,
+    ):
         map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
-        map_.model = map_.new_model()
-        if with_layout:
-            map_.layout = map_.new_layout()
         return map_
 
     @classmethod
     def _make_and_add_modification_residue_from_cd_modification_residue(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.ModificationResidue
-        )
-        # Defaults ids for modification residues are simple in CellDesigner (e.g.,
-        # "rs1") and might be shared between residues of different species.
-        # However we want a unique id, so we build it using the id of the
-        # species as well.
-        model_element.id_ = f"{super_model_element.id_}_{cd_element.id}"
-        model_element.name = cls._prepare_name(cd_element.name)
-        layout_element = None
-        model_element = momapy.builder.object_from_builder(model_element)
-        super_model_element.modification_residues.add(model_element)
-        # exceptionally we take the model element's id and not the cd element's
-        # id for the reasons explained above
-        cd_id_to_model_element[model_element.id_] = model_element
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.ModificationResidue
+            )
+            # Defaults ids for modification residues are simple in CellDesigner (e.g.,
+            # "rs1") and might be shared between residues of different species.
+            # However we want a unique id, so we build it using the id of the
+            # species as well.
+            model_element.id_ = f"{super_model_element.id_}_{cd_element.id}"
+            model_element.name = cls._prepare_name(cd_element.name)
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.modification_residues.add(model_element)
+            # exceptionally we take the model element's id and not the cd element's
+            # id for the reasons explained above
+            cd_id_to_model_element[model_element.id_] = model_element
+        else:
+            model_element = None
+        layout_element = None  # purely a model element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_modification_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Modification
-        )
-        cd_species_template = (
-            cls._get_cd_species_template_from_cd_species_alias(
-                super_cd_element, cd_id_to_cd_element
+        if model is not None or layout is not None:
+            cd_modification_state = cd_element.state
+            if (
+                cd_modification_state
+                is momapy.celldesigner.io._celldesigner_parser.ModificationState.EMPTY
+            ):
+                modification_state = None
+            else:
+                modification_state = (
+                    momapy.celldesigner.core.ModificationState[
+                        cd_modification_state.name
+                    ]
+                )
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Modification
             )
-        )
-        cd_modification_residue_id = (
-            f"{cd_species_template.id}_{cd_element.residue}"
-        )
-        modification_residue_model_element = cd_id_to_model_element[
-            cd_modification_residue_id
-        ]
-        model_element.residue = modification_residue_model_element
-        cd_modification_state = cd_element.state
-        if (
-            cd_modification_state
-            is momapy.celldesigner.io._celldesigner_parser.ModificationState.EMPTY
-        ):
-            modification_state = None
-        else:
-            modification_state = momapy.celldesigner.core.ModificationState[
-                cd_modification_state.name
+            cd_species_template = (
+                cls._get_cd_species_template_from_cd_species_alias(
+                    super_cd_element, cd_id_to_cd_element
+                )
+            )
+            cd_modification_residue_id = (
+                f"{cd_species_template.id}_{cd_element.residue}"
+            )
+            modification_residue_model_element = cd_id_to_model_element[
+                cd_modification_residue_id
             ]
-        model_element.state = modification_state
-        model_element = momapy.builder.object_from_builder(model_element)
-        super_model_element.modifications.add(model_element)
-        if with_layout:
-            layout_element = map_.layout.new_element(
+            model_element.residue = modification_residue_model_element
+            model_element.state = modification_state
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.modifications.add(model_element)
+            cd_id_to_model_element[model_element.id] = model_element
+        if layout is not None:
+            layout_element = layout.new_element(
                 momapy.celldesigner.core.ModificationLayout
             )
             cd_modification_residue = cd_id_to_cd_element[cd_element.residue]
@@ -1134,7 +1270,7 @@ class CellDesignerReader(momapy.io.Reader):
             )
             layout_element.label = text_layout
             if cd_modification_residue.name is not None:
-                residue_text_layout = map_.new_layout_element(
+                residue_text_layout = layout.new_element(
                     momapy.core.TextLayout
                 )
                 residue_text_layout.text = cd_modification_residue.name
@@ -1159,6 +1295,7 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element.layout_elements.append(residue_text_layout)
             layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[layout_element.id] = layout_element
         else:
             layout_element = None
         return model_element, layout_element
@@ -1166,58 +1303,64 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_structural_state_from_cd_structural_state(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.StructuralState
-        )
-        model_element.value = cd_element.structural_state
-        super_model_element.structural_states.add(model_element)
-        layout_element = None
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.StructuralState
+            )
+            model_element.value = cd_element.structural_state
+            super_model_element.structural_states.add(model_element)
+        else:
+            model_element = None
+        layout_element = None  # is purely a model element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_compartment_from_cd_compartment_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         cd_compartment = cd_id_to_cd_element[cd_element.compartment]
         # we make and add the model element from the cd compartment the cd element is
         # an alias of; then we make the layout element
         model_element, _ = cls._make_and_add_compartment_from_cd_compartment(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_compartment,
             cd_id_to_model_element=cd_id_to_model_element,
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=None,
             super_layout_element=None,
             super_cd_element=None,
-            with_layout=with_layout,
         )
-        if with_layout:
+        if layout is not None:
             if (
                 cd_element.class_value
                 is momapy.celldesigner.io._celldesigner_parser.ClassValue.OVAL
@@ -1229,7 +1372,7 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element_cls = (
                     momapy.celldesigner.core.RectangleCompartmentLayout
                 )
-            layout_element = map_.layout.new_element(layout_element_cls)
+            layout_element = layout.new_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
             cd_y = float(cd_element.bounds.y)
             cd_w = float(cd_element.bounds.w)
@@ -1268,7 +1411,8 @@ class CellDesignerReader(momapy.io.Reader):
             )
             layout_element.label = text_layout
             layout_element = momapy.builder.object_from_builder(layout_element)
-            map_.layout.layout_elements.append(layout_element)
+            layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
         else:
             layout_element = None
         return model_element, layout_element
@@ -1276,320 +1420,335 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_compartment_from_cd_compartment(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Compartment
-        )
-        model_element.id_ = cd_element.id
-        model_element.name = cls._prepare_name(cd_element.name)
-        model_element.metaid = cd_element.metaid
-        if cd_element.outside is not None:
-            outside_model_element = cd_id_to_model_element.get(
-                cd_element.outside
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Compartment
             )
-            if outside_model_element is None:
-                cd_outside = cd_id_to_cd_element[cd_element.outside]
-                outside_model_element, _ = (
-                    cls._make_and_add_compartment_from_cd_compartment(
-                        map_=map_,
-                        cd_element=cd_outside,
-                        cd_id_to_model_element=cd_id_to_model_element,
-                        cd_id_to_layout_element=cd_id_to_layout_element,
-                        cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
-                        super_model_element=None,
-                        super_layout_element=None,
-                        super_cd_element=None,
-                        with_layout=with_layout,
+            model_element.id_ = cd_element.id
+            model_element.name = cls._prepare_name(cd_element.name)
+            model_element.metaid = cd_element.metaid
+            if cd_element.outside is not None:
+                outside_model_element = cd_id_to_model_element.get(
+                    cd_element.outside
+                )
+                if outside_model_element is None:
+                    cd_outside = cd_id_to_cd_element[cd_element.outside]
+                    outside_model_element, _ = (
+                        cls._make_and_add_compartment_from_cd_compartment(
+                            model=model,
+                            layout=layout,
+                            cd_element=cd_outside,
+                            cd_id_to_model_element=cd_id_to_model_element,
+                            cd_id_to_layout_element=cd_id_to_layout_element,
+                            cd_id_to_cd_element=cd_id_to_cd_element,
+                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
+                            super_model_element=None,
+                            super_layout_element=None,
+                            super_cd_element=None,
+                        )
                     )
-                )
-            model_element.outside = outside_model_element
-        if cd_element.annotation is not None:
-            if cd_element.annotation.rdf is not None:
-                annotations = cls._make_annotations_from_cd_annotation_rdf(
-                    cd_element.annotation.rdf
-                )
-                map_element_to_annotations[model_element].update(annotations)
+                model_element.outside = outside_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+            # We add the model and layout elements to the model, layout, and to the mapping
+            model_element = momapy.utils.add_or_replace_element_in_set(
+                model_element,
+                model.compartments,
+                func=lambda element, existing_element: element.id_
+                < existing_element.id_,
+            )
+            cd_id_to_model_element[cd_element.id] = model_element
+        else:
+            model_element = None
         layout_element = None
-        model_element = momapy.builder.object_from_builder(model_element)
-        # We add the model and layout elements to the map_, and to the mapping
-        model_element = momapy.utils.add_or_replace_element_in_set(
-            model_element,
-            map_.model.compartments,
-            func=lambda element, existing_element: element.id_
-            < existing_element.id_,
-        )
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_generic_protein_template_from_cd_protein(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.GenericProteinTemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.GenericProteinTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_ion_channel_template_from_cd_protein(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.IonChannelTemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_protein(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.IonChannelTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_receptor_template_from_cd_protein(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.ReceptorTemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.ReceptorTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_truncated_template_from_cd_protein(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.TruncatedProteinTemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.TruncatedProteinTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_gene_template_from_cd_gene(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.GeneTemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.GeneTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_rna_template_from_cd_rna(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.RNATemplate,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.RNATemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_antisense_rna_template_from_cd_antisense_rna(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = cls._make_species_template_from_cd_species_reference(
-            map_=map_,
-            cd_element=cd_element,
-            model_element_cls=momapy.celldesigner.core.AntisenseRNA,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-            with_layout=with_layout,
+        model_element, layout_element = (
+            cls._generic_make_and_add_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.AntisenseRNA,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
         )
-        layout_element = None
-        map_.model.species_templates.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_generic_protein_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.GenericProtein,
                 layout_element_cls=momapy.celldesigner.core.GenericProteinLayout,
@@ -1597,38 +1756,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_ion_channel_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.IonChannel,
                 layout_element_cls=momapy.celldesigner.core.IonChannelLayout,
@@ -1636,16 +1797,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
@@ -1653,21 +1814,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_receptor_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Receptor,
                 layout_element_cls=momapy.celldesigner.core.ReceptorLayout,
@@ -1675,38 +1838,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_truncated_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.TruncatedProtein,
                 layout_element_cls=momapy.celldesigner.core.TruncatedProteinLayout,
@@ -1714,38 +1879,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_gene_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Gene,
                 layout_element_cls=momapy.celldesigner.core.GeneLayout,
@@ -1753,38 +1920,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_rna_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.RNA,
                 layout_element_cls=momapy.celldesigner.core.RNALayout,
@@ -1792,38 +1961,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_antisense_rna_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.AntisenseRNA,
                 layout_element_cls=momapy.celldesigner.core.AntisenseRNALayout,
@@ -1831,38 +2002,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_phenotype_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Phenotype,
                 layout_element_cls=momapy.celldesigner.core.PhenotypeLayout,
@@ -1870,38 +2043,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_ion_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Ion,
                 layout_element_cls=momapy.celldesigner.core.IonLayout,
@@ -1909,38 +2084,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_simple_molecule_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.SimpleMolecule,
                 layout_element_cls=momapy.celldesigner.core.SimpleMoleculeLayout,
@@ -1948,38 +2125,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_drug_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Drug,
                 layout_element_cls=momapy.celldesigner.core.DrugLayout,
@@ -1987,38 +2166,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Unknown,
                 layout_element_cls=momapy.celldesigner.core.UnknownLayout,
@@ -2026,38 +2207,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_complex_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Complex,
                 layout_element_cls=momapy.celldesigner.core.ComplexLayout,
@@ -2065,38 +2248,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_degraded_from_cd_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_species_from_cd_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Degraded,
                 layout_element_cls=momapy.celldesigner.core.DegradedLayout,
@@ -2104,38 +2289,40 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.species.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_included_generic_protein_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.GenericProtein,
                 layout_element_cls=momapy.celldesigner.core.GenericProteinLayout,
@@ -2143,16 +2330,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2160,21 +2347,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_receptor_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Receptor,
                 layout_element_cls=momapy.celldesigner.core.ReceptorLayout,
@@ -2182,16 +2371,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2199,21 +2388,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_ion_channel_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.IonChannel,
                 layout_element_cls=momapy.celldesigner.core.IonChannelLayout,
@@ -2221,16 +2412,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2238,21 +2429,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_truncated_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.TruncatedProtein,
                 layout_element_cls=momapy.celldesigner.core.TruncatedProteinLayout,
@@ -2260,16 +2453,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2277,21 +2470,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_gene_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Gene,
                 layout_element_cls=momapy.celldesigner.core.GeneLayout,
@@ -2299,16 +2494,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2316,21 +2511,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_rna_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.RNA,
                 layout_element_cls=momapy.celldesigner.core.RNALayout,
@@ -2338,16 +2535,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2355,21 +2552,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_antisense_rna_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.AntisenseRNA,
                 layout_element_cls=momapy.celldesigner.core.AntisenseRNALayout,
@@ -2377,16 +2576,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2394,21 +2593,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_phenotype_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Phenotype,
                 layout_element_cls=momapy.celldesigner.core.PhenotypeLayout,
@@ -2416,16 +2617,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2433,21 +2634,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_ion_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Ion,
                 layout_element_cls=momapy.celldesigner.core.IonLayout,
@@ -2455,16 +2658,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2472,21 +2675,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_simple_molecule_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.SimpleMolecule,
                 layout_element_cls=momapy.celldesigner.core.SimpleMoleculeLayout,
@@ -2494,16 +2699,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2511,21 +2716,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_drug_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Drug,
                 layout_element_cls=momapy.celldesigner.core.DrugLayout,
@@ -2533,16 +2740,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2550,21 +2757,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_unknown_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Unknown,
                 layout_element_cls=momapy.celldesigner.core.UnknownLayout,
@@ -2572,16 +2781,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2589,21 +2798,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_complex_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Complex,
                 layout_element_cls=momapy.celldesigner.core.ComplexLayout,
@@ -2611,16 +2822,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2628,21 +2839,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_included_degraded_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_included_species_from_cd_included_species_alias(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Degraded,
                 layout_element_cls=momapy.celldesigner.core.DegradedLayout,
@@ -2650,16 +2863,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.subunits.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
+        if layout is not None:
             super_layout_element.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
@@ -2667,21 +2880,20 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_reactant_from_cd_base_reactant(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Reactant
-        )
+        model_element = model.new_element(momapy.celldesigner.core.Reactant)
         cd_species_id = cd_element.species
         if super_cd_element.list_of_reactants is not None:
             for (
@@ -2695,8 +2907,8 @@ class CellDesignerReader(momapy.io.Reader):
         model_element.referred_species = species_model_element
         super_model_element.reactants.add(model_element)
         cd_id_to_model_element[model_element.id_] = model_element
-        if with_layout:
-            layout_element = map_.new_layout_element(
+        if layout is not None:
+            layout_element = layout.new_element(
                 momapy.celldesigner.core.ConsumptionLayout
             )
             cd_edit_points = super_cd_element.annotation.extension.edit_points
@@ -2769,21 +2981,20 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_reactant_from_cd_reactant_link(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Reactant
-        )
+        model_element = model.new_element(momapy.celldesigner.core.Reactant)
         cd_species_id = cd_element.reactant
         if super_cd_element.list_of_reactants is not None:
             for (
@@ -2800,7 +3011,7 @@ class CellDesignerReader(momapy.io.Reader):
         if (
             with_layout and super_layout_element is not None
         ):  # to delete second part
-            layout_element = map_.new_layout_element(
+            layout_element = layout.new_element(
                 momapy.celldesigner.core.ConsumptionLayout
             )
             reactant_layout_element = cd_id_to_layout_element[cd_element.alias]
@@ -2853,21 +3064,20 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_product_from_cd_base_product(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Reactant
-        )
+        model_element = model.new_element(momapy.celldesigner.core.Reactant)
         cd_species_id = cd_element.species
         if super_cd_element.list_of_products is not None:
             for (
@@ -2881,8 +3091,8 @@ class CellDesignerReader(momapy.io.Reader):
         model_element.referred_species = species_model_element
         super_model_element.products.add(model_element)
         cd_id_to_model_element[model_element.id_] = model_element
-        if with_layout:
-            layout_element = map_.new_layout_element(
+        if layout is not None:
+            layout_element = layout.new_element(
                 momapy.celldesigner.core.ProductionLayout
             )
             cd_edit_points = super_cd_element.annotation.extension.edit_points
@@ -2955,21 +3165,20 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_product_from_cd_product_link(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(
-            momapy.celldesigner.core.Reactant
-        )
+        model_element = model.new_element(momapy.celldesigner.core.Reactant)
         cd_species_id = cd_element.product
         if super_cd_element.list_of_products is not None:
             for (
@@ -2986,7 +3195,7 @@ class CellDesignerReader(momapy.io.Reader):
         if (
             with_layout and super_layout_element is not None
         ):  # to delete second part
-            layout_element = map_.new_layout_element(
+            layout_element = layout.new_element(
                 momapy.celldesigner.core.ProductionLayout
             )
             product_layout_element = cd_id_to_layout_element[cd_element.alias]
@@ -3041,21 +3250,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
                 layout_element_cls=momapy.celldesigner.core.CatalysisLayout,
@@ -3063,11 +3274,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3077,21 +3288,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
                 layout_element_cls=momapy.celldesigner.core.UnknownCatalysisLayout,
@@ -3099,11 +3312,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3113,21 +3326,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
                 layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
@@ -3135,11 +3350,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3149,21 +3364,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
                 layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
@@ -3171,11 +3388,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3185,21 +3402,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_physical_stimulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
                 layout_element_cls=momapy.celldesigner.core.PhysicalStimulationLayout,
@@ -3207,11 +3426,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3221,21 +3440,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_modulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
                 layout_element_cls=momapy.celldesigner.core.ModulationLayout,
@@ -3243,11 +3464,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3257,21 +3478,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_trigger_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
                 layout_element_cls=momapy.celldesigner.core.TriggeringLayout,
@@ -3279,11 +3502,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(model_element)
@@ -3293,31 +3516,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3327,7 +3552,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
                 layout_element_cls=None,
@@ -3335,11 +3561,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3348,31 +3574,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3382,7 +3610,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
                 layout_element_cls=None,
@@ -3390,11 +3619,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3403,31 +3632,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3437,7 +3668,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
                 layout_element_cls=None,
@@ -3445,11 +3677,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3458,31 +3690,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3492,7 +3726,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
                 layout_element_cls=None,
@@ -3500,11 +3735,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3513,31 +3748,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_physical_stimulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3547,7 +3784,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
                 layout_element_cls=None,
@@ -3555,11 +3793,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3568,31 +3806,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_modulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3602,7 +3842,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
                 layout_element_cls=None,
@@ -3610,11 +3851,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3623,31 +3864,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_trigger_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3657,7 +3900,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
                 layout_element_cls=None,
@@ -3665,11 +3909,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3678,31 +3922,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3712,7 +3958,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
                 layout_element_cls=None,
@@ -3720,11 +3967,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3733,31 +3980,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3767,7 +4016,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
                 layout_element_cls=None,
@@ -3775,11 +4025,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3788,31 +4038,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3822,7 +4074,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
                 layout_element_cls=None,
@@ -3830,11 +4083,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3843,31 +4096,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3877,7 +4132,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
                 layout_element_cls=None,
@@ -3885,11 +4141,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3898,31 +4154,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_physical_stimulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3932,7 +4190,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
                 layout_element_cls=None,
@@ -3940,11 +4199,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3953,31 +4212,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_modulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3987,7 +4248,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
                 layout_element_cls=None,
@@ -3995,11 +4257,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4008,31 +4270,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_trigger_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4042,7 +4306,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
                 layout_element_cls=None,
@@ -4050,11 +4315,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4063,31 +4328,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4097,7 +4364,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
                 layout_element_cls=None,
@@ -4105,11 +4373,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4118,31 +4386,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4152,7 +4422,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
                 layout_element_cls=None,
@@ -4160,11 +4431,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4173,31 +4444,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4207,7 +4480,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
                 layout_element_cls=None,
@@ -4215,11 +4489,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4228,31 +4502,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4262,7 +4538,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
                 layout_element_cls=None,
@@ -4270,11 +4547,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4283,31 +4560,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_physical_stimulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4317,7 +4596,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
                 layout_element_cls=None,
@@ -4325,11 +4605,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4338,31 +4618,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_modulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4372,7 +4654,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
                 layout_element_cls=None,
@@ -4380,11 +4663,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4393,31 +4676,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_trigger_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4427,7 +4712,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
                 layout_element_cls=None,
@@ -4435,11 +4721,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4448,31 +4734,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4482,7 +4770,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalyzer,
                 layout_element_cls=None,
@@ -4490,11 +4779,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4503,31 +4792,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_catalyzer_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4537,7 +4828,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalyzer,
                 layout_element_cls=None,
@@ -4545,11 +4837,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4558,31 +4850,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4592,7 +4886,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibitor,
                 layout_element_cls=None,
@@ -4600,11 +4895,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4613,31 +4908,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_inhibitor_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4647,7 +4944,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibitor,
                 layout_element_cls=None,
@@ -4655,11 +4953,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4668,31 +4966,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_physical_stimulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4702,7 +5002,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulator,
                 layout_element_cls=None,
@@ -4710,11 +5011,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4723,31 +5024,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_modulator_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4757,7 +5060,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulator,
                 layout_element_cls=None,
@@ -4765,11 +5069,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4778,31 +5082,33 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_trigger_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4812,7 +5118,8 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_modifier_from_cd_modification(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Trigger,
                 layout_element_cls=None,
@@ -4820,11 +5127,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4833,17 +5140,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4855,17 +5163,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4874,13 +5183,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -4888,17 +5199,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4910,17 +5222,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4929,13 +5242,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -4943,17 +5258,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -4965,17 +5281,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -4984,13 +5301,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -4998,17 +5317,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5020,17 +5340,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5039,13 +5360,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5053,17 +5376,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5075,17 +5399,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5094,13 +5419,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5108,17 +5435,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5130,17 +5458,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5149,13 +5478,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5163,17 +5494,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5185,17 +5517,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5204,13 +5537,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5218,17 +5553,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5240,17 +5576,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5259,13 +5596,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5273,17 +5612,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5295,17 +5635,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5314,13 +5655,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5328,17 +5671,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5350,17 +5694,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5369,13 +5714,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5383,17 +5730,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5405,17 +5753,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5424,13 +5773,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5438,17 +5789,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5460,17 +5812,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5479,13 +5832,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5493,17 +5848,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5515,17 +5871,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5534,13 +5891,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5548,17 +5907,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_and_unknown_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5570,17 +5930,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5589,13 +5950,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5603,17 +5966,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5625,17 +5989,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5644,13 +6009,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5658,17 +6025,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5680,17 +6048,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5699,13 +6068,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5713,17 +6084,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5735,17 +6107,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5754,13 +6127,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5768,17 +6143,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5790,17 +6166,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5809,13 +6186,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5823,17 +6202,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5845,17 +6225,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5864,13 +6245,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5878,17 +6261,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5900,17 +6284,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5919,13 +6304,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5933,17 +6320,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5955,17 +6343,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5974,13 +6363,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -5988,17 +6379,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6010,17 +6402,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6029,13 +6422,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6043,17 +6438,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6065,17 +6461,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6084,13 +6481,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6098,17 +6497,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6120,17 +6520,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6139,13 +6540,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6153,17 +6556,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6175,17 +6579,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6194,13 +6599,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6208,17 +6615,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6230,17 +6638,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6249,13 +6658,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6263,17 +6674,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6285,17 +6697,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6304,13 +6717,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6318,17 +6733,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_and_unknown_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6340,17 +6756,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6359,13 +6776,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6373,17 +6792,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6395,17 +6815,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6414,13 +6835,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6428,17 +6851,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6450,17 +6874,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6469,13 +6894,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6483,17 +6910,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6505,17 +6933,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6524,13 +6953,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6538,17 +6969,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6560,17 +6992,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6579,13 +7012,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6593,17 +7028,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6615,17 +7051,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6634,13 +7071,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6648,17 +7087,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6670,17 +7110,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6689,13 +7130,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6703,17 +7146,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6725,17 +7169,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6744,13 +7189,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6758,17 +7205,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6780,17 +7228,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6799,13 +7248,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6813,17 +7264,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6835,17 +7287,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6854,13 +7307,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6868,17 +7323,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6890,17 +7346,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6909,13 +7366,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6923,17 +7382,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6945,17 +7405,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6964,13 +7425,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -6978,17 +7441,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7000,17 +7464,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7019,13 +7484,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7033,17 +7500,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7055,17 +7523,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7074,13 +7543,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7088,17 +7559,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_and_unknown_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7110,17 +7582,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7129,13 +7602,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7143,17 +7618,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7165,17 +7641,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7184,13 +7661,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7198,17 +7677,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7220,17 +7700,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7239,13 +7720,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7253,17 +7736,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7275,17 +7759,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7294,13 +7779,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7308,17 +7795,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7330,17 +7818,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7349,13 +7838,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7363,17 +7854,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7385,17 +7877,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7404,13 +7897,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7418,17 +7913,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7440,17 +7936,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7459,13 +7956,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7473,17 +7972,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7495,17 +7995,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7514,13 +8015,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7528,17 +8031,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7550,17 +8054,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7569,13 +8074,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7583,17 +8090,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7605,17 +8113,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7624,13 +8133,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7638,17 +8149,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7660,17 +8172,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7679,13 +8192,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7693,17 +8208,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7715,17 +8231,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7734,13 +8251,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7748,17 +8267,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7770,17 +8290,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7789,13 +8310,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7803,17 +8326,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7825,17 +8349,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7844,13 +8369,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7858,17 +8385,18 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_and_unknown_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7880,17 +8408,18 @@ class CellDesignerReader(momapy.io.Reader):
         # since it has the aliases attribute
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_gate_member,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7899,13 +8428,15 @@ class CellDesignerReader(momapy.io.Reader):
         cd_gate_member.aliases = gate_model_element.id_
         modifier_model_element, modifier_layout_element = (
             cls._make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
             )
         )
         return modifier_model_element, modifier_layout_element
@@ -7913,21 +8444,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_and_gate_from_cd_modification_or_gate_member(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.AndGate,
                 layout_element_cls=None,
@@ -7935,11 +8468,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7952,21 +8485,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_or_gate_from_cd_modification_or_gate_member(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.OrGate,
                 layout_element_cls=None,
@@ -7974,11 +8509,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -7991,21 +8526,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_not_gate_from_cd_modification_or_gate_member(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.NotGate,
                 layout_element_cls=None,
@@ -8013,11 +8550,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8030,21 +8567,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_gate_from_cd_modification_or_gate_member(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownGate,
                 layout_element_cls=None,
@@ -8052,11 +8591,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8069,20 +8608,22 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_state_transition_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.StateTransition,
             layout_element_cls=momapy.celldesigner.core.StateTransitionLayout,
@@ -8090,36 +8631,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_known_transition_omitted_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.KnownTransitionOmitted,
             layout_element_cls=momapy.celldesigner.core.KnownTransitionOmittedLayout,
@@ -8127,36 +8670,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_transition_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTransition,
             layout_element_cls=momapy.celldesigner.core.UnknownTransitionLayout,
@@ -8164,36 +8709,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_transcription_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transcription,
             layout_element_cls=momapy.celldesigner.core.TranscriptionLayout,
@@ -8201,36 +8748,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_translation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Translation,
             layout_element_cls=momapy.celldesigner.core.TranslationLayout,
@@ -8238,36 +8787,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_transport_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Transport,
             layout_element_cls=momapy.celldesigner.core.TransportLayout,
@@ -8275,36 +8826,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_heterodimer_association_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.HeterodimerAssociation,
             layout_element_cls=momapy.celldesigner.core.HeterodimerAssociationLayout,
@@ -8312,36 +8865,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_dissociation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Dissociation,
             layout_element_cls=momapy.celldesigner.core.DissociationLayout,
@@ -8349,36 +8904,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_truncation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Truncation,
             layout_element_cls=momapy.celldesigner.core.TruncationLayout,
@@ -8386,36 +8943,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_catalysis_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Catalysis,
             layout_element_cls=momapy.celldesigner.core.CatalysisLayout,
@@ -8423,36 +8982,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_catalysis_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownCatalysis,
             layout_element_cls=momapy.celldesigner.core.UnknownCatalysisLayout,
@@ -8460,36 +9021,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_inhibition_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Inhibition,
             layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
@@ -8497,36 +9060,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_inhibition_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownInhibition,
             layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
@@ -8534,36 +9099,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_physical_stimulation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.PhysicalStimulation,
             layout_element_cls=momapy.celldesigner.core.PhysicalStimulationLayout,
@@ -8571,36 +9138,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_modulation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Modulation,
             layout_element_cls=momapy.celldesigner.core.ModulationLayout,
@@ -8608,36 +9177,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_triggering_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.Triggering,
             layout_element_cls=momapy.celldesigner.core.TriggeringLayout,
@@ -8645,36 +9216,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_positive_influence_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.PositiveInfluence,
             layout_element_cls=momapy.celldesigner.core.PositiveInfluenceLayout,
@@ -8682,36 +9255,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_negative_influence_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.NegativeInfluence,
             layout_element_cls=momapy.celldesigner.core.InhibitionLayout,
@@ -8719,36 +9294,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_positive_influence_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownPositiveInfluence,
             layout_element_cls=momapy.celldesigner.core.UnknownPositiveInfluenceLayout,
@@ -8756,36 +9333,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_negative_influence_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownNegativeInfluence,
             layout_element_cls=momapy.celldesigner.core.UnknownInhibitionLayout,
@@ -8793,36 +9372,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_physical_stimulation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulation,
             layout_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulationLayout,
@@ -8830,36 +9411,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_modulation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownModulation,
             layout_element_cls=momapy.celldesigner.core.UnknownModulationLayout,
@@ -8867,36 +9450,38 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_unknown_triggering_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
-            map_=map_,
+            model=model,
+            layout=layout,
             cd_element=cd_element,
             model_element_cls=momapy.celldesigner.core.UnknownTriggering,
             layout_element_cls=momapy.celldesigner.core.UnknownTriggeringLayout,
@@ -8904,37 +9489,39 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element=cd_id_to_layout_element,
             cd_id_to_cd_element=cd_id_to_cd_element,
             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            map_element_to_annotations=map_element_to_annotations,
+            cd_id_to_annotations=cd_id_to_annotations,
+            cd_id_to_notes=cd_id_to_notes,
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
-            with_layout=with_layout,
         )
-        map_.model.modulations.add(model_element)
+        model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
-        if with_layout:
-            map_.layout.layout_elements.append(layout_element)
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
     def _make_and_add_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Catalysis,
                 layout_element_cls=None,
@@ -8942,11 +9529,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8956,21 +9543,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_catalysis_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownCatalysis,
                 layout_element_cls=None,
@@ -8978,11 +9567,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -8992,21 +9581,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Inhibition,
                 layout_element_cls=None,
@@ -9014,11 +9605,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9028,21 +9619,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_inhibition_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownInhibition,
                 layout_element_cls=None,
@@ -9050,11 +9643,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9064,21 +9657,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PhysicalStimulation,
                 layout_element_cls=None,
@@ -9086,11 +9681,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9100,21 +9695,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Modulation,
                 layout_element_cls=None,
@@ -9122,11 +9719,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9136,21 +9733,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.Triggering,
                 layout_element_cls=None,
@@ -9158,11 +9757,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9172,21 +9771,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.PositiveInfluence,
                 layout_element_cls=None,
@@ -9194,11 +9795,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9208,21 +9809,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_positive_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownPositiveInfluence,
                 layout_element_cls=None,
@@ -9230,11 +9833,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9244,21 +9847,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.NegativeInfluence,
                 layout_element_cls=None,
@@ -9266,11 +9871,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9280,21 +9885,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_negative_influence_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownNegativeInfluence,
                 layout_element_cls=None,
@@ -9302,11 +9909,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9316,21 +9923,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_physical_stimulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownPhysicalStimulation,
                 layout_element_cls=None,
@@ -9338,11 +9947,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9352,21 +9961,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownModulation,
                 layout_element_cls=None,
@@ -9374,11 +9985,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9388,21 +9999,23 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_unknown_triggering_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 model_element_cls=momapy.celldesigner.core.UnknownTriggering,
                 layout_element_cls=None,
@@ -9410,11 +10023,11 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9422,54 +10035,10 @@ class CellDesignerReader(momapy.io.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_species_template_from_cd_species_reference(
+    def _generic_make_and_add_species_template_from_cd_protein(
         cls,
-        map_,
-        cd_element,
-        model_element_cls,
-        cd_id_to_model_element,
-        cd_id_to_layout_element,
-        cd_id_to_cd_element,
-        cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
-        super_model_element=None,
-        super_layout_element=None,
-        super_cd_element=None,
-        with_layout=True,
-    ):
-        model_element = map_.new_model_element(model_element_cls)
-        model_element.id_ = cd_element.id
-        model_element.name = cls._prepare_name(cd_element.name)
-        if hasattr(cd_element, "list_of_modification_residues"):
-            cd_list_of_modification_residues = (
-                cd_element.list_of_modification_residues
-            )
-            if cd_list_of_modification_residues is not None:
-                for (
-                    cd_modification_residue
-                ) in cd_list_of_modification_residues.modification_residue:
-                    sub_model_element, sub_layout_element = (
-                        cls._make_and_add_elements_from_cd(
-                            map_=map_,
-                            cd_element=cd_modification_residue,
-                            cd_id_to_model_element=cd_id_to_model_element,
-                            cd_id_to_layout_element=cd_id_to_layout_element,
-                            cd_id_to_cd_element=cd_id_to_cd_element,
-                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
-                            super_model_element=model_element,
-                            super_layout_element=None,
-                            super_cd_element=cd_element,
-                            with_layout=with_layout,
-                        )
-                    )
-        model_element = momapy.builder.object_from_builder(model_element)
-        return model_element
-
-    @classmethod
-    def _make_species_from_cd_species_alias(
-        cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -9477,18 +10046,186 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        cd_species = cd_id_to_cd_element[cd_element.species]
-        cd_species_name = cls._prepare_name(cd_species.name)
-        cd_species_identity = cd_species.annotation.extension.species_identity
-        cd_species_state = cd_species_identity.state
-        if with_layout:
-            layout_element = map_.new_layout_element(layout_element_cls)
+        model_element, layout_element = (
+            cls._make_species_template_from_cd_species_reference(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=momapy.celldesigner.core.GenericProteinTemplate,
+                layout_element_cls=None,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=None,
+                super_layout_element=None,
+                super_cd_element=None,
+            )
+        )
+        if model is not None:
+            model.species_templates.add(model_element)
+            cd_id_to_model_element[cd_element.id] = model_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_species_template_from_cd_species_reference(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element=None,
+        super_layout_element=None,
+        super_cd_element=None,
+    ):
+        if model is not None:
+            model_element = model.new_element(model_element_cls)
+            model_element.id_ = cd_element.id
+            model_element.name = cls._prepare_name(cd_element.name)
+            if hasattr(cd_element, "list_of_modification_residues"):
+                cd_list_of_modification_residues = (
+                    cd_element.list_of_modification_residues
+                )
+                if cd_list_of_modification_residues is not None:
+                    for (
+                        cd_modification_residue
+                    ) in cd_list_of_modification_residues.modification_residue:
+                        sub_model_element, sub_layout_element = (
+                            cls._make_and_add_elements_from_cd(
+                                model=model,
+                                layout=layout,
+                                cd_element=cd_modification_residue,
+                                cd_id_to_model_element=cd_id_to_model_element,
+                                cd_id_to_layout_element=cd_id_to_layout_element,
+                                cd_id_to_cd_element=cd_id_to_cd_element,
+                                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                                cd_id_to_annotations=cd_id_to_annotations,
+                                cd_id_to_notes=cd_id_to_notes,
+                                super_model_element=model_element,
+                                super_layout_element=None,
+                                super_cd_element=cd_element,
+                            )
+                        )
+            model_element = momapy.builder.object_from_builder(model_element)
+        else:
+            model_element = None
+        layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _generic_make_and_add_species_from_cd_species_alias(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element=None,
+        super_layout_element=None,
+        super_cd_element=None,
+    ):
+        model_element, layout_element = (
+            cls._make_species_from_cd_species_alias(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=model_element_cls,
+                layout_element_cls=layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+            )
+        )
+        if model is not None:
+            model.species.add(model_element)
+            cd_id_to_model_element[cd_element.id] = model_element
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_species_from_cd_species_alias(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element=None,
+        super_layout_element=None,
+        super_cd_element=None,
+    ):
+        if model is not None or layout is not None:
+            cd_species = cd_id_to_cd_element[cd_element.species]
+            cd_species_name = cls._prepare_name(cd_species.name)
+            cd_species_identity = cd_species.annotation.extension.species_identity
+            cd_species_state = cd_species_identity.state
+        if model is not None:
+            model_element = model.new_element(model_element_cls)
+            model_element.id_ = cd_species.id
+            model_element.name = cd_species_name
+            model_element.metaid = cd_species.metaid
+            if cd_species.compartment is not None:
+                compartment_model_element = cd_id_to_model_element[
+                    cd_species.compartment
+                ]
+                model_element.compartment = compartment_model_element
+            cd_species_template = (
+                cls._get_cd_species_template_from_cd_species_alias(
+                    cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
+                )
+            )
+            if cd_species_template is not None:
+                species_template_model_element = cd_id_to_model_element[
+                    cd_species_template.id
+                ]
+                model_element.template = species_template_model_element
+            if cd_species_state is not None:
+                if cd_species_state.homodimer is not None:
+                    model_element.homomultimer = cd_species_state.homodimer
+            model_element.hypothetical = (
+                cd_species_identity.hypothetical is True
+            )  # in cd, is True or None
+            model_element.active = (
+                cd_element.activity
+                == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
+            )
+        if layout is not None:
+            layout_element = layout.new_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
             cd_y = float(cd_element.bounds.y)
             cd_w = float(cd_element.bounds.w)
@@ -9530,45 +10267,25 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element.n = cd_species_state.homodimer
         else:
             layout_element = None
-        model_element = map_.new_model_element(model_element_cls)
-        model_element.id_ = cd_species.id
-        model_element.name = cd_species_name
-        model_element.metaid = cd_species.metaid
-        if cd_species.compartment is not None:
-            compartment_model_element = cd_id_to_model_element[
-                cd_species.compartment
-            ]
-            model_element.compartment = compartment_model_element
-        cd_species_template = (
-            cls._get_cd_species_template_from_cd_species_alias(
-                cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
-            )
-        )
-        if cd_species_template is not None:
-            species_template_model_element = cd_id_to_model_element[
-                cd_species_template.id
-            ]
-            model_element.template = species_template_model_element
-        if cd_species_state is not None:
-            if cd_species_state.homodimer is not None:
-                model_element.homomultimer = cd_species_state.homodimer
+        if model is not None or layout is not None:
             if cd_species_state.list_of_modifications is not None:
                 for (
                     cd_species_modification
                 ) in cd_species_state.list_of_modifications.modification:
                     modification_model_element, modification_layout_element = (
                         cls._make_and_add_elements_from_cd(
-                            map_=map_,
+                            model=model,
+                            layout=layout,
                             cd_element=cd_species_modification,
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
-                            with_layout=with_layout,
                         )
                     )
                 # in most (but not all?) cases, empty state variables seem to be
@@ -9592,10 +10309,8 @@ class CellDesignerReader(momapy.io.Reader):
                             ):
                                 has_modification = True
                         if not has_modification:
-                            modification_model_element = (
-                                map_.new_model_element(
-                                    momapy.celldesigner.core.Modification
-                                )
+                            modification_model_element = model.new_element(
+                                momapy.celldesigner.core.Modification
                             )
                             modification_model_element.residue = (
                                 modification_residue_model_element
@@ -9619,50 +10334,45 @@ class CellDesignerReader(momapy.io.Reader):
                     structural_state_model_element,
                     structural_state_layout_element,
                 ) = cls._make_and_add_elements_from_cd(
-                    map_=map_,
+                    model=model,
+                    layout=layout,
                     cd_element=cd_species_structural_state,
                     cd_id_to_model_element=cd_id_to_model_element,
                     cd_id_to_layout_element=cd_id_to_layout_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
                     cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                    map_element_to_annotations=map_element_to_annotations,
+                    cd_id_to_annotations=cd_id_to_annotations,
+                    cd_id_to_notes=cd_id_to_notes,
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
-                    with_layout=with_layout,
                 )
-        model_element.hypothetical = (
-            cd_species_identity.hypothetical is True
-        )  # in cd, is True or None
-        model_element.active = (
-            cd_element.activity
-            == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
-        )
-        if cd_complex_alias_id_to_cd_included_species_ids[cd_element.id]:
-            cd_subunits = [
-                cd_id_to_cd_element[cd_subunit_id]
-                for cd_subunit_id in cd_complex_alias_id_to_cd_included_species_ids[
-                    cd_element.id
+            if cd_complex_alias_id_to_cd_included_species_ids[cd_element.id]:
+                cd_subunits = [
+                    cd_id_to_cd_element[cd_subunit_id]
+                    for cd_subunit_id in cd_complex_alias_id_to_cd_included_species_ids[
+                        cd_element.id
+                    ]
                 ]
-            ]
-            for cd_subunit in cd_subunits:
-                subunit_model_element, subunit_layout_element = (
-                    cls._make_and_add_elements_from_cd(
-                        map_=map_,
-                        cd_element=cd_subunit,
-                        cd_id_to_model_element=cd_id_to_model_element,
-                        cd_id_to_layout_element=cd_id_to_layout_element,
-                        cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
-                        super_model_element=model_element,
-                        super_layout_element=layout_element,
-                        super_cd_element=cd_element,
-                        with_layout=with_layout,
+                for cd_subunit in cd_subunits:
+                    subunit_model_element, subunit_layout_element = (
+                        cls._make_and_add_elements_from_cd(
+                            model=model,
+                            layout=layout,
+                            cd_element=cd_subunit,
+                            cd_id_to_model_element=cd_id_to_model_element,
+                            cd_id_to_layout_element=cd_id_to_layout_element,
+                            cd_id_to_cd_element=cd_id_to_cd_element,
+                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
+                            super_model_element=model_element,
+                            super_layout_element=layout_element,
+                            super_cd_element=cd_element,
+                        )
                     )
-                )
-        model_element = momapy.builder.object_from_builder(model_element)
-        if with_layout:
+            model_element = momapy.builder.object_from_builder(model_element)
+        if layout is not None:
             layout_element = momapy.builder.object_from_builder(layout_element)
         if cd_species.annotation is not None:
             if cd_species.annotation.rdf is not None:
@@ -9675,7 +10385,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_included_species_from_cd_included_species_alias(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -9683,18 +10394,18 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
         cd_species = cd_id_to_cd_element[cd_element.species]
         cd_species_name = cls._prepare_name(cd_species.name)
         cd_species_identity = cd_species.annotation.species_identity
         cd_species_state = cd_species_identity.state
-        if with_layout:
-            layout_element = map_.new_layout_element(layout_element_cls)
+        if layout is not None:
+            layout_element = layout.new_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
             cd_y = float(cd_element.bounds.y)
             cd_w = float(cd_element.bounds.w)
@@ -9736,7 +10447,7 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element.n = cd_species_state.homodimer
         else:
             layout_element = None
-        model_element = map_.new_model_element(model_element_cls)
+        model_element = model.new_element(model_element_cls)
         model_element.id_ = cd_species.id
         model_element.name = cd_species_name
         if cd_species.compartment is not None:
@@ -9763,17 +10474,18 @@ class CellDesignerReader(momapy.io.Reader):
                 ) in cd_species_state.list_of_modifications.modification:
                     modification_model_element, modification_layout_element = (
                         cls._make_and_add_elements_from_cd(
-                            map_=map_,
+                            model=model,
+                            layout=layout,
                             cd_element=cd_species_modification,
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
-                            with_layout=with_layout,
                         )
                     )
             if cd_species_state.list_of_structural_states is not None:
@@ -9784,17 +10496,18 @@ class CellDesignerReader(momapy.io.Reader):
                     structural_state_model_element,
                     structural_state_layout_element,
                 ) = cls._make_and_add_elements_from_cd(
-                    map_=map_,
+                    model=model,
+                    layout=layout,
                     cd_element=cd_species_structural_state,
                     cd_id_to_model_element=cd_id_to_model_element,
                     cd_id_to_layout_element=cd_id_to_layout_element,
                     cd_id_to_cd_element=cd_id_to_cd_element,
                     cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                    map_element_to_annotations=map_element_to_annotations,
+                    cd_id_to_annotations=cd_id_to_annotations,
+                    cd_id_to_notes=cd_id_to_notes,
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
-                    with_layout=with_layout,
                 )
         model_element.hypothetical = (
             cd_species_identity.hypothetical is True
@@ -9813,21 +10526,22 @@ class CellDesignerReader(momapy.io.Reader):
             for cd_subunit in cd_subunits:
                 subunit_model_element, subunit_layout_element = (
                     cls._make_and_add_elements_from_cd(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_subunit,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
                     )
                 )
         model_element = momapy.builder.object_from_builder(model_element)
-        if with_layout:
+        if layout is not None:
             layout_element = momapy.builder.object_from_builder(layout_element)
         if cd_species.notes is not None:
             serializer = xsdata.formats.dataclass.serializers.XmlSerializer()
@@ -9862,7 +10576,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_reaction_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -9870,16 +10585,16 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
-        if with_layout:
+        model_element = model.new_element(model_element_cls)
+        if layout is not None:
             if layout_element_cls is not None:  # to delete
-                layout_element = map_.new_layout_element(layout_element_cls)
+                layout_element = layout.new_element(layout_element_cls)
                 layout_element.id_ = cd_element.id
                 layout_element.reversible = cd_element.reversible
                 if not cd_element.reversible:
@@ -10183,13 +10898,15 @@ class CellDesignerReader(momapy.io.Reader):
             ) in cd_element.annotation.extension.base_reactants.base_reactant:
                 reactant_model_element, reactant_layout_element = (
                     cls._make_and_add_reactant_from_cd_base_reactant(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_base_reactant,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
@@ -10204,17 +10921,18 @@ class CellDesignerReader(momapy.io.Reader):
             ):
                 reactant_model_element, reactant_layout_element = (
                     cls._make_and_add_reactant_from_cd_reactant_link(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_reactant_link,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
                     )
                 )
         if cd_element.annotation.extension.base_products is not None:
@@ -10223,13 +10941,15 @@ class CellDesignerReader(momapy.io.Reader):
             ) in cd_element.annotation.extension.base_products.base_product:
                 product_model_element, product_layout_element = (
                     cls._make_and_add_product_from_cd_base_product(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_base_product,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
@@ -10244,17 +10964,18 @@ class CellDesignerReader(momapy.io.Reader):
             ):
                 product_model_element, product_layout_element = (
                     cls._make_and_add_product_from_cd_product_link(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_product_link,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
                     )
                 )
         cd_boolean_modifications = []
@@ -10288,34 +11009,36 @@ class CellDesignerReader(momapy.io.Reader):
             for cd_modification in cd_boolean_modifications:
                 modifier_model_element, modifier_layout_element = (
                     cls._make_and_add_elements_from_cd(
-                        map_=map_,
+                        model=model,
+                        layout=layout,
                         cd_element=cd_modification,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
                         cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        map_element_to_annotations=map_element_to_annotations,
+                        cd_id_to_annotations=cd_id_to_annotations,
+                        cd_id_to_notes=cd_id_to_notes,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
-                        with_layout=with_layout,
                     )
                 )
             for cd_modification in cd_normal_modifications:
                 if cd_modification.modifiers not in cd_boolean_input_ids:
                     modifier_model_element, modifier_layout_element = (
                         cls._make_and_add_elements_from_cd(
-                            map_=map_,
+                            model=model,
+                            layout=layout,
                             cd_element=cd_modification,
                             cd_id_to_model_element=cd_id_to_model_element,
                             cd_id_to_layout_element=cd_id_to_layout_element,
                             cd_id_to_cd_element=cd_id_to_cd_element,
                             cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                            map_element_to_annotations=map_element_to_annotations,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
-                            with_layout=with_layout,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
@@ -10331,7 +11054,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_modifier_from_cd_modification(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -10339,19 +11063,19 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
+        model_element = model.new_element(model_element_cls)
         species_model_element = cd_id_to_model_element[cd_element.aliases]
         model_element.referred_species = species_model_element
         if (
             with_layout and layout_element_cls is not None
         ):  # to delete second part
-            layout_element = map_.new_layout_element(layout_element_cls)
+            layout_element = layout.new_element(layout_element_cls)
             cd_link_target = cd_element.link_target[0]
             source_layout_element = cd_id_to_layout_element[
                 cd_link_target.alias
@@ -10412,7 +11136,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_modulation_from_cd_reaction(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -10420,13 +11145,13 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
+        model_element = model.new_element(model_element_cls)
         model_element.id_ = cd_element.id
         cd_base_reactant = (
             cd_element.annotation.extension.base_reactants.base_reactant[0]
@@ -10442,7 +11167,7 @@ class CellDesignerReader(momapy.io.Reader):
         if (
             with_layout and layout_element_cls is not None
         ):  # to delete second part
-            layout_element = map_.new_layout_element(layout_element_cls)
+            layout_element = layout.new_element(layout_element_cls)
             source_layout_element = cd_id_to_layout_element[
                 cd_base_reactant.alias
             ]
@@ -10515,7 +11240,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_boolean_logic_gate_from_cd_modification_or_gate_member(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -10523,13 +11249,13 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element,
         super_layout_element,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
+        model_element = model.new_element(model_element_cls)
         for cd_boolean_input_id in cd_element.aliases.split(","):
             boolean_input_model_element = cd_id_to_model_element[
                 cd_boolean_input_id
@@ -10542,7 +11268,8 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_modulation_from_cd_reaction_with_gate_members(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         model_element_cls,
         layout_element_cls,
@@ -10550,13 +11277,13 @@ class CellDesignerReader(momapy.io.Reader):
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
-        model_element = map_.new_model_element(model_element_cls)
+        model_element = model.new_element(model_element_cls)
         model_element.id_ = cd_element.id
         # first we select the gate member corresponding to the boolean logic gate
         # as it contains the id of the source of the modulation
@@ -10638,34 +11365,36 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _make_and_add_elements_from_cd(
         cls,
-        map_,
+        model,
+        layout,
         cd_element,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
         cd_complex_alias_id_to_cd_included_species_ids,
-        map_element_to_annotations,
+        cd_id_to_annotations,
+        cd_id_to_notes,
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
-        with_layout=True,
     ):
         make_and_add_func = cls._get_make_and_add_func_from_cd(
             cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
         )
         if make_and_add_func is not None:
             model_element, layout_element = make_and_add_func(
-                map_=map_,
+                model=model,
+                layout=layout,
                 cd_element=cd_element,
                 cd_id_to_model_element=cd_id_to_model_element,
                 cd_id_to_layout_element=cd_id_to_layout_element,
                 cd_id_to_cd_element=cd_id_to_cd_element,
                 cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                map_element_to_annotations=map_element_to_annotations,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
-                with_layout=with_layout,
             )
         else:
             model_element = None

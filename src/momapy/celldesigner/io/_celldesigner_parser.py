@@ -1203,6 +1203,25 @@ class Name:
 
 
 @dataclass
+class Notes:
+    """
+    Notes as in sbml.
+    """
+    class Meta:
+        name = "notes"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    w3_org_1999_xhtml_element: List[object] = field(
+        default_factory=list,
+        metadata={
+            "type": "Wildcard",
+            "namespace": "http://www.w3.org/1999/xhtml",
+            "process_contents": "skip",
+        }
+    )
+
+
+@dataclass
 class Offset:
     """
     Offset of a link from default position(center to center).
@@ -3324,6 +3343,71 @@ class ProductLink:
 
 
 @dataclass
+class Protein:
+    """
+    For protein.
+    """
+    class Meta:
+        name = "protein"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    notes: Optional[Notes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_binding_regions: Optional[ListOfBindingRegions] = field(
+        default=None,
+        metadata={
+            "name": "listOfBindingRegions",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_modification_residues: Optional[ListOfModificationResidues] = field(
+        default=None,
+        metadata={
+            "name": "listOfModificationResidues",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_structural_states: Optional[ListOfStructuralStates] = field(
+        default=None,
+        metadata={
+            "name": "listOfStructuralStates",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+    type_value: Optional[ProteinType] = field(
+        default=None,
+        metadata={
+            "name": "type",
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+
+
+@dataclass
 class ReactantLink:
     """
     Reactant link type.
@@ -3998,6 +4082,104 @@ class IsType2:
 
 
 @dataclass
+class AntisenseRna:
+    """
+    For antisense RNA.
+    """
+    class Meta:
+        name = "AntisenseRNA"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    notes: Optional[Notes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_regions: Optional[ListOfRegions] = field(
+        default=None,
+        metadata={
+            "name": "listOfRegions",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+    type_value: Optional[AntisenseRnaType] = field(
+        default=None,
+        metadata={
+            "name": "type",
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+
+
+@dataclass
+class Rna:
+    """
+    For RNA.
+    """
+    class Meta:
+        name = "RNA"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    notes: Optional[Notes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_regions: Optional[ListOfRegions] = field(
+        default=None,
+        metadata={
+            "name": "listOfRegions",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+    type_value: Optional[RnaType] = field(
+        default=None,
+        metadata={
+            "name": "type",
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+
+
+@dataclass
 class BaseProducts:
     """
     List of base products.
@@ -4140,6 +4322,55 @@ class ExternalNameForResidue:
 
 
 @dataclass
+class Gene:
+    """
+    For gene.
+    """
+    class Meta:
+        name = "gene"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    notes: Optional[Notes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    list_of_regions: Optional[ListOfRegions] = field(
+        default=None,
+        metadata={
+            "name": "listOfRegions",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+    type_value: Optional[GeneType] = field(
+        default=None,
+        metadata={
+            "name": "type",
+            "type": "Attribute",
+            "required": True,
+        }
+    )
+
+
+@dataclass
 class ListOfCompartmentAliases:
     """
     List of compartment aliases.
@@ -4193,6 +4424,24 @@ class ListOfProductLinks:
             "type": "Element",
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
             "min_occurs": 1,
+        }
+    )
+
+
+@dataclass
+class ListOfProteins:
+    """
+    List of proteins.
+    """
+    class Meta:
+        name = "listOfProteins"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    protein: List[Protein] = field(
+        default_factory=list,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
         }
     )
 
@@ -4822,6 +5071,25 @@ class Layer:
 
 
 @dataclass
+class ListOfAntisenseRnas:
+    """
+    List of asRNAs.
+    """
+    class Meta:
+        name = "listOfAntisenseRNAs"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    antisense_rna: List[AntisenseRna] = field(
+        default_factory=list,
+        metadata={
+            "name": "AntisenseRNA",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+
+
+@dataclass
 class ListOfExternalNamesForResidue:
     """
     List of external names.
@@ -4834,6 +5102,43 @@ class ListOfExternalNamesForResidue:
         default_factory=list,
         metadata={
             "name": "externalNameForResidue",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+
+
+@dataclass
+class ListOfGenes:
+    """
+    List of genes.
+    """
+    class Meta:
+        name = "listOfGenes"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    gene: List[Gene] = field(
+        default_factory=list,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+
+
+@dataclass
+class ListOfRnas:
+    """
+    List of RNAs.
+    """
+    class Meta:
+        name = "listOfRNAs"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    rna: List[Rna] = field(
+        default_factory=list,
+        metadata={
+            "name": "RNA",
             "type": "Element",
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
         }
@@ -5078,6 +5383,146 @@ class SpeciesAlias:
             default=None,
             metadata={
                 "type": "Attribute",
+            }
+        )
+
+
+@dataclass
+class Species2:
+    """
+    Species inside complexes.
+    """
+    class Meta:
+        name = "species"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    notes: Optional[Notes] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+        }
+    )
+    annotation: Optional["Species2.Annotation"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
+    id: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "required": True,
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    name: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    compartment: Optional[str] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    initial_amount: Optional[float] = field(
+        default=None,
+        metadata={
+            "name": "initialAmount",
+            "type": "Attribute",
+        }
+    )
+    initial_concentration: Optional[float] = field(
+        default=None,
+        metadata={
+            "name": "initialConcentration",
+            "type": "Attribute",
+        }
+    )
+    substance_units: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "substanceUnits",
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    spatial_size_units: Optional[str] = field(
+        default=None,
+        metadata={
+            "name": "spatialSizeUnits",
+            "type": "Attribute",
+            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+        }
+    )
+    has_only_substance_units: bool = field(
+        default=False,
+        metadata={
+            "name": "hasOnlySubstanceUnits",
+            "type": "Attribute",
+        }
+    )
+    boundary_condition: bool = field(
+        default=False,
+        metadata={
+            "name": "boundaryCondition",
+            "type": "Attribute",
+        }
+    )
+    charge: Optional[int] = field(
+        default=None,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+    constant: bool = field(
+        default=False,
+        metadata={
+            "type": "Attribute",
+        }
+    )
+
+    @dataclass
+    class Annotation:
+        position_to_compartment: Optional[PositionToCompartmentValue] = field(
+            default=None,
+            metadata={
+                "name": "positionToCompartment",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        complex_species: Optional[str] = field(
+            default=None,
+            metadata={
+                "name": "complexSpecies",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
+            }
+        )
+        species_identity: Optional[SpeciesIdentity] = field(
+            default=None,
+            metadata={
+                "name": "speciesIdentity",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_catalyzed_reactions: Optional[ListOfCatalyzedReactions] = field(
+            default=None,
+            metadata={
+                "name": "listOfCatalyzedReactions",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
             }
         )
 
@@ -5328,6 +5773,25 @@ class ListOfGateMember:
         default_factory=list,
         metadata={
             "name": "GateMember",
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "min_occurs": 1,
+        }
+    )
+
+
+@dataclass
+class ListOfIncludedSpecies:
+    """
+    List of species included by complexes.
+    """
+    class Meta:
+        name = "listOfIncludedSpecies"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    species: List[Species2] = field(
+        default_factory=list,
+        metadata={
             "type": "Element",
             "namespace": "http://www.sbml.org/2001/ns/celldesigner",
             "min_occurs": 1,
@@ -6157,6 +6621,144 @@ class Rdftype:
 
 
 @dataclass
+class ModelAnnotationType:
+    """
+    Annotation for model.
+    """
+    class Meta:
+        name = "modelAnnotationType"
+        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
+
+    extension: Optional["ModelAnnotationType.Extension"] = field(
+        default=None,
+        metadata={
+            "type": "Element",
+            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            "required": True,
+        }
+    )
+
+    @dataclass
+    class Extension:
+        model_version: Decimal = field(
+            init=False,
+            default=Decimal("4.0"),
+            metadata={
+                "name": "modelVersion",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+                "min_inclusive": Decimal("0.0"),
+            }
+        )
+        model_display: Optional[ModelDisplay] = field(
+            default=None,
+            metadata={
+                "name": "modelDisplay",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_included_species: Optional[ListOfIncludedSpecies] = field(
+            default=None,
+            metadata={
+                "name": "listOfIncludedSpecies",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        list_of_compartment_aliases: Optional[ListOfCompartmentAliases] = field(
+            default=None,
+            metadata={
+                "name": "listOfCompartmentAliases",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_complex_species_aliases: Optional[ListOfComplexSpeciesAliases] = field(
+            default=None,
+            metadata={
+                "name": "listOfComplexSpeciesAliases",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_species_aliases: Optional[ListOfSpeciesAliases] = field(
+            default=None,
+            metadata={
+                "name": "listOfSpeciesAliases",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_groups: Optional[ListOfGroups] = field(
+            default=None,
+            metadata={
+                "name": "listOfGroups",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_proteins: Optional[ListOfProteins] = field(
+            default=None,
+            metadata={
+                "name": "listOfProteins",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_genes: Optional[ListOfGenes] = field(
+            default=None,
+            metadata={
+                "name": "listOfGenes",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_rnas: Optional[ListOfRnas] = field(
+            default=None,
+            metadata={
+                "name": "listOfRNAs",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_antisense_rnas: Optional[ListOfAntisenseRnas] = field(
+            default=None,
+            metadata={
+                "name": "listOfAntisenseRNAs",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+                "required": True,
+            }
+        )
+        list_of_layers: Optional[ListOfLayers] = field(
+            default=None,
+            metadata={
+                "name": "listOfLayers",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+        list_of_block_diagrams: Optional[ListOfBlockDiagrams] = field(
+            default=None,
+            metadata={
+                "name": "listOfBlockDiagrams",
+                "type": "Element",
+                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
+            }
+        )
+
+
+@dataclass
 class Math1(MathBase):
     class Meta:
         name = "Math"
@@ -6393,33 +6995,6 @@ class CompartmentAnnotationType:
 
 
 @dataclass
-class Notes:
-    """
-    Notes as in sbml.
-    """
-    class Meta:
-        name = "notes"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    w3_org_1999_xhtml_element: List[object] = field(
-        default_factory=list,
-        metadata={
-            "type": "Wildcard",
-            "namespace": "http://www.w3.org/1999/xhtml",
-            "process_contents": "skip",
-        }
-    )
-    rdf: Optional[Rdf] = field(
-        default=None,
-        metadata={
-            "name": "RDF",
-            "type": "Element",
-            "namespace": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        }
-    )
-
-
-@dataclass
 class ReactionAnnotationType:
     """
     Annotation for reaction.
@@ -6616,358 +7191,6 @@ class Math(Math1):
     class Meta:
         name = "math"
         namespace = "http://www.w3.org/1998/Math/MathML"
-
-
-@dataclass
-class AntisenseRna:
-    """
-    For antisense RNA.
-    """
-    class Meta:
-        name = "AntisenseRNA"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    notes: Optional[Notes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_regions: Optional[ListOfRegions] = field(
-        default=None,
-        metadata={
-            "name": "listOfRegions",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-    type_value: Optional[AntisenseRnaType] = field(
-        default=None,
-        metadata={
-            "name": "type",
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-
-
-@dataclass
-class Rna:
-    """
-    For RNA.
-    """
-    class Meta:
-        name = "RNA"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    notes: Optional[Notes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_regions: Optional[ListOfRegions] = field(
-        default=None,
-        metadata={
-            "name": "listOfRegions",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-    type_value: Optional[RnaType] = field(
-        default=None,
-        metadata={
-            "name": "type",
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-
-
-@dataclass
-class Gene:
-    """
-    For gene.
-    """
-    class Meta:
-        name = "gene"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    notes: Optional[Notes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_regions: Optional[ListOfRegions] = field(
-        default=None,
-        metadata={
-            "name": "listOfRegions",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-    type_value: Optional[GeneType] = field(
-        default=None,
-        metadata={
-            "name": "type",
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-
-
-@dataclass
-class Protein:
-    """
-    For protein.
-    """
-    class Meta:
-        name = "protein"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    notes: Optional[Notes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_binding_regions: Optional[ListOfBindingRegions] = field(
-        default=None,
-        metadata={
-            "name": "listOfBindingRegions",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_modification_residues: Optional[ListOfModificationResidues] = field(
-        default=None,
-        metadata={
-            "name": "listOfModificationResidues",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    list_of_structural_states: Optional[ListOfStructuralStates] = field(
-        default=None,
-        metadata={
-            "name": "listOfStructuralStates",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-    type_value: Optional[ProteinType] = field(
-        default=None,
-        metadata={
-            "name": "type",
-            "type": "Attribute",
-            "required": True,
-        }
-    )
-
-
-@dataclass
-class Species2:
-    """
-    Species inside complexes.
-    """
-    class Meta:
-        name = "species"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    notes: Optional[Notes] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-    annotation: Optional["Species2.Annotation"] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "required": True,
-        }
-    )
-    id: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "required": True,
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    name: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    compartment: Optional[str] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    initial_amount: Optional[float] = field(
-        default=None,
-        metadata={
-            "name": "initialAmount",
-            "type": "Attribute",
-        }
-    )
-    initial_concentration: Optional[float] = field(
-        default=None,
-        metadata={
-            "name": "initialConcentration",
-            "type": "Attribute",
-        }
-    )
-    substance_units: Optional[str] = field(
-        default=None,
-        metadata={
-            "name": "substanceUnits",
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    spatial_size_units: Optional[str] = field(
-        default=None,
-        metadata={
-            "name": "spatialSizeUnits",
-            "type": "Attribute",
-            "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-        }
-    )
-    has_only_substance_units: bool = field(
-        default=False,
-        metadata={
-            "name": "hasOnlySubstanceUnits",
-            "type": "Attribute",
-        }
-    )
-    boundary_condition: bool = field(
-        default=False,
-        metadata={
-            "name": "boundaryCondition",
-            "type": "Attribute",
-        }
-    )
-    charge: Optional[int] = field(
-        default=None,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-    constant: bool = field(
-        default=False,
-        metadata={
-            "type": "Attribute",
-        }
-    )
-
-    @dataclass
-    class Annotation:
-        position_to_compartment: Optional[PositionToCompartmentValue] = field(
-            default=None,
-            metadata={
-                "name": "positionToCompartment",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        complex_species: Optional[str] = field(
-            default=None,
-            metadata={
-                "name": "complexSpecies",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "pattern": r"(_|[a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*",
-            }
-        )
-        species_identity: Optional[SpeciesIdentity] = field(
-            default=None,
-            metadata={
-                "name": "speciesIdentity",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_catalyzed_reactions: Optional[ListOfCatalyzedReactions] = field(
-            default=None,
-            metadata={
-                "name": "listOfCatalyzedReactions",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
 
 
 @dataclass
@@ -7268,99 +7491,6 @@ class StoichiometryMath(Sbase):
 
 
 @dataclass
-class ListOfAntisenseRnas:
-    """
-    List of asRNAs.
-    """
-    class Meta:
-        name = "listOfAntisenseRNAs"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    antisense_rna: List[AntisenseRna] = field(
-        default_factory=list,
-        metadata={
-            "name": "AntisenseRNA",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-
-
-@dataclass
-class ListOfGenes:
-    """
-    List of genes.
-    """
-    class Meta:
-        name = "listOfGenes"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    gene: List[Gene] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-
-
-@dataclass
-class ListOfIncludedSpecies:
-    """
-    List of species included by complexes.
-    """
-    class Meta:
-        name = "listOfIncludedSpecies"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    species: List[Species2] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "min_occurs": 1,
-        }
-    )
-
-
-@dataclass
-class ListOfProteins:
-    """
-    List of proteins.
-    """
-    class Meta:
-        name = "listOfProteins"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    protein: List[Protein] = field(
-        default_factory=list,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-
-
-@dataclass
-class ListOfRnas:
-    """
-    List of RNAs.
-    """
-    class Meta:
-        name = "listOfRNAs"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    rna: List[Rna] = field(
-        default_factory=list,
-        metadata={
-            "name": "RNA",
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-        }
-    )
-
-
-@dataclass
 class AlgebraicRule(Rule):
     class Meta:
         target_namespace = "http://www.sbml.org/sbml/level2/version4"
@@ -7441,144 +7571,6 @@ class SpeciesReference(SimpleSpeciesReference):
             "namespace": "http://www.sbml.org/sbml/level2/version4",
         }
     )
-
-
-@dataclass
-class ModelAnnotationType:
-    """
-    Annotation for model.
-    """
-    class Meta:
-        name = "modelAnnotationType"
-        target_namespace = "http://www.sbml.org/2001/ns/celldesigner"
-
-    extension: Optional["ModelAnnotationType.Extension"] = field(
-        default=None,
-        metadata={
-            "type": "Element",
-            "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            "required": True,
-        }
-    )
-
-    @dataclass
-    class Extension:
-        model_version: Decimal = field(
-            init=False,
-            default=Decimal("4.0"),
-            metadata={
-                "name": "modelVersion",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-                "min_inclusive": Decimal("0.0"),
-            }
-        )
-        model_display: Optional[ModelDisplay] = field(
-            default=None,
-            metadata={
-                "name": "modelDisplay",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_included_species: Optional[ListOfIncludedSpecies] = field(
-            default=None,
-            metadata={
-                "name": "listOfIncludedSpecies",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        list_of_compartment_aliases: Optional[ListOfCompartmentAliases] = field(
-            default=None,
-            metadata={
-                "name": "listOfCompartmentAliases",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_complex_species_aliases: Optional[ListOfComplexSpeciesAliases] = field(
-            default=None,
-            metadata={
-                "name": "listOfComplexSpeciesAliases",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_species_aliases: Optional[ListOfSpeciesAliases] = field(
-            default=None,
-            metadata={
-                "name": "listOfSpeciesAliases",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_groups: Optional[ListOfGroups] = field(
-            default=None,
-            metadata={
-                "name": "listOfGroups",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_proteins: Optional[ListOfProteins] = field(
-            default=None,
-            metadata={
-                "name": "listOfProteins",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_genes: Optional[ListOfGenes] = field(
-            default=None,
-            metadata={
-                "name": "listOfGenes",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_rnas: Optional[ListOfRnas] = field(
-            default=None,
-            metadata={
-                "name": "listOfRNAs",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_antisense_rnas: Optional[ListOfAntisenseRnas] = field(
-            default=None,
-            metadata={
-                "name": "listOfAntisenseRNAs",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-                "required": True,
-            }
-        )
-        list_of_layers: Optional[ListOfLayers] = field(
-            default=None,
-            metadata={
-                "name": "listOfLayers",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
-        list_of_block_diagrams: Optional[ListOfBlockDiagrams] = field(
-            default=None,
-            metadata={
-                "name": "listOfBlockDiagrams",
-                "type": "Element",
-                "namespace": "http://www.sbml.org/2001/ns/celldesigner",
-            }
-        )
 
 
 @dataclass
