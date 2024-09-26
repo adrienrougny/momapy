@@ -25,3 +25,5 @@ license = {text = "GPL-3.0-or-later"}
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.pdm]
