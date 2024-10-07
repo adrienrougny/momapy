@@ -924,6 +924,8 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
             # we make the compartments from the list of compartments that do not have
@@ -949,6 +951,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 super_model_element=None,
                                 super_layout_element=None,
                                 super_cd_element=None,
+                                with_annotations=with_annotations,
+                                with_notes=with_notes,
                             )
                         )
             # we make and add the species templates
@@ -973,6 +977,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=None,
                         super_layout_element=None,
                         super_cd_element=None,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                     )
                 )
             # we make and add the species, from the species aliases
@@ -1011,6 +1017,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 super_model_element=None,
                                 super_layout_element=None,
                                 super_cd_element=None,
+                                with_annotations=with_annotations,
+                                with_notes=with_notes,
                             )
                         )
             if (
@@ -1041,6 +1049,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 super_model_element=None,
                                 super_layout_element=None,
                                 super_cd_element=None,
+                                with_annotations=with_annotations,
+                                with_notes=with_notes,
                             )
                         )
             # we make and add the complexes, from the complex species aliases
@@ -1063,6 +1073,8 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
         if layout is not None:
@@ -1171,6 +1183,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None:
             model_element = model.new_element(
@@ -1207,6 +1221,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None or layout is not None:
             cd_modification_state = cd_element.state
@@ -1315,6 +1331,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None:
             model_element = model.new_element(
@@ -1342,24 +1360,32 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
-        cd_compartment = cd_id_to_cd_element[cd_element.compartment]
-        # we make and add the model element from the cd compartment the cd element is
-        # an alias of; then we make the layout element
-        model_element, _ = cls._make_and_add_compartment_from_cd_compartment(
-            model=model,
-            layout=layout,
-            cd_element=cd_compartment,
-            cd_id_to_model_element=cd_id_to_model_element,
-            cd_id_to_layout_element=cd_id_to_layout_element,
-            cd_id_to_cd_element=cd_id_to_cd_element,
-            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-            cd_id_to_annotations=cd_id_to_annotations,
-            cd_id_to_notes=cd_id_to_notes,
-            super_model_element=None,
-            super_layout_element=None,
-            super_cd_element=None,
-        )
+        if model is not None or layout is not None:
+            cd_compartment = cd_id_to_cd_element[cd_element.compartment]
+        if model is not None:
+            # we make and add the model element from the cd compartment the cd element is
+            # an alias of; then we make the layout element
+            model_element, _ = (
+                cls._make_and_add_compartment_from_cd_compartment(
+                    model=model,
+                    layout=layout,
+                    cd_element=cd_compartment,
+                    cd_id_to_model_element=cd_id_to_model_element,
+                    cd_id_to_layout_element=cd_id_to_layout_element,
+                    cd_id_to_cd_element=cd_id_to_cd_element,
+                    cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                    cd_id_to_annotations=cd_id_to_annotations,
+                    cd_id_to_notes=cd_id_to_notes,
+                    super_model_element=None,
+                    super_layout_element=None,
+                    super_cd_element=None,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
+                )
+            )
         if layout is not None:
             if (
                 cd_element.class_value
@@ -1432,6 +1458,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None:
             model_element = model.new_element(
@@ -1460,6 +1488,8 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=None,
                             super_layout_element=None,
                             super_cd_element=None,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
                 model_element.outside = outside_model_element
@@ -1492,6 +1522,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1509,6 +1541,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1528,6 +1562,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_protein(
@@ -1545,6 +1581,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1564,6 +1602,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1581,6 +1621,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1600,6 +1642,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1617,6 +1661,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1636,6 +1682,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1653,6 +1701,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1672,6 +1722,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1689,6 +1741,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1708,6 +1762,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._generic_make_and_add_species_template_from_cd_species_reference(
@@ -1725,6 +1781,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         return model_element, layout_element
@@ -1744,9 +1802,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1761,13 +1821,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1785,9 +1842,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1802,13 +1861,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
-        cd_id_to_model_element[cd_element.id] = model_element
         return model_element, layout_element
 
     @classmethod
@@ -1826,9 +1882,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1843,13 +1901,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1867,9 +1922,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1884,13 +1941,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1908,9 +1962,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1925,13 +1981,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1949,9 +2002,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -1966,13 +2021,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -1990,9 +2042,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2007,13 +2061,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2031,9 +2082,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2048,13 +2101,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2072,9 +2122,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2089,13 +2141,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2113,9 +2162,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2130,13 +2181,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2154,9 +2202,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2171,13 +2221,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2195,9 +2242,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2212,13 +2261,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2236,9 +2282,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2253,13 +2301,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2277,9 +2322,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_and_add_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2294,13 +2341,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        map_.model.species.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            layout.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2318,9 +2362,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2335,13 +2381,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2359,9 +2402,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2376,13 +2421,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2400,9 +2442,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2417,13 +2461,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2441,9 +2482,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2458,13 +2501,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2482,9 +2522,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2499,13 +2541,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2523,9 +2562,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2540,13 +2581,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2564,9 +2602,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2581,13 +2621,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2605,9 +2642,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2622,13 +2661,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2646,9 +2682,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2663,13 +2701,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2687,9 +2722,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2704,13 +2741,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2728,9 +2762,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2745,13 +2781,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2769,9 +2802,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2786,13 +2821,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2810,9 +2842,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2827,13 +2861,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2851,9 +2882,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_included_species_from_cd_included_species_alias(
+            cls._generic_make_and_add_included_species_from_cd_included_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -2868,13 +2901,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.subunits.add(model_element)
-        cd_id_to_model_element[cd_element.id] = model_element
-        if layout is not None:
-            super_layout_element.layout_elements.append(layout_element)
-            cd_id_to_layout_element[cd_element.id] = layout_element
         return model_element, layout_element
 
     @classmethod
@@ -2892,21 +2922,29 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
-        model_element = model.new_element(momapy.celldesigner.core.Reactant)
-        cd_species_id = cd_element.species
-        if super_cd_element.list_of_reactants is not None:
-            for (
-                cd_reactant
-            ) in super_cd_element.list_of_reactants.species_reference:
-                if cd_reactant.species == cd_species_id:
-                    model_element.id_ = cd_reactant.metaid
-                    model_element.stoichiometry = cd_reactant.stoichiometry
-                    break
-        species_model_element = cd_id_to_model_element[cd_element.alias]
-        model_element.referred_species = species_model_element
-        super_model_element.reactants.add(model_element)
-        cd_id_to_model_element[model_element.id_] = model_element
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Reactant
+            )
+            cd_species_id = cd_element.species
+            if super_cd_element.list_of_reactants is not None:
+                for (
+                    cd_reactant
+                ) in super_cd_element.list_of_reactants.species_reference:
+                    if cd_reactant.species == cd_species_id:
+                        model_element.id_ = cd_reactant.metaid
+                        model_element.stoichiometry = cd_reactant.stoichiometry
+                        break
+            species_model_element = cd_id_to_model_element[cd_element.alias]
+            model_element.referred_species = species_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.reactants.add(model_element)
+            cd_id_to_model_element[model_element.id_] = model_element
+        else:
+            model_element = None
         if layout is not None:
             layout_element = layout.new_element(
                 momapy.celldesigner.core.ConsumptionLayout
@@ -2973,6 +3011,7 @@ class CellDesignerReader(momapy.io.Reader):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
                 layout_element.segments.append(segment)
+            layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
@@ -2993,24 +3032,30 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
-        model_element = model.new_element(momapy.celldesigner.core.Reactant)
-        cd_species_id = cd_element.reactant
-        if super_cd_element.list_of_reactants is not None:
-            for (
-                cd_reactant
-            ) in super_cd_element.list_of_reactants.species_reference:
-                if cd_reactant.species == cd_species_id:
-                    model_element.id_ = cd_reactant.metaid
-                    model_element.stoichiometry = cd_reactant.stoichiometry
-                    break
-        species_model_element = cd_id_to_model_element[cd_element.alias]
-        model_element.referred_species = species_model_element
-        super_model_element.reactants.add(model_element)
-        cd_id_to_model_element[model_element.id_] = model_element
-        if (
-            with_layout and super_layout_element is not None
-        ):  # to delete second part
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Reactant
+            )
+            cd_species_id = cd_element.reactant
+            if super_cd_element.list_of_reactants is not None:
+                for (
+                    cd_reactant
+                ) in super_cd_element.list_of_reactants.species_reference:
+                    if cd_reactant.species == cd_species_id:
+                        model_element.id_ = cd_reactant.metaid
+                        model_element.stoichiometry = cd_reactant.stoichiometry
+                        break
+            species_model_element = cd_id_to_model_element[cd_element.alias]
+            model_element.referred_species = species_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.reactants.add(model_element)
+            cd_id_to_model_element[model_element.id_] = model_element
+        else:
+            model_element = None
+        if layout is not None:
             layout_element = layout.new_element(
                 momapy.celldesigner.core.ConsumptionLayout
             )
@@ -3056,6 +3101,7 @@ class CellDesignerReader(momapy.io.Reader):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
                 layout_element.segments.append(segment)
+            layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
@@ -3076,21 +3122,29 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
-        model_element = model.new_element(momapy.celldesigner.core.Reactant)
-        cd_species_id = cd_element.species
-        if super_cd_element.list_of_products is not None:
-            for (
-                cd_product
-            ) in super_cd_element.list_of_products.species_reference:
-                if cd_product.species == cd_species_id:
-                    model_element.id_ = cd_product.metaid
-                    model_element.stoichiometry = cd_product.stoichiometry
-                    break
-        species_model_element = cd_id_to_model_element[cd_element.alias]
-        model_element.referred_species = species_model_element
-        super_model_element.products.add(model_element)
-        cd_id_to_model_element[model_element.id_] = model_element
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Reactant
+            )
+            cd_species_id = cd_element.species
+            if super_cd_element.list_of_products is not None:
+                for (
+                    cd_product
+                ) in super_cd_element.list_of_products.species_reference:
+                    if cd_product.species == cd_species_id:
+                        model_element.id_ = cd_product.metaid
+                        model_element.stoichiometry = cd_product.stoichiometry
+                        break
+            species_model_element = cd_id_to_model_element[cd_element.alias]
+            model_element.referred_species = species_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.products.add(model_element)
+            cd_id_to_model_element[model_element.id_] = model_element
+        else:
+            model_element = None
         if layout is not None:
             layout_element = layout.new_element(
                 momapy.celldesigner.core.ProductionLayout
@@ -3157,6 +3211,7 @@ class CellDesignerReader(momapy.io.Reader):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
                 layout_element.segments.append(segment)
+            layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
@@ -3177,24 +3232,30 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element,
+        with_annotations=True,
+        with_notes=True,
     ):
-        model_element = model.new_element(momapy.celldesigner.core.Reactant)
-        cd_species_id = cd_element.product
-        if super_cd_element.list_of_products is not None:
-            for (
-                cd_product
-            ) in super_cd_element.list_of_products.species_reference:
-                if cd_product.species == cd_species_id:
-                    model_element.id_ = cd_product.metaid
-                    model_element.stoichiometry = cd_product.stoichiometry
-                    break
-        species_model_element = cd_id_to_model_element[cd_element.alias]
-        model_element.referred_species = species_model_element
-        super_model_element.products.add(model_element)
-        cd_id_to_model_element[model_element.id_] = model_element
-        if (
-            with_layout and super_layout_element is not None
-        ):  # to delete second part
+        if model is not None:
+            model_element = model.new_element(
+                momapy.celldesigner.core.Reactant
+            )
+            cd_species_id = cd_element.product
+            if super_cd_element.list_of_products is not None:
+                for (
+                    cd_product
+                ) in super_cd_element.list_of_products.species_reference:
+                    if cd_product.species == cd_species_id:
+                        model_element.id_ = cd_product.metaid
+                        model_element.stoichiometry = cd_product.stoichiometry
+                        break
+            species_model_element = cd_id_to_model_element[cd_element.alias]
+            model_element.referred_species = species_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.products.add(model_element)
+            cd_id_to_model_element[model_element.id_] = model_element
+        else:
+            model_element = None
+        if layout is not None:
             layout_element = layout.new_element(
                 momapy.celldesigner.core.ProductionLayout
             )
@@ -3242,6 +3303,7 @@ class CellDesignerReader(momapy.io.Reader):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
                 layout_element.segments.append(segment)
+            layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
@@ -3262,9 +3324,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3279,10 +3343,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3300,9 +3364,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3317,10 +3383,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3338,9 +3404,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3355,10 +3423,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3376,9 +3444,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3393,10 +3463,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3414,9 +3484,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3431,10 +3503,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3452,9 +3524,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3469,10 +3543,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3490,9 +3564,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_modifier_from_cd_modification(
+            cls._generic_make_and_add_modifier_from_cd_modification(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -3507,10 +3583,10 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
-        super_model_element.modifiers.add(model_element)
-        super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -3528,6 +3604,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3543,6 +3621,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3566,6 +3646,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3586,6 +3668,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3601,6 +3685,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3624,6 +3710,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3644,6 +3732,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3659,6 +3749,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3682,6 +3774,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3702,6 +3796,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3717,6 +3813,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3740,6 +3838,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3760,6 +3860,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3775,6 +3877,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3798,6 +3902,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3818,6 +3924,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3833,6 +3941,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3856,6 +3966,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3876,6 +3988,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_and_gate_from_cd_modification_or_gate_member(
@@ -3891,6 +4005,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3914,6 +4030,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3934,6 +4052,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -3949,6 +4069,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -3972,6 +4094,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -3992,6 +4116,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4007,6 +4133,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4030,6 +4158,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4050,6 +4180,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4065,6 +4197,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4088,6 +4222,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4108,6 +4244,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4123,6 +4261,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4146,6 +4286,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4166,6 +4308,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4181,6 +4325,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4204,6 +4350,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4224,6 +4372,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4239,6 +4389,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4262,6 +4414,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4282,6 +4436,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_or_gate_from_cd_modification_or_gate_member(
@@ -4297,6 +4453,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4320,6 +4478,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4340,6 +4500,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4355,6 +4517,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4378,6 +4542,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4398,6 +4564,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4413,6 +4581,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4436,6 +4606,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4456,6 +4628,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4471,6 +4645,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4494,6 +4670,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4514,6 +4692,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4529,6 +4709,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4552,6 +4734,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4572,6 +4756,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4587,6 +4773,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4610,6 +4798,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4630,6 +4820,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4645,6 +4837,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4668,6 +4862,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4688,6 +4884,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_not_gate_from_cd_modification_or_gate_member(
@@ -4703,6 +4901,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4726,6 +4926,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4746,6 +4948,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4761,6 +4965,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4784,6 +4990,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4804,6 +5012,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4819,6 +5029,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4842,6 +5054,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4862,6 +5076,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4877,6 +5093,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4900,6 +5118,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4920,6 +5140,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4935,6 +5157,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -4958,6 +5182,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -4978,6 +5204,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -4993,6 +5221,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -5016,6 +5246,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -5036,6 +5268,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -5051,6 +5285,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -5074,6 +5310,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -5094,6 +5332,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         gate_model_element, gate_layout_element = (
             cls._make_and_add_unknown_gate_from_cd_modification_or_gate_member(
@@ -5109,6 +5349,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gates do not have ids: the modifiers attribute of a
@@ -5132,6 +5374,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         super_model_element.modifiers.add(modifier_model_element)
@@ -5152,6 +5396,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5175,6 +5421,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5211,6 +5459,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5234,6 +5484,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5270,6 +5522,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5293,6 +5547,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5329,6 +5585,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5352,6 +5610,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5388,6 +5648,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5411,6 +5673,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5447,6 +5711,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5470,6 +5736,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5506,6 +5774,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5529,6 +5799,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5565,6 +5837,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5588,6 +5862,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5624,6 +5900,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5647,6 +5925,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5683,6 +5963,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5706,6 +5988,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5742,6 +6026,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5765,6 +6051,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5801,6 +6089,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5824,6 +6114,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5860,6 +6152,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5883,6 +6177,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5919,6 +6215,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -5942,6 +6240,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -5978,6 +6278,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6001,6 +6303,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6037,6 +6341,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6060,6 +6366,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6096,6 +6404,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6119,6 +6429,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6155,6 +6467,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6178,6 +6492,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6214,6 +6530,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6237,6 +6555,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6273,6 +6593,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6296,6 +6618,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6332,6 +6656,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6355,6 +6681,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6391,6 +6719,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6414,6 +6744,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6450,6 +6782,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6473,6 +6807,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6509,6 +6845,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6532,6 +6870,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6568,6 +6908,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6591,6 +6933,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6627,6 +6971,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6650,6 +6996,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6686,6 +7034,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6709,6 +7059,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6745,6 +7097,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6768,6 +7122,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6804,6 +7160,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6827,6 +7185,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6863,6 +7223,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6886,6 +7248,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6922,6 +7286,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -6945,6 +7311,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -6981,6 +7349,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7004,6 +7374,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7040,6 +7412,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7063,6 +7437,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7099,6 +7475,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7122,6 +7500,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7158,6 +7538,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7181,6 +7563,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7217,6 +7601,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7240,6 +7626,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7276,6 +7664,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7299,6 +7689,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7335,6 +7727,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7358,6 +7752,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7394,6 +7790,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7417,6 +7815,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7453,6 +7853,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7476,6 +7878,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7512,6 +7916,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7535,6 +7941,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7571,6 +7979,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7594,6 +8004,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7630,6 +8042,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7653,6 +8067,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7689,6 +8105,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7712,6 +8130,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7748,6 +8168,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7771,6 +8193,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7807,6 +8231,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7830,6 +8256,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7866,6 +8294,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7889,6 +8319,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7925,6 +8357,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -7948,6 +8382,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -7984,6 +8420,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8007,6 +8445,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8043,6 +8483,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8066,6 +8508,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8102,6 +8546,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8125,6 +8571,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8161,6 +8609,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8184,6 +8634,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8220,6 +8672,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8243,6 +8697,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8279,6 +8735,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8302,6 +8760,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8338,6 +8798,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8361,6 +8823,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8397,6 +8861,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         # first we select the gate member corresponding to the boolean logic gate
         for (
@@ -8420,6 +8886,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         # Boolean logic gate modulation is of the form 'si, sj' where si and sj
@@ -8456,6 +8924,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -8473,6 +8943,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8497,6 +8969,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -8514,6 +8988,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8538,6 +9014,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -8555,6 +9033,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8579,6 +9059,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_boolean_logic_gate_from_cd_modification_or_gate_member(
@@ -8596,6 +9078,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.boolean_logic_gates.add(model_element)
@@ -8620,6 +9104,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8636,6 +9122,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8659,6 +9147,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8675,6 +9165,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8698,6 +9190,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8714,6 +9208,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8737,6 +9233,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8753,6 +9251,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8776,6 +9276,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8792,6 +9294,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8815,6 +9319,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8831,6 +9337,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8854,6 +9362,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8870,6 +9380,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8893,6 +9405,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8909,6 +9423,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8932,6 +9448,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_reaction_from_cd_reaction(
             model=model,
@@ -8948,6 +9466,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.reactions.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -8971,6 +9491,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -8987,6 +9509,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9010,6 +9534,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9026,6 +9552,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9049,6 +9577,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9065,6 +9595,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9088,6 +9620,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9104,6 +9638,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9127,6 +9663,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9143,6 +9681,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9166,6 +9706,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9182,6 +9724,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9205,6 +9749,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9221,6 +9767,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9244,6 +9792,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9260,6 +9810,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9283,6 +9835,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9299,6 +9853,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9322,6 +9878,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9338,6 +9896,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9361,6 +9921,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9377,6 +9939,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9400,6 +9964,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9416,6 +9982,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9439,6 +10007,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9455,6 +10025,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         map_.model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9478,6 +10050,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = cls._make_modulation_from_cd_reaction(
             model=model,
@@ -9494,6 +10068,8 @@ class CellDesignerReader(momapy.io.Reader):
             super_model_element=super_model_element,
             super_layout_element=super_layout_element,
             super_cd_element=super_cd_element,
+            with_annotations=True,
+            with_notes=True,
         )
         model.modulations.add(model_element)
         cd_id_to_model_element[cd_element.id] = model_element
@@ -9517,6 +10093,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9534,6 +10112,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9555,6 +10135,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9572,6 +10154,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9593,6 +10177,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9610,6 +10196,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9631,6 +10219,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9648,6 +10238,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9669,6 +10261,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9686,6 +10280,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9707,6 +10303,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9724,6 +10322,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9745,6 +10345,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9762,6 +10364,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9783,6 +10387,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9800,6 +10406,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9821,6 +10429,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9838,6 +10448,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9859,6 +10471,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9876,6 +10490,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9897,6 +10513,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9914,6 +10532,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9935,6 +10555,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9952,6 +10574,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -9973,6 +10597,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -9990,6 +10616,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -10011,6 +10639,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_modulation_from_cd_reaction_with_gate_members(
@@ -10028,6 +10658,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         map_.model.modulations.add(model_element)
@@ -10051,6 +10683,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
             cls._make_species_template_from_cd_species_reference(
@@ -10068,6 +10702,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=None,
                 super_layout_element=None,
                 super_cd_element=None,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         if model is not None:
@@ -10092,6 +10728,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None:
             model_element = model.new_element(model_element_cls)
@@ -10119,6 +10757,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 super_model_element=model_element,
                                 super_layout_element=None,
                                 super_cd_element=cd_element,
+                                with_annotations=with_annotations,
+                                with_notes=with_notes,
                             )
                         )
             model_element = momapy.builder.object_from_builder(model_element)
@@ -10144,9 +10784,11 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element, layout_element = (
-            cls._make_species_from_cd_species_alias(
+            cls._generic_make_species_from_cd_species_alias(
                 model=model,
                 layout=layout,
                 cd_element=cd_element,
@@ -10161,6 +10803,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         )
         if model is not None:
@@ -10169,10 +10813,19 @@ class CellDesignerReader(momapy.io.Reader):
         if layout is not None:
             layout.layout_elements.append(layout_element)
             cd_id_to_layout_element[cd_element.id] = layout_element
+        if (
+            with_annotations
+            and cd_element.annotation is not None
+            and cd_element.annotation.rdf is not None
+        ):
+            annotations = cls._make_annotations_from_cd_annotation_rdf(
+                cd_element.annotation.rdf
+            )
+            cd_id_to_annotations[cd_element.id] = annotations
         return model_element, layout_element
 
     @classmethod
-    def _make_species_from_cd_species_alias(
+    def _generic_make_species_from_cd_species_alias(
         cls,
         model,
         layout,
@@ -10188,11 +10841,15 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         if model is not None or layout is not None:
             cd_species = cd_id_to_cd_element[cd_element.species]
             cd_species_name = cls._prepare_name(cd_species.name)
-            cd_species_identity = cd_species.annotation.extension.species_identity
+            cd_species_identity = (
+                cd_species.annotation.extension.species_identity
+            )
             cd_species_state = cd_species_identity.state
         if model is not None:
             model_element = model.new_element(model_element_cls)
@@ -10206,7 +10863,8 @@ class CellDesignerReader(momapy.io.Reader):
                 model_element.compartment = compartment_model_element
             cd_species_template = (
                 cls._get_cd_species_template_from_cd_species_alias(
-                    cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
+                    cd_element=cd_element,
+                    cd_id_to_cd_element=cd_id_to_cd_element,
                 )
             )
             if cd_species_template is not None:
@@ -10224,6 +10882,8 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_element.activity
                 == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
             )
+        else:
+            model_element = None
         if layout is not None:
             layout_element = layout.new_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
@@ -10286,46 +10946,10 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
-                # in most (but not all?) cases, empty state variables seem to be
-                # missing from the species; we add them using the species'
-                # template
-                if isinstance(
-                    model_element.template,
-                    momapy.celldesigner.core.ProteinTemplate,
-                ):
-
-                    for (
-                        modification_residue_model_element
-                    ) in model_element.template.modification_residues:
-                        has_modification = False
-                        for (
-                            modification_model_element
-                        ) in model_element.modifications:
-                            if (
-                                modification_model_element.residue
-                                == modification_residue_model_element
-                            ):
-                                has_modification = True
-                        if not has_modification:
-                            modification_model_element = model.new_element(
-                                momapy.celldesigner.core.Modification
-                            )
-                            modification_model_element.residue = (
-                                modification_residue_model_element
-                            )
-                            modification_model_element.state = (
-                                momapy.celldesigner.io._celldesigner_parser.ModificationState.EMPTY
-                            )
-                            modification_model_element = (
-                                momapy.builder.object_from_builder(
-                                    modification_model_element
-                                )
-                            )
-                            model_element.modifications.add(
-                                modification_model_element
-                            )
             if cd_species_state.list_of_structural_states is not None:
                 cd_species_structural_state = (
                     cd_species_state.list_of_structural_states.structural_state
@@ -10346,6 +10970,8 @@ class CellDesignerReader(momapy.io.Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
                 )
             if cd_complex_alias_id_to_cd_included_species_ids[cd_element.id]:
                 cd_subunits = [
@@ -10369,21 +10995,89 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
+        if model is not None:
             model_element = momapy.builder.object_from_builder(model_element)
         if layout is not None:
             layout_element = momapy.builder.object_from_builder(layout_element)
-        if cd_species.annotation is not None:
-            if cd_species.annotation.rdf is not None:
-                annotations = cls._make_annotations_from_cd_annotation_rdf(
-                    cd_species.annotation.rdf
-                )
-                map_element_to_annotations[model_element] = annotations
         return model_element, layout_element
 
     @classmethod
-    def _make_included_species_from_cd_included_species_alias(
+    def _generic_make_and_add_included_species_from_cd_included_species_alias(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element=None,
+        super_layout_element=None,
+        super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        model_element, layout_element = (
+            cls._generic_make_included_species_from_cd_included_species_alias(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=model_element_cls,
+                layout_element_cls=layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+        )
+        if model is not None:
+            super_model_element.subunits.add(model_element)
+            cd_id_to_model_element[cd_element.id] = model_element
+        if layout is not None:
+            super_layout_element.layout_elements.append(layout_element)
+            cd_id_to_layout_element[cd_element.id] = layout_element
+        if with_annotations:
+            cd_species = cd_id_to_cd_element[cd_element.species]
+            if cd_species.notes is not None:
+                serializer = (
+                    xsdata.formats.dataclass.serializers.XmlSerializer()
+                )
+                notes_string = serializer.render(cd_species.notes)
+                regexp = re.compile("<ns1:RDF.*</ns1:RDF>")
+                s = regexp.search(notes_string)
+                config = xsdata.formats.dataclass.parsers.config.ParserConfig(
+                    fail_on_unknown_properties=False
+                )
+                parser = xsdata.formats.dataclass.parsers.XmlParser(
+                    config=config,
+                    context=xsdata.formats.dataclass.context.XmlContext(),
+                )
+                cd_rdf = parser.from_string(
+                    s.group(0), momapy.celldesigner.io._celldesigner_parser.Rdf
+                )
+                annotations = cls._make_annotations_from_cd_annotation_rdf(
+                    cd_rdf
+                )
+                cd_id_to_annotations[cd_element.id] = annotations
+        return model_element, layout_element
+
+    @classmethod
+    def _generic_make_included_species_from_cd_included_species_alias(
         cls,
         model,
         layout,
@@ -10399,11 +11093,47 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
-        cd_species = cd_id_to_cd_element[cd_element.species]
-        cd_species_name = cls._prepare_name(cd_species.name)
-        cd_species_identity = cd_species.annotation.species_identity
-        cd_species_state = cd_species_identity.state
+        if model is not None or layout is not None:
+            cd_species = cd_id_to_cd_element[cd_element.species]
+            cd_species_name = cls._prepare_name(cd_species.name)
+            cd_species_identity = cd_species.annotation.species_identity
+            cd_species_state = cd_species_identity.state
+        if model is not None:
+            model_element = model.new_element(model_element_cls)
+            model_element.id_ = cd_species.id
+            model_element.name = cd_species_name
+            model_element.metaid = cd_species.metaid
+            if cd_species.compartment is not None:
+                compartment_model_element = cd_id_to_model_element[
+                    cd_species.compartment
+                ]
+                model_element.compartment = compartment_model_element
+            cd_species_template = (
+                cls._get_cd_species_template_from_cd_species_alias(
+                    cd_element=cd_element,
+                    cd_id_to_cd_element=cd_id_to_cd_element,
+                )
+            )
+            if cd_species_template is not None:
+                species_template_model_element = cd_id_to_model_element[
+                    cd_species_template.id
+                ]
+                model_element.template = species_template_model_element
+            if cd_species_state is not None:
+                if cd_species_state.homodimer is not None:
+                    model_element.homomultimer = cd_species_state.homodimer
+            model_element.hypothetical = (
+                cd_species_identity.hypothetical is True
+            )  # in cd, is True or None
+            model_element.active = (
+                cd_element.activity
+                == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
+            )
+        else:
+            model_element = None
         if layout is not None:
             layout_element = layout.new_element(layout_element_cls)
             cd_x = float(cd_element.bounds.x)
@@ -10447,27 +11177,7 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element.n = cd_species_state.homodimer
         else:
             layout_element = None
-        model_element = model.new_element(model_element_cls)
-        model_element.id_ = cd_species.id
-        model_element.name = cd_species_name
-        if cd_species.compartment is not None:
-            compartment_model_element = cd_id_to_model_element[
-                cd_species.compartment
-            ]
-            model_element.compartment = compartment_model_element
-        cd_species_template = (
-            cls._get_cd_species_template_from_cd_species_alias(
-                cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
-            )
-        )
-        if cd_species_template is not None:
-            species_template_model_element = cd_id_to_model_element[
-                cd_species_template.id
-            ]
-            model_element.template = species_template_model_element
-        if cd_species_state is not None:
-            if cd_species_state.homodimer is not None:
-                model_element.homomultimer = cd_species_state.homodimer
+        if model is not None or layout is not None:
             if cd_species_state.list_of_modifications is not None:
                 for (
                     cd_species_modification
@@ -10486,6 +11196,8 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
             if cd_species_state.list_of_structural_states is not None:
@@ -10508,58 +11220,39 @@ class CellDesignerReader(momapy.io.Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                     super_cd_element=cd_element,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
                 )
-        model_element.hypothetical = (
-            cd_species_identity.hypothetical is True
-        )  # in cd, is True or None
-        model_element.active = (
-            cd_element.activity
-            == momapy.celldesigner.io._celldesigner_parser.ActivityValue.ACTIVE
-        )
-        if cd_complex_alias_id_to_cd_included_species_ids[cd_element.id]:
-            cd_subunits = [
-                cd_id_to_cd_element[cd_subunit_id]
-                for cd_subunit_id in cd_complex_alias_id_to_cd_included_species_ids[
-                    cd_element.id
+            if cd_complex_alias_id_to_cd_included_species_ids[cd_element.id]:
+                cd_subunits = [
+                    cd_id_to_cd_element[cd_subunit_id]
+                    for cd_subunit_id in cd_complex_alias_id_to_cd_included_species_ids[
+                        cd_element.id
+                    ]
                 ]
-            ]
-            for cd_subunit in cd_subunits:
-                subunit_model_element, subunit_layout_element = (
-                    cls._make_and_add_elements_from_cd(
-                        model=model,
-                        layout=layout,
-                        cd_element=cd_subunit,
-                        cd_id_to_model_element=cd_id_to_model_element,
-                        cd_id_to_layout_element=cd_id_to_layout_element,
-                        cd_id_to_cd_element=cd_id_to_cd_element,
-                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
-                        cd_id_to_annotations=cd_id_to_annotations,
-                        cd_id_to_notes=cd_id_to_notes,
-                        super_model_element=model_element,
-                        super_layout_element=layout_element,
-                        super_cd_element=cd_element,
+                for cd_subunit in cd_subunits:
+                    subunit_model_element, subunit_layout_element = (
+                        cls._make_and_add_elements_from_cd(
+                            model=model,
+                            layout=layout,
+                            cd_element=cd_subunit,
+                            cd_id_to_model_element=cd_id_to_model_element,
+                            cd_id_to_layout_element=cd_id_to_layout_element,
+                            cd_id_to_cd_element=cd_id_to_cd_element,
+                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            cd_id_to_annotations=cd_id_to_annotations,
+                            cd_id_to_notes=cd_id_to_notes,
+                            super_model_element=model_element,
+                            super_layout_element=layout_element,
+                            super_cd_element=cd_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
+                        )
                     )
-                )
-        model_element = momapy.builder.object_from_builder(model_element)
+        if model is not None:
+            model_element = momapy.builder.object_from_builder(model_element)
         if layout is not None:
             layout_element = momapy.builder.object_from_builder(layout_element)
-        if cd_species.notes is not None:
-            serializer = xsdata.formats.dataclass.serializers.XmlSerializer()
-            notes_string = serializer.render(cd_species.notes)
-            regexp = re.compile("<ns1:RDF.*</ns1:RDF>")
-            s = regexp.search(notes_string)
-            config = xsdata.formats.dataclass.parsers.config.ParserConfig(
-                fail_on_unknown_properties=False
-            )
-            parser = xsdata.formats.dataclass.parsers.XmlParser(
-                config=config,
-                context=xsdata.formats.dataclass.context.XmlContext(),
-            )
-            cd_rdf = parser.from_string(
-                s.group(0), momapy.celldesigner.io._celldesigner_parser.Rdf
-            )
-            annotations = cls._make_annotations_from_cd_annotation_rdf(cd_rdf)
-            map_element_to_annotations[model_element].update(annotations)
         return model_element, layout_element
 
     @classmethod
@@ -10590,6 +11283,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element = model.new_element(model_element_cls)
         if layout is not None:
@@ -10910,6 +11605,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                         with_layout=make_base_reactant_layouts,
                     )
                 )
@@ -10933,6 +11630,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                     )
                 )
         if cd_element.annotation.extension.base_products is not None:
@@ -10953,6 +11652,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                         with_layout=make_base_product_layouts,
                     )
                 )
@@ -10976,6 +11677,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                     )
                 )
         cd_boolean_modifications = []
@@ -11021,6 +11724,8 @@ class CellDesignerReader(momapy.io.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                         super_cd_element=cd_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
                     )
                 )
             for cd_modification in cd_normal_modifications:
@@ -11039,6 +11744,8 @@ class CellDesignerReader(momapy.io.Reader):
                             super_model_element=model_element,
                             super_layout_element=layout_element,
                             super_cd_element=cd_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
                         )
                     )
         model_element = momapy.builder.object_from_builder(model_element)
@@ -11052,7 +11759,7 @@ class CellDesignerReader(momapy.io.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_modifier_from_cd_modification(
+    def _generic_make_and_add_modifier_from_cd_modification(
         cls,
         model,
         layout,
@@ -11068,13 +11775,63 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
-        model_element = model.new_element(model_element_cls)
-        species_model_element = cd_id_to_model_element[cd_element.aliases]
-        model_element.referred_species = species_model_element
-        if (
-            with_layout and layout_element_cls is not None
-        ):  # to delete second part
+        model_element, layout_element = (
+            cls._generic_make_modifier_from_cd_modification(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=model_element_cls,
+                layout_element_cls=layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+        )
+        if model is not None:
+            super_model_element.modifiers.add(model_element)
+        if layout is not None:
+            super_layout_element.layout_elements.append(layout_element)
+        return model_element, layout_element
+
+    @classmethod
+    def _generic_make_modifier_from_cd_modification(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element,
+        super_layout_element,
+        super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        if model is not None:
+            model_element = model.new_element(model_element_cls)
+            species_model_element = cd_id_to_model_element[cd_element.aliases]
+            model_element.referred_species = species_model_element
+            model_element = momapy.builder.object_from_builder(model_element)
+        else:
+            model_element = None
+        if layout is not None:
             layout_element = layout.new_element(layout_element_cls)
             cd_link_target = cd_element.link_target[0]
             source_layout_element = cd_id_to_layout_element[
@@ -11127,10 +11884,9 @@ class CellDesignerReader(momapy.io.Reader):
                 previous_point = points[i]
                 segment = momapy.geometry.Segment(previous_point, point)
                 layout_element.segments.append(segment)
+            layout_element = momapy.builder.object_from_builder(layout_element)
         else:
             layout_element = None
-        model_element = momapy.builder.object_from_builder(model_element)
-        layout_element = momapy.builder.object_from_builder(layout_element)
         return model_element, layout_element
 
     @classmethod
@@ -11150,6 +11906,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element = model.new_element(model_element_cls)
         model_element.id_ = cd_element.id
@@ -11254,6 +12012,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element,
         super_layout_element,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element = model.new_element(model_element_cls)
         for cd_boolean_input_id in cd_element.aliases.split(","):
@@ -11282,6 +12042,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         model_element = model.new_element(model_element_cls)
         model_element.id_ = cd_element.id
@@ -11377,6 +12139,8 @@ class CellDesignerReader(momapy.io.Reader):
         super_model_element=None,
         super_layout_element=None,
         super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
     ):
         make_and_add_func = cls._get_make_and_add_func_from_cd(
             cd_element=cd_element, cd_id_to_cd_element=cd_id_to_cd_element
@@ -11395,6 +12159,8 @@ class CellDesignerReader(momapy.io.Reader):
                 super_model_element=super_model_element,
                 super_layout_element=super_layout_element,
                 super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
         else:
             model_element = None
