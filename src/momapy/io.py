@@ -69,7 +69,7 @@ def write_file(
     writer_cls = writers.get(writer)
     if writer_cls is None:
         raise ValueError(f"no registered writer named '{writer}'")
-    result = writer_cls.write(obj, file_path, **options)
+    result = writer_cls.write_file(obj, file_path, **options)
     return result
 
 
