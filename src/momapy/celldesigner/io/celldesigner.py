@@ -678,7 +678,7 @@ class CellDesignerReader(momapy.io.Reader):
     }
 
     @classmethod
-    def check_file(cls, file_path):
+    def check_file(cls, file_path: str | os.PathLike):
         with open(file_path) as f:
             for line in f:
                 if "http://www.sbml.org/2001/ns/celldesigner" in line:
@@ -11888,6 +11888,122 @@ class CellDesignerReader(momapy.io.Reader):
             layout_element = momapy.builder.object_from_builder(layout_element)
         else:
             layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _generic_make_and_add_gate_and_modifier_from_cd_modification(
+        cls,
+        model,
+        layout,
+        cd_element,
+        gate_model_element_cls,
+        gate_layout_element_cls,
+        modifier_model_element_cls,
+        modifier_layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element,
+        super_layout_element,
+        super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        gate_model_element, gate_layout_element = (
+            cls._generic_make_and_add_gate_from_cd_modification_or_gate_member(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=gate_model_element_cls,
+                layout_element_cls=gate_layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+        )
+        # Boolean logic gates do not have ids: the modifiers attribute of a
+        # Boolean logic gate modifier is of the form 'si, sj' where si and sj
+        # are the ids of its inputs; we replace it by the id of the newly built
+        # model element so it can be found when transforming the modification
+        cd_element.aliases = gate_model_element.id_
+        modifier_model_element, modifier_layout_element = (
+            cls._generic_make_modifier_from_cd_modification(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=modifier_model_element_cls,
+                layout_element_cls=modifier_layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+        )
+        super_model_element.modifiers.add(modifier_model_element)
+        return modifier_model_element, modifier_layout_element
+
+    @classmethod
+    def _generic_make_and_add_gate_from_cd_modification_or_gate_member(
+        cls,
+        model,
+        layout,
+        cd_element,
+        model_element_cls,
+        layout_element_cls,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        cd_id_to_annotations,
+        cd_id_to_notes,
+        super_model_element,
+        super_layout_element,
+        super_cd_element=None,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        model_element, layout_element = (
+            cls._generic_make_gate_from_cd_modification_or_gate_member(
+                model=model,
+                layout=layout,
+                cd_element=cd_element,
+                model_element_cls=model_element_cls,
+                layout_element_cls=layout_element_cls,
+                cd_id_to_model_element=cd_id_to_model_element,
+                cd_id_to_layout_element=cd_id_to_layout_element,
+                cd_id_to_cd_element=cd_id_to_cd_element,
+                cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                cd_id_to_annotations=cd_id_to_annotations,
+                cd_id_to_notes=cd_id_to_notes,
+                super_model_element=super_model_element,
+                super_layout_element=super_layout_element,
+                super_cd_element=super_cd_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+        )
+        if model is not None:
+            super_model_element.modifiers.add(model_element)
+        if layout is not None:
+            super_layout_element.layout_elements.append(layout_element)
         return model_element, layout_element
 
     @classmethod
