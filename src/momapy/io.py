@@ -1,3 +1,4 @@
+import os
 import dataclasses
 import abc
 import typing
@@ -26,22 +27,22 @@ class ReaderResult(IOResult):
     obj: typing.Any | None = None
     annotations: dict | None = None
     notes: dict | None = None
-    file_path: str | None = None
+    file_path: str | os.PathLike | None = None
 
 
 @dataclasses.dataclass
 class WriterResult(IOResult):
     obj: typing.Any | None = None
     exceptions: str | None = None
-    file_path: str | None = None
+    file_path: str | os.PathLike | None = None
 
 
-def read_file(
-    file_path: str,
+def read(
+    file_path: str | os.PathLike,
     reader: str | None = None,
     **options,
 ) -> ReaderResult:
-    """Read and return a map from a file. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method. If there is more than one appropriate reader, will use the first one."""
+    """Read and return a map from a file, given a registered reader. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method of each reader. If there is more than one appropriate reader, will use the first one."""
     reader_cls = None
     if reader is not None:
         reader_cls = readers.get(reader)
@@ -53,7 +54,7 @@ def read_file(
                 reader_cls = candidate_reader_cls
                 break
     if reader_cls is not None:
-        result = reader_cls.read_file(file_path, **options)
+        result = reader_cls.read(file_path, **options)
     else:
         raise ValueError(
             f"could not find a suitable registered reader for file '{file_path}'"
@@ -61,15 +62,15 @@ def read_file(
     return result
 
 
-def write_file(
-    obj: typing.Any, file_path: str, writer: str, **options
+def write(
+    obj: typing.Any, file_path: str | os.PathLike, writer: str, **options
 ) -> WriterResult:
-    """Write a map to a file, using the given writer"""
+    """Write an object to a file, using the given registered writer"""
     writer_cls = None
     writer_cls = writers.get(writer)
     if writer_cls is None:
         raise ValueError(f"no registered writer named '{writer}'")
-    result = writer_cls.write_file(obj, file_path, **options)
+    result = writer_cls.write(obj, file_path, **options)
     return result
 
 
@@ -78,12 +79,12 @@ class Reader(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def read_file(cls, file_path, **options) -> ReaderResult:
+    def read(cls, file_path: str | os.PathLike, **options) -> ReaderResult:
         """Read and return a reader result from a file using the reader"""
         pass
 
     @classmethod
-    def check_file(cls, file_path: str) -> bool:
+    def check_file(cls, file_path: str| os.PathLike) -> bool:
         """Return `true` if the given file is supported by the reader, `false` otherwise"""
         pass
 
@@ -91,10 +92,10 @@ class Reader(abc.ABC):
 class Writer(abc.ABC):
     @classmethod
     @abc.abstractmethod
-    def write_file(
+    def write(
         cls,
         obj: typing.Any,
-        file_path: str,
+        file_path: str | os.PathLike,
         **options,
     ) -> WriterResult:
         """Write an object to a file"""

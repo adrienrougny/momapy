@@ -1,3 +1,4 @@
+import os
 import abc
 import collections
 import typing
@@ -108,9 +109,9 @@ class _SBGNMLReader(momapy.io.Reader):
     _parser_module = None
 
     @classmethod
-    def read_file(
+    def read(
         cls,
-        file_path: str,
+        file_path: str | os.PathLike,
         return_type: typing.Literal["map", "model", "layout"] = "map",
         with_model: bool = True,
         with_layout: bool = True,

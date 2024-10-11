@@ -1,3 +1,4 @@
+import os
 import collections
 import math
 import re
@@ -685,9 +686,9 @@ class CellDesignerReader(momapy.io.Reader):
         return False
 
     @classmethod
-    def read_file(
+    def read(
         cls,
-        file_path,
+        file_path: str | os.PathLike,
         return_type: typing.Literal["map", "model", "layout"] = "map",
         with_model=True,
         with_layout=True,
