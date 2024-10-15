@@ -914,8 +914,18 @@ def get_intersection_of_line_and_segment(
     line2 = Line(segment.p1, segment.p2)
     intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
-        if not segment.has_point(intersection[0]):
-            intersection = []
+        if segment.p2.x > segment.p1.x:
+            if not (
+                intersection[0].x >= segment.p1.x
+                and intersection[0].x <= segment.p2.x
+            ):
+                intersection = []
+        else:
+            if not (
+                intersection[0].x <= segment.p1.x
+                and intersection[0].x >= segment.p2.x
+            ):
+                intersection = []
     elif len(intersection) > 0:
         intersection = [segment]
     return intersection
@@ -1395,6 +1405,7 @@ def segment_has_point(
     segment: Segment, point: Point, max_distance: float = 0.01
 ) -> bool:
     d = segment.get_distance_to_point(point)
+    print(d)
     if d <= max_distance:
         return True
     return False
