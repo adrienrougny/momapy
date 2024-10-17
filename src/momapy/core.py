@@ -1083,7 +1083,7 @@ class DoubleHeadedArc(_Arc):
         point = momapy.drawing.get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
         )
-        if point is None:
+        if point.isnan():
             return self.start_arrowhead_tip()
         return point
 
@@ -1131,7 +1131,7 @@ class DoubleHeadedArc(_Arc):
         point = momapy.drawing.get_drawing_elements_border(
             self.end_arrowhead_drawing_elements(), point
         )
-        if point is None:
+        if point.isnan():
             return self.end_arrowhead_tip()
         return point
 
