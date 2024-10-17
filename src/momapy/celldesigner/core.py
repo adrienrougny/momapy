@@ -2791,7 +2791,7 @@ class TransportLayout(_ReactionLayout, _ReactionNodeMixin):
                 ),
                 width=self.start_arrowhead_triangle_width,
                 height=self.start_arrowhead_triangle_height,
-                direction=momapy.core.Direction.RIGHT,
+                direction=momapy.core.Direction.LEFT,
             )
             return [bar, sep] + triangle.drawing_elements()
         return []
