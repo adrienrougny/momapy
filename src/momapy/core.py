@@ -698,7 +698,7 @@ class Node(GroupLayout):
 
     def childless(self) -> typing.Self:
         """Return a copy of the node with no children"""
-        return dataclasses.replace(self, label=None, layout_elements=None)
+        return dataclasses.replace(self, label=None, layout_elements=tuple([]))
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -771,7 +771,7 @@ class _Arc(GroupLayout):
 
     def childless(self) -> typing.Self:
         """Return a copy of the arc with no children"""
-        return dataclasses.replace(self, layout_elements=None)
+        return dataclasses.replace(self, layout_elements=tuple([]))
 
     def fraction(self, fraction: float) -> tuple[momapy.geometry.Point, float]:
         """Return the position and angle on the arc at a given fraction (of the arc's total length)"""
