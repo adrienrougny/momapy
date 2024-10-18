@@ -1405,7 +1405,6 @@ def segment_has_point(
     segment: Segment, point: Point, max_distance: float = 0.01
 ) -> bool:
     d = segment.get_distance_to_point(point)
-    print(d)
     if d <= max_distance:
         return True
     return False
