@@ -1079,7 +1079,6 @@ class DoubleHeadedArc(_Arc):
         """Return the point at the intersection of the drawing elements of the double-headed arc's start arrowhead and the line going through the center of these drawing elements and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
-
         point = momapy.drawing.get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
         )
