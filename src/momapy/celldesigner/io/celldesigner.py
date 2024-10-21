@@ -22,6 +22,7 @@ class CellDesignerReader(momapy.io.Reader):
     _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
     _CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
+    _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     _KEY_TO_CLASS = {
         (
             "TEMPLATE",
@@ -251,24 +252,78 @@ class CellDesignerReader(momapy.io.Reader):
         ),
     }
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
-        "encodes": momapy.sbgn.core.BQBiol.ENCODES,
-        "has_part": momapy.sbgn.core.BQBiol.HAS_PART,
-        "has_property": momapy.sbgn.core.BQBiol.HAS_PROPERTY,
-        "has_version": momapy.sbgn.core.BQBiol.HAS_VERSION,
-        "is_value": momapy.sbgn.core.BQBiol.IS,
-        "is_described_by": momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY,
-        "is_encoded_by": momapy.sbgn.core.BQBiol.IS_ENCODED_BY,
-        "is_homolog_to": momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO,
-        "is_part_of": momapy.sbgn.core.BQBiol.IS_PART_OF,
-        "is_property_of": momapy.sbgn.core.BQBiol.IS_PROPERTY_OF,
-        "is_version_of": momapy.sbgn.core.BQBiol.IS_VERSION_OF,
-        "occurs_in": momapy.sbgn.core.BQBiol.OCCURS_IN,
-        "has_taxon": momapy.sbgn.core.BQBiol.HAS_TAXON,
-        "has_instance": momapy.sbgn.core.BQModel.HAS_INSTANCE,
-        "biomodels_net_model_qualifiers_is": momapy.sbgn.core.BQModel.IS,
-        "is_derived_from": momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
-        "biomodels_net_model_qualifiers_is_described_by": momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
-        "is_instance_of": momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "encodes",
+        ): momapy.sbgn.core.BQBiol.ENCODES,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "hasPart",
+        ): momapy.sbgn.core.BQBiol.HAS_PART,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "hasProperty",
+        ): momapy.sbgn.core.BQBiol.HAS_PROPERTY,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "hasVersion",
+        ): momapy.sbgn.core.BQBiol.HAS_VERSION,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isValue",
+        ): momapy.sbgn.core.BQBiol.IS,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isDescribedBy",
+        ): momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isEncodedBy",
+        ): momapy.sbgn.core.BQBiol.IS_ENCODED_BY,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isHomologTo",
+        ): momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isPartOf",
+        ): momapy.sbgn.core.BQBiol.IS_PART_OF,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isPropertyOf",
+        ): momapy.sbgn.core.BQBiol.IS_PROPERTY_OF,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "isVersionOf",
+        ): momapy.sbgn.core.BQBiol.IS_VERSION_OF,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "occursIn",
+        ): momapy.sbgn.core.BQBiol.OCCURS_IN,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "hasTaxon",
+        ): momapy.sbgn.core.BQBiol.HAS_TAXON,
+        (
+            "http://biomodels.net/biology-qualifiers/",
+            "hasInstance",
+        ): momapy.sbgn.core.BQModel.HAS_INSTANCE,
+        (
+            "http://biomodels.net/biology-models/",
+            "is",
+        ): momapy.sbgn.core.BQModel.IS,
+        (
+            "http://biomodels.net/biology-models/",
+            "isDerivedFrom",
+        ): momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
+        (
+            "http://biomodels.net/biology-models/",
+            "isDescribedBy",
+        ): momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
+        (
+            "http://biomodels.net/biology-models/",
+            "isInstanceOf",
+        ): momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
     }
     _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME = {
         "NW": "north_west",
@@ -383,8 +438,12 @@ class CellDesignerReader(momapy.io.Reader):
         return result
 
     @classmethod
+    def _get_annotation_from_cd_element(cls, cd_element):
+        return getattr(cd_element, "annotation", None)
+
+    @classmethod
     def _get_extension_from_cd_element(cls, cd_element):
-        cd_annotation = getattr(cd_element, "annotation", None)
+        cd_annotation = cls._get_annotation_from_cd_element(cd_element)
         if cd_annotation is None:
             return None
         cd_extension = getattr(
@@ -711,12 +770,6 @@ class CellDesignerReader(momapy.io.Reader):
         return getattr(cd_participant_link, "editPoints", None)
 
     @classmethod
-    def _get_edit_points_from_cd_reaction_modification(
-        cls, cd_reaction_modification
-    ):
-        return cd_reaction_modification.get("editPoints")
-
-    @classmethod
     def _get_rectangle_index_from_cd_reaction(cls, cd_reaction):
         extension = cls._get_extension_from_cd_element(cd_reaction)
         return extension.connectScheme.get("rectangleIndex")
@@ -801,6 +854,100 @@ class CellDesignerReader(momapy.io.Reader):
         return extension.modelDisplay.get("sizeY")
 
     @classmethod
+    def _get_prefix_and_name_from_tag(cls, tag):
+        prefix, name = tag.split("}")
+        return prefix[1:], name
+
+    @classmethod
+    def _set_layout_size_and_position_from_cd_model(cls, cd_model, layout):
+        layout.width = float(cls._get_width_from_cd_model(cd_model))
+        layout.height = float(cls._get_height_from_cd_model(cd_model))
+        layout.position = momapy.geometry.Point(
+            layout.width / 2, layout.height / 2
+        )
+
+    @classmethod
+    def _make_name_from_cd_name(cls, name: str | None):
+        if name is None:
+            return name
+        for s, char in cls._TEXT_TO_CHARACTER.items():
+            name = name.replace(s, char)
+        return name
+
+    @classmethod
+    def _get_notes_from_cd_element(cls, cd_element):
+        return getattr(cd_element, "notes", None)
+
+    @classmethod
+    def _get_rdf_from_cd_notes(cls, cd_notes):
+        rdfs = list(cd_notes.iter(f"{{{cls._RDF_NAMESPACE}}}RDF"))
+        if rdfs:
+            return rdfs[0]
+        return None
+
+    @classmethod
+    def _get_rdf_from_cd_element(cls, cd_element):
+        annotation = cls._get_annotation_from_cd_element(cd_element)
+        if annotation is None:
+            return None
+        return getattr(annotation, f"{{{cls._RDF_NAMESPACE}}}RDF", None)
+
+    @classmethod
+    def _get_description_from_rdf(cls, rdf):
+        return getattr(rdf, "Description", None)
+
+    @classmethod
+    def _get_bags_from_bq_element(cls, bq_element):
+        return list(getattr(bq_element, f"{{{cls._RDF_NAMESPACE}}}Bag", []))
+
+    @classmethod
+    def _get_lis_from_bag(cls, bag):
+        return list(getattr(bag, "li", []))
+
+    @classmethod
+    def _make_annotations_from_cd_rdf(cls, cd_rdf):
+        annotations = []
+        description = cls._get_description_from_rdf(cd_rdf)
+        if description is not None:
+            for bq_element in description.getchildren():
+                key = cls._get_prefix_and_name_from_tag(bq_element.tag)
+                qualifier = cls._QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(
+                    key
+                )
+                if qualifier is not None:
+                    bags = cls._get_bags_from_bq_element(bq_element)
+                    for bag in bags:
+                        lis = cls._get_lis_from_bag(bag)
+                        resources = [
+                            li.get(f"{{{cls._RDF_NAMESPACE}}}resource")
+                            for li in lis
+                        ]
+                        annotation = momapy.sbml.core.Annotation(
+                            qualifier=qualifier,
+                            resources=frozenset(resources),
+                        )
+                        annotations.append(annotation)
+        return annotations
+
+    @classmethod
+    def _make_annotations_from_cd_element(cls, cd_element):
+        cd_rdf = cls._get_rdf_from_cd_element(cd_element)
+        if cd_rdf is not None:
+            annotations = cls._make_annotations_from_cd_rdf(cd_rdf)
+        else:
+            annotations = []
+        return annotations
+
+    @classmethod
+    def _make_annotations_from_cd_notes(cls, cd_notes):
+        cd_rdf = cls._get_rdf_from_cd_notes(cd_notes)
+        if cd_rdf is not None:
+            annotations = cls._make_annotations_from_cd_rdf(cd_rdf)
+        else:
+            annotations = []
+        return annotations
+
+    @classmethod
     def _make_cd_id_to_cd_element_mapping_from_cd_model(cls, cd_model):
         cd_id_to_cd_element = {}
         # compartments
@@ -883,6 +1030,30 @@ class CellDesignerReader(momapy.io.Reader):
         return cd_complex_alias_id_to_cd_included_species_ids
 
     @classmethod
+    def _make_model_no_subelements_from_cd_model(
+        cls,
+        cd_element,
+    ):
+        layout = momapy.celldesigner.core.CellDesignerModelBuilder()
+        return layout
+
+    @classmethod
+    def _make_layout_no_subelements_from_cd_model(
+        cls,
+        cd_element,
+    ):
+        layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
+        return layout
+
+    @classmethod
+    def _make_map_no_subelements_from_cd_model(
+        cls,
+        cd_element,
+    ):
+        map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
+        return map_
+
+    @classmethod
     def _make_main_obj_from_cd_model(
         cls,
         cd_model,
@@ -909,7 +1080,7 @@ class CellDesignerReader(momapy.io.Reader):
             )
             cd_id_to_model_element = {}
             cd_id_to_layout_element = {}
-            map_element_to_annotations = {}
+            map_element_to_annotations = collections.defaultdict(list)
             map_element_to_notes = {}
             model_element_to_layout_element = {}
             # we make and add the  model and layout elements from the cd elements
@@ -995,9 +1166,7 @@ class CellDesignerReader(momapy.io.Reader):
             map_.model = model
             map_.layout = layout
             obj = momapy.builder.object_from_builder(map_)
-        annotations = {}  # TODO
-        notes = {}  # TODO
-        return obj, annotations, notes
+        return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
     def _make_and_add_compartments_from_cd_model(
@@ -1274,7 +1443,7 @@ class CellDesignerReader(momapy.io.Reader):
                 layout_element.inner_stroke = element_color
                 layout_element.fill = element_color.with_alpha(0.5)
                 layout_element.inner_fill = momapy.coloring.white
-                text = cls._prepare_name(cd_compartment.get("name"))
+                text = cls._make_name_from_cd_name(cd_compartment.get("name"))
                 text_position = momapy.geometry.Point(
                     float(cd_compartment_alias.namePoint.get("x")),
                     float(cd_compartment_alias.namePoint.get("y")),
@@ -1320,7 +1489,9 @@ class CellDesignerReader(momapy.io.Reader):
                 momapy.celldesigner.core.Compartment
             )
             model_element.id_ = cd_compartment.get("id")
-            model_element.name = cls._prepare_name(cd_compartment.get("name"))
+            model_element.name = cls._make_name_from_cd_name(
+                cd_compartment.get("name")
+            )
             model_element.metaid = cd_compartment.get("metaid")
             if cd_compartment.get("outside") is not None:
                 outside_model_element = cd_id_to_model_element.get(
@@ -1356,6 +1527,12 @@ class CellDesignerReader(momapy.io.Reader):
                 < existing_element.id_,
             )
             cd_id_to_model_element[cd_compartment.get("id")] = model_element
+            if with_annotations:
+                annotations = cls._make_annotations_from_cd_element(
+                    cd_compartment
+                )
+                if annotations:
+                    map_element_to_annotations[model_element] += annotations
         else:
             model_element = None
         layout_element = None
@@ -1382,7 +1559,7 @@ class CellDesignerReader(momapy.io.Reader):
             model_element_cls = cls._KEY_TO_CLASS[key]
             model_element = model.new_element(model_element_cls)
             model_element.id_ = cd_species_template.get("id")
-            model_element.name = cls._prepare_name(
+            model_element.name = cls._make_name_from_cd_name(
                 cd_species_template.get("name")
             )
             for (
@@ -1445,7 +1622,7 @@ class CellDesignerReader(momapy.io.Reader):
             # species as well.
             cd_modification_residue_id = f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
             model_element.id_ = cd_modification_residue_id
-            model_element.name = cls._prepare_name(
+            model_element.name = cls._make_name_from_cd_name(
                 cd_modification_residue.get("name")
             )
             model_element = momapy.builder.object_from_builder(model_element)
@@ -1481,7 +1658,7 @@ class CellDesignerReader(momapy.io.Reader):
             cd_species = cd_id_to_cd_element[cd_species_alias.get("species")]
             key = cls._get_key_from_cd_species(cd_species, cd_id_to_cd_element)
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
-            name = cls._prepare_name(cd_species.get("name"))
+            name = cls._make_name_from_cd_name(cd_species.get("name"))
             cd_species_homodimer = cls._get_homodimer_from_cd_species(
                 cd_species
             )
@@ -1644,8 +1821,25 @@ class CellDesignerReader(momapy.io.Reader):
                 )
                 if super_model_element is None:  # species case
                     model.species.add(model_element)
+                    if with_annotations:
+                        annotations = cls._make_annotations_from_cd_element(
+                            cd_species
+                        )
+                        if annotations:
+                            map_element_to_annotations[
+                                model_element
+                            ] += annotations
                 else:  # included species case
                     super_model_element.subunits.add(model_element)
+                    if with_annotations:
+                        cd_notes = cls._get_notes_from_cd_element(cd_species)
+                        annotations = cls._make_annotations_from_cd_notes(
+                            cd_notes
+                        )
+                        if annotations:
+                            map_element_to_annotations[
+                                model_element
+                            ] += annotations
                 cd_id_to_model_element[cd_species.get("id")] = model_element
                 cd_id_to_model_element[cd_species_alias.get("id")] = (
                     model_element
@@ -2024,6 +2218,14 @@ class CellDesignerReader(momapy.io.Reader):
                 )
                 model.reactions.add(model_element)
                 cd_id_to_model_element[model_element.id_] = model_element
+                if with_annotations:
+                    annotations = cls._make_annotations_from_cd_element(
+                        cd_reaction
+                    )
+                    if annotations:
+                        map_element_to_annotations[
+                            model_element
+                        ] += annotations
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -2932,15 +3134,23 @@ class CellDesignerReader(momapy.io.Reader):
                     source_model_element = cd_id_to_model_element[
                         cd_base_reactant.get("alias")
                     ]
-                    model_element.source = source_model_element
-                    target_model_element = cd_id_to_model_element[
-                        cd_base_product.get("alias")
-                    ]
-                    model_element.target = target_model_element
-                    model_element = momapy.builder.object_from_builder(
-                        model_element
+                model_element.source = source_model_element
+                target_model_element = cd_id_to_model_element[
+                    cd_base_product.get("alias")
+                ]
+                model_element.target = target_model_element
+                model_element = momapy.builder.object_from_builder(
+                    model_element
+                )
+                model.modulations.add(model_element)
+                if with_annotations:
+                    annotations = cls._make_annotations_from_cd_element(
+                        cd_reaction
                     )
-                    model.modulations.add(model_element)
+                    if annotations:
+                        map_element_to_annotations[
+                            model_element
+                        ] += annotations
             else:
                 model_element = None
             if layout is not None:
@@ -3021,46 +3231,6 @@ class CellDesignerReader(momapy.io.Reader):
             else:
                 layout_element = None
         return model_element, layout_element
-
-    @classmethod
-    def _make_model_no_subelements_from_cd_model(
-        cls,
-        cd_element,
-    ):
-        layout = momapy.celldesigner.core.CellDesignerModelBuilder()
-        return layout
-
-    @classmethod
-    def _make_layout_no_subelements_from_cd_model(
-        cls,
-        cd_element,
-    ):
-        layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
-        return layout
-
-    @classmethod
-    def _make_map_no_subelements_from_cd_model(
-        cls,
-        cd_element,
-    ):
-        map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
-        return map_
-
-    @classmethod
-    def _set_layout_size_and_position_from_cd_model(cls, cd_model, layout):
-        layout.width = float(cls._get_width_from_cd_model(cd_model))
-        layout.height = float(cls._get_height_from_cd_model(cd_model))
-        layout.position = momapy.geometry.Point(
-            layout.width / 2, layout.height / 2
-        )
-
-    @classmethod
-    def _prepare_name(cls, name: str | None):
-        if name is None:
-            return name
-        for s, char in cls._TEXT_TO_CHARACTER.items():
-            name = name.replace(s, char)
-        return name
 
 
 momapy.io.register_reader("celldesigner", CellDesignerReader)
