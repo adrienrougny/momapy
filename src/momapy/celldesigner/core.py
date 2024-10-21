@@ -3022,6 +3022,118 @@ class TruncationLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class AndGateLayout(
+    _SimpleNodeMixin,
+    momapy.sbgn.core._TextMixin,
+    CellDesignerNode,
+):
+    """Class for and logic gate layouts"""
+
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _text: typing.ClassVar[str] = "&"
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class OrGateLayout(
+    _SimpleNodeMixin,
+    momapy.sbgn.core._TextMixin,
+    CellDesignerNode,
+):
+    """Class for or logic gate layouts"""
+
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _text: typing.ClassVar[str] = "|"
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class NotGateLayout(
+    _SimpleNodeMixin,
+    momapy.sbgn.core._TextMixin,
+    CellDesignerNode,
+):
+    """Class for not logic gate layouts"""
+
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _text: typing.ClassVar[str] = "!"
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownGateLayout(
+    _SimpleNodeMixin,
+    momapy.sbgn.core._TextMixin,
+    CellDesignerNode,
+):
+    """Class for unknown logic gate layouts"""
+
+    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_fill: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.coloring.black
+    _font_stroke: typing.ClassVar[
+        momapy.coloring.Color | momapy.drawing.NoneValueType
+    ] = momapy.drawing.NoneValue
+    _font_size_func: typing.ClassVar[typing.Callable] = (
+        lambda obj: obj.width / 3
+    )
+    _text: typing.ClassVar[str] = "?"
+    width: float = 30.0
+    height: float = 30.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Ellipse(
+            position=self.position, width=self.width, height=self.height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerLayout(momapy.core.Layout):
     pass
 
