@@ -3132,7 +3132,7 @@ class UnknownGateLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(momapy.celldesigner.CellDesignerSingleHeadedArc):
+class LogicArcLayout(CellDesignerSingleHeadedArc):
     """Class for logic arc layouts"""
 
     def _arrowhead_border_drawing_elements(self):
