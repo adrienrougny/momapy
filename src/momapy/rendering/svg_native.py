@@ -1,6 +1,7 @@
 import dataclasses
 import typing
 import math
+import xml.sax.saxutils
 
 import momapy.drawing
 import momapy.geometry
@@ -440,7 +441,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         attributes = self._make_drawing_element_presentation_attributes(text)
         attributes["x"] = text.x
         attributes["y"] = text.y
-        value = text.text
+        value = xml.sax.saxutils.escape(text.text)
         element = SVGElement(name=name, attributes=attributes, value=value)
         return element
 
