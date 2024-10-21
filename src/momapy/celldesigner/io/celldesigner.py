@@ -543,7 +543,7 @@ class CellDesignerReader(momapy.io.Reader):
         return ("MODIFIER", cd_reaction_modification_type)
 
     @classmethod
-    def _get_key_from_cd_reaction_modification_with_logic_gate(
+    def _get_key_from_cd_reaction_modification_or_cd_gate_member(
         cls, cd_reaction_modification
     ):
         return ("GATE", cd_reaction_modification.get("type"))
@@ -2017,6 +2017,7 @@ class CellDesignerReader(momapy.io.Reader):
                         super_layout_element=layout_element,
                     )
                 )
+                pass
             if model is not None:
                 model_element = momapy.builder.object_from_builder(
                     model_element
@@ -2684,13 +2685,11 @@ class CellDesignerReader(momapy.io.Reader):
                 )
             )
             if has_boolean_input:
-                source_model_element = None
-                source_layout_element = None
                 source_model_element, source_layout_element = (
-                    cls._make_and_add_logic_gate_from_cd_reaction_modification(
+                    cls._make_and_add_logic_gate_from_cd_reaction_modification_or_cd_gate_member(
                         model=model,
                         layout=layout,
-                        cd_reaction_modification=cd_reaction_modification,
+                        cd_reaction_modification_or_cd_gate_member=cd_reaction_modification,
                         cd_id_to_model_element=cd_id_to_model_element,
                         cd_id_to_layout_element=cd_id_to_layout_element,
                         cd_id_to_cd_element=cd_id_to_cd_element,
@@ -2700,9 +2699,6 @@ class CellDesignerReader(momapy.io.Reader):
                         model_element_to_layout_element=model_element_to_layout_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
-                        super_cd_element=super_cd_element,
-                        super_model_element=super_model_element,
-                        super_layout_element=super_layout_element,
                     )
                 )
             if model is not None:
@@ -2789,11 +2785,11 @@ class CellDesignerReader(momapy.io.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_logic_gate_from_cd_reaction_modification(
+    def _make_and_add_logic_gate_from_cd_reaction_modification_or_cd_gate_member(
         cls,
         model,
         layout,
-        cd_reaction_modification,
+        cd_reaction_modification_or_cd_gate_member,
         cd_id_to_model_element,
         cd_id_to_layout_element,
         cd_id_to_cd_element,
@@ -2803,15 +2799,14 @@ class CellDesignerReader(momapy.io.Reader):
         model_element_to_layout_element,
         with_annotations,
         with_notes,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
     ):
         if model is not None or layout is not None:
-            key = cls._get_key_from_cd_reaction_modification_with_logic_gate(
-                cd_reaction_modification
+            key = cls._get_key_from_cd_reaction_modification_or_cd_gate_member(
+                cd_reaction_modification_or_cd_gate_member
             )
-            cd_modifiers = cd_reaction_modification.get("aliases")
+            cd_modifiers = cd_reaction_modification_or_cd_gate_member.get(
+                "aliases"
+            )
             if model is not None:
                 model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
                 model_element = model.new_element(model_element_cls)
@@ -2830,8 +2825,8 @@ class CellDesignerReader(momapy.io.Reader):
             if layout is not None:  # TODO: edit points
                 layout_element = layout.new_element(layout_element_cls)
                 cd_edit_points = (
-                    cls._get_edit_points_from_cd_reaction_modification(
-                        cd_reaction_modification
+                    cd_reaction_modification_or_cd_gate_member.get(
+                        "editPoints"
                     )
                 )
                 edit_points = cls._make_points_from_cd_edit_points(
@@ -2856,6 +2851,169 @@ class CellDesignerReader(momapy.io.Reader):
                         layout_logic_arc
                     )
                     layout_element.layout_elements.append(layout_logic_arc)
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
+                layout.layout_elements.append(layout_element)
+            else:
+                layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_modulation_from_cd_reaction(
+        cls,
+        model,
+        layout,
+        cd_reaction,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+    ):
+        if model is not None or layout is not None:
+            key = cls._get_key_from_cd_reaction(cd_reaction)
+            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            has_boolean_input = cls._has_boolean_input_from_cd_reaction(
+                cd_reaction
+            )
+            cd_base_reactant = cls._get_base_reactants_from_cd_reaction(
+                cd_reaction
+            )[0]
+            cd_base_product = cls._get_base_products_from_cd_reaction(
+                cd_reaction
+            )[0]
+            if has_boolean_input:
+                cd_gate_members = cls._get_gate_members_from_cd_reaction(
+                    cd_reaction
+                )
+                cd_gate_member = cd_gate_members[0]
+                source_model_element, source_layout_element = (
+                    cls._make_and_add_logic_gate_from_cd_reaction_modification_or_cd_gate_member(
+                        model=model,
+                        layout=layout,
+                        cd_reaction_modification_or_cd_gate_member=cd_gate_member,
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
+                        map_element_to_notes=map_element_to_notes,
+                        model_element_to_layout_element=model_element_to_layout_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
+                    )
+                )
+            if model is not None:
+                model_element = model.new_element(model_element_cls)
+                model_element.id_ = cd_reaction.get("id")
+                if has_boolean_input:
+                    source_model_element, source_layout_element = (
+                        cls._make_and_add_logic_gate_from_cd_reaction_modification_or_cd_gate_member(
+                            model=model,
+                            layout=layout,
+                            cd_reaction_modification_or_cd_gate_member=cd_gate_member,
+                            cd_id_to_model_element=cd_id_to_model_element,
+                            cd_id_to_layout_element=cd_id_to_layout_element,
+                            cd_id_to_cd_element=cd_id_to_cd_element,
+                            cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                            map_element_to_annotations=map_element_to_annotations,
+                            map_element_to_notes=map_element_to_notes,
+                            model_element_to_layout_element=model_element_to_layout_element,
+                            with_annotations=with_annotations,
+                            with_notes=with_notes,
+                        )
+                    )
+                else:
+                    source_model_element = cd_id_to_model_element[
+                        cd_base_reactant.get("alias")
+                    ]
+                    model_element.source = source_model_element
+                    target_model_element = cd_id_to_model_element[
+                        cd_base_product.get("alias")
+                    ]
+                    model_element.target = target_model_element
+                    model_element = momapy.builder.object_from_builder(
+                        model_element
+                    )
+                    model.modulations.add(model_element)
+            else:
+                model_element = None
+            if layout is not None:
+                cd_edit_points = cls._get_edit_points_from_cd_reaction(
+                    cd_reaction
+                )
+                if cd_edit_points is not None:
+                    edit_points = cls._make_points_from_cd_edit_points(
+                        cd_edit_points
+                    )
+                else:
+                    edit_points = []
+                if has_boolean_input:
+                    source_anchor_name = "center"
+                    edit_points = edit_points[:-1]
+                else:
+                    source_layout_element = cd_id_to_layout_element[
+                        cd_base_reactant.get("alias")
+                    ]
+                    if hasattr(cd_base_reactant, "linkAnchor"):
+                        source_anchor_name = (
+                            cls._get_anchor_name_for_frame_from_cd_link(
+                                cd_base_reactant
+                            )
+                        )
+                    else:
+                        source_anchor_name = "center"
+                layout_element = layout.new_element(layout_element_cls)
+                target_layout_element = cd_id_to_layout_element[
+                    cd_base_product.get("alias")
+                ]
+                if hasattr(cd_base_product, "linkAnchor"):
+                    target_anchor_name = (
+                        cls._get_anchor_name_for_frame_from_cd_link(
+                            cd_base_product
+                        )
+                    )
+                else:
+                    target_anchor_name = "center"
+                origin = source_layout_element.anchor_point(source_anchor_name)
+                unit_x = target_layout_element.anchor_point(target_anchor_name)
+                unit_y = unit_x.transformed(
+                    momapy.geometry.Rotation(math.radians(90), origin)
+                )
+                transformation = momapy.geometry.get_transformation_for_frame(
+                    origin, unit_x, unit_y
+                )
+                intermediate_points = [
+                    edit_point.transformed(transformation)
+                    for edit_point in edit_points
+                ]
+                if source_anchor_name == "center":
+                    if intermediate_points:
+                        reference_point = intermediate_points[0]
+                    else:
+                        reference_point = unit_x
+                    start_point = source_layout_element.border(reference_point)
+                else:
+                    start_point = origin
+                if target_anchor_name == "center":
+                    if intermediate_points:
+                        reference_point = intermediate_points[-1]
+                    else:
+                        reference_point = start_point
+                    end_point = target_layout_element.border(reference_point)
+                else:
+                    end_point = target_layout_element.anchor_point(
+                        target_anchor_name
+                    )
+                points = [start_point] + intermediate_points + [end_point]
+                segments = cls._make_segments_from_points(points)
+                for segment in segments:
+                    layout_element.segments.append(segment)
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
                 )
