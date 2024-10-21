@@ -3132,6 +3132,16 @@ class UnknownGateLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class LogicArcLayout(momapy.celldesigner.CellDesignerSingleHeadedArc):
+    """Class for logic arc layouts"""
+
+    def _arrowhead_border_drawing_elements(self):
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
+            self
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerLayout(momapy.core.Layout):
     pass
 
