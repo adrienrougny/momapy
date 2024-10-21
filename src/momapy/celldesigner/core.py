@@ -2254,7 +2254,7 @@ class _ReactionLayout(CellDesignerDoubleHeadedArc):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
     _reaction_node_text: typing.ClassVar[str | None] = None
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "Helvetica"
     _font_size_func: typing.ClassVar[typing.Callable]
     _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
         momapy.drawing.FontStyle.NORMAL
@@ -3029,19 +3029,17 @@ class AndGateLayout(
 ):
     """Class for and logic gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "Helvetica"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width
     _text: typing.ClassVar[str] = "&"
-    width: float = 30.0
-    height: float = 30.0
+    width: float = 15.0
+    height: float = 15.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -3057,7 +3055,7 @@ class OrGateLayout(
 ):
     """Class for or logic gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "Helvetica"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3068,8 +3066,8 @@ class OrGateLayout(
         lambda obj: obj.width / 3
     )
     _text: typing.ClassVar[str] = "|"
-    width: float = 30.0
-    height: float = 30.0
+    width: float = 15.0
+    height: float = 15.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -3085,7 +3083,7 @@ class NotGateLayout(
 ):
     """Class for not logic gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "Helvetica"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3096,8 +3094,8 @@ class NotGateLayout(
         lambda obj: obj.width / 3
     )
     _text: typing.ClassVar[str] = "!"
-    width: float = 30.0
-    height: float = 30.0
+    width: float = 15.0
+    height: float = 15.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -3113,7 +3111,7 @@ class UnknownGateLayout(
 ):
     """Class for unknown logic gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "Helvetica"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3124,8 +3122,8 @@ class UnknownGateLayout(
         lambda obj: obj.width / 3
     )
     _text: typing.ClassVar[str] = "?"
-    width: float = 30.0
-    height: float = 30.0
+    width: float = 15.0
+    height: float = 15.0
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
