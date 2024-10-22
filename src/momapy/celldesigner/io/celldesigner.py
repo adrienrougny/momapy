@@ -231,6 +231,14 @@ class CellDesignerReader(momapy.io.Reader):
             momapy.celldesigner.core.Trigger,
             momapy.celldesigner.core.TriggeringLayout,
         ),
+        ("MODIFIER", "POSITIVE_INFLUENCE"): (  # older version?
+            momapy.celldesigner.core.PositiveInfluence,
+            momapy.celldesigner.core.PositiveInfluenceLayout,
+        ),
+        ("MODIFIER", "NEGATIVE_INFLUENCE"): (  # older version?
+            momapy.celldesigner.core.NegativeInfluence,
+            momapy.celldesigner.core.InhibitionLayout,
+        ),
         ("GATE", "BOOLEAN_LOGIC_GATE_AND"): (
             momapy.celldesigner.core.AndGate,
             momapy.celldesigner.core.AndGateLayout,
@@ -506,7 +514,7 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _get_antisense_rna_templates_from_cd_model(cls, cd_model):
         extension = cls._get_extension_from_cd_element(cd_model)
-        return list(getattr(extension.listOfAntisenseRNAs, "antisenseRNA", []))
+        return list(getattr(extension.listOfAntisenseRNAs, "AntisenseRNA", []))
 
     @classmethod
     def _get_species_templates_from_cd_model(cls, cd_model):
