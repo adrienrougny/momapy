@@ -1174,7 +1174,7 @@ class CellDesignerReader(momapy.io.Reader):
             map_.model = model
             map_.layout = layout
             obj = momapy.builder.object_from_builder(map_)
-        return obj, map_element_to_annotations, map_element_to_notes
+        return obj, dict(map_element_to_annotations), map_element_to_notes
 
     @classmethod
     def _make_and_add_compartments_from_cd_model(
@@ -1528,12 +1528,6 @@ class CellDesignerReader(momapy.io.Reader):
                     )
                 model_element.outside = outside_model_element
             model_element = momapy.builder.object_from_builder(model_element)
-            model_element = momapy.utils.add_or_replace_element_in_set(
-                model_element,
-                model.compartments,
-                func=lambda element, existing_element: element.id_
-                < existing_element.id_,
-            )
             cd_id_to_model_element[cd_compartment.get("id")] = model_element
             if with_annotations:
                 annotations = cls._make_annotations_from_cd_element(
@@ -1828,7 +1822,12 @@ class CellDesignerReader(momapy.io.Reader):
                     model_element
                 )
                 if super_model_element is None:  # species case
-                    model.species.add(model_element)
+                    model_element = momapy.utils.add_or_replace_element_in_set(
+                        model_element,
+                        model.species,
+                        func=lambda element, existing_element: element.id_
+                        < existing_element.id_,
+                    )
                     if with_annotations:
                         annotations = cls._make_annotations_from_cd_element(
                             cd_species
@@ -2226,7 +2225,12 @@ class CellDesignerReader(momapy.io.Reader):
                 model_element = momapy.builder.object_from_builder(
                     model_element
                 )
-                model.reactions.add(model_element)
+                model_element = momapy.utils.add_or_replace_element_in_set(
+                    model_element,
+                    model.reactions,
+                    func=lambda element, existing_element: element.id_
+                    < existing_element.id_,
+                )
                 cd_id_to_model_element[model_element.id_] = model_element
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(
@@ -3031,7 +3035,12 @@ class CellDesignerReader(momapy.io.Reader):
                 model_element = momapy.builder.object_from_builder(
                     model_element
                 )
-                model.boolean_logic_gates.add(model_element)
+                model_element = momapy.utils.add_or_replace_element_in_set(
+                    model_element,
+                    model.boolean_logic_gates,
+                    func=lambda element, existing_element: element.id_
+                    < existing_element.id_,
+                )
             else:
                 model_element = None
             if layout is not None:  # TODO: edit points
@@ -3152,7 +3161,12 @@ class CellDesignerReader(momapy.io.Reader):
                 model_element = momapy.builder.object_from_builder(
                     model_element
                 )
-                model.modulations.add(model_element)
+                model_element = momapy.utils.add_or_replace_element_in_set(
+                    model_element,
+                    model.modulations,
+                    func=lambda element, existing_element: element.id_
+                    < existing_element.id_,
+                )
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(
                         cd_reaction
