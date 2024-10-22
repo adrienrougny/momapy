@@ -1,7 +1,6 @@
 import os
 import collections
 import math
-import re
 import typing
 
 import lxml.objectify
