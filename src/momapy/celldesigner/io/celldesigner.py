@@ -1894,6 +1894,8 @@ class CellDesignerReader(momapy.io.Reader):
                 modification_state = (
                     momapy.celldesigner.core.ModificationState[
                         cd_species_modification_state.upper()
+                        .replace(" ", "_")  # for DON'T CARE
+                        .replace("'", "_")
                     ]
                 )
             cd_species_template = cls._get_template_from_cd_species_alias(
