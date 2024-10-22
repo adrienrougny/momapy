@@ -800,9 +800,10 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _get_reaction_modifications_from_cd_reaction(cls, cd_reaction):
         extension = cls._get_extension_from_cd_element(cd_reaction)
-        modifications = list(
-            getattr(extension.listOfModification, "modification", [])
-        )
+        list_of_modification = getattr(extension, "listOfModification", None)
+        if list_of_modification is None:
+            return []
+        modifications = list(getattr(list_of_modification, "modification", []))
         true_modifications = []
         cd_input_ids = set([])
         for modification in modifications:
