@@ -32,10 +32,10 @@ class ModificationState(enum.Enum):
     GLYCOSYLATED = "G"
     MYRISTOYLATED = "My"
     PALMITOYLATED = "Pa"
+    PALMYTOYLATED = "Pa"
     PRENYLATED = "Pr"
     PROTONATED = "H"
     SULFATED = "S"
-    PALMITOYLATED = "Pa"
     DON_T_CARE = "*"
     UNKNOWN = "?"
 
