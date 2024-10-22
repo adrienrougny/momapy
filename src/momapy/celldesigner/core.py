@@ -2,9 +2,6 @@ import dataclasses
 import enum
 import math
 import typing
-import abc
-
-import frozendict
 
 import momapy.core
 import momapy.geometry
@@ -38,6 +35,7 @@ class ModificationState(enum.Enum):
     PRENYLATED = "Pr"
     PROTONATED = "H"
     SULFATED = "S"
+    PALMITOYLATED = "Pa"
     DON_T_CARE = "*"
     UNKNOWN = "?"
 
