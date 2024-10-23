@@ -50,7 +50,7 @@ class ModifierSpeciesReference(SimpleSpeciesReference):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesReference(SimpleSpeciesReference):
-    stoichiometry: int
+    stoichiometry: int | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
