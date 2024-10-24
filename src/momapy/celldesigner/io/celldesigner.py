@@ -4,6 +4,7 @@ import math
 import typing
 
 import lxml.objectify
+import frozendict
 
 import momapy.core
 import momapy.geometry
@@ -435,6 +436,9 @@ class CellDesignerReader(momapy.io.Reader):
             with_layout=with_layout,
             with_annotations=with_annotations,
             with_notes=with_notes,
+        )
+        annotations = frozendict.frozendict(
+            {key: frozenset(value) for key, value in annotations.items()}
         )
         result = momapy.io.ReaderResult(
             obj=obj,
