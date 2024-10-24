@@ -2503,6 +2503,10 @@ class CellDesignerReader(momapy.io.Reader):
                     if cd_stoichiometry is not None:
                         model_element.stoichiometry = float(cd_stoichiometry)
                     break
+            if model_element.id_ is None:
+                model_element.id_ = (
+                    f"{super_cd_element.get('id')}_{cd_species_id}"
+                )
             species_model_element = cd_id_to_model_element[
                 cd_base_reactant.get("alias")
             ]
@@ -2608,6 +2612,10 @@ class CellDesignerReader(momapy.io.Reader):
                     if cd_stoichiometry is not None:
                         model_element.stoichiometry = float(cd_stoichiometry)
                     break
+            if model_element.id_ is None:
+                model_element.id_ = (
+                    f"{super_cd_element.get('id')}_{cd_species_id}"
+                )
             species_model_element = cd_id_to_model_element[
                 cd_reactant_link.get("alias")
             ]
@@ -2703,6 +2711,10 @@ class CellDesignerReader(momapy.io.Reader):
                     if cd_stoichiometry is not None:
                         model_element.stoichiometry = float(cd_stoichiometry)
                     break
+            if model_element.id_ is None:
+                model_element.id_ = (
+                    f"{super_cd_element.get('id')}_{cd_species_id}"
+                )
             species_model_element = cd_id_to_model_element[
                 cd_base_product.get("alias")
             ]
@@ -2809,6 +2821,10 @@ class CellDesignerReader(momapy.io.Reader):
                     if cd_stoichiometry is not None:
                         model_element.stoichiometry = float(cd_stoichiometry)
                     break
+            if model_element.id_ is None:
+                model_element.id_ = (
+                    f"{super_cd_element.get('id')}_{cd_species_id}"
+                )
             species_model_element = cd_id_to_model_element[
                 cd_product_link.get("alias")
             ]
