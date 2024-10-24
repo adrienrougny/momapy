@@ -1088,7 +1088,7 @@ class CellDesignerReader(momapy.io.Reader):
             )
             cd_id_to_model_element = {}
             cd_id_to_layout_element = {}
-            map_element_to_annotations = collections.defaultdict(list)
+            map_element_to_annotations = collections.defaultdict(set)
             map_element_to_notes = {}
             model_element_to_layout_element = {}
             # we make and add the  model and layout elements from the cd elements
@@ -1534,7 +1534,9 @@ class CellDesignerReader(momapy.io.Reader):
                     cd_compartment
                 )
                 if annotations:
-                    map_element_to_annotations[model_element] += annotations
+                    map_element_to_annotations[model_element].update(
+                        annotations
+                    )
         else:
             model_element = None
         layout_element = None
@@ -1833,9 +1835,9 @@ class CellDesignerReader(momapy.io.Reader):
                             cd_species
                         )
                         if annotations:
-                            map_element_to_annotations[
-                                model_element
-                            ] += annotations
+                            map_element_to_annotations[model_element].update(
+                                annotations
+                            )
                 else:  # included species case
                     super_model_element.subunits.add(model_element)
                     if with_annotations:
@@ -1844,9 +1846,9 @@ class CellDesignerReader(momapy.io.Reader):
                             cd_notes
                         )
                         if annotations:
-                            map_element_to_annotations[
-                                model_element
-                            ] += annotations
+                            map_element_to_annotations[model_element].update(
+                                annotations
+                            )
                 cd_id_to_model_element[cd_species.get("id")] = model_element
                 cd_id_to_model_element[cd_species_alias.get("id")] = (
                     model_element
@@ -2237,9 +2239,9 @@ class CellDesignerReader(momapy.io.Reader):
                         cd_reaction
                     )
                     if annotations:
-                        map_element_to_annotations[
-                            model_element
-                        ] += annotations
+                        map_element_to_annotations[model_element].update(
+                            annotations
+                        )
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -3188,9 +3190,9 @@ class CellDesignerReader(momapy.io.Reader):
                         cd_reaction
                     )
                     if annotations:
-                        map_element_to_annotations[
-                            model_element
-                        ] += annotations
+                        map_element_to_annotations[model_element].update(
+                            annotations
+                        )
             else:
                 model_element = None
             if layout is not None:
