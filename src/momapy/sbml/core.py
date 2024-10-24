@@ -5,7 +5,7 @@ import momapy.core
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Annotation(momapy.core.ModelElement):
+class RDFAnnotation(momapy.core.ModelElement):
     qualifier: str
     resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
 

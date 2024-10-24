@@ -930,7 +930,7 @@ class CellDesignerReader(momapy.io.Reader):
                             li.get(f"{{{cls._RDF_NAMESPACE}}}resource")
                             for li in lis
                         ]
-                        annotation = momapy.sbml.core.Annotation(
+                        annotation = momapy.sbml.core.RDFAnnotation(
                             qualifier=qualifier,
                             resources=frozenset(resources),
                         )
