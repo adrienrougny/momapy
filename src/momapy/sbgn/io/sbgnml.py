@@ -4,11 +4,7 @@ import collections
 import typing
 
 import frozendict
-import xsdata.formats.dataclass.context
-import xsdata.formats.dataclass.parsers
-import xsdata.formats.dataclass.parsers.config
-import xsdata.formats.dataclass.serializers
-import xsdata.formats.dataclass.serializers.config
+import lxml.objectify
 
 import momapy.__about__
 import momapy.utils
@@ -28,63 +24,213 @@ class _SBGNMLReader(momapy.io.Reader):
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
-    _SBGNML_CLASS_TO_MAKE_AND_ADD_FUNC_NAME = {
-        "STATE_VARIABLE": "_make_and_add_state_variable_from_sbgnml",
-        "UNIT_OF_INFORMATION": "_make_and_add_unit_of_information_from_sbgnml",
-        "TERMINAL": "_make_and_add_submap_terminal_from_sbgnml",
-        "UNSPECIFIED_ENTITY_SUBUNIT": "_make_and_add_unspecified_entity_subunit_from_sbgnml",
-        "MACROMOLECULE_SUBUNIT": "_make_and_add_macromolecule_subunit_from_sbgnml",
-        "MACROMOLECULE_MULTIMER_SUBUNIT": "_make_and_add_macromolecule_multimer_subunit_from_sbgnml",
-        "SIMPLE_CHEMICAL_SUBUNIT": "_make_and_add_simple_chemical_subunit_from_sbgnml",
-        "SIMPLE_CHEMICAL_MULTIMER_SUBUNIT": "_make_and_add_simple_chemical_multimer_subunit_from_sbgnml",
-        "NUCLEIC_ACID_FEATURE_SUBUNIT": "_make_and_add_nucleic_acid_feature_subunit_from_sbgnml",
-        "NUCLEIC_ACID_FEATURE_MULTIMER_SUBUNIT": "_make_and_add_nucleic_acid_feature_multimer_subunit_from_sbgnml",
-        "COMPLEX_SUBUNIT": "_make_and_add_complex_subunit_from_sbgnml",
-        "COMPLEX_MULTIMER_SUBUNIT": "_make_and_add_complex_multimer_subunit_from_sbgnml",
-        "COMPARTMENT": "_make_and_add_compartment_from_sbgnml",
-        "SUBMAP": "_make_and_add_submap_from_sbgnml",
+    _KEY_TO_MODULE = {
+        "PROCESS_DESCRIPTION": momapy.sbgn.pd,
+        "ACTIVITY_FLOW": momapy.sbgn.af,
+    }
+    _KEY_TO_CLASS = {
+        "PROCESS_DESCRIPTION": (
+            momapy.sbgn.pd.SBGNPDMap,
+            momapy.sbgn.pd.SBGNPDModel,
+            momapy.sbgn.pd.SBGNPDLayout,
+        ),
+        "ACTIVITY_FLOW": (
+            momapy.sbgn.af.SBGNAFMap,
+            momapy.sbgn.af.SBGNAFModel,
+            momapy.sbgn.af.SBGNAFLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "STATE_VARIABLE"): (
+            momapy.sbgn.pd.StateVariable,
+            momapy.sbgn.pd.StateVariableLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "UNIT_OF_INFORMATION"): (
+            momapy.sbgn.pd.UnitOfInformation,
+            momapy.sbgn.pd.UnitOfInformationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "TERMINAL"): (
+            momapy.sbgn.pd.Terminal,
+            momapy.sbgn.pd.TerminalLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "UNSPECIFIED_ENTITY"): (
+            momapy.sbgn.pd.UnspecifiedEntitySubunit,
+            momapy.sbgn.pd.UnspecifiedEntitySubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "MACROMOLECULE"): (
+            momapy.sbgn.pd.MacromoleculeSubunit,
+            momapy.sbgn.pd.MacromoleculeSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "MACROMOLECULE_MULTIMER"): (
+            momapy.sbgn.pd.MacromoleculeMultimerSubunit,
+            momapy.sbgn.pd.MacromoleculeMultimerSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "SIMPLE_CHEMICAL"): (
+            momapy.sbgn.pd.SimpleChemicalSubunit,
+            momapy.sbgn.pd.SimpleChemicalSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "SIMPLE_CHEMICAL_MULTIMER"): (
+            momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
+            momapy.sbgn.pd.SimpleChemicalMultimerSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "NUCLEIC_ACID_FEATURE"): (
+            momapy.sbgn.pd.NucleicAcidFeatureSubunit,
+            momapy.sbgn.pd.NucleicAcidFeatureSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "NUCLEIC_ACID_FEATURE_MULTIMER"): (
+            momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
+            momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "COMPLEX"): (
+            momapy.sbgn.pd.ComplexSubunit,
+            momapy.sbgn.pd.ComplexSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "SUBGLYPH", "COMPLEX_MULTIMER"): (
+            momapy.sbgn.pd.ComplexMultimerSubunit,
+            momapy.sbgn.pd.ComplexMultimerSubunitLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "COMPARTMENT"): (
+            momapy.sbgn.pd.Compartment,
+            momapy.sbgn.pd.CompartmentLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "SUBMAP"): (
+            momapy.sbgn.pd.Submap,
+            momapy.sbgn.pd.SubmapLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "TAG"): (
+            momapy.sbgn.pd.Tag,
+            momapy.sbgn.pd.TagLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "UNSPECIFIED_ENTITY"): (
+            momapy.sbgn.pd.UnspecifiedEntity,
+            momapy.sbgn.pd.UnspecifiedEntityLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE"): (
+            momapy.sbgn.pd.Macromolecule,
+            momapy.sbgn.pd.MacromoleculeLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE_MULTIMER"): (
+            momapy.sbgn.pd.MacromoleculeMultimer,
+            momapy.sbgn.pd.MacromoleculeMultimerLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "SIMPLE_CHEMICAL"): (
+            momapy.sbgn.pd.SimpleChemical,
+            momapy.sbgn.pd.SimpleChemicalLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "SIMPLE_CHEMICAL_MULTIMER"): (
+            momapy.sbgn.pd.SimpleChemicalMultimer,
+            momapy.sbgn.pd.SimpleChemicalMultimerLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "NUCLEIC_ACID_FEATURE"): (
+            momapy.sbgn.pd.NucleicAcidFeature,
+            momapy.sbgn.pd.NucleicAcidFeatureLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "NUCLEIC_ACID_FEATURE_MULTIMER"): (
+            momapy.sbgn.pd.NucleicAcidFeatureMultimer,
+            momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "COMPLEX"): (
+            momapy.sbgn.pd.Complex,
+            momapy.sbgn.pd.ComplexLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "COMPLEX_MULTIMER"): (
+            momapy.sbgn.pd.ComplexMultimer,
+            momapy.sbgn.pd.ComplexMultimerLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "SOURCE_AND_SINK"): (
+            momapy.sbgn.pd.EmptySet,
+            momapy.sbgn.pd.EmptySetLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "PERTURBING_AGENT"): (
+            momapy.sbgn.pd.PerturbingAgent,
+            momapy.sbgn.pd.PerturbingAgentLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "PROCESS"): (
+            momapy.sbgn.pd.GenericProcess,
+            momapy.sbgn.pd.GenericProcessLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "OMITTED_PROCESS"): (
+            momapy.sbgn.pd.OmittedProcess,
+            momapy.sbgn.pd.OmittedProcessLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "UNCERTAIN_PROCESS"): (
+            momapy.sbgn.pd.UncertainProcess,
+            momapy.sbgn.pd.UncertainProcessLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "ASSOCIATION"): (
+            momapy.sbgn.pd.Association,
+            momapy.sbgn.pd.AssociationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "DISSOCIATION"): (
+            momapy.sbgn.pd.Dissociation,
+            momapy.sbgn.pd.DissociationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "PHENOTYPE"): (
+            momapy.sbgn.pd.Phenotype,
+            momapy.sbgn.pd.PhenotypeLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "AND"): (
+            momapy.sbgn.pd.AndOperator,
+            momapy.sbgn.pd.AndOperatorLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "OR"): (
+            momapy.sbgn.pd.OrOperator,
+            momapy.sbgn.pd.OrOperatorLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "NOT"): (
+            momapy.sbgn.pd.NotOperator,
+            momapy.sbgn.pd.NotOperatorLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "MODULATION"): (
+            momapy.sbgn.pd.Modulation,
+            momapy.sbgn.pd.ModulationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "STIMULATION"): (
+            momapy.sbgn.pd.Stimulation,
+            momapy.sbgn.pd.StimulationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "CATALYSIS"): (
+            momapy.sbgn.pd.Catalysis,
+            momapy.sbgn.pd.CatalysisLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "NECESSARY_STIMULATION"): (
+            momapy.sbgn.pd.NecessaryStimulation,
+            momapy.sbgn.pd.NecessaryStimulationLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "INHIBITION"): (
+            momapy.sbgn.pd.Inhibition,
+            momapy.sbgn.pd.InhibitionLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "CONSUMPTION"): (
+            momapy.sbgn.pd.Reactant,
+            momapy.sbgn.pd.ConsumptionLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "PRODUCTION"): (
+            momapy.sbgn.pd.Product,
+            momapy.sbgn.pd.ProductionLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "LOGIC_ARC"): (
+            momapy.sbgn.pd.LogicalOperatorInput,
+            momapy.sbgn.pd.LogicArcLayout,
+        ),
+        ("PROCESS_DESCRIPTION", "ARC", "EQUIVALENCE_ARC"): (
+            momapy.sbgn.pd.TagReference,
+            momapy.sbgn.pd.EquivalenceArcLayout,
+        ),
         "BIOLOGICAL_ACTIVITY": "_make_and_add_biological_activity_from_sbgnml",
-        "UNSPECIFIED_ENTITY": "_make_and_add_unspecified_entity_from_sbgnml",
-        "MACROMOLECULE": "_make_and_add_macromolecule_from_sbgnml",
-        "MACROMOLECULE_MULTIMER": "_make_and_add_macromolecule_multimer_from_sbgnml",
-        "SIMPLE_CHEMICAL": "_make_and_add_simple_chemical_from_sbgnml",
-        "SIMPLE_CHEMICAL_MULTIMER": "_make_and_add_simple_chemical_multimer_from_sbgnml",
-        "NUCLEIC_ACID_FEATURE": "_make_and_add_nucleic_acid_feature_from_sbgnml",
-        "NUCLEIC_ACID_FEATURE_MULTIMER": "_make_and_add_nucleic_acid_feature_multimer_from_sbgnml",
-        "COMPLEX": "_make_and_add_complex_from_sbgnml",
-        "COMPLEX_MULTIMER": "_make_and_add_complex_multimer_from_sbgnml",
-        "SOURCE_AND_SINK": "_make_and_add_empty_set_from_sbgnml",
-        "PERTURBING_AGENT": "_make_and_add_perturbing_agent_from_sbgnml",
-        "PROCESS": "_make_and_add_generic_process_from_sbgnml",
-        "ASSOCIATION": "_make_and_add_association_from_sbgnml",
-        "DISSOCIATION": "_make_and_add_dissociation_from_sbgnml",
-        "UNCERTAIN_PROCESS": "_make_and_add_uncertain_process_from_sbgnml",
-        "OMITTED_PROCESS": "_make_and_add_omitted_process_from_sbgnml",
-        "PHENOTYPE": "_make_and_add_phenotype_from_sbgnml",
         "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": "_make_and_add_unspecified_entity_unit_of_information_from_sbgnml",
         "UNIT_OF_INFORMATION_MACROMOLECULE": "_make_and_add_macromolecule_unit_of_information_from_sbgnml",
         "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": "_make_and_add_simple_chemical_unit_of_information_from_sbgnml",
         "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": "_make_and_add_nucleic_acid_feature_unit_of_information_from_sbgnml",
         "UNIT_OF_INFORMATION_COMPLEX": "_make_and_add_complex_unit_of_information_from_sbgnml",
         "UNIT_OF_INFORMATION_PERTURBATION": "_make_and_add_perturbation_unit_of_information_from_sbgnml",
-        "AND": "_make_and_add_and_operator_from_sbgnml",
-        "OR": "_make_and_add_or_operator_from_sbgnml",
-        "NOT": "_make_and_add_not_operator_from_sbgnml",
         "DELAY": "_make_and_add_delay_operator_from_sbgnml",
         "CONSUMPTION": "_make_and_add_consumption_from_sbgnml",
         "PRODUCTION": "_make_and_add_production_from_sbgnml",
-        "MODULATION": "_make_and_add_modulation_from_sbgnml",
-        "STIMULATION": "_make_and_add_stimulation_from_sbgnml",
-        "CATALYSIS": "_make_and_add_catalysis_from_sbgnml",
-        "NECESSARY_STIMULATION": "_make_and_add_necessary_stimulation_from_sbgnml",
-        "INHIBITION": "_make_and_add_inhibition_from_sbgnml",
         "POSITIVE_INFLUENCE": "_make_and_add_positive_influence_from_sbgnml",
         "NEGATIVE_INFLUENCE": "_make_and_add_negative_influence_from_sbgnml",
         "UNKNOWN_INFLUENCE": "_make_and_add_unknown_influence_from_sbgnml",
         "LOGIC_ARC_LOGICAL_OPERATOR": "_make_and_add_logical_operator_input_from_sbgnml",
         "LOGIC_ARC_EQUIVALENCE_OPERATOR": "_make_and_add_equivalence_operator_input_from_sbgnml",
         # "EQUIVALENCE_ARC": "_equivalence_arc_elements_from_arc",
-        "TAG": "_make_and_add_tag_from_sbgnml",
     }
     _SBGNML_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
         "encodes": momapy.sbgn.core.BQBiol.ENCODES,
@@ -106,7 +252,6 @@ class _SBGNMLReader(momapy.io.Reader):
         "biomodels_net_model_qualifiers_is_described_by": momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
         "is_instance_of": momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
     }
-    _parser_module = None
 
     @classmethod
     def read(
@@ -118,32 +263,63 @@ class _SBGNMLReader(momapy.io.Reader):
         with_annotations: bool = True,
         with_notes: bool = True,
         with_styles: bool = True,
-        from_top_left: bool = True,
     ):
-        config = xsdata.formats.dataclass.parsers.config.ParserConfig()
-        parser = xsdata.formats.dataclass.parsers.XmlParser(
-            config=config,
-            context=xsdata.formats.dataclass.context.XmlContext(),
-        )
-        result = momapy.io.ReaderResult()
-        result.file_path = file_path
-        sbgnml_sbgn = parser.parse(
-            source=file_path, clazz=cls._parser_module.Sbgn
-        )
-        obj, annotations, notes = cls._make_main_obj_from_sbgnml(
-            sbgnml_sbgn=sbgnml_sbgn,
+
+        sbgnml_document = lxml.objectify.parse(file_path)
+        sbgnml_sbgn = sbgnml_document.getroot()
+        obj, annotations, notes = cls._make_main_obj_from_sbgnml_map(
+            sbgnml_map=sbgnml_sbgn.map,
             return_type=return_type,
             with_model=with_model,
             with_layout=with_layout,
             with_annotations=with_annotations,
             with_notes=with_notes,
-            with_styles=with_styles,
-            from_top_left=from_top_left,
         )
-        result.obj = obj
-        result.annotations = annotations
-        result.notes = notes
+        annotations = frozendict.frozendict(
+            {key: frozenset(value) for key, value in annotations.items()}
+        )
+        result = momapy.io.ReaderResult(
+            obj=obj,
+            notes=notes,
+            annotations=annotations,
+            file_path=file_path,
+        )
         return result
+
+    @classmethod
+    @abc.abstractmethod
+    def _get_key_from_sbgnml_map(cls, sbgnml_map):
+        pass
+
+    @classmethod
+    def _get_key_from_sbgnml_glyph(cls, sbgnml_glyph, sbgnml_map):
+        sbgnml_map_key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        sbgnml_class = sbgnml_glyph.get("class").upper().replace(" ", "_")
+        return (
+            sbgnml_map_key,
+            "GLYPH",
+            sbgnml_class,
+        )
+
+    @classmethod
+    def _get_key_from_sbgnml_subglyph(cls, sbgnml_subglyph, sbgnml_map):
+        sbgnml_map_key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        sbgnml_class = sbgnml_subglyph.get("class").upper().replace(" ", "_")
+        return (
+            sbgnml_map_key,
+            "SUBGLYPH",
+            sbgnml_class,
+        )
+
+    @classmethod
+    def _get_key_from_sbgnml_arc(cls, sbgnml_arc, sbgnml_map):
+        sbgnml_map_key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        sbgnml_class = sbgnml_arc.get("class").upper().replace(" ", "_")
+        return (
+            sbgnml_map_key,
+            "ARC",
+            sbgnml_class,
+        )
 
     @classmethod
     def _get_module_from_obj(cls, obj):
@@ -168,683 +344,859 @@ class _SBGNMLReader(momapy.io.Reader):
         return None
 
     @classmethod
-    def _make_main_obj_from_sbgnml(
+    def _get_module_from_sbgnml_map(cls, sbgnml_map):
+        key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        module = cls._KEY_TO_MODULE[key]
+        if module is not None:
+            return module
+        return None
+
+    @classmethod
+    def _get_glyphs_from_sbgnml_element(cls, sbgnml_element):
+        return list(getattr(sbgnml_element, "glyph", []))
+
+    @classmethod
+    def _get_arcs_from_sbgnml_element(cls, sbgnml_element):
+        return list(getattr(sbgnml_element, "arc", []))
+
+    @classmethod
+    def _get_ports_from_sbgnml_element(cls, sbgnml_element):
+        return list(getattr(sbgnml_element, "port", []))
+
+    @classmethod
+    def _set_layout_element_position_and_size_from_sbgnml_glyph(
+        cls, layout_element, sbgnml_glyph
+    ):
+        sbgnml_bbox = sbgnml_glyph.bbox
+        x = float(sbgnml_bbox.get("x"))
+        y = float(sbgnml_bbox.get("y"))
+        w = float(sbgnml_bbox.get("w"))
+        h = float(sbgnml_bbox.get("h"))
+        layout_element.position = momapy.geometry.Point(x + w / 2, y + h / 2)
+        layout_element.width = w
+        layout_element.height = h
+
+    @classmethod
+    def _has_sbgnml_state_variable_undefined_variable(
+        cls, sbgnml_state_variable
+    ):
+        sbgnml_state = getattr(sbgnml_state_variable, "state", None)
+        if sbgnml_state is None:
+            return True
+        sbgnml_variable = sbgnml_state.get("variable")
+        return sbgnml_variable is None
+
+    @classmethod
+    def _make_mappings_and_lists_from_sbgnml_map(cls, sbgnml_map):
+        sbgnml_id_to_sbgnml_element = {}
+        sbgnml_compartments = []
+        sbgnml_entity_pools = []
+        sbgnml_logical_operators = []
+        sbgnml_processes = []
+        sbgnml_submaps = []
+        sbgnml_activities = []
+        sbgnml_modulations = []
+        sbgnml_influences = []
+        sbgnml_glyph_id_to_sbgnml_arcs = collections.defaultdict(list)
+        sbgnml_glyph_id_to_sbgnml_state_variables = collections.defaultdict(
+            list
+        )
+        sbgnml_glyph_id_to_sbgnml_units_of_information = (
+            collections.defaultdict(list)
+        )
+        sbgnml_glyph_id_to_sbgnml_subunits = collections.defaultdict(list)
+        for sbgnml_glyph in cls._get_glyphs_from_sbgnml_element(sbgnml_map):
+            sbgnml_id_to_sbgnml_element[sbgnml_glyph.get("id")] = sbgnml_glyph
+            key = cls._get_key_from_sbgnml_glyph(sbgnml_glyph, sbgnml_map)
+            model_element_cls, _ = cls._KEY_TO_CLASS[key]
+            if issubclass(model_element_cls, momapy.sbgn.pd.EntityPool):
+                sbgnml_entity_pools.append(sbgnml_glyph)
+            elif issubclass(model_element_cls, momapy.sbgn.pd.Compartment):
+                sbgnml_compartments.append(sbgnml_glyph)
+            elif issubclass(
+                model_element_cls,
+                cls._get_module_from_sbgnml_map(sbgnml_map).LogicalOperator,
+            ):
+                sbgnml_logical_operators.append(sbgnml_glyph)
+            elif issubclass(
+                model_element_cls,
+                cls._get_module_from_sbgnml_map(sbgnml_map).Submap,
+            ):
+                sbgnml_submaps.append(sbgnml_glyph)
+            elif issubclass(model_element_cls, momapy.sbgn.pd.Process):
+                sbgnml_processes.append(sbgnml_glyph)
+            elif issubclass(model_element_cls, momapy.sbgn.af.Activity):
+                sbgnml_activities.append(sbgnml_glyph)
+
+            for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(
+                sbgnml_glyph
+            ):
+                sbgnml_id_to_sbgnml_element[sbgnml_subglyph.get("id")] = (
+                    sbgnml_subglyph
+                )
+            for sbgnml_port in cls._get_ports_from_sbgnml_element(
+                sbgnml_glyph
+            ):
+                sbgnml_id_to_sbgnml_element[sbgnml_port.get("id")] = (
+                    sbgnml_port
+                )
+        for sbgnml_arc in cls._get_arcs_from_sbgnml_element(sbgnml_map):
+            sbgnml_id_to_sbgnml_element[sbgnml_arc.get("id")] = sbgnml_arc
+            sbgnml_source = sbgnml_id_to_sbgnml_element[
+                sbgnml_arc.get("source")
+            ]
+            sbgnml_target = sbgnml_id_to_sbgnml_element[
+                sbgnml_arc.get("target")
+            ]
+            sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_source.get("id")].append(
+                sbgnml_arc
+            )
+            sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_target.get("id")].append(
+                sbgnml_arc
+            )
+            key = cls._get_key_from_sbgnml_arc(sbgnml_arc, sbgnml_map)
+            model_element_cls, _ = cls._KEY_TO_CLASS[key]
+            if issubclass(model_element_cls, momapy.sbgn.pd.Modulation):
+                sbgnml_modulations.append(sbgnml_arc)
+            elif issubclass(model_element_cls, momapy.sbgn.af.Influence):
+                sbgnml_influences.append(sbgnml_arc)
+
+            for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(
+                sbgnml_arc
+            ):
+                sbgnml_id_to_sbgnml_element[sbgnml_subglyph.get("id")] = (
+                    sbgnml_subglyph
+                )
+        return (
+            sbgnml_id_to_sbgnml_element,
+            sbgnml_compartments,
+            sbgnml_entity_pools,
+            sbgnml_logical_operators,
+            sbgnml_processes,
+            sbgnml_submaps,
+            sbgnml_activities,
+            sbgnml_modulations,
+            sbgnml_influences,
+            sbgnml_glyph_id_to_sbgnml_arcs,
+            sbgnml_glyph_id_to_sbgnml_state_variables,
+            sbgnml_glyph_id_to_sbgnml_units_of_information,
+            sbgnml_glyph_id_to_sbgnml_subunits,
+        )
+
+    @classmethod
+    def _get_state_variables_from_sbgnml_element(
+        cls, sbgnml_element, sbgnml_map
+    ):
+        sbgnml_state_variables = []
+        for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(
+            sbgnml_element
+        ):
+            key = cls._get_key_from_sbgnml_subglyph(
+                sbgnml_subglyph, sbgnml_map
+            )
+            model_element_cls, _ = cls._KEY_TO_CLASS[key]
+            if issubclass(model_element_cls, momapy.sbgn.pd.StateVariable):
+                sbgnml_state_variables.append(sbgnml_subglyph)
+        return sbgnml_state_variables
+
+    @classmethod
+    def _get_units_of_information_from_sbgnml_element(
+        cls, sbgnml_element, sbgnml_map
+    ):
+        sbgnml_units_of_information = []
+        for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(
+            sbgnml_element
+        ):
+            key = cls._get_key_from_sbgnml_subglyph(
+                sbgnml_subglyph, sbgnml_map
+            )
+            model_element_cls, _ = cls._KEY_TO_CLASS[key]
+            if issubclass(
+                model_element_cls,
+                (
+                    momapy.sbgn.pd.UnitOfInformation,
+                    momapy.sbgn.af.UnitOfInformation,
+                ),
+            ):
+                sbgnml_units_of_information.append(sbgnml_subglyph)
+        return sbgnml_units_of_information
+
+    @classmethod
+    def _get_subunits_from_sbgnml_element(cls, sbgnml_element, sbgnml_map):
+        sbgnml_subunits = []
+        for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(
+            sbgnml_element
+        ):
+            key = cls._get_key_from_sbgnml_subglyph(
+                sbgnml_subglyph, sbgnml_map
+            )
+            model_element_cls, _ = cls._KEY_TO_CLASS[key]
+            if issubclass(model_element_cls, momapy.sbgn.pd.Subunit):
+                sbgnml_subunits.append(sbgnml_subglyph)
+        return sbgnml_subunits
+
+    @classmethod
+    def _make_main_obj_from_sbgnml_map(
         cls,
-        sbgnml_sbgn,
+        sbgnml_map,
         return_type: typing.Literal["map", "model", "layout"],
         with_model: bool = True,
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
         with_styles: bool = True,
-        from_top_left: bool = True,
     ):
-        sbgnml_map = cls._get_sbgnml_map_from_sbgnml(sbgnml_sbgn)
         if return_type == "model" or return_type == "map" and with_model:
-            model = cls._make_model_no_subelements_from_sbgnml(sbgnml_map)
+            model = cls._make_model_no_subelements_from_sbgnml_map(sbgnml_map)
         else:
             model = None
         if return_type == "layout" or return_type == "map" and with_layout:
-            layout = cls._make_layout_no_subelements_from_sbgnml(sbgnml_map)
+            layout = cls._make_layout_no_subelements_from_sbgnml_map(
+                sbgnml_map
+            )
         else:
             layout = None
         if model is not None or layout is not None:
+            # We gather sbgnml ids and their correponding elements going in one
+            # pass.
+            (
+                sbgnml_id_to_sbgnml_element,
+                sbgnml_compartments,
+                sbgnml_entity_pools,
+                sbgnml_logical_operators,
+                sbgnml_processes,
+                sbgnml_submaps,
+                sbgnml_activities,
+                sbgnml_modulations,
+                sbgnml_influences,
+                sbgnml_glyph_id_to_sbgnml_arcs,
+                sbgnml_glyph_id_to_sbgnml_state_variables,
+                sbgnml_glyph_id_to_sbgnml_units_of_information,
+                sbgnml_glyph_id_to_sbgnml_subunits,
+            ) = cls._make_mappings_and_lists_from_sbgnml_map(sbgnml_map)
             sbgnml_id_to_model_element = {}
             sbgnml_id_to_layout_element = {}
-            # We gather glyph ids and their correponding glyphs
-            sbgnml_id_to_sbgnml_element = {}
-            for sbgnml_glyph in sbgnml_map.glyph:
-                sub_sbgnml_id_to_sbgnml_element = (
-                    cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(
-                        sbgnml_glyph
-                    )
-                )
-                sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
-            for sbgnml_arc in sbgnml_map.arc:
-                sub_sbgnml_id_to_sbgnml_element = (
-                    cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(
-                        sbgnml_arc
-                    )
-                )
-                sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
-            # We gather glyph ids and their ingoing/outgoing arcs
-            sbgnml_glyph_id_to_sbgnml_arcs = collections.defaultdict(list)
-            for sbgnml_arc in sbgnml_map.arc:
-                sbgnml_source = sbgnml_id_to_sbgnml_element[sbgnml_arc.source]
-                sbgnml_target = sbgnml_id_to_sbgnml_element[sbgnml_arc.target]
-                sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_source.id].append(
-                    sbgnml_arc
-                )
-                sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_target.id].append(
-                    sbgnml_arc
-                )
-            sbgnml_id_super_sbgnml_id_for_mapping = (
-                []
-            )  # will serve for building the layout_model_mapping
-            sbgnml_id_to_annotations = {}
-            sbgnml_id_to_notes = {}
+            map_element_to_annotations = collections.defaultdict(list)
+            map_element_to_notes = collections.defaultdict(list)
+            model_element_to_layout_element = {}
             # We make model and layout elements from glyphs and arcs; when an arc or
             # a glyph references another sbgnml element, we make the model and
             # layout elements corresponding to that sbgnml element in most cases,
             # and add them to their super model or super layout element accordingly.
             # We make glyphs compartments first as they have to be in the background
-            for sbgnml_glyph in sbgnml_map.glyph:
-                if (
-                    sbgnml_glyph.class_value.name == "COMPARTMENT"
-                    and sbgnml_glyph.id not in sbgnml_id_to_model_element
-                ):
-                    model_element, layout_element = (
-                        cls._make_and_add_elements_from_sbgnml(
-                            model=model,
-                            layout=layout,
-                            sbgnml_element=sbgnml_glyph,
-                            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                            sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                            sbgnml_id_to_notes=sbgnml_id_to_notes,
-                            super_sbgnml_element=None,
-                            super_model_element=None,
-                            super_layout_element=None,
-                            order=None,
-                            with_annotations=with_annotations,
-                            with_notes=with_notes,
-                        )
-                    )
-            # We make the rest of the glyphs
-            for sbgnml_glyph in sbgnml_map.glyph:
-                if (
-                    sbgnml_glyph.class_value.name != "COMPARTMENT"
-                    and sbgnml_glyph.id not in sbgnml_id_to_model_element
-                ):
-                    model_element, layout_element = (
-                        cls._make_and_add_elements_from_sbgnml(
-                            model=model,
-                            layout=layout,
-                            sbgnml_element=sbgnml_glyph,
-                            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                            sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                            sbgnml_id_to_notes=sbgnml_id_to_notes,
-                            super_sbgnml_element=None,
-                            super_model_element=None,
-                            super_layout_element=None,
-                            order=None,
-                            with_annotations=with_annotations,
-                            with_notes=with_notes,
-                        )
-                    )
-            # We then make arcs
-            for sbgnml_arc in sbgnml_map.arc:
-                if (
-                    sbgnml_arc.id not in sbgnml_id_to_model_element
-                    and sbgnml_arc.id not in sbgnml_id_to_layout_element
-                ):
-                    model_element, layout_element = (
-                        cls._make_and_add_elements_from_sbgnml(
-                            model=model,
-                            layout=layout,
-                            sbgnml_element=sbgnml_arc,
-                            sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                            sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                            sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                            sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                            sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                            sbgnml_id_to_notes=sbgnml_id_to_notes,
-                            super_sbgnml_element=None,
-                            super_model_element=None,
-                            super_layout_element=None,
-                            order=None,
-                            with_annotations=with_annotations,
-                            with_notes=with_notes,
-                        )
-                    )
-        if (
-            layout is not None
-            and with_styles
-            and sbgnml_map.extension is not None
-            and sbgnml_map.extension.render_information is not None
-        ):
-            style_sheet = cls._make_style_sheet_from_sbgnml(
-                layout,
-                sbgnml_map.extension.render_information,
-                sbgnml_id_to_layout_element,
+            cls._make_and_add_compartments_from_sbgnml_compartments(
+                sbgnml_map=sbgnml_map,
+                sbgnml_compartments=sbgnml_compartments,
+                model=model,
+                layout=layout,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                map_element_to_annotations=map_element_to_annotations,
+                map_element_to_notes=map_element_to_notes,
+                model_element_to_layout_element=model_element_to_layout_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
             )
-            layout = momapy.styling.apply_style_sheet(layout, style_sheet)
-        # If the map has a bbox, we use it for the dimensions of the layout;
-        # otherwise, we compute the dimensions from the layout elements
-        if layout is not None:
-            if sbgnml_map.bbox is not None:
-                position = cls._make_position_from_sbgnml(sbgnml_map)
-                layout.position = position
-                layout.width = sbgnml_map.bbox.w
-                layout.height = sbgnml_map.bbox.h
-            else:
-                bbox = momapy.positioning.fit(map_.layout.layout_elements)
-                if from_top_left:
-                    layout.width = bbox.x + bbox.width / 2
-                    layout.height = bbox.y + bbox.height / 2
-                    layout.position = momapy.geometry.Point(
-                        map_.layout.width / 2, map_.layout.height / 2
+            cls._make_and_add_entity_pools_from_sbgnml_entity_pools(
+                sbgnml_map=sbgnml_map,
+                sbgnml_entity_pools=sbgnml_entity_pools,
+                model=model,
+                layout=layout,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                map_element_to_annotations=map_element_to_annotations,
+                map_element_to_notes=map_element_to_notes,
+                model_element_to_layout_element=model_element_to_layout_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+            # cls._make_and_add_logical_operators_from_sbgnml_logical_operators(
+            #     sbgnml_map=sbgnml_map,
+            #     sbgnml_logical_operators=sbgnml_logical_operators,
+            #     model=model,
+            #     layout=layout,
+            #     sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            #     sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            #     sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            #     sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            #     map_element_to_annotations=map_element_to_annotations,
+            #     map_element_to_notes=map_element_to_notes,
+            #     model_element_to_layout_element=model_element_to_layout_element,
+            #     with_annotations=with_annotations,
+            #     with_notes=with_notes,
+            # )
+            # cls._make_and_add_submaps_from_sbgnml_submaps(
+            #     sbgnml_map=sbgnml_map,
+            #     sbgnml_submaps=sbgnml_submaps,
+            #     model=model,
+            #     layout=layout,
+            #     sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            #     sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            #     sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            #     map_element_to_annotations=map_element_to_annotations,
+            #     map_element_to_notes=map_element_to_notes,
+            #     model_element_to_layout_element=model_element_to_layout_element,
+            #     with_annotations=with_annotations,
+            #     with_notes=with_notes,
+            # )
+            # cls._make_and_add_processes_from_sbgnml_processes(
+            #     sbgnml_map=sbgnml_map,
+            #     sbgnml_processes=sbgnml_processes,
+            #     model=model,
+            #     layout=layout,
+            #     sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            #     sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            #     sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            #     sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+            #     map_element_to_annotations=map_element_to_annotations,
+            #     map_element_to_notes=map_element_to_notes,
+            #     model_element_to_layout_element=model_element_to_layout_element,
+            #     with_annotations=with_annotations,
+            #     with_notes=with_notes,
+            # )
+            # cls._make_and_add_modulations_from_sbgnml_modulations(
+            #     sbgnml_map=sbgnml_map,
+            #     sbgnml_modulations=sbgnml_modulations,
+            #     model=model,
+            #     layout=layout,
+            #     sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+            #     sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+            #     sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+            #     map_element_to_annotations=map_element_to_annotations,
+            #     map_element_to_notes=map_element_to_notes,
+            #     model_element_to_layout_element=model_element_to_layout_element,
+            #     with_annotations=with_annotations,
+            #     with_notes=with_notes,
+            # )
+            if layout is not None:
+                sbgnml_bbox = getattr(sbgnml_map, "bbox", None)
+                if sbgnml_bbox is not None:
+                    cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                        sbgnml_map
                     )
                 else:
-                    layout.width = bbox.width
-                    layout.height = bbox.height
-                    layout.position = bbox.position
+                    momapy.positioning.set_fit(layout, layout.layout_elements)
+        # if (
+        #     layout is not None
+        #     and with_styles
+        #     and sbgnml_map.extension is not None
+        #     and sbgnml_map.extension.render_information is not None
+        # ):
+        #     style_sheet = cls._make_style_sheet_from_sbgnml(
+        #         layout,
+        #         sbgnml_map.extension.render_information,
+        #         sbgnml_id_to_layout_element,
+        #     )
+        #     layout = momapy.styling.apply_style_sheet(layout, style_sheet)
+        # # If the map has a bbox, we use it for the dimensions of the layout;
+        # # otherwise, we compute the dimensions from the layout elements
+        # if layout is not None:
+        #     if sbgnml_map.bbox is not None:
+        #         position = cls._make_position_from_sbgnml(sbgnml_map)
+        #         layout.position = position
+        #         layout.width = sbgnml_map.bbox.w
+        #         layout.height = sbgnml_map.bbox.h
+        #     else:
+        #         bbox = momapy.positioning.fit(map_.layout.layout_elements)
+        #         if from_top_left:
+        #             layout.width = bbox.x + bbox.width / 2
+        #             layout.height = bbox.y + bbox.height / 2
+        #             layout.position = momapy.geometry.Point(
+        #                 map_.layout.width / 2, map_.layout.height / 2
+        #             )
+        #         else:
+        #             layout.width = bbox.width
+        #             layout.height = bbox.height
+        #             layout.position = bbox.position
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
-            map_ = cls._make_map_no_subelements_from_sbgnml(sbgnml_map)
+            map_ = cls._make_map_no_subelements_from_sbgnml_map(sbgnml_map)
             map_.model = model
             map_.layout = layout
-            if model is not None and layout is not None:
-                # We make the layout_model_mapping
-                map_.layout_model_mapping = map_.new_layout_model_mapping()
-                for (
-                    sbgnml_id,
-                    super_sbgnml_id,
-                ) in sbgnml_id_super_sbgnml_id_for_mapping:
-                    model_element = sbgnml_id_to_model_element[sbgnml_id]
-                    if super_sbgnml_id is not None:
-                        super_model_element = sbgnml_id_to_model_element[
-                            super_sbgnml_id
-                        ]
-                    else:
-                        super_model_element = None
-                    layout_element = sbgnml_id_to_layout_element[sbgnml_id]
-                    map_.add_mapping(
-                        (model_element, super_model_element), layout_element
-                    )
-            if with_annotations:
-                if (
-                    sbgnml_map.extension is not None
-                    and sbgnml_map.extension.annotation is not None
-                ):
-                    annotations = cls._annotations_from_sbgnml(
-                        map_, sbgnml_map.extension.annotation
-                    )
-                    for annotation in annotations:
-                        map_.model.annotations.add(annotation)
-            if with_notes and sbgnml_map.notes is not None:
-                notes = cls._make_notes_from_sbgnml(sbgnml_map.notes)
-                map_.notes = notes
             obj = momapy.builder.object_from_builder(map_)
-        map_element_to_annotations = {}
-        if with_annotations:
-            for sbgnml_id, annotations in sbgnml_id_to_annotations.items():
-                model_element = sbgnml_id_to_model_element.get(sbgnml_id)
-                if model_element is not None:
-                    if model_element in map_element_to_annotations:
-                        map_element_to_annotations[model_element].update(
-                            annotations
-                        )
-                    else:
-                        map_element_to_annotations[model_element] = annotations
-                layout_element = sbgnml_id_to_layout_element.get(sbgnml_id)
-                if layout_element is not None:
-                    map_element_to_annotations[layout_element] = annotations
-        map_element_to_notes = {}
-        if with_notes:
-            for sbgnml_id, notes in sbgnml_id_to_notes.items():
-                model_element = sbgnml_id_to_model_element.get(sbgnml_id)
-                if model_element is not None:
-                    if model_element in notes:
-                        map_element_to_notes[model_element].update(notes)
-                    else:
-                        map_element_to_notes[model_element] = notes
-                layout_element = sbgnml_id_to_layout_element.get(sbgnml_id)
-                if layout_element is not None:
-                    map_element_to_notes[layout_element] = notes
         return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
-    def _make_and_add_state_variable_from_sbgnml(
+    def _make_and_add_compartments_from_sbgnml_compartments(
         cls,
+        sbgnml_map,
+        sbgnml_compartments,
         model,
         layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
         sbgnml_id_to_model_element,
         sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
     ):
-        if sbgnml_element.state is None:
-            value = None
-            variable = None
-            order = order
-            text = ""
+        for sbgnml_compartment in sbgnml_compartments:
+            cls._make_and_add_compartment_from_sbgnml_compartment(
+                sbgnml_map=sbgnml_map,
+                sbgnml_compartment=sbgnml_compartment,
+                model=model,
+                layout=layout,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                map_element_to_annotations=map_element_to_annotations,
+                map_element_to_notes=map_element_to_notes,
+                model_element_to_layout_element=model_element_to_layout_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+            )
+
+    @classmethod
+    def _make_and_add_compartment_from_sbgnml_compartment(
+        cls,
+        sbgnml_map,
+        sbgnml_compartment,
+        model,
+        layout,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+    ):
+        if model is not None or layout is not None:
+            sbgnml_label = getattr(sbgnml_compartment, "label", None)
+            if model is not None:
+                model_element = model.new_element(
+                    cls._get_module_from_obj(model).Compartment
+                )
+                model_element.id_ = sbgnml_compartment.get("id")
+                if sbgnml_label is not None:
+                    model_element.label = sbgnml_label.get("text")
+                model_element = momapy.builder.object_from_builder(
+                    model_element
+                )
+                model_element = momapy.utils.add_or_replace_element_in_set(
+                    model_element,
+                    model.compartments,
+                    func=lambda element, existing_element: element.id_
+                    < existing_element.id_,
+                )
+                sbgnml_id_to_model_element[sbgnml_compartment.get("id")] = (
+                    model_element
+                )
+            else:
+                model_element = None
+            if layout is not None:
+                layout_element = layout.new_element(
+                    cls._get_module_from_obj(layout).CompartmentLayout
+                )
+                layout_element.id_ = sbgnml_compartment.get("id")
+                cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                    layout_element, sbgnml_compartment
+                )
+                if sbgnml_label is not None:
+                    text = sbgnml_label.get("text")
+                    if text is None:
+                        text = ""
+                    text_layout = momapy.core.TextLayout(
+                        text=text,
+                        font_size=cls._DEFAULT_FONT_SIZE,
+                        font_family=cls._DEFAULT_FONT_FAMILY,
+                        fill=cls._DEFAULT_FONT_FILL,
+                        stroke=momapy.drawing.NoneValue,
+                        position=layout_element.center(),
+                    )
+                    layout_element.label = text_layout
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
+                layout.layout_elements.append(layout_element)
+                sbgnml_id_to_layout_element[sbgnml_compartment.get("id")] = (
+                    layout_element
+                )
+            else:
+                layout_element = None
         else:
-            if sbgnml_element.state.value is None:
-                value = None
-                text = ""
+            model_element = None
+            layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_entity_pools_from_sbgnml_entity_pools(
+        cls,
+        sbgnml_map,
+        sbgnml_entity_pools,
+        model,
+        layout,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+    ):
+        for sbgnml_entity_pool in sbgnml_entity_pools:
+            model_element, layout_element = (
+                cls._make_and_add_entity_pool_or_subunit_from_sbgnml_entity_pool_or_sbgnml_subunit(
+                    sbgnml_map=sbgnml_map,
+                    sbgnml_entity_pool_or_subunit=sbgnml_entity_pool,
+                    model=model,
+                    layout=layout,
+                    sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                    sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                    sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                    map_element_to_annotations=map_element_to_annotations,
+                    map_element_to_notes=map_element_to_notes,
+                    model_element_to_layout_element=model_element_to_layout_element,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
+                    super_model_element=None,
+                    super_layout_element=None,
+                )
+            )
+
+    @classmethod
+    def _make_and_add_entity_pool_or_subunit_from_sbgnml_entity_pool_or_sbgnml_subunit(
+        cls,
+        sbgnml_map,
+        sbgnml_entity_pool_or_subunit,
+        model,
+        layout,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+        super_model_element,
+        super_layout_element,
+    ):
+        if model is not None or layout is not None:
+            sbgnml_label = getattr(
+                sbgnml_entity_pool_or_subunit, "label", None
+            )
+            is_subunit = (
+                super_model_element is not None
+                or super_layout_element is not None
+            )
+            if is_subunit:
+                key = cls._get_key_from_sbgnml_subglyph(
+                    sbgnml_entity_pool_or_subunit, sbgnml_map
+                )
             else:
-                value = sbgnml_element.state.value
-                text = sbgnml_element.state.value
-            if (
-                sbgnml_element.state.variable is not None
-                and sbgnml_element.state.variable
+                key = cls._get_key_from_sbgnml_glyph(
+                    sbgnml_entity_pool_or_subunit, sbgnml_map
+                )
+            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
+            if model is not None:
+                model_element = model.new_element(model_element_cls)
+                model_element.id_ = sbgnml_entity_pool_or_subunit.get("id")
+                sbgnml_compartment_ref = sbgnml_entity_pool_or_subunit.get(
+                    "compartmentRef"
+                )
+                if sbgnml_compartment_ref is not None:
+                    compartment_model_element = sbgnml_id_to_model_element[
+                        sbgnml_compartment_ref
+                    ]
+                    model_element.compartment = compartment_model_element
+                if sbgnml_label is not None:
+                    model_element.label = sbgnml_label.get("text")
+            else:
+                model_element = None
+            if layout is not None:
+                layout_element = layout.new_element(layout_element_cls)
+                layout_element.id_ = sbgnml_entity_pool_or_subunit.get("id")
+                cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                    layout_element, sbgnml_entity_pool_or_subunit
+                )
+                if sbgnml_label is not None:
+                    text = sbgnml_label.get("text")
+                    if text is None:
+                        text = ""
+                    text_layout = momapy.core.TextLayout(
+                        text=text,
+                        font_size=cls._DEFAULT_FONT_SIZE,
+                        font_family=cls._DEFAULT_FONT_FAMILY,
+                        fill=cls._DEFAULT_FONT_FILL,
+                        stroke=momapy.drawing.NoneValue,
+                        position=layout_element.label_center(),
+                    )
+                    layout_element.label = text_layout
+            else:
+                layout_element = None
+            n_undefined_state_variables = 0
+            for (
+                sbgnml_state_variable
+            ) in cls._get_state_variables_from_sbgnml_element(
+                sbgnml_entity_pool_or_subunit, sbgnml_map
             ):
-                variable = sbgnml_element.state.variable
-                text += f"@{sbgnml_element.state.variable}"
-                order = None
-            else:
+                if cls._has_sbgnml_state_variable_undefined_variable(
+                    sbgnml_state_variable
+                ):
+                    n_undefined_state_variables += 1
+                    order = n_undefined_state_variables
+                else:
+                    order = None
+                state_variable_model_element, state_variable_layout_element = (
+                    cls._make_and_add_state_variable_from_sbgnml_state_variable(
+                        sbgnml_map=sbgnml_map,
+                        sbgnml_state_variable=sbgnml_state_variable,
+                        model=model,
+                        layout=layout,
+                        sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                        sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                        sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                        map_element_to_annotations=map_element_to_annotations,
+                        map_element_to_notes=map_element_to_notes,
+                        model_element_to_layout_element=model_element_to_layout_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
+                        order=order,
+                    )
+                )
+            for (
+                sbgnml_unit_of_information
+            ) in cls._get_units_of_information_from_sbgnml_element(
+                sbgnml_entity_pool_or_subunit, sbgnml_map
+            ):
+                (
+                    unit_of_information_model_element,
+                    unit_of_information_layout_element,
+                ) = cls._make_and_add_unit_of_information_from_sbgnml_unit_of_information(
+                    sbgnml_map=sbgnml_map,
+                    sbgnml_unit_of_information=sbgnml_unit_of_information,
+                    model=model,
+                    layout=layout,
+                    sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                    sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                    sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                    map_element_to_annotations=map_element_to_annotations,
+                    map_element_to_notes=map_element_to_notes,
+                    model_element_to_layout_element=model_element_to_layout_element,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
+                )
+            for sbgnml_subunit in cls._get_subunits_from_sbgnml_element(
+                sbgnml_entity_pool_or_subunit, sbgnml_map
+            ):
+                (
+                    subunit_model_element,
+                    subunit_layout_element,
+                ) = cls._make_and_add_entity_pool_or_subunit_from_sbgnml_entity_pool_or_sbgnml_subunit(
+                    sbgnml_map=sbgnml_map,
+                    sbgnml_entity_pool_or_subunit=sbgnml_subunit,
+                    model=model,
+                    layout=layout,
+                    sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                    sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                    sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                    map_element_to_annotations=map_element_to_annotations,
+                    map_element_to_notes=map_element_to_notes,
+                    model_element_to_layout_element=model_element_to_layout_element,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
+                )
+            if model is not None:
+                model_element = momapy.builder.object_from_builder(
+                    model_element
+                )
+                if is_subunit:
+                    super_model_element.subunits.add(model_element)
+                else:
+                    model_element = momapy.utils.add_or_replace_element_in_set(
+                        model_element,
+                        model.entity_pools,
+                        func=lambda element, existing_element: element.id_
+                        < existing_element.id_,
+                    )
+                sbgnml_id_to_model_element[
+                    sbgnml_entity_pool_or_subunit.get("id")
+                ] = model_element
+            if layout is not None:
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
+                if is_subunit:
+                    super_layout_element.layout_elements.append(layout_element)
+                else:
+                    layout.layout_elements.append(layout_element)
+                sbgnml_id_to_layout_element[
+                    sbgnml_entity_pool_or_subunit.get("id")
+                ] = layout_element
+        else:
+            model_element = None
+            layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_state_variable_from_sbgnml_state_variable(
+        cls,
+        sbgnml_map,
+        sbgnml_state_variable,
+        model,
+        layout,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+        super_model_element,
+        super_layout_element,
+        order=None,
+    ):
+        if model is not None or layout is not None:
+            sbgnml_id = sbgnml_state_variable.get("id")
+            sbgnml_state = getattr(sbgnml_state_variable, "state", None)
+            if sbgnml_state is None:
+                value = None
                 variable = None
                 order = order
-        if model is not None:
-            # We make the model element
-            model_element = model.new_element(momapy.sbgn.pd.StateVariable)
-            model_element.id_ = cls._make_model_element_id_from_sbgnml(
-                sbgnml_element
-            )
-            model_element.value = value
-            model_element.variable = variable
-            model_element.order = order
-            model_element = momapy.builder.object_from_builder(model_element)
-            super_model_element.state_variables.add(model_element)
-            sbgnml_id_to_model_element[sbgnml_element.id] = model_element
-        else:
-            model_element = None
-        if layout is not None:
-            # We make the layout element
-            layout_element = layout.new_element(
-                momapy.sbgn.pd.StateVariableLayout
-            )
-            layout_element.id_ = sbgnml_element.id
-            position = cls._make_position_from_sbgnml(
-                sbgnml_element=sbgnml_element
-            )
-            layout_element.position = position
-            layout_element.width = sbgnml_element.bbox.w
-            layout_element.height = sbgnml_element.bbox.h
-            text_layout = momapy.core.TextLayoutBuilder()
-            text_layout.text = text
-            text_layout.position = position
-            text_layout.font_family = cls._DEFAULT_FONT_FAMILY
-            text_layout.font_size = 8.0
-            text_layout.fill = cls._DEFAULT_FONT_FILL
-            text_layout = momapy.builder.object_from_builder(text_layout)
-            layout_element.label = text_layout
-            layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
-            sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
-        else:
-            layout_element = None
-        if model is not None and layout is not None:
-            # We save the ids for the mapping
-            sbgnml_id_super_sbgnml_id_for_mapping.append(
-                (sbgnml_element.id, super_sbgnml_element.id)
-            )
-        if (
-            with_annotations
-            and sbgnml_element.extension is not None
-            and sbgnml_element.extension.annotation is not None
-        ):
-            annotations = cls._make_annotations_from_sbgnml(
-                sbgnml_element.extension.annotation
-            )
-            sbgnml_id_to_annotations[sbgnml_element.id] = annotations
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        if model is not None:
-            model_element = model.new_element(momapy.sbgn.pd.UnitOfInformation)
-            model_element.id_ = cls._make_model_element_id_from_sbgnml(
-                sbgnml_element
-            )
-            if (
-                sbgnml_element.label is not None
-                and sbgnml_element.label.text is not None
-            ):
-                split_label = sbgnml_element.label.text.split(":")
-                model_element.value = split_label[-1]
-                if len(split_label) > 1:
-                    model_element.prefix = split_label[0]
-            model_element = momapy.builder.object_from_builder(model_element)
-            super_model_element.units_of_information.add(model_element)
-            sbgnml_id_to_model_element[sbgnml_element.id] = model_element
-        else:
-            model_element = None
-        if layout is not None:
-            layout_element = layout.new_element(
-                momapy.sbgn.pd.UnitOfInformationLayout
-            )
-            layout_element.id_ = sbgnml_element.id
-            position = cls._make_position_from_sbgnml(
-                sbgnml_element=sbgnml_element
-            )
-            layout_element.position = position
-            layout_element.width = sbgnml_element.bbox.w
-            layout_element.height = sbgnml_element.bbox.h
-            if (
-                sbgnml_element.label is not None
-                and sbgnml_element.label.text is not None
-            ):
-                text_layout = momapy.core.TextLayoutBuilder()
-                text_layout.text = sbgnml_element.label.text
-                text_layout.position = position
-                text_layout.font_family = cls._DEFAULT_FONT_FAMILY
-                text_layout.font_size = 8.0
-                text_layout.fill = cls._DEFAULT_FONT_FILL
-                text_layout = momapy.builder.object_from_builder(text_layout)
+                text = ""
+            else:
+                sbgnml_value = sbgnml_state.get("value")
+                value = sbgnml_value
+                text = sbgnml_value if sbgnml_value is not None else ""
+                sbgnml_variable = sbgnml_state.get("variable")
+                variable = sbgnml_variable
+                if sbgnml_variable is not None:
+                    text += f"@{sbgnml_variable}"
+                else:
+                    variable = order
+            if model is not None:
+                # We make the model element
+                model_element = model.new_element(momapy.sbgn.pd.StateVariable)
+                model_element.id_ = sbgnml_id
+                model_element.value = value
+                model_element.variable = variable
+                model_element.order = order
+                model_element = momapy.builder.object_from_builder(
+                    model_element
+                )
+                super_model_element.state_variables.add(model_element)
+                sbgnml_id_to_model_element[sbgnml_state_variable.get("id")] = (
+                    model_element
+                )
+            else:
+                model_element = None
+            if layout is not None:
+                # We make the layout element
+                layout_element = layout.new_element(
+                    momapy.sbgn.pd.StateVariableLayout
+                )
+                layout_element.id_ = sbgnml_id
+                cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                    layout_element, sbgnml_state_variable
+                )
+                text_layout = momapy.core.TextLayout(
+                    text=text,
+                    font_size=cls._DEFAULT_FONT_SIZE,
+                    font_family=cls._DEFAULT_FONT_FAMILY,
+                    fill=cls._DEFAULT_FONT_FILL,
+                    stroke=momapy.drawing.NoneValue,
+                    position=layout_element.label_center(),
+                )
                 layout_element.label = text_layout
-            layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
-            sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
+                super_layout_element.layout_elements.append(layout_element)
+                sbgnml_id_to_layout_element[
+                    sbgnml_state_variable.get("id")
+                ] = layout_element
+            else:
+                layout_element = None
         else:
+            model_element = None
             layout_element = None
-        if model is not None and layout is not None:
-            sbgnml_id_super_sbgnml_id_for_mapping.append(
-                (sbgnml_element.id, super_sbgnml_element.id)
-            )
-        if (
-            with_annotations
-            and sbgnml_element.extension is not None
-            and sbgnml_element.extension.annotation is not None
-        ):
-            annotations = cls._make_annotations_from_sbgnml(
-                sbgnml_element.extension.annotation
-            )
-            sbgnml_id_to_annotations[sbgnml_element.id] = annotations
         return model_element, layout_element
 
     @classmethod
-    def _make_and_add_macromolecule_unit_of_information_from_sbgnml(
+    def _make_and_add_unit_of_information_from_sbgnml_unit_of_information(
         cls,
+        sbgnml_map,
+        sbgnml_unit_of_information,
         model,
         layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
         sbgnml_id_to_model_element,
         sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.MacromoleculeUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_unspecified_entity_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
         sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+        super_model_element,
+        super_layout_element,
     ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.UnspecifiedEntityUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_simple_chemical_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.SimpleChemicalUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_nucleic_acid_feature_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_complex_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.ComplexUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.ComplexUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_perturbation_unit_of_information_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_typed_unit_of_information_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.af.PerturbationUnitOfInformation,
-                layout_element_cls=momapy.sbgn.af.PerturbationUnitOfInformationLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
+        if model is not None or layout is not None:
+            sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
+            sbgnml_id = sbgnml_unit_of_information.get("id")
+            if model is not None:
+                model_element = model.new_element(
+                    momapy.sbgn.pd.UnitOfInformation
+                )
+                model_element.id_ = sbgnml_id
+                if sbgnml_label is not None:
+                    split_label = sbgnml_label.get("text").split(":")
+                    model_element.value = split_label[-1]
+                    if len(split_label) > 1:
+                        model_element.prefix = split_label[0]
+                model_element = momapy.builder.object_from_builder(
+                    model_element
+                )
+                super_model_element.units_of_information.add(model_element)
+                sbgnml_id_to_model_element[
+                    sbgnml_unit_of_information.get("id")
+                ] = model_element
+            else:
+                model_element = None
+            if layout is not None:
+                layout_element = layout.new_element(
+                    momapy.sbgn.pd.UnitOfInformationLayout
+                )
+                layout_element.id_ = sbgnml_id
+                cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                    layout_element, sbgnml_unit_of_information
+                )
+                if sbgnml_label is not None:
+                    text_layout = momapy.core.TextLayout(
+                        text=sbgnml_label.get("text"),
+                        font_size=cls._DEFAULT_FONT_SIZE,
+                        font_family=cls._DEFAULT_FONT_FAMILY,
+                        fill=cls._DEFAULT_FONT_FILL,
+                        stroke=momapy.drawing.NoneValue,
+                        position=layout_element.label_center(),
+                    )
+                    layout_element.label = text_layout
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
+                super_layout_element.layout_elements.append(layout_element)
+                sbgnml_id_to_layout_element[sbgnml_id] = layout_element
+            else:
+                layout_element = None
+        else:
+            model_element = None
+            layout_element = None
         return model_element, layout_element
 
     @classmethod
@@ -908,513 +1260,6 @@ class _SBGNMLReader(momapy.io.Reader):
         if model is not None and layout is not None:
             sbgnml_id_super_sbgnml_id_for_mapping.append(
                 (sbgnml_element.id, super_sbgnml_element.id)
-            )
-        if (
-            with_annotations
-            and sbgnml_element.extension is not None
-            and sbgnml_element.extension.annotation is not None
-        ):
-            annotations = cls._make_annotations_from_sbgnml(
-                sbgnml_element.extension.annotation
-            )
-            sbgnml_id_to_annotations[sbgnml_element.id] = annotations
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_macromolecule_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.MacromoleculeSubunit,
-                layout_element_cls=momapy.sbgn.pd.MacromoleculeSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_macromolecule_multimer_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.MacromoleculeMultimerSubunit,
-                layout_element_cls=momapy.sbgn.pd.MacromoleculeMultimerSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_unspecified_entity_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.UnspecifiedEntitySubunit,
-                layout_element_cls=momapy.sbgn.pd.UnspecifiedEntitySubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_simple_chemical_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.SimpleChemicalSubunit,
-                layout_element_cls=momapy.sbgn.pd.SimpleChemicalSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_simple_chemical_multimer_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.SimpleChemicalMultimerSubunit,
-                layout_element_cls=momapy.sbgn.pd.SimpleChemicalMultimerSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_nucleic_acid_feature_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.NucleicAcidFeatureSubunit,
-                layout_element_cls=momapy.sbgn.pd.NucleicAcidFeatureSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_nucleic_acid_feature_multimer_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunit,
-                layout_element_cls=momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_complex_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.ComplexSubunit,
-                layout_element_cls=momapy.sbgn.pd.ComplexSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_complex_multimer_subunit_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_subunit_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.ComplexMultimerSubunit,
-                layout_element_cls=momapy.sbgn.pd.ComplexMultimerSubunitLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_compartment_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        if model is not None:
-            model_element = model.new_element(
-                cls._get_module_from_obj(model).Compartment
-            )
-            model_element.id_ = cls._make_model_element_id_from_sbgnml(
-                sbgnml_element
-            )
-            if (
-                sbgnml_element.label is not None
-                and sbgnml_element.label.text is not None
-            ):
-                model_element.label = sbgnml_element.label.text
-        else:
-            model_element = None
-        if layout is not None:
-            layout_element = layout.new_element(
-                cls._get_module_from_obj(layout).CompartmentLayout
-            )
-            layout_element.id_ = sbgnml_element.id
-            position = cls._make_position_from_sbgnml(
-                sbgnml_element=sbgnml_element
-            )
-            layout_element.position = position
-            layout_element.width = sbgnml_element.bbox.w
-            layout_element.height = sbgnml_element.bbox.h
-            if (
-                sbgnml_element.label is not None
-                and sbgnml_element.label.text is not None
-            ):
-                text_layout = cls._make_text_layout_from_sbgnml(
-                    sbgnml_label=sbgnml_element.label, position=position
-                )
-                layout_element.label = text_layout
-        else:
-            layout_element = None
-        if model is not None or layout is not None:
-            # We make and add the state variables, units of information, and
-            # subunits to the model and layout elements.
-            n_undefined_state_variables = 0
-            for sbgnml_sub_element in sbgnml_element.glyph:
-                sub_model_element, sub_layout_element = (
-                    cls._make_and_add_elements_from_sbgnml(
-                        model=model,
-                        layout=layout,
-                        sbgnml_element=sbgnml_sub_element,
-                        sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                        sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                        sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                        sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                        sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                        super_sbgnml_element=sbgnml_element,
-                        super_model_element=model_element,
-                        super_layout_element=layout_element,
-                        order=n_undefined_state_variables,
-                    )
-                )
-                if sbgnml_sub_element.class_value.name == "STATE_VARIABLE":
-                    if (
-                        sbgnml_sub_element.state is None
-                        or sbgnml_sub_element.state.variable is None
-                        or not sbgnml_sub_element.state.variable
-                    ):
-                        n_undefined_state_variables += 1
-        if model is not None:
-            model_element = momapy.builder.object_from_builder(model_element)
-            model_element = momapy.utils.add_or_replace_element_in_set(
-                model_element,
-                model.compartments,
-                func=lambda element, existing_element: element.id_
-                < existing_element.id_,
-            )
-            sbgnml_id_to_model_element[sbgnml_element.id] = model_element
-        if layout is not None:
-            layout_element = momapy.builder.object_from_builder(layout_element)
-            layout.layout_elements.append(layout_element)
-            sbgnml_id_to_layout_element[sbgnml_element.id] = layout_element
-        if model is not None or layout is not None:
-            sbgnml_id_super_sbgnml_id_for_mapping.append(
-                (sbgnml_element.id, None)
             )
         if (
             with_annotations
@@ -1524,490 +1369,6 @@ class _SBGNMLReader(momapy.io.Reader):
                 sbgnml_element.extension.annotation
             )
             sbgnml_id_to_annotations[sbgnml_element.id] = annotations
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_unspecified_entity_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.UnspecifiedEntity,
-                layout_element_cls=momapy.sbgn.pd.UnspecifiedEntityLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_macromolecule_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.Macromolecule,
-                layout_element_cls=momapy.sbgn.pd.MacromoleculeLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_macromolecule_multimer_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.MacromoleculeMultimer,
-                layout_element_cls=momapy.sbgn.pd.MacromoleculeMultimerLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_simple_chemical_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.SimpleChemical,
-                layout_element_cls=momapy.sbgn.pd.SimpleChemicalLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_simple_chemical_multimer_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.SimpleChemicalMultimer,
-                layout_element_cls=momapy.sbgn.pd.SimpleChemicalMultimerLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_nucleic_acid_feature_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.NucleicAcidFeature,
-                layout_element_cls=momapy.sbgn.pd.NucleicAcidFeatureLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_nucleic_acid_feature_multimer_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.NucleicAcidFeatureMultimer,
-                layout_element_cls=momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_complex_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.Complex,
-                layout_element_cls=momapy.sbgn.pd.ComplexLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_complex_multimer_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.ComplexMultimer,
-                layout_element_cls=momapy.sbgn.pd.ComplexMultimerLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_perturbing_agent_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.PerturbingAgent,
-                layout_element_cls=momapy.sbgn.pd.PerturbingAgentLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
-        return model_element, layout_element
-
-    @classmethod
-    def _make_and_add_empty_set_from_sbgnml(
-        cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        model_element, layout_element = (
-            cls._generic_make_and_add_entity_pool_from_sbgnml(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                model_element_cls=momapy.sbgn.pd.EmptySet,
-                layout_element_cls=momapy.sbgn.pd.EmptySetLayout,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        )
         return model_element, layout_element
 
     @classmethod
@@ -4358,172 +3719,34 @@ class _SBGNMLReader(momapy.io.Reader):
         return NotImplemented
 
     @classmethod
-    @abc.abstractmethod
-    def _make_map_no_subelements_from_sbgnml(cls, sbgnml_map):
-        return NotImplemented
+    def _make_map_no_subelements_from_sbgnml_map(cls, sbgnml_map):
+        key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        map_cls, _, _ = cls._KEY_TO_CLASS[key]
+        if map_cls is not None:
+            builder_cls = momapy.builder.get_or_make_builder_cls(map_cls)
+            return builder_cls()
+        raise TypeError("entity relationship maps are not yet supported")
 
     @classmethod
-    def _make_model_no_subelements_from_sbgnml(cls, sbgnml_element):
-        if sbgnml_element.language.name == "PROCESS_DESCRIPTION":
-            model = momapy.sbgn.pd.SBGNPDModelBuilder()
-        elif sbgnml_element.language.name == "ACTIVITY_FLOW":
-            model = momapy.sbgn.af.SBGNPDModelBuilder()
-        elif sbgnml_element.language.name == "ENTITY_RELATIONSHIP":
-            raise TypeError("entity relationship maps are not yet supported")
-        else:
-            raise TypeError(
-                f"unknown language {sbgnml_element.language.value}"
-            )
-        return model
-
-    @classmethod
-    def _make_layout_no_subelements_from_sbgnml(cls, sbgnml_element):
-        if sbgnml_element.language.name == "PROCESS_DESCRIPTION":
-            layout = momapy.sbgn.pd.SBGNPDLayoutBuilder()
-        elif sbgnml_element.language.name == "ACTIVITY_FLOW":
-            layout = momapy.sbgn.af.SBGNPDLayoutBuilder()
-        elif sbgnml_element.language.name == "ENTITY_RELATIONSHIP":
-            raise TypeError("entity relationship maps are not yet supported")
-        else:
-            raise TypeError(
-                f"unknown language {sbgnml_element.language.value}"
-            )
-        return layout
-
-    @classmethod
-    def _get_sbgnml_id_to_sbgnml_element_from_sbgnml(cls, sbgnml_element):
-        sbgnml_id_to_sbgnml_element = {}
-        sbgnml_id_to_sbgnml_element[sbgnml_element.id] = sbgnml_element
-        if sbgnml_element.port:
-            for sbgnml_port in sbgnml_element.port:
-                sbgnml_id_to_sbgnml_element[sbgnml_port.id] = sbgnml_element
-        if sbgnml_element.glyph:
-            for sbgnml_glyph in sbgnml_element.glyph:
-                sub_sbgnml_id_to_sbgnml_element = (
-                    cls._get_sbgnml_id_to_sbgnml_element_from_sbgnml(
-                        sbgnml_glyph
-                    )
-                )
-                sbgnml_id_to_sbgnml_element |= sub_sbgnml_id_to_sbgnml_element
-        return sbgnml_id_to_sbgnml_element
-
-    @classmethod
-    def _make_and_add_elements_from_sbgnml(
+    def _make_model_no_subelements_from_sbgnml_map(
         cls,
-        model,
-        layout,
-        sbgnml_element,
-        sbgnml_id_to_model_element,
-        sbgnml_id_to_layout_element,
-        sbgnml_id_to_sbgnml_element,
-        sbgnml_glyph_id_to_sbgnml_arcs,
-        sbgnml_id_super_sbgnml_id_for_mapping,
-        sbgnml_id_to_annotations,
-        sbgnml_id_to_notes,
-        super_sbgnml_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-        order=None,
-        with_annotations=True,
-        with_notes=True,
+        sbgnml_map,
     ):
-        make_and_add_func = cls._get_make_and_add_func_from_sbgnml(
-            sbgnml_element=sbgnml_element,
-            sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-            super_sbgnml_element=super_sbgnml_element,
-        )
-        if make_and_add_func is not None:
-            model_element, layout_element = make_and_add_func(
-                model=model,
-                layout=layout,
-                sbgnml_element=sbgnml_element,
-                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
-                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
-                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
-                sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
-                sbgnml_id_super_sbgnml_id_for_mapping=sbgnml_id_super_sbgnml_id_for_mapping,
-                sbgnml_id_to_annotations=sbgnml_id_to_annotations,
-                sbgnml_id_to_notes=sbgnml_id_to_notes,
-                super_sbgnml_element=super_sbgnml_element,
-                super_model_element=super_model_element,
-                super_layout_element=super_layout_element,
-                order=order,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
-            )
-        else:
-            model_element = None
-            layout_element = None
-            print(f"no reading function for {sbgnml_element.class_value.name}")
-        return model_element, layout_element
+        key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        _, model_cls, _ = cls._KEY_TO_CLASS[key]
+        if model_cls is not None:
+            builder_cls = momapy.builder.get_or_make_builder_cls(model_cls)
+            return builder_cls()
+        raise TypeError("entity relationship maps are not yet supported")
 
     @classmethod
-    def _get_make_and_add_func_from_sbgnml(
-        cls,
-        sbgnml_element,
-        sbgnml_id_to_sbgnml_element,
-        super_sbgnml_element=None,
-    ):
-        sbgnml_element_class_str = sbgnml_element.class_value.name
-        if super_sbgnml_element is not None:
-            super_sbgnml_element_class_str = (
-                super_sbgnml_element.class_value.name
-            )
-        else:
-            super_sbgnml_element_class_str = None
-        # Need to distinguish between biological activities' units of info
-        if (
-            super_sbgnml_element_class_str == "BIOLOGICAL_ACTIVITY"
-            and sbgnml_element_class_str == "UNIT_OF_INFORMATION"
-        ):
-            key = (
-                f"{sbgnml_element_class_str}_{sbgnml_element.entity.name.name}"
-            )
-        # Need to distinguish between complexes' subunits
-        elif (
-            super_sbgnml_element_class_str == "COMPLEX"
-            and sbgnml_element_class_str
-            in [
-                "UNSPECIFIED_ENTITY",
-                "MACROMOLECULE",
-                "MACROMOLECULE_MULTIMER",
-                "SIMPLE_CHEMICAL",
-                "SIMPLE_CHEMICAL_MULTIMER",
-                "NUCLEIC_ACID_FEATURE",
-                "NUCLEIC_ACID_FEATURE_MULTIMER",
-                "COMPLEX",
-                "COMPLEX_MULTIMER",
-            ]
-        ):
-            key = f"{sbgnml_element_class_str}_SUBUNIT"
-        # A tag inside a submap is a terminal
-        elif (
-            super_sbgnml_element_class_str == "SUBMAP"
-            and sbgnml_element_class_str == "TAG"
-        ):
-            key = "TERMINAL"
-        # Need to distinguish between a logical operator input and a
-        # equivalence operator input
-        elif sbgnml_element_class_str == "LOGIC_ARC":
-            sbgnml_target_id = sbgnml_element.target
-            sbgnml_target = sbgnml_id_to_sbgnml_element[sbgnml_target_id]
-            if sbgnml_target.class_value.name in [
-                "AND",
-                "OR",
-                "NOT",
-                "DELAY",
-            ]:
-                key = "LOGIC_ARC_LOGICAL_OPERATOR"
-            else:
-                key = "LOGIC_ARC_EQUIVALENCE_OPERATOR"
-        else:
-            key = sbgnml_element_class_str
-        make_and_add_func_name = (
-            cls._SBGNML_CLASS_TO_MAKE_AND_ADD_FUNC_NAME.get(key)
-        )
-        if make_and_add_func_name is None:
-            return None
-        return getattr(cls, make_and_add_func_name)
+    def _make_layout_no_subelements_from_sbgnml_map(cls, sbgnml_map):
+        key = cls._get_key_from_sbgnml_map(sbgnml_map)
+        _, _, layout_cls = cls._KEY_TO_CLASS[key]
+        if layout_cls is not None:
+            builder_cls = momapy.builder.get_or_make_builder_cls(layout_cls)
+            return builder_cls()
+        raise TypeError("entity relationship maps are not yet supported")
 
     @classmethod
     def _get_connectors_length_from_sbgnml(cls, sbgnml_element):
@@ -4851,46 +4074,14 @@ class _SBGNMLReader(momapy.io.Reader):
                                 annotations.append(annotation)
         return annotations
 
-    @classmethod
-    def _make_notes_from_sbgnml(cls, notes_element):
-        config = xsdata.formats.dataclass.serializers.config.SerializerConfig(
-            pretty_print=True
-        )
-        serializer = xsdata.formats.dataclass.serializers.XmlSerializer(
-            config=config
-        )
-        notes = serializer.render(
-            notes_element,
-        )
-        notes = "\n".join(notes.split("\n")[2:-2])
-        return notes
-
 
 class SBGNML0_2Reader(_SBGNMLReader):
-    """Class for SBGN-ML 0.3 reader objects"""
-
-    _parser_module = momapy.sbgn.io._sbgnml_parser_0_2
+    """Class for SBGN-ML 0.2 reader objects"""
 
     @classmethod
-    @abc.abstractmethod
-    def _get_sbgnml_map_from_sbgnml(cls, sbgnml_sbgn):
-        return sbgnml_sbgn.map
-
-    @classmethod
-    @abc.abstractmethod
-    def _make_map_no_subelements_from_sbgnml(cls, sbgnml_map):
-        if sbgnml_map.language.name == "PROCESS_DESCRIPTION":
-            map_ = momapy.sbgn.pd.SBGNPDMapBuilder()
-        elif sbgnml_map.language.name == "ACTIVITY_FLOW":
-            map_ = momapy.sbgn.af.SBGNAFMapBuilder()
-        elif sbgnml_map.language.name == "ENTITY_RELATIONSHIP":
-            raise TypeError("entity relationship maps are not yet supported")
-        else:
-            raise TypeError(f"unknown language {sbgnml_map.language.value}")
-        map_.model = map_.new_model()
-        map_.layout = map_.new_layout()
-        map_.layout_model_mapping = map_.new_layout_model_mapping()
-        return map_
+    def _get_key_from_sbgnml_map(cls, sbgnml_map):
+        key = sbgnml_map.language.get("name").upper().replace(" ", "_")
+        return key
 
     @classmethod
     def check_file(cls, file_path):
@@ -4905,63 +4096,19 @@ class SBGNML0_2Reader(_SBGNMLReader):
 class SBGNML0_3Reader(_SBGNMLReader):
     """Class for SBGN-ML 0.3 reader objects"""
 
-    _parser_module = momapy.sbgn.io._sbgnml_parser_0_3
-    _SBGNML_VERSION_URI_TO_MAP_CLASS = {
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_2_0": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_3": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_2": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_1": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1_0": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_PD_LEVEL_1_VERSION_1": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_ER_LEVEL_1_VERSION_2": momapy.sbgn.pd.SBGNPDMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_ER_LEVEL_1_VERSION_1_2": None,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_ER_LEVEL_1_VERSION_1_1": None,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_ER_LEVEL_1_VERSION_1_0": None,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_ER_LEVEL_1_VERSION_1": None,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_AF_LEVEL_1_VERSION_1_2": momapy.sbgn.af.SBGNAFMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_AF_LEVEL_1_VERSION_1_0": momapy.sbgn.af.SBGNAFMapBuilder,
-        "HTTP_IDENTIFIERS_ORG_COMBINE_SPECIFICATIONS_SBGN_AF_LEVEL_1_VERSION_1": momapy.sbgn.af.SBGNAFMapBuilder,
-    }
-
     @classmethod
-    @abc.abstractmethod
-    def _get_sbgnml_map_from_sbgnml(cls, sbgnml_sbgn):
-        sbgnml_map = sbgnml_sbgn.map[0]
-        return sbgnml_map
-
-    @classmethod
-    def _make_map_no_subelements_from_sbgnml(cls, sbgnml_map):
-        if sbgnml_map.version is not None:
-            map_cls = cls._SBGNML_VERSION_URI_TO_MAP_CLASS[
-                sbgnml_map.version.name
-            ]
-            if map_cls is None:
-                raise TypeError(
-                    "entity relationship maps are not yet supported"
-                )
-        else:
-            if sbgnml_map.language.name == "PROCESS_DESCRIPTION":
-                map_cls = momapy.sbgn.pd.SBGNPDMapBuilder
-            elif sbgnml_map.language.name == "ACTIVITY_FLOW":
-                map_cls = momapy.sbgn.af.SBGNAFMapBuilder
-            elif sbgnml_map.language.name == "ENTITY_RELATIONSHIP":
-                raise TypeError(
-                    "entity relationship maps are not yet supported"
-                )
-            else:
-                raise TypeError(
-                    f"unknown language {sbgnml_map.language.value}"
-                )
-        map_ = map_cls()
-        map_.model = map_.new_model()
-        map_.layout = map_.new_layout()
-        map_.layout_model_mapping = map_.new_layout_model_mapping()
-        map_.id_ = sbgnml_map.id
-        return map_
+    def _get_key_from_sbgnml_map(cls, sbgnml_map):
+        sbgnml_version = sbgnml_map.get("version")
+        if "sbgn.pd" in sbgnml_version:
+            return "PROCESS_DESCRIPTION"
+        elif "sbgn.af" in sbgnml_version:
+            return "ACTIVITY_FLOW"
+        elif "sbgn.er" in sbgnml_version:
+            return "ENTITY_RELATIONSHIP"
 
     @classmethod
     def check_file(cls, file_path):
-        """Return `true` if the given file is an SBGN-ML 2.0 document, `false` otherwise"""
+        """Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise"""
         with open(file_path) as f:
             for line in f:
                 if "http://sbgn.org/libsbgn/0.3" in line:
