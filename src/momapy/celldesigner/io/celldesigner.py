@@ -2962,19 +2962,24 @@ class CellDesignerReader(momapy.io.Reader):
                 else:
                     edit_points = []
                 if not has_boolean_input:
-                    cd_link_target = cd_reaction_modification.linkTarget
                     source_layout_element = cd_id_to_layout_element[
-                        cd_link_target.get("alias")
+                        cd_reaction_modification.get("aliases")
                     ]
-                    cd_link_anchor = getattr(
-                        cd_link_target, "linkAnchor", None
+                    cd_link_target = getattr(
+                        cd_reaction_modification, "linkTarget", None
                     )
-                    if cd_link_anchor is not None:
-                        source_anchor_name = (
-                            cls._get_anchor_name_for_frame_from_cd_link(
-                                cd_link_target
-                            )
+                    if cd_link_target is not None:
+                        cd_link_anchor = getattr(
+                            cd_link_target, "linkAnchor", None
                         )
+                        if cd_link_anchor is not None:
+                            source_anchor_name = (
+                                cls._get_anchor_name_for_frame_from_cd_link(
+                                    cd_link_target
+                                )
+                            )
+                        else:
+                            source_anchor_name = "center"
                     else:
                         source_anchor_name = "center"
                 else:
