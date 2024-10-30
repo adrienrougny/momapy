@@ -1,5 +1,6 @@
 import dataclasses
 import typing
+import enum
 
 import momapy.core
 
