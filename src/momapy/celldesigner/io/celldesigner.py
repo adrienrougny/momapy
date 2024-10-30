@@ -12,8 +12,7 @@ import momapy.positioning
 import momapy.io
 import momapy.coloring
 import momapy.celldesigner.core
-import momapy.celldesigner.io._celldesigner_parser
-import momapy.sbgn.pd
+import momapy.sbml.core
 
 
 class CellDesignerReader(momapy.io.Reader):
@@ -263,75 +262,75 @@ class CellDesignerReader(momapy.io.Reader):
         (
             "http://biomodels.net/biology-qualifiers/",
             "encodes",
-        ): momapy.sbgn.core.BQBiol.ENCODES,
+        ): momapy.sbml.core.BQBiol.ENCODES,
         (
             "http://biomodels.net/biology-qualifiers/",
             "hasPart",
-        ): momapy.sbgn.core.BQBiol.HAS_PART,
+        ): momapy.sbml.core.BQBiol.HAS_PART,
         (
             "http://biomodels.net/biology-qualifiers/",
             "hasProperty",
-        ): momapy.sbgn.core.BQBiol.HAS_PROPERTY,
+        ): momapy.sbml.core.BQBiol.HAS_PROPERTY,
         (
             "http://biomodels.net/biology-qualifiers/",
             "hasVersion",
-        ): momapy.sbgn.core.BQBiol.HAS_VERSION,
+        ): momapy.sbml.core.BQBiol.HAS_VERSION,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isValue",
-        ): momapy.sbgn.core.BQBiol.IS,
+        ): momapy.sbml.core.BQBiol.IS,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isDescribedBy",
-        ): momapy.sbgn.core.BQBiol.IS_DESCRIBED_BY,
+        ): momapy.sbml.core.BQBiol.IS_DESCRIBED_BY,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isEncodedBy",
-        ): momapy.sbgn.core.BQBiol.IS_ENCODED_BY,
+        ): momapy.sbml.core.BQBiol.IS_ENCODED_BY,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isHomologTo",
-        ): momapy.sbgn.core.BQBiol.IS_HOMOLOG_TO,
+        ): momapy.sbml.core.BQBiol.IS_HOMOLOG_TO,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isPartOf",
-        ): momapy.sbgn.core.BQBiol.IS_PART_OF,
+        ): momapy.sbml.core.BQBiol.IS_PART_OF,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isPropertyOf",
-        ): momapy.sbgn.core.BQBiol.IS_PROPERTY_OF,
+        ): momapy.sbml.core.BQBiol.IS_PROPERTY_OF,
         (
             "http://biomodels.net/biology-qualifiers/",
             "isVersionOf",
-        ): momapy.sbgn.core.BQBiol.IS_VERSION_OF,
+        ): momapy.sbml.core.BQBiol.IS_VERSION_OF,
         (
             "http://biomodels.net/biology-qualifiers/",
             "occursIn",
-        ): momapy.sbgn.core.BQBiol.OCCURS_IN,
+        ): momapy.sbml.core.BQBiol.OCCURS_IN,
         (
             "http://biomodels.net/biology-qualifiers/",
             "hasTaxon",
-        ): momapy.sbgn.core.BQBiol.HAS_TAXON,
+        ): momapy.sbml.core.BQBiol.HAS_TAXON,
         (
             "http://biomodels.net/biology-qualifiers/",
             "hasInstance",
-        ): momapy.sbgn.core.BQModel.HAS_INSTANCE,
+        ): momapy.sbml.core.BQModel.HAS_INSTANCE,
         (
             "http://biomodels.net/biology-models/",
             "is",
-        ): momapy.sbgn.core.BQModel.IS,
+        ): momapy.sbml.core.BQModel.IS,
         (
             "http://biomodels.net/biology-models/",
             "isDerivedFrom",
-        ): momapy.sbgn.core.BQModel.IS_DERIVED_FROM,
+        ): momapy.sbml.core.BQModel.IS_DERIVED_FROM,
         (
             "http://biomodels.net/biology-models/",
             "isDescribedBy",
-        ): momapy.sbgn.core.BQModel.IS_DESCRIBED_BY,
+        ): momapy.sbml.core.BQModel.IS_DESCRIBED_BY,
         (
             "http://biomodels.net/biology-models/",
             "isInstanceOf",
-        ): momapy.sbgn.core.BQModel.IS_INSTANCE_OF,
+        ): momapy.sbml.core.BQModel.IS_INSTANCE_OF,
     }
     _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME = {
         "NW": "north_west",
