@@ -316,19 +316,19 @@ class CellDesignerReader(momapy.io.Reader):
             "hasInstance",
         ): momapy.sbml.core.BQModel.HAS_INSTANCE,
         (
-            "http://biomodels.net/biology-models/",
+            "http://biomodels.net/model-qualifiers/",
             "is",
         ): momapy.sbml.core.BQModel.IS,
         (
-            "http://biomodels.net/biology-models/",
+            "http://biomodels.net/model-qualifiers/",
             "isDerivedFrom",
         ): momapy.sbml.core.BQModel.IS_DERIVED_FROM,
         (
-            "http://biomodels.net/biology-models/",
+            "http://biomodels.net/model-qualifiers/",
             "isDescribedBy",
         ): momapy.sbml.core.BQModel.IS_DESCRIBED_BY,
         (
-            "http://biomodels.net/biology-models/",
+            "http://biomodels.net/model-qualifiers/",
             "isInstanceOf",
         ): momapy.sbml.core.BQModel.IS_INSTANCE_OF,
     }
