@@ -1178,7 +1178,7 @@ class CellDesignerReader(momapy.io.Reader):
             map_.model = model
             map_.layout = layout
             obj = momapy.builder.object_from_builder(map_)
-        return obj, dict(map_element_to_annotations), map_element_to_notes
+        return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
     def _make_and_add_compartments_from_cd_model(
