@@ -10,6 +10,7 @@ import momapy.meta.nodes
 import momapy.meta.arcs
 import momapy.sbml.core
 import momapy.sbgn.core
+import momapy.sbgn.pd
 
 
 # abstract
