@@ -12,7 +12,6 @@ import momapy.positioning
 import momapy.io
 import momapy.coloring
 import momapy.celldesigner.core
-import momapy.celldesigner.io._celldesigner_parser
 import momapy.sbgn.pd
 
 
