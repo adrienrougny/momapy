@@ -1065,7 +1065,7 @@ class DoubleHeadedArc(_Arc):
         segment = momapy.geometry.Segment(segment.p2, segment.p1)
         segment_length = segment.length()
         if segment_length == 0:
-            return self.start_arrowhead_tip() + (self.arrowhead_length, 0)
+            return self.start_arrowhead_tip() + (arrowhead_length, 0)
         fraction = 1 - (arrowhead_length + self.start_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
