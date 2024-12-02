@@ -678,7 +678,7 @@ class CellDesignerReader(momapy.io.Reader):
         if cd_species_state is None:
             return []
         cd_list_of_structural_states = getattr(
-            cd_species_state, "listStructuralStates", None
+            cd_species_state, "listOfStructuralStates", None
         )
         if cd_list_of_structural_states is None:
             return []
@@ -2045,10 +2045,11 @@ class CellDesignerReader(momapy.io.Reader):
                 "structuralState"
             )
             super_model_element.structural_states.add(model_element)
+            print(model_element)
         else:
             model_element = None
         if layout is not None:  # TODO
-            pass
+            layout_element = None
         else:
             layout_element = None
         return model_element, layout_element
