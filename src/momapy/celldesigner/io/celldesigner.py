@@ -2045,7 +2045,6 @@ class CellDesignerReader(momapy.io.Reader):
                 "structuralState"
             )
             super_model_element.structural_states.add(model_element)
-            print(model_element)
         else:
             model_element = None
         if layout is not None:  # TODO
