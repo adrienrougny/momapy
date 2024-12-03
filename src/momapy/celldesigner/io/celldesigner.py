@@ -428,7 +428,7 @@ class CellDesignerReader(momapy.io.Reader):
     ) -> momapy.io.ReaderResult:
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
-        obj, annotations, notes = cls._make_main_obj_from_cd_model(
+        obj, annotations, notes, ids = cls._make_main_obj_from_cd_model(
             cd_model=cd_sbml.model,
             return_type=return_type,
             with_model=with_model,
@@ -439,11 +439,15 @@ class CellDesignerReader(momapy.io.Reader):
         annotations = frozendict.frozendict(
             {key: frozenset(value) for key, value in annotations.items()}
         )
+        ids = frozendict.frozendict(
+            {key: frozenset(value) for key, value in ids.items()}
+        )
         result = momapy.io.ReaderResult(
             obj=obj,
             notes=notes,
             annotations=annotations,
             file_path=file_path,
+            ids=ids,
         )
         return result
 
@@ -1182,7 +1186,12 @@ class CellDesignerReader(momapy.io.Reader):
             map_.model = model
             map_.layout = layout
             obj = momapy.builder.object_from_builder(map_)
-        return obj, map_element_to_annotations, map_element_to_notes
+        return (
+            obj,
+            map_element_to_annotations,
+            map_element_to_notes,
+            map_element_to_ids,
+        )
 
     @classmethod
     def _make_and_add_compartments_from_cd_model(
@@ -1551,6 +1560,7 @@ class CellDesignerReader(momapy.io.Reader):
                 model_element.outside = outside_model_element
             model_element = momapy.builder.object_from_builder(model_element)
             cd_id_to_model_element[cd_compartment.get("id")] = model_element
+            map_element_to_ids[model_element].add(cd_compartment.get("id"))
             if with_annotations:
                 annotations = cls._make_annotations_from_cd_element(
                     cd_compartment
@@ -1617,6 +1627,9 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_model_element[cd_species_template.get("id")] = (
                 model_element
             )
+            map_element_to_ids[model_element].add(
+                cd_species_template.get("id")
+            )
         else:
             model_element = None
         layout_element = None
@@ -1659,6 +1672,9 @@ class CellDesignerReader(momapy.io.Reader):
             # exceptionally we take the model element's id and not the cd element's
             # id for the reasons explained above
             cd_id_to_model_element[cd_modification_residue_id] = model_element
+            map_element_to_ids[model_element].add(
+                cd_modification_residue.get("id")
+            )
         else:
             model_element = None
         layout_element = None  # purely a model element
@@ -1882,6 +1898,7 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_model_element[cd_species_alias.get("id")] = (
                     model_element
                 )
+                map_element_to_ids[model_element].add(cd_species.get("id"))
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -2271,6 +2288,7 @@ class CellDesignerReader(momapy.io.Reader):
                     < existing_element.id_,
                 )
                 cd_id_to_model_element[model_element.id_] = model_element
+                map_element_to_ids[model_element].add(cd_reaction.get("id"))
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(
                         cd_reaction
@@ -3237,6 +3255,7 @@ class CellDesignerReader(momapy.io.Reader):
                     func=lambda element, existing_element: element.id_
                     < existing_element.id_,
                 )
+                map_element_to_ids[model_element].add(cd_reaction.get("id"))
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(
                         cd_reaction
