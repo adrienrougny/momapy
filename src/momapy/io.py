@@ -27,6 +27,7 @@ class ReaderResult(IOResult):
     obj: typing.Any | None = None
     annotations: dict | None = None
     notes: dict | None = None
+    ids: dict | None = None
     file_path: str | os.PathLike | None = None
 
 
@@ -84,7 +85,7 @@ class Reader(abc.ABC):
         pass
 
     @classmethod
-    def check_file(cls, file_path: str| os.PathLike) -> bool:
+    def check_file(cls, file_path: str | os.PathLike) -> bool:
         """Return `true` if the given file is supported by the reader, `false` otherwise"""
         pass
 
