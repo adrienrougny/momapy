@@ -215,22 +215,74 @@ class _SBGNMLReader(momapy.io.Reader):
             momapy.sbgn.pd.TagReference,
             momapy.sbgn.pd.EquivalenceArcLayout,
         ),
-        "BIOLOGICAL_ACTIVITY": "_make_and_add_biological_activity_from_sbgnml",
-        "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY": "_make_and_add_unspecified_entity_unit_of_information_from_sbgnml",
-        "UNIT_OF_INFORMATION_MACROMOLECULE": "_make_and_add_macromolecule_unit_of_information_from_sbgnml",
-        "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL": "_make_and_add_simple_chemical_unit_of_information_from_sbgnml",
-        "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE": "_make_and_add_nucleic_acid_feature_unit_of_information_from_sbgnml",
-        "UNIT_OF_INFORMATION_COMPLEX": "_make_and_add_complex_unit_of_information_from_sbgnml",
-        "UNIT_OF_INFORMATION_PERTURBATION": "_make_and_add_perturbation_unit_of_information_from_sbgnml",
-        "DELAY": "_make_and_add_delay_operator_from_sbgnml",
-        "CONSUMPTION": "_make_and_add_consumption_from_sbgnml",
-        "PRODUCTION": "_make_and_add_production_from_sbgnml",
-        "POSITIVE_INFLUENCE": "_make_and_add_positive_influence_from_sbgnml",
-        "NEGATIVE_INFLUENCE": "_make_and_add_negative_influence_from_sbgnml",
-        "UNKNOWN_INFLUENCE": "_make_and_add_unknown_influence_from_sbgnml",
-        "LOGIC_ARC_LOGICAL_OPERATOR": "_make_and_add_logical_operator_input_from_sbgnml",
-        "LOGIC_ARC_EQUIVALENCE_OPERATOR": "_make_and_add_equivalence_operator_input_from_sbgnml",
-        # "EQUIVALENCE_ARC": "_equivalence_arc_elements_from_arc",
+        ("ACTIVITY_FLOW", "GLYPH", "COMPARTMENT"): (
+            momapy.sbgn.af.Compartment,
+            momapy.sbgn.af.CompartmentLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "BIOLOGICAL_ACTIVITY"): (
+            momapy.sbgn.af.BiologicalActivity,
+            momapy.sbgn.af.BiologicalActivityLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "PHENOTYPE"): (
+            momapy.sbgn.af.Phenotype,
+            momapy.sbgn.af.PhenotypeLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "POSITIVE_INFLUENCE"): (
+            momapy.sbgn.af.PositiveInfluence,
+            momapy.sbgn.af.PositiveInfluenceLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "NEGATIVE_INFLUENCE"): (
+            momapy.sbgn.af.NegativeInfluence,
+            momapy.sbgn.af.NegativeInfluenceLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "UNKNOWN_INFLUENCE"): (
+            momapy.sbgn.af.UnknownInfluence,
+            momapy.sbgn.af.UnknownInfluenceLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "NECESSARY_STIMULATION"): (
+            momapy.sbgn.af.NecessaryStimulation,
+            momapy.sbgn.af.NecessaryStimulationLayout,
+        ),
+        ("ACTIVITY_FLOW", "SUBGLYPH", "UNIT_OF_INFORMATION"): (
+            momapy.sbgn.af.NecessaryStimulation,
+            momapy.sbgn.af.NecessaryStimulationLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "AND"): (
+            momapy.sbgn.af.AndOperator,
+            momapy.sbgn.af.AndOperatorLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "OR"): (
+            momapy.sbgn.af.AndOperator,
+            momapy.sbgn.af.AndOperatorLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "NOT"): (
+            momapy.sbgn.af.NotOperator,
+            momapy.sbgn.af.NotOperatorLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "DELAY"): (
+            momapy.sbgn.af.DelayOperator,
+            momapy.sbgn.af.DelayOperatorLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "LOGIC_ARC"): (
+            momapy.sbgn.af.LogicalOperatorInput,
+            momapy.sbgn.af.LogicArcLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "SUBMAP"): (
+            momapy.sbgn.af.Submap,
+            momapy.sbgn.af.SubmapLayout,
+        ),
+        ("ACTIVITY_FLOW", "SUBGLYPH", "TERMINAL"): (
+            momapy.sbgn.af.Terminal,
+            momapy.sbgn.af.TerminalLayout,
+        ),
+        ("ACTIVITY_FLOW", "GLYPH", "TAG"): (
+            momapy.sbgn.af.Tag,
+            momapy.sbgn.af.TagLayout,
+        ),
+        ("ACTIVITY_FLOW", "ARC", "EQUIVALENCE_ARC"): (
+            momapy.sbgn.af.TagReference,
+            momapy.sbgn.af.EquivalenceArcLayout,
+        ),
     }
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
         (
@@ -781,7 +833,10 @@ class _SBGNMLReader(momapy.io.Reader):
             model_element_cls, _ = cls._KEY_TO_CLASS[key]
             if issubclass(model_element_cls, momapy.sbgn.pd.EntityPool):
                 sbgnml_entity_pools.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.pd.Compartment):
+            elif issubclass(
+                model_element_cls,
+                cls._get_module_from_sbgnml_map(sbgnml_map).Compartment,
+            ):
                 sbgnml_compartments.append(sbgnml_glyph)
             elif issubclass(
                 model_element_cls,
@@ -1038,6 +1093,23 @@ class _SBGNMLReader(momapy.io.Reader):
                     cls._make_and_add_entity_pool_from_sbgnml_entity_pool(
                         sbgnml_map=sbgnml_map,
                         sbgnml_entity_pool=sbgnml_entity_pool,
+                        model=model,
+                        layout=layout,
+                        sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                        sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                        sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                        map_element_to_annotations=map_element_to_annotations,
+                        map_element_to_notes=map_element_to_notes,
+                        model_element_to_layout_element=model_element_to_layout_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
+                    )
+                )
+            for sbgnml_activity in sbgnml_activities:
+                model_element, layout_element = (
+                    cls._make_and_add_activity_from_sbgnml_activity(
+                        sbgnml_map=sbgnml_map,
+                        sbgnml_activity=sbgnml_activity,
                         model=model,
                         layout=layout,
                         sbgnml_id_to_model_element=sbgnml_id_to_model_element,
@@ -1571,6 +1643,69 @@ class _SBGNMLReader(momapy.io.Reader):
         else:
             model_element = None
             layout_element = None
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_activity_from_sbgnml_activity(
+        cls,
+        sbgnml_map,
+        sbgnml_activity,
+        model,
+        layout,
+        sbgnml_id_to_model_element,
+        sbgnml_id_to_layout_element,
+        sbgnml_id_to_sbgnml_element,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        with_annotations,
+        with_notes,
+    ):
+        model_element, layout_element = (
+            cls._make_entity_pool_or_subunit_from_sbgnml_entity_pool_or_sbgnml_subunit(
+                sbgnml_map=sbgnml_map,
+                sbgnml_entity_pool_or_subunit=sbgnml_activity,
+                model=model,
+                layout=layout,
+                sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                map_element_to_annotations=map_element_to_annotations,
+                map_element_to_notes=map_element_to_notes,
+                model_element_to_layout_element=model_element_to_layout_element,
+                with_annotations=with_annotations,
+                with_notes=with_notes,
+                super_model_element=None,
+                super_layout_element=None,
+            )
+        )
+        if model is not None:
+            model_element = momapy.utils.add_or_replace_element_in_set(
+                model_element,
+                model.activities,
+                func=lambda element, existing_element: element.id_
+                < existing_element.id_,
+            )
+            sbgnml_id_to_model_element[sbgnml_activity.get("id")] = (
+                model_element
+            )
+            if with_annotations:
+                annotations = cls._make_annotations_from_sbgnml_element(
+                    sbgnml_activity
+                )
+                if annotations:
+                    map_element_to_annotations[model_element].update(
+                        annotations
+                    )
+        if layout is not None:
+            layout.layout_elements.append(layout_element)
+            sbgnml_id_to_layout_element[sbgnml_activity.get("id")] = (
+                layout_element
+            )
+        if model is not None and layout is not None:
+            model_element_to_layout_element.add_mapping(
+                model_element, layout_element
+            )
         return model_element, layout_element
 
     @classmethod
@@ -2715,7 +2850,12 @@ class _SBGNMLReader(momapy.io.Reader):
                 )
                 model_element = momapy.utils.add_or_replace_element_in_set(
                     model_element,
-                    model.modulations,
+                    (
+                        model.modulations
+                        if cls._get_module_from_sbgnml_map(sbgnml_map)
+                        == "PROCESS_DESCRIPTION"
+                        else model.influences
+                    ),
                     func=lambda element, existing_element: element.id_
                     < existing_element.id_,
                 )
