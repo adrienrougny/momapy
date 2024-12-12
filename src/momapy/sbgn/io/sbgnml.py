@@ -1870,8 +1870,11 @@ class _SBGNMLReader(momapy.io.Reader):
             key = cls._get_key_from_sbgnml_glyph(sbgnml_submap, sbgnml_map)
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             sbgnml_id = sbgnml_submap.get("id")
+            sbgnml_label = getattr(sbgnml_submap, "label", None)
             if model is not None:
                 model_element = model.new_element(model_element_cls)
+                if sbgnml_label is not None:
+                    model_element.label = sbgnml_label.get("text")
                 model_element.id_ = sbgnml_id
             else:
                 model_element = None
@@ -1881,6 +1884,19 @@ class _SBGNMLReader(momapy.io.Reader):
                 cls._set_layout_element_position_and_size_from_sbgnml_glyph(
                     layout_element, sbgnml_submap
                 )
+                if sbgnml_label is not None:
+                    text = sbgnml_label.get("text")
+                    if text is None:
+                        text = ""
+                    text_layout = momapy.core.TextLayout(
+                        text=text,
+                        font_size=cls._DEFAULT_FONT_SIZE,
+                        font_family=cls._DEFAULT_FONT_FAMILY,
+                        fill=cls._DEFAULT_FONT_FILL,
+                        stroke=momapy.drawing.NoneValue,
+                        position=layout_element.center(),
+                    )
+                    layout_element.label = text_layout
             else:
                 layout_element = None
             # We add the terminals
