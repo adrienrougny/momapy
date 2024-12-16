@@ -215,6 +215,42 @@ class _SBGNMLReader(momapy.io.Reader):
             momapy.sbgn.pd.TagReference,
             momapy.sbgn.pd.EquivalenceArcLayout,
         ),
+        ("ACTIVITY_FLOW", "SUBGLYPH", "UNIT_OF_INFORMATION_MACROMOLECULE"): (
+            momapy.sbgn.af.MacromoleculeUnitOfInformation,
+            momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+        ),
+        ("ACTIVITY_FLOW", "SUBGLYPH", "UNIT_OF_INFORMATION_SIMPLE_CHEMICAL"): (
+            momapy.sbgn.af.SimpleChemicalUnitOfInformation,
+            momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+        ),
+        (
+            "ACTIVITY_FLOW",
+            "SUBGLYPH",
+            "UNIT_OF_INFORMATION_NUCLEIC_ACID_FEATURE",
+        ): (
+            momapy.sbgn.af.NucleicAcidFeatureUnitOfInformation,
+            momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+        ),
+        ("ACTIVITY_FLOW", "SUBGLYPH", "UNIT_OF_INFORMATION_COMPLEX"): (
+            momapy.sbgn.af.ComplexUnitOfInformation,
+            momapy.sbgn.af.ComplexUnitOfInformationLayout,
+        ),
+        (
+            "ACTIVITY_FLOW",
+            "SUBGLYPH",
+            "UNIT_OF_INFORMATION_UNSPECIFIED_ENTITY",
+        ): (
+            momapy.sbgn.af.UnspecifiedEntityUnitOfInformation,
+            momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+        ),
+        (
+            "ACTIVITY_FLOW",
+            "SUBGLYPH",
+            "UNIT_OF_INFORMATION_PERTURBATION",
+        ): (
+            momapy.sbgn.af.PerturbationUnitOfInformation,
+            momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+        ),
         ("ACTIVITY_FLOW", "GLYPH", "COMPARTMENT"): (
             momapy.sbgn.af.Compartment,
             momapy.sbgn.af.CompartmentLayout,
@@ -417,6 +453,12 @@ class _SBGNMLReader(momapy.io.Reader):
         sbgnml_class = cls._transform_sbgnml_class(
             sbgnml_subglyph.get("class")
         )
+        sbgnml_entity = getattr(sbgnml_subglyph, "entity", None)
+        if sbgnml_entity is not None:
+            sbgnml_entity_class = cls._transform_sbgnml_class(
+                sbgnml_entity.get("name")
+            )
+            sbgnml_class = f"{sbgnml_class}_{sbgnml_entity_class}"
         return (
             sbgnml_map_key,
             "SUBGLYPH",
@@ -1883,10 +1925,12 @@ class _SBGNMLReader(momapy.io.Reader):
         if model is not None or layout is not None:
             sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
             sbgnml_id = sbgnml_unit_of_information.get("id")
+            key = cls._get_key_from_sbgnml_subglyph(
+                sbgnml_unit_of_information, sbgnml_map
+            )
+            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             if model is not None:
-                model_element = model.new_element(
-                    momapy.sbgn.pd.UnitOfInformation
-                )
+                model_element = model.new_element(model_element_cls)
                 model_element.id_ = sbgnml_id
                 if sbgnml_label is not None:
                     split_label = sbgnml_label.get("text").split(":")
@@ -1899,9 +1943,7 @@ class _SBGNMLReader(momapy.io.Reader):
             else:
                 model_element = None
             if layout is not None:
-                layout_element = layout.new_element(
-                    momapy.sbgn.pd.UnitOfInformationLayout
-                )
+                layout_element = layout.new_element(layout_element_cls)
                 layout_element.id_ = sbgnml_id
                 cls._set_layout_element_position_and_size_from_sbgnml_glyph(
                     layout_element, sbgnml_unit_of_information
