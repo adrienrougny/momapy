@@ -476,20 +476,30 @@ class CellDesignerReader(momapy.io.Reader):
     @classmethod
     def _get_species_aliases_from_cd_model(cls, cd_model):
         extension = cls._get_extension_from_cd_element(cd_model)
-        return list(
+        species_aliases = list(
             getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
         )
+        species_aliases = [
+            getattr(species_alias, "complexSpeciesAlias", None) is None
+            for species_alias in species_aliases
+        ]
+        return species_aliases
 
     @classmethod
     def _get_complex_species_aliases_from_cd_model(cls, cd_model):
         extension = cls._get_extension_from_cd_element(cd_model)
-        return list(
+        complex_species_aliases = list(
             getattr(
                 extension.listOfComplexSpeciesAliases,
                 "complexSpeciesAlias",
                 [],
             )
         )
+        complex_species_aliases = [
+            getattr(complex_species_alias, "complexSpeciesAlias", None) is None
+            for complex_species_alias in complex_species_aliases
+        ]
+        return complex_species_aliases
 
     @classmethod
     def _get_compartments_from_cd_model(cls, cd_model):
