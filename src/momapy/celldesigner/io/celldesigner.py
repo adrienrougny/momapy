@@ -480,8 +480,9 @@ class CellDesignerReader(momapy.io.Reader):
             getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
         )
         species_aliases = [
-            getattr(species_alias, "complexSpeciesAlias", None) is None
+            species_alias
             for species_alias in species_aliases
+            if getattr(species_alias, "complexSpeciesAlias", None) is None
         ]
         return species_aliases
 
@@ -492,8 +493,9 @@ class CellDesignerReader(momapy.io.Reader):
             getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
         )
         species_aliases = [
-            getattr(species_alias, "complexSpeciesAlias", None) is not None
+            species_alias
             for species_alias in species_aliases
+            if getattr(species_alias, "complexSpeciesAlias", None) is not None
         ]
         return species_aliases
 
@@ -508,8 +510,10 @@ class CellDesignerReader(momapy.io.Reader):
             )
         )
         complex_species_aliases = [
-            getattr(complex_species_alias, "complexSpeciesAlias", None) is None
+            complex_species_alias
             for complex_species_alias in complex_species_aliases
+            if getattr(complex_species_alias, "complexSpeciesAlias", None)
+            is None
         ]
         return complex_species_aliases
 
@@ -524,9 +528,10 @@ class CellDesignerReader(momapy.io.Reader):
             )
         )
         complex_species_aliases = [
-            getattr(complex_species_alias, "complexSpeciesAlias", None)
-            is not None
+            complex_species_alias
             for complex_species_alias in complex_species_aliases
+            if getattr(complex_species_alias, "complexSpeciesAlias", None)
+            is not None
         ]
         return complex_species_aliases
 
