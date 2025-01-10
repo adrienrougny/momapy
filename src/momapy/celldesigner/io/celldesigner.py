@@ -469,6 +469,7 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def _get_species_aliases_from_cd_model(cls, cd_model):
+        # only the non-included ones
         extension = cls._get_extension_from_cd_element(cd_model)
         species_aliases = list(
             getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
@@ -476,7 +477,7 @@ class CellDesignerReader(momapy.io.Reader):
         species_aliases = [
             species_alias
             for species_alias in species_aliases
-            if getattr(species_alias, "complexSpeciesAlias", None) is None
+            if species_alias.get("complexSpeciesAlias") is None
         ]
         return species_aliases
 
@@ -489,12 +490,13 @@ class CellDesignerReader(momapy.io.Reader):
         species_aliases = [
             species_alias
             for species_alias in species_aliases
-            if getattr(species_alias, "complexSpeciesAlias", None) is not None
+            if species_alias.get("complexSpeciesAlias") is not None
         ]
         return species_aliases
 
     @classmethod
     def _get_complex_species_aliases_from_cd_model(cls, cd_model):
+        # only the non-included ones
         extension = cls._get_extension_from_cd_element(cd_model)
         complex_species_aliases = list(
             getattr(
@@ -506,8 +508,7 @@ class CellDesignerReader(momapy.io.Reader):
         complex_species_aliases = [
             complex_species_alias
             for complex_species_alias in complex_species_aliases
-            if getattr(complex_species_alias, "complexSpeciesAlias", None)
-            is None
+            if complex_species_alias.get("complexSpeciesAlias") is None
         ]
         return complex_species_aliases
 
@@ -524,8 +525,7 @@ class CellDesignerReader(momapy.io.Reader):
         complex_species_aliases = [
             complex_species_alias
             for complex_species_alias in complex_species_aliases
-            if getattr(complex_species_alias, "complexSpeciesAlias", None)
-            is not None
+            if complex_species_alias.get("complexSpeciesAlias") is not None
         ]
         return complex_species_aliases
 
@@ -1051,6 +1051,18 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_cd_element[cd_complex_species_alias.get("id")] = (
                 cd_complex_species_alias
             )
+        # included species aliases
+        for (
+            cd_species_alias
+        ) in cls._get_included_species_aliases_from_cd_model(cd_model):
+            cd_id_to_cd_element[cd_species_alias.get("id")] = cd_species_alias
+        # included complex species aliases
+        for (
+            cd_complex_species_alias
+        ) in cls._get_included_complex_species_aliases_from_cd_model(cd_model):
+            cd_id_to_cd_element[cd_complex_species_alias.get("id")] = (
+                cd_complex_species_alias
+            )
         return cd_id_to_cd_element
 
     @classmethod
@@ -1070,6 +1082,7 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_complex_alias_id_to_cd_included_species_ids[
                     cd_complex_species_alias_id
                 ].append(cd_species_alias.get("id"))
+
         for (
             cd_species_alias
         ) in cls._get_included_complex_species_aliases_from_cd_model(cd_model):
