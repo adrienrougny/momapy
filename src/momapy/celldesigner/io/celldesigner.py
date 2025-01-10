@@ -436,12 +436,6 @@ class CellDesignerReader(momapy.io.Reader):
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
-        annotations = frozendict.frozendict(
-            {key: frozenset(value) for key, value in annotations.items()}
-        )
-        ids = frozendict.frozendict(
-            {key: frozenset(value) for key, value in ids.items()}
-        )
         result = momapy.io.ReaderResult(
             obj=obj,
             notes=notes,
