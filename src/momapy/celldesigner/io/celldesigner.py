@@ -1610,6 +1610,12 @@ class CellDesignerReader(momapy.io.Reader):
                     )
                 model_element.outside = outside_model_element
             model_element = momapy.builder.object_from_builder(model_element)
+            model_element = momapy.utils.add_or_replace_element_in_set(
+                model_element,
+                model.compartments,
+                func=lambda element, existing_element: element.id_
+                < existing_element.id_,
+            )
             cd_id_to_model_element[cd_compartment.get("id")] = model_element
             map_element_to_ids[model_element].add(cd_compartment.get("id"))
             if with_annotations:
@@ -1675,6 +1681,12 @@ class CellDesignerReader(momapy.io.Reader):
                     )
                 )
             model_element = momapy.builder.object_from_builder(model_element)
+            model_element = momapy.utils.add_or_replace_element_in_set(
+                model_element,
+                model.species_templates,
+                func=lambda element, existing_element: element.id_
+                < existing_element.id_,
+            )
             cd_id_to_model_element[cd_species_template.get("id")] = (
                 model_element
             )
