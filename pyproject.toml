@@ -17,7 +17,7 @@ dependencies = [
     "colorama>=0.4.6",
     "bezier>=2023.7.28",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.11, <=3.12"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
 classifiers = [
