@@ -983,6 +983,12 @@ class CellDesignerReader(momapy.io.Reader):
         return annotations
 
     @classmethod
+    def _make_notes_from_cd_notes(cls, cd_notes):
+        for child_element in cd_notes.iterchildren():
+            break
+        return lxml.etree.tostring(child_element)
+
+    @classmethod
     def _make_annotations_from_cd_element(cls, cd_element):
         cd_rdf = cls._get_rdf_from_cd_element(cd_element)
         if cd_rdf is not None:
@@ -1148,7 +1154,7 @@ class CellDesignerReader(momapy.io.Reader):
             cd_id_to_layout_element = {}
             map_element_to_annotations = collections.defaultdict(set)
             map_element_to_ids = collections.defaultdict(set)
-            map_element_to_notes = {}
+            map_element_to_notes = collections.defaultdict(set)
             model_element_to_layout_element = {}
             # we make and add the  model and layout elements from the cd elements
             # we start with the compartment aliases
@@ -1626,6 +1632,11 @@ class CellDesignerReader(momapy.io.Reader):
                     map_element_to_annotations[model_element].update(
                         annotations
                     )
+            if with_notes:
+                cd_notes = cls._get_notes_from_cd_element(cd_compartment)
+                if cd_notes is not None:
+                    notes = cls._make_notes_from_cd_notes(cd_notes)
+                    map_element_to_notes[model_element].update(notes)
         else:
             model_element = None
         layout_element = None
@@ -1946,6 +1957,11 @@ class CellDesignerReader(momapy.io.Reader):
                             map_element_to_annotations[model_element].update(
                                 annotations
                             )
+                    if with_notes:
+                        cd_notes = cls._get_notes_from_cd_element(cd_species)
+                        if cd_notes is not None:
+                            notes = cls._make_notes_from_cd_notes(cd_notes)
+                            map_element_to_notes[model_element].update(notes)
                 else:  # included species case
                     super_model_element.subunits.add(model_element)
                     if with_annotations:
@@ -1957,6 +1973,11 @@ class CellDesignerReader(momapy.io.Reader):
                             map_element_to_annotations[model_element].update(
                                 annotations
                             )
+                    if with_notes:
+                        cd_notes = cls._get_notes_from_cd_element(cd_species)
+                        if cd_notes is not None:
+                            notes = cls._make_notes_from_cd_notes(cd_notes)
+                            map_element_to_notes[model_element].update(notes)
                 cd_id_to_model_element[cd_species.get("id")] = model_element
                 cd_id_to_model_element[cd_species_alias.get("id")] = (
                     model_element
@@ -2360,6 +2381,11 @@ class CellDesignerReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                    if with_notes:
+                        cd_notes = cls._get_notes_from_cd_element(cd_reaction)
+                        if cd_notes is not None:
+                            notes = cls._make_notes_from_cd_notes(cd_notes)
+                            map_element_to_notes[model_element].update(notes)
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -3327,6 +3353,11 @@ class CellDesignerReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                    if with_notes:
+                        cd_notes = cls._get_notes_from_cd_element(cd_reaction)
+                        if cd_notes is not None:
+                            notes = cls._make_notes_from_cd_notes(cd_notes)
+                            map_element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if layout is not None:
