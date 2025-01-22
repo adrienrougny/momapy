@@ -983,10 +983,13 @@ class CellDesignerReader(momapy.io.Reader):
         return annotations
 
     @classmethod
-    def _make_notes_from_cd_notes(cls, cd_notes):
-        for child_element in cd_notes.iterchildren():
-            break
-        return lxml.etree.tostring(child_element)
+    def _make_notes_from_cd_element(cls, cd_element):
+        cd_notes = cls._get_notes_from_cd_element(cd_element)
+        if cd_notes is not None:
+            for child_element in cd_notes.iterchildren():
+                break
+            return lxml.etree.tostring(child_element)
+        return []
 
     @classmethod
     def _make_annotations_from_cd_element(cls, cd_element):
@@ -1236,6 +1239,12 @@ class CellDesignerReader(momapy.io.Reader):
                 )
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
+            if with_annotations:
+                annotations = cls._make_annotations_from_cd_element(cd_model)
+                map_element_to_annotations[obj].update(annotations)
+            if with_notes:
+                notes = cls._make_notes_from_cd_element(cd_model)
+                map_element_to_notes[obj].update(notes)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
@@ -1243,6 +1252,12 @@ class CellDesignerReader(momapy.io.Reader):
             map_.model = model
             map_.layout = layout
             obj = momapy.builder.object_from_builder(map_)
+            if with_annotations:
+                annotations = cls._make_annotations_from_cd_element(cd_model)
+                map_element_to_annotations[obj].update(annotations)
+            if with_notes:
+                notes = cls._make_notes_from_cd_element(cd_model)
+                map_element_to_notes[obj].update(notes)
         return (
             obj,
             map_element_to_annotations,
@@ -1633,10 +1648,8 @@ class CellDesignerReader(momapy.io.Reader):
                         annotations
                     )
             if with_notes:
-                cd_notes = cls._get_notes_from_cd_element(cd_compartment)
-                if cd_notes is not None:
-                    notes = cls._make_notes_from_cd_notes(cd_notes)
-                    map_element_to_notes[model_element].update(notes)
+                notes = cls._make_notes_from_cd_element(cd_compartment)
+                map_element_to_notes[model_element].update(notes)
         else:
             model_element = None
         layout_element = None
@@ -1958,10 +1971,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 annotations
                             )
                     if with_notes:
-                        cd_notes = cls._get_notes_from_cd_element(cd_species)
-                        if cd_notes is not None:
-                            notes = cls._make_notes_from_cd_notes(cd_notes)
-                            map_element_to_notes[model_element].update(notes)
+                        notes = cls._make_notes_from_cd_element(cd_species)
+                        map_element_to_notes[model_element].update(notes)
                 else:  # included species case
                     super_model_element.subunits.add(model_element)
                     if with_annotations:
@@ -1974,10 +1985,8 @@ class CellDesignerReader(momapy.io.Reader):
                                 annotations
                             )
                     if with_notes:
-                        cd_notes = cls._get_notes_from_cd_element(cd_species)
-                        if cd_notes is not None:
-                            notes = cls._make_notes_from_cd_notes(cd_notes)
-                            map_element_to_notes[model_element].update(notes)
+                        notes = cls._make_notes_from_cd_element(cd_species)
+                        map_element_to_notes[model_element].update(notes)
                 cd_id_to_model_element[cd_species.get("id")] = model_element
                 cd_id_to_model_element[cd_species_alias.get("id")] = (
                     model_element
@@ -2382,10 +2391,8 @@ class CellDesignerReader(momapy.io.Reader):
                             annotations
                         )
                     if with_notes:
-                        cd_notes = cls._get_notes_from_cd_element(cd_reaction)
-                        if cd_notes is not None:
-                            notes = cls._make_notes_from_cd_notes(cd_notes)
-                            map_element_to_notes[model_element].update(notes)
+                        notes = cls._make_notes_from_cd_element(cd_reaction)
+                        map_element_to_notes[model_element].update(notes)
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -3354,10 +3361,8 @@ class CellDesignerReader(momapy.io.Reader):
                             annotations
                         )
                     if with_notes:
-                        cd_notes = cls._get_notes_from_cd_element(cd_reaction)
-                        if cd_notes is not None:
-                            notes = cls._make_notes_from_cd_notes(cd_notes)
-                            map_element_to_notes[model_element].update(notes)
+                        notes = cls._make_notes_from_cd_element(cd_reaction)
+                        map_element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if layout is not None:
