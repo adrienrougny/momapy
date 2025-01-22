@@ -791,6 +791,21 @@ class _SBGNMLReader(momapy.io.Reader):
         return getattr(extension, "annotation", None)
 
     @classmethod
+    def _get_notes_from_sbgnml_element(cls, sbgnml_element):
+        notes = getattr(sbgnml_element, "notes", None)
+        return notes
+
+    @classmethod
+    def _make_notes_from_sbgnml_element(cls, sbgnml_element):
+        sbgnml_notes = cls._get_notes_from_sbgnml_element(sbgnml_element)
+        if sbgnml_notes:
+            for child_element in notes.iterchildren():
+                break
+            notes = lxml.etree.tostring(child_element)
+            return notes
+        return None
+
+    @classmethod
     def _get_rdf_from_sbgnml_element(cls, sbgnml_element):
         annotation = cls._get_annotation_from_sbgnml_element(sbgnml_element)
         if annotation is None:
@@ -1352,6 +1367,12 @@ class _SBGNMLReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                if with_notes:
+                    notes = cls._make_notes_from_sbgnml_element(
+                        sbgnml_compartment
+                    )
+                    if notes:
+                        map_element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if layout is not None:
