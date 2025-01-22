@@ -1109,8 +1109,8 @@ class CellDesignerReader(momapy.io.Reader):
         cls,
         cd_element,
     ):
-        layout = momapy.celldesigner.core.CellDesignerModelBuilder()
-        return layout
+        model = momapy.celldesigner.core.CellDesignerModelBuilder()
+        return model
 
     @classmethod
     def _make_layout_no_subelements_from_cd_model(
