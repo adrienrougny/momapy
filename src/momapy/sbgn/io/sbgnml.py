@@ -800,7 +800,7 @@ class _SBGNMLReader(momapy.io.Reader):
                 break
             notes = lxml.etree.tostring(child_element)
             return notes
-        return None
+        return []
 
     @classmethod
     def _get_rdf_from_sbgnml_element(cls, sbgnml_element):
