@@ -795,8 +795,8 @@ class _SBGNMLReader(momapy.io.Reader):
     @classmethod
     def _make_notes_from_sbgnml_element(cls, sbgnml_element):
         sbgnml_notes = cls._get_notes_from_sbgnml_element(sbgnml_element)
-        if sbgnml_notes:
-            for child_element in notes.iterchildren():
+        if sbgnml_notes is not None:
+            for child_element in sbgnml_notes.iterchildren():
                 break
             notes = lxml.etree.tostring(child_element)
             return notes
@@ -1309,6 +1309,17 @@ class _SBGNMLReader(momapy.io.Reader):
         #     layout = momapy.styling.apply_style_sheet(layout, style_sheet)
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
+            # we add the annotations and notes from the map to the model
+            if with_annotations:
+                annotations = cls._make_annotations_from_sbgnml_element(
+                    sbgnml_map
+                )
+                if annotations:
+                    map_element_to_annotations[obj].update(annotations)
+            if with_notes:
+                notes = cls._make_notes_from_sbgnml_element(sbgnml_map)
+                if notes:
+                    map_element_to_notes[obj].update(notes)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
@@ -1317,6 +1328,16 @@ class _SBGNMLReader(momapy.io.Reader):
             map_.layout = layout
             map_.layout_model_mapping = model_element_to_layout_element
             obj = momapy.builder.object_from_builder(map_)
+            if with_annotations:
+                annotations = cls._make_annotations_from_sbgnml_element(
+                    sbgnml_map
+                )
+                if annotations:
+                    map_element_to_annotations[obj].update(annotations)
+            if with_notes:
+                notes = cls._make_notes_from_sbgnml_element(sbgnml_map)
+                if notes:
+                    map_element_to_notes[obj].update(notes)
         return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
