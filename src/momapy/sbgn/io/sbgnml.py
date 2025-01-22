@@ -3009,7 +3009,7 @@ class _SBGNMLReader(momapy.io.Reader):
                     (
                         model.modulations
                         if cls._get_module_from_sbgnml_map(sbgnml_map)
-                        == "PROCESS_DESCRIPTION"
+                        == momapy.sbgn.pd
                         else model.influences
                     ),
                     func=lambda element, existing_element: element.id_
