@@ -421,9 +421,6 @@ class _SBGNMLReader(momapy.io.Reader):
             xsep=xsep,
             ysep=ysep,
         )
-        annotations = frozendict.frozendict(
-            {key: frozenset(value) for key, value in annotations.items()}
-        )
         result = momapy.io.ReaderResult(
             obj=obj,
             notes=notes,
