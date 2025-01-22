@@ -14,6 +14,7 @@ import momapy.coloring
 import momapy.positioning
 import momapy.builder
 import momapy.styling
+import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbml.core
@@ -3421,7 +3422,84 @@ class SBGNML0_3Reader(_SBGNMLReader):
 
 
 class _SBGNMLWriter(momapy.io.Writer):
-    _CLASS_TO_KEY = {
+    _NSMAP = {None: "http://sbgn.org/libsbgn/0.3", "test": "testns"}
+    _CLASS_TO_FUNC_NAME = {
+        momapy.sbgn.pd.CompartmentLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.SubmapLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.UnspecifiedEntityLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.MacromoleculeLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.SimpleChemicalLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.NucleicAcidFeatureLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.ComplexLayout: "_make_sbgnml_elements_from_node",
+        momapy.sbgn.pd.MacromoleculeMultimerLayout: "",
+        momapy.sbgn.pd.SimpleChemicalMultimerLayout: "",
+        momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout: "",
+        momapy.sbgn.pd.ComplexMultimerLayout: "",
+        momapy.sbgn.pd.PerturbingAgentLayout: "",
+        momapy.sbgn.pd.EmptySetLayout: "",
+        momapy.sbgn.pd.StateVariableLayout: "",
+        momapy.sbgn.pd.UnitOfInformationLayout: "",
+        momapy.sbgn.pd.TerminalLayout: "",
+        momapy.sbgn.pd.TagLayout: "",
+        momapy.sbgn.pd.GenericProcessLayout: "",
+        momapy.sbgn.pd.UncertainProcessLayout: "",
+        momapy.sbgn.pd.OmittedProcessLayout: "",
+        momapy.sbgn.pd.AssociationLayout: "",
+        momapy.sbgn.pd.DissociationLayout: "",
+        momapy.sbgn.pd.PhenotypeLayout: "",
+        momapy.sbgn.pd.AndOperatorLayout: "",
+        momapy.sbgn.pd.OrOperatorLayout: "",
+        momapy.sbgn.pd.NotOperatorLayout: "",
+        momapy.sbgn.pd.EquivalenceOperatorLayout: "",
+        momapy.sbgn.pd.ConsumptionLayout: "",
+        momapy.sbgn.pd.ProductionLayout: "",
+        momapy.sbgn.pd.ModulationLayout: "",
+        momapy.sbgn.pd.StimulationLayout: "",
+        momapy.sbgn.pd.CatalysisLayout: "",
+        momapy.sbgn.pd.NecessaryStimulationLayout: "",
+        momapy.sbgn.pd.InhibitionLayout: "",
+        momapy.sbgn.pd.LogicArcLayout: "",
+        momapy.sbgn.pd.EquivalenceArcLayout: "",
+        momapy.sbgn.af.CompartmentLayout: "",
+        momapy.sbgn.af.SubmapLayout: "",
+        momapy.sbgn.af.BiologicalActivityLayout: "",
+        momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "",
+        momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "",
+        momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "",
+        momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "",
+        momapy.sbgn.af.ComplexUnitOfInformationLayout: "",
+        momapy.sbgn.af.PerturbationUnitOfInformationLayout: "",
+        momapy.sbgn.af.PhenotypeLayout: "",
+        momapy.sbgn.af.AndOperatorLayout: "",
+        momapy.sbgn.af.OrOperatorLayout: "",
+        momapy.sbgn.af.NotOperatorLayout: "",
+        momapy.sbgn.af.DelayOperatorLayout: "",
+        momapy.sbgn.af.UnknownInfluenceLayout: "",
+        momapy.sbgn.af.PositiveInfluenceLayout: "",
+        momapy.sbgn.af.NecessaryStimulationLayout: "",
+        momapy.sbgn.af.NegativeInfluenceLayout: "",
+        momapy.sbgn.af.TerminalLayout: "",
+        momapy.sbgn.af.TagLayout: "",
+        momapy.sbgn.af.LogicArcLayout: "",
+        momapy.sbgn.af.EquivalenceArcLayout: "",
+    }
+
+    _CLASS_TO_SBGNML_CLASS_ATTRIBUTE = {
+        momapy.sbgn.pd.SBGNPDMap: "process description",
+        momapy.sbgn.pd.SBGNPDModel: "process description",
+        momapy.sbgn.pd.SBGNPDLayout: "process description",
+        momapy.sbgn.pd.StateVariableLayout: "state variable",
+        momapy.sbgn.pd.UnitOfInformationLayout: "unit of information",
+        momapy.sbgn.pd.UnspecifiedEntityLayout: "unspecified entity",
+        momapy.sbgn.pd.TerminalLayout: "terminal",
+        momapy.sbgn.pd.MacromoleculeSubunitLayout: "macromolecule",
+        momapy.sbgn.pd.SimpleChemicalSubunitLayout: "simple chemical",
+        momapy.sbgn.pd.NucleicAcidFeatureSubunitLayout: "nucleic acid feature",
+        momapy.sbgn.pd.ComplexSubunitLayout: "complex",
+        momapy.sbgn.pd.MacromoleculeMultimerSubunitLayout: "macromolecule multimer",
+        momapy.sbgn.pd.SimpleChemicalMultimerSubunitLayout: "simple chemical multimer",
+        momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunitLayout: "nucleic acid feature multimer",
+        momapy.sbgn.pd.ComplexMultimerSubunitLayout: "complex multimer",
         momapy.sbgn.pd.CompartmentLayout: "compartment",
         momapy.sbgn.pd.SubmapLayout: "submap",
         momapy.sbgn.pd.UnspecifiedEntityLayout: "unspecified entity",
@@ -3435,9 +3513,6 @@ class _SBGNMLWriter(momapy.io.Writer):
         momapy.sbgn.pd.ComplexMultimerLayout: "complex multimer",
         momapy.sbgn.pd.PerturbingAgentLayout: "perturbing agent",
         momapy.sbgn.pd.EmptySetLayout: "empty set",
-        momapy.sbgn.pd.StateVariableLayout: "state variable",
-        momapy.sbgn.pd.UnitOfInformationLayout: "unit of information",
-        momapy.sbgn.pd.TerminalLayout: "terminal",
         momapy.sbgn.pd.TagLayout: "tag",
         momapy.sbgn.pd.GenericProcessLayout: "generic process",
         momapy.sbgn.pd.UncertainProcessLayout: "uncertain process",
@@ -3555,20 +3630,185 @@ class _SBGNMLWriter(momapy.io.Writer):
             "IsInstanceOf",
         ),
     }
-    _parser_module = None
+
+    @classmethod
+    def _make_lxml_element(
+        cls, tag, namespace=None, attributes=None, text=None, nsmap=None
+    ):
+        if namespace is not None:
+            lxml_tag = f"{{{namespace}}}{tag}"
+        else:
+            lxml_tag = tag
+        if nsmap is None:
+            nsmap = {}
+        if attributes is None:
+            attributes = {}
+        lxml_element = lxml.etree.Element(lxml_tag, nsmap=nsmap, **attributes)
+        if text is not None:
+            lxml_element.text = text
+        return lxml_element
 
     @classmethod
     def write(
         cls,
-        map_,
+        obj: (
+            momapy.sbgn.core.SBGNMap
+            | momapy.sbgn.core.SBGNModel
+            | momapy.sbgn.core.SBGNLayout
+        ),
         file_path,
+        annotations=None,
+        ids=None,
         with_render_information=True,
         with_annotations=True,
         with_notes=True,
     ):
-        xml = ""
+        if annotations is None:
+            annotations = {}
+        if ids is None:
+            ids = {}
+        sbgnml_sbgn = cls._make_lxml_element("sbgn", nsmap=cls._NSMAP)
+        sbgnml_map = cls._make_sbgnml_map_from_obj(
+            obj,
+            annotations=annotations,
+            ids=ids,
+            with_render_information=with_render_information,
+            with_annotations=with_annotations,
+            with_notes=with_notes,
+        )
+        sbgnml_sbgn.append(sbgnml_map)
         with open(file_path, "w") as f:
-            f.write(xml)
+            f.write(
+                lxml.etree.tostring(sbgnml_sbgn, pretty_print=True).decode()
+            )
+
+    @classmethod
+    def _make_sbgnml_map_from_obj(
+        cls,
+        obj,
+        annotations,
+        ids,
+        with_render_information=True,
+        with_annotations=True,
+        with_notes=True,
+    ):
+        language = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(obj)]
+        id_ = ids.get(obj)
+        if id_ is None:
+            id_ = obj.id_
+        else:
+            id_ = id_[0]
+        attributes = {"id": id_, "language": language}
+        sbgnml_map = cls._make_lxml_element("map", attributes=attributes)
+        for layout_element in obj.layout.layout_elements:
+            if isinstance(layout_element, momapy.core.Node):
+                sbgnml_elements = cls._make_sbgnml_elements_from_node(
+                    layout_element, annotations=annotations, ids=ids
+                )
+            for sbgnml_element in sbgnml_elements:
+                sbgnml_map.append(sbgnml_element)
+        return sbgnml_map
+
+    @classmethod
+    def _make_sbgnml_elements_from_layout_element(
+        cls, layout_element, annotations, ids
+    ):
+        func_name = cls._CLASS_TO_FUNC_NAME[type(layout_element)]
+        func = getattr(cls, func_name, None)
+        if func is not None:
+            sbgnml_elements = func(layout_element, annotations, ids)
+        else:
+            print(f"No function for type '{type(layout_element)}'")
+            return []
+        return sbgnml_elements
+
+    @classmethod
+    def _make_sbgnml_elements_from_node(cls, node, annotations, ids):
+        sbgnml_ids = ids.get(node)
+        if sbgnml_ids is None:
+            sbgnml_id = node.id_
+        else:
+            sbgnml_id = sbgnml_ids[0]
+        sbgnml_class = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(node)]
+        attributes = {"id": sbgnml_id, "class": sbgnml_class}
+        sbgnml_element = cls._make_lxml_element("glyph", attributes=attributes)
+        sbgnml_bbox = cls._make_sbgnml_bbox_from_node(node)
+        sbgnml_element.append(sbgnml_bbox)
+        if node.label is not None:
+            if isinstance(node, momapy.sbgn.pd.StateVariableLayout):
+                sbgnml_state = cls._make_sbgnml_state_from_text_layout(
+                    node.label
+                )
+                sbgnml_element.append(sbgnml_state)
+            else:
+                sbgnml_label = cls._make_sbgnml_label_from_text_layout(
+                    node.label
+                )
+                sbgnml_element.append(sbgnml_label)
+        if hasattr(node, "left_connector_tip"):
+            left_connector_tip = node.left_connector_tip()
+            sbgnml_port = cls._make_sbgnml_port_from_point(
+                left_connector_tip, port_id=f"{sbgnml_id}_left"
+            )
+            sbgnml_element.append(sbgnml_port)
+        if hasattr(node, "right_connector_tip"):
+            right_connector_tip = node.right_connector_tip()
+            sbgnml_port = cls._make_sbgnml_port_from_point(
+                right_connector_tip, port_id=f"{sbgnml_id}_right"
+            )
+            sbgnml_element.append(sbgnml_port)
+        for layout_element in node.layout_elements:
+            if isinstance(layout_element, momapy.core.Node):
+                sub_sbgnml_elements = cls._make_sbgnml_elements_from_node(
+                    layout_element, annotations=annotations, ids=ids
+                )
+                for sub_sbgnml_element in sub_sbgnml_elements:
+                    sbgnml_element.append(sub_sbgnml_element)
+        return [sbgnml_element]
+
+    @classmethod
+    def _make_sbgnml_bbox_from_node(cls, node):
+        attributes = {
+            "x": str(node.x - node.width / 2),
+            "y": str(node.y - node.height / 2),
+            "w": str(node.width),
+            "h": str(node.height),
+        }
+        sbgnml_bbox = cls._make_lxml_element("bbox", attributes=attributes)
+        return sbgnml_bbox
+
+    @classmethod
+    def _make_sbgnml_bbox_from_text_layout(cls, text_layout):
+        ink_bbox = text_layout.ink_bbox()
+        attributes = {
+            "x": str(ink_bbox.x - ink_bbox.width / 2),
+            "y": str(ink_bbox.y - ink_bbox.height / 2),
+            "w": str(ink_bbox.width),
+            "h": str(ink_bbox.height),
+        }
+        sbgnml_bbox = cls._make_lxml_element("bbox", attributes=attributes)
+        return sbgnml_bbox
+
+    @classmethod
+    def _make_sbgnml_label_from_text_layout(cls, text_layout):
+        attributes = {"text": text_layout.text}
+        sbgnml_label = cls._make_lxml_element("label", attributes=attributes)
+        sbgnml_bbox = cls._make_sbgnml_bbox_from_text_layout(text_layout)
+        sbgnml_label.append(sbgnml_bbox)
+        return sbgnml_label
+
+    @classmethod
+    def _make_sbgnml_state_from_text_layout(cls, text_layout):
+        attributes = {}
+        text_split = text_layout.text.split("@")
+        if len(text_split) > 1:
+            attributes["variable"] = text_split[-1]
+            if text_split[0]:
+                attributes["value"] = text_split[0]
+        else:
+            attributes["value"] = text_split[0]
+        sbgnml_state = cls._make_lxml_element("state", attributes=attributes)
+        return sbgnml_state
 
     @classmethod
     @abc.abstractmethod
