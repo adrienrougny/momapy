@@ -1466,6 +1466,10 @@ class _SBGNMLReader(momapy.io.Reader):
                     map_element_to_annotations[model_element].update(
                         annotations
                     )
+            if with_notes:
+                notes = cls._make_notes_from_sbgnml_element(sbgnml_entity_pool)
+                if notes:
+                    map_element_to_notes[model_element].update(notes)
         if layout is not None:
             layout.layout_elements.append(layout_element)
             sbgnml_id_to_layout_element[sbgnml_entity_pool.get("id")] = (
@@ -1672,6 +1676,12 @@ class _SBGNMLReader(momapy.io.Reader):
                             map_element_to_annotations[
                                 subunit_model_element
                             ].update(annotations)
+                    if with_notes:
+                        notes = cls._make_notes_from_sbgnml_element(
+                            sbgnml_subunit
+                        )
+                        if notes:
+                            map_element_to_notes[model_element].update(notes)
                 if layout is not None:
                     layout_element.layout_elements.append(
                         subunit_layout_element
@@ -1823,6 +1833,10 @@ class _SBGNMLReader(momapy.io.Reader):
                     map_element_to_annotations[model_element].update(
                         annotations
                     )
+            if with_notes:
+                notes = cls._make_notes_from_sbgnml_element(sbgnml_activity)
+                if notes:
+                    map_element_to_notes[model_element].update(notes)
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -2093,6 +2107,10 @@ class _SBGNMLReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                if with_notes:
+                    notes = cls._make_notes_from_sbgnml_element(sbgnml_submap)
+                    if notes:
+                        map_element_to_notes[model_element].update(notes)
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -2408,6 +2426,10 @@ class _SBGNMLReader(momapy.io.Reader):
                     map_element_to_annotations[model_element].update(
                         annotations
                     )
+            if with_notes:
+                notes = cls._make_notes_from_sbgnml_element(sbgnml_phenotype)
+                if notes:
+                    map_element_to_notes[model_element].update(notes)
         if layout is not None:
             layout.layout_elements.append(layout_element)
             sbgnml_id_to_layout_element[sbgnml_phenotype.get("id")] = (
@@ -2569,6 +2591,10 @@ class _SBGNMLReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                if with_notes:
+                    notes = cls._make_notes_from_sbgnml_element(sbgnml_process)
+                    if notes:
+                        map_element_to_notes[model_element].update(notes)
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
@@ -3026,6 +3052,12 @@ class _SBGNMLReader(momapy.io.Reader):
                         map_element_to_annotations[model_element].update(
                             annotations
                         )
+                if with_notes:
+                    notes = cls._make_notes_from_sbgnml_element(
+                        sbgnml_modulation
+                    )
+                    if notes:
+                        map_element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if layout is not None:
