@@ -2963,9 +2963,7 @@ class CellDesignerReader(momapy.io.Reader):
         super_layout_element,
     ):
         if model is not None:
-            model_element = model.new_element(
-                momapy.celldesigner.core.Reactant
-            )
+            model_element = model.new_element(momapy.celldesigner.core.Product)
             cd_species_id = cd_product_link.get("product")
             # the id and stoichiometry is stored in the product, not
             # base product, so we get the corresponding product
