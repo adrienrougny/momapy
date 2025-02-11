@@ -1905,7 +1905,6 @@ class _SBGNMLReader(momapy.io.Reader):
             if sbgnml_state is None:
                 value = None
                 variable = None
-                order = order
                 text = ""
             else:
                 sbgnml_value = sbgnml_state.get("value")
@@ -1915,8 +1914,6 @@ class _SBGNMLReader(momapy.io.Reader):
                 variable = sbgnml_variable
                 if sbgnml_variable is not None:
                     text += f"@{sbgnml_variable}"
-                else:
-                    variable = order
             if model is not None:
                 # We make the model element
                 model_element = model.new_element(momapy.sbgn.pd.StateVariable)
