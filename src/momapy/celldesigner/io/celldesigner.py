@@ -1687,6 +1687,16 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_species_template.get("name")
             )
             n_undefined_modification_residue_names = 0
+            cd_modification_residues = (
+                cls._get_modification_residues_from_cd_species_template(
+                    cd_species_template
+                )
+            )
+            cd_modification_residues.sort(
+                key=lambda cd_modification_residue: cd_modification_residue.get(
+                    "angle"
+                )
+            )
             for (
                 cd_modification_residue
             ) in cls._get_modification_residues_from_cd_species_template(
