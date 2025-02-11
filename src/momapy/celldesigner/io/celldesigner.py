@@ -1680,11 +1680,17 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.name = cls._make_name_from_cd_name(
                 cd_species_template.get("name")
             )
+            n_undefined_modification_residue_names = 0
             for (
                 cd_modification_residue
             ) in cls._get_modification_residues_from_cd_species_template(
                 cd_species_template
             ):
+                if cd_modification_residue.get("name") is None:
+                    n_undefined_modification_residue_names += 1
+                    order = n_undefined_modification_residue_names
+                else:
+                    order = None
                 modification_residue_model_element, _ = (
                     cls._make_and_add_modification_residue_from_cd_modification_residue(
                         cd_modification_residue=cd_modification_residue,
@@ -1702,6 +1708,7 @@ class CellDesignerReader(momapy.io.Reader):
                         with_notes=with_notes,
                         super_cd_element=cd_species_template,
                         super_model_element=model_element,
+                        order=order,
                     )
                 )
             model_element = momapy.builder.object_from_builder(model_element)
@@ -1740,6 +1747,7 @@ class CellDesignerReader(momapy.io.Reader):
         with_notes,
         super_cd_element,
         super_model_element,
+        order,
     ):
         if model is not None:
             model_element = model.new_element(
@@ -1754,6 +1762,7 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.name = cls._make_name_from_cd_name(
                 cd_modification_residue.get("name")
             )
+            model_element.order = order
             model_element = momapy.builder.object_from_builder(model_element)
             super_model_element.modification_residues.add(model_element)
             # exceptionally we take the model element's id and not the cd element's
