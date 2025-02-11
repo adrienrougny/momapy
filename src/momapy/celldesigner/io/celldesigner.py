@@ -465,7 +465,10 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def _get_reactions_from_cd_model(cls, cd_model):
-        return list(getattr(cd_model.listOfReactions, "reaction", []))
+        list_of_reactions = getattr(cd_model, "listOfReactions", None)
+        if list_of_reactions is None:
+            return []
+        return list(getattr(list_of_reactions, "reaction", []))
 
     @classmethod
     def _get_species_aliases_from_cd_model(cls, cd_model):
