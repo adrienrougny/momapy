@@ -22,6 +22,7 @@ class CellDesignerModelElement(momapy.core.ModelElement):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationResidue(CellDesignerModelElement):
     name: str | None = None
+    order: int | None = None
 
 
 class ModificationState(enum.Enum):

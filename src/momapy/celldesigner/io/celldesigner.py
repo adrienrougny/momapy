@@ -277,7 +277,7 @@ class CellDesignerReader(momapy.io.Reader):
         ): momapy.sbml.core.BQBiol.HAS_VERSION,
         (
             "http://biomodels.net/biology-qualifiers/",
-            "isValue",
+            "is",
         ): momapy.sbml.core.BQBiol.IS,
         (
             "http://biomodels.net/biology-qualifiers/",
@@ -461,11 +461,17 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def _get_species_from_cd_model(cls, cd_model):
-        return list(getattr(cd_model.listOfSpecies, "species", []))
+        list_of_species = getattr(cd_model, "listOfSpecies", None)
+        if list_of_species is None:
+            return []
+        return list(getattr(list_of_species, "species", []))
 
     @classmethod
     def _get_reactions_from_cd_model(cls, cd_model):
-        return list(getattr(cd_model.listOfReactions, "reaction", []))
+        list_of_reactions = getattr(cd_model, "listOfReactions", None)
+        if list_of_reactions is None:
+            return []
+        return list(getattr(list_of_reactions, "reaction", []))
 
     @classmethod
     def _get_species_aliases_from_cd_model(cls, cd_model):
@@ -1680,11 +1686,27 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.name = cls._make_name_from_cd_name(
                 cd_species_template.get("name")
             )
+            n_undefined_modification_residue_names = 0
+            cd_modification_residues = (
+                cls._get_modification_residues_from_cd_species_template(
+                    cd_species_template
+                )
+            )
+            cd_modification_residues.sort(
+                key=lambda cd_modification_residue: cd_modification_residue.get(
+                    "angle"
+                )
+            )
             for (
                 cd_modification_residue
             ) in cls._get_modification_residues_from_cd_species_template(
                 cd_species_template
             ):
+                if cd_modification_residue.get("name") is None:
+                    n_undefined_modification_residue_names += 1
+                    order = n_undefined_modification_residue_names
+                else:
+                    order = None
                 modification_residue_model_element, _ = (
                     cls._make_and_add_modification_residue_from_cd_modification_residue(
                         cd_modification_residue=cd_modification_residue,
@@ -1702,6 +1724,7 @@ class CellDesignerReader(momapy.io.Reader):
                         with_notes=with_notes,
                         super_cd_element=cd_species_template,
                         super_model_element=model_element,
+                        order=order,
                     )
                 )
             model_element = momapy.builder.object_from_builder(model_element)
@@ -1740,6 +1763,7 @@ class CellDesignerReader(momapy.io.Reader):
         with_notes,
         super_cd_element,
         super_model_element,
+        order,
     ):
         if model is not None:
             model_element = model.new_element(
@@ -1754,6 +1778,7 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.name = cls._make_name_from_cd_name(
                 cd_modification_residue.get("name")
             )
+            model_element.order = order
             model_element = momapy.builder.object_from_builder(model_element)
             super_model_element.modification_residues.add(model_element)
             # exceptionally we take the model element's id and not the cd element's
@@ -2963,9 +2988,7 @@ class CellDesignerReader(momapy.io.Reader):
         super_layout_element,
     ):
         if model is not None:
-            model_element = model.new_element(
-                momapy.celldesigner.core.Reactant
-            )
+            model_element = model.new_element(momapy.celldesigner.core.Product)
             cd_species_id = cd_product_link.get("product")
             # the id and stoichiometry is stored in the product, not
             # base product, so we get the corresponding product
