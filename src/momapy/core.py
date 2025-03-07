@@ -1370,103 +1370,20 @@ class Layout(Node):
         )
 
 
-_MappingElementType: typing.TypeAlias = (
-    tuple[ModelElement, ModelElement | None] | LayoutElement
-)
-_MappingKeyType: typing.TypeAlias = frozenset[_MappingElementType]
-_MappingValueType: typing.TypeAlias = frozenset[_MappingKeyType]
-_SingletonToSetMappingType: typing.TypeAlias = frozendict.frozendict[
-    _MappingElementType, frozendict.frozendict[_MappingKeyType]
-]
-_SetToSetMappingType: typing.TypeAlias = frozendict.frozendict[
-    _MappingKeyType, _MappingValueType
-]
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class LayoutModelMapping(collections.abc.Mapping):
+class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
     """Class for mappings between model elements and layout elements"""
-
-    _singleton_to_set_mapping: _SingletonToSetMappingType = dataclasses.field(
-        default_factory=frozendict.frozendict
-    )
-    _set_to_set_mapping: _SetToSetMappingType = dataclasses.field(
-        default_factory=frozendict.frozendict
-    )
-
-    def __iter__(self):
-        return iter(self._set_to_set_mapping)
-
-    def __len__(self):
-        return len(self._set_to_set_mapping)
-
-    def __getitem__(
-        self, key: ModelElement | _MappingElementType | _MappingKeyType
-    ):
-        return self.get_mapping(key=key, expand=True)
-
-    def _prepare_model_element_key(self, key):
-        return tuple([key, None])
-
-    def _prepare_key(
-        self, key: ModelElement | _MappingElementType | _MappingKeyType
-    ):
-        if isinstance(key, ModelElement):  # ModelElement
-            key = frozenset([self._prepare_model_element_key(key)])
-        elif isinstance(key, LayoutElement) or isinstance(
-            key, tuple
-        ):  # _MappingElementType
-            key = frozenset([key])
-        return key
 
     def get_mapping(
         self,
-        key: ModelElement | _MappingElementType | _MappingKeyType,
-        expand: bool = True,
-        unpack: bool = False,
-    ) -> frozenset[frozenset[LayoutElement]] | frozenset[LayoutElement]:
-        if (
-            isinstance(key, ModelElement)
-            or isinstance(key, LayoutElement)
-            or isinstance(key, tuple)
-        ):  # MappingElementType
-            if isinstance(key, ModelElement):  # ModelElementBuilder
-                key = self._prepare_model_element_key(key)
-            if expand:
-                keys = self._singleton_to_set_mapping[key]
-            else:
-                keys = set([self._prepare_key(key)])
-        else:
-            keys = set([key])
-        value = set([])
-        for key in keys:
-            value |= self._set_to_set_mapping[key]
-        if unpack:
-            if not value:
-                raise ValueError(
-                    f"could not unpack '{value}': result is empty"
-                )
-            for element in value:
-                break
-            if not element:
-                raise ValueError(
-                    f"could not unpack '{value}': result is empty"
-                )
-            for sub_element in element:
-                break
-            return sub_element
-
-        return value
+        map_element: MapElement,
+    ) -> ModelElement | list[LayoutElement]:
+        if map_element in self:
+            return self[map_element]
+        return self.inverse.get(map_element)
 
     def is_submapping(self, other) -> bool:
-        """Return `true` if another mapping is a submapping of the `LayoutModelMapping`, `false` otherwise"""
-        for left_element, right_elements in self._set_to_set_mapping.items():
-            other_right_elements = other._set_to_set_mapping.get(left_element)
-            if other_right_elements is None or not right_elements.issubset(
-                other_right_elements
-            ):
-                return False
-        return True
+        """Return `true` if the mapping is a submapping of another `LayoutModelMapping`, `false` otherwise"""
+        return self.items() <= other.items()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1489,13 +1406,9 @@ class Map(MapElement):
 
     def get_mapping(
         self,
-        key: ModelElement | _MappingElementType | _MappingKeyType,
-        expand: bool = True,
-        unpack: bool = False,
-    ):
-        return self.layout_model_mapping.get_mapping(
-            key=key, expand=expand, unpack=unpack
-        )
+        map_element: MapElement,
+    ) -> ModelElement | list[LayoutElement]:
+        return self.layout_model_mapping.get_mapping(map_element)
 
 
 class TupleBuilder(list, momapy.builder.Builder):
@@ -1759,356 +1672,48 @@ LayoutBuilder = momapy.builder.get_or_make_builder_cls(
 )
 """Abstract class for layout builders"""
 
-_MappingElementBuilderType: typing.TypeAlias = (
-    tuple[
-        ModelElement | ModelElementBuilder,
-        ModelElement | ModelElementBuilder | None,
-    ]
-    | LayoutElement
-    | LayoutElementBuilder
-)
-_MappingKeyBuilderType: typing.TypeAlias = frozenset[
-    _MappingElementBuilderType
-]
-_MappingValueBuilderType: typing.TypeAlias = FrozensetBuilder[
-    _MappingKeyBuilderType
-]
-_SingletonToSetMappingBuilderType: typing.TypeAlias = FrozendictBuilder[
-    _MappingElementBuilderType, FrozendictBuilder[_MappingKeyBuilderType]
-]
-_SetToSetMappingBuilderType: typing.TypeAlias = FrozendictBuilder[
-    _MappingKeyBuilderType, _MappingValueBuilderType
-]
-
 
 @dataclasses.dataclass
 class LayoutModelMappingBuilder(
-    momapy.builder.Builder, collections.abc.Mapping
+    momapy.builder.Builder, momapy.utils.SurjectionDict
 ):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
-    _singleton_to_set_mapping: _SingletonToSetMappingBuilderType = (
-        dataclasses.field(default_factory=FrozendictBuilder)
-    )
-    _set_to_set_mapping: _SetToSetMappingBuilderType = dataclasses.field(
-        default_factory=FrozendictBuilder
-    )
 
-    def __iter__(self):
-        return iter(self._set_to_set_mapping)
-
-    def __len__(self):
-        return len(self._set_to_set_mapping)
-
-    def __getitem__(
-        self, key: ModelElement | _MappingElementBuilderType | _MappingKeyType
-    ):
-        return self.get_mapping(key=key, expand=True)
-
-    def __setitem__(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-        value: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-            | _MappingValueBuilderType
-        ),
-    ):
-        return self.set_mapping(key=key, value=value, reverse=True)
-
-    def _prepare_model_element_key(self, key):
-        return tuple([key, None])
-
-    def _prepare_key(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-    ):
-        if momapy.builder.isinstance_or_builder(
-            key, ModelElement
-        ):  # ModelElement(Builder)
-            key = frozenset([self._prepare_model_element_key(key)])
-        elif momapy.builder.isinstance_or_builder(
-            key, LayoutElement
-        ) or isinstance(
-            key, tuple
-        ):  # _MappingElementBuilderType
-            key = frozenset([key])
-        return key
-
-    def _prepare_value(
-        self,
-        value: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-            | _MappingValueBuilderType
-        ),
-    ):
-        value = self._prepare_key(
-            value
-        )  # ModelElement(Builder) | _MappingElementBuilderType to _MappingKeyBuilderType
-        if isinstance(
-            value, frozenset
-        ):  # _MappingKeyBuilderType to _MappingValueBuilderType
-            value = FrozensetBuilder([value])
-        return value
-
-    def _prepare_key_value(self, key, value):
-        return self._prepare_key(key), self._prepare_value(value)
-
-    def get_mapping(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-        expand: bool = True,
-        unpack: bool = True,
-    ):
-        if (
-            momapy.builder.isinstance_or_builder(key, ModelElement)
-            or momapy.builder.isinstance_or_builder(key, LayoutElement)
-            or isinstance(key, tuple)
-        ):  # MappingElementBuilderType
-            if momapy.builder.isinstance_or_builder(
-                key, ModelElement
-            ):  # ModelElementBuilder
-                key = self._prepare_model_element_key(key)
-            if expand:
-                keys = self._singleton_to_set_mapping[key]
-            else:
-                keys = set([self._prepare_key(key)])
-        else:
-            keys = set([key])
-        value = set([])
-        for key in keys:
-            value |= self._set_to_set_mapping[key]
-        if unpack:
-            if not value:
-                raise ValueError(
-                    f"could not unpack '{value}': result is empty"
-                )
-            for element in value:
-                break
-            if not element:
-                raise ValueError(
-                    f"could not unpack '{value}': result is empty"
-                )
-            for sub_element in element:
-                break
-            return sub_element
-
-        return value
-
-    def set_mapping(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-        value: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-            | _MappingValueBuilderType
-        ),
-        reverse: bool = True,
-    ):
-        key, value = self._prepare_key_value(key, value)
-        for element in key:
-            if element not in self._singleton_to_set_mapping:
-                self._singleton_to_set_mapping[element] = FrozendictBuilder()
-            self._singleton_to_set_mapping[element].add(key)
-        self._set_to_set_mapping[key] = value
-        if reverse:
-            for rkey in value:
-                self.add_mapping(key=rkey, value=key, reverse=False)
-
-    def add_mapping(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-        value: (
-            ModelElement
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-            | _MappingValueBuilderType
-        ),
-        reverse: bool = True,
-    ):
-        key, value = self._prepare_key_value(key, value)
-        for element in key:
-            if element not in self._singleton_to_set_mapping:
-                self._singleton_to_set_mapping[element] = FrozensetBuilder()
-            self._singleton_to_set_mapping[element].add(key)
-        if key not in self._set_to_set_mapping:
-            self._set_to_set_mapping[key] = FrozensetBuilder()
-        self._set_to_set_mapping[key] |= value
-        if reverse:
-            for rkey in value:
-                self.add_mapping(key=rkey, value=key, reverse=False)
-
-    def delete_mapping(
-        self,
-        key: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-        ),
-        value: (
-            ModelElement
-            | ModelElementBuilder
-            | _MappingElementBuilderType
-            | _MappingKeyBuilderType
-            | _MappingValueBuilderType
-        ),
-        reverse: bool = True,
-    ):
-        key = self._prepare_key(key)
-        if value is not None:
-            value = self._prepare_value(value)
-            deleted = value
-            self._set_to_set_mapping[key] -= value
-            if not self._set_to_set_mapping[key]:
-                del self._set_to_set_mapping[key]
-        else:
-            deleted = self._set_to_set_mapping[key]
-            del self._set_to_set_mapping[key]
-        if key not in self._set_to_set_mapping:
-            for element in key:
-                self._singleton_to_set_mapping[element].remove(key)
-                if not self._singleton_to_set_mapping[element]:
-                    del self._singleton_to_set_mapping[element]
-        if reverse:
-            for rkey in deleted:
-                self.delete_mapping(key=rkey, value=key, reverse=False)
-
-    def is_submapping(self, other):
-        for left_element, right_elements in self._set_to_set_mapping.items():
-            other_right_elements = other._set_to_set_mappin.get(left_element)
-            if other_right_elements is None or not right_elements.issubset(
-                other_right_elements
-            ):
-                return False
-        return True
+    def get_mapping(self, map_element: MapElementBuilder | MapElement):
+        if map_element in self:
+            return self[map_element]
+        return self.inverse.get(map_element)
 
     def build(
         self,
-        inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
-        _set_to_set_mapping = momapy.builder.object_from_builder(
-            builder=self._set_to_set_mapping,
-            inside_collections=True,
-            builder_to_object=builder_to_object,
-        )
-        _singleton_to_set_mapping = momapy.builder.object_from_builder(
-            builder=self._singleton_to_set_mapping,
-            inside_collections=True,
-            builder_to_object=builder_to_object,
-        )
         return self._cls_to_build(
-            _singleton_to_set_mapping=_singleton_to_set_mapping,
-            _set_to_set_mapping=_set_to_set_mapping,
+            {
+                momapy.builder.object_from_builder(
+                    key, builder_to_object=builder_to_object
+                ): momapy.builder.object_from_builder(
+                    value, builder_to_object=builder_to_object
+                )
+                for key, value in self.items()
+            }
         )
 
     @classmethod
     def from_object(
         cls,
         obj,
-        inside_collections: bool = True,
-        omit_keys: bool = True,
         object_to_builder: dict[int, momapy.builder.Builder] | None = None,
     ):
-        _set_to_set_mapping = FrozendictBuilder()
-        for key in obj._set_to_set_mapping:
-            builder_key = frozenset(
-                [
-                    (
-                        momapy.builder.builder_from_object(
-                            obj=e,
-                            inside_collections=inside_collections,
-                            omit_keys=omit_keys,
-                            object_to_builder=object_to_builder,
-                        )
-                        if not isinstance(e, tuple)
-                        else tuple(
-                            [
-                                momapy.builder.builder_from_object(
-                                    obj=ee,
-                                    inside_collections=inside_collections,
-                                    omit_keys=omit_keys,
-                                    object_to_builder=object_to_builder,
-                                )
-                                for ee in e
-                            ]
-                        )
-                    )
-                    for e in key
-                ]
-            )
-            builder_value = FrozensetBuilder(
-                [
-                    frozenset(
-                        [
-                            (
-                                momapy.builder.builder_from_object(
-                                    obj=e,
-                                    inside_collections=inside_collections,
-                                    omit_keys=omit_keys,
-                                    object_to_builder=object_to_builder,
-                                )
-                                if not isinstance(e, tuple)
-                                else tuple(
-                                    [
-                                        momapy.builder.builder_from_object(
-                                            obj=ee,
-                                            inside_collections=inside_collections,
-                                            omit_keys=omit_keys,
-                                            object_to_builder=object_to_builder,
-                                        )
-                                        for ee in e
-                                    ]
-                                )
-                            )
-                            for e in k
-                        ]
-                    )
-                    for k in obj._set_to_set_mapping[key]
-                ]
-            )
-            _set_to_set_mapping[builder_key] = builder_value
-        _singleton_to_set_mapping = FrozendictBuilder()
-        for key in _set_to_set_mapping:
-            for element in key:
-                if element not in _singleton_to_set_mapping:
-                    _singleton_to_set_mapping[element] = FrozensetBuilder()
-                _singleton_to_set_mapping[element].add(key)
         return cls(
-            _singleton_to_set_mapping=_singleton_to_set_mapping,
-            _set_to_set_mapping=_set_to_set_mapping,
+            {
+                momapy.builder.builder_from_object(
+                    key, object_to_builder=object_to_builder
+                ): momapy.builder.builder_from_object(
+                    value, object_to_builder=object_to_builder
+                )
+                for key, value in obj.items()
+            }
         )
 
 
