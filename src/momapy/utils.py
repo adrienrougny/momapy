@@ -4,8 +4,49 @@ import uuid
 import types
 
 import colorama
+import frozendict
 
 import momapy
+
+
+# code adapted from https://stackoverflow.com/a/21894086 authored by Basj
+class SurjectionDict(dict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._inverse = {}
+        for key, value in self.items():
+            self._inverse.setdefault(value, []).append(key)
+
+    def __setitem__(self, key, value):
+        if key in self:
+            self._inverse[self[key]].remove(key)
+        super(SurjectionDict, self).__setitem__(key, value)
+        self._inverse.setdefault(value, []).append(key)
+
+    def __delitem__(self, key):
+        value = self[key]  # throws expected KeyError if key not in self
+        super().__delitem__(key)
+        # we know key was in self, hence value is expected to be in self.inverse
+        self._inverse[value].remove(key)
+        if not self._inverse[value]:
+            del self._inverse[value]
+
+    @property
+    def inverse(self):
+        return frozendict.frozendict(self._inverse)
+
+
+class FrozenSurjectionDict(frozendict.frozendict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        inverse = {}
+        for key, value in self.items():
+            inverse.setdefault(value, []).append(key)
+        object.__setattr__(self, "_inverse", frozendict.frozendict(inverse))
+
+    @property
+    def inverse(self):
+        return self._inverse
 
 
 def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
