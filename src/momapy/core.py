@@ -1750,18 +1750,8 @@ def _map_builder_new_layout_element(
 
 def _map_builder_add_mapping(
     self,
-    key: (
-        ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-    ),
-    value: (
-        ModelElement
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-        | _MappingValueBuilderType
-    ),
+    key,
+    value,
     reverse: bool = True,
 ):
     self.layout_model_mapping.add_mapping(
@@ -1771,12 +1761,7 @@ def _map_builder_add_mapping(
 
 def _map_builder_get_mapping(
     self,
-    key: (
-        ModelElement
-        | ModelElementBuilder
-        | _MappingElementBuilderType
-        | _MappingKeyBuilderType
-    ),
+    key,
     expand: bool = True,
     unpack: bool = True,
 ):
