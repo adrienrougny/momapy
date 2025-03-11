@@ -201,6 +201,7 @@ class ClassSelector(Selector):
         """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
         for cls in type(obj).__mro__:
             cls_name = cls.__name__
+            # print(cls_name, f"{self.class_name}Builder")
             if (
                 cls_name == self.class_name
                 or cls_name == f"{self.class_name}Builder"
@@ -345,7 +346,7 @@ _css_style_collection = (
 _css_id = pp.Word(pp.printables, exclude_chars=",")
 _css_id_selector = pp.Literal("#") + _css_id
 _css_class_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
-_css_type_selector = _css_class_name
+_css_type_selector = _css_class_name.copy()
 _css_class_selector = pp.Literal(".") + _css_class_name
 _css_elementary_selector = (
     _css_class_selector | _css_type_selector | _css_id_selector
