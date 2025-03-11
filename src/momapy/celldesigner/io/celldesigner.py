@@ -1164,7 +1164,12 @@ class CellDesignerReader(momapy.io.Reader):
             map_element_to_annotations = collections.defaultdict(set)
             map_element_to_ids = collections.defaultdict(set)
             map_element_to_notes = collections.defaultdict(set)
-            model_element_to_layout_element = {}
+            if model is not None and layout is not None:
+                model_element_to_layout_element = (
+                    momapy.core.LayoutModelMappingBuilder()
+                )
+            else:
+                model_element_to_layout_element = None
             # we make and add the  model and layout elements from the cd elements
             # we start with the compartment aliases
             cls._make_and_add_compartments_from_cd_model(
@@ -1257,6 +1262,7 @@ class CellDesignerReader(momapy.io.Reader):
             map_ = cls._make_map_no_subelements_from_cd_model(cd_model)
             map_.model = model
             map_.layout = layout
+            map_.layout_model_mapping = model_element_to_layout_element
             obj = momapy.builder.object_from_builder(map_)
             if with_annotations:
                 annotations = cls._make_annotations_from_cd_element(cd_model)
@@ -2027,6 +2033,10 @@ class CellDesignerReader(momapy.io.Reader):
                     super_layout_element.layout_elements.append(layout_element)
                 cd_id_to_layout_element[cd_species_alias.get("id")] = (
                     layout_element
+                )
+            if model is not None and layout is not None:
+                model_element_to_layout_element.add_mapping(
+                    model_element, layout_element
                 )
         return model_element, layout_element
 
