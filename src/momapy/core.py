@@ -736,9 +736,9 @@ class _Arc(GroupLayout):
         | momapy.geometry.BezierCurve
         | momapy.geometry.EllipticalArc
     ] = dataclasses.field(default_factory=tuple)
-    source: typing.Any = None
+    source: LayoutElement | None = None
     start_shorten: float = 0.0
-    target: typing.Any = None
+    target: LayoutElement | None = None
     transform: (
         momapy.drawing.NoneValueType
         | tuple[momapy.geometry.Transformation]
