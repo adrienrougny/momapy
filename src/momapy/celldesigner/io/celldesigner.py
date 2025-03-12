@@ -2434,6 +2434,10 @@ class CellDesignerReader(momapy.io.Reader):
                 )
                 layout.layout_elements.append(layout_element)
                 cd_id_to_layout_element[layout_element.id_] = layout_element
+            if model is not None and layout is not None:
+                model_element_to_layout_element.add_mapping(
+                    model_element, layout_element
+                )
         return model_element, layout_element
 
     @classmethod
@@ -3475,6 +3479,10 @@ class CellDesignerReader(momapy.io.Reader):
                 layout.layout_elements.append(layout_element)
             else:
                 layout_element = None
+            if model is not None and layout is not None:
+                model_element_to_layout_element.add_mapping(
+                    model_element, layout_element
+                )
         return model_element, layout_element
 
 
