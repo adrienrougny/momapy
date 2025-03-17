@@ -4,7 +4,6 @@ import abc
 import math
 import decimal
 import copy
-import collections.abc
 
 import numpy
 import shapely
@@ -14,7 +13,6 @@ import momapy.builder
 
 
 ROUNDING = 2
-decimal.getcontext().prec = ROUNDING
 
 
 @dataclasses.dataclass(frozen=True)
@@ -82,9 +80,13 @@ class Point(GeometryObject):
         """Return a reversed copy of the point"""
         return reverse_point(self)
 
+    def round(self, ndigits=None):
+        return Point(round(self.x, ndigits), round(self.y, ndigits))
+
     def to_shapely(self) -> shapely.Point:
         """Return a shapely point that reproduces the point"""
-        return shapely.Point(self.x, self.y)
+        rounded = self.round(ROUNDING)
+        return shapely.Point(rounded.x, rounded.y)
 
     def to_fortranarray(self) -> typing.Any:
         """Return a numpy fortran array representation of the point"""
@@ -173,7 +175,12 @@ class Line(GeometryObject):
 
     def to_shapely(self) -> shapely.LineString:
         """Return a shapeply line string reproducing the line"""
-        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
+        return shapely.LineString(
+            [
+                self.p1.round(ROUNDING).to_tuple(),
+                self.p2.round(ROUNDING).to_tuple(),
+            ]
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -239,7 +246,12 @@ class Segment(GeometryObject):
 
     def to_shapely(self) -> shapely.LineString:
         """Return a shapely line string reproducing the segment"""
-        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
+        return shapely.LineString(
+            [
+                self.p1.round(ROUNDING).to_tuple(),
+                self.p2.round(ROUNDING).to_tuple(),
+            ]
+        )
 
     def bbox(self) -> "Bbox":
         """Compute and return the bounding box of the segment"""
@@ -332,7 +344,9 @@ class BezierCurve(GeometryObject):
         points = self.evaluate_multi(
             numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
         )
-        return shapely.LineString([point.to_tuple() for point in points])
+        return shapely.LineString(
+            [point.round(ROUNDING).to_tuple() for point in points]
+        )
 
     def bbox(self):
         """Compute and return the bounding box of the bezier curve"""
