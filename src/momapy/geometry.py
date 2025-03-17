@@ -4,7 +4,6 @@ import abc
 import math
 import decimal
 import copy
-import collections.abc
 
 import numpy
 import shapely
