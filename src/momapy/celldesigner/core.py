@@ -16,7 +16,12 @@ import momapy.sbgn.pd
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModelElement(momapy.core.ModelElement):
-    pass
+    id_: str | None = dataclasses.field(
+        default=None, compare=False, hash=False
+    )
+    metaid: str | None = dataclasses.field(
+        default=None, compare=False, hash=False
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -467,7 +472,7 @@ class UnknownTriggering(UnknownModulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerModel(momapy.sbml.core.Model):
+class CellDesignerModel(momapy.sbml.core.SBMLModel):
     species_templates: frozenset[SpeciesTemplate] = dataclasses.field(
         default_factory=frozenset
     )

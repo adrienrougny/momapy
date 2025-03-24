@@ -45,20 +45,13 @@ class RDFAnnotation(momapy.core.ModelElement):
     resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
 
 
-# to be defined
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBOTerm(momapy.core.ModelElement):
-    pass
-
-
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBase(momapy.core.ModelElement):
+    id_: str | None = None
     name: str | None = None
-    sbo_term: SBOTerm | None = None
-    metaid: str | None = dataclasses.field(
-        default=None, compare=False, hash=False
-    )
+    sbo_term: str | None = None
+    metaid: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -104,7 +97,7 @@ class Reaction(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(SBase, momapy.core.Model):
+class SBMLModel(SBase, momapy.core.Model):
     compartments: frozenset[Compartment] = dataclasses.field(
         default_factory=frozenset
     )
@@ -113,10 +106,8 @@ class Model(SBase, momapy.core.Model):
         default_factory=frozenset
     )
 
+    def is_submodel(self, other):  # TODO
+        return None
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBML(SBase):
-    xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"
-    level: int = 3
-    version: int = 2
-    model: Model | None = None
+
+SBMLModelBuilder = momapy.builder.get_or_make_builder_cls(SBMLModel)
