@@ -1860,6 +1860,8 @@ class CellDesignerReader(momapy.io.Reader):
             )
             if cd_species_activity is not None:
                 active = cd_species_activity.text == "active"
+                if active:
+                    cd_species.attrib["id"] = f"{cd_species.get('id')}_active"
             if model is not None:
                 model_element = model.new_element(model_element_cls)
                 model_element.id_ = cd_species.get("id")
