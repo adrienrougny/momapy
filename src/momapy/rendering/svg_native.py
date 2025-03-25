@@ -235,6 +235,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                         attr_value = self._de_fill_rule_value_mapping[
                             attr_value
                         ]
+                    elif attr_name == "stroke_dasharray":
+                        attr_value = " ".join(
+                            [
+                                str(attr_value_element)
+                                for attr_value_element in attr_value
+                            ]
+                        )
                 attr_name = attr_name.replace("_", "-")
                 attributes[attr_name] = attr_value
         return attributes
