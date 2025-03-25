@@ -1270,6 +1270,24 @@ class CellDesignerReader(momapy.io.Reader):
             if with_notes:
                 notes = cls._make_notes_from_cd_element(cd_model)
                 map_element_to_notes[obj].update(notes)
+        map_element_to_annotations = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_annotations.items()
+            }
+        )
+        map_element_to_notes = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_notes.items()
+            }
+        )
+        map_element_to_ids = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_ids.items()
+            }
+        )
         return (
             obj,
             map_element_to_annotations,

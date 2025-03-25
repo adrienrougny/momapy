@@ -1338,6 +1338,18 @@ class _SBGNMLReader(momapy.io.Reader):
                 notes = cls._make_notes_from_sbgnml_element(sbgnml_map)
                 if notes:
                     map_element_to_notes[obj].update(notes)
+        map_element_to_annotations = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_annotations.items()
+            }
+        )
+        map_element_to_notes = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_notes.items()
+            }
+        )
         return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod
