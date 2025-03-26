@@ -3,6 +3,8 @@ import dataclasses
 import abc
 import typing
 
+import momapy.core
+
 readers = {}
 writers = {}
 
@@ -34,7 +36,6 @@ class ReaderResult(IOResult):
 @dataclasses.dataclass
 class WriterResult(IOResult):
     obj: typing.Any | None = None
-    exceptions: str | None = None
     file_path: str | os.PathLike | None = None
 
 
@@ -64,7 +65,10 @@ def read(
 
 
 def write(
-    obj: typing.Any, file_path: str | os.PathLike, writer: str, **options
+    obj: typing.Any,
+    file_path: str | os.PathLike,
+    writer: str,
+    **options,
 ) -> WriterResult:
     """Write an object to a file, using the given registered writer"""
     writer_cls = None
