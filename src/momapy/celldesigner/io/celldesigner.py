@@ -410,11 +410,15 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
-        with open(file_path) as f:
-            for line in f:
-                if "http://www.sbml.org/2001/ns/celldesigner" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://www.sbml.org/2001/ns/celldesigner" in line:
+                        return True
+        except UnicodeDecodeError:
+            return False
+        else:
+            return False
 
     @classmethod
     def read(
