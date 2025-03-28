@@ -2193,11 +2193,30 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.value = cd_species_structural_state.get(
                 "structuralState"
             )
+            model_element = momapy.builder.object_from_builder(model_element)
             super_model_element.structural_states.add(model_element)
         else:
             model_element = None
         if layout is not None:  # TODO
-            layout_element = None
+            layout_element = layout.new_element(
+                momapy.celldesigner.core.StructuralStateLayout
+            )
+            layout_element.position = super_layout_element.self_angle(90)
+            text = cd_species_structural_state.get("structuralState")
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            layout_element.label = text_layout
+            ink_bbox = text_layout.ink_bbox()
+            layout_element.width = 1.5 * ink_bbox.width
+            layout_element.height = 1.5 * ink_bbox.height
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
