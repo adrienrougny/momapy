@@ -1468,6 +1468,11 @@ def _point_builder_iter(self):
     yield self.y
 
 
+def _point_builder_post_init(self):
+    object.__setattr__(self, "x", round(self.x, ROUNDING))
+    object.__setattr__(self, "y", round(self.y, ROUNDING))
+
+
 PointBuilder = momapy.builder.get_or_make_builder_cls(
     Point,
     builder_namespace={
@@ -1476,6 +1481,7 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
         "__mul__": _point_builder_mul,
         "__div__": _point_builder_div,
         "__iter__": _point_builder_iter,
+        "__post_init__": _point_builder_post_init,
     },
 )
 
