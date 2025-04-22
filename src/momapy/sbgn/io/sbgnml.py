@@ -339,7 +339,7 @@ class _SBGNMLReader(momapy.io.Reader):
         ): momapy.sbml.core.BQBiol.HAS_VERSION,
         (
             "http://biomodels.net/biology-qualifiers/",
-            "isValue",
+            "is",
         ): momapy.sbml.core.BQBiol.IS,
         (
             "http://biomodels.net/biology-qualifiers/",

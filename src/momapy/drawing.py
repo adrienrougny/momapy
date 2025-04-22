@@ -15,7 +15,7 @@ import momapy.coloring
 import momapy.utils
 
 
-class NoneValueType(object):
+class NoneValueType(object):  # TODO: implement true singleton
     """Class for none values (as in SVG)"""
 
     def __copy__(self):
@@ -23,6 +23,12 @@ class NoneValueType(object):
 
     def __deepcopy__(self, memo):
         return self
+
+    def __eq__(self, other):
+        return type(self) is type(other)
+
+    def __hash__(self):
+        return id(NoneValue)
 
 
 NoneValue = NoneValueType()

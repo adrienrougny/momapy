@@ -410,11 +410,15 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
-        with open(file_path) as f:
-            for line in f:
-                if "http://www.sbml.org/2001/ns/celldesigner" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://www.sbml.org/2001/ns/celldesigner" in line:
+                        return True
+        except UnicodeDecodeError:
+            return False
+        else:
+            return False
 
     @classmethod
     def read(
@@ -1270,30 +1274,10 @@ class CellDesignerReader(momapy.io.Reader):
             if with_notes:
                 notes = cls._make_notes_from_cd_element(cd_model)
                 map_element_to_notes[obj].update(notes)
-        map_element_to_annotations = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_annotations.items()
-            }
-        )
-        map_element_to_notes = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_notes.items()
-            }
-        )
-        map_element_to_ids = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_ids.items()
-            }
-        )
-        return (
-            obj,
-            map_element_to_annotations,
-            map_element_to_notes,
-            map_element_to_ids,
-        )
+        annotations = dict(map_element_to_annotations)
+        notes = dict(map_element_to_notes)
+        ids = dict(map_element_to_ids)
+        return obj, annotations, notes, ids
 
     @classmethod
     def _make_and_add_compartments_from_cd_model(
@@ -1860,6 +1844,8 @@ class CellDesignerReader(momapy.io.Reader):
             )
             if cd_species_activity is not None:
                 active = cd_species_activity.text == "active"
+                if active:
+                    cd_species.attrib["id"] = f"{cd_species.get('id')}_active"
             if model is not None:
                 model_element = model.new_element(model_element_cls)
                 model_element.id_ = cd_species.get("id")
@@ -2207,11 +2193,30 @@ class CellDesignerReader(momapy.io.Reader):
             model_element.value = cd_species_structural_state.get(
                 "structuralState"
             )
+            model_element = momapy.builder.object_from_builder(model_element)
             super_model_element.structural_states.add(model_element)
         else:
             model_element = None
         if layout is not None:  # TODO
-            layout_element = None
+            layout_element = layout.new_element(
+                momapy.celldesigner.core.StructuralStateLayout
+            )
+            layout_element.position = super_layout_element.self_angle(90)
+            text = cd_species_structural_state.get("structuralState")
+            text_layout = momapy.core.TextLayout(
+                text=text,
+                font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
+                font_family=cls._DEFAULT_FONT_FAMILY,
+                fill=cls._DEFAULT_FONT_FILL,
+                stroke=momapy.drawing.NoneValue,
+                position=layout_element.position,
+            )
+            layout_element.label = text_layout
+            ink_bbox = text_layout.ink_bbox()
+            layout_element.width = 1.5 * ink_bbox.width
+            layout_element.height = 1.5 * ink_bbox.height
+            layout_element = momapy.builder.object_from_builder(layout_element)
+            super_layout_element.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element

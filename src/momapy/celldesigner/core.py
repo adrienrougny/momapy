@@ -598,6 +598,8 @@ class _SimpleNodeMixin(momapy.sbgn.core._SimpleMixin):
                 fill=obj.active_fill,
                 stroke=obj.active_stroke,
                 stroke_width=obj.active_stroke_width,
+                stroke_dasharray=obj.active_stroke_dasharray,
+                stroke_dashoffset=obj.active_stroke_dashoffset,
             )
             drawing_elements = layout_element.obj_drawing_elements()
         else:
