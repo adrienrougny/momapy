@@ -14,11 +14,11 @@ class Color(object):
     def __or__(self, alpha: float) -> "Color":
         if alpha < 0 or alpha > 100:
             raise ValueError("alpha should be a number between 0 and 100")
-        return replace(self, alpha=alpha / 100)
+        return dataclasses.replace(self, alpha=alpha / 100)
 
     def to_rgba(
         self,
-        rgb_range: tuple[float, float] = (0, 255),
+        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
         alpha_range: tuple[float, float] = (0.0, 1.0),
         rgba_range: tuple[float, float] | None = None,
     ) -> tuple[int, int, int, float]:
@@ -28,20 +28,28 @@ class Color(object):
             alpha_range = rgba_range
         rgb_width = rgb_range[1] - rgb_range[0]
         alpha_width = alpha_range[1] - alpha_range[0]
-        red = round(rgb_range[0] + (self.red / 255) * rgb_width)
-        green = round(rgb_range[0] + (self.green / 255) * rgb_width)
-        blue = round(rgb_range[0] + (self.blue / 255) * rgb_width)
+        red = rgb_range[0] + (self.red / 255) * rgb_width
+        green = rgb_range[0] + (self.green / 255) * rgb_width
+        blue = rgb_range[0] + (self.blue / 255) * rgb_width
         alpha = alpha_range[0] + self.alpha * alpha_width
+        if isinstance(rgb_range[0], int):
+            red = int(round(red))
+            green = int(round(green))
+            blue = int(round(blue))
         return (red, green, blue, alpha)
 
     def to_rgb(
-        self, rgb_range: tuple[float, float] = (0, 255)
+        self, rgb_range: tuple[float, float] | tuple[int, int] = (0, 255)
     ) -> tuple[int, int, int]:
         """Return the color in the RBG format"""
         width = int(rgb_range[1] - rgb_range[0])
-        red = round(rgb_range[0] + (self.red / 255) * width)
-        green = round(rgb_range[0] + (self.green / 255) * width)
-        blue = round(rgb_range[0] + (self.blue / 255) * width)
+        red = rgb_range[0] + (self.red / 255) * width
+        green = rgb_range[0] + (self.green / 255) * width
+        blue = rgb_range[0] + (self.blue / 255) * width
+        if isinstance(rgb_range[0], int):
+            red = int(round(red))
+            green = int(round(green))
+            blue = int(round(blue))
         return (red, green, blue)
 
     def to_hex(self) -> str:

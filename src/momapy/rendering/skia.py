@@ -181,7 +181,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         skia_paint = skia.Paint(
             AntiAlias=True,
             Color4f=skia.Color4f(
-                self.get_current_value("stroke").to_rgba(rgba_range=(0, 1))
+                self.get_current_value("stroke").to_rgba(rgba_range=(0.0, 1.0))
             ),
             StrokeWidth=self.get_current_value("stroke_width"),
             PathEffect=skia_path_effect,
@@ -193,7 +193,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         skia_paint = skia.Paint(
             AntiAlias=True,
             Color4f=skia.Color4f(
-                self.get_current_value("fill").to_rgba(rgba_range=(0, 1))
+                self.get_current_value("fill").to_rgba(rgba_range=(0.0, 1.0))
             ),
             Style=skia.Paint.kFill_Style,
         )
