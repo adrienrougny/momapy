@@ -785,7 +785,11 @@ class _SBGNMLReader(momapy.io.Reader):
         extension = getattr(sbgnml_element, "extension", None)
         if extension is None:
             return None
-        return getattr(extension, "annotation", None)
+        annotation = getattr(extension, "annotation", None)
+        if annotation is None:
+            return getattr(
+                extension, "{}annotation", None
+            )  # to account for bug in lisbgbn: no namespace
 
     @classmethod
     def _get_notes_from_sbgnml_element(cls, sbgnml_element):
