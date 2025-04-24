@@ -1112,7 +1112,7 @@ class DoubleHeadedArc(_Arc):
         segment = self.segments[-1]
         segment_length = segment.length()
         if segment_length == 0:
-            return self.arrowhead_tip() - (arrowhead_length, 0)
+            return self.end_arrowhead_tip() - (arrowhead_length, 0)
         fraction = 1 - (arrowhead_length + self.end_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
