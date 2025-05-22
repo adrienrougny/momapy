@@ -248,6 +248,36 @@ def fit(
     return bbox
 
 
+def mid_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    segment = momapy.geometry.Segment(obj1, obj2)
+    return segment.get_position_at_fraction(0.5)
+
+
 def fraction_of(
     arc_layout_element: (
         momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
