@@ -257,6 +257,30 @@ class CellDesignerReader(momapy.io.Reader):
             momapy.celldesigner.core.UnknownGate,
             momapy.celldesigner.core.UnknownGateLayout,
         ),
+        (
+            "REGION",
+            "Modification Site",
+        ): momapy.celldesigner.core.ModificationSite,
+        (
+            "REGION",
+            "RegulatoryRegion",
+        ): momapy.celldesigner.core.RegulatoryRegion,
+        (
+            "REGION",
+            "transcriptionStartingSiteL",
+        ): momapy.celldesigner.core.TranscriptionStartingSiteL,
+        (
+            "REGION",
+            "transcriptionStartingSiteR",
+        ): momapy.celldesigner.core.TranscriptionStartingSiteR,
+        (
+            "REGION",
+            "CodingRegion",
+        ): momapy.celldesigner.core.CodingRegion,
+        (
+            "REGION",
+            "proteinBindingDomain",
+        ): momapy.celldesigner.core.ProteinBindingDomain,
     }
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
         (
@@ -597,6 +621,15 @@ class CellDesignerReader(momapy.io.Reader):
         return modification_residues
 
     @classmethod
+    def _get_regions_from_cd_species_template(cls, cd_species_template):
+        list_of_regions = getattr(cd_species_template, "listOfRegions", None)
+        if list_of_regions is not None:
+            regions = list(getattr(list_of_regions, "region", []))
+        else:
+            regions = []
+        return regions
+
+    @classmethod
     def _get_included_species_from_cd_model(cls, cd_model):
         extension = cls._get_extension_from_cd_element(cd_model)
         list_of_included_species = getattr(
@@ -636,6 +669,13 @@ class CellDesignerReader(momapy.io.Reader):
         return (
             "TEMPLATE",
             cd_species_template.get("type"),
+        )
+
+    @classmethod
+    def _get_key_from_cd_region(cls, cd_region):
+        return (
+            "REGION",
+            cd_region.get("type"),
         )
 
     @classmethod
@@ -1048,6 +1088,13 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_id_to_cd_element[cd_modification_residue_id] = (
                     cd_modification_residue
                 )
+            for cd_region in cls._get_regions_from_cd_species_template(
+                cd_species_template
+            ):
+                cd_region_id = (
+                    f"{cd_species_template.get('id')}_{cd_region.get('id')}"
+                )
+                cd_id_to_cd_element[cd_region_id] = cd_region
         # species
         for cd_species in cls._get_species_from_cd_model(cd_model):
             cd_id_to_cd_element[cd_species.get("id")] = cd_species
@@ -1735,6 +1782,37 @@ class CellDesignerReader(momapy.io.Reader):
                         order=order,
                     )
                 )
+            n_undefined_region_names = 0
+            cd_regions = cls._get_regions_from_cd_species_template(
+                cd_species_template
+            )
+            cd_regions.sort(key=lambda cd_region: cd_region.get("pos"))
+            for cd_region in cd_regions:
+                if cd_region.get("name") is None:
+                    n_undefined_region_names += 1
+                    order = n_undefined_region_names
+                else:
+                    order = None
+                region_model_element, _ = (
+                    cls._make_and_add_region_from_cd_region(
+                        cd_region=cd_region,
+                        model=model,
+                        layout=layout,
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
+                        map_element_to_notes=map_element_to_notes,
+                        model_element_to_layout_element=model_element_to_layout_element,
+                        map_element_to_ids=map_element_to_ids,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
+                        super_cd_element=cd_species_template,
+                        super_model_element=model_element,
+                        order=order,
+                    )
+                )
             model_element = momapy.builder.object_from_builder(model_element)
             model_element = momapy.utils.add_or_replace_element_in_set(
                 model_element,
@@ -1792,9 +1870,57 @@ class CellDesignerReader(momapy.io.Reader):
             # exceptionally we take the model element's id and not the cd element's
             # id for the reasons explained above
             cd_id_to_model_element[cd_modification_residue_id] = model_element
-            map_element_to_ids[model_element].add(
-                cd_modification_residue.get("id")
+            map_element_to_ids[model_element].add(cd_modification_residue_id)
+        else:
+            model_element = None
+        layout_element = None  # purely a model element
+        return model_element, layout_element
+
+    @classmethod
+    def _make_and_add_region_from_cd_region(
+        cls,
+        cd_region,
+        model,
+        layout,
+        cd_id_to_model_element,
+        cd_id_to_layout_element,
+        cd_id_to_cd_element,
+        cd_complex_alias_id_to_cd_included_species_ids,
+        map_element_to_annotations,
+        map_element_to_notes,
+        model_element_to_layout_element,
+        map_element_to_ids,
+        with_annotations,
+        with_notes,
+        super_cd_element,
+        super_model_element,
+        order,
+    ):
+        if model is not None:
+            key = cls._get_key_from_cd_region(cd_region)
+            model_element_cls = cls._KEY_TO_CLASS[key]
+            model_element = model.new_element(model_element_cls)
+            # Defaults ids for regions are simple in CellDesigner (e.g.,
+            # "rs1") and might be shared between regions of different species.
+            # However we want a unique id, so we build it using the id of the
+            # species as well.
+            cd_region_id = (
+                f"{super_cd_element.get('id')}_{cd_region.get('id')}"
             )
+            model_element.id_ = cd_region_id
+            model_element.name = cls._make_name_from_cd_name(
+                cd_region.get("name")
+            )
+            active = cd_region.get("active")
+            if active is not None:
+                model_element.active = True if active == "true" else False
+            model_element.order = order
+            model_element = momapy.builder.object_from_builder(model_element)
+            super_model_element.regions.add(model_element)
+            # exceptionally we take the model element's id and not the cd element's
+            # id for the reasons explained above
+            cd_id_to_model_element[model_element.id_] = model_element
+            map_element_to_ids[model_element].add(cd_region_id)
         else:
             model_element = None
         layout_element = None  # purely a model element
@@ -2105,13 +2231,26 @@ class CellDesignerReader(momapy.io.Reader):
                 )
                 cd_modification_residue = cd_id_to_cd_element[
                     cd_modification_residue_id
-                ]
-                angle = float(cd_modification_residue.get("angle"))
-                point = momapy.geometry.Point(
-                    super_layout_element.width * math.cos(angle),
-                    super_layout_element.height * math.sin(angle),
-                )
-                angle = math.atan2(point.y, point.x)
+                ]  # can also be of type ModificationSite for Genes, RNAs, etc.
+                angle = cd_modification_residue.get("angle")
+                if angle is None:
+                    fraction = float(cd_modification_residue.get("pos"))
+                    segment = momapy.geometry.Segment(
+                        super_layout_element.north_west(),
+                        super_layout_element.north_east(),
+                    )
+                    point = segment.get_position_at_fraction(fraction)
+                    segment = momapy.geometry.Segment(
+                        super_layout_element.center(), point
+                    )
+                    angle = -segment.get_angle_to_horizontal()
+                else:
+                    angle = float(angle)
+                    point = momapy.geometry.Point(
+                        super_layout_element.width * math.cos(angle),
+                        super_layout_element.height * math.sin(angle),
+                    )
+                    angle = math.atan2(point.y, point.x)
                 layout_element.position = super_layout_element.angle(
                     angle, unit="radians"
                 )

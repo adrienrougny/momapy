@@ -140,7 +140,7 @@ class AntisenseRNATemplate(SpeciesTemplate):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modification(CellDesignerModelElement):
-    residue: ModificationResidue | None = None
+    residue: ModificationResidue | ModificationSite | None = None
     state: ModificationState | None = None
 
 
@@ -197,16 +197,25 @@ class IonChannel(Protein):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Gene(Species):
     template: GeneTemplate
+    modifications: frozenset[Modification] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class RNA(Species):
     template: RNATemplate
+    modifications: frozenset[Modification] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AntisenseRNA(Species):
     template: AntisenseRNATemplate
+    modifications: frozenset[Modification] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
