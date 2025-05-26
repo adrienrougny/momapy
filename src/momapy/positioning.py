@@ -278,6 +278,68 @@ def mid_of(
     return segment.get_position_at_fraction(0.5)
 
 
+def cross_vh_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    x = obj1.x
+    y = obj2.y
+    return momapy.geometry.Point(x, y)
+
+
+def cross_hv_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    y = obj1.y
+    x = obj2.x
+    return momapy.geometry.Point(x, y)
+
+
 def fraction_of(
     arc_layout_element: (
         momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
@@ -483,3 +545,75 @@ def set_fraction_of(
     rotation = momapy.geometry.Rotation(angle, position)
     set_position(obj, position, anchor)
     obj.transform = momapy.core.TupleBuilder([rotation])
+
+
+def set_mid_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = mid_of(obj2, obj3)
+    set_position(obj1, position, anchor)
+
+
+def set_cross_hv_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = cross_hv_of(obj2, obj3)
+    set_position(obj1, position, anchor)
+
+
+def set_cross_vh_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = cross_vh_of(obj2, obj3)
+    set_position(obj1, position, anchor)
