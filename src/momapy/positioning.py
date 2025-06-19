@@ -197,7 +197,7 @@ def fit(
     ],
     xsep: float = 0,
     ysep: float = 0,
-) -> tuple[momapy.geometry.Point, float, float]:
+) -> momapy.geometry.Bbox:
     """Compute and return the bounding box fitting a collection of objects, with given margins"""
     if not elements:
         raise ValueError("elements must contain at least one element")
