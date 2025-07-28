@@ -196,8 +196,7 @@ class TextLayout(LayoutElement):
         start_index = pango_line.get_start_index()
         end_index = start_index + pango_line.get_length()
         pos = pango_layout.index_to_pos(start_index)
-        Pango.extents_to_pixels(pos)
-        x = pos.x
+        x = round(pos.x / Pango.SCALE)
         y = round(Pango.units_to_double(pango_layout_iter.get_baseline()))
         line_text = self.text[start_index:end_index]
         return line_text, momapy.geometry.Point(x, y)
