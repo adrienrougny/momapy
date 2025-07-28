@@ -341,7 +341,7 @@ class _SBGNMLReader(momapy.io.Reader):
         ): momapy.sbml.core.BQBiol.HAS_VERSION,
         (
             "http://biomodels.net/biology-qualifiers/",
-            "isValue",
+            "is",
         ): momapy.sbml.core.BQBiol.IS,
         (
             "http://biomodels.net/biology-qualifiers/",
@@ -787,7 +787,11 @@ class _SBGNMLReader(momapy.io.Reader):
         extension = getattr(sbgnml_element, "extension", None)
         if extension is None:
             return None
-        return getattr(extension, "annotation", None)
+        annotation = getattr(extension, "annotation", None)
+        if annotation is None:
+            return getattr(
+                extension, "{}annotation", None
+            )  # to account for bug in lisbgbn: no namespace
 
     @classmethod
     def _get_notes_from_sbgnml_element(cls, sbgnml_element):
@@ -1340,6 +1344,18 @@ class _SBGNMLReader(momapy.io.Reader):
                 notes = cls._make_notes_from_sbgnml_element(sbgnml_map)
                 if notes:
                     map_element_to_notes[obj].update(notes)
+        map_element_to_annotations = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_annotations.items()
+            }
+        )
+        map_element_to_notes = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in map_element_to_notes.items()
+            }
+        )
         return obj, map_element_to_annotations, map_element_to_notes
 
     @classmethod

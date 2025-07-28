@@ -199,12 +199,24 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
+    def _make_drawing_element_element_id_class_atrributes(
+        self, drawing_element
+    ):
+        attributes = {}
+        id_ = getattr(drawing_element, "id_", None)
+        if id_ is not None:
+            attributes["id"] = id_
+        class_ = getattr(drawing_element, "class_", None)
+        if class_ is not None:
+            attributes["class"] = class_
+        return attributes
+
     def _make_drawing_element_presentation_attributes(self, drawing_element):
         attributes = {}
         for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
             attr_value = getattr(drawing_element, attr_name)
             if attr_value is not None:
-                if attr_value is momapy.drawing.NoneValue:
+                if attr_value == momapy.drawing.NoneValue:
                     attr_value = "none"
                 else:
                     if attr_name == "stroke" or attr_name == "fill":
@@ -235,6 +247,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                         attr_value = self._de_fill_rule_value_mapping[
                             attr_value
                         ]
+                    elif attr_name == "stroke_dasharray":
+                        attr_value = " ".join(
+                            [
+                                str(attr_value_element)
+                                for attr_value_element in attr_value
+                            ]
+                        )
                 attr_name = attr_name.replace("_", "-")
                 attributes[attr_name] = attr_value
         return attributes
@@ -367,7 +386,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_group_element(self, group):
         name = "g"
-        attributes = self._make_drawing_element_presentation_attributes(group)
+        presentation_attributes = (
+            self._make_drawing_element_presentation_attributes(group)
+        )
+        id_class_attributes = (
+            self._make_drawing_element_element_id_class_atrributes(group)
+        )
+        attributes = presentation_attributes | id_class_attributes
         subelements = []
         for drawing_element in group.elements:
             subelement = self._make_drawing_element_element(drawing_element)
@@ -425,7 +450,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_path_element(self, path):
         name = "path"
-        attributes = self._make_drawing_element_presentation_attributes(path)
+        presentation_attributes = (
+            self._make_drawing_element_presentation_attributes(path)
+        )
+        id_class_attributes = (
+            self._make_drawing_element_element_id_class_atrributes(path)
+        )
+        attributes = presentation_attributes | id_class_attributes
         d_value = " ".join(
             [
                 self._make_path_action_value(path_action)
@@ -438,7 +469,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_text_element(self, text):
         name = "text"
-        attributes = self._make_drawing_element_presentation_attributes(text)
+        presentation_attributes = (
+            self._make_drawing_element_presentation_attributes(text)
+        )
+        id_class_attributes = (
+            self._make_drawing_element_element_id_class_atrributes(text)
+        )
+        attributes = presentation_attributes | id_class_attributes
         attributes["x"] = text.x
         attributes["y"] = text.y
         value = xml.sax.saxutils.escape(text.text)
@@ -447,9 +484,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_ellipse_element(self, ellipse):
         name = "ellipse"
-        attributes = self._make_drawing_element_presentation_attributes(
-            ellipse
+        presentation_attributes = (
+            self._make_drawing_element_presentation_attributes(ellipse)
         )
+        id_class_attributes = (
+            self._make_drawing_element_element_id_class_atrributes(ellipse)
+        )
+        attributes = presentation_attributes | id_class_attributes
         attributes["cx"] = ellipse.x
         attributes["cy"] = ellipse.y
         attributes["rx"] = ellipse.rx
@@ -459,9 +500,13 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_rectangle_element(self, rectangle):
         name = "rect"
-        attributes = self._make_drawing_element_presentation_attributes(
-            rectangle
+        presentation_attributes = (
+            self._make_drawing_element_presentation_attributes(rectangle)
         )
+        id_class_attributes = (
+            self._make_drawing_element_element_id_class_atrributes(rectangle)
+        )
+        attributes = presentation_attributes | id_class_attributes
         attributes["x"] = rectangle.x
         attributes["y"] = rectangle.y
         attributes["width"] = rectangle.width

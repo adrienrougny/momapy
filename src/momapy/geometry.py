@@ -2,9 +2,7 @@ import dataclasses
 import typing
 import abc
 import math
-import decimal
 import copy
-import collections.abc
 
 import numpy
 import shapely
@@ -14,7 +12,6 @@ import momapy.builder
 
 
 ROUNDING = 2
-decimal.getcontext().prec = ROUNDING
 
 
 @dataclasses.dataclass(frozen=True)
@@ -33,6 +30,10 @@ class Point(GeometryObject):
 
     x: float
     y: float
+
+    def __post_init__(self):
+        object.__setattr__(self, "x", round(self.x, ROUNDING))
+        object.__setattr__(self, "y", round(self.y, ROUNDING))
 
     def __add__(self, xy):
         if momapy.builder.isinstance_or_builder(xy, Point):
@@ -82,6 +83,9 @@ class Point(GeometryObject):
         """Return a reversed copy of the point"""
         return reverse_point(self)
 
+    def round(self, ndigits=None):
+        return Point(round(self.x, ndigits), round(self.y, ndigits))
+
     def to_shapely(self) -> shapely.Point:
         """Return a shapely point that reproduces the point"""
         return shapely.Point(self.x, self.y)
@@ -101,7 +105,7 @@ class Point(GeometryObject):
     @classmethod
     def from_shapely(cls, point: shapely.Point) -> typing.Self:
         """Return a point reproducing a given shapely point"""
-        return cls(point.x, point.y)
+        return cls(float(point.x), float(point.y))
 
     @classmethod
     def from_fortranarray(cls, fortranarray: typing.Any) -> typing.Self:
@@ -173,7 +177,12 @@ class Line(GeometryObject):
 
     def to_shapely(self) -> shapely.LineString:
         """Return a shapeply line string reproducing the line"""
-        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
+        return shapely.LineString(
+            [
+                self.p1.to_tuple(),
+                self.p2.to_tuple(),
+            ]
+        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -239,7 +248,12 @@ class Segment(GeometryObject):
 
     def to_shapely(self) -> shapely.LineString:
         """Return a shapely line string reproducing the segment"""
-        return shapely.LineString([self.p1.to_tuple(), self.p2.to_tuple()])
+        return shapely.LineString(
+            [
+                self.p1.to_tuple(),
+                self.p2.to_tuple(),
+            ]
+        )
 
     def bbox(self) -> "Bbox":
         """Compute and return the bounding box of the segment"""
@@ -914,18 +928,15 @@ def get_intersection_of_line_and_segment(
     line2 = Line(segment.p1, segment.p2)
     intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
-        if segment.p2.x > segment.p1.x:
-            if not (
-                intersection[0].x >= segment.p1.x
-                and intersection[0].x <= segment.p2.x
-            ):
-                intersection = []
-        else:
-            if not (
-                intersection[0].x <= segment.p1.x
-                and intersection[0].x >= segment.p2.x
-            ):
-                intersection = []
+        sorted_xs = sorted([segment.p1.x, segment.p2.x])
+        sorted_ys = sorted([segment.p1.y, segment.p2.y])
+        if not (
+            intersection[0].x >= sorted_xs[0]
+            and intersection[0].x <= sorted_xs[-1]
+            and intersection[0].y >= sorted_ys[0]
+            and intersection[0].y <= sorted_ys[-1]
+        ):
+            intersection = []
     elif len(intersection) > 0:
         intersection = [segment]
     return intersection
@@ -948,45 +959,41 @@ def get_intersection_of_line_and_elliptical_arc(
 def get_intersection_of_line_and_shapely_object(
     line: Line, shapely_object: shapely.Geometry
 ) -> list[Point] | list[Segment]:
-    bbox = Bbox.from_bounds(shapely_object.bounds)
-    bbox = Bbox(bbox.position, bbox.width + 10, bbox.height + 10)
-    line_string = None
-    points = []
-    anchors = ["north_west", "north_east", "south_east", "south_west"]
-    for i, current_anchor in enumerate(anchors):
-        if i < len(anchors) - 1:
-            next_anchor = anchors[i + 1]
-        else:
-            next_anchor = anchors[0]
-        bbox_segment = Segment(
-            getattr(bbox, current_anchor)(), getattr(bbox, next_anchor)()
-        )
-        bbox_intersection = bbox_segment.get_intersection_with_line(line)
-        if (
-            len(bbox_intersection) > 0
-        ):  # intersection is not empty => intersection has one element
-            if isinstance(
-                bbox_intersection, Segment
-            ):  # intersection is the line
-                line_string = bbox_intersection[0].to_shapely()
-                break
-            else:  # intersection is a point
-                points += bbox_intersection
-    if line_string is None:
-        points = [point.to_shapely() for point in points]
-        line_string = shapely.LineString(points)
-    shapely_intersection = line_string.intersection(shapely_object)
     intersection = []
-    if not hasattr(shapely_intersection, "geoms"):
-        shapely_intersection = [shapely_intersection]
-    else:
-        shapely_intersection = shapely_intersection.geoms
-    for shapely_obj in shapely_intersection:
-        if isinstance(shapely_obj, shapely.Point):
-            intersection_obj = Point.from_shapely(shapely_obj)
-        elif isinstance(shapely_obj, shapely.LineString):
-            intersection_obj = Segment.from_shapely(shapely_obj)
-        intersection.append(intersection_obj)
+    for shapely_geom in shapely_object.geoms:
+        bbox = Bbox.from_bounds(shapely_object.bounds)
+        slope = line.slope()
+        north_west = bbox.north_west()
+        south_east = bbox.south_east()
+        offset = 100.0
+        if not math.isnan(slope):
+            intercept = line.intercept()
+            left_x = north_west.x - offset
+            left_y = slope * left_x + intercept
+            right_x = south_east.x + offset
+            right_y = slope * right_x + intercept
+        else:
+            left_x = line.p1.x
+            left_y = north_west.y - offset
+            right_x = line.p1.x
+            right_y = south_east.y + offset
+        left_point = Point(left_x, left_y)
+        right_point = Point(right_x, right_y)
+        line_string = shapely.LineString(
+            [left_point.to_shapely(), right_point.to_shapely()]
+        )
+        shapely_intersection = line_string.intersection(shapely_geom)
+        if not hasattr(shapely_intersection, "geoms"):
+            shapely_intersection = [shapely_intersection]
+        else:
+            shapely_intersection = shapely_intersection.geoms
+        for shapely_obj in shapely_intersection:
+            if not shapely.is_empty(shapely_obj):
+                if isinstance(shapely_obj, shapely.Point):
+                    intersection_obj = Point.from_shapely(shapely_obj)
+                elif isinstance(shapely_obj, shapely.LineString):
+                    intersection_obj = Segment.from_shapely(shapely_obj)
+                intersection.append(intersection_obj)
     return intersection
 
 
@@ -1461,6 +1468,11 @@ def _point_builder_iter(self):
     yield self.y
 
 
+def _point_builder_post_init(self):
+    object.__setattr__(self, "x", round(self.x, ROUNDING))
+    object.__setattr__(self, "y", round(self.y, ROUNDING))
+
+
 PointBuilder = momapy.builder.get_or_make_builder_cls(
     Point,
     builder_namespace={
@@ -1469,6 +1481,7 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
         "__mul__": _point_builder_mul,
         "__div__": _point_builder_div,
         "__iter__": _point_builder_iter,
+        "__post_init__": _point_builder_post_init,
     },
 )
 

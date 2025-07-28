@@ -18,21 +18,27 @@ def register_renderer(name, renderer_cls):
     renderers[name] = renderer_cls
 
 
-def render_map(
-    map_: momapy.core.Map,
+def render_layout_element(
+    layout_element: momapy.core.LayoutElement,
     output_file: str,
     format_: str = "pdf",
     renderer: str = "skia",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
-    """Render a map to a file in a given format and with a given registered renderer"""
-    maps = [map_]
-    render_maps(maps, output_file, format_, renderer, style_sheet, to_top_left)
+    """Render a layout element to a file in a given format and with a given registered renderer"""
+    render_layout_elements(
+        layout_elements=[layout_element],
+        output_file=output_file,
+        format_=format_,
+        renderer=renderer,
+        style_sheet=style_sheet,
+        to_top_left=to_top_left,
+    )
 
 
-def render_maps(
-    maps: collections.abc.Collection[momapy.core.Map],
+def render_layout_elements(
+    layout_elements: collections.abc.Collection[momapy.core.LayoutElement],
     output_file: str,
     format_: str = "pdf",
     renderer: str = "skia",
@@ -40,21 +46,27 @@ def render_maps(
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
-    """Render a collection of maps to a file in a given format and with a given registered renderer"""
+    """Render a collection of layout elements to a file in a given format and with a given registered renderer"""
 
-    def _prepare_maps(maps, style_sheet=None, to_top_left=False):
-        bboxes = [map_.layout.self_bbox() for map_ in maps]
+    def _prepare_layout_elements(
+        layout_elements, style_sheet=None, to_top_left=False
+    ):
+        bboxes = [layout_element.bbox() for layout_element in layout_elements]
         bbox = momapy.positioning.fit(bboxes)
         max_x = bbox.x + bbox.width / 2
         max_y = bbox.y + bbox.height / 2
         if style_sheet is not None or to_top_left:
-            new_maps = []
-            for map_ in maps:
-                if isinstance(map_, momapy.core.Map):
-                    new_maps.append(momapy.builder.builder_from_object(map_))
-                elif isinstance(map_, momapy.core.MapBuilder):
-                    new_maps.append(copy.deepcopy(map_))
-            maps = new_maps
+            new_layout_elements = []
+            for layout_element in layout_elements:
+                if isinstance(layout_element, momapy.core.LayoutElement):
+                    new_layout_elements.append(
+                        momapy.builder.builder_from_object(layout_element)
+                    )
+                elif isinstance(
+                    layout_element, momapy.core.LayoutElementBuilder
+                ):
+                    new_layout_elements.append(copy.deepcopy(layout_element))
+            layout_elements = new_layout_elements
         if style_sheet is not None:
             if (
                 not isinstance(style_sheet, collections.abc.Collection)
@@ -73,44 +85,91 @@ def render_maps(
                 for style_sheet in style_sheets
             ]
             style_sheet = momapy.styling.combine_style_sheets(style_sheets)
-            for map_ in maps:
-                momapy.styling.apply_style_sheet(map_.layout, style_sheet)
+            for layout_element in layout_elements:
+                momapy.styling.apply_style_sheet(layout_element, style_sheet)
         if to_top_left:
             min_x = bbox.x - bbox.width / 2
             min_y = bbox.y - bbox.height / 2
             max_x -= min_x
             max_y -= min_y
             translation = momapy.geometry.Translation(-min_x, -min_y)
-            for map_ in maps:
-                if map_.layout.transform is None:
-                    map_.layout.transform = momapy.core.TupleBuilder()
-                map_.layout.transform.append(translation)
-        return maps, max_x, max_y
+            for layout_element in layout_elements:
+                if layout_element.group_transform is None:
+                    layout_element.group_transform = momapy.core.TupleBuilder()
+                layout_element.group_transform.append(translation)
+        return layout_elements, max_x, max_y
 
     if not multi_pages:
-        maps, max_x, max_y = _prepare_maps(maps, style_sheet, to_top_left)
+        prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
+            layout_elements, style_sheet, to_top_left
+        )
         renderer = renderers[renderer].from_file(
             output_file, max_x, max_y, format_
         )
         renderer.begin_session()
-        for map_ in maps:
-            renderer.render_map(map_)
+        for prepared_layout_element in prepared_layout_elements:
+            renderer.render_layout_element(prepared_layout_element)
         renderer.end_session()
     else:
-        for i, map_ in enumerate(maps):
-            maps, max_x, max_y = _prepare_maps(
-                [map_], style_sheet, to_top_left
+        if layout_elements:
+            layout_element = layout_elements[0]
+            prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
+                [layout_element], style_sheet, to_top_left
             )
-            map_ = maps[0]
-            if i == 0:
-                renderer = renderers[renderer].from_file(
-                    output_file, max_x, max_y, format_
+            renderer = renderers[renderer].from_file(
+                output_file, max_x, max_y, format_
+            )
+            renderer.begin_session()
+            renderer.render_layout_element(prepared_layout_elements[0])
+            for layout_element in layout_elements[1:]:
+                prepared_layout_elements, max_x, max_y = (
+                    _prepare_layout_elements(
+                        [layout_element], style_sheet, to_top_left
+                    )
                 )
-                renderer.begin_session()
-            else:
                 renderer.new_page(max_x, max_y)
-            renderer.render_map(map_)
+                renderer.render_layout_element(prepared_layout_elements[0])
+        else:
+            renderer = renderers[renderer].from_file(
+                output_file, 0, 0, format_
+            )
         renderer.end_session()
+
+
+def render_map(
+    map_: momapy.core.Map,
+    output_file: str,
+    format_: str = "pdf",
+    renderer: str = "skia",
+    style_sheet: momapy.styling.StyleSheet | None = None,
+    to_top_left: bool = False,
+):
+    """Render a map to a file in a given format and with a given registered renderer"""
+    render_maps(
+        [map_], output_file, format_, renderer, style_sheet, to_top_left
+    )
+
+
+def render_maps(
+    maps: collections.abc.Collection[momapy.core.Map],
+    output_file: str,
+    format_: str = "pdf",
+    renderer: str = "skia",
+    style_sheet: momapy.styling.StyleSheet | None = None,
+    to_top_left: bool = False,
+    multi_pages: bool = True,
+):
+    """Render a collection of maps to a file in a given format and with a given registered renderer"""
+    layout_elements = [map_.layout for map_ in maps]
+    render_layout_elements(
+        layout_elements=layout_elements,
+        output_file=output_file,
+        format_=format_,
+        renderer=renderer,
+        style_sheet=style_sheet,
+        to_top_left=to_top_left,
+        multi_pages=multi_pages,
+    )
 
 
 @dataclasses.dataclass
