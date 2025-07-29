@@ -1,71 +1,48 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<sbgn:sbgn xmlns:sbgn="http://sbgn.org/libsbgn/0.3" xmlns:render="http://www.sbml.org/sbml/level3/version1/render/version1" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/" xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
-  <sbgn:map language="process description" version="http://identifiers.org/combine.specifications/sbgn.pd.level-1.version-2.0" id="2ddde9aa-cbd2-4b67-8f45-19feb9e7a811">
-    <sbgn:extension>
-      <render:renderInformation id="517524a4-164c-4929-b784-c7b8fe74305f" program-name="momapy" program-version="0.1.0" background-color="#ffffffff">
-        <render:listOfColorDefinitions>
-          <render:colorDefinition id="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9" value="#000000ff"/>
-          <render:colorDefinition id="558e6a65-a49f-454f-b808-5101b96b70fb" value="#ffffffff"/>
-        </render:listOfColorDefinitions>
-        <render:listOfStyles>
-          <render:style id="4efbc1c6-c3c0-419a-97e6-70c9d4e871b2" idList="glyph2a glyph1a">
-            <render:g font-family="Helvetica" font-size="8.0" font-color="#000000" stroke="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9" stroke-width="1.25" fill="558e6a65-a49f-454f-b808-5101b96b70fb"/>
-          </render:style>
-          <render:style id="41a43aa8-520c-4dd6-9d03-401e81d7ff3b" idList="glyph2 glyph1 glyph3">
-            <render:g font-family="Helvetica" font-size="14.0" font-color="#000000" stroke="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9" stroke-width="1.25" fill="558e6a65-a49f-454f-b808-5101b96b70fb"/>
-          </render:style>
-          <render:style id="9c6b6559-a88c-46f9-be44-a10778e777b7" idList="34a5e74a-dbb8-4d85-912e-a24352ff3030 glyph4 0776e94a-2439-4672-b570-25bd798e0033">
-            <render:g stroke="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9" stroke-width="1.25" fill="558e6a65-a49f-454f-b808-5101b96b70fb"/>
-          </render:style>
-          <render:style id="1562984f-4d59-40e3-87c9-2c755512feee" idList="8333cdf4-4060-4746-be04-7af972231866">
-            <render:g stroke="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9" stroke-width="1.25" fill="57ab428a-a8ff-425a-81c6-fa0c8dcfc3a9"/>
-          </render:style>
-        </render:listOfStyles>
-      </render:renderInformation>
-    </sbgn:extension>
-    <sbgn:bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph2">
-      <sbgn:label text="A">
-        <sbgn:bbox x="80.5" y="262.5" w="10" h="11"/>
-      </sbgn:label>
-      <sbgn:bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
-      <sbgn:glyph class="state variable" orientation="horizontal" id="glyph2a">
-        <sbgn:state/>
-        <sbgn:bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
-      </sbgn:glyph>
-    </sbgn:glyph>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph1">
-      <sbgn:label text="A">
-        <sbgn:bbox x="385.5" y="262.5" w="10" h="11"/>
-      </sbgn:label>
-      <sbgn:bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
-      <sbgn:glyph class="state variable" orientation="horizontal" id="glyph1a">
-        <sbgn:state value="P"/>
-        <sbgn:bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
-      </sbgn:glyph>
-    </sbgn:glyph>
-    <sbgn:glyph class="macromolecule" orientation="horizontal" id="glyph3">
-      <sbgn:label text="B">
-        <sbgn:bbox x="226.5" y="127.5" w="8" h="11"/>
-      </sbgn:label>
-      <sbgn:bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
-    </sbgn:glyph>
-    <sbgn:glyph class="process" orientation="horizontal" id="glyph4">
-      <sbgn:bbox x="218.0" y="258.0" w="24.0" h="24.0"/>
-      <sbgn:port x="206.0" y="270.0" id="glyph4_left_port"/>
-      <sbgn:port x="254.0" y="270.0" id="glyph4_right_port"/>
-    </sbgn:glyph>
-    <sbgn:arc class="consumption" id="34a5e74a-dbb8-4d85-912e-a24352ff3030" source="glyph2" target="glyph4_left_port">
-      <sbgn:start x="139.0" y="270.0"/>
-      <sbgn:end x="206.0" y="270.0"/>
-    </sbgn:arc>
-    <sbgn:arc class="production" id="8333cdf4-4060-4746-be04-7af972231866" source="glyph4_right_port" target="glyph1">
-      <sbgn:start x="254.0" y="270.0"/>
-      <sbgn:end x="336.0" y="270.0"/>
-    </sbgn:arc>
-    <sbgn:arc class="catalysis" id="0776e94a-2439-4672-b570-25bd798e0033" source="glyph3" target="glyph4">
-      <sbgn:start x="230.0" y="165.0"/>
-      <sbgn:end x="230.0" y="258.0"/>
-    </sbgn:arc>
-  </sbgn:map>
-</sbgn:sbgn>
+<?xml version='1.0' encoding='ASCII'?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqmodel="http://biomodels.net/model-qualifiers/" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+  <map id="a5760f1c-d852-4c41-814f-56950c29173c" language="process description">
+    <glyph id="glyph2" class="macromolecule">
+      <bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
+      <label text="A">
+        <bbox x="80.5" y="262.5" w="10" h="11"/>
+      </label>
+      <glyph id="glyph2a" class="state variable">
+        <bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
+        <state value=""/>
+      </glyph>
+    </glyph>
+    <glyph id="glyph1" class="macromolecule">
+      <bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
+      <label text="A">
+        <bbox x="385.5" y="262.5" w="10" h="11"/>
+      </label>
+      <glyph id="glyph1a" class="state variable">
+        <bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
+        <state value="P"/>
+      </glyph>
+    </glyph>
+    <glyph id="glyph3" class="macromolecule">
+      <bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
+      <label text="B">
+        <bbox x="226.5" y="127.5" w="8" h="11"/>
+      </label>
+    </glyph>
+    <glyph id="glyph4" class="process" orientation="horizontal">
+      <bbox x="218.0" y="258.0" w="24.0" h="24.0"/>
+      <port id="glyph4_left" x="206.0" y="270.0"/>
+      <port id="glyph4_right" x="254.0" y="270.0"/>
+    </glyph>
+    <arc id="9ea12d8b-0a31-4607-89be-deec5cf55bb4" class="consumption" source="glyph2" target="glyph4_left">
+      <start x="139.0" y="270.0"/>
+      <end x="206.0" y="270.0"/>
+    </arc>
+    <arc id="de831e81-b991-4509-b00c-fee1777df59b" class="production" target="glyph1" source="glyph4_right">
+      <start x="254.0" y="270.0"/>
+      <end x="336.0" y="270.0"/>
+    </arc>
+    <arc id="bcd569e8-2a80-43a9-a265-b54f01d85829" class="catalysis" target="glyph4" source="glyph3">
+      <start x="230.0" y="165.0"/>
+      <end x="230.0" y="258.0"/>
+    </arc>
+  </map>
+</sbgn>
