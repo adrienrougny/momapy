@@ -24,13 +24,11 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
             if compartment is not None:
                 compartment_entities_mapping[compartment].append(activity)
     for compartment in compartment_entities_mapping:
-        for compartment_layout in map_builder.layout_model_mapping[
-            compartment
-        ]:
+        for compartment_layout in map_builder.get_mapping(compartment):
             compartment_layout, *_ = compartment_layout
             elements = []
             for entity in compartment_entities_mapping[compartment]:
-                for entity_layout in map_builder.layout_model_mapping[entity]:
+                for entity_layout in map_builder.get_mapping(entity):
                     entity_layout, *_ = entity_layout
                     elements.append(entity_layout)
             momapy.positioning.set_fit(
@@ -55,15 +53,13 @@ def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
             entity_pool,
             momapy.builder.get_or_make_builder_cls(momapy.sbgn.pd.Complex),
         ):
-            for complex_layout in map_builder.layout_model_mapping[
-                entity_pool
-            ]:
+            for complex_layout in map_builder.get_mapping(entity_pool):
                 complex_layout, *_ = complex_layout
                 elements = []
                 for subunit in entity_pool.subunits:
-                    subunit_layouts = map_builder.layout_model_mapping[
+                    subunit_layouts = map_builder.get_mapping(
                         (subunit, entity_pool)
-                    ]
+                    )
                     for subunit_layout in subunit_layouts:
                         subunit_layout, *_ = subunit_layout
                         if subunit_layout in complex_layout.layout_elements:
@@ -87,7 +83,7 @@ def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
     else:
         map_builder = map_
     for submap in map_builder.model.submaps:
-        for submap_layout in map_builder.layout_model_mapping[submap]:
+        for submap_layout in map_builder.get_mapping(submap):
             submap_layout, *_ = submap_layout
             elements = []
             for terminal in submap.terminals:
@@ -207,7 +203,14 @@ def set_arcs_to_borders(map_):
     for layout_element in map_builder.layout.layout_elements:
         # Flux arcs
         if momapy.builder.isinstance_or_builder(
-            layout_element, (momapy.sbgn.pd.GenericProcessLayout)
+            layout_element,
+            (
+                momapy.sbgn.pd.GenericProcessLayout,
+                momapy.sbgn.pd.AssociationLayout,
+                momapy.sbgn.pd.DissociationLayout,
+                momapy.sbgn.pd.OmittedProcessLayout,
+                momapy.sbgn.pd.UncertainProcessLayout,
+            ),
         ):
             for sub_layout_element in layout_element.layout_elements:
                 if momapy.builder.isinstance_or_builder(
