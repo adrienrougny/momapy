@@ -142,6 +142,10 @@ class _SBGNMLReader(momapy.io.Reader):
             momapy.sbgn.pd.EmptySet,
             momapy.sbgn.pd.EmptySetLayout,
         ),
+        ("PROCESS_DESCRIPTION", "GLYPH", "EMPTY_SET"): (
+            momapy.sbgn.pd.EmptySet,
+            momapy.sbgn.pd.EmptySetLayout,
+        ),
         ("PROCESS_DESCRIPTION", "GLYPH", "PERTURBING_AGENT"): (
             momapy.sbgn.pd.PerturbingAgent,
             momapy.sbgn.pd.PerturbingAgentLayout,
@@ -3809,10 +3813,11 @@ class _SBGNMLWriter(momapy.io.Writer):
             model_element, (momapy.sbgn.pd.EntityPool, momapy.sbgn.af.Activity)
         ):
             compartment = model_element.compartment
-            compartment_id = cls._get_sbgnml_id_from_map_element(
-                compartment, ids
-            )
-            attributes["compartmentRef"] = compartment_id
+            if compartment is not None:
+                compartment_id = cls._get_sbgnml_id_from_map_element(
+                    compartment, ids
+                )
+                attributes["compartmentRef"] = compartment_id
         sbgnml_element = cls._make_lxml_element("glyph", attributes=attributes)
         sbgnml_elements = [sbgnml_element]
         sbgnml_bbox = cls._make_sbgnml_bbox_from_node(node)
