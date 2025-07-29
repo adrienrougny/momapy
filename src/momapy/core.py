@@ -1954,19 +1954,32 @@ class LayoutModelMappingBuilder(
             | _MappingKeyBuilderType
             | _MappingValueBuilderType
         ),
+        replace=False,
         reverse: bool = True,
     ):
         key, value = self._prepare_key_value(key, value)
         for element in key:
             if element not in self._singleton_to_set_mapping:
                 self._singleton_to_set_mapping[element] = FrozensetBuilder()
+            else:
+                if replace:
+                    val = self._singleton_to_set_mapping[element]
+                    del self._singleton_to_set_mapping[element]
+                    self._singleton_to_set_mapping[element] = val
             self._singleton_to_set_mapping[element].add(key)
         if key not in self._set_to_set_mapping:
             self._set_to_set_mapping[key] = FrozensetBuilder()
+        else:
+            if replace:
+                val = self._set_to_set_mapping[key]
+                del self._set_to_set_mapping[key]
+                self._set_to_set_mapping[key] = val
         self._set_to_set_mapping[key] |= value
         if reverse:
             for rkey in value:
-                self.add_mapping(key=rkey, value=key, reverse=False)
+                self.add_mapping(
+                    key=rkey, value=key, replace=replace, reverse=False
+                )
 
     def delete_mapping(
         self,
