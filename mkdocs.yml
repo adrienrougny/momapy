@@ -9,7 +9,7 @@ nav:
     - Drawing: api_reference/drawing.md
     - Coloring: api_reference/coloring.md
     - Geometry: api_reference/geometry.md
-    - IO: api_reference/io.md
+    - I/O: api_reference/io.md
     - Positioning: api_reference/positioning.md
     - Styling: api_reference/styling.md
     - Rendering:
@@ -20,14 +20,16 @@ nav:
       - Core: api_reference/sbgn/core.md
       - PD: api_reference/sbgn/pd.md
       - AF: api_reference/sbgn/af.md
-      - IO:
+      - I/O:
         - SBGN-ML: api_reference/sbgn/io/sbgnml.md
     - CellDesigner:
       - Core: api_reference/celldesigner/core.md
-      - IO:
+      - I/O:
         - CD: api_reference/celldesigner/io/celldesigner.md
     - SBML:
       - Core: api_reference/sbml/core.md
+      - I/O:
+        - SBML: api_reference/sbml/io/sbml.md
 theme:
   name: material
   features:
