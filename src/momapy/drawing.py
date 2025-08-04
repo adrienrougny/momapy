@@ -497,7 +497,7 @@ class Text(DrawingElement):
         return copy.deepcopy(self)
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a geometry collection built from the text element's point"""
+        """Return a geometry collection built from the point of the text element"""
         return shapely.geometry.GeometryCollection([self.point.to_shapely()])
 
 
@@ -520,7 +520,7 @@ class Group(DrawingElement):
         return dataclasses.replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a geometry collection built from the elements of the group's elements"""
+        """Return a geometry collection built from the elements of the group"""
         return drawing_elements_to_shapely(self.elements)
 
 

@@ -6,10 +6,19 @@ import typing
 class Color(object):
     """Class for colors"""
 
-    red: int
-    green: int
-    blue: int
-    alpha: float = 1.0
+    red: int = dataclasses.field(
+        metadata={"description": "The red component of the color"}
+    )
+    green: int = dataclasses.field(
+        metadata={"description": "The green component of the color"}
+    )
+    blue: int = dataclasses.field(
+        metadata={"description": "The blue component of the color"}
+    )
+    alpha: float = dataclasses.field(
+        default=1.0,
+        metadata={"description": "The alpha component of the color"},
+    )
 
     def __or__(self, alpha: float) -> "Color":
         if alpha < 0 or alpha > 100:
