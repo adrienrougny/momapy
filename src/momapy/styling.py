@@ -1,3 +1,5 @@
+"""Classes and functions for styling layout elements using style sheets"""
+
 import abc
 import collections.abc
 import dataclasses

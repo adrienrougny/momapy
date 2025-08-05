@@ -1,3 +1,5 @@
+"""Classes for reading and writing SBGN-ML files"""
+
 import os
 import abc
 import collections

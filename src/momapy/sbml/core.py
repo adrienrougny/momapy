@@ -1,3 +1,5 @@
+"""Classes for SBML maps"""
+
 import dataclasses
 import typing
 import enum

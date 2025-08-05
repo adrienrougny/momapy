@@ -5,6 +5,7 @@ nav:
   - Getting started: getting_started.md
   - Demo: demo.ipynb
   - API reference:
+    - Momapy: api_reference/momapy.md
     - Core: api_reference/core.md
     - Builder: api_reference/builder.md
     - Drawing: api_reference/drawing.md

@@ -1,3 +1,5 @@
+"""Classes for reading CellDesigner files (extended SBML)"""
+
 import os
 import collections
 import math

@@ -1,3 +1,5 @@
+"""Classes and functions for geometry"""
+
 import dataclasses
 import typing
 import abc

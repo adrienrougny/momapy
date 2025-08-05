@@ -1,3 +1,5 @@
+"""Base classes defining core SBGN map elements"""
+
 import abc
 import dataclasses
 import typing

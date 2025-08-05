@@ -1,3 +1,5 @@
+"""Base classes and functions for reading and writing maps"""
+
 import os
 import dataclasses
 import abc

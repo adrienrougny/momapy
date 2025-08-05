@@ -1,3 +1,5 @@
+"""Classes and objects for defining colors"""
+
 import dataclasses
 import typing
 

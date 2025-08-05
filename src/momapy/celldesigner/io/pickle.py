@@ -1,3 +1,5 @@
+"""Classes for reading and writing pickled CellDesigner maps"""
+
 import os
 import typing
 import pickle

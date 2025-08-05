@@ -1,3 +1,5 @@
+"""Classes and objects for drawing elements (SVG-like)"""
+
 import abc
 import dataclasses
 import math

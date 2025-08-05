@@ -1,3 +1,5 @@
+"""Functions for positioning layout elements and related objects relatively to other objects"""
+
 import collections.abc
 
 import momapy.core

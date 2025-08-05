@@ -1,3 +1,5 @@
+"""Classes for core components defining maps and their elements"""
+
 import abc
 import dataclasses
 import frozendict

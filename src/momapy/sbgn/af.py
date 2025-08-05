@@ -1,3 +1,5 @@
+"""Classes for SBGN AF maps"""
+
 import enum
 import dataclasses
 import typing

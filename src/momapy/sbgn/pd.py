@@ -1,3 +1,5 @@
+"""Classes for SBGN PD maps"""
+
 import dataclasses
 import typing
 import sys

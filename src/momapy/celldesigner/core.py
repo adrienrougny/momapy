@@ -1,3 +1,5 @@
+"""Classes for CellDesigner maps"""
+
 import dataclasses
 import enum
 import math

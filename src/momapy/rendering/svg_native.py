@@ -1,3 +1,5 @@
+"""Classes for rendering in the SVG format"""
+
 import dataclasses
 import typing
 import math
