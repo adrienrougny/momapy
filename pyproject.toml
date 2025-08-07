@@ -48,3 +48,7 @@ dev = [
     "sphinx-autoapi>=3.2.1",
     "notebook>=7.2.1",
 ]
+
+[tool.basedpyright]
+reportMissingModuleSource = false
+typeCheckingMode = "standard"

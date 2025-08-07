@@ -6,6 +6,7 @@ import copy
 
 import numpy
 import shapely
+import shapely.ops
 import bezier.curve
 
 import momapy.builder
@@ -55,7 +56,7 @@ class Point(GeometryObject):
         yield self.x
         yield self.y
 
-    def to_matrix(self) -> numpy.array:
+    def to_matrix(self) -> numpy.ndarray:
         """Return a `numpy.array` representation of the point"""
         m = numpy.array([[self.x], [self.y], [1]], dtype=float)
         return m
@@ -128,9 +129,7 @@ class Line(GeometryObject):
     def slope(self) -> float:
         """Return the slope of the line"""
         if self.p1.x != self.p2.x:
-            return round(
-                (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x), ROUNDING
-            )
+            return round((self.p2.y - self.p1.y) / (self.p2.x - self.p1.x), ROUNDING)
         return float("NAN")  # infinite slope
 
     def intercept(self) -> float:
@@ -141,7 +140,7 @@ class Line(GeometryObject):
         else:
             return float("NAN")
 
-    def get_angle_to_horizontal(self) -> str:
+    def get_angle_to_horizontal(self) -> float:
         """Return the angle in radians formed by the line and the horizontal"""
         return get_angle_to_horizontal_of_line(self)
 
@@ -153,9 +152,7 @@ class Line(GeometryObject):
         """Return `true` if the line is coincident to another given line, and `false` otherwise"""
         return are_lines_coincident(self, line)
 
-    def get_intersection_with_line(
-        self, line: "Line"
-    ) -> list["Line"] | list["Point"]:
+    def get_intersection_with_line(self, line: "Line") -> list["Line"] | list["Point"]:
         """Compute and return the instersection of the line with another given line"""
         return get_intersection_of_lines(self, line)
 
@@ -194,9 +191,7 @@ class Segment(GeometryObject):
 
     def length(self) -> float:
         """Return the length of the segment"""
-        return math.sqrt(
-            (self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2
-        )
+        return math.sqrt((self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2)
 
     def get_distance_to_point(self, point: Point) -> float:
         """Return the distance of a given point to the segment"""
@@ -210,9 +205,7 @@ class Segment(GeometryObject):
         """Compute and return the angle formed by the segment and the horizontal"""
         return get_angle_to_horizontal_of_line(self)
 
-    def get_intersection_with_line(
-        self, line: Line
-    ) -> list[Point] | list["Segment"]:
+    def get_intersection_with_line(self, line: Line) -> list[Point] | list["Segment"]:
         """Compute and return the intersection of the segment with a given line"""
         return get_intersection_of_line_and_segment(line, self)
 
@@ -275,7 +268,7 @@ class BezierCurve(GeometryObject):
 
     p1: Point
     p2: Point
-    control_points: tuple[Point] = dataclasses.field(default_factory=tuple)
+    control_points: tuple[Point, ...] = dataclasses.field(default_factory=tuple)
 
     def _to_bezier(self):
         x = []
@@ -293,7 +286,7 @@ class BezierCurve(GeometryObject):
     @classmethod
     def _from_bezier(cls, bezier_curve):
         points = [Point.from_tuple(t) for t in bezier_curve.nodes.T]
-        return cls(points[0], points[-1], points[1:-1])
+        return cls(points[0], points[-1], tuple(points[1:-1]))
 
     def length(self) -> float:
         """Compute and return the length of the bezier curve"""
@@ -304,12 +297,12 @@ class BezierCurve(GeometryObject):
         evaluation = self._to_bezier().evaluate(s)
         return Point.from_fortranarray(evaluation)
 
-    def evaluate_multi(self, s: float) -> list[Point]:
+    def evaluate_multi(self, s: numpy.ndarray) -> list[Point]:
         """Compute and return the points at given parameter values"""
         evaluation = self._to_bezier().evaluate_multi(s)
         return [Point(e[0], e[1]) for e in evaluation.T]
 
-    def get_intersection_with_line(self, line: Line) -> list[Point]:
+    def get_intersection_with_line(self, line: Line) -> list[Point] | list[Segment]:
         """Compute and return the intersection of the bezier curve with a given line"""
         return get_intersection_of_line_and_bezier_curve(line, self)
 
@@ -322,13 +315,13 @@ class BezierCurve(GeometryObject):
         """Compute and return the angle in radians formed by the tangent of the bezier curve and the horizontal at a given fraction (of the total length)"""
         return get_angle_at_fraction_of_bezier_curve(self, fraction)
 
-    def get_position_and_angle_at_fraction(self, fraction):
+    def get_position_and_angle_at_fraction(self, fraction: float):
         """Compute and return the position on the bezier curve at a given fraction and the angle in radians formed of the tangent of the bezier curve and the horizontal at that position"""
-        return get_position_and_angle_at_fraction_of_bezier_curve(
-            self, fraction
-        )
+        return get_position_and_angle_at_fraction_of_bezier_curve(self, fraction)
 
-    def shortened(self, length, start_or_end="end"):
+    def shortened(
+        self, length: float, start_or_end: typing.Literal["start", "end"] = "end"
+    ) -> "BezierCurve":
         """Compute and return a copy of the bezier curve shortened by a given length"""
         return shorten_bezier_curve(self, length, start_or_end)
 
@@ -367,7 +360,7 @@ class EllipticalArc(GeometryObject):
 
     def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Compute and return the intersection of the elliptical arc with a given line"""
-        return get_intersection_of_line_and_elliptical_arc(self, line)
+        return get_intersection_of_line_and_elliptical_arc(line, self)
 
     def get_center_parameterization(
         self,
@@ -391,9 +384,7 @@ class EllipticalArc(GeometryObject):
         self, fraction: float
     ) -> tuple[Point, float]:
         """Compute and return the position on the elliptical arc at a given fraction and the angle in radians formed of the tangent of the bezier curve at that position and the horizontal"""
-        return get_position_and_angle_at_fraction_of_elliptical_arc(
-            self, fraction
-        )
+        return get_position_and_angle_at_fraction_of_elliptical_arc(self, fraction)
 
     def to_shapely(self):
         """Compute and return a shapely linestring reproducing the elliptical arc"""
@@ -418,12 +409,8 @@ class EllipticalArc(GeometryObject):
                 if distance <= min_distance:
                     min_distance = distance
                     min_i = i
-            left_coords = line_string.coords[0 : min_i + 1] + [
-                point.to_shapely()
-            ]
-            right_coords = [point.to_shapely()] + line_string.coords[
-                min_i + 1 :
-            ]
+            left_coords = line_string.coords[0 : min_i + 1] + [point.to_shapely()]
+            right_coords = [point.to_shapely()] + line_string.coords[min_i + 1 :]
             left_line_string = shapely.LineString(left_coords)
             right_line_string = shapely.LineString(right_coords)
             return [left_line_string, right_line_string]
@@ -446,9 +433,7 @@ class EllipticalArc(GeometryObject):
         if sweep != self.sweep_flag:
             ellipse = shapely.LineString(ellipse.coords[::-1])
         if ellipse.coords[0] == self.p1.to_tuple():
-            ellipse = shapely.LineString(
-                ellipse.coords[1:] + [ellipse.coords[0]]
-            )
+            ellipse = shapely.LineString(ellipse.coords[1:] + [ellipse.coords[0]])
         first_split = _split_line_string(ellipse, self.p1)
         multi_line = shapely.MultiLineString([first_split[1], first_split[0]])
         line_string = shapely.ops.linemerge(multi_line)
@@ -479,6 +464,9 @@ class EllipticalArc(GeometryObject):
     def to_bezier_curves(self) -> BezierCurve:
         """Compute and return a bezier curve reproducing the elliptical arc"""
         return transform_elliptical_arc_to_bezier_curves(self)
+
+    def length(self) -> float:
+        return self.to_shapely().length
 
 
 @dataclasses.dataclass(frozen=True)
@@ -599,14 +587,12 @@ class Transformation(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def inverted(self) -> "MatrixTransformation":
+    def inverted(self) -> "Transformation":
         """Compute and return the inverse transformation"""
         pass
 
     def __mul__(self, other):
-        return MatrixTransformation(
-            numpy.matmul(self.to_matrix(), other.to_matrix())
-        )
+        return MatrixTransformation(numpy.matmul(self.to_matrix(), other.to_matrix()))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -619,7 +605,7 @@ class MatrixTransformation(Transformation):
         """Return a matrix representation of the matrix transformation"""
         return self.m
 
-    def inverted(self) -> "MatrixTransformation":
+    def inverted(self) -> Transformation:
         """Compute and return the inverse of the matrix transformation"""
         return invert_matrix_transformation(self)
 
@@ -649,7 +635,7 @@ class Rotation(Transformation):
             )
         return m
 
-    def inverted(self) -> "MatrixTransformation":
+    def inverted(self) -> Transformation:
         """Compute and return the inverse of the rotation"""
         return invert_rotation(self)
 
@@ -663,12 +649,10 @@ class Translation(Transformation):
 
     def to_matrix(self) -> numpy.typing.NDArray:
         """Return a matrix representation of the translation"""
-        m = numpy.array(
-            [[1, 0, self.tx], [0, 1, self.ty], [0, 0, 1]], dtype=float
-        )
+        m = numpy.array([[1, 0, self.tx], [0, 1, self.ty], [0, 0, 1]], dtype=float)
         return m
 
-    def inverted(self) -> MatrixTransformation:
+    def inverted(self) -> Transformation:
         """Compute and return the inverse of the translation"""
         return invert_translation(self)
 
@@ -692,7 +676,7 @@ class Scaling(Transformation):
         )
         return m
 
-    def inverted(self) -> MatrixTransformation:
+    def inverted(self) -> Transformation:
         """Compute and return the inverse of the scaling"""
         return invert_scaling(self)
 
@@ -709,9 +693,7 @@ def transform_line(line: Line, transformation: Transformation) -> Line:
     )
 
 
-def transform_segment(
-    segment: Segment, transformation: Transformation
-) -> Segment:
+def transform_segment(segment: Segment, transformation: Transformation) -> Segment:
     return Segment(
         transform_point(segment.p1, transformation),
         transform_point(segment.p2, transformation),
@@ -749,17 +731,19 @@ def transform_elliptical_arc(
     new_north = transform_point(north, transformation)
     new_rx = Segment(new_center, new_east).length()
     new_ry = Segment(new_center, new_north).length()
+    new_start_point = transform_point(elliptical_arc.p1, transformation)
     new_end_point = transform_point(elliptical_arc.p2, transformation)
     new_x_axis_rotation = math.degrees(
         get_angle_to_horizontal_of_line(Line(new_center, new_east))
     )
     return EllipticalArc(
-        new_end_point,
-        new_rx,
-        new_ry,
-        new_x_axis_rotation,
-        elliptical_arc.arc_flag,
-        elliptical_arc.sweep_flag,
+        p1=new_start_point,
+        p2=new_end_point,
+        rx=new_rx,
+        ry=new_ry,
+        x_axis_rotation=new_x_axis_rotation,
+        arc_flag=elliptical_arc.arc_flag,
+        sweep_flag=elliptical_arc.sweep_flag,
     )
 
 
@@ -829,9 +813,7 @@ def shorten_bezier_curve(
                 length = total_length
             fraction = 1 - length / total_length
             point = bezier_curve.get_position_at_fraction(fraction)
-            horizontal_line = BezierCurve(
-                point - (5, 0), point + (5, 0)
-            )._to_bezier()
+            horizontal_line = BezierCurve(point - (5, 0), point + (5, 0))._to_bezier()
             s = lib_bezier_curve.intersect(horizontal_line)[0][0]
             lib_shortened_bezier_curve = lib_bezier_curve.specialize(0, s)
             shortened_bezier_curve = BezierCurve._from_bezier(
@@ -855,9 +837,7 @@ def shorten_elliptical_arc(
         else:
             fraction = 1 - length / elliptical_arc.length()
             point = elliptical_arc.get_position_at_fraction(fraction)
-            shortened_elliptical_arc = dataclasses.replace(
-                elliptical_arc, p2=point
-            )
+            shortened_elliptical_arc = dataclasses.replace(elliptical_arc, p2=point)
     return shortened_elliptical_arc
 
 
@@ -879,17 +859,13 @@ def invert_scaling(scaling: Scaling) -> Scaling:
     return Scaling(-scaling.sx, -scaling.sy)
 
 
-def get_intersection_of_line_and_point(
-    line: Line, point: Point
-) -> list[Point]:
+def get_intersection_of_line_and_point(line: Line, point: Point) -> list[Point]:
     if line.has_point(point):
         return [point]
     return []
 
 
-def get_intersection_of_lines(
-    line1: Line, line2: Line
-) -> list[Line] | list[Point]:
+def get_intersection_of_lines(line1: Line, line2: Line) -> list[Line] | list[Point]:
     slope1 = line1.slope()
     intercept1 = line1.intercept()
     slope2 = line2.slope()
@@ -924,7 +900,7 @@ def get_intersection_of_lines(
 
 def get_intersection_of_line_and_segment(
     line: Line, segment: Segment
-) -> list[Point] | list[Segment]:
+) -> list[Point] | list[Segment] | list[Line]:
     line2 = Line(segment.p1, segment.p2)
     intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
@@ -951,7 +927,7 @@ def get_intersection_of_line_and_bezier_curve(
 
 def get_intersection_of_line_and_elliptical_arc(
     line: Line, elliptical_arc: EllipticalArc
-) -> list[Point]:
+) -> list[Point] | list[Segment]:
     shapely_object = elliptical_arc.to_shapely()
     return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
@@ -1010,9 +986,7 @@ def get_shapely_object_border(
     if center.isnan():
         return Point(float("nan"), float("nan"))
     line = Line(center, point)
-    intersection = get_intersection_of_line_and_shapely_object(
-        line, shapely_object
-    )
+    intersection = get_intersection_of_line_and_shapely_object(line, shapely_object)
     candidate_points = []
     for intersection_obj in intersection:
         if isinstance(intersection_obj, Segment):
@@ -1077,7 +1051,7 @@ def get_angle_to_horizontal_of_point(point: Point) -> float:
 
 
 # angle in radians
-def get_angle_to_horizontal_of_line(line: Line) -> float:
+def get_angle_to_horizontal_of_line(line: Line | Segment) -> float:
     x1 = line.p1.x
     y1 = line.p1.y
     x2 = line.p2.x
@@ -1118,9 +1092,7 @@ def is_angle_in_sector(
 
 
 # angles in radians
-def is_angle_between(
-    angle: float, start_angle: float, end_angle: float
-) -> bool:
+def is_angle_between(angle: float, start_angle: float, end_angle: float) -> bool:
     angle = get_normalized_angle(angle)
     start_angle = get_normalized_angle(start_angle)
     end_angle = get_normalized_angle(end_angle)
@@ -1128,11 +1100,7 @@ def is_angle_between(
         if angle >= start_angle and angle <= end_angle:
             return True
     else:
-        if (
-            start_angle <= angle <= 2 * math.pi
-            or angle >= 0
-            and angle <= end_angle
-        ):
+        if start_angle <= angle <= 2 * math.pi or angle >= 0 and angle <= end_angle:
             return True
     return False
 
@@ -1180,9 +1148,7 @@ def get_center_parameterization_of_elliptical_arc(
     fa = elliptical_arc.arc_flag
     fs = elliptical_arc.sweep_flag
     x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * ((y1 - y2) / 2)
-    y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * (
-        (y1 - y2) / 2
-    )
+    y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * ((y1 - y2) / 2)
     l = x1p**2 / rx**2 + y1p**2 / ry**2
     if l > 1:
         rx = math.sqrt(l) * rx
@@ -1220,7 +1186,7 @@ def get_center_of_elliptical_arc(elliptical_arc: EllipticalArc) -> Point:
 
 def transform_elliptical_arc_to_bezier_curves(
     elliptical_arc: EllipticalArc,
-) -> BezierCurve:
+) -> list[BezierCurve]:
     def _make_angles(angles):
         new_angles = [angles[0]]
         for theta1, theta2 in zip(angles, angles[1:]):
@@ -1269,7 +1235,7 @@ def transform_elliptical_arc_to_bezier_curves(
         control_point1 = Point(cp1x, cp1y)
         control_point2 = Point(cp2x, cp2y)
         bezier_curve = BezierCurve(
-            p1=p1, p2=p2, control_points=[control_point1, control_point2]
+            p1=p1, p2=p2, control_points=tuple([control_point1, control_point2])
         ).transformed(transformation)
         bezier_curves.append(bezier_curve)
     return bezier_curves
@@ -1278,7 +1244,7 @@ def transform_elliptical_arc_to_bezier_curves(
 def _get_angle_at_fraction(
     segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
-) -> Point:  # fraction in [0, 1]
+) -> float:  # fraction in [0, 1]
     line_string = segment_or_curve.to_shapely()
     total_length = line_string.length
     current_length = 0
@@ -1318,7 +1284,7 @@ def get_angle_at_fraction_of_elliptical_arc(
 def _get_position_and_angle_at_fraction(
     segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
-) -> Point:  # fraction in [0, 1]
+) -> tuple[Point, float]:  # fraction in [0, 1]
     position = _get_position_at_fraction(segment_or_curve, fraction)
     angle = _get_angle_at_fraction(segment_or_curve, fraction)
     return position, angle
@@ -1371,9 +1337,7 @@ def get_distance_between_line_and_point(line: Line, point: Point) -> float:
     return distance
 
 
-def get_distance_between_segment_and_point(
-    segment: Segment, point: Point
-) -> float:
+def get_distance_between_segment_and_point(segment: Segment, point: Point) -> float:
     a = point.x - segment.p1.x
     b = point.y - segment.p1.y
     c = segment.p2.x - segment.p1.x
@@ -1399,9 +1363,7 @@ def get_distance_between_segment_and_point(
     return distance
 
 
-def line_has_point(
-    line: Line, point: Point, max_distance: float = 0.01
-) -> bool:
+def line_has_point(line: Line, point: Point, max_distance: float = 0.01) -> bool:
     d = line.get_distance_to_point(point)
     if d <= max_distance:
         return True
@@ -1485,8 +1447,8 @@ PointBuilder = momapy.builder.get_or_make_builder_cls(
     },
 )
 
-momapy.builder.register_builder(PointBuilder)
+momapy.builder.register_builder_cls(PointBuilder)
 
 BboxBuilder = momapy.builder.get_or_make_builder_cls(Bbox)
 
-momapy.builder.register_builder(BboxBuilder)
+momapy.builder.register_builder_cls(BboxBuilder)

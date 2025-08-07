@@ -283,7 +283,7 @@ INITIAL_VALUES = {
     "font_size": 16.0,
 }
 
-FONT_WEIGHT_VALUE_MAPPING = {
+FONT_WEIGHT_TO_VALUE = {
     FontWeight.NORMAL: 400,
     FontWeight.BOLD: 700,
 }
@@ -313,7 +313,7 @@ class DrawingElement(abc.ABC):
     font_weight: FontWeight | float | None = None
     id_: str | None = None
     stroke: NoneValueType | momapy.coloring.Color | None = None
-    stroke_dasharray: tuple[float] | None = None
+    stroke_dasharray: tuple[float, ...] | None = None
     stroke_dashoffset: float | None = None
     stroke_width: float | None = None
     text_anchor: TextAnchor | None = None
@@ -412,7 +412,7 @@ class Text(DrawingElement):
 class Group(DrawingElement):
     """Class for group drawing elements"""
 
-    elements: tuple[DrawingElement] = dataclasses.field(default_factory=tuple)
+    elements: tuple[DrawingElement, ...] = dataclasses.field(default_factory=tuple)
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
@@ -455,9 +455,7 @@ class MoveTo(PathAction):
         current_point: momapy.geometry.Point,
     ) -> "MoveTo":
         """Compute and return a copy of the move-to path action transformed with the given transformation and current point"""
-        return MoveTo(
-            momapy.geometry.transform_point(self.point, transformation)
-        )
+        return MoveTo(momapy.geometry.transform_point(self.point, transformation))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -480,9 +478,7 @@ class LineTo(PathAction):
         current_point: momapy.geometry.Point,
     ):
         """Compute and return a copy of the line-to path action transformed with the given transformation and current point"""
-        return LineTo(
-            momapy.geometry.transform_point(self.point, transformation)
-        )
+        return LineTo(momapy.geometry.transform_point(self.point, transformation))
 
     def to_geometry(
         self, current_point: momapy.geometry.Point
@@ -490,9 +486,7 @@ class LineTo(PathAction):
         """Return a segment from the line-to path action and the given current point"""
         return momapy.geometry.Segment(current_point, self.point)
 
-    def to_shapely(
-        self, current_point: momapy.geometry.Point
-    ) -> shapely.LineString:
+    def to_shapely(self, current_point: momapy.geometry.Point) -> shapely.LineString:
         """Return a line string from the line-to path action and the given current point"""
         return self.to_geometry(current_point).to_shapely()
 
@@ -537,9 +531,7 @@ class EllipticalArc(PathAction):
         new_north = momapy.geometry.transform_point(north, transformation)
         new_rx = momapy.geometry.Segment(new_center, new_east).length()
         new_ry = momapy.geometry.Segment(new_center, new_north).length()
-        new_end_point = momapy.geometry.transform_point(
-            self.point, transformation
-        )
+        new_end_point = momapy.geometry.transform_point(self.point, transformation)
         new_x_axis_rotation = math.degrees(
             momapy.geometry.get_angle_to_horizontal_of_line(
                 momapy.geometry.Line(new_center, new_east)
@@ -600,12 +592,8 @@ class CurveTo(PathAction):
         """Compute and return a copy of the curve-to path action transformed with the given transformation and current point"""
         return CurveTo(
             momapy.geometry.transform_point(self.point, transformation),
-            momapy.geometry.transform_point(
-                self.control_point1, transformation
-            ),
-            momapy.geometry.transform_point(
-                self.control_point2, transformation
-            ),
+            momapy.geometry.transform_point(self.control_point1, transformation),
+            momapy.geometry.transform_point(self.control_point2, transformation),
         )
 
     def to_geometry(
@@ -649,9 +637,7 @@ class QuadraticCurveTo(PathAction):
         """Compute and return a copy of the quadratic-curve-to transformed with the given transformation and current point"""
         return QuadraticCurveTo(
             momapy.geometry.transform_point(self.point, transformation),
-            momapy.geometry.transform_point(
-                self.control_point, transformation
-            ),
+            momapy.geometry.transform_point(self.control_point, transformation),
         )
 
     def to_curve_to(self, current_point: momapy.geometry.Point) -> CurveTo:
@@ -730,9 +716,7 @@ class Path(DrawingElement):
                     not isinstance(previous_action, ClosePath)
                     and previous_action is not None
                 ):
-                    multi_linestring = shapely.geometry.MultiLineString(
-                        line_strings
-                    )
+                    multi_linestring = shapely.geometry.MultiLineString(line_strings)
                     line_string = shapely.ops.linemerge(multi_linestring)
                     geom_collection.append(line_string)
                 line_strings = []
@@ -893,13 +877,9 @@ class Rectangle(DrawingElement):
         ]
         if rx > 0 and ry > 0:
             actions.append(
-                EllipticalArc(
-                    momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 0, 1
-                )
+                EllipticalArc(momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 0, 1)
             )
-        actions.append(
-            LineTo(momapy.geometry.Point(x + width, y + height - ry))
-        )
+        actions.append(LineTo(momapy.geometry.Point(x + width, y + height - ry)))
         if rx > 0 and ry > 0:
             actions.append(
                 EllipticalArc(
@@ -921,9 +901,7 @@ class Rectangle(DrawingElement):
         actions.append(LineTo(momapy.geometry.Point(x, y + ry)))
         if rx > 0 and ry > 0:
             actions.append(
-                EllipticalArc(
-                    momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1
-                )
+                EllipticalArc(momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1)
             )
         actions.append(ClosePath())
         path = Path(
@@ -937,9 +915,7 @@ class Rectangle(DrawingElement):
 
         return path
 
-    def transformed(
-        self, transformation: momapy.geometry.Transformation
-    ) -> Path:
+    def transformed(self, transformation: momapy.geometry.Transformation) -> Path:
         """Compute and return a copy of the rectangle element transformed with the given transformation"""
         path = self.to_path()
         return path.transformed(transformation)

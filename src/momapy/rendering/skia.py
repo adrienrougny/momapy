@@ -1,6 +1,7 @@
 import dataclasses
 import typing
 import math
+import os
 
 import skia
 
@@ -67,11 +68,18 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     _skia_fonts: dict = dataclasses.field(default_factory=dict)
 
     @classmethod
-    def from_file(cls, output_file, width, height, format_, config=None):
+    def from_file(
+        cls,
+        file_path: str | os.PathLike,
+        width: float,
+        height: float,
+        format_: str,
+        config=None,
+    ) -> typing.Self:
         if config is None:
             config = {}
         if format_ == "pdf":
-            stream = skia.FILEWStream(output_file)
+            stream = skia.FILEWStream(file_path)
             document = skia.PDF.MakeDocument(stream)
             canvas = document.beginPage(width, height)
             config["stream"] = stream
@@ -80,12 +88,12 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             surface = skia.Surface(width=int(width), height=int(height))
             canvas = surface.getCanvas()
             config["surface"] = surface
-            config["output_file"] = output_file
+            config["output_file"] = file_path
         elif format_ == "svg":
-            stream = skia.FILEWStream(output_file)
+            stream = skia.FILEWStream(file_path)
             canvas = skia.SVGCanvas.Make((width, height), stream)
             config["stream"] = stream
-        config["output_file"] = output_file
+        config["output_file"] = file_path
         config["width"] = width
         config["height"] = height
         config["format"] = format_
@@ -168,10 +176,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         self.canvas.restore()
 
     def _make_stroke_paint(self):
-        if (
-            self.get_current_value("stroke_dasharray")
-            is not momapy.drawing.NoneValue
-        ):
+        if self.get_current_value("stroke_dasharray") is not momapy.drawing.NoneValue:
             skia_path_effect = skia.DashPathEffect.Make(
                 list(self.get_current_value("stroke_dasharray")),
                 self.get_current_value("stroke_dashoffset"),
@@ -221,22 +226,16 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         )
         return crop_rect
 
-    def _make_input_filter_from_reference(
-        self, dskia_filters, filter_reference
-    ):
+    def _make_input_filter_from_reference(self, dskia_filters, filter_reference):
         if isinstance(filter_reference, momapy.drawing.FilterEffectInput):
             return None  # all SVG options default to source bitmap in skia
         in_skia_filter = dskia_filters.get(filter_reference)
         if in_skia_filter is None:  # if no reference or bad reference
-            if (
-                dskia_filters
-            ):  # we take the last filter effect primitive if it exists, otherwise remains None (source Bitmap)
+            if dskia_filters:  # we take the last filter effect primitive if it exists, otherwise remains None (source Bitmap)
                 in_skia_filter = dskia_filters[list(dskia_filters.keys())[-1]]
         return in_skia_filter
 
-    def _make_drop_shadow_effect(
-        self, filter_effect, filter_region, dskia_filters
-    ):
+    def _make_drop_shadow_effect(self, filter_effect, filter_region, dskia_filters):
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         skia_filter = skia.ImageFilters.DropShadow(
             dx=filter_effect.dx,
@@ -251,9 +250,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         )
         return skia_filter
 
-    def _make_composite_effect(
-        self, filter_effect, filter_region, dskia_filters
-    ):
+    def _make_composite_effect(self, filter_effect, filter_region, dskia_filters):
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         in_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in_
@@ -288,9 +285,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         )
         return skia_filter
 
-    def _make_gaussian_blur_effect(
-        self, filter_effect, filter_region, dskia_filters
-    ):
+    def _make_gaussian_blur_effect(self, filter_effect, filter_region, dskia_filters):
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         in_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in_
@@ -365,9 +360,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         font_family = self.get_current_value("font_family")
         font_weight = self.get_current_value("font_weight")
         font_style = self.get_current_value("font_style")
-        skia_typeface = self._skia_typefaces.get(
-            (font_family, font_weight, font_style)
-        )
+        skia_typeface = self._skia_typefaces.get((font_family, font_weight, font_style))
         if skia_typeface is None:
             skia_font_slant = self._te_font_style_slant_mapping[font_style]
             skia_font_style = skia.FontStyle(
@@ -379,9 +372,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
                 familyName=font_family,
                 fontStyle=skia_font_style,
             )
-            self._skia_typefaces[(font_family, font_weight, font_style)] = (
-                skia_typeface
-            )
+            self._skia_typefaces[(font_family, font_weight, font_style)] = skia_typeface
         font_size = self.get_current_value("font_size")
         skia_font = self._skia_fonts.get(
             (
@@ -513,9 +504,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     def _add_rotation(self, rotation):
         angle = math.degrees(rotation.angle)
         if rotation.point is not None:
-            self.canvas.rotate(
-                degrees=angle, px=rotation.point.x, py=rotation.point.y
-            )
+            self.canvas.rotate(degrees=angle, px=rotation.point.x, py=rotation.point.y)
         else:
             self.canvas.rotate(degrees=angle)
 

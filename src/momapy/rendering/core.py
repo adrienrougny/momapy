@@ -3,12 +3,14 @@ import copy
 import abc
 import typing
 import collections.abc
+import os
 
 import momapy.drawing
 import momapy.styling
 import momapy.positioning
 import momapy.geometry
 import momapy.builder
+import momapy.core
 
 renderers = {}
 
@@ -20,7 +22,7 @@ def register_renderer(name, renderer_cls):
 
 def render_layout_element(
     layout_element: momapy.core.LayoutElement,
-    output_file: str,
+    file_path: str | os.PathLike,
     format_: str = "pdf",
     renderer: str = "skia",
     style_sheet: momapy.styling.StyleSheet | None = None,
@@ -29,7 +31,7 @@ def render_layout_element(
     """Render a layout element to a file in a given format and with a given registered renderer"""
     render_layout_elements(
         layout_elements=[layout_element],
-        output_file=output_file,
+        file_path=file_path,
         format_=format_,
         renderer=renderer,
         style_sheet=style_sheet,
@@ -39,7 +41,7 @@ def render_layout_element(
 
 def render_layout_elements(
     layout_elements: collections.abc.Collection[momapy.core.LayoutElement],
-    output_file: str,
+    file_path: str | os.PathLike,
     format_: str = "pdf",
     renderer: str = "skia",
     style_sheet: momapy.styling.StyleSheet | None = None,
@@ -48,9 +50,7 @@ def render_layout_elements(
 ):
     """Render a collection of layout elements to a file in a given format and with a given registered renderer"""
 
-    def _prepare_layout_elements(
-        layout_elements, style_sheet=None, to_top_left=False
-    ):
+    def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
         bbox = momapy.positioning.fit(bboxes)
         max_x = bbox.x + bbox.width / 2
@@ -62,9 +62,7 @@ def render_layout_elements(
                     new_layout_elements.append(
                         momapy.builder.builder_from_object(layout_element)
                     )
-                elif isinstance(
-                    layout_element, momapy.core.LayoutElementBuilder
-                ):
+                elif isinstance(layout_element, momapy.core.LayoutElementBuilder):
                     new_layout_elements.append(copy.deepcopy(layout_element))
             layout_elements = new_layout_elements
         if style_sheet is not None:
@@ -103,9 +101,7 @@ def render_layout_elements(
         prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
             layout_elements, style_sheet, to_top_left
         )
-        renderer = renderers[renderer].from_file(
-            output_file, max_x, max_y, format_
-        )
+        renderer = renderers[renderer].from_file(file_path, max_x, max_y, format_)
         renderer.begin_session()
         for prepared_layout_element in prepared_layout_elements:
             renderer.render_layout_element(prepared_layout_element)
@@ -116,43 +112,35 @@ def render_layout_elements(
             prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
                 [layout_element], style_sheet, to_top_left
             )
-            renderer = renderers[renderer].from_file(
-                output_file, max_x, max_y, format_
-            )
+            renderer = renderers[renderer].from_file(file_path, max_x, max_y, format_)
             renderer.begin_session()
             renderer.render_layout_element(prepared_layout_elements[0])
             for layout_element in layout_elements[1:]:
-                prepared_layout_elements, max_x, max_y = (
-                    _prepare_layout_elements(
-                        [layout_element], style_sheet, to_top_left
-                    )
+                prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
+                    [layout_element], style_sheet, to_top_left
                 )
                 renderer.new_page(max_x, max_y)
                 renderer.render_layout_element(prepared_layout_elements[0])
         else:
-            renderer = renderers[renderer].from_file(
-                output_file, 0, 0, format_
-            )
+            renderer = renderers[renderer].from_file(file_path, 0, 0, format_)
         renderer.end_session()
 
 
 def render_map(
     map_: momapy.core.Map,
-    output_file: str,
+    file_path: str | os.PathLike,
     format_: str = "pdf",
     renderer: str = "skia",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
     """Render a map to a file in a given format and with a given registered renderer"""
-    render_maps(
-        [map_], output_file, format_, renderer, style_sheet, to_top_left
-    )
+    render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
 
 
 def render_maps(
     maps: collections.abc.Collection[momapy.core.Map],
-    output_file: str,
+    file_path: str | os.PathLike,
     format_: str = "pdf",
     renderer: str = "skia",
     style_sheet: momapy.styling.StyleSheet | None = None,
@@ -163,7 +151,7 @@ def render_maps(
     layout_elements = [map_.layout for map_ in maps]
     render_layout_elements(
         layout_elements=layout_elements,
-        output_file=output_file,
+        file_path=file_path,
         format_=format_,
         renderer=renderer,
         style_sheet=style_sheet,
@@ -211,9 +199,7 @@ class Renderer(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def render_drawing_element(
-        self, drawing_element: momapy.drawing.DrawingElement
-    ):
+    def render_drawing_element(self, drawing_element: momapy.drawing.DrawingElement):
         """Render a drawing element"""
         pass
 

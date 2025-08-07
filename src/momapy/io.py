@@ -3,8 +3,6 @@ import dataclasses
 import abc
 import typing
 
-import momapy.core
-
 readers = {}
 writers = {}
 

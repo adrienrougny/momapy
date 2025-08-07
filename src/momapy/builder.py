@@ -56,12 +56,7 @@ def _transform_type(type_, make_optional=False, make_union=False):
             else:  # o_type is an object from typing
                 new_o_type = o_type
             new_type = new_o_type[
-                tuple(
-                    [
-                        _transform_type(a_type)
-                        for a_type in typing.get_args(type_)
-                    ]
-                )
+                tuple([_transform_type(a_type) for a_type in typing.get_args(type_)])
             ]
         else:  # type_ has no origin
             if isinstance(type_, type):  # type_ is a type
@@ -137,9 +132,7 @@ def _make_builder_cls(
         builder_namespace = {}
     # We transform the fields to builder fields
     cls_fields = dataclasses.fields(cls)
-    builder_field_names = set(
-        [builder_field[0] for builder_field in builder_fields]
-    )
+    builder_field_names = set([builder_field[0] for builder_field in builder_fields])
     for field_ in cls_fields:
         field_name = field_.name
         # We only consider fields that are not already in the input fields
@@ -177,9 +170,7 @@ def _make_builder_cls(
         if not func_name.startswith("__") and not func_name == "_cls_to_build":
             builder_namespace[func_name] = func
     # We add the transformed bases
-    cls_bases = [
-        get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__
-    ]
+    cls_bases = [get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__]
     builder_bases = builder_bases + [
         base_cls for base_cls in cls_bases if issubclass(base_cls, Builder)
     ]
@@ -340,29 +331,29 @@ def get_or_make_builder_cls(
     builder_namespace: dict[str, typing.Any] | None = None,
 ) -> typing.Type:
     """Get and return an existing builder class for the given class or make and return a new builder class for it"""
-    builder_cls = get_builder(cls)
+    builder_cls = get_builder_cls(cls)
     if builder_cls is None:
         if dataclasses.is_dataclass(cls):
             builder_cls = _make_builder_cls(
                 cls, builder_fields, builder_bases, builder_namespace
             )
-            register_builder(builder_cls)
+            register_builder_cls(builder_cls)
         else:
             builder_cls = cls
     return builder_cls
 
 
-def has_builder(cls: typing.Type) -> bool:
+def has_builder_cls(cls: typing.Type) -> bool:
     """Return `true` if there is a registered builder class for the given class, and `false` otherwise"""
     return cls in builders
 
 
-def get_builder(cls: typing.Type) -> typing.Type:
+def get_builder_cls(cls: typing.Type) -> typing.Type:
     """Return the builder class registered for the given class or `None` if no builder class is registered for that class"""
     return builders.get(cls)
 
 
-def register_builder(builder_cls: typing.Type) -> None:
+def register_builder_cls(builder_cls: typing.Type) -> None:
     """Register a builder class"""
     builders[builder_cls._cls_to_build] = builder_cls
 
