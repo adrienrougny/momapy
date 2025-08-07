@@ -1,3 +1,5 @@
+"""Classes for SBGN PD maps"""
+
 import dataclasses
 import typing
 import sys
@@ -28,7 +30,7 @@ class UnitOfInformation(momapy.sbgn.core.SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Subunit(momapy.sbgn.core.SBGNAuxiliaryUnit):
-    """Abstract class for subunits"""
+    """Base class for subunits"""
 
     label: str | None = None
 
@@ -91,7 +93,7 @@ class ComplexSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MultimerSubunit(ComplexSubunit):
-    """Abstract class for multimer subunits"""
+    """Base class for multimer subunits"""
 
     cardinality: int | None = None
 
@@ -139,7 +141,7 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EntityPool(momapy.sbgn.core.SBGNModelElement):
-    """Abstract class for entity pools"""
+    """Base class for entity pools"""
 
     compartment: Compartment | None = None
 
@@ -220,7 +222,7 @@ class Complex(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Multimer(Complex):
-    """Abstract class for multimers"""
+    """Base class for multimers"""
 
     cardinality: int | None = None
 
@@ -255,7 +257,7 @@ class ComplexMultimer(Multimer):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FluxRole(momapy.sbgn.core.SBGNRole):
-    """Abstract class for flux roles"""
+    """Base class for flux roles"""
 
     element: EntityPool
     stoichiometry: int | None = None
@@ -301,14 +303,14 @@ class EquivalenceOperatorOutput(momapy.sbgn.core.SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Process(momapy.sbgn.core.SBGNModelElement):
-    """Abstract class for processes"""
+    """Base class for processes"""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StoichiometricProcess(Process):
-    """Abstract class for stoichiometric processes"""
+    """Base class for stoichiometric processes"""
 
     reactants: frozenset[Reactant] = dataclasses.field(
         default_factory=frozenset

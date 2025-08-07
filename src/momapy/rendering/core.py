@@ -1,3 +1,5 @@
+"""Bases classes and functions for rendering maps or layout elements"""
+
 import dataclasses
 import copy
 import abc
@@ -28,7 +30,16 @@ def render_layout_element(
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
-    """Render a layout element to a file in a given format and with a given registered renderer"""
+    """Render a layout element to a file in the given format with the given registered renderer
+
+    Args:
+        layout_element: The layout element to render
+        output_file: The output file path
+        format_: The output format
+        renderer: The registered renderer to use. See [register_renderer][momapy.rendering.core.register_renderer] to register renderers
+        style_sheet: An optional style sheet to apply before rendering
+        to_top_left: Whether to move the layout element to the top left or not before rendering
+    """
     render_layout_elements(
         layout_elements=[layout_element],
         file_path=file_path,
@@ -48,7 +59,7 @@ def render_layout_elements(
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
-    """Render a collection of layout elements to a file in a given format and with a given registered renderer"""
+    """Render a collection of layout elements to a file in the given format with the given registered renderer"""
 
     def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
@@ -134,8 +145,8 @@ def render_map(
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
-    """Render a map to a file in a given format and with a given registered renderer"""
-    render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
+    """Render a map to a file in the given format with the given registered renderer"""
+    render_maps([map_], output_file, format_, renderer, style_sheet, to_top_left)
 
 
 def render_maps(
@@ -147,7 +158,7 @@ def render_maps(
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
-    """Render a collection of maps to a file in a given format and with a given registered renderer"""
+    """Render a collection of maps to a file in the given format with the given registered renderer"""
     layout_elements = [map_.layout for map_ in maps]
     render_layout_elements(
         layout_elements=layout_elements,
@@ -162,7 +173,7 @@ def render_maps(
 
 @dataclasses.dataclass
 class Renderer(abc.ABC):
-    """Abstract class for renderers"""
+    """Base class for renderers"""
 
     initial_values: typing.ClassVar[dict] = {
         "font_family": "Arial",
@@ -244,7 +255,7 @@ class Renderer(abc.ABC):
 
 @dataclasses.dataclass
 class StatefulRenderer(Renderer):
-    """Abstract class for stateful renderers"""
+    """Base class for stateful renderers"""
 
     _current_state: dict = dataclasses.field(default_factory=dict)
     _states: list[dict] = dataclasses.field(default_factory=list)
@@ -284,7 +295,7 @@ class StatefulRenderer(Renderer):
         self.self_save()
 
     def restore(self):
-        """Set the current state to the last saved"""
+        """Set the current state to the last saved state"""
         if len(self._states) > 0:
             state = self._states.pop()
             self.set_current_state(state)
@@ -339,7 +350,7 @@ class StatefulRenderer(Renderer):
             self._current_state[attr_name] = attr_value
 
     def set_current_state(self, state: dict):
-        """Set the current state to a given state"""
+        """Set the current state to the given state"""
         for attr_name, attr_value in state.items():
             self.set_current_value(attr_name, attr_value)
 

@@ -1,3 +1,5 @@
+"""Classes for reading and writing SBGN-ML files"""
+
 import os
 import abc
 import collections
@@ -414,7 +416,8 @@ class _SBGNMLReader(momapy.io.Reader):
         with_styles: bool = True,
         xsep: float = 0,
         ysep: float = 0,
-    ):
+    ) -> momapy.io.ReaderResult:
+        """Read an SBGN-ML file and return a reader result object"""
 
         sbgnml_document = lxml.objectify.parse(file_path)
         sbgnml_sbgn = sbgnml_document.getroot()
@@ -4027,6 +4030,7 @@ class _SBGNMLWriter(momapy.io.Writer):
 
 
 class SBGNML0_2Writer(_SBGNMLWriter):
+    """Class for SBGN-ML 0.2 writer objects"""
 
     @classmethod
     def _sbgn_objs_from_map(cls, map_):
@@ -4048,6 +4052,8 @@ class SBGNML0_2Writer(_SBGNMLWriter):
 
 
 class SBGNML0_3Writer(_SBGNMLWriter):
+    """Class for SBGN-ML 0.3 writer objects"""
+
     pass
 
 

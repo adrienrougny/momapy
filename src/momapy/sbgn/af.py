@@ -1,3 +1,5 @@
+"""Classes for SBGN AF maps"""
+
 import enum
 import dataclasses
 import typing
@@ -16,14 +18,14 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
-    """Abstract class for units of information"""
+    """Base class for units of information"""
 
     label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeUnitOfInformation(UnitOfInformation):
-    """Class for maromolecule units of information"""
+    """Class for marcomolecule units of information"""
 
     pass
 

@@ -1,3 +1,5 @@
+"""Classes and objects for drawing elements (SVG-like)"""
+
 import abc
 import dataclasses
 import math
@@ -32,27 +34,47 @@ class NoneValueType(object):  # TODO: implement true singleton
 
 
 NoneValue = NoneValueType()
+"""A singleton value for type `NoneValueType`"""
 
 
 @dataclasses.dataclass(frozen=True)
 class FilterEffect(abc.ABC):
     """Class for filter effects"""
 
-    result: str | None = None
+    result: str | None = dataclasses.field(
+        default=None, metadata={"description": "The name of the result"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DropShadowEffect(FilterEffect):
     """Class for drop shadow effects"""
 
-    dx: float = 0.0
-    dy: float = 0.0
-    std_deviation: float = 0.0
-    flood_opacity: float = 1.0
-    flood_color: momapy.coloring.Color = momapy.coloring.black
+    dx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The horizontal offset of the shadow"},
+    )
+    dy: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The vertical offset of the shadow"},
+    )
+    std_deviation: float = dataclasses.field(
+        default=0.0,
+        metadata={
+            "description": "The standard deviation to be used to compute the shadow"
+        },
+    )
+    flood_opacity: float = dataclasses.field(
+        default=1.0,
+        metadata={"description": "The flood opacity of the shadow"},
+    )
+    flood_color: momapy.coloring.Color = dataclasses.field(
+        default=momapy.coloring.black,
+        metadata={"description": "The color of the shadow"},
+    )
 
     def to_compat(self) -> list[FilterEffect]:
-        """Return a list of filter effects better supported that is equivalent to the given drop-shadow effect"""
+        """Return a list of filter effects better supported by software that is equivalent to the given drop-shadow effect"""
         flood_effect = FloodEffect(
             result=momapy.utils.get_uuid4_as_str(),
             flood_opacity=self.flood_opacity,
@@ -118,17 +140,38 @@ class CompositionOperator(enum.Enum):
 class CompositeEffect(FilterEffect):
     """Class for composite effects"""
 
-    in_: FilterEffectInput | str | None = None
-    in2: FilterEffectInput | str | None = None
-    operator: CompositionOperator | None = CompositionOperator.OVER
+    in_: FilterEffectInput | str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The first effect input or the name of the first filter effect input"
+        },
+    )
+    in2: FilterEffectInput | str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The second filter effect input or the name of the second filter effect input"
+        },
+    )
+    operator: CompositionOperator | None = dataclasses.field(
+        default=CompositionOperator.OVER,
+        metadata={
+            "description": "The operator to be used to compute the composite effect"
+        },
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FloodEffect(FilterEffect):
     """Class for flood effects"""
 
-    flood_color: momapy.coloring.Color = momapy.coloring.black
-    flood_opacity: float = 1.0
+    flood_color: momapy.coloring.Color = dataclasses.field(
+        default=momapy.coloring.black,
+        metadata={"description": "The color of the flood effect"},
+    )
+    flood_opacity: float = dataclasses.field(
+        default=1.0,
+        metadata={"description": "The opacity of the flood effect"},
+    )
 
 
 class EdgeMode(enum.Enum):
@@ -301,23 +344,67 @@ def get_initial_value(attr_name: str):
 class DrawingElement(abc.ABC):
     """Class for drawing elements"""
 
-    class_: str | None = None
-    fill: NoneValueType | momapy.coloring.Color | None = None
-    fill_rule: FillRule | None = None
-    filter: NoneValueType | Filter | None = (
-        None  # should be a tuple of filters to follow SVG (to be implemented)
+    class_: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The class name of the drawing element"},
     )
-    font_family: str | None = None
-    font_size: float | None = None
-    font_style: FontStyle | None = None
-    font_weight: FontWeight | float | None = None
-    id_: str | None = None
-    stroke: NoneValueType | momapy.coloring.Color | None = None
-    stroke_dasharray: tuple[float, ...] | None = None
-    stroke_dashoffset: float | None = None
-    stroke_width: float | None = None
-    text_anchor: TextAnchor | None = None
-    transform: NoneValueType | momapy.geometry.Transformation | None = None
+    fill: NoneValueType | momapy.coloring.Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The fill color of the drawing element"},
+    )
+    fill_rule: FillRule | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The fill rule of the drawing element"},
+    )
+    filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The filter of the drawing element"},
+    )  # should be a tuple of filters to follow SVG (to be implemented)
+    font_family: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The font family of the drawing element"},
+    )
+    font_size: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The font size of the drawing element"},
+    )
+    font_style: FontStyle | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The font style of the drawing element"},
+    )
+    font_weight: FontWeight | int | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The font weight of the drawing element"},
+    )
+    id_: str | None = dataclasses.field(
+        default=None, metadata={"description": "The id of the drawing element"}
+    )
+    stroke: NoneValueType | momapy.coloring.Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke color of the drawing element"},
+    )
+    stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke dasharray of the drawing element"},
+    )
+    stroke_dashoffset: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke dashoffset of the drawing element"},
+    )
+    stroke_width: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke width of the drawing element"},
+    )
+    text_anchor: TextAnchor | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text anchor of the drawing element"},
+    )
+    transform: NoneValueType | momapy.geometry.Transformation | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The transform of the drawing element"},
+        )
+    )
 
     @abc.abstractmethod
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
@@ -386,8 +473,12 @@ class DrawingElement(abc.ABC):
 class Text(DrawingElement):
     """Class for text drawing elements"""
 
-    text: str
-    point: momapy.geometry.Point
+    text: str = dataclasses.field(
+        metadata={"description": "The value of the text element"}
+    )
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The position of the text element"}
+    )
 
     @property
     def x(self):
@@ -404,7 +495,7 @@ class Text(DrawingElement):
         return copy.deepcopy(self)
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a geometry collection built from the text element's point"""
+        """Return a geometry collection built from the point of the text element"""
         return shapely.geometry.GeometryCollection([self.point.to_shapely()])
 
 
@@ -412,7 +503,10 @@ class Text(DrawingElement):
 class Group(DrawingElement):
     """Class for group drawing elements"""
 
-    elements: tuple[DrawingElement, ...] = dataclasses.field(default_factory=tuple)
+    elements: tuple[DrawingElement] = dataclasses.field(
+        default_factory=tuple,
+        metadata={"description": "The elements of the group element"},
+    )
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
@@ -424,7 +518,7 @@ class Group(DrawingElement):
         return dataclasses.replace(self, elements=tuple(elements))
 
     def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Return a geometry collection built from the elements of the group's elements"""
+        """Return a geometry collection built from the elements of the group"""
         return drawing_elements_to_shapely(self.elements)
 
 
@@ -439,7 +533,9 @@ class PathAction(abc.ABC):
 class MoveTo(PathAction):
     """Class for move-to path actions"""
 
-    point: momapy.geometry.Point
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the move to action"}
+    )
 
     @property
     def x(self):
@@ -462,7 +558,9 @@ class MoveTo(PathAction):
 class LineTo(PathAction):
     """Class for line-to path actions"""
 
-    point: momapy.geometry.Point
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the line to action"}
+    )
 
     @property
     def x(self):
@@ -495,12 +593,24 @@ class LineTo(PathAction):
 class EllipticalArc(PathAction):
     """Class for elliptical-arc path actions"""
 
-    point: momapy.geometry.Point
-    rx: float
-    ry: float
-    x_axis_rotation: float
-    arc_flag: int
-    sweep_flag: int
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the elliptical arc action"}
+    )
+    rx: float = dataclasses.field(
+        metadata={"description": "The x-radius of the elliptical arc action"}
+    )
+    ry: float = dataclasses.field(
+        metadata={"description": "The y-radius of the elliptical arc action"}
+    )
+    x_axis_rotation: float = dataclasses.field(
+        metadata={"description": "The x axis rotation of the elliptical arc action"}
+    )
+    arc_flag: int = dataclasses.field(
+        metadata={"description": "The arc flag of the elliptical arc action"}
+    )
+    sweep_flag: int = dataclasses.field(
+        metadata={"description": "The sweep flag of the elliptical arc action"}
+    )
 
     @property
     def x(self):
@@ -572,9 +682,15 @@ class EllipticalArc(PathAction):
 class CurveTo(PathAction):
     """Class for curve-to path actions"""
 
-    point: momapy.geometry.Point
-    control_point1: momapy.geometry.Point
-    control_point2: momapy.geometry.Point
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the curve to action"}
+    )
+    control_point1: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The first control point of the curve to action"}
+    )
+    control_point2: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The second control point of the curve to action"}
+    )
 
     @property
     def x(self):
@@ -618,8 +734,12 @@ class CurveTo(PathAction):
 class QuadraticCurveTo(PathAction):
     """Class for quadratic-curve-to paht actions"""
 
-    point: momapy.geometry.Point
-    control_point: momapy.geometry.Point
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the quadratic curve to action"}
+    )
+    control_point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The control point of the quadratic curve to action"}
+    )
 
     @property
     def x(self):
@@ -681,7 +801,10 @@ class ClosePath(PathAction):
 class Path(DrawingElement):
     """Class for the path drawing elements"""
 
-    actions: tuple[PathAction] = dataclasses.field(default_factory=tuple)
+    actions: tuple[PathAction] = dataclasses.field(
+        default_factory=tuple,
+        metadata={"description": "The actions of the path"},
+    )
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
@@ -793,9 +916,15 @@ class Path(DrawingElement):
 class Ellipse(DrawingElement):
     """Class for ellipse drawing elements"""
 
-    point: momapy.geometry.Point
-    rx: float
-    ry: float
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the ellipse"}
+    )
+    rx: float = dataclasses.field(
+        metadata={"description": "The x-radius of the ellipse"}
+    )
+    ry: float = dataclasses.field(
+        metadata={"description": "The y-radius of the ellipse"}
+    )
 
     @property
     def x(self):
@@ -849,11 +978,21 @@ class Ellipse(DrawingElement):
 class Rectangle(DrawingElement):
     """Class for rectangle drawing elements"""
 
-    point: momapy.geometry.Point
-    width: float
-    height: float
-    rx: float
-    ry: float
+    point: momapy.geometry.Point = dataclasses.field(
+        metadata={"description": "The point of the rectangle"}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the rectangle"}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the rectangle"}
+    )
+    rx: float = dataclasses.field(
+        metadata={"description": "The x-radius of the rounded corners of the rectangle"}
+    )
+    ry: float = dataclasses.field(
+        metadata={"description": "The y-radius of the rounded corners of the rectangle"}
+    )
 
     @property
     def x(self):
@@ -973,6 +1112,7 @@ def get_drawing_elements_anchor_point(
     anchor_point: str,
     center: momapy.geometry.Point | None = None,
 ) -> momapy.geometry.Point:
+    """Return the anchor point of the drawing elements"""
     shapely_object = drawing_elements_to_shapely(drawing_elements)
     return momapy.geometry.get_shapely_object_anchor_point(
         shapely_object=shapely_object, anchor_point=anchor_point, center=center

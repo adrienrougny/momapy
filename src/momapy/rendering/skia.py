@@ -1,3 +1,5 @@
+"""Class for rendering with Skia"""
+
 import dataclasses
 import typing
 import math

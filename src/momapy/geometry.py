@@ -1,3 +1,5 @@
+"""Classes and functions for geometry"""
+
 import dataclasses
 import typing
 import abc
@@ -17,7 +19,7 @@ ROUNDING = 2
 
 @dataclasses.dataclass(frozen=True)
 class GeometryObject(abc.ABC):
-    """Abstract class for geometry objects"""
+    """Base class for geometry objects"""
 
     @abc.abstractmethod
     def to_shapely(self) -> shapely.Geometry:
@@ -579,7 +581,7 @@ class Bbox(object):
 
 @dataclasses.dataclass(frozen=True)
 class Transformation(abc.ABC):
-    """Abstract class for transformations"""
+    """Base class for transformations"""
 
     @abc.abstractmethod
     def to_matrix(self) -> numpy.typing.NDArray:

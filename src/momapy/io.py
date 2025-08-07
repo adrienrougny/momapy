@@ -1,3 +1,5 @@
+"""Base classes and functions for reading and writing maps"""
+
 import os
 import dataclasses
 import abc
@@ -19,11 +21,15 @@ def register_writer(name, writer_cls):
 
 @dataclasses.dataclass
 class IOResult:
+    """Base class for I/O results"""
+
     exceptions: list[Exception] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
 class ReaderResult(IOResult):
+    """Base class for reader results"""
+
     obj: typing.Any | None = None
     annotations: dict | None = None
     notes: dict | None = None
@@ -33,6 +39,8 @@ class ReaderResult(IOResult):
 
 @dataclasses.dataclass
 class WriterResult(IOResult):
+    """Base class for writer results"""
+
     obj: typing.Any | None = None
     file_path: str | os.PathLike | None = None
 
@@ -42,7 +50,17 @@ def read(
     reader: str | None = None,
     **options,
 ) -> ReaderResult:
-    """Read and return a map from a file, given a registered reader. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method of each reader. If there is more than one appropriate reader, will use the first one."""
+    """Read a map file and return a reader result using the given registered reader. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method of each reader. If there is more than one appropriate reader, will use the first one.
+
+    Args:
+        file_path: The path of the file to read
+        reader: The registered reader
+        options: Options to be passed to the reader
+
+    Returns:
+        A reader result
+
+    """
     reader_cls = None
     if reader is not None:
         reader_cls = readers.get(reader)
@@ -68,7 +86,17 @@ def write(
     writer: str,
     **options,
 ) -> WriterResult:
-    """Write an object to a file, using the given registered writer"""
+    """Write an object to a file and return a writer result using the given registered writer
+
+    Args:
+        obj: The object to write
+        file_path: The path of the file to write to
+        writer: The registered writer
+        options: Options to be passed to the writer
+
+    Returns:
+        A writer result
+    """
     writer_cls = None
     writer_cls = writers.get(writer)
     if writer_cls is None:
@@ -78,12 +106,12 @@ def write(
 
 
 class Reader(abc.ABC):
-    """Abstract class for readers"""
+    """Base class for readers"""
 
     @classmethod
     @abc.abstractmethod
     def read(cls, file_path: str | os.PathLike, **options) -> ReaderResult:
-        """Read and return a reader result from a file using the reader"""
+        """Read a file and return a reader result using the reader"""
         pass
 
     @classmethod
@@ -93,6 +121,8 @@ class Reader(abc.ABC):
 
 
 class Writer(abc.ABC):
+    """Base class for writers"""
+
     @classmethod
     @abc.abstractmethod
     def write(
@@ -101,5 +131,5 @@ class Writer(abc.ABC):
         file_path: str | os.PathLike,
         **options,
     ) -> WriterResult:
-        """Write an object to a file"""
+        """Write an object to a file and return a writer result using the writer"""
         pass

@@ -1,3 +1,5 @@
+"""Classes for reading CellDesigner files (extended SBML)"""
+
 import os
 import collections
 import math
@@ -16,6 +18,8 @@ import momapy.sbml.core
 
 
 class CellDesignerReader(momapy.io.Reader):
+    """Class for CellDesigner reader objects"""
+
     _DEFAULT_FONT_FAMILY = "Helvetica"
     _DEFAULT_FONT_SIZE = 12.0
     _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
@@ -434,6 +438,7 @@ class CellDesignerReader(momapy.io.Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
+        """Return `true` if the file is a CellDesigner file, `false` otherwise"""
         try:
             with open(file_path) as f:
                 for line in f:
@@ -454,6 +459,7 @@ class CellDesignerReader(momapy.io.Reader):
         with_annotations=True,
         with_notes=True,
     ) -> momapy.io.ReaderResult:
+        """Read a CellDesigner file and return a reader result object"""
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
         obj, annotations, notes, ids = cls._make_main_obj_from_cd_model(

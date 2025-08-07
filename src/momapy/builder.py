@@ -1,3 +1,5 @@
+"""Classes and functions for building maps and map elements"""
+
 import abc
 import dataclasses
 import typing
