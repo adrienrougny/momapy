@@ -79,9 +79,7 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
                 attr_string = f"{colorama.Fore.BLUE}* {attr_name}{colorama.Fore.MAGENTA}: {attr_typing} = {colorama.Fore.RED}{attr_value_string}{colorama.Style.RESET_ALL}"
                 _print_with_indent(attr_string, _indent + 1)
                 if (
-                    not isinstance(
-                        attr_value, (str, float, int, bool, types.NoneType)
-                    )
+                    not isinstance(attr_value, (str, float, int, bool, types.NoneType))
                     and attr_value
                 ):
                     pretty_print(
@@ -106,31 +104,6 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
                 _depth=_depth + 1,
                 _indent=_indent + 2,
             )
-
-
-def make_node(cls, position):
-    if isinstance(position, tuple):
-        position = momapy.geometry.Point.from_tuple(position)
-    if not issubclass(cls, momapy.builder.Builder):
-        builder_cls = momapy.builder.get_or_make_builder_cls(cls)
-    node = builder_cls(position=position)
-    return node
-
-
-def make_arc(cls, points):
-    segments = []
-    new_points = []
-    for point in points:
-        if isinstance(point, tuple):
-            point = momapy.geometry.Point.from_tuple(point)
-        new_points.append(point)
-    for start_point, end_point in zip(new_points, new_points[1:]):
-        segment = momapy.geometry.Segment(start_point, end_point)
-        segments.append(segment)
-    if not issubclass(cls, momapy.builder.Builder):
-        builder_cls = momapy.builder.get_or_make_builder_cls(cls)
-    arc = builder_cls(segments=segments)
-    return arc
 
 
 def get_element_from_collection(element, collection):
@@ -160,5 +133,5 @@ def add_or_replace_element_in_set(element, set_, func=None):
     return existing_element
 
 
-def get_uuid4_as_str():
+def make_uuid4_as_str():
     return str(uuid.uuid4())

@@ -34,7 +34,7 @@ def render_layout_element(
 
     Args:
         layout_element: The layout element to render
-        output_file: The output file path
+        file_path: The output file path
         format_: The output format
         renderer: The registered renderer to use. See [register_renderer][momapy.rendering.core.register_renderer] to register renderers
         style_sheet: An optional style sheet to apply before rendering
@@ -146,7 +146,7 @@ def render_map(
     to_top_left: bool = False,
 ):
     """Render a map to a file in the given format with the given registered renderer"""
-    render_maps([map_], output_file, format_, renderer, style_sheet, to_top_left)
+    render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
 
 
 def render_maps(

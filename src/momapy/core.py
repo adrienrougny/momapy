@@ -13,6 +13,8 @@ import enum
 import math
 import copy
 import shapely
+import frozendict
+import collections.abc
 
 
 class Direction(enum.Enum):
@@ -43,7 +45,7 @@ class MapElement:
     id_: str = dataclasses.field(
         hash=False,
         compare=False,
-        default_factory=momapy.utils.get_uuid4_as_str,
+        default_factory=momapy.utils.make_uuid4_as_str,
         metadata={
             "description": """The id of the map element. This id is purely for the user to keep track
     of the element, it does not need to be unique and is not part of the
@@ -1457,7 +1459,7 @@ class DoubleHeadedArc(Arc):
 
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the self drawing elements of the double-headed arc. These include the drawing elements of the arc path, the start arrowhead, and the end arrowhead"""
-        elements = (
+        drawing_elements = (
             self.path_drawing_elements()
             + self.start_arrowhead_drawing_elements()
             + self.end_arrowhead_drawing_elements()

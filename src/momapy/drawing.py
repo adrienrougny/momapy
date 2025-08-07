@@ -76,7 +76,7 @@ class DropShadowEffect(FilterEffect):
     def to_compat(self) -> list[FilterEffect]:
         """Return a list of filter effects better supported by software that is equivalent to the given drop-shadow effect"""
         flood_effect = FloodEffect(
-            result=momapy.utils.get_uuid4_as_str(),
+            result=momapy.utils.make_uuid4_as_str(),
             flood_opacity=self.flood_opacity,
             flood_color=self.flood_color,
         )
@@ -84,18 +84,18 @@ class DropShadowEffect(FilterEffect):
             in_=flood_effect.result,
             in2=FilterEffectInput.SOURCE_GRAPHIC,
             operator=CompositionOperator.IN,
-            result=momapy.utils.get_uuid4_as_str(),
+            result=momapy.utils.make_uuid4_as_str(),
         )
         gaussian_blur_effect = GaussianBlurEffect(
             in_=composite_effect1.result,
             std_deviation=self.std_deviation,
-            result=momapy.utils.get_uuid4_as_str(),
+            result=momapy.utils.make_uuid4_as_str(),
         )
         offset_effect = OffsetEffect(
             in_=gaussian_blur_effect.result,
             dx=self.dx,
             dy=self.dy,
-            result=momapy.utils.get_uuid4_as_str(),
+            result=momapy.utils.make_uuid4_as_str(),
         )
         composite_effect2 = CompositeEffect(
             in_=FilterEffectInput.SOURCE_GRAPHIC,
@@ -213,7 +213,7 @@ class Filter(object):
     id: str = dataclasses.field(
         hash=False,
         compare=False,
-        default_factory=momapy.utils.get_uuid4_as_str,
+        default_factory=momapy.utils.make_uuid4_as_str,
     )
     filter_units: FilterUnits = FilterUnits.OBJECT_BOUNDING_BOX
     effects: tuple[FilterEffect] = dataclasses.field(default_factory=tuple)
