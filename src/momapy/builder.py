@@ -21,7 +21,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         self,
         inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
-    ):
+    ) -> typing.Any:
         """Build and return an object from the builder object"""
         pass
 
@@ -33,7 +33,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
-    ):
+    ) -> typing.Self:
         """Create and return a builder object from an object"""
         pass
 
