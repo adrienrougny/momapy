@@ -65,7 +65,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         momapy.drawing.FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
     }
     canvas: skia.Canvas = dataclasses.field(metadata={"description": "A skia canvas"})
-    config: dict = dataclasses.field(default_factory=dict)
+    _config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
     _skia_fonts: dict = dataclasses.field(default_factory=dict)
 
@@ -75,11 +75,9 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         file_path: str | os.PathLike,
         width: float,
         height: float,
-        format_: str,
-        config=None,
+        format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
     ) -> typing.Self:
-        if config is None:
-            config = {}
+        config = {}
         if format_ == "pdf":
             stream = skia.FILEWStream(file_path)
             document = skia.PDF.MakeDocument(stream)
@@ -90,44 +88,44 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             surface = skia.Surface(width=int(width), height=int(height))
             canvas = surface.getCanvas()
             config["surface"] = surface
-            config["output_file"] = file_path
+            config["file_path"] = file_path
         elif format_ == "svg":
             stream = skia.FILEWStream(file_path)
             canvas = skia.SVGCanvas.Make((width, height), stream)
             config["stream"] = stream
-        config["output_file"] = file_path
+        config["file_path"] = file_path
         config["width"] = width
         config["height"] = height
         config["format"] = format_
-        return cls(canvas=canvas, config=config)
+        return cls(canvas=canvas, _config=config)
 
     def begin_session(self):
         pass
 
     def end_session(self):
         self.canvas.flush()
-        format = self.config.get("format")
-        if format == "pdf":
-            self.config["document"].endPage()
-            self.config["document"].close()
-        elif format == "png":
-            image = self.config["surface"].makeImageSnapshot()
-            image.save(self.config["output_file"], skia.kPNG)
-        elif format == "jpeg":
-            image = self.config["surface"].makeImageSnapshot()
-            image.save(self.config["output_file"], skia.kJPEG)
-        elif format == "webp":
-            image = self.config["surface"].makeImageSnapshot()
-            image.save(self.config["output_file"], skia.kWEBP)
-        elif format == "svg":
+        format_ = self._config.get("format")
+        if format_ == "pdf":
+            self._config["document"].endPage()
+            self._config["document"].close()
+        elif format_ == "png":
+            image = self._config["surface"].makeImageSnapshot()
+            image.save(self._config["file_path"], skia.kPNG)
+        elif format_ == "jpeg":
+            image = self._config["surface"].makeImageSnapshot()
+            image.save(self._config["file_path"], skia.kJPEG)
+        elif format_ == "webp":
+            image = self._config["surface"].makeImageSnapshot()
+            image.save(self._config["file_path"], skia.kWEBP)
+        elif format_ == "svg":
             del self.canvas
-            self.config["stream"].flush()
+            self._config["stream"].flush()
 
     def new_page(self, width, height):
-        format = self.config.get("format")
-        if format == "pdf":
-            self.config["document"].endPage()
-            canvas = self.config["document"].beginPage(width, height)
+        format_ = self._config.get("format")
+        if format_ == "pdf":
+            self._config["document"].endPage()
+            canvas = self._config["document"].beginPage(width, height)
             self.canvas = canvas
 
     def render_map(self, map_):
