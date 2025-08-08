@@ -64,7 +64,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         momapy.drawing.FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
         momapy.drawing.FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
     }
-    canvas: skia.Canvas
+    canvas: skia.Canvas = dataclasses.field(metadata={"description": "A skia canvas"})
     config: dict = dataclasses.field(default_factory=dict)
     _skia_typefaces: dict = dataclasses.field(default_factory=dict)
     _skia_fonts: dict = dataclasses.field(default_factory=dict)
