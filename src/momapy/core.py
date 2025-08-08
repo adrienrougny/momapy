@@ -1,4 +1,4 @@
-"""Classes for core components defining maps and their elements"""
+"""Base classes for core components defining maps and their elements"""
 
 import momapy.drawing
 import momapy.geometry
@@ -14,7 +14,6 @@ import math
 import copy
 import shapely
 import frozendict
-import collections.abc
 
 
 class Direction(enum.Enum):
@@ -583,7 +582,7 @@ class Node(GroupLayout):
         default=None, metadata={"description": "The transform of the node"}
     )
     width: float = dataclasses.field(
-        default=None, metadata={"description": "The stroke width of the node"}
+        metadata={"description": "The width width of the node"}
     )
 
     @property
@@ -1485,7 +1484,7 @@ class Model(MapElement):
     """Base class for models"""
 
     @abc.abstractmethod
-    def is_submodel(self, other):
+    def is_submodel(self, other) -> bool:
         pass
 
 
