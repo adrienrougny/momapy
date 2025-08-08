@@ -34,23 +34,12 @@ Issues = "https://github.com/adrienrougny/momapy/issues"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.pdm]
-plugins = [
-    "pdm-readiness"
-]
-
-
 [dependency-groups]
 dev = [
     "griffe-fieldz>=0.1.2",
-    "sphinx>=8.0.2",
-    "sphinx-autodoc-typehints>=2.2.3",
-    "furo>=2024.8.6",
-    "sphinx-autoapi>=3.2.1",
     "notebook>=7.2.1",
     "mkdocstrings-python>=1.16.12",
     "mkdocs-material>=9.6.16",
-    "black>=25.1.0",
     "griffe-inherited-docstrings>=1.1.1",
     "mkdocs-jupyter>=0.25.1",
 ]
@@ -58,3 +47,10 @@ dev = [
 [tool.basedpyright]
 reportMissingModuleSource = false
 typeCheckingMode = "standard"
+
+[tool.pdm]
+plugins = [
+    "pdm-readiness"
+]
+
+
