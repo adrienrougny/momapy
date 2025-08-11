@@ -1231,7 +1231,6 @@ class _SBGNMLReader(momapy.io.Reader):
                     momapy.positioning.set_fit(
                         layout, layout.layout_elements, xsep=xsep, ysep=ysep
                     )
-                layout.stroke = momapy.coloring.red
         # if (
         #     layout is not None
         #     and with_styles
