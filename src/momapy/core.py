@@ -67,10 +67,10 @@ class ModelElement(MapElement):
 class LayoutElement(MapElement, abc.ABC):
     """Abstract base class for layout elements"""
 
+    @abc.abstractmethod
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the layout element"""
-        bounds = self.to_shapely().bounds
-        return momapy.geometry.Bbox.from_bounds(bounds)
+        pass
 
     @abc.abstractmethod
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
@@ -392,6 +392,10 @@ class TextLayout(LayoutElement):
         """Return the west north west anchor of the text layout"""
         return self.bbox().west_north_west()
 
+    def bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the layout element"""
+        return self.ink_bbox()
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Shape(LayoutElement):
@@ -407,6 +411,11 @@ class Shape(LayoutElement):
         """Return the children of the shape.
         A shape has no children, so return an empty list"""
         return []
+
+    def bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the shape"""
+        bounds = self.to_shapely().bounds
+        return momapy.geometry.Bbox.from_bounds(bounds)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -492,6 +501,30 @@ class GroupLayout(LayoutElement):
         bounds = self.self_to_shapely().bounds
         return momapy.geometry.Bbox.from_bounds(bounds)
 
+    def bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the group layout element"""
+        self_bbox = self.self_bbox()
+        bboxes = [child.bbox() for child in self.children()]
+        min_x = self_bbox.north_west().x
+        min_y = self_bbox.north_west().y
+        max_x = self_bbox.south_east().x
+        max_y = self_bbox.south_east().y
+        for bbox in bboxes:
+            if bbox.north_west().x < min_x:
+                min_x = bbox.north_west().x
+            if bbox.north_west().y < min_y:
+                min_y = bbox.north_west().y
+            if bbox.south_east().x > max_x:
+                max_x = bbox.south_east().x
+            if bbox.south_east().y > max_y:
+                max_y = bbox.south_east().y
+        bbox = momapy.geometry.Bbox(
+            momapy.geometry.Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
+            max_x - min_x,
+            max_y - min_y,
+        )
+        return bbox
+
     @abc.abstractmethod
     def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the self drawing elements of the group layout"""
@@ -535,22 +568,6 @@ class GroupLayout(LayoutElement):
         These are the self children of the group layout (returned by the `self_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
         """
         return self.self_children() + list(self.layout_elements)
-
-    def to_shapely(self, to_polygons: bool = False) -> shapely.GeometryCollection:
-        """Return a shapely collection of geometries reproducing the drawing elements of the layout element"""
-        geom_collection = []
-        for drawing_element in self.drawing_elements():
-            geom_collection += drawing_element.to_shapely(to_polygons=to_polygons).geoms
-        geom_collection = shapely.GeometryCollection(geom_collection)
-        if (
-            self.group_transform is not None
-            and self.group_transform != momapy.drawing.NoneValue
-            and self.group_transform
-        ):
-            transformation_matrix = functools.reduce(self.group_transform, operator.mul)
-            shapely_transformation = transformation_matrix.m.tolist()
-            print(len(shapely_transformation))
-        return geom_collection
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
