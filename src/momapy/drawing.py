@@ -399,7 +399,7 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The text anchor of the drawing element"},
     )
-    transform: NoneValueType | momapy.geometry.Transformation | None = (
+    transform: NoneValueType | tuple[momapy.geometry.Transformation] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The transform of the drawing element"},
