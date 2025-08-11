@@ -3,7 +3,7 @@ site_url: https://example.com
 nav:
   - Home: index.md
   - Getting started: getting_started.md
-  - Demo: demo.ipynb
+  - User manual: demo.ipynb
   - API reference:
     - Momapy: api_reference/momapy.md
     - Core: api_reference/core.md
@@ -72,3 +72,11 @@ plugins:
 markdown_extensions:
   - toc:
       toc_depth: 3
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
