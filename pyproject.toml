@@ -42,6 +42,8 @@ dev = [
     "mkdocs-material>=9.6.16",
     "griffe-inherited-docstrings>=1.1.1",
     "mkdocs-jupyter>=0.25.1",
+    "mkdocs-pygments>=0.0.2",
+    "ruff>=0.12.8",
 ]
 
 [tool.basedpyright]
