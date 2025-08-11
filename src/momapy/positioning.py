@@ -5,7 +5,6 @@ import collections.abc
 import momapy.core
 import momapy.geometry
 import momapy.builder
-import momapy.drawing
 
 
 def right_of(
