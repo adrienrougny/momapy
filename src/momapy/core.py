@@ -14,6 +14,8 @@ import math
 import copy
 import shapely
 import frozendict
+import functools
+import operator
 
 
 class Direction(enum.Enum):
@@ -533,6 +535,22 @@ class GroupLayout(LayoutElement):
         These are the self children of the group layout (returned by the `self_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
         """
         return self.self_children() + list(self.layout_elements)
+
+    def to_shapely(self, to_polygons: bool = False) -> shapely.GeometryCollection:
+        """Return a shapely collection of geometries reproducing the drawing elements of the layout element"""
+        geom_collection = []
+        for drawing_element in self.drawing_elements():
+            geom_collection += drawing_element.to_shapely(to_polygons=to_polygons).geoms
+        geom_collection = shapely.GeometryCollection(geom_collection)
+        if (
+            self.group_transform is not None
+            and self.group_transform != momapy.drawing.NoneValue
+            and self.group_transform
+        ):
+            transformation_matrix = functools.reduce(self.group_transform, operator.mul)
+            shapely_transformation = transformation_matrix.m.tolist()
+            print(len(shapely_transformation))
+        return geom_collection
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
