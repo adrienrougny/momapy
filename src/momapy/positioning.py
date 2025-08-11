@@ -205,18 +205,12 @@ def fit(
         raise ValueError("elements must contain at least one element")
     points = []
     for element in elements:
-        if momapy.builder.isinstance_or_builder(
-            element, momapy.geometry.Point
-        ):
+        if momapy.builder.isinstance_or_builder(element, momapy.geometry.Point):
             points.append(element)
-        elif momapy.builder.isinstance_or_builder(
-            element, momapy.geometry.Bbox
-        ):
+        elif momapy.builder.isinstance_or_builder(element, momapy.geometry.Bbox):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif momapy.builder.isinstance_or_builder(
-            element, momapy.core.LayoutElement
-        ):
+        elif momapy.builder.isinstance_or_builder(element, momapy.core.LayoutElement):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
@@ -343,9 +337,7 @@ def cross_hv_of(
 
 
 def fraction_of(
-    arc_layout_element: (
-        momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
-    ),
+    arc_layout_element: (momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc),
     fraction: float,
 ) -> tuple[momapy.geometry.Point, float]:
     """Return the position on an arc at a given fraction and the angle formed of the tangant of the arc at that position and the horizontal"""
@@ -536,9 +528,7 @@ def set_fit(
 
 def set_fraction_of(
     obj: momapy.core.NodeBuilder,
-    arc_layout_element: (
-        momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
-    ),
+    arc_layout_element: (momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc),
     fraction: float,
     anchor: str | None = None,
 ):
