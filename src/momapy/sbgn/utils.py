@@ -217,7 +217,7 @@ def set_arcs_to_borders(map_):
                 elif momapy.builder.isinstance_or_builder(
                     sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
                 ):
-                    product = map_builder.get_mapping(sub_layout_element)
+                    product, _ = map_builder.get_mapping(sub_layout_element)
                     if momapy.builder.isinstance_or_builder(
                         product, momapy.sbgn.pd.Product
                     ):
