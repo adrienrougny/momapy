@@ -2,7 +2,6 @@ site_name: momapy
 site_url: https://example.com
 nav:
   - Home: index.md
-  - Getting started: getting_started.md
   - User manual: demo.ipynb
   - API reference:
     - Momapy: api_reference/momapy.md
