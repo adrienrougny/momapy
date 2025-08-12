@@ -33,7 +33,7 @@ jobs:
           mkdocs-material \
           griffe-fieldz \
           mkdocstrings-python \
-          griffe-inherited-docstring \
+          griffe-inherited-docstrings \
           mkdocs-jupyter \
           mkdocs-pygments
       - run: mkdocs gh-deploy --force
