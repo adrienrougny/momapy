@@ -11,9 +11,7 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
         map_builder = map_
     compartment_entities_mapping = collections.defaultdict(list)
     model = map_builder.model
-    if momapy.builder.isinstance_or_builder(
-        map_builder, momapy.sbgn.pd.SBGNPDMap
-    ):
+    if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
         for entity_pool in model.entity_pools:
             compartment = entity_pool.compartment
             if compartment is not None:
@@ -24,18 +22,12 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
             if compartment is not None:
                 compartment_entities_mapping[compartment].append(activity)
     for compartment in compartment_entities_mapping:
-        for compartment_layout in map_builder.layout_model_mapping[
-            compartment
-        ]:
-            compartment_layout, *_ = compartment_layout
+        for compartment_layout in map_builder.get_mapping(compartment):
             elements = []
             for entity in compartment_entities_mapping[compartment]:
-                for entity_layout in map_builder.layout_model_mapping[entity]:
-                    entity_layout, *_ = entity_layout
+                for entity_layout in map_builder.get_mapping(entity):
                     elements.append(entity_layout)
-            momapy.positioning.set_fit(
-                compartment_layout, elements, xsep, ysep
-            )
+            momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
                 compartment_layout.label.position = compartment_layout.position
                 compartment_layout.label.width = compartment_layout.width
@@ -55,23 +47,15 @@ def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
             entity_pool,
             momapy.builder.get_or_make_builder_cls(momapy.sbgn.pd.Complex),
         ):
-            for complex_layout in map_builder.layout_model_mapping[
-                entity_pool
-            ]:
-                complex_layout, *_ = complex_layout
+            for complex_layout in map_builder.get_mapping(entity_pool):
                 elements = []
                 for subunit in entity_pool.subunits:
-                    subunit_layouts = map_builder.layout_model_mapping[
-                        (subunit, entity_pool)
-                    ]
+                    subunit_layouts = map_builder.get_mapping((subunit, entity_pool))
                     for subunit_layout in subunit_layouts:
-                        subunit_layout, *_ = subunit_layout
                         if subunit_layout in complex_layout.layout_elements:
                             elements.append(subunit_layout)
                 if len(elements) > 0:
-                    momapy.positioning.set_fit(
-                        complex_layout, elements, xsep, ysep
-                    )
+                    momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
                     if complex_layout.label is not None:
                         complex_layout.label.position = complex_layout.position
                         complex_layout.label.width = complex_layout.width
@@ -87,15 +71,16 @@ def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
     else:
         map_builder = map_
     for submap in map_builder.model.submaps:
-        for submap_layout in map_builder.layout_model_mapping[submap]:
-            submap_layout, *_ = submap_layout
+        for submap_layout in map_builder.get_mapping(submap):
             elements = []
             for terminal in submap.terminals:
-                terminal_layouts = map_builder.layout_model_mapping[
-                    (terminal, submap)
-                ]
+                terminal_layouts = map_builder.layout_model_mapping.get_mapping(
+                    (
+                        terminal,
+                        submap,
+                    )
+                )
                 for terminal_layout in terminal_layouts:
-                    terminal_layout, *_ = terminal_layout
                     if terminal_layout in submap_layout.layout_elements:
                         elements.append(terminal_layout)
             if len(elements) > 0:
@@ -135,9 +120,7 @@ def set_nodes_to_fit_labels(
     for layout_element in map_builder.layout.descendants():
         if (
             momapy.builder.isinstance_or_builder(layout_element, restrict_to)
-            and not momapy.builder.isinstance_or_builder(
-                layout_element, exclude
-            )
+            and not momapy.builder.isinstance_or_builder(layout_element, exclude)
             and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
@@ -196,8 +179,8 @@ def set_arcs_to_borders(map_):
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )
-        arc_layout_element.segments[-1].p2 = (
-            momapy.builder.builder_from_object(end_point)
+        arc_layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+            end_point
         )
 
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
@@ -207,7 +190,14 @@ def set_arcs_to_borders(map_):
     for layout_element in map_builder.layout.layout_elements:
         # Flux arcs
         if momapy.builder.isinstance_or_builder(
-            layout_element, (momapy.sbgn.pd.GenericProcessLayout)
+            layout_element,
+            (
+                momapy.sbgn.pd.GenericProcessLayout,
+                momapy.sbgn.pd.AssociationLayout,
+                momapy.sbgn.pd.DissociationLayout,
+                momapy.sbgn.pd.OmittedProcessLayout,
+                momapy.sbgn.pd.UncertainProcessLayout,
+            ),
         ):
             for sub_layout_element in layout_element.layout_elements:
                 if momapy.builder.isinstance_or_builder(
@@ -227,9 +217,7 @@ def set_arcs_to_borders(map_):
                 elif momapy.builder.isinstance_or_builder(
                     sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
                 ):
-                    product = map_builder.get_mapping(
-                        sub_layout_element, unpack=True
-                    )[0]
+                    product, _ = map_builder.get_mapping(sub_layout_element)
                     if momapy.builder.isinstance_or_builder(
                         product, momapy.sbgn.pd.Product
                     ):
@@ -449,16 +437,10 @@ def tidy(
             momapy.sbgn.pd.UnitOfInformationLayout,
         ],
     )
-    if momapy.builder.isinstance_or_builder(
-        map_builder, momapy.sbgn.pd.SBGNPDMap
-    ):
-        set_complexes_to_fit_content(
-            map_builder, complexes_xsep, complexes_ysep
-        )
+    if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
+        set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
     set_submaps_to_fit_content(map_builder, 0, 0)
-    set_compartments_to_fit_content(
-        map_builder, compartments_xsep, compartments_ysep
-    )
+    set_compartments_to_fit_content(map_builder, compartments_xsep, compartments_ysep)
     set_arcs_to_borders(map_builder)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
     if isinstance(map_, momapy.sbgn.core.SBGNMap):

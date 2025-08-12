@@ -1,4 +1,5 @@
-import enum
+"""Base classes defining core SBGN map elements"""
+
 import abc
 import dataclasses
 import typing
@@ -7,85 +8,35 @@ import momapy.core
 import momapy.geometry
 
 
-class BiomodelQualifier(enum.Enum):
-    """Abstract class for http://biomodels.net/ qualifiers"""
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class SBGNModelElement(momapy.core.ModelElement):
+    """Base class for SBGN model elements"""
 
     pass
 
 
-class BQModel(BiomodelQualifier):
-    """Class for http://biomodels.net/model-qualifiers/ qualifiers"""
-
-    HAS_INSTANCE = "hasInstance"
-    IS = "is"
-    IS_DERIVED_FROM = "isDerivedFrom"
-    IS_DESCRIBED_BY = "isDescribedBy"
-    IS_INSTANCE_OF = "isInstanceOf"
-
-
-class BQBiol(BiomodelQualifier):
-    """Class for http://biomodels.net/biology-qualifiers/ qualifiers"""
-
-    ENCODES = "encodes"
-    HAS_PART = "hasPart"
-    HAS_PROPERTY = "hasProperty"
-    HAS_VERSION = "hasVersion"
-    IS = "is"
-    IS_DESCRIBED_BY = "isDescribedBy"
-    IS_ENCODED_BY = "isEncodedBy"
-    IS_HOMOLOG_TO = "isHomologTo"
-    IS_PART_OF = "isPartOf"
-    IS_PROPERTY_OF = "isPropertyOf"
-    IS_VERSION_OF = "isVersionOf"
-    OCCURS_IN = "occursIn"
-    HAS_TAXON = "hasTaxon"
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Annotation(momapy.core.ModelElement):
-    """Class for annotations"""
-
-    qualifier: BiomodelQualifier
-    resource: str
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNModelElement(momapy.core.ModelElement):
-    """Abstract class for SBGN model elements"""
-
-    notes: str | None = None
-    annotations: frozenset[Annotation] = dataclasses.field(
-        default_factory=frozenset, compare=False
-    )
-
-
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAuxiliaryUnit(SBGNModelElement):
-    """Abstract class for SBGN auxiliary units"""
+    """Base class for SBGN auxiliary units"""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNRole(SBGNModelElement):
-    """Abstract class for SBGN roles"""
+    """Base class for SBGN roles"""
 
     element: SBGNModelElement
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNModel(momapy.core.Model):
-    """Abstract class for SBGN models"""
-
-    notes: str | None = None
-    annotations: frozenset[Annotation] = dataclasses.field(
-        default_factory=frozenset, compare=False
-    )
+    """Base class for SBGN models"""
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNLayout(momapy.core.Layout):
-    """Abstract class for SBGN layouts"""
+    """Base class for SBGN layouts"""
 
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
@@ -94,19 +45,15 @@ class SBGNLayout(momapy.core.Layout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNMap(momapy.core.Map):
-    """Abstract class for SBGN maps"""
+    """Base class for SBGN maps"""
 
     model: SBGNModel
     layout: SBGNLayout
-    notes: str | None = None
-    annotations: frozenset[Annotation] = dataclasses.field(
-        default_factory=frozenset, compare=False
-    )
 
 
 @dataclasses.dataclass(frozen=True)
 class SBGNNode(momapy.core.Node):
-    """Abstract class for SBGN nodes"""
+    """Base class for SBGN nodes"""
 
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.white
@@ -136,7 +83,7 @@ class SBGNNode(momapy.core.Node):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
-    """Abstract class for SBGN single-headed arcs"""
+    """Base class for SBGN single-headed arcs"""
 
     arrowhead_fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None
@@ -156,7 +103,7 @@ class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True)
 class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
-    """Abstract class for SBGN double-headed arcs"""
+    """Base class for SBGN double-headed arcs"""
 
     end_arrowhead_fill: (
         momapy.drawing.NoneValueType | momapy.coloring.Color | None

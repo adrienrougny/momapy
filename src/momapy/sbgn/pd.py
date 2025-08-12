@@ -1,3 +1,5 @@
+"""Classes for SBGN PD maps"""
+
 import dataclasses
 import typing
 import sys
@@ -13,24 +15,40 @@ import momapy.coloring
 class StateVariable(momapy.sbgn.core.SBGNAuxiliaryUnit):
     """Class for state variables"""
 
-    variable: str | None = None
-    value: str | None = None
-    order: int | None = None
+    variable: str | None = dataclasses.field(
+        default=None, metadata={"description": "The variable of the state variable"}
+    )
+    value: str | None = dataclasses.field(
+        default=None, metadata={"description": "The value of the state variable"}
+    )
+    order: int | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The order of the state variable. This is used to distinguish between two or more state variables with undefined variable (i.e., set to `None`)"
+        },
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNAuxiliaryUnit):
     """Class for units of information"""
 
-    value: str
-    prefix: str | None = None
+    value: str = dataclasses.field(
+        metadata={"description": "The value of the unit of information"},
+    )
+    prefix: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The prefix of the unit of information"},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Subunit(momapy.sbgn.core.SBGNAuxiliaryUnit):
-    """Abstract class for subunits"""
+    """Base class for subunits"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the subunit"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -45,10 +63,14 @@ class MacromoleculeSubunit(Subunit):
     """Class for macromolecule subunits"""
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the macromolecule subunit"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={
+            "description": "The units of information of the macromolecule subunit"
+        },
     )
 
 
@@ -57,10 +79,16 @@ class NucleicAcidFeatureSubunit(Subunit):
     """Class for nucleic acid feature subunits"""
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={
+            "description": "The state variables of the nucleic acid feature subunit"
+        },
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={
+            "description": "The units of information of the nucleic acid feature subunit"
+        },
     )
 
 
@@ -69,10 +97,14 @@ class SimpleChemicalSubunit(Subunit):
     """Class for simple chemical subunits"""
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the simple chemical subunit"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={
+            "description": "The units of information of the simple chemical subunit"
+        },
     )
 
 
@@ -81,19 +113,27 @@ class ComplexSubunit(Subunit):
     """Class for complex subunits"""
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the complex subunit"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the complex subunit"},
     )
-    subunits: frozenset[Subunit] = dataclasses.field(default_factory=frozenset)
+    subunits: frozenset[Subunit] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The subunits of the complex subunit"},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MultimerSubunit(ComplexSubunit):
-    """Abstract class for multimer subunits"""
+    """Base class for multimer subunits"""
 
-    cardinality: int | None = None
+    cardinality: int | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The cardinality of the multimer subunit"},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -128,20 +168,26 @@ class ComplexMultimerSubunit(MultimerSubunit):
 class Compartment(momapy.sbgn.core.SBGNModelElement):
     """Class for compartments"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the compartment"}
+    )
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the compartment"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the compartment"},
     )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EntityPool(momapy.sbgn.core.SBGNModelElement):
-    """Abstract class for entity pools"""
+    """Base class for entity pools"""
 
-    compartment: Compartment | None = None
+    compartment: Compartment | None = dataclasses.field(
+        default=None, metadata={"description": "The compartment of the entity pool"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -155,26 +201,34 @@ class EmptySet(EntityPool):
 class PerturbingAgent(EntityPool):
     """Class for perturbing agents"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the perturbing agent"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntity(EntityPool):
     """Class for unspecified entities"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the unspecified entity"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Macromolecule(EntityPool):
     """Class for macromolecules"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the macromolecule"}
+    )
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the macromolecule"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the macromolecule"},
     )
 
 
@@ -182,12 +236,18 @@ class Macromolecule(EntityPool):
 class NucleicAcidFeature(EntityPool):
     """Class for nucleic acid features"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the nucleic acid feature"}
+    )
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the nucleic acid feature"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={
+            "description": "The units of information of the nucleic acid feature"
+        },
     )
 
 
@@ -195,12 +255,16 @@ class NucleicAcidFeature(EntityPool):
 class SimpleChemical(EntityPool):
     """Class for simple chemical"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the simple chemical"}
+    )
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the simple chemical"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the simple chemical"},
     )
 
 
@@ -208,21 +272,30 @@ class SimpleChemical(EntityPool):
 class Complex(EntityPool):
     """Class for complexes"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the complex"}
+    )
     state_variables: frozenset[StateVariable] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The state variables of the complex"},
     )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The units of information of the complex"},
     )
-    subunits: frozenset[Subunit] = dataclasses.field(default_factory=frozenset)
+    subunits: frozenset[Subunit] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The subunits of the complex"},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Multimer(Complex):
-    """Abstract class for multimers"""
+    """Base class for multimers"""
 
-    cardinality: int | None = None
+    cardinality: int | None = dataclasses.field(
+        default=None, metadata={"description": "The cardinality of the multimer"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -255,10 +328,14 @@ class ComplexMultimer(Multimer):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FluxRole(momapy.sbgn.core.SBGNRole):
-    """Abstract class for flux roles"""
+    """Base class for flux roles"""
 
-    element: EntityPool
-    stoichiometry: int | None = None
+    element: EntityPool = dataclasses.field(
+        metadata={"description": "The entity pool of the flux role"}
+    )
+    stoichiometry: int | None = dataclasses.field(
+        default=None, metadata={"description": "The stoichiometry of the flux role"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -282,39 +359,54 @@ class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
     element: typing.Union[
         EntityPool,
         typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
-    ]
+    ] = dataclasses.field(
+        metadata={"description": "The element of the logical operator input"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorInput(momapy.sbgn.core.SBGNRole):
     """Class for inputs of equivalence operators"""
 
-    element: EntityPool
+    element: EntityPool = dataclasses.field(
+        metadata={"description": "The element of the equivalence operator input"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorOutput(momapy.sbgn.core.SBGNRole):
     """Class for outputs of equivalence operators"""
 
-    element: EntityPool
+    element: EntityPool = dataclasses.field(
+        metadata={"description": "The element of the equivalence operator output"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Process(momapy.sbgn.core.SBGNModelElement):
-    """Abstract class for processes"""
+    """Base class for processes"""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StoichiometricProcess(Process):
-    """Abstract class for stoichiometric processes"""
+    """Base class for stoichiometric processes"""
 
     reactants: frozenset[Reactant] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The reactants of the stoichiometric process"},
     )
-    products: frozenset[Product] = dataclasses.field(default_factory=frozenset)
-    reversible: bool = False
+    products: frozenset[Product] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The products of the stoichiometric process"},
+    )
+    reversible: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "description": "Whether the stoichiometric process is reversible or not"
+        },
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -356,7 +448,9 @@ class OmittedProcess(GenericProcess):
 class Phenotype(Process):
     """Class for phenotypes"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the phenotype"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -364,7 +458,8 @@ class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
     """Class for logical operators"""
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The inputs of the logical operator"},
     )
 
 
@@ -393,19 +488,25 @@ class NotOperator(LogicalOperator):
 class EquivalenceOperator(momapy.sbgn.core.SBGNModelElement):
     """Class for equivalence operators"""
 
-    pass
     inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The inputs of the equivalence operator"},
     )
-    output: EquivalenceOperatorOutput | None = None
+    output: EquivalenceOperatorOutput | None = dataclasses.field(
+        default=None, metadata={"description": "The output of the equivalence operator"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulation(momapy.sbgn.core.SBGNModelElement):
     """Class for modulations"""
 
-    source: EntityPool | LogicalOperator
-    target: Process
+    source: EntityPool | LogicalOperator = dataclasses.field(
+        metadata={"description": "The source of the modulation"}
+    )
+    target: Process = dataclasses.field(
+        metadata={"description": "The target of the modulation"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -440,39 +541,54 @@ class NecessaryStimulation(Stimulation):
 class TagReference(momapy.sbgn.core.SBGNRole):
     """Class for tag references"""
 
-    element: EntityPool | Compartment
+    element: EntityPool | Compartment = dataclasses.field(
+        metadata={"description": "The element of the tag reference"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
     """Class for tags"""
 
-    label: str | None = None
-    reference: TagReference | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the tag"}
+    )
+    reference: TagReference | None = dataclasses.field(
+        default=None, metadata={"description": "The reference of the tag"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(momapy.sbgn.core.SBGNRole):
     """Class for terminal references"""
 
-    element: EntityPool | Compartment
+    element: EntityPool | Compartment = dataclasses.field(
+        metadata={"description": "The element of the terminal reference"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(momapy.sbgn.core.SBGNAuxiliaryUnit):
     """Class for terminals"""
 
-    label: str | None = None
-    reference: TerminalReference | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the terminal"}
+    )
+    reference: TerminalReference | None = dataclasses.field(
+        default=None, metadata={"description": "The reference of the terminal"}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Submap(momapy.sbgn.core.SBGNModelElement):
     """Class for submaps"""
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the submap"}
+    )
     terminals: frozenset[Terminal] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The terminals of the submap"},
     )
 
 
@@ -481,25 +597,37 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
     """Class for SBGN-PD models"""
 
     entity_pools: frozenset[EntityPool] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The entity pools of the SBGN-PD model"},
     )
     processes: frozenset[Process] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The processes of the SBGN-PD model"},
     )
     compartments: frozenset[Compartment] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The compartments of the SBGN-PD model"},
     )
     modulations: frozenset[Modulation] = dataclasses.field(
-        default_factory=frozenset
+        metadata={"description": "The modulations of the SBGN-PD model"},
+        default_factory=frozenset,
     )
     logical_operators: frozenset[LogicalOperator] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The logical operators of the SBGN-PD model"},
     )
     equivalence_operators: frozenset[EquivalenceOperator] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "The equivalence operators of the SBGN-PD model"},
     )
-    submaps: frozenset[Submap] = dataclasses.field(default_factory=frozenset)
-    tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
+    submaps: frozenset[Submap] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The submaps of the SBGN-PD model"},
+    )
+    tags: frozenset[Tag] = dataclasses.field(
+        default_factory=frozenset,
+        metadata={"description": "The tags of the SBGN-PD model"},
+    )
 
     def is_ovav(self) -> bool:
         """Return `true` if the SBGN-PD model respects the Once a Variable Always a Variable (OVAV) rule, `false` otherwise"""
@@ -519,9 +647,7 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
                 entity_variables_mapping = {}
             for entity in entities:
                 if hasattr(entity, "state_variables"):
-                    variables = set(
-                        [sv.variable for sv in entity.state_variables]
-                    )
+                    variables = set([sv.variable for sv in entity.state_variables])
                     attributes = []
                     for field in dataclasses.fields(entity):
                         if field.name != "state_variables":
@@ -535,22 +661,17 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
                     if entity_no_svs not in entity_variables_mapping:
                         entity_variables_mapping[entity_no_svs] = variables
                     else:
-                        if (
-                            entity_variables_mapping[entity_no_svs]
-                            != variables
-                        ):
+                        if entity_variables_mapping[entity_no_svs] != variables:
                             return False
                 if hasattr(entity, "subunits"):
-                    is_ovav = _check_entities(
-                        entity.subunits, entity_variables_mapping
-                    )
+                    is_ovav = _check_entities(entity.subunits, entity_variables_mapping)
                     if not is_ovav:
                         return False
             return True
 
         return _check_entities(self.entity_pools)
 
-    def is_submodel(self, other):
+    def is_submodel(self, other) -> bool:
         """Return `true` if another given SBGN-PD model is a submodel of the SBGN-PD model, `false` otherwise"""
         return (
             self.entity_pools.issubset(other.entity_pools)
@@ -558,9 +679,7 @@ class SBGNPDModel(momapy.sbgn.core.SBGNModel):
             and self.compartments.issubset(other.compartments)
             and self.modulations.issubset(other.modulations)
             and self.logical_operators.issubset(other.logical_operators)
-            and self.equivalence_operators.issubset(
-                other.equivalence_operators
-            )
+            and self.equivalence_operators.issubset(other.equivalence_operators)
             and self.submaps.issubset(other.submaps)
             and self.tags.issubset(other.tags)
         )
@@ -574,13 +693,16 @@ class SBGNPDLayout(momapy.sbgn.core.SBGNLayout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateVariableLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class StateVariableLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for state variable layouts"""
 
-    width: float = 12.0
-    height: float = 12.0
+    width: float = dataclasses.field(
+        default=12.0, metadata={"description": "The width of the state variable layout"}
+    )
+    height: float = dataclasses.field(
+        default=12.0,
+        metadata={"description": "The height of the state variable layout"},
+    )
 
     def _make_shape(self):
         return momapy.meta.shapes.Stadium(
@@ -591,9 +713,7 @@ class StateVariableLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformationLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class UnitOfInformationLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for unit of information layouts"""
 
     width: float = 12.0
@@ -621,9 +741,7 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CardinalityLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class CardinalityLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for cardinality layouts"""
 
     width: float = 12.0
@@ -688,9 +806,7 @@ class NucleicAcidFeatureSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexSubunitLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class ComplexSubunitLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for complex subunit layouts"""
 
     width: float = 60.0
@@ -821,9 +937,7 @@ class ComplexMultimerSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CompartmentLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class CompartmentLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for compartment layouts"""
 
     width: float = 80.0
@@ -855,9 +969,7 @@ class SubmapLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnspecifiedEntityLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class UnspecifiedEntityLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for unspecified entity layouts"""
 
     width: float = 60.0
@@ -870,9 +982,7 @@ class UnspecifiedEntityLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleChemicalLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class SimpleChemicalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for simple chemical layouts"""
 
     width: float = 30.0
@@ -885,9 +995,7 @@ class SimpleChemicalLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MacromoleculeLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class MacromoleculeLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for macromolecule layouts"""
 
     width: float = 60.0
@@ -1044,9 +1152,7 @@ class NucleicAcidFeatureMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexMultimerLayout(
-    momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode
-):
+class ComplexMultimerLayout(momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNNode):
     """Class for complex multimer layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -1090,12 +1196,8 @@ class _EmptySetShape(momapy.core.Shape):
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
         actions = [
-            momapy.drawing.MoveTo(
-                self.position - (self.width / 2, -self.height / 2)
-            ),
-            momapy.drawing.LineTo(
-                self.position + (self.width / 2, -self.height / 2)
-            ),
+            momapy.drawing.MoveTo(self.position - (self.width / 2, -self.height / 2)),
+            momapy.drawing.LineTo(self.position + (self.width / 2, -self.height / 2)),
         ]
         bar = momapy.drawing.Path(actions=actions)
         return [circle, bar]
@@ -1117,9 +1219,7 @@ class EmptySetLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PerturbingAgentLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
+class PerturbingAgentLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
     """Class for perturbing agent layouts"""
 
     width: float = 60.0
@@ -1152,9 +1252,7 @@ class AndOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "AND"
     width: float = 30.0
     height: float = 30.0
@@ -1181,9 +1279,7 @@ class OrOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "OR"
     width: float = 30.0
     height: float = 30.0
@@ -1210,9 +1306,7 @@ class NotOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "NOT"
     width: float = 30.0
     height: float = 30.0
@@ -1239,9 +1333,7 @@ class EquivalenceOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 2
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
     _text: typing.ClassVar[str] = "≡"
     width: float = 30.0
     height: float = 30.0
@@ -1280,9 +1372,7 @@ class OmittedProcessLayout(
 
     _text: typing.ClassVar[str] = "\\\\"
     _font_family: typing.ClassVar[str] = "Cantarell"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 1.5
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1308,9 +1398,7 @@ class UncertainProcessLayout(
 
     _text: typing.ClassVar[str] = "?"
     _font_family: typing.ClassVar[str] = "Cantarell"
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 1.5
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1456,41 +1544,35 @@ class ConsumptionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     """Class for consumption layouts"""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProductionLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     """Class for production layouts"""
 
-    arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.black
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     """Class for modulation layouts"""
 
-    arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.white
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.white
+    )
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1501,9 +1583,7 @@ class StimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1527,9 +1607,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
         bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(
-                momapy.geometry.Point(self.arrowhead_sep, 0)
-            ),
+            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
@@ -1551,9 +1629,7 @@ class CatalysisLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Ellipse._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Ellipse._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1571,9 +1647,7 @@ class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     """Class for logic arc layouts"""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1581,9 +1655,7 @@ class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
     """Class for equivalence arc layouts"""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

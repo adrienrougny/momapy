@@ -1,9 +1,10 @@
+"""Functions for positioning layout elements and related objects relatively to other objects"""
+
 import collections.abc
 
 import momapy.core
 import momapy.geometry
 import momapy.builder
-import momapy.drawing
 
 
 def right_of(
@@ -197,24 +198,18 @@ def fit(
     ],
     xsep: float = 0,
     ysep: float = 0,
-) -> tuple[momapy.geometry.Point, float, float]:
+) -> momapy.geometry.Bbox:
     """Compute and return the bounding box fitting a collection of objects, with given margins"""
     if not elements:
         raise ValueError("elements must contain at least one element")
     points = []
     for element in elements:
-        if momapy.builder.isinstance_or_builder(
-            element, momapy.geometry.Point
-        ):
+        if momapy.builder.isinstance_or_builder(element, momapy.geometry.Point):
             points.append(element)
-        elif momapy.builder.isinstance_or_builder(
-            element, momapy.geometry.Bbox
-        ):
+        elif momapy.builder.isinstance_or_builder(element, momapy.geometry.Bbox):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif momapy.builder.isinstance_or_builder(
-            element, momapy.core.LayoutElement
-        ):
+        elif momapy.builder.isinstance_or_builder(element, momapy.core.LayoutElement):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
@@ -248,10 +243,100 @@ def fit(
     return bbox
 
 
-def fraction_of(
-    arc_layout_element: (
-        momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
+def mid_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
     ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    segment = momapy.geometry.Segment(obj1, obj2)
+    return segment.get_position_at_fraction(0.5)
+
+
+def cross_vh_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    x = obj1.x
+    y = obj2.y
+    return momapy.geometry.Point(x, y)
+
+
+def cross_hv_of(
+    obj1: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+):
+    if momapy.builder.isinstance_or_builder(
+        obj1, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj1 = obj1.center()
+    if momapy.builder.isinstance_or_builder(
+        obj2, (momapy.geometry.Bbox, momapy.core.Node)
+    ):
+        obj2 = obj2.center()
+    y = obj1.y
+    x = obj2.x
+    return momapy.geometry.Point(x, y)
+
+
+def fraction_of(
+    arc_layout_element: (momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc),
     fraction: float,
 ) -> tuple[momapy.geometry.Point, float]:
     """Return the position on an arc at a given fraction and the angle formed of the tangant of the arc at that position and the horizontal"""
@@ -442,9 +527,7 @@ def set_fit(
 
 def set_fraction_of(
     obj: momapy.core.NodeBuilder,
-    arc_layout_element: (
-        momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc
-    ),
+    arc_layout_element: (momapy.core.SingleHeadedArc | momapy.core.DoubleHeadedArc),
     fraction: float,
     anchor: str | None = None,
 ):
@@ -453,3 +536,75 @@ def set_fraction_of(
     rotation = momapy.geometry.Rotation(angle, position)
     set_position(obj, position, anchor)
     obj.transform = momapy.core.TupleBuilder([rotation])
+
+
+def set_mid_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = mid_of(obj2, obj3)
+    set_position(obj1, position, anchor)
+
+
+def set_cross_hv_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = cross_hv_of(obj2, obj3)
+    set_position(obj1, position, anchor)
+
+
+def set_cross_vh_of(
+    obj1: momapy.core.NodeBuilder | momapy.geometry.BboxBuilder,
+    obj2: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    obj3: (
+        momapy.geometry.Point
+        | momapy.geometry.PointBuilder
+        | momapy.geometry.Bbox
+        | momapy.geometry.BboxBuilder
+        | momapy.core.Node
+        | momapy.core.NodeBuilder
+    ),
+    anchor: str | None = None,
+):
+    position = cross_vh_of(obj2, obj3)
+    set_position(obj1, position, anchor)

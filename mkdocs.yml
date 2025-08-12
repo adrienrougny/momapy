@@ -1,0 +1,81 @@
+site_name: momapy
+site_url: https://example.com
+nav:
+  - Home: index.md
+  - User manual: demo.ipynb
+  - API reference:
+    - Momapy: api_reference/momapy.md
+    - Core: api_reference/core.md
+    - Builder: api_reference/builder.md
+    - Drawing: api_reference/drawing.md
+    - Coloring: api_reference/coloring.md
+    - Geometry: api_reference/geometry.md
+    - I/O: api_reference/io.md
+    - Positioning: api_reference/positioning.md
+    - Styling: api_reference/styling.md
+    - Rendering:
+      - Core: api_reference/rendering/core.md
+      - Skia: api_reference/rendering/skia.md
+      - SVG-native: api_reference/rendering/svg_native.md
+    - SBGN:
+      - Core: api_reference/sbgn/core.md
+      - PD: api_reference/sbgn/pd.md
+      - AF: api_reference/sbgn/af.md
+      - I/O:
+        - SBGN-ML: api_reference/sbgn/io/sbgnml.md
+    - CellDesigner:
+      - Core: api_reference/celldesigner/core.md
+      - I/O:
+        - CD: api_reference/celldesigner/io/celldesigner.md
+    - SBML:
+      - Core: api_reference/sbml/core.md
+      - I/O:
+        - SBML: api_reference/sbml/io/sbml.md
+  - About: about.md
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+plugins:
+  - mkdocs-jupyter:
+      ignore_h1_titles: True
+  - search
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            inherited_members: true
+            group_by_category: false # to group by category
+            show_category_heading: false # to give a title to the category
+            show_root_heading: true # to show the root's title
+            parameter_headings: false
+            show_signature_annotations: true
+            separate_signature: true # to give the signature on a separate line
+            show_symbol_type_heading: true # to show the type of the object in the heading
+            show_symbol_type_toc: true # to show the type of the object in the toc
+            show_if_no_docstring: false
+            signature_crossrefs: true
+            merge_init_into_class: true
+            show_inheritance_diagram: false # does not work
+            summary: true
+            extensions:
+              - griffe_fieldz: {include_inherited: true}
+              - griffe_inherited_docstrings
+markdown_extensions:
+  - toc:
+      toc_depth: 3
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

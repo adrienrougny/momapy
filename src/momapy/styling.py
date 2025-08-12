@@ -1,3 +1,5 @@
+"""Classes and functions for styling layout elements using style sheets"""
+
 import abc
 import collections.abc
 import dataclasses
@@ -11,13 +13,13 @@ import momapy.core
 
 
 class StyleCollection(dict):
-    """Class for a style collection"""
+    """Class for style collections"""
 
     pass
 
 
 class StyleSheet(dict):
-    """Class for a style sheet"""
+    """Class for style sheets"""
 
     def __or__(self, other):
         d = copy.deepcopy(self)
@@ -33,13 +35,13 @@ class StyleSheet(dict):
 
     @classmethod
     def from_file(cls, file_path: str) -> "StyleSheet":
-        """Return a style sheet from a file"""
+        """Read and return a style sheet from a file"""
         style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
         return style_sheet
 
     @classmethod
     def from_string(cls, s: str) -> "StyleSheet":
-        """Return a style sheet from a string"""
+        """Read and return a style sheet from a string"""
         style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
 
@@ -47,7 +49,7 @@ class StyleSheet(dict):
     def from_files(
         cls, file_paths: collections.abc.Collection[str]
     ) -> "StyleSheet":
-        """Return a style sheet from a collection of files"""
+        """Read and return a style sheet from a collection of files"""
         style_sheets = []
         for file_path in file_paths:
             style_sheet = StyleSheet.from_file(file_path)
@@ -59,7 +61,7 @@ class StyleSheet(dict):
 def combine_style_sheets(
     style_sheets: collections.abc.Collection[StyleSheet],
 ) -> StyleSheet:
-    """Merge and return a collection of stylesheets"""
+    """Merge a collection of style sheets into a unique style sheet and return it"""
     if not style_sheets:
         return None
     output_style_sheet = style_sheets[0]
@@ -150,7 +152,7 @@ def apply_style_sheet(
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
-    """Abstract class for a selector"""
+    """Abstract class for selectors"""
 
     @abc.abstractmethod
     def select(
@@ -160,15 +162,17 @@ class Selector(object):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ) -> bool:
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         pass
 
 
 @dataclasses.dataclass(frozen=True)
 class TypeSelector(Selector):
-    """Class for a type selector"""
+    """Class for type selectors"""
 
-    class_name: str
+    class_name: str = dataclasses.field(
+        metadata={"description": "The name of the class"}
+    )
 
     def select(
         self,
@@ -177,7 +181,7 @@ class TypeSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         obj_cls_name = type(obj).__name__
         return (
             obj_cls_name == self.class_name
@@ -187,9 +191,11 @@ class TypeSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class ClassSelector(Selector):
-    """Class for a class selector"""
+    """Class for class selectors"""
 
-    class_name: str
+    class_name: str = dataclasses.field(
+        metadata={"description": "The name of the class"}
+    )
 
     def select(
         self,
@@ -198,9 +204,10 @@ class ClassSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         for cls in type(obj).__mro__:
             cls_name = cls.__name__
+            # print(cls_name, f"{self.class_name}Builder")
             if (
                 cls_name == self.class_name
                 or cls_name == f"{self.class_name}Builder"
@@ -211,9 +218,9 @@ class ClassSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class IdSelector(Selector):
-    """Class for an id selector"""
+    """Class for id selectors"""
 
-    id_: str
+    id_: str = dataclasses.field(metadata={"description": "The id"})
 
     def select(
         self,
@@ -222,16 +229,20 @@ class IdSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         return hasattr(obj, "id_") and obj.id_ == self.id_
 
 
 @dataclasses.dataclass(frozen=True)
 class ChildSelector(Selector):
-    """Class for a child selector"""
+    """Class for child selectors"""
 
-    parent_selector: Selector
-    child_selector: Selector
+    parent_selector: Selector = dataclasses.field(
+        metadata={"description": "The parent selector"}
+    )
+    child_selector: Selector = dataclasses.field(
+        metadata={"description": "The child selector"}
+    )
 
     def select(
         self,
@@ -240,7 +251,7 @@ class ChildSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         if not ancestors:
             return False
         return self.child_selector.select(
@@ -250,10 +261,14 @@ class ChildSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class DescendantSelector(Selector):
-    """Class for a descendant selector"""
+    """Class for descendant selectors"""
 
-    ancestor_selector: Selector
-    descendant_selector: Selector
+    ancestor_selector: Selector = dataclasses.field(
+        metadata={"description": "The ancestor selector"}
+    )
+    descendant_selector: Selector = dataclasses.field(
+        metadata={"description": "The descendant selector"}
+    )
 
     def select(
         self,
@@ -262,7 +277,7 @@ class DescendantSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         if not ancestors:
             return False
         return self.descendant_selector.select(obj, ancestors) and any(
@@ -275,9 +290,11 @@ class DescendantSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class OrSelector(Selector):
-    """Class for an or selector"""
+    """Class for or selectors"""
 
-    selectors: tuple[Selector]
+    selectors: tuple[Selector] = dataclasses.field(
+        metadata={"description": "The tuple of disjunct selectors"}
+    )
 
     def select(
         self,
@@ -286,7 +303,7 @@ class OrSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the given selector, and `false` otherwise"""
+        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
         return any(
             [selector.select(obj, ancestors) for selector in self.selectors]
         )
@@ -345,7 +362,7 @@ _css_style_collection = (
 _css_id = pp.Word(pp.printables, exclude_chars=",")
 _css_id_selector = pp.Literal("#") + _css_id
 _css_class_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
-_css_type_selector = _css_class_name
+_css_type_selector = _css_class_name.copy()
 _css_class_selector = pp.Literal(".") + _css_class_name
 _css_elementary_selector = (
     _css_class_selector | _css_type_selector | _css_id_selector

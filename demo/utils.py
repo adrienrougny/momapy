@@ -1,6 +1,8 @@
 import copy
 
 import numpy
+import functools
+import operator
 
 import IPython.display
 import skia
@@ -14,25 +16,65 @@ import momapy.meta.nodes
 import momapy.positioning
 
 
-def display(obj, width=600, height=450):
-    surface = skia.Surface.MakeRasterN32Premul(width, height)
+def display(obj, markers=None, xsep=20.0, ysep=20.0):
+    if markers is None:
+        markers = []
+    if isinstance(obj, momapy.core.Map):
+        layout_element = obj.layout
+    else:
+        layout_element = obj
+    bbox = layout_element.bbox()
+    if (
+        layout_element.group_transform is not None
+        and layout_element.group_transform != momapy.drawing.NoneValue
+    ):
+        total_transformation = functools.reduce(
+            operator.mul, layout_element.group_transform
+        )
+        bbox = momapy.positioning.fit(
+            [
+                bbox.north_west().transformed(total_transformation),
+                bbox.north_east().transformed(total_transformation),
+                bbox.south_west().transformed(total_transformation),
+                bbox.south_east().transformed(total_transformation),
+            ]
+        )
+    min_x = bbox.x - bbox.width / 2 - xsep
+    min_y = bbox.y - bbox.height / 2 - ysep
+    max_x = bbox.x + bbox.width / 2 - min_x + xsep
+    max_y = bbox.y + bbox.height / 2 - min_y + ysep
+    layout_element = momapy.builder.builder_from_object(layout_element)
+    if layout_element.group_transform is None:
+        layout_element.group_transform = momapy.core.TupleBuilder()
+    translation = momapy.geometry.Translation(-min_x, -min_y)
+    layout_element.group_transform.insert(0, translation)
+    cp_builder_cls = momapy.builder.get_or_make_builder_cls(
+        momapy.meta.nodes.CrossPoint
+    )
+    if isinstance(markers, momapy.geometry.Point):
+        markers = [markers]
+    for marker in markers:
+        position = momapy.geometry.transform_point(marker, translation)
+        cp = cp_builder_cls(
+            width=12.0,
+            height=12.0,
+            stroke_width=1.5,
+            stroke=momapy.coloring.red,
+            position=position,
+        )
+        layout_element.layout_elements.append(cp)
+    layout_element = momapy.builder.object_from_builder(layout_element)
+    surface = skia.Surface.MakeRasterN32Premul(int(max_x), int(max_y))
     canvas = surface.getCanvas()
     renderer = momapy.rendering.skia.SkiaRenderer(canvas=canvas)
     renderer.begin_session()
-    if momapy.builder.isinstance_or_builder(obj, momapy.core.Map):
-        renderer.render_map(obj)
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.LayoutElement):
-        renderer.render_layout_element(obj)
-    if momapy.builder.isinstance_or_builder(
-        obj, momapy.drawing.DrawingElement
-    ):
-        renderer.render_drawing_element(obj)
+    renderer.render_layout_element(layout_element)
     image = surface.makeImageSnapshot()
     renderer.end_session()
     IPython.display.display(image)
 
 
-def display_at(obj, positions, width=600, height=450):
+def display_at(obj, positions):
     obj = copy.deepcopy(obj)
     cp_builder_cls = momapy.builder.get_or_make_builder_cls(
         momapy.meta.nodes.CrossPoint
@@ -83,10 +125,8 @@ def make_toy_node(
         StateVariableLayoutBuilder = momapy.builder.get_or_make_builder_cls(
             momapy.sbgn.pd.StateVariableLayout
         )
-        UnitOfInformationLayoutBuilder = (
-            momapy.builder.get_or_make_builder_cls(
-                momapy.sbgn.pd.UnitOfInformationLayout
-            )
+        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+            momapy.sbgn.pd.UnitOfInformationLayout
         )
         s1 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
@@ -106,6 +146,7 @@ def make_toy_node(
             position=m.south(),
         )
         m.layout_elements.append(u1)
+    m = momapy.builder.object_from_builder(m)
     return m
 
 
@@ -134,13 +175,9 @@ def make_toy_arc(
     if hasattr(m, "start_arrowhead_height"):
         m.start_arrowhead_height = m.start_arrowhead_height * scale
     if hasattr(m, "start_arrowhead_triangle_width"):
-        m.start_arrowhead_triangle_width = (
-            m.start_arrowhead_triangle_width * scale
-        )
+        m.start_arrowhead_triangle_width = m.start_arrowhead_triangle_width * scale
     if hasattr(m, "start_arrowhead_triangle_height"):
-        m.start_arrowhead_triangle_height = (
-            m.start_arrowhead_triangle_height * scale
-        )
+        m.start_arrowhead_triangle_height = m.start_arrowhead_triangle_height * scale
     if hasattr(m, "end_arrowhead_width"):
         m.end_arrowhead_width = m.end_arrowhead_width * scale
     if hasattr(m, "end_arrowhead_height"):
@@ -148,17 +185,13 @@ def make_toy_arc(
     if hasattr(m, "end_arrowhead_triangle_width"):
         m.end_arrowhead_triangle_width = m.end_arrowhead_triangle_width * scale
     if hasattr(m, "end_arrowhead_triangle_height"):
-        m.end_arrowhead_triangle_height = (
-            m.end_arrowhead_triangle_height * scale
-        )
+        m.end_arrowhead_triangle_height = m.end_arrowhead_triangle_height * scale
     m.segments = momapy.core.TupleBuilder(
         [momapy.geometry.Segment(start_point, end_point)]
     )
     if make_auxiliary:
-        UnitOfInformationLayoutBuilder = (
-            momapy.builder.get_or_make_builder_cls(
-                momapy.sbgn.pd.UnitOfInformationLayout
-            )
+        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
+            momapy.sbgn.pd.UnitOfInformationLayout
         )
         u1 = UnitOfInformationLayoutBuilder(
             width=auxiliary_unit_width * scale,
@@ -166,6 +199,7 @@ def make_toy_arc(
         )
         momapy.positioning.set_fraction_of(u1, m, 0.5, "south")
         m.layout_elements.append(u1)
+    m = momapy.builder.object_from_builder(m)
     return m
 
 
@@ -229,6 +263,7 @@ def show_room(cls, type_="anchor"):
         else:
             make_auxiliary = False
         m = make_toy_node(cls, POSITION, SCALE, make_auxiliary)
+        m = momapy.builder.builder_from_object(m)
         if type_ == "anchor":
             l = NODE_ANCHORS.keys()
         elif type_ == "angle" or type_ == "self_angle":
@@ -289,10 +324,9 @@ def show_room(cls, type_="anchor"):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)
+        m = momapy.builder.builder_from_object(m)
         if type_ == "anchor":
-            if momapy.builder.issubclass_or_builder(
-                cls, momapy.core.SingleHeadedArc
-            ):
+            if momapy.builder.issubclass_or_builder(cls, momapy.core.SingleHeadedArc):
                 d = SINGLE_ARC_ANCHORS
                 l = SINGLE_ARC_ANCHORS.keys()
             else:
@@ -338,6 +372,7 @@ def show_room(cls, type_="anchor"):
             )
             m.layout_elements.append(cross)
 
+    m = momapy.builder.object_from_builder(m)
     display(m)
 
 
