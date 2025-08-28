@@ -50,4 +50,4 @@ render_map(map_, "my_file.pdf", format_="pdf", renderer="skia")
 
 ## Documentation
 
-The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> can be found [here](adrienrougny.github.io/momapy/).
+The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> can be found [here](https://adrienrougny.github.io/momapy/).
