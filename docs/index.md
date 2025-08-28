@@ -35,7 +35,7 @@ Or rendering its layout:
 import momapy.rendering.skia
 from momapy.rendering.core import render_map
 
-render_map(map_, "my_file.pdf", format="pdf", renderer="skia")
+render_map(map_, "my_file.pdf", format_="pdf", renderer="skia")
 ```
 
 ## User manual
@@ -44,4 +44,4 @@ A user manual showcasing the main feature of <span style="font-weight:bold;color
 
 ## Documentation
 
-A complete documentaton for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available here: [API reference](api_reference/momapy.md).
+A complete documentaton for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span>'s API is available here: [API reference](api_reference/momapy.md).
