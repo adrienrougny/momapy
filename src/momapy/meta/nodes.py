@@ -1,3 +1,5 @@
+"""Classes for common node types"""
+
 import dataclasses
 
 import momapy.core
