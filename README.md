@@ -9,9 +9,9 @@ This definition is borrowed from SBML and its layout/render extensions, that all
 
 * support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read only, with annotations)
 * decomposition of a map object into:
-    - a model object;
-    - a layout object;
-    - a mapping between the model and layout objects' subelements.
+  * a model object;
+  * a layout object;
+  * a mapping between the model and layout objects' subelements.
 * map, model, layout and mapping objects comparison; fast object in set checking
 * rendering of maps to images (SVG, PDF, JPEG, PNG, WebP) and other surfaces (e.g. GLFW window)
 * support for styling and css like stylesheets (including effects such as shadows)
@@ -19,6 +19,4 @@ This definition is borrowed from SBML and its layout/render extensions, that all
 * local positioning (e.g. right of shape, fit set of shapes)
 * easy extension with new model and layout subelements
 
-A first documentation for `MomaPy` is available [here](https://momapy.readthedocs.io/en/latest/).
-
-The features of `MomaPy` are demonstrated in a jupyter notebook that can be found [here](https://github.com/adrienrougny/momapy/blob/main/demo/demo.ipynb).
+The documentation for `momapy` is available [here](https://adrienrougny.github.io/momapy/).
