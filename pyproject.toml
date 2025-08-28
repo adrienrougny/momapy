@@ -1,6 +1,6 @@
 [project]
 name = "momapy"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A library for working with molecular maps"
 authors = [{ name = "Adrien Rougny", email = "adrienrougny@gmail.com" }]
 dependencies = [
@@ -50,3 +50,8 @@ typeCheckingMode = "standard"
 
 [tool.pdm]
 plugins = ["pdm-readiness"]
+
+[tool.pdm.version]
+tag_regex = '^release/(?:\D*)?(?P<version>([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|c|rc)(0|[1-9][0-9]*))?(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$)$'
+source = "scm"
+tag_filter = "release/*"
