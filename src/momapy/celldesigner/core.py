@@ -2497,8 +2497,8 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _left_connector_fraction: float = 0.4
-    _right_connector_fraction: float = 0.6
+    left_connector_fraction: float = 0.4
+    right_connector_fraction: float = 0.6
     reaction_node_height: float = 10.0
     reaction_node_width: float = 10.0
     reaction_node_segment: int = 1
@@ -2522,12 +2522,12 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
 
     def left_connector_tip(self):
         segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(self._left_connector_fraction)
+        position = segment.get_position_at_fraction(self.left_connector_fraction)
         return position
 
     def right_connector_tip(self):
         segment = self.segments[self.reaction_node_segment]
-        position = segment.get_position_at_fraction(self._right_connector_fraction)
+        position = segment.get_position_at_fraction(self.right_connector_fraction)
         return position
 
     def reaction_node_border(self, point):
