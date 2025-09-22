@@ -2,6 +2,8 @@ import collections
 
 import momapy.positioning
 import momapy.builder
+import momapy.sbgn.pd
+import momapy.sbgn.af
 
 
 def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
@@ -335,49 +337,63 @@ def set_arcs_to_borders(map_):
     return map_builder
 
 
-def set_auxilliary_units_to_borders(map_):
-    def _rec_set_auxilliary_units_to_borders(layout_element):
+def set_auxiliary_units_to_borders(map_):
+    def _rec_set_auxiliary_units_to_borders(layout_element):
         for child in layout_element.children():
-            if isinstance(
+            if momapy.builder.isinstance_or_builder(
                 child,
                 (
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.pd.StateVariableLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.pd.UnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.MacromoleculeUnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.ComplexUnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout
-                    ),
-                    momapy.builder.get_or_make_builder_cls(
-                        momapy.sbgn.af.PerturbationUnitOfInformationLayout
-                    ),
+                    momapy.sbgn.pd.StateVariableLayout,
+                    momapy.sbgn.pd.UnitOfInformationLayout,
+                    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+                    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+                    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+                    momapy.sbgn.af.ComplexUnitOfInformationLayout,
+                    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+                    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
                 ),
-            ) and isinstance(layout_element, momapy.core.NodeBuilder):
+            ):
                 position = layout_element.self_border(child.position)
                 child.position = position
                 if child.label is not None:
                     child.label.position = position
-            _rec_set_auxilliary_units_to_borders(child)
+            _rec_set_auxiliary_units_to_borders(child)
 
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
         map_builder = map_
-    _rec_set_auxilliary_units_to_borders(map_builder.layout)
+    _rec_set_auxiliary_units_to_borders(map_builder.layout)
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        return momapy.builder.object_from_builder(map_builder)
+    return map_builder
+
+
+def set_auxiliary_units_label_font_size(map_, font_size: float):
+    def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
+        for child in layout_element.children():
+            if momapy.builder.isinstance_or_builder(
+                child,
+                (
+                    momapy.sbgn.pd.StateVariableLayout,
+                    momapy.sbgn.pd.UnitOfInformationLayout,
+                    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+                    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+                    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+                    momapy.sbgn.af.ComplexUnitOfInformationLayout,
+                    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+                    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+                ),
+            ):
+                if child.label is not None:
+                    child.label.font_size = font_size
+            _rec_set_auxiliary_units_label_font_size(child, font_size)
+
+    if isinstance(map_, momapy.sbgn.core.SBGNMap):
+        map_builder = momapy.builder.builder_from_object(map_)
+    else:
+        map_builder = map_
+    _rec_set_auxiliary_units_label_font_size(map_builder.layout, font_size)
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -425,7 +441,7 @@ def tidy(
             momapy.sbgn.pd.ComplexLayout,
         ],
     )
-    set_auxilliary_units_to_borders(map_builder)
+    set_auxiliary_units_to_borders(map_builder)
     set_nodes_to_fit_labels(
         map_builder,
         xsep=auxiliary_units_xsep,
