@@ -3150,8 +3150,8 @@ class CellDesignerReader(momapy.io.Reader):
                 cd_reaction_modification_or_cd_gate_member
             )
             cd_modifiers = cd_reaction_modification_or_cd_gate_member.get("aliases")
+            model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             if model is not None:
-                model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
                 model_element = model.new_element(model_element_cls)
                 model_input_elements = [
                     cd_id_to_model_element[cd_input_id]
