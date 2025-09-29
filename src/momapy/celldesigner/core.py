@@ -2476,7 +2476,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _ReactionLayout(CellDesignerDoubleHeadedArc):
+class ReactionLayout(CellDesignerDoubleHeadedArc):
     reversible: bool = False
 
 
@@ -2607,7 +2607,7 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateTransitionLayout(_ReactionLayout, _ReactionNodeMixin):
+class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for state transition layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -2667,7 +2667,7 @@ class StateTransitionLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class KnownTransitionOmittedLayout(_ReactionLayout, _ReactionNodeMixin):
+class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for known transition omitted layouts"""
 
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
@@ -2732,7 +2732,7 @@ class KnownTransitionOmittedLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnknownTransitionLayout(_ReactionLayout, _ReactionNodeMixin):
+class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for unknown transition layouts"""
 
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
@@ -2797,7 +2797,7 @@ class UnknownTransitionLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TranscriptionLayout(_ReactionLayout, _ReactionNodeMixin):
+class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for transcription layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -2864,7 +2864,7 @@ class TranscriptionLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TranslationLayout(_ReactionLayout, _ReactionNodeMixin):
+class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for translation layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -2929,7 +2929,7 @@ class TranslationLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TransportLayout(_ReactionLayout, _ReactionNodeMixin):
+class TransportLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for transport layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -3036,7 +3036,7 @@ class TransportLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class HeterodimerAssociationLayout(_ReactionLayout, _ReactionNodeMixin):
+class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for heterodimer association layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -3096,7 +3096,7 @@ class HeterodimerAssociationLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class DissociationLayout(_ReactionLayout, _ReactionNodeMixin):
+class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for dissociation layouts"""
 
     _reaction_node_text: typing.ClassVar[str | None] = None
@@ -3164,7 +3164,7 @@ class DissociationLayout(_ReactionLayout, _ReactionNodeMixin):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TruncationLayout(_ReactionLayout, _ReactionNodeMixin):
+class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for truncation layouts"""
 
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
