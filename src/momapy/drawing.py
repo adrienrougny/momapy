@@ -383,15 +383,15 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The stroke color of the drawing element"},
     )
-    stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dasharray of the drawing element"},
     )
-    stroke_dashoffset: float | None = dataclasses.field(
+    stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the drawing element"},
     )
-    stroke_width: float | None = dataclasses.field(
+    stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke width of the drawing element"},
     )

@@ -194,11 +194,13 @@ class TextLayout(LayoutElement):
             metadata={"description": "The text stroke color of the text layout"},
         )
     )
-    stroke_dasharray: tuple[float] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The text stroke dasharray of the text layout"},
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The text stroke dasharray of the text layout"},
+        )
     )
-    stroke_dashoffset: float | None = dataclasses.field(
+    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The text stroke dashoffset of the text layout"},
     )
@@ -469,15 +471,19 @@ class GroupLayout(LayoutElement):
             metadata={"description": "The stroke color of the group layout"},
         )
     )
-    group_stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The stroke dasharray of the group layout"},
+    group_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The stroke dasharray of the group layout"},
+        )
     )
-    group_stroke_dashoffset: float | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The stroke dashoffset of the group layout"},
+    group_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The stroke dashoffset of the group layout"},
+        )
     )
-    group_stroke_width: float | None = dataclasses.field(
+    group_stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke width of the group layout"},
     )
@@ -600,15 +606,17 @@ class Node(GroupLayout):
             metadata={"description": "The stroke color of the node"},
         )
     )
-    stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The stroke dasharray of the node"},
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The stroke dasharray of the node"},
+        )
     )
-    stroke_dashoffset: float | None = dataclasses.field(
+    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the node"},
     )
-    stroke_width: float | None = dataclasses.field(
+    stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the node"}
     )
     transform: (
@@ -868,13 +876,17 @@ class Arc(GroupLayout):
             metadata={"description": "The path stroke color of the arc"},
         )
     )
-    path_stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The path stroke dasharray of the arc"},
+    path_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The path stroke dasharray of the arc"},
+        )
     )
-    path_stroke_dashoffset: float | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The path stroke dashoffset of the arc"},
+    path_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The path stroke dashoffset of the arc"},
+        )
     )
     path_stroke_width: float | None = dataclasses.field(
         default=None,
@@ -897,11 +909,11 @@ class Arc(GroupLayout):
             metadata={"description": "The stroke dasharray of the arc"},
         )
     )
-    stroke_dashoffset: float | None = dataclasses.field(
+    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the arc"},
     )
-    stroke_width: float | None = dataclasses.field(
+    stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the arc"}
     )
     segments: tuple[
@@ -1018,17 +1030,23 @@ class SingleHeadedArc(Arc):
             metadata={"description": "The arrowhead stroke color of the arc"},
         )
     )
-    arrowhead_stroke_dasharray: tuple[float, ...] | None = dataclasses.field(
+    arrowhead_stroke_dasharray: (
+        momapy.drawing.NoneValueType | tuple[float, ...] | None
+    ) = dataclasses.field(
         default=None,
         metadata={"description": "The arrowhead stroke dasharray of the arc"},
     )
-    arrowhead_stroke_dashoffset: float | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The arrowhead stroke dashoffset of the arc"},
+    arrowhead_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The arrowhead stroke dashoffset of the arc"},
+        )
     )
-    arrowhead_stroke_width: float | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The arrowhead stroke width of the arc"},
+    arrowhead_stroke_width: momapy.drawing.NoneValueType | float | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The arrowhead stroke width of the arc"},
+        )
     )
     arrowhead_transform: (
         momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
