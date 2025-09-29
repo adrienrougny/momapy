@@ -210,7 +210,7 @@ class FilterUnits(enum.Enum):
 class Filter(object):
     """Class for filters"""
 
-    id: str = dataclasses.field(
+    id_: str = dataclasses.field(
         hash=False,
         compare=False,
         default_factory=momapy.utils.make_uuid4_as_str,
