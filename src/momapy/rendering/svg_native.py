@@ -132,9 +132,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     svg: SVGElement
     config: dict = dataclasses.field(default_factory=dict)
-    _filter_elements: list[SVGElement] = dataclasses.field(
-        default_factory=list
-    )
+    _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
@@ -201,9 +199,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _make_drawing_element_element_id_class_atrributes(
-        self, drawing_element
-    ):
+    def _make_drawing_element_element_id_class_atrributes(self, drawing_element):
         attributes = {}
         id_ = getattr(drawing_element, "id_", None)
         if id_ is not None:
@@ -233,22 +229,14 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                             self._filter_elements.append(filter_element)
                         attr_value = f"url(#{attr_value.id})"
                     elif attr_name == "font_style":
-                        attr_value = self._te_font_style_value_mapping[
-                            attr_value
-                        ]
+                        attr_value = self._te_font_style_value_mapping[attr_value]
                     elif attr_name == "font_weight":
                         if isinstance(attr_value, momapy.drawing.FontWeight):
-                            attr_value = self._te_font_weight_value_mapping[
-                                attr_value
-                            ]
+                            attr_value = self._te_font_weight_value_mapping[attr_value]
                     elif attr_name == "text_anchor":
-                        attr_value = self._te_text_anchor_value_mapping[
-                            attr_value
-                        ]
+                        attr_value = self._te_text_anchor_value_mapping[attr_value]
                     elif attr_name == "fill_rule":
-                        attr_value = self._de_fill_rule_value_mapping[
-                            attr_value
-                        ]
+                        attr_value = self._de_fill_rule_value_mapping[attr_value]
                     elif attr_name == "stroke_dasharray":
                         attr_value = " ".join(
                             [
@@ -263,7 +251,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     def _make_filter_element(self, filter_):
         name = "filter"
         attributes = {}
-        attributes["id"] = filter.id
+        attributes["id"] = filter.id_
         attributes["filterUnits"] = self._fe_filter_unit_value_mapping[
             filter.filter_units
         ]
@@ -275,9 +263,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         for filter_effect in filter_.effects:
             subelement = self._make_filter_effect_element(filter_effect)
             subelements.append(subelement)
-        element = SVGElement(
-            name=name, attributes=attributes, elements=subelements
-        )
+        element = SVGElement(name=name, attributes=attributes, elements=subelements)
         return element
 
     def _make_filter_effect_element(self, filter_effect):
@@ -295,9 +281,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         attributes["dy"] = filter_effect.dy
         attributes["stdDeviation"] = filter_effect.std_deviation
         attributes["flood-opacity"] = filter_effect.flood_opacity
-        attributes["flood-color"] = self._make_color_value(
-            filter_effect.flood_color
-        )
+        attributes["flood-color"] = self._make_color_value(filter_effect.flood_color)
         if filter_effect.result is not None:
             attributes["result"] = filter_effect.result
         element = SVGElement(
@@ -332,9 +316,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         name = "feFlood"
         attributes = {}
         attributes["flood-opacity"] = filter_effect.flood_opacity
-        attributes["flood-color"] = self._make_color_value(
-            filter_effect.flood_color
-        )
+        attributes["flood-color"] = self._make_color_value(filter_effect.flood_color)
         if filter_effect.result is not None:
             attributes["result"] = filter_effect.result
         element = SVGElement(
@@ -352,11 +334,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
             attributes["in"] = filter_effect.in_
         attributes["stdDeviation"] = filter_effect.std_deviation
         if filter_effect.edge_mode is not None:
-            attributes["edgeMode"] = (
-                self._fe_gaussian_blur_edgemode_value_mapping[
-                    filter_effect.edge_mode
-                ]
-            )
+            attributes["edgeMode"] = self._fe_gaussian_blur_edgemode_value_mapping[
+                filter_effect.edge_mode
+            ]
         if filter_effect.result is not None:
             attributes["result"] = filter_effect.result
         element = SVGElement(
@@ -388,20 +368,18 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_group_element(self, group):
         name = "g"
-        presentation_attributes = (
-            self._make_drawing_element_presentation_attributes(group)
+        presentation_attributes = self._make_drawing_element_presentation_attributes(
+            group
         )
-        id_class_attributes = (
-            self._make_drawing_element_element_id_class_atrributes(group)
+        id_class_attributes = self._make_drawing_element_element_id_class_atrributes(
+            group
         )
         attributes = presentation_attributes | id_class_attributes
         subelements = []
         for drawing_element in group.elements:
             subelement = self._make_drawing_element_element(drawing_element)
             subelements.append(subelement)
-        element = SVGElement(
-            name=name, attributes=attributes, elements=subelements
-        )
+        element = SVGElement(name=name, attributes=attributes, elements=subelements)
         return element
 
     def _make_path_action_value(self, path_action):
@@ -452,18 +430,15 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_path_element(self, path):
         name = "path"
-        presentation_attributes = (
-            self._make_drawing_element_presentation_attributes(path)
+        presentation_attributes = self._make_drawing_element_presentation_attributes(
+            path
         )
-        id_class_attributes = (
-            self._make_drawing_element_element_id_class_atrributes(path)
+        id_class_attributes = self._make_drawing_element_element_id_class_atrributes(
+            path
         )
         attributes = presentation_attributes | id_class_attributes
         d_value = " ".join(
-            [
-                self._make_path_action_value(path_action)
-                for path_action in path.actions
-            ]
+            [self._make_path_action_value(path_action) for path_action in path.actions]
         )
         attributes["d"] = d_value
         element = SVGElement(name=name, attributes=attributes)
@@ -471,11 +446,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_text_element(self, text):
         name = "text"
-        presentation_attributes = (
-            self._make_drawing_element_presentation_attributes(text)
+        presentation_attributes = self._make_drawing_element_presentation_attributes(
+            text
         )
-        id_class_attributes = (
-            self._make_drawing_element_element_id_class_atrributes(text)
+        id_class_attributes = self._make_drawing_element_element_id_class_atrributes(
+            text
         )
         attributes = presentation_attributes | id_class_attributes
         attributes["x"] = text.x
@@ -486,11 +461,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_ellipse_element(self, ellipse):
         name = "ellipse"
-        presentation_attributes = (
-            self._make_drawing_element_presentation_attributes(ellipse)
+        presentation_attributes = self._make_drawing_element_presentation_attributes(
+            ellipse
         )
-        id_class_attributes = (
-            self._make_drawing_element_element_id_class_atrributes(ellipse)
+        id_class_attributes = self._make_drawing_element_element_id_class_atrributes(
+            ellipse
         )
         attributes = presentation_attributes | id_class_attributes
         attributes["cx"] = ellipse.x
@@ -502,11 +477,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     def _make_rectangle_element(self, rectangle):
         name = "rect"
-        presentation_attributes = (
-            self._make_drawing_element_presentation_attributes(rectangle)
+        presentation_attributes = self._make_drawing_element_presentation_attributes(
+            rectangle
         )
-        id_class_attributes = (
-            self._make_drawing_element_element_id_class_atrributes(rectangle)
+        id_class_attributes = self._make_drawing_element_element_id_class_atrributes(
+            rectangle
         )
         attributes = presentation_attributes | id_class_attributes
         attributes["x"] = rectangle.x
@@ -555,6 +530,4 @@ class SVGNativeCompatRenderer(SVGNativeRenderer):
 
 
 momapy.rendering.core.register_renderer("svg-native", SVGNativeRenderer)
-momapy.rendering.core.register_renderer(
-    "svg-native-compat", SVGNativeCompatRenderer
-)
+momapy.rendering.core.register_renderer("svg-native-compat", SVGNativeCompatRenderer)
