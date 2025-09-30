@@ -81,6 +81,7 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
     )
     renderer.begin_session()
     renderer.render_layout_element(layout_element)
+    renderer.end_session()
     svg_string = str(renderer.svg)
     IPython.display.display(IPython.display.SVG(data=svg_string))
 
