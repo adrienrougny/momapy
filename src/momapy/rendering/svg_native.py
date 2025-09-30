@@ -95,7 +95,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     _fe_gaussian_blur_edgemode_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.EdgeMode.WRAP: "wrap",
         momapy.drawing.EdgeMode.DUPLICATE: "duplicate",
-        None: "none",
+        momapy.drawing.NoneValue: "none",
     }
     _fe_filter_unit_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.FilterUnits.USER_SPACE_ON_USE: "UserSpaceOnUse",
