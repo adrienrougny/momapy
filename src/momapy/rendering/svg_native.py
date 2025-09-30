@@ -227,7 +227,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                         filter_element = self._make_filter_element(attr_value)
                         if filter_element not in self._filter_elements:
                             self._filter_elements.append(filter_element)
-                        attr_value = f"url(#{attr_value.id})"
+                        attr_value = f"url(#{attr_value.id_})"
                     elif attr_name == "font_style":
                         attr_value = self._te_font_style_value_mapping[attr_value]
                     elif attr_name == "font_weight":
@@ -251,14 +251,14 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     def _make_filter_element(self, filter_):
         name = "filter"
         attributes = {}
-        attributes["id"] = filter.id_
+        attributes["id"] = filter_.id_
         attributes["filterUnits"] = self._fe_filter_unit_value_mapping[
-            filter.filter_units
+            filter_.filter_units
         ]
-        attributes["x"] = filter.x
-        attributes["y"] = filter.y
-        attributes["width"] = filter.width
-        attributes["height"] = filter.height
+        attributes["x"] = filter_.x
+        attributes["y"] = filter_.y
+        attributes["width"] = filter_.width
+        attributes["height"] = filter_.height
         subelements = []
         for filter_effect in filter_.effects:
             subelement = self._make_filter_effect_element(filter_effect)
