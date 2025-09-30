@@ -1,10 +1,78 @@
 
-    SBGNPDLayout {
-        stroke: red;
-        fill: lightyellow;
-    }
-    
-    MacromoleculeLayout {
-        fill: green;
-    }
+        StateVariableLayout {
+        	fill: royalblue;
+        	stroke: white;
+            stroke-width: 2.0;
+            group-filter: unset;
+        }
+        
+        StateVariableLayout > TextLayout {
+          font-size: 7.0;
+          fill: white;
+        }
+        
+        MacromoleculeLayout {
+        	fill: royalblue;
+        	stroke: white;
+            stroke-width: 2.0;
+            group-filter: unset;
+        }
+        
+        MacromoleculeLayout > TextLayout {
+            font-size: 14.0;
+            fill: white;
+        }
+        
+        
+        SimpleChemicalLayout {
+        	fill: gold;
+        	stroke: white;
+            stroke-width: 2.0;
+            group-filter: unset;
+        }
+        
+        SimpleChemicalLayout > TextLayout {
+            font-size: 10.0;
+            fill: black;
+        }
+        
+        GenericProcessLayout {
+            fill: gray;
+        	stroke: white;
+        	right-connector-stroke: gray;
+            right-connector-length: 10.0;
+            right-connector-stroke-width: 1.5;
+        	left-connector-stroke: gray;
+            left-connector-length: 10.0;
+            left-connector-stroke-width: 1.5;
+            group-filter: unset;
+        }
+        
+        ConsumptionLayout {
+        	arrowhead-fill: white;
+        	arrowhead-stroke: black;
+        	path-stroke: gray;
+            path-stroke-width: 1.5;
+            end-shorten: 1.0;
+            group-filter: unset;
+        }
+        
+        ProductionLayout {
+        	arrowhead-fill: gray;
+        	arrowhead-stroke: gray;
+        	path-stroke: gray;
+            path-stroke-width: 1.5;
+            end-shorten: 1.0;
+            group-filter: unset;
+        }
+        
+        CatalysisLayout {
+        	arrowhead-fill: white;
+        	arrowhead-stroke: gray;
+            arrowhead-stroke-width: 2.0;
+        	path-stroke: gray;
+            path-stroke-width: 1.5;
+            end-shorten: 1.0;
+            group-filter: unset;
+        }
     

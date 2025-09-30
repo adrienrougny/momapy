@@ -54,7 +54,7 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0):
     if isinstance(markers, momapy.geometry.Point):
         markers = [markers]
     for marker in markers:
-        position = momapy.geometry.transform_point(marker, translation)
+        position = marker
         cp = cp_builder_cls(
             width=12.0,
             height=12.0,
