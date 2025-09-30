@@ -8,15 +8,17 @@ import IPython.display
 import skia
 
 import momapy.rendering.skia
+import momapy.rendering.svg_native
 import momapy.geometry
 import momapy.builder
 import momapy.core
 import momapy.drawing
 import momapy.meta.nodes
 import momapy.positioning
+import momapy.coloring
 
 
-def display(obj, markers=None, xsep=20.0, ysep=20.0):
+def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
     if markers is None:
         markers = []
     if isinstance(obj, momapy.core.Map):
@@ -63,15 +65,37 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0):
             position=position,
         )
         layout_element.layout_elements.append(cp)
+    width = max_x
+    height = max_y
     layout_element = momapy.builder.object_from_builder(layout_element)
-    surface = skia.Surface.MakeRasterN32Premul(int(max_x), int(max_y))
-    canvas = surface.getCanvas()
-    renderer = momapy.rendering.skia.SkiaRenderer(canvas=canvas)
+    renderer = momapy.rendering.svg_native.SVGNativeRenderer(
+        svg=momapy.rendering.svg_native.SVGElement(
+            name="svg",
+            attributes={
+                "xmlns": "http://www.w3.org/2000/svg",
+                "viewBox": f"0 0 {width} {height}",
+                "width": width * scale,
+                "height": height * scale,
+            },
+        )
+    )
     renderer.begin_session()
     renderer.render_layout_element(layout_element)
-    image = surface.makeImageSnapshot()
-    renderer.end_session()
-    IPython.display.display(image)
+    svg_string = str(renderer.svg)
+    IPython.display.display(IPython.display.SVG(data=svg_string))
+
+    # surface = skia.Surface(
+    #     int(max_x),
+    #     int(max_y),
+    # )
+    # canvas = surface.getCanvas()
+    # renderer = momapy.rendering.skia.SkiaRenderer(canvas=canvas)
+    # renderer.begin_session()
+    # renderer.render_layout_element(layout_element)
+    # image = surface.makeImageSnapshot()
+    # renderer.end_session()
+    # png_bytes = image.encodeToData().bytes()
+    # IPython.display.display(IPython.display.Image(data=png_bytes))
 
 
 def display_at(obj, positions):
