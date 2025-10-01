@@ -3,9 +3,13 @@ import copy
 import numpy
 import functools
 import operator
+import inspect
+import pygments
+import pygments.lexers
+import pygments.formatters
+
 
 import IPython.display
-import skia
 
 import momapy.rendering.skia
 import momapy.rendering.svg_native
@@ -430,3 +434,13 @@ def production_toy():
         True,
     )
     return m
+
+
+def print_source(obj):
+    code = inspect.getsource(obj)
+    formatter = pygments.formatters.HtmlFormatter(full=True, style="friendly")
+    IPython.display.display(
+        IPython.display.HTML(
+            pygments.highlight(code, pygments.lexers.PythonLexer(), formatter)
+        )
+    )
