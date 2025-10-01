@@ -237,6 +237,7 @@ class TextLayout(LayoutElement):
             font_weight=self.font_weight,
             text=self.text,
             justify=self.justify,
+            horizontal_alignment=self.horizontal_alignment,
             width=self.width,
             height=self.height,
         )

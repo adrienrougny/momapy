@@ -1342,6 +1342,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1485,6 +1486,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -1690,6 +1692,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -1831,6 +1834,7 @@ class _SBGNMLReader(momapy.io.Reader):
                     fill=cls._DEFAULT_FONT_FILL,
                     stroke=momapy.drawing.NoneValue,
                     position=layout_element.label_center(),
+                    horizontal_alignment=momapy.core.HAlignment.CENTER,
                 )
                 layout_element.label = text_layout
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1891,6 +1895,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1947,6 +1952,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -2079,6 +2085,7 @@ class _SBGNMLReader(momapy.io.Reader):
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
+                        horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:

@@ -24,6 +24,7 @@ def make_pango_layout(
     font_weight: momapy.drawing.FontWeight | int,
     text: str,
     justify: bool,
+    horizontal_alignment,  # TODO: add type annotation, but take care of recursive import; might move this function back to core, or use if TYPE_CHECKING
     width: float | None = None,
     height: float | None = None,
 ) -> gi.repository.Pango.Layout:
@@ -44,7 +45,9 @@ def make_pango_layout(
         pango_font_description.set_absolute_size(
             gi.repository.Pango.units_from_double(font_size)
         )
-        pango_font_description.set_style(_style_to_pango_style_mapping[font_style])
+        pango_font_description.set_style(
+            getattr(gi.repository.Pango.Style, font_style.name)
+        )
         pango_font_description.set_weight(font_weight)
         _pango_font_descriptions[(font_family, font_size, font_style, font_weight)] = (
             pango_font_description
@@ -56,6 +59,9 @@ def make_pango_layout(
         pango_layout.set_height(gi.repository.Pango.units_from_double(height))
     pango_layout.set_text(text)
     pango_layout.set_justify(justify)
+    pango_layout.set_alignment(
+        getattr(gi.repository.Pango.Alignment, horizontal_alignment.name)
+    )
     return pango_layout
 
 
