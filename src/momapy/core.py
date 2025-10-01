@@ -1963,9 +1963,19 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
     ) -> typing.Self:
         items = []
         for key, value in obj.items():
-            new_key = momapy.builder.builder_from_object(
-                key, object_to_builder=object_to_builder
-            )
+            if isinstance(key, frozenset):
+                new_key = frozenset(
+                    [
+                        momapy.builder.builder_from_object(
+                            element, object_to_builder=object_to_builder
+                        )
+                        for element in key
+                    ]
+                )
+            else:
+                new_key = momapy.builder.builder_from_object(
+                    key, object_to_builder=object_to_builder
+                )
             if isinstance(value, tuple):
                 new_value = tuple(
                     [
