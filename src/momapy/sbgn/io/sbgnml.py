@@ -2456,7 +2456,15 @@ class _SBGNMLReader(momapy.io.Reader):
                 sbgnml_id_to_layout_element[sbgnml_process.get("id")] = layout_element
             if model is not None and layout is not None:
                 layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    frozenset(
+                        [layout_element]
+                        + [
+                            participant_map_element[1]
+                            for participant_map_element in participant_map_elements
+                        ]
+                    ),
+                    model_element,
+                    replace=True,
                 )
                 for (
                     participant_model_element,
@@ -2704,7 +2712,15 @@ class _SBGNMLReader(momapy.io.Reader):
                 )
             if model is not None and layout is not None:
                 layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    frozenset(
+                        [layout_element]
+                        + [
+                            input_map_element[1]
+                            for input_map_element in input_map_elements
+                        ]
+                    ),
+                    model_element,
+                    replace=True,
                 )
                 for (
                     input_model_element,
@@ -2872,7 +2888,11 @@ class _SBGNMLReader(momapy.io.Reader):
                 layout_element = None
             if model is not None and layout is not None:
                 layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    frozenset(
+                        [layout_element, source_layout_element, target_layout_element]
+                    ),
+                    model_element,
+                    replace=True,
                 )
         else:
             model_element = None
