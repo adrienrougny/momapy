@@ -257,8 +257,8 @@ def set_arcs_to_borders(map_):
                 if momapy.builder.isinstance_or_builder(
                     sub_layout_element,
                     (
-                        momapy.sbgn.pd.LogicArc,
-                        momapy.sbgn.af.LogicArc,
+                        momapy.sbgn.pd.LogicArcLayout,
+                        momapy.sbgn.af.LogicArcLayout,
                     ),
                 ):
                     target = sub_layout_element.target
