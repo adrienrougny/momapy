@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <sbgn xmlns="http://sbgn.org/libsbgn/0.3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqmodel="http://biomodels.net/model-qualifiers/" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-  <map id="f39923da-10b2-4eeb-9944-4c39dbceb67b" language="process description">
+  <map id="8982fb8d-81a5-4910-bf0a-b547f8ff5cc4" language="process description">
     <glyph id="glyph2" class="macromolecule">
       <bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
