@@ -96,7 +96,7 @@ class CellDesignerPickleReader(momapy.io.Reader):
                             _del_key_from_mapping_by_classes(
                                 mapping,
                                 exclude_classes=[
-                                    momapy.core.ModelLayout,
+                                    momapy.core.ModelElement,
                                 ],
                             )
 
