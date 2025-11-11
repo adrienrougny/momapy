@@ -1129,6 +1129,7 @@ class CellDesignerReader(momapy.io.Reader):
         cd_element,
     ):
         map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
+        map_.id_ = cd_element.get("id")
         return map_
 
     @classmethod
