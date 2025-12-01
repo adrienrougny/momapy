@@ -5,6 +5,7 @@ import collections
 import math
 import typing
 
+import frozendict
 import lxml.objectify
 
 import momapy.core
@@ -1264,7 +1265,9 @@ class CellDesignerReader(momapy.io.Reader):
             if with_notes:
                 notes = cls._make_notes_from_cd_element(cd_model)
                 map_element_to_notes[obj].update(notes)
-        annotations = dict(map_element_to_annotations)
+        annotations = frozendict.frozendict(
+            {key: frozenset(val) for key, val in map_element_to_annotations.items()}
+        )
         notes = dict(map_element_to_notes)
         ids = dict(map_element_to_ids)
         return obj, annotations, notes, ids
