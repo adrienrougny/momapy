@@ -82,6 +82,9 @@ class SimpleSpeciesReference(SBase):
 class ModifierSpeciesReference(SimpleSpeciesReference):
     pass
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class KineticLaw(SBase):
+    math: str | None = None
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SpeciesReference(SimpleSpeciesReference):
@@ -99,6 +102,7 @@ class Reaction(SBase):
     modifiers: frozenset[ModifierSpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
+    kinetic_law: KineticLaw | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
