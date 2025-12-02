@@ -28,6 +28,9 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 Some python packages depend on system packages that might require installation:
 
+* pycairo (<https://pycairo.readthedocs.io/en/latest/getting_started.html>):
+  * pkg-config
+  * cairo including its headers
 * pygobject (<https://pygobject.gnome.org/guide/sysdeps.html>):
   * glib
   * libffi
