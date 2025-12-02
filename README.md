@@ -22,7 +22,7 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 ## Installation
 
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows:
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows (Python >=3.10,<=3.12):
 
 `pip install momapy`
 
