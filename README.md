@@ -26,6 +26,16 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 `pip install momapy`
 
+Some python packages depend on system packages that might require installation:
+
+* pygobject:
+  * glib
+  * libffi
+* skia-python:
+  * opengl
+  * libegl
+  * fontconfig
+
 ## Usage
 
 Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes reading a map and exploring its model:
