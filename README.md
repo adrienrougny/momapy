@@ -28,10 +28,10 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 Some python packages depend on system packages that might require installation:
 
-* pygobject:
+* pygobject (<https://pygobject.gnome.org/guide/sysdeps.html>):
   * glib
   * libffi
-* skia-python:
+* skia-python (<https://github.com/kyamagu/skia-python>):
   * opengl
   * libegl
   * fontconfig
