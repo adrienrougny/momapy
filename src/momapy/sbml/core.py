@@ -58,9 +58,7 @@ class SBOTerm(momapy.core.ModelElement):
 class SBase(momapy.core.ModelElement):
     name: str | None = None
     sbo_term: SBOTerm | None = None
-    metaid: str | None = dataclasses.field(
-        default=None, compare=False, hash=False
-    )
+    metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -97,23 +95,20 @@ class Reaction(SBase):
     reactants: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
-    products: frozenset[SpeciesReference] = dataclasses.field(
-        default_factory=frozenset
-    )
+    products: frozenset[SpeciesReference] = dataclasses.field(default_factory=frozenset)
     modifiers: frozenset[ModifierSpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(SBase, momapy.core.Model):
-    compartments: frozenset[Compartment] = dataclasses.field(
-        default_factory=frozenset
-    )
+class SBMLModel(SBase, momapy.core.Model):
+    compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)
-    reactions: frozenset[Reaction] = dataclasses.field(
-        default_factory=frozenset
-    )
+    reactions: frozenset[Reaction] = dataclasses.field(default_factory=frozenset)
+
+    def is_submodel(self, other):  # TODO
+        return None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -121,4 +116,7 @@ class SBML(SBase):
     xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"
     level: int = 3
     version: int = 2
-    model: Model | None = None
+    model: SBMLModel | None = None
+
+
+SBMLModelBuilder = momapy.builder.get_or_make_builder_cls(SBMLModel)
