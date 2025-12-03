@@ -194,7 +194,11 @@ class EntityPool(momapy.sbgn.core.SBGNModelElement):
 class EmptySet(EntityPool):
     """Class for empty sets"""
 
-    pass
+    def __eq__(self, other):
+        return id(self) == id(other)
+
+    def __hash__(self):
+        return hash(id(self))
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
