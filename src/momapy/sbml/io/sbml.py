@@ -242,7 +242,7 @@ class SBMLReader(momapy.io.Reader):
             for child_element in sbml_notes.iterchildren():
                 break
             return lxml.etree.tostring(child_element)
-        return []
+        return None
 
     @classmethod
     def _make_annotations_from_sbml_element(cls, sbml_element):
@@ -336,7 +336,9 @@ class SBMLReader(momapy.io.Reader):
             map_element_to_annotations[obj].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_model)
-            map_element_to_notes[obj].update(notes)
+            if notes is not None:
+                map_element_to_notes[obj].add(notes)
+
         map_element_to_annotations = frozendict.frozendict(
             {
                 key: frozenset(value)
@@ -477,7 +479,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_compartment)
-            map_element_to_notes[model_element].update(notes)
+            if notes is not None:
+                map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
@@ -518,7 +521,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_species)
-            map_element_to_notes[model_element].update(notes)
+            if notes is not None:
+                map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
@@ -612,7 +616,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
             if with_notes:
                 notes = cls._make_notes_from_sbml_element(sbml_reaction)
-                map_element_to_notes[model_element].update(notes)
+                if notes is not None:
+                    map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
