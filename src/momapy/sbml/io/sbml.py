@@ -153,7 +153,7 @@ class SBMLReader(momapy.io.Reader):
             return []
         for child in notes.iterchildren():
             return lxml.etree.tostring(child)
-        return []
+        return None
 
     @classmethod
     def _make_annotations_from_sbml_element(cls, el):
@@ -303,7 +303,7 @@ class SBMLReader(momapy.io.Reader):
         if with_notes:
             nts = cls._make_notes_from_sbml_element(sbml_model)
             if nts:
-                map_element_to_notes[final_obj].update(nts)
+                map_element_to_notes[final_obj].add(nts)
 
         ann_frozen = frozendict.frozendict(
             {k: frozenset(v) for k, v in map_element_to_annotations.items()}
@@ -355,7 +355,7 @@ class SBMLReader(momapy.io.Reader):
             if wn:
                 nts = cls._make_notes_from_sbml_element(comp)
                 if nts:
-                    map_notes[m].update(nts)
+                    map_notes[m].add(nts)
 
     # ----------------------------------------------------------------------
     # Species
@@ -399,7 +399,7 @@ class SBMLReader(momapy.io.Reader):
             if wn:
                 nts = cls._make_notes_from_sbml_element(sp)
                 if nts:
-                    map_notes[m].update(nts)
+                    map_notes[m].add(nts)
 
     # ----------------------------------------------------------------------
     # Genes / GeneProducts
@@ -453,7 +453,7 @@ class SBMLReader(momapy.io.Reader):
                 if wn:
                     nts = cls._make_notes_from_sbml_element(gp)
                     if nts:
-                        map_notes[m].update(nts)
+                        map_notes[m].add(nts)
 
     # ----------------------------------------------------------------------
     # GPR parsing
@@ -631,7 +631,7 @@ class SBMLReader(momapy.io.Reader):
             if wn:
                 nts = cls._make_notes_from_sbml_element(rx)
                 if nts:
-                    map_notes[m].update(nts)
+                    map_notes[m].add(nts)
 
     # ----------------------------------------------------------------------
     # Objective
@@ -759,7 +759,7 @@ class SBMLReader(momapy.io.Reader):
             if wn:
                 nts = cls._make_notes_from_sbml_element(sbml_obj)
                 if nts:
-                    map_notes[objective].update(nts)
+                    map_notes[objective].add(nts)
 
             break
 
