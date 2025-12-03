@@ -274,6 +274,8 @@ class SBMLReader(momapy.io.Reader):
         sbml_element,
     ):
         model = momapy.sbml.core.SBMLModelBuilder()
+        name = sbml_element.get("name")
+        model.name = name
         return model
 
     @classmethod
