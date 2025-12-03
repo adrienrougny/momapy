@@ -15,6 +15,7 @@ import momapy.sbml.core
 class SBMLReader(momapy.io.Reader):
     _CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
     _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    _MATH_NAMESPACE = "http://www.w3.org/1998/Math/MathML"
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
         (
             "http://biomodels.net/biology-qualifiers/",
@@ -183,6 +184,10 @@ class SBMLReader(momapy.io.Reader):
         return list(getattr(list_of_modifiers, "modifierSpeciesReference", []))
 
     @classmethod
+    def _get_kinetic_law_from_sbml_reaction(cls, sbml_reaction):
+        return getattr(sbml_reaction, "kineticLaw", None)
+
+    @classmethod
     def _get_notes_from_sbml_element(cls, sbml_element):
         return getattr(sbml_element, "notes", None)
 
@@ -237,7 +242,7 @@ class SBMLReader(momapy.io.Reader):
             for child_element in sbml_notes.iterchildren():
                 break
             return lxml.etree.tostring(child_element)
-        return []
+        return None
 
     @classmethod
     def _make_annotations_from_sbml_element(cls, sbml_element):
@@ -331,7 +336,9 @@ class SBMLReader(momapy.io.Reader):
             map_element_to_annotations[obj].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_model)
-            map_element_to_notes[obj].update(notes)
+            if notes is not None:
+                map_element_to_notes[obj].add(notes)
+
         map_element_to_annotations = frozendict.frozendict(
             {
                 key: frozenset(value)
@@ -472,7 +479,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_compartment)
-            map_element_to_notes[model_element].update(notes)
+            if notes is not None:
+                map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
@@ -513,7 +521,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
         if with_notes:
             notes = cls._make_notes_from_sbml_element(sbml_species)
-            map_element_to_notes[model_element].update(notes)
+            if notes is not None:
+                map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
@@ -582,6 +591,14 @@ class SBMLReader(momapy.io.Reader):
                 super_sbml_element=sbml_reaction,
                 super_model_element=model_element,
             )
+
+        _ = cls._make_and_add_kinetic_law_from_sbml_reaction(
+            sbml_reaction=sbml_reaction,
+            model=model,
+            super_model_element=model_element
+        )
+
+
         model_element = momapy.builder.object_from_builder(model_element)
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
@@ -599,7 +616,8 @@ class SBMLReader(momapy.io.Reader):
                 map_element_to_annotations[model_element].update(annotations)
             if with_notes:
                 notes = cls._make_notes_from_sbml_element(sbml_reaction)
-                map_element_to_notes[model_element].update(notes)
+                if notes is not None:
+                    map_element_to_notes[model_element].add(notes)
         return model_element
 
     @classmethod
@@ -685,5 +703,25 @@ class SBMLReader(momapy.io.Reader):
         sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
 
+    @classmethod
+    def _make_and_add_kinetic_law_from_sbml_reaction(
+        cls,
+        sbml_reaction,
+        model,
+        super_model_element
+    ):
+        model_element = model.new_element(
+            momapy.sbml.core.KineticLaw
+        )
+
+        kinetic_law = getattr(sbml_reaction, "kineticLaw", None)
+        if kinetic_law is not None:
+            model_element.sbo_term = kinetic_law.get("sboTerm", None)
+            # model_element.math = getattr(sbml_reaction.kineticLaw, f"{{{cls._MATH_NAMESPACE}}}math", None)
+            model_element.math = "test"
+
+        model_element = momapy.builder.object_from_builder(model_element)
+        super_model_element.kinetic_law = model_element
+        return model_element
 
 momapy.io.register_reader("sbml", SBMLReader)
