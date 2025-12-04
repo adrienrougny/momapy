@@ -1,4 +1,5 @@
 """Classes for SBML maps"""
+
 from __future__ import annotations
 
 import dataclasses
@@ -7,6 +8,7 @@ import enum
 
 import momapy.core
 import momapy.builder
+import momapy.utils
 
 
 class BiomodelQualifier(enum.Enum):
@@ -56,6 +58,15 @@ class SBOTerm(momapy.core.ModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBase(momapy.core.ModelElement):
+    id_: str = dataclasses.field(
+        default_factory=momapy.utils.make_uuid4_as_str,
+        metadata={
+            "description": """The id of the map element. This id is purely for the user to keep track
+    of the element, it does not need to be unique and is not part of the
+    identity of the element, i.e., it is not considered when testing for
+    equality between two map elements or when hashing the map element"""
+        },
+    )
     name: str | None = None
     sbo_term: SBOTerm | None = None
     metaid: str | None = None
@@ -118,7 +129,6 @@ class GeneProduct(SBase):
         return [rx for rx in model.reactions if contains_gene(rx.gene_association)]
 
 
-
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneProductRef(momapy.core.ModelElement):
     gene_product: GeneProduct
@@ -127,10 +137,7 @@ class GeneProductRef(momapy.core.ModelElement):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneProductAssociation(momapy.core.ModelElement):
     operator: str  # "and" | "or"
-    children: tuple[
-        typing.Union["GeneProductAssociation", GeneProductRef],
-        ...
-    ]
+    children: tuple[typing.Union["GeneProductAssociation", GeneProductRef], ...]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -153,7 +160,9 @@ class Objective(SBase):
 class Reaction(SBase):
     reversible: bool
     compartment: Compartment | None = None
-    reactants: frozenset[SpeciesReference] = dataclasses.field(default_factory=frozenset)
+    reactants: frozenset[SpeciesReference] = dataclasses.field(
+        default_factory=frozenset
+    )
     products: frozenset[SpeciesReference] = dataclasses.field(default_factory=frozenset)
     modifiers: frozenset[ModifierSpeciesReference] = dataclasses.field(
         default_factory=frozenset
@@ -164,9 +173,7 @@ class Reaction(SBase):
     lower_flux_bound: float | None = None
     upper_flux_bound: float | None = None
 
-
     def safe_gpr_string(self) -> str:
-
         from momapy.sbml.core import GeneProductAssociation, GeneProductRef
 
         def rec(node):
@@ -196,10 +203,8 @@ class SBMLModel(SBase, momapy.core.Model):
 
     objective: Objective | None = None
 
-
     def is_submodel(self, other):
         return None
-
 
     def safe_objective_id(self) -> str | None:
         return self.objective.id_ if self.objective is not None else None
