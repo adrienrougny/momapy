@@ -5,11 +5,11 @@ description = "A library for working with molecular maps"
 authors = [{ name = "Adrien Rougny", email = "adrienrougny@gmail.com" }]
 dependencies = [
   "frozendict>=2.3.10",
-  "pycairo>=1.25.1",
-  "pygobject>=3.46.0",
+  # "pycairo>=1.25.1",
+  # "pygobject>=3.46.0",
   "numpy>=1.26.2",
   "pyparsing>=3.1.1",
-  "skia-python>=87.5",
+  # "skia-python>=87.5",
   "shapely>=2.0.2",
   "colorama>=0.4.6",
   "bezier>=2023.7.28",

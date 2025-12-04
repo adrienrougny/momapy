@@ -4,7 +4,8 @@ import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 import momapy.utils
-import momapy._pango
+
+# import momapy._pango
 import momapy.builder
 import abc
 import dataclasses
@@ -230,18 +231,19 @@ class TextLayout(LayoutElement):
         return self.position.y
 
     def _make_pango_layout(self):
-        pango_layout = momapy._pango.make_pango_layout(
-            font_family=self.font_family,
-            font_size=self.font_size,
-            font_style=self.font_style,
-            font_weight=self.font_weight,
-            text=self.text,
-            justify=self.justify,
-            horizontal_alignment=self.horizontal_alignment,
-            width=self.width,
-            height=self.height,
-        )
-        return pango_layout
+        # pango_layout = momapy._pango.make_pango_layout(
+        #     font_family=self.font_family,
+        #     font_size=self.font_size,
+        #     font_style=self.font_style,
+        #     font_weight=self.font_weight,
+        #     text=self.text,
+        #     justify=self.justify,
+        #     horizontal_alignment=self.horizontal_alignment,
+        #     width=self.width,
+        #     height=self.height,
+        # )
+        # return pango_layout
+        return None
 
     def _get_tx_and_ty(self, pango_layout):
         _, pango_layout_extents = pango_layout.get_pixel_extents()
