@@ -5,6 +5,7 @@ import momapy.geometry
 import momapy.coloring
 import momapy.utils
 import momapy._pango
+import momapy._freetype
 import momapy.builder
 import abc
 import dataclasses
@@ -398,6 +399,40 @@ class TextLayout(LayoutElement):
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the layout element"""
         return self.ink_bbox()
+
+
+@dataclasses.dataclass(frozen=True)
+class TextLayout2(TextLayout):
+    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the text layout"""
+        drawing_elements = []
+        face = momapy._freetype.make_face_from_font_file_path(
+            "/usr/share/fonts/TTF/arial.ttf", self.font_size
+        )
+        _, _, font_height = momapy._freetype.get_face_parameters(face)
+        x = 0
+        y = 0
+        for line_text in self.text.split("\n"):
+            _, _, width, _ = momapy._freetype.get_string_logical_bbox(line_text, face)
+            text = momapy.drawing.Text(
+                text=line_text,
+                point=momapy.geometry.Point(x, y),
+                fill=self.fill,
+                filter=self.filter,
+                font_family="Arial",
+                font_size=self.font_size,
+                font_style=self.font_style,
+                font_weight=self.font_weight,
+                stroke=self.stroke,
+                stroke_dasharray=self.stroke_dasharray,
+                stroke_dashoffset=self.stroke_dashoffset,
+                stroke_width=self.stroke_width,
+                text_anchor=self.text_anchor,
+                transform=self.transform,
+            )
+            drawing_elements.append(text)
+            y += font_height
+        return drawing_elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
