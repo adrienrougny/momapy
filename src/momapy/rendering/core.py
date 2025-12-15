@@ -103,9 +103,14 @@ def render_layout_elements(
             max_y -= min_y
             translation = momapy.geometry.Translation(-min_x, -min_y)
             for layout_element in layout_elements:
-                if layout_element.group_transform is None:
-                    layout_element.group_transform = momapy.core.TupleBuilder()
-                layout_element.group_transform.append(translation)
+                for attr_name in ["group_transform", "transform"]:
+                    if hasattr(layout_element, attr_name):
+                        if getattr(layout_element, attr_name) is None:
+                            setattr(
+                                layout_element, attr_name, momapy.core.TupleBuilder()
+                            )
+                        getattr(layout_element, attr_name).append(translation)
+                        break
         return layout_elements, max_x, max_y
 
     if not multi_pages:
