@@ -5,11 +5,17 @@ import typing
 import math
 import os
 
-import cairo
-import gi
+try:
+    import cairo
+    import gi
 
-gi.require_version("PangoCairo", "1.0")
-import gi.repository
+    gi.require_version("PangoCairo", "1.0")
+    import gi.repository
+except ModuleNotFoundError as e:
+    raise Exception(
+        "You might want to install momapy with the cairo extra: momapy[cairo]"
+    ) from e
+
 
 import momapy.drawing
 import momapy.geometry
