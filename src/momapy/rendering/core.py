@@ -113,6 +113,9 @@ def render_layout_elements(
                         break
         return layout_elements, max_x, max_y
 
+    import momapy.rendering
+
+    momapy.rendering._ensure_registered()
     if not multi_pages:
         prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
             layout_elements, style_sheet, to_top_left

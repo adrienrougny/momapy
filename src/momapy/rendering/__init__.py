@@ -1,11 +1,17 @@
 """Subpackage for rendering"""
 
-import momapy.rendering.core
-import momapy.rendering.svg_native
+_registered = False
 
-momapy.rendering.core.register_renderer(
-    "svg-native", momapy.rendering.svg_native.SVGNativeRenderer
-)
-momapy.rendering.core.register_renderer(
-    "svg-native-compat", momapy.rendering.svg_native.SVGNativeCompatRenderer
-)
+
+def _ensure_registered():
+    global _registered
+    if not _registered:
+        import momapy.rendering.core
+        import momapy.rendering.svg_native
+
+        momapy.rendering.core.register_renderer(
+            "svg-native", momapy.rendering.svg_native.SVGNativeRenderer
+        )
+        momapy.rendering.core.register_renderer(
+            "svg-native-compat", momapy.rendering.svg_native.SVGNativeCompatRenderer
+        )

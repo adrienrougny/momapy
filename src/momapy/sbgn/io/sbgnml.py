@@ -3180,7 +3180,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
         return False
 
 
-class _SBGNMLWriter(momapy.io.Writer):
+class _SBGNMLWriter(momapy.io.core.Writer):
     _NSMAP = {
         None: "http://sbgn.org/libsbgn/0.3",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
