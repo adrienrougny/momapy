@@ -5,16 +5,12 @@ description = "A library for working with molecular maps"
 authors = [{ name = "Adrien Rougny", email = "adrienrougny@gmail.com" }]
 dependencies = [
   "frozendict>=2.3.10",
-  "pycairo>=1.25.1",
-  "pygobject>=3.46.0",
   "numpy>=1.26.2",
   "pyparsing>=3.1.1",
-  "skia-python>=87.5",
   "shapely>=2.0.2",
   "colorama>=0.4.6",
   "bezier>=2023.7.28",
   "lxml>=5.3.2",
-  "freetype-py>=2.5.1",
   "uharfbuzz>=0.53.0",
   "matplotlib>=3.10.8",
 ]
@@ -31,6 +27,11 @@ classifiers = [
 Homepage = "https://github.com/adrienrougny/momapy"
 Issues = "https://github.com/adrienrougny/momapy/issues"
 
+[project.optional-dependencies]
+skia = ["skia-python>=138.0"]
+cairo = ["pycairo>=1.29.0", "pygobject>=3.54.5"]
+all = ["momapy[cairo, skia]"]
+
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -46,13 +47,6 @@ dev = [
   "mkdocs-pygments>=0.0.2",
   "ruff>=0.12.8",
 ]
-
-[tool.basedpyright]
-reportMissingModuleSource = false
-typeCheckingMode = "standard"
-
-[tool.pdm]
-plugins = ["pdm-readiness"]
 
 [tool.pdm.version]
 tag_regex = '^v(?P<version>([0-9].*))'
