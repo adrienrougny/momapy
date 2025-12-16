@@ -25,8 +25,8 @@ def register_renderer(name, renderer_cls):
 def render_layout_element(
     layout_element: momapy.core.LayoutElement,
     file_path: str | os.PathLike,
-    format_: str = "pdf",
-    renderer: str = "skia",
+    format_: str = "svg",
+    renderer: str = "svg-native",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
@@ -53,8 +53,8 @@ def render_layout_element(
 def render_layout_elements(
     layout_elements: collections.abc.Collection[momapy.core.LayoutElement],
     file_path: str | os.PathLike,
-    format_: str = "pdf",
-    renderer: str = "skia",
+    format_: str = "svg",
+    renderer: str = "svg-native",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
@@ -145,8 +145,8 @@ def render_layout_elements(
 def render_map(
     map_: momapy.core.Map,
     file_path: str | os.PathLike,
-    format_: str = "pdf",
-    renderer: str = "skia",
+    format_: str = "svg",
+    renderer: str = "svg-native",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
@@ -157,8 +157,8 @@ def render_map(
 def render_maps(
     maps: collections.abc.Collection[momapy.core.Map],
     file_path: str | os.PathLike,
-    format_: str = "pdf",
-    renderer: str = "skia",
+    format_: str = "svg",
+    renderer: str = "svg-native",
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
