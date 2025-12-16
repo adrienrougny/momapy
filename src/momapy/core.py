@@ -4,8 +4,6 @@ import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 import momapy.utils
-import momapy._pango
-import momapy._freetype
 import momapy.builder
 import abc
 import dataclasses
@@ -17,6 +15,8 @@ import shapely
 import frozendict
 import functools
 import operator
+import uharfbuzz
+import matplotlib.font_manager
 
 
 class Direction(enum.Enum):
@@ -230,77 +230,95 @@ class TextLayout(LayoutElement):
         """Return the y coordinate of the text layout"""
         return self.position.y
 
-    def _make_pango_layout(self):
-        pango_layout = momapy._pango.make_pango_layout(
-            font_family=self.font_family,
-            font_size=self.font_size,
-            font_style=self.font_style,
-            font_weight=self.font_weight,
-            text=self.text,
-            justify=self.justify,
-            horizontal_alignment=self.horizontal_alignment,
-            width=self.width,
-            height=self.height,
-        )
-        return pango_layout
-
-    def _get_tx_and_ty(self, pango_layout):
-        _, pango_layout_extents = pango_layout.get_pixel_extents()
-        if self.width is not None:
-            tx = self.x - self.width / 2
+    @classmethod
+    def _get_font_file_path(cls, font_family, font_weight, font_style):
+        if isinstance(font_weight, momapy.drawing.FontWeight):
+            weight = font_weight.name.lower()
         else:
-            tx = self.x - (pango_layout_extents.x + pango_layout_extents.width / 2)
-        if self.height is not None:
-            if self.vertical_alignment == VAlignment.TOP:
-                ty = self.y - self.height / 2
-            elif self.vertical_alignment == VAlignment.BOTTOM:
-                ty = self.y + self.height / 2 - pango_layout_extents.height
+            weight = font_weight
+        font_properties = matplotlib.font_manager.FontProperties(
+            family=font_family,
+            weight=weight,
+            style=font_style.name.lower(),
+        )
+        font_file_path = matplotlib.font_manager.findfont(font_properties)
+        return font_file_path
+
+    @classmethod
+    def _make_font(cls, font_file_path, font_size):
+        with open(font_file_path, "rb") as f:
+            fontdata = f.read()
+        face = uharfbuzz.Face(fontdata)
+        font = uharfbuzz.Font(face)
+        font.scale = (font_size * 64, font_size * 64)
+        return font
+
+    @classmethod
+    def _get_font_parameters(cls, font):
+        font_extents = font.get_font_extents("ltr")
+        ascent = font_extents.ascender / 64
+        descent = abs(font_extents.descender / 64)
+        line_gap = font_extents.line_gap / 64
+        height = ascent + descent + line_gap
+        return ascent, descent, height
+
+    @classmethod
+    def _get_text_width(cls, text, font):
+        if text:
+            buffer = uharfbuzz.Buffer()
+            buffer.add_str(text)
+            buffer.guess_segment_properties()
+            uharfbuzz.shape(font, buffer)
+            width = sum(pos.x_advance for pos in buffer.glyph_positions) / 64
+        else:
+            width = 0.0
+        return width
+
+    def _get_line_positions(self):
+        line_positions = []
+        font_file_path = self._get_font_file_path(
+            self.font_family, self.font_weight, self.font_style
+        )
+        font = self._make_font(font_file_path, self.font_size)
+        font_ascent, font_descent, font_height = self._get_font_parameters(font)
+        lines = self.text.split("\n")
+        text_height = font_height * (len(lines) - 1) + font_ascent + font_descent
+        for i, line in enumerate(lines):
+            line_width = self._get_text_width(line, font)
+            if self.width is not None and self.horizontal_alignment is HAlignment.LEFT:
+                x = self.position.x - self.width / 2
+            elif (
+                self.width is not None and self.horizontal_alignment is HAlignment.RIGHT
+            ):
+                x = self.position.x + self.width / 2 - line_width
             else:
-                ty = self.y - (pango_layout_extents.y + pango_layout_extents.height / 2)
-        else:
-            ty = self.y - (pango_layout_extents.y + pango_layout_extents.height / 2)
-        return tx, ty
-
-    def _get_bbox(self, pango_layout, pango_layout_extents):
-        position = momapy.geometry.Point(
-            pango_layout_extents.x + pango_layout_extents.width / 2,
-            pango_layout_extents.y + pango_layout_extents.height / 2,
-        )
-        tx, ty = self._get_tx_and_ty(pango_layout)
-        return momapy.geometry.Bbox(
-            position + (tx, ty),
-            pango_layout_extents.width,
-            pango_layout_extents.height,
-        )
-
-    def logical_bbox(self) -> momapy.geometry.Bbox:
-        """Return the logical bounding box of the text layout"""
-        pango_layout = self._make_pango_layout()
-        _, pango_layout_extents = pango_layout.get_pixel_extents()
-        return self._get_bbox(pango_layout, pango_layout_extents)
-
-    def ink_bbox(self) -> momapy.geometry.Bbox:
-        """Return the ink bounding box of the text layout"""
-        pango_layout = self._make_pango_layout()
-        pango_layout_extents, _ = pango_layout.get_pixel_extents()
-        return self._get_bbox(pango_layout, pango_layout_extents)
+                x = self.position.x - line_width / 2
+            if self.height is not None and self.vertical_alignment is VAlignment.TOP:
+                y = self.position.y - self.height / 2 + font_ascent + i * font_height
+            elif (
+                self.height is not None and self.vertical_alignment is VAlignment.BOTTOM
+            ):
+                y = (
+                    self.position.y
+                    + self.height / 2
+                    - text_height
+                    + font_ascent
+                    + i * font_height
+                )
+            else:
+                y = self.position.y - text_height / 2 + font_ascent + i * font_height
+            position = momapy.geometry.Point(x, y)
+            line_positions.append((line, position, line_width))
+        return line_positions
 
     def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the drawing elements of the text layout"""
         drawing_elements = []
-        pango_layout = self._make_pango_layout()
-        pango_layout_iter = pango_layout.get_iter()
-        tx, ty = self._get_tx_and_ty(pango_layout)
-        done = False
-        while not done:
-            pango_line = pango_layout_iter.get_line()
-            line_text, pos = momapy._pango.get_pango_line_text_and_initial_pos(
-                pango_layout, pango_layout_iter, pango_line
-            )
-            pos += (tx, ty)
+        lines_positions = self._get_line_positions()
+        for line, position, _ in lines_positions:
             text = momapy.drawing.Text(
-                text=line_text,
-                point=pos,
+                text=line,
+                point=position,
                 fill=self.fill,
                 filter=self.filter,
                 font_family=self.font_family,
@@ -315,11 +333,34 @@ class TextLayout(LayoutElement):
                 transform=self.transform,
             )
             drawing_elements.append(text)
-            if pango_layout_iter.at_last_line():
-                done = True
-            else:
-                pango_layout_iter.next_line()
         return drawing_elements
+
+    def bbox(self) -> momapy.geometry.Bbox:
+        """Compute and return the bounding box of the layout element"""
+        line_positions = self._get_line_positions()
+        font_file_path = self._get_font_file_path(
+            self.font_family, self.font_weight, self.font_style
+        )
+        font = self._make_font(font_file_path, self.font_size)
+        font_ascent, font_descent, _ = self._get_font_parameters(font)
+        line, position, line_width = line_positions[0]
+        min_x = position.x
+        max_x = min_x + line_width
+        min_y = position.y - font_ascent
+        max_y = position.y + font_descent
+        for line, position, line_width in line_positions[1:]:
+            start_x = position.x
+            if start_x < min_x:
+                min_x = start_x
+            end_x = start_x + line_width
+            if end_x > max_x:
+                max_x = end_x
+            max_y = position.y + font_descent
+        return momapy.geometry.Bbox(
+            momapy.geometry.Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
+            max_x - min_x,
+            max_y - min_y,
+        )
 
     def children(self) -> list[LayoutElement]:
         """Return the children of the text layout.
@@ -395,44 +436,6 @@ class TextLayout(LayoutElement):
     def west_north_west(self) -> momapy.geometry.Point:
         """Return the west north west anchor of the text layout"""
         return self.bbox().west_north_west()
-
-    def bbox(self) -> momapy.geometry.Bbox:
-        """Compute and return the bounding box of the layout element"""
-        return self.ink_bbox()
-
-
-@dataclasses.dataclass(frozen=True)
-class TextLayout2(TextLayout):
-    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
-        """Return the drawing elements of the text layout"""
-        drawing_elements = []
-        face = momapy._freetype.make_face_from_font_file_path(
-            "/usr/share/fonts/TTF/arial.ttf", self.font_size
-        )
-        _, _, font_height = momapy._freetype.get_face_parameters(face)
-        x = 0
-        y = 0
-        for line_text in self.text.split("\n"):
-            _, _, width, _ = momapy._freetype.get_string_logical_bbox(line_text, face)
-            text = momapy.drawing.Text(
-                text=line_text,
-                point=momapy.geometry.Point(x, y),
-                fill=self.fill,
-                filter=self.filter,
-                font_family="Arial",
-                font_size=self.font_size,
-                font_style=self.font_style,
-                font_weight=self.font_weight,
-                stroke=self.stroke,
-                stroke_dasharray=self.stroke_dasharray,
-                stroke_dashoffset=self.stroke_dashoffset,
-                stroke_width=self.stroke_width,
-                text_anchor=self.text_anchor,
-                transform=self.transform,
-            )
-            drawing_elements.append(text)
-            y += font_height
-        return drawing_elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
