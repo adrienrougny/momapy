@@ -25,7 +25,7 @@ import momapy.sbml.core
 
 
 class _SBGNMLReader(momapy.io.Reader):
-    _DEFAULT_FONT_FAMILY = "Helvetica"
+    _DEFAULT_FONT_FAMILY = "DejaVu Sans"
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
     _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -3712,12 +3712,12 @@ class _SBGNMLWriter(momapy.io.Writer):
 
     @classmethod
     def _make_sbgnml_bbox_from_text_layout(cls, text_layout):
-        ink_bbox = text_layout.ink_bbox()
+        bbox = text_layout.bbox()
         attributes = {
-            "x": str(ink_bbox.x - ink_bbox.width / 2),
-            "y": str(ink_bbox.y - ink_bbox.height / 2),
-            "w": str(ink_bbox.width),
-            "h": str(ink_bbox.height),
+            "x": str(bbox.x - bbox.width / 2),
+            "y": str(bbox.y - bbox.height / 2),
+            "w": str(bbox.width),
+            "h": str(bbox.height),
         }
         sbgnml_bbox = cls._make_lxml_element("bbox", attributes=attributes)
         return sbgnml_bbox
