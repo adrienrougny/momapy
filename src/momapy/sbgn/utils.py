@@ -126,9 +126,7 @@ def set_nodes_to_fit_labels(
             and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
-            bbox = momapy.positioning.fit(
-                [layout_element.label.logical_bbox()], xsep, ysep
-            )
+            bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
             if not omit_width:
                 if bbox.width > layout_element.width:
                     layout_element.width = bbox.width
