@@ -4,15 +4,11 @@ import collections
 import frozendict
 import lxml.objectify
 
-import momapy.core
-import momapy.geometry
-import momapy.positioning
-import momapy.io
-import momapy.coloring
+import momapy.io.core
 import momapy.sbml.core
 
 
-class SBMLReader(momapy.io.Reader):
+class SBMLReader(momapy.io.core.Reader):
     _CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
     _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
@@ -104,7 +100,7 @@ class SBMLReader(momapy.io.Reader):
         file_path: str | os.PathLike,
         with_annotations=True,
         with_notes=True,
-    ) -> momapy.io.ReaderResult:
+    ) -> momapy.io.core.ReaderResult:
         sbml_document = lxml.objectify.parse(file_path)
         sbml = sbml_document.getroot()
         obj, annotations, notes, ids = cls._make_main_obj_from_sbml_model(
@@ -112,7 +108,7 @@ class SBMLReader(momapy.io.Reader):
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
-        result = momapy.io.ReaderResult(
+        result = momapy.io.core.ReaderResult(
             obj=obj,
             notes=notes,
             annotations=annotations,
@@ -212,16 +208,13 @@ class SBMLReader(momapy.io.Reader):
         if description is not None:
             for bq_element in description.getchildren():
                 key = cls._get_prefix_and_name_from_tag(bq_element.tag)
-                qualifier = cls._QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(
-                    key
-                )
+                qualifier = cls._QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
                 if qualifier is not None:
                     bags = cls._get_bags_from_bq_element(bq_element)
                     for bag in bags:
                         lis = cls._get_lis_from_bag(bag)
                         resources = [
-                            li.get(f"{{{cls._RDF_NAMESPACE}}}resource")
-                            for li in lis
+                            li.get(f"{{{cls._RDF_NAMESPACE}}}resource") for li in lis
                         ]
                         annotation = momapy.sbml.core.RDFAnnotation(
                             qualifier=qualifier,
@@ -252,12 +245,8 @@ class SBMLReader(momapy.io.Reader):
     def _make_sbml_id_to_sbml_element_mapping_from_sbml_model(cls, sbml_model):
         sbml_id_to_sbml_element = {}
         # compartments
-        for sbml_compartment in cls._get_compartments_from_sbml_model(
-            sbml_model
-        ):
-            sbml_id_to_sbml_element[sbml_compartment.get("id")] = (
-                sbml_compartment
-            )
+        for sbml_compartment in cls._get_compartments_from_sbml_model(sbml_model):
+            sbml_id_to_sbml_element[sbml_compartment.get("id")] = sbml_compartment
         # species
         for sbml_species in cls._get_species_from_sbml_model(sbml_model):
             sbml_id_to_sbml_element[sbml_species.get("id")] = sbml_species
@@ -284,9 +273,7 @@ class SBMLReader(momapy.io.Reader):
         map_element_to_ids = collections.defaultdict(set)
         map_element_to_notes = collections.defaultdict(set)
         sbml_id_to_sbml_element = (
-            cls._make_sbml_id_to_sbml_element_mapping_from_sbml_model(
-                sbml_model
-            )
+            cls._make_sbml_id_to_sbml_element_mapping_from_sbml_model(sbml_model)
         )
         # we make and add the  model and layout elements from the cd elements
         # we start with the compartments
@@ -333,22 +320,13 @@ class SBMLReader(momapy.io.Reader):
             notes = cls._make_notes_from_sbml_element(sbml_model)
             map_element_to_notes[obj].update(notes)
         map_element_to_annotations = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_annotations.items()
-            }
+            {key: frozenset(value) for key, value in map_element_to_annotations.items()}
         )
         map_element_to_notes = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_notes.items()
-            }
+            {key: frozenset(value) for key, value in map_element_to_notes.items()}
         )
         map_element_to_ids = frozendict.frozendict(
-            {
-                key: frozenset(value)
-                for key, value in map_element_to_ids.items()
-            }
+            {key: frozenset(value) for key, value in map_element_to_ids.items()}
         )
         return (
             obj,
@@ -370,9 +348,7 @@ class SBMLReader(momapy.io.Reader):
         with_annotations,
         with_notes,
     ):
-        for sbml_compartment in cls._get_compartments_from_sbml_model(
-            sbml_model
-        ):
+        for sbml_compartment in cls._get_compartments_from_sbml_model(sbml_model):
             _ = cls._make_and_add_compartment_from_sbml_compartment(
                 sbml_compartment=sbml_compartment,
                 model=model,
@@ -459,15 +435,12 @@ class SBMLReader(momapy.io.Reader):
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
             model.compartments,
-            func=lambda element, existing_element: element.id_
-            < existing_element.id_,
+            func=lambda element, existing_element: element.id_ < existing_element.id_,
         )
         sbml_id_to_model_element[sbml_compartment.get("id")] = model_element
         map_element_to_ids[model_element].add(sbml_compartment.get("id"))
         if with_annotations:
-            annotations = cls._make_annotations_from_sbml_element(
-                sbml_compartment
-            )
+            annotations = cls._make_annotations_from_sbml_element(sbml_compartment)
             if annotations:
                 map_element_to_annotations[model_element].update(annotations)
         if with_notes:
@@ -495,16 +468,13 @@ class SBMLReader(momapy.io.Reader):
         model_element.sbo_term = sbml_species.get("sboTerm")
         sbml_compartment_id = sbml_species.get("compartment")
         if sbml_compartment_id is not None:
-            compartment_model_element = sbml_id_to_model_element[
-                sbml_compartment_id
-            ]
+            compartment_model_element = sbml_id_to_model_element[sbml_compartment_id]
             model_element.compartment = compartment_model_element
         model_element = momapy.builder.object_from_builder(model_element)
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
             model.species,
-            func=lambda element, existing_element: element.id_
-            < existing_element.id_,
+            func=lambda element, existing_element: element.id_ < existing_element.id_,
         )
         sbml_id_to_model_element[sbml_species.get("id")] = model_element
         if with_annotations:
@@ -534,9 +504,7 @@ class SBMLReader(momapy.io.Reader):
         model_element.name = sbml_reaction.get("name")
         model_element.sbo_term = sbml_reaction.get("sboTerm")
         model_element.reversible = sbml_reaction.get("reversible") == "true"
-        for sbml_reactant in cls._get_reactants_from_sbml_reaction(
-            sbml_reaction
-        ):
+        for sbml_reactant in cls._get_reactants_from_sbml_reaction(sbml_reaction):
             _ = cls._make_and_add_reactant_from_sbml_species_reference(
                 model=model,
                 sbml_species_reference=sbml_reactant,
@@ -550,9 +518,7 @@ class SBMLReader(momapy.io.Reader):
                 super_sbml_element=sbml_reaction,
                 super_model_element=model_element,
             )
-        for sbml_product in cls._get_products_from_sbml_reaction(
-            sbml_reaction
-        ):
+        for sbml_product in cls._get_products_from_sbml_reaction(sbml_reaction):
             _ = cls._make_and_add_product_from_sbml_species_reference(
                 model=model,
                 sbml_species_reference=sbml_product,
@@ -566,9 +532,7 @@ class SBMLReader(momapy.io.Reader):
                 super_sbml_element=sbml_reaction,
                 super_model_element=model_element,
             )
-        for sbml_modifier in cls._get_modifiers_from_sbml_reaction(
-            sbml_reaction
-        ):
+        for sbml_modifier in cls._get_modifiers_from_sbml_reaction(sbml_reaction):
             _ = cls._make_and_add_modifier_from_sbml_modifier_species_reference(
                 model=model,
                 sbml_modifier_species_reference=sbml_modifier,
@@ -586,15 +550,12 @@ class SBMLReader(momapy.io.Reader):
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
             model.reactions,
-            func=lambda element, existing_element: element.id_
-            < existing_element.id_,
+            func=lambda element, existing_element: element.id_ < existing_element.id_,
         )
         sbml_id_to_model_element[sbml_reaction.get("id")] = model_element
         map_element_to_ids[model_element].add(sbml_reaction.get("id"))
         if with_annotations:
-            annotations = cls._make_annotations_from_sbml_element(
-                sbml_reaction
-            )
+            annotations = cls._make_annotations_from_sbml_element(sbml_reaction)
             if annotations:
                 map_element_to_annotations[model_element].update(annotations)
             if with_notes:
@@ -673,9 +634,7 @@ class SBMLReader(momapy.io.Reader):
         super_sbml_element,
         super_model_element,
     ):
-        model_element = model.new_element(
-            momapy.sbml.core.ModifierSpeciesReference
-        )
+        model_element = model.new_element(momapy.sbml.core.ModifierSpeciesReference)
         sbml_species_id = sbml_modifier_species_reference.get("species")
         model_element.id_ = sbml_modifier_species_reference.get("metaid")
         species_model_element = sbml_id_to_model_element[sbml_species_id]
@@ -684,6 +643,3 @@ class SBMLReader(momapy.io.Reader):
         super_model_element.modifiers.add(model_element)
         sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
-
-
-momapy.io.register_reader("sbml", SBMLReader)
