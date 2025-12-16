@@ -3743,24 +3743,6 @@ class _SBGNMLWriter(momapy.io.Writer):
         return sbgnml_state
 
 
-class SBGNML0_2Writer(_SBGNMLWriter):
-    """Class for SBGN-ML 0.2 writer objects"""
-
-    @classmethod
-    def _sbgn_objs_from_map(cls, map_):
-        sbgn = cls._parser_module.Sbgn()
-        sbgn_map = cls._parser_module.Map()
-        if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
-            sbgn_language = cls._parser_module.MapLanguage.PROCESS_DESCRIPTION
-        elif momapy.builder.isinstance_or_builder(map_, momapy.sbgn.af.SBGNAFMap):
-            sbgn_language = cls._parser_module.MapLanguage.ACTIVITY_FLOW
-        else:
-            raise TypeError("this type of map is not yet supported")
-        sbgn_map.language = sbgn_language
-        sbgn.map = sbgn_map
-        return sbgn, sbgn_map
-
-
 class SBGNML0_3Writer(_SBGNMLWriter):
     """Class for SBGN-ML 0.3 writer objects"""
 
