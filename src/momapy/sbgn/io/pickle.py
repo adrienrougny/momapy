@@ -6,14 +6,11 @@ import pickle
 
 import momapy.core
 import momapy.builder
-import momapy.geometry
-import momapy.positioning
-import momapy.io
-import momapy.coloring
+import momapy.io.core
 import momapy.sbgn.core
 
 
-class SBGNPickleReader(momapy.io.Reader):
+class SBGNPickleReader(momapy.io.core.Reader):
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
         with open(file_path, "rb") as f:
@@ -33,7 +30,7 @@ class SBGNPickleReader(momapy.io.Reader):
         with_layout=True,
         with_annotations=True,
         with_notes=True,
-    ) -> momapy.io.ReaderResult:
+    ) -> momapy.io.core.ReaderResult:
         def _del_key_from_mapping_by_classes(
             mapping, include_classes=None, exclude_classes=None
         ):
@@ -117,7 +114,7 @@ class SBGNPickleReader(momapy.io.Reader):
         return reader_result
 
 
-class SBGNPickleWriter(momapy.io.Writer):
+class SBGNPickleWriter(momapy.io.core.Writer):
     @classmethod
     def write(
         cls,
@@ -126,8 +123,8 @@ class SBGNPickleWriter(momapy.io.Writer):
         annotations=None,
         notes=None,
         ids=None,
-    ) -> momapy.io.WriterResult:
-        reader_result = momapy.io.ReaderResult(
+    ) -> momapy.io.core.WriterResult:
+        reader_result = momapy.io.core.ReaderResult(
             obj=obj,
             annotations=annotations,
             notes=notes,
@@ -136,9 +133,5 @@ class SBGNPickleWriter(momapy.io.Writer):
         )
         with open(file_path, "wb") as f:
             pickle.dump(reader_result, f)
-        writer_result = momapy.io.WriterResult(obj=obj, file_path=file_path)
+        writer_result = momapy.io.core.WriterResult(obj=obj, file_path=file_path)
         return writer_result
-
-
-momapy.io.register_reader("sbgn_pickle", SBGNPickleReader)
-momapy.io.register_writer("sbgn_pickle", SBGNPickleWriter)

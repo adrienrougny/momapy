@@ -7,13 +7,12 @@ import typing
 
 import frozendict
 import lxml.objectify
-import lxml
+import lxml.etree
 
-import momapy.__about__
 import momapy.geometry
 import momapy.utils
 import momapy.core
-import momapy.io
+import momapy.io.core
 import momapy.coloring
 import momapy.positioning
 import momapy.builder
@@ -24,7 +23,7 @@ import momapy.sbgn.af
 import momapy.sbml.core
 
 
-class _SBGNMLReader(momapy.io.Reader):
+class _SBGNMLReader(momapy.io.core.Reader):
     _DEFAULT_FONT_FAMILY = "DejaVu Sans"
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
@@ -416,7 +415,7 @@ class _SBGNMLReader(momapy.io.Reader):
         with_styles: bool = True,
         xsep: float = 0,
         ysep: float = 0,
-    ) -> momapy.io.ReaderResult:
+    ) -> momapy.io.core.ReaderResult:
         """Read an SBGN-ML file and return a reader result object"""
 
         sbgnml_document = lxml.objectify.parse(file_path)
@@ -431,7 +430,7 @@ class _SBGNMLReader(momapy.io.Reader):
             xsep=xsep,
             ysep=ysep,
         )
-        result = momapy.io.ReaderResult(
+        result = momapy.io.core.ReaderResult(
             obj=obj,
             notes=notes,
             annotations=annotations,
@@ -480,7 +479,7 @@ class _SBGNMLReader(momapy.io.Reader):
 
     @classmethod
     def _get_module_from_obj(cls, obj):
-        if momapy.builder.momapy.builder.isinstance_or_builder(
+        if momapy.builder.isinstance_or_builder(
             obj,
             (
                 momapy.sbgn.pd.SBGNPDMap,
@@ -489,7 +488,7 @@ class _SBGNMLReader(momapy.io.Reader):
             ),
         ):
             return momapy.sbgn.pd
-        if momapy.builder.momapy.builder.isinstance_or_builder(
+        if momapy.builder.isinstance_or_builder(
             obj,
             (
                 momapy.sbgn.af.SBGNAFMap,
@@ -3766,11 +3765,3 @@ class SBGNML0_3Writer(_SBGNMLWriter):
     """Class for SBGN-ML 0.3 writer objects"""
 
     pass
-
-
-momapy.io.register_reader("sbgnml-0.2", SBGNML0_2Reader)
-momapy.io.register_reader("sbgnml-0.3", SBGNML0_3Reader)
-momapy.io.register_reader("sbgnml", SBGNML0_3Reader)
-momapy.io.register_writer("sbgnml-0.2", SBGNML0_2Writer)
-momapy.io.register_writer("sbgnml-0.3", SBGNML0_3Writer)
-momapy.io.register_writer("sbgnml", SBGNML0_3Writer)
