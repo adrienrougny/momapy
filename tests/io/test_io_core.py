@@ -16,11 +16,21 @@ def test_writers_dict_exists():
 def test_register_reader():
     """Test register_reader function."""
     class DummyReader:
-        pass
+        @staticmethod
+        def check_file(file_path):
+            return False
 
-    momapy.io.core.register_reader("test_reader", DummyReader)
-    assert "test_reader" in momapy.io.core.readers
-    assert momapy.io.core.readers["test_reader"] == DummyReader
+    # Save original state
+    original_readers = momapy.io.core.readers.copy()
+
+    try:
+        momapy.io.core.register_reader("test_reader", DummyReader)
+        assert "test_reader" in momapy.io.core.readers
+        assert momapy.io.core.readers["test_reader"] == DummyReader
+    finally:
+        # Restore original state
+        momapy.io.core.readers.clear()
+        momapy.io.core.readers.update(original_readers)
 
 
 def test_register_writer():
@@ -28,9 +38,17 @@ def test_register_writer():
     class DummyWriter:
         pass
 
-    momapy.io.core.register_writer("test_writer", DummyWriter)
-    assert "test_writer" in momapy.io.core.writers
-    assert momapy.io.core.writers["test_writer"] == DummyWriter
+    # Save original state
+    original_writers = momapy.io.core.writers.copy()
+
+    try:
+        momapy.io.core.register_writer("test_writer", DummyWriter)
+        assert "test_writer" in momapy.io.core.writers
+        assert momapy.io.core.writers["test_writer"] == DummyWriter
+    finally:
+        # Restore original state
+        momapy.io.core.writers.clear()
+        momapy.io.core.writers.update(original_writers)
 
 
 def test_io_result_creation():
