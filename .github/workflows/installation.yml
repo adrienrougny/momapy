@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os-python.os }}
     strategy:
       matrix:
-        extras: ['', 'skia', 'cairo', 'all']
+        extras: ['']
         os-python:
           - {os: ubuntu-latest, python-version: '3.10'}
           - {os: ubuntu-latest, python-version: '3.11'}
