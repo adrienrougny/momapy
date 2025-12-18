@@ -3421,6 +3421,8 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             id_ = id_[0]
         attributes = {"id": id_, "language": language}
         sbgnml_map = cls._make_lxml_element("map", attributes=attributes)
+        sbgnml_bbox = cls._make_sbgnml_bbox_from_node(map_.layout)
+        sbgnml_map.append(sbgnml_bbox)
         for layout_element in map_.layout.layout_elements:
             cls._make_and_add_sbgnml_elements_from_layout_element(
                 map_=map_,
@@ -3447,6 +3449,11 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         with_notes=True,
     ):
         model_element = map_.get_mapping(layout_element)
+        if model_element is None:
+            for key in map_.layout_model_mapping:
+                if isinstance(key, frozenset) and layout_element in key:
+                    model_element = map_.get_mapping(key)
+                    break
         if model_element is not None:
             if isinstance(layout_element, momapy.core.Node):
                 sbgnml_elements = cls._make_sbgnml_elements_from_node(
@@ -3735,9 +3742,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         text_split = text_layout.text.split("@")
         if len(text_split) > 1:
             attributes["variable"] = text_split[-1]
-            if text_split[0]:
-                attributes["value"] = text_split[0]
-        else:
+        if text_split[0]:
             attributes["value"] = text_split[0]
         sbgnml_state = cls._make_lxml_element("state", attributes=attributes)
         return sbgnml_state
