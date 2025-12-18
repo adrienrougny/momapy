@@ -1803,7 +1803,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 text = ""
             else:
                 sbgnml_value = sbgnml_state.get("value")
-                value = sbgnml_value
+                if sbgnml_value:
+                    value = sbgnml_value
+                else:
+                    value = None
                 text = sbgnml_value if sbgnml_value is not None else ""
                 sbgnml_variable = sbgnml_state.get("variable")
                 variable = sbgnml_variable
