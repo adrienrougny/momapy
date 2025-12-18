@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-install:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os-python.os }}
     strategy:
       matrix:
         extras: ['', 'skia', 'cairo', 'all']
