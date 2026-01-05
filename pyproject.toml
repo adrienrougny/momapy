@@ -1,7 +1,7 @@
 [project]
 name = "momapy"
 dynamic = ["version"]
-description = "A library for working with molecular maps"
+description = "A library to work with molecular maps"
 authors = [{ name = "Adrien Rougny", email = "adrienrougny@gmail.com" }]
 dependencies = [
   "frozendict>=2.3.10",
@@ -13,6 +13,7 @@ dependencies = [
   "lxml>=5.3.2",
   "uharfbuzz>=0.53.0",
   "matplotlib>=3.10.8",
+  "typing-extensions>=4.15.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -32,23 +33,29 @@ skia = ["skia-python>=138.0"]
 cairo = ["pycairo>=1.29.0", "pygobject>=3.54.5"]
 all = ["momapy[cairo, skia]"]
 
-[build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
-
 [dependency-groups]
 dev = [
-    "griffe-fieldz>=0.1.2",
-    "notebook>=7.2.1",
-    "mkdocstrings-python>=1.16.12",
-    "mkdocs-material>=9.6.16",
-    "griffe-inherited-docstrings>=1.1.1",
-    "mkdocs-jupyter>=0.25.1",
-    "mkdocs-pygments>=0.0.2",
-    "ruff>=0.12.8",
-    "pytest>=9.0.2",
+  "griffe-fieldz>=0.1.2",
+  "notebook>=7.2.1",
+  "mkdocstrings-python>=1.16.12",
+  "mkdocs-material>=9.6.16",
+  "griffe-inherited-docstrings>=1.1.1",
+  "mkdocs-jupyter>=0.25.1",
+  "mkdocs-pygments>=0.0.2",
+  "ruff>=0.12.8",
+  { include-group = "test" },
 ]
+test = ["pytest>=9.0.2"]
 
-[tool.pdm.version]
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
 tag_regex = '^v(?P<version>([0-9].*))'
-source = "scm"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/momapy"]
