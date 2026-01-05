@@ -9,8 +9,10 @@ try:
     import cairo
     import gi
 
+    gi.require_version("Pango", "1.0")
     gi.require_version("PangoCairo", "1.0")
-    import gi.repository
+    import gi.repository.Pango
+    import gi.repository.PangoCairo
 except ModuleNotFoundError as e:
     raise Exception(
         "You might want to install momapy with the cairo extra: momapy[cairo]"
@@ -235,8 +237,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
         pos = pango_layout.index_to_pos(0)
-        gi.repository.Pango.extents_to_pixels(pos)
-        x_offset = pos.x
+        x_offset = gi.repository.Pango.units_to_double(pos.x)
         pango_layout_iter = pango_layout.get_iter()
         baseline = pango_layout_iter.get_baseline()
         y_offset = gi.repository.Pango.units_to_double(baseline)
