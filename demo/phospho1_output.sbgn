@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='ASCII'?>
 <sbgn xmlns="http://sbgn.org/libsbgn/0.3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqmodel="http://biomodels.net/model-qualifiers/" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-  <map id="8982fb8d-81a5-4910-bf0a-b547f8ff5cc4" language="process description">
+  <map id="16f7bae7-9750-4f79-ac07-69b2f7f82888" language="process description">
     <glyph id="glyph2" class="macromolecule">
       <bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
-        <bbox x="80.5" y="262.5" w="10" h="11"/>
+        <bbox x="80.2109375" y="261.8515625" w="9.578125" h="16.296875"/>
       </label>
       <glyph id="glyph2a" class="state variable">
         <bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
@@ -14,7 +14,7 @@
     <glyph id="glyph1" class="macromolecule">
       <bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
-        <bbox x="385.5" y="262.5" w="10" h="11"/>
+        <bbox x="385.2109375" y="261.8515625" w="9.578125" h="16.296875"/>
       </label>
       <glyph id="glyph1a" class="state variable">
         <bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
@@ -24,7 +24,7 @@
     <glyph id="glyph3" class="macromolecule">
       <bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
       <label text="B">
-        <bbox x="226.5" y="127.5" w="8" h="11"/>
+        <bbox x="225.1953125" y="126.8515625" w="9.609375" h="16.296875"/>
       </label>
     </glyph>
   </map>

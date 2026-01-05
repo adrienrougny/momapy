@@ -6,16 +6,11 @@ import pickle
 
 import momapy.core
 import momapy.builder
-import momapy.geometry
-import momapy.positioning
-import momapy.io
-import momapy.coloring
+import momapy.io.core
 import momapy.celldesigner.core
-import momapy.sbml.core
 
 
-class CellDesignerPickleReader(momapy.io.Reader):
-
+class CellDesignerPickleReader(momapy.io.core.Reader):
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
         with open(file_path, "rb") as f:
@@ -35,8 +30,7 @@ class CellDesignerPickleReader(momapy.io.Reader):
         with_layout=True,
         with_annotations=True,
         with_notes=True,
-    ) -> momapy.io.ReaderResult:
-
+    ) -> momapy.io.core.ReaderResult:
         def _del_key_from_mapping_by_classes(
             mapping, include_classes=None, exclude_classes=None
         ):
@@ -120,8 +114,7 @@ class CellDesignerPickleReader(momapy.io.Reader):
         return reader_result
 
 
-class CellDesignerPickleWriter(momapy.io.Writer):
-
+class CellDesignerPickleWriter(momapy.io.core.Writer):
     @classmethod
     def write(
         cls,
@@ -130,8 +123,8 @@ class CellDesignerPickleWriter(momapy.io.Writer):
         annotations=None,
         notes=None,
         ids=None,
-    ) -> momapy.io.WriterResult:
-        reader_result = momapy.io.ReaderResult(
+    ) -> momapy.io.core.WriterResult:
+        reader_result = momapy.io.core.ReaderResult(
             obj=obj,
             annotations=annotations,
             notes=notes,
@@ -142,7 +135,3 @@ class CellDesignerPickleWriter(momapy.io.Writer):
             pickle.dump(reader_result, f)
         writer_result = momapy.io.WriterResult(obj=obj, file_path=file_path)
         return writer_result
-
-
-momapy.io.register_reader("celldesigner_pickle", CellDesignerPickleReader)
-momapy.io.register_writer("celldesigner_pickle", CellDesignerPickleWriter)

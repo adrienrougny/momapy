@@ -5,7 +5,12 @@ import typing
 import math
 import os
 
-import skia
+try:
+    import skia
+except ModuleNotFoundError as e:
+    raise Exception(
+        "You might want to install momapy with the skia extra: momapy[skia]"
+    ) from e
 
 import momapy.drawing
 import momapy.geometry

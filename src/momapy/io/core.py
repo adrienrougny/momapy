@@ -61,6 +61,10 @@ def read(
         A reader result
 
     """
+    import momapy.io
+
+    momapy.io._ensure_registered()
+
     reader_cls = None
     if reader is not None:
         reader_cls = readers.get(reader)
@@ -97,6 +101,10 @@ def write(
     Returns:
         A writer result
     """
+    import momapy.io
+
+    momapy.io._ensure_registered()
+
     writer_cls = None
     writer_cls = writers.get(writer)
     if writer_cls is None:

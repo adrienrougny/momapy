@@ -1,4 +1,4 @@
-name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
+name: Publish package to TestPyPI and PyPI
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build distribution 📦
+    name: Build package
     runs-on: ubuntu-latest
 
     steps:
@@ -26,14 +26,14 @@ jobs:
         --user
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
-    - name: Store the distribution packages
+    - name: Store the packages
       uses: actions/upload-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
 
   testpypi:
-    name: Publish Python 🐍 distribution 📦 to TestPyPI
+    name: Publish package to TestPyPI
     needs:
     - build
     runs-on: ubuntu-latest
@@ -51,20 +51,20 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-    - name: Publish distribution 📦 to TestPyPI
+    - name: Publish package to TestPyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository-url: https://test.pypi.org/legacy/
 
   pypi:
     name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
+      Publish package to PyPI
     needs:
     - build
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/momapy  # Replace <package-name> with your PyPI project name
+      url: https://pypi.org/p/momapy
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -74,5 +74,5 @@ jobs:
       with:
         name: python-package-distributions
         path: dist/
-    - name: Publish distribution 📦 to PyPI
+    - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1

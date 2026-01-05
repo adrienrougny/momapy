@@ -527,7 +527,3 @@ class SVGNativeCompatRenderer(SVGNativeRenderer):
         filter_ = filter_.to_compat()
         element = super()._make_filter_element(filter_)
         return element
-
-
-momapy.rendering.core.register_renderer("svg-native", SVGNativeRenderer)
-momapy.rendering.core.register_renderer("svg-native-compat", SVGNativeCompatRenderer)

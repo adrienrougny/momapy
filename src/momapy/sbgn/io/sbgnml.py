@@ -7,13 +7,12 @@ import typing
 
 import frozendict
 import lxml.objectify
-import lxml
+import lxml.etree
 
-import momapy.__about__
 import momapy.geometry
 import momapy.utils
 import momapy.core
-import momapy.io
+import momapy.io.core
 import momapy.coloring
 import momapy.positioning
 import momapy.builder
@@ -24,8 +23,8 @@ import momapy.sbgn.af
 import momapy.sbml.core
 
 
-class _SBGNMLReader(momapy.io.Reader):
-    _DEFAULT_FONT_FAMILY = "Helvetica"
+class _SBGNMLReader(momapy.io.core.Reader):
+    _DEFAULT_FONT_FAMILY = "DejaVu Sans"
     _DEFAULT_FONT_SIZE = 14.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
     _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -416,7 +415,7 @@ class _SBGNMLReader(momapy.io.Reader):
         with_styles: bool = True,
         xsep: float = 0,
         ysep: float = 0,
-    ) -> momapy.io.ReaderResult:
+    ) -> momapy.io.core.ReaderResult:
         """Read an SBGN-ML file and return a reader result object"""
 
         sbgnml_document = lxml.objectify.parse(file_path)
@@ -431,7 +430,7 @@ class _SBGNMLReader(momapy.io.Reader):
             xsep=xsep,
             ysep=ysep,
         )
-        result = momapy.io.ReaderResult(
+        result = momapy.io.core.ReaderResult(
             obj=obj,
             notes=notes,
             annotations=annotations,
@@ -480,7 +479,7 @@ class _SBGNMLReader(momapy.io.Reader):
 
     @classmethod
     def _get_module_from_obj(cls, obj):
-        if momapy.builder.momapy.builder.isinstance_or_builder(
+        if momapy.builder.isinstance_or_builder(
             obj,
             (
                 momapy.sbgn.pd.SBGNPDMap,
@@ -489,7 +488,7 @@ class _SBGNMLReader(momapy.io.Reader):
             ),
         ):
             return momapy.sbgn.pd
-        if momapy.builder.momapy.builder.isinstance_or_builder(
+        if momapy.builder.isinstance_or_builder(
             obj,
             (
                 momapy.sbgn.af.SBGNAFMap,
@@ -1804,7 +1803,10 @@ class _SBGNMLReader(momapy.io.Reader):
                 text = ""
             else:
                 sbgnml_value = sbgnml_state.get("value")
-                value = sbgnml_value
+                if sbgnml_value:
+                    value = sbgnml_value
+                else:
+                    value = None
                 text = sbgnml_value if sbgnml_value is not None else ""
                 sbgnml_variable = sbgnml_state.get("variable")
                 variable = sbgnml_variable
@@ -3181,7 +3183,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
         return False
 
 
-class _SBGNMLWriter(momapy.io.Writer):
+class _SBGNMLWriter(momapy.io.core.Writer):
     _NSMAP = {
         None: "http://sbgn.org/libsbgn/0.3",
         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -3422,6 +3424,8 @@ class _SBGNMLWriter(momapy.io.Writer):
             id_ = id_[0]
         attributes = {"id": id_, "language": language}
         sbgnml_map = cls._make_lxml_element("map", attributes=attributes)
+        sbgnml_bbox = cls._make_sbgnml_bbox_from_node(map_.layout)
+        sbgnml_map.append(sbgnml_bbox)
         for layout_element in map_.layout.layout_elements:
             cls._make_and_add_sbgnml_elements_from_layout_element(
                 map_=map_,
@@ -3448,6 +3452,11 @@ class _SBGNMLWriter(momapy.io.Writer):
         with_notes=True,
     ):
         model_element = map_.get_mapping(layout_element)
+        if model_element is None:
+            for key in map_.layout_model_mapping:
+                if isinstance(key, frozenset) and layout_element in key:
+                    model_element = map_.get_mapping(key)
+                    break
         if model_element is not None:
             if isinstance(layout_element, momapy.core.Node):
                 sbgnml_elements = cls._make_sbgnml_elements_from_node(
@@ -3712,12 +3721,12 @@ class _SBGNMLWriter(momapy.io.Writer):
 
     @classmethod
     def _make_sbgnml_bbox_from_text_layout(cls, text_layout):
-        ink_bbox = text_layout.ink_bbox()
+        bbox = text_layout.bbox()
         attributes = {
-            "x": str(ink_bbox.x - ink_bbox.width / 2),
-            "y": str(ink_bbox.y - ink_bbox.height / 2),
-            "w": str(ink_bbox.width),
-            "h": str(ink_bbox.height),
+            "x": str(bbox.x - bbox.width / 2),
+            "y": str(bbox.y - bbox.height / 2),
+            "w": str(bbox.width),
+            "h": str(bbox.height),
         }
         sbgnml_bbox = cls._make_lxml_element("bbox", attributes=attributes)
         return sbgnml_bbox
@@ -3736,41 +3745,13 @@ class _SBGNMLWriter(momapy.io.Writer):
         text_split = text_layout.text.split("@")
         if len(text_split) > 1:
             attributes["variable"] = text_split[-1]
-            if text_split[0]:
-                attributes["value"] = text_split[0]
-        else:
+        if text_split[0]:
             attributes["value"] = text_split[0]
         sbgnml_state = cls._make_lxml_element("state", attributes=attributes)
         return sbgnml_state
-
-
-class SBGNML0_2Writer(_SBGNMLWriter):
-    """Class for SBGN-ML 0.2 writer objects"""
-
-    @classmethod
-    def _sbgn_objs_from_map(cls, map_):
-        sbgn = cls._parser_module.Sbgn()
-        sbgn_map = cls._parser_module.Map()
-        if momapy.builder.isinstance_or_builder(map_, momapy.sbgn.pd.SBGNPDMap):
-            sbgn_language = cls._parser_module.MapLanguage.PROCESS_DESCRIPTION
-        elif momapy.builder.isinstance_or_builder(map_, momapy.sbgn.af.SBGNAFMap):
-            sbgn_language = cls._parser_module.MapLanguage.ACTIVITY_FLOW
-        else:
-            raise TypeError("this type of map is not yet supported")
-        sbgn_map.language = sbgn_language
-        sbgn.map = sbgn_map
-        return sbgn, sbgn_map
 
 
 class SBGNML0_3Writer(_SBGNMLWriter):
     """Class for SBGN-ML 0.3 writer objects"""
 
     pass
-
-
-momapy.io.register_reader("sbgnml-0.2", SBGNML0_2Reader)
-momapy.io.register_reader("sbgnml-0.3", SBGNML0_3Reader)
-momapy.io.register_reader("sbgnml", SBGNML0_3Reader)
-momapy.io.register_writer("sbgnml-0.2", SBGNML0_2Writer)
-momapy.io.register_writer("sbgnml-0.3", SBGNML0_3Writer)
-momapy.io.register_writer("sbgnml", SBGNML0_3Writer)

@@ -10,14 +10,14 @@ import lxml.objectify
 
 import momapy.core
 import momapy.geometry
-import momapy.io
+import momapy.io.core
 import momapy.coloring
 import momapy.builder
 import momapy.celldesigner.core
 import momapy.sbml.core
 
 
-class CellDesignerReader(momapy.io.Reader):
+class CellDesignerReader(momapy.io.core.Reader):
     """Class for CellDesigner reader objects"""
 
     _DEFAULT_FONT_FAMILY = "Helvetica"
@@ -48,7 +48,7 @@ class CellDesignerReader(momapy.io.Reader):
         ): momapy.celldesigner.core.AntisenseRNATemplate,
         ("SPECIES", "GENERIC"): (
             momapy.celldesigner.core.GenericProtein,
-            momapy.celldesigner.core.momapy.celldesigner.core.GenericProteinLayout,
+            momapy.celldesigner.core.GenericProteinLayout,
         ),
         ("SPECIES", "ION_CHANNEL"): (
             momapy.celldesigner.core.IonChannel,
@@ -458,7 +458,7 @@ class CellDesignerReader(momapy.io.Reader):
         with_layout=True,
         with_annotations=True,
         with_notes=True,
-    ) -> momapy.io.ReaderResult:
+    ) -> momapy.io.core.ReaderResult:
         """Read a CellDesigner file and return a reader result object"""
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
@@ -470,7 +470,7 @@ class CellDesignerReader(momapy.io.Reader):
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
-        result = momapy.io.ReaderResult(
+        result = momapy.io.core.ReaderResult(
             obj=obj,
             notes=notes,
             annotations=annotations,
@@ -3414,6 +3414,3 @@ class CellDesignerReader(momapy.io.Reader):
                     replace=True,
                 )
         return model_element, layout_element
-
-
-momapy.io.register_reader("celldesigner", CellDesignerReader)
