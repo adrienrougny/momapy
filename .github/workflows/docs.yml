@@ -1,12 +1,10 @@
-name: docs
+name: Make docs
 
 on:
   push:
     branches:
-      - master 
-
-
       - main
+
 permissions:
   contents: write
 jobs:

@@ -1,4 +1,4 @@
-name: Test Package Installation
+name: Test package installation
 
 on:
   push:
