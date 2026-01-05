@@ -2219,9 +2219,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                 position=layout_element.position,
             )
             layout_element.label = text_layout
-            ink_bbox = text_layout.ink_bbox()
-            layout_element.width = 1.5 * ink_bbox.width
-            layout_element.height = 1.5 * ink_bbox.height
+            bbox = text_layout.bbox()
+            layout_element.width = 1.5 * bbox.width
+            layout_element.height = 1.5 * bbox.height
             layout_element = momapy.builder.object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
