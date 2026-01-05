@@ -12,7 +12,7 @@ try:
     import momapy.rendering.cairo
 
     CAIRO_AVAILABLE = True
-except (ImportError, ValueError, AttributeError, ModuleNotFoundError):
+except (ImportError, ValueError, AttributeError, ModuleNotFoundError, Exception):
     CAIRO_AVAILABLE = False
 
 
