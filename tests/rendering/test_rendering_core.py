@@ -1,5 +1,4 @@
 """Tests for momapy.rendering.core module."""
-import pytest
 import momapy.rendering.core
 
 
