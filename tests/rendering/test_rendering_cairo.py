@@ -1,4 +1,5 @@
 """Tests for Cairo rendering."""
+
 import pytest
 import os
 import momapy.rendering.core
@@ -9,12 +10,16 @@ try:
     # Try to import the momapy cairo renderer module itself
     # This will fail if any of the dependencies are missing
     import momapy.rendering.cairo
+
     CAIRO_AVAILABLE = True
-except (ImportError, ValueError, AttributeError):
+except (ImportError, ValueError, AttributeError, ModuleNotFoundError):
     CAIRO_AVAILABLE = False
 
 
-@pytest.mark.skipif(not CAIRO_AVAILABLE, reason="Cairo dependencies not installed (install with: pip install momapy[cairo])")
+@pytest.mark.skipif(
+    not CAIRO_AVAILABLE,
+    reason="Cairo dependencies not installed (install with: pip install momapy[cairo])",
+)
 class TestCairoRendering:
     """Tests for Cairo rendering."""
 
@@ -24,10 +29,7 @@ class TestCairoRendering:
 
         output_file = os.path.join(temp_dir, "test_output_cairo.png")
         momapy.rendering.core.render_layout_element(
-            sample_map.layout,
-            output_file,
-            format_="png",
-            renderer="cairo"
+            sample_map.layout, output_file, format_="png", renderer="cairo"
         )
         assert os.path.exists(output_file)
         assert os.path.getsize(output_file) > 0
@@ -38,10 +40,7 @@ class TestCairoRendering:
 
         output_file = os.path.join(temp_dir, "test_output_cairo.pdf")
         momapy.rendering.core.render_layout_element(
-            sample_map.layout,
-            output_file,
-            format_="pdf",
-            renderer="cairo"
+            sample_map.layout, output_file, format_="pdf", renderer="cairo"
         )
         assert os.path.exists(output_file)
         assert os.path.getsize(output_file) > 0
