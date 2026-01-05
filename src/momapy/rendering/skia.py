@@ -2,6 +2,7 @@
 
 import dataclasses
 import typing
+import typing_extensions
 import math
 import os
 
@@ -81,7 +82,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         width: float,
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         config = {}
         if format_ == "pdf":
             stream = skia.FILEWStream(file_path)

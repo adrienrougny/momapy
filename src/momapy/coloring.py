@@ -2,6 +2,7 @@
 
 import dataclasses
 import typing
+import typing_extensions
 
 
 @dataclasses.dataclass(frozen=True)
@@ -75,7 +76,7 @@ class Color(object):
 
     def with_alpha(
         self, alpha: float, alpha_range: tuple[float, float] = (0, 1)
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Return the a copy of the color with its alpha component set to the given number"""
         alpha_width = alpha_range[1] - alpha_range[0]
         return dataclasses.replace(
@@ -85,7 +86,7 @@ class Color(object):
     @classmethod
     def from_rgba(
         cls, red: int, green: int, blue: int, alpha: float
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Return a color from its RGBA components"""
         return cls(red, green, blue, alpha)
 

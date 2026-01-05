@@ -2,6 +2,7 @@
 
 import dataclasses
 import typing
+import typing_extensions
 import math
 import os
 
@@ -68,7 +69,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         width: float,
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "ps"] = "pdf",
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         config = {}
         if format_ == "pdf":
             surface = cairo.PDFSurface(file_path, width, height)
