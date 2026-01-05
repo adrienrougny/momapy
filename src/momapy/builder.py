@@ -3,6 +3,7 @@
 import abc
 import dataclasses
 import typing
+import typing_extensions
 import types
 import inspect
 
@@ -33,7 +34,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Create and return a builder object from an object"""
         pass
 
