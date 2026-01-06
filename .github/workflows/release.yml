@@ -76,3 +76,79 @@ jobs:
         path: dist/
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    name: Create GitHub Release
+    needs:
+    - pypi
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v4
+      with:
+        name: python-package-distributions
+        path: dist/
+
+    - name: Extract version from tag
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*
+        generate_release_notes: true
+        body: |
+          ## Installation
+
+          Install from PyPI:
+          ```bash
+          pip install momapy==${{ env.VERSION }}
+          ```
+
+          ## Documentation
+
+          [View Documentation](https://adrienrougny.github.io/momapy/)
+
+          ## Package Links
+
+          - [PyPI Release](https://pypi.org/project/momapy/${{ env.VERSION }}/)
+          - [TestPyPI Release](https://test.pypi.org/project/momapy/${{ env.VERSION }}/)
+
+          ---
+
+  deploy-docs:
+    name: Deploy documentation
+    needs:
+    - pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Extract version from tag
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+    - name: Configure Git Credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        key: mkdocs-material-${{ github.run_id }}
+        path: ~/.cache
+        restore-keys: |
+          mkdocs-material-
+    - name: Install MkDocs and dependencies
+      run: pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments
+    - name: Deploy documentation
+      run: mkdocs gh-deploy --force
