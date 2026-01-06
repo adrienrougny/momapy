@@ -3150,11 +3150,14 @@ class SBGNML0_2Reader(_SBGNMLReader):
     @classmethod
     def check_file(cls, file_path):
         """Return `true` if the given file is an SBGN-ML 0.2 document, `false` otherwise"""
-        with open(file_path) as f:
-            for line in f:
-                if "http://sbgn.org/libsbgn/0.2" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://sbgn.org/libsbgn/0.2" in line:
+                        return True
+            return False
+        except Exception:
+            return False
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
@@ -3176,11 +3179,14 @@ class SBGNML0_3Reader(_SBGNMLReader):
     @classmethod
     def check_file(cls, file_path):
         """Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise"""
-        with open(file_path) as f:
-            for line in f:
-                if "http://sbgn.org/libsbgn/0.3" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://sbgn.org/libsbgn/0.3" in line:
+                        return True
+            return False
+        except Exception:
+            return False
 
 
 class _SBGNMLWriter(momapy.io.core.Writer):

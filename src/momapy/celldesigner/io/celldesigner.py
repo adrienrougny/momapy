@@ -444,9 +444,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                 for line in f:
                     if "http://www.sbml.org/2001/ns/celldesigner" in line:
                         return True
-        except UnicodeDecodeError:
             return False
-        else:
+        except Exception:
             return False
 
     @classmethod

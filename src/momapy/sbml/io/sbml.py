@@ -88,11 +88,14 @@ class SBMLReader(momapy.io.core.Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
-        with open(file_path) as f:
-            for line in f:
-                if "<sbml " in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "<sbml " in line:
+                        return True
+            return False
+        except Exception:
+            return False
 
     @classmethod
     def read(
