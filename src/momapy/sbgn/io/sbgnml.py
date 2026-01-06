@@ -3398,7 +3398,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             with_notes=with_notes,
         )
         sbgnml_sbgn.append(sbgnml_map)
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(
                 lxml.etree.tostring(
                     sbgnml_sbgn, pretty_print=True, xml_declaration=True
