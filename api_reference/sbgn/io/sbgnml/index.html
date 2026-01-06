@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://example.com/api_reference/sbgn/io/sbgnml/">
+        <link rel="canonical" href="https://adrienrougny.github.io/momapy/api_reference/sbgn/io/sbgnml/">
       
       
         <link rel="prev" href="../../af/">
@@ -1803,14 +1803,20 @@
 <span class="normal"><a href="#__codelineno-0-3154">3154</a></span>
 <span class="normal"><a href="#__codelineno-0-3155">3155</a></span>
 <span class="normal"><a href="#__codelineno-0-3156">3156</a></span>
-<span class="normal"><a href="#__codelineno-0-3157">3157</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3150"><a id="__codelineno-0-3150" name="__codelineno-0-3150"></a><span class="nd">@classmethod</span>
+<span class="normal"><a href="#__codelineno-0-3157">3157</a></span>
+<span class="normal"><a href="#__codelineno-0-3158">3158</a></span>
+<span class="normal"><a href="#__codelineno-0-3159">3159</a></span>
+<span class="normal"><a href="#__codelineno-0-3160">3160</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3150"><a id="__codelineno-0-3150" name="__codelineno-0-3150"></a><span class="nd">@classmethod</span>
 </span><span id="__span-0-3151"><a id="__codelineno-0-3151" name="__codelineno-0-3151"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
 </span><span id="__span-0-3152"><a id="__codelineno-0-3152" name="__codelineno-0-3152"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `true` if the given file is an SBGN-ML 0.2 document, `false` otherwise&quot;&quot;&quot;</span>
-</span><span id="__span-0-3153"><a id="__codelineno-0-3153" name="__codelineno-0-3153"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-3154"><a id="__codelineno-0-3154" name="__codelineno-0-3154"></a>        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-3155"><a id="__codelineno-0-3155" name="__codelineno-0-3155"></a>            <span class="k">if</span> <span class="s2">&quot;http://sbgn.org/libsbgn/0.2&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-</span><span id="__span-0-3156"><a id="__codelineno-0-3156" name="__codelineno-0-3156"></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="__span-0-3157"><a id="__codelineno-0-3157" name="__codelineno-0-3157"></a>    <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-3153"><a id="__codelineno-0-3153" name="__codelineno-0-3153"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-3154"><a id="__codelineno-0-3154" name="__codelineno-0-3154"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-3155"><a id="__codelineno-0-3155" name="__codelineno-0-3155"></a>            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-3156"><a id="__codelineno-0-3156" name="__codelineno-0-3156"></a>                <span class="k">if</span> <span class="s2">&quot;http://sbgn.org/libsbgn/0.2&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span><span id="__span-0-3157"><a id="__codelineno-0-3157" name="__codelineno-0-3157"></a>                    <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-3158"><a id="__codelineno-0-3158" name="__codelineno-0-3158"></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-3159"><a id="__codelineno-0-3159" name="__codelineno-0-3159"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-0-3160"><a id="__codelineno-0-3160" name="__codelineno-0-3160"></a>        <span class="k">return</span> <span class="kc">False</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2034,21 +2040,27 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/sbgn/io/sbgnml.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-3176">3176</a></span>
-<span class="normal"><a href="#__codelineno-0-3177">3177</a></span>
-<span class="normal"><a href="#__codelineno-0-3178">3178</a></span>
-<span class="normal"><a href="#__codelineno-0-3179">3179</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-3179">3179</a></span>
 <span class="normal"><a href="#__codelineno-0-3180">3180</a></span>
 <span class="normal"><a href="#__codelineno-0-3181">3181</a></span>
 <span class="normal"><a href="#__codelineno-0-3182">3182</a></span>
-<span class="normal"><a href="#__codelineno-0-3183">3183</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3176"><a id="__codelineno-0-3176" name="__codelineno-0-3176"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-3177"><a id="__codelineno-0-3177" name="__codelineno-0-3177"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-</span><span id="__span-0-3178"><a id="__codelineno-0-3178" name="__codelineno-0-3178"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise&quot;&quot;&quot;</span>
-</span><span id="__span-0-3179"><a id="__codelineno-0-3179" name="__codelineno-0-3179"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-3180"><a id="__codelineno-0-3180" name="__codelineno-0-3180"></a>        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-3181"><a id="__codelineno-0-3181" name="__codelineno-0-3181"></a>            <span class="k">if</span> <span class="s2">&quot;http://sbgn.org/libsbgn/0.3&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-</span><span id="__span-0-3182"><a id="__codelineno-0-3182" name="__codelineno-0-3182"></a>                <span class="k">return</span> <span class="kc">True</span>
-</span><span id="__span-0-3183"><a id="__codelineno-0-3183" name="__codelineno-0-3183"></a>    <span class="k">return</span> <span class="kc">False</span>
+<span class="normal"><a href="#__codelineno-0-3183">3183</a></span>
+<span class="normal"><a href="#__codelineno-0-3184">3184</a></span>
+<span class="normal"><a href="#__codelineno-0-3185">3185</a></span>
+<span class="normal"><a href="#__codelineno-0-3186">3186</a></span>
+<span class="normal"><a href="#__codelineno-0-3187">3187</a></span>
+<span class="normal"><a href="#__codelineno-0-3188">3188</a></span>
+<span class="normal"><a href="#__codelineno-0-3189">3189</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3179"><a id="__codelineno-0-3179" name="__codelineno-0-3179"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-3180"><a id="__codelineno-0-3180" name="__codelineno-0-3180"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+</span><span id="__span-0-3181"><a id="__codelineno-0-3181" name="__codelineno-0-3181"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise&quot;&quot;&quot;</span>
+</span><span id="__span-0-3182"><a id="__codelineno-0-3182" name="__codelineno-0-3182"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-3183"><a id="__codelineno-0-3183" name="__codelineno-0-3183"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-3184"><a id="__codelineno-0-3184" name="__codelineno-0-3184"></a>            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-3185"><a id="__codelineno-0-3185" name="__codelineno-0-3185"></a>                <span class="k">if</span> <span class="s2">&quot;http://sbgn.org/libsbgn/0.3&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span><span id="__span-0-3186"><a id="__codelineno-0-3186" name="__codelineno-0-3186"></a>                    <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-3187"><a id="__codelineno-0-3187" name="__codelineno-0-3187"></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-3188"><a id="__codelineno-0-3188" name="__codelineno-0-3188"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-0-3189"><a id="__codelineno-0-3189" name="__codelineno-0-3189"></a>        <span class="k">return</span> <span class="kc">False</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2264,13 +2276,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/sbgn/io/sbgnml.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-3374">3374</a></span>
-<span class="normal"><a href="#__codelineno-0-3375">3375</a></span>
-<span class="normal"><a href="#__codelineno-0-3376">3376</a></span>
-<span class="normal"><a href="#__codelineno-0-3377">3377</a></span>
-<span class="normal"><a href="#__codelineno-0-3378">3378</a></span>
-<span class="normal"><a href="#__codelineno-0-3379">3379</a></span>
-<span class="normal"><a href="#__codelineno-0-3380">3380</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-3380">3380</a></span>
 <span class="normal"><a href="#__codelineno-0-3381">3381</a></span>
 <span class="normal"><a href="#__codelineno-0-3382">3382</a></span>
 <span class="normal"><a href="#__codelineno-0-3383">3383</a></span>
@@ -2296,39 +2302,45 @@
 <span class="normal"><a href="#__codelineno-0-3403">3403</a></span>
 <span class="normal"><a href="#__codelineno-0-3404">3404</a></span>
 <span class="normal"><a href="#__codelineno-0-3405">3405</a></span>
-<span class="normal"><a href="#__codelineno-0-3406">3406</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3374"><a id="__codelineno-0-3374" name="__codelineno-0-3374"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-3375"><a id="__codelineno-0-3375" name="__codelineno-0-3375"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
-</span><span id="__span-0-3376"><a id="__codelineno-0-3376" name="__codelineno-0-3376"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-3377"><a id="__codelineno-0-3377" name="__codelineno-0-3377"></a>    <span class="n">obj</span><span class="p">:</span> <span class="n">momapy</span><span class="o">.</span><span class="n">sbgn</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">SBGNMap</span><span class="p">,</span>
-</span><span id="__span-0-3378"><a id="__codelineno-0-3378" name="__codelineno-0-3378"></a>    <span class="n">file_path</span><span class="p">,</span>
-</span><span id="__span-0-3379"><a id="__codelineno-0-3379" name="__codelineno-0-3379"></a>    <span class="n">annotations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-3380"><a id="__codelineno-0-3380" name="__codelineno-0-3380"></a>    <span class="n">notes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-3381"><a id="__codelineno-0-3381" name="__codelineno-0-3381"></a>    <span class="n">ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-3382"><a id="__codelineno-0-3382" name="__codelineno-0-3382"></a>    <span class="n">with_render_information</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-3383"><a id="__codelineno-0-3383" name="__codelineno-0-3383"></a>    <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-3384"><a id="__codelineno-0-3384" name="__codelineno-0-3384"></a>    <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-3385"><a id="__codelineno-0-3385" name="__codelineno-0-3385"></a><span class="p">):</span>
-</span><span id="__span-0-3386"><a id="__codelineno-0-3386" name="__codelineno-0-3386"></a>    <span class="k">if</span> <span class="n">annotations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-3387"><a id="__codelineno-0-3387" name="__codelineno-0-3387"></a>        <span class="n">annotations</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-3388"><a id="__codelineno-0-3388" name="__codelineno-0-3388"></a>    <span class="k">if</span> <span class="n">ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-3389"><a id="__codelineno-0-3389" name="__codelineno-0-3389"></a>        <span class="n">ids</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-3390"><a id="__codelineno-0-3390" name="__codelineno-0-3390"></a>    <span class="n">sbgnml_sbgn</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_lxml_element</span><span class="p">(</span><span class="s2">&quot;sbgn&quot;</span><span class="p">,</span> <span class="n">nsmap</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_NSMAP</span><span class="p">)</span>
-</span><span id="__span-0-3391"><a id="__codelineno-0-3391" name="__codelineno-0-3391"></a>    <span class="n">sbgnml_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_sbgnml_map_from_map</span><span class="p">(</span>
-</span><span id="__span-0-3392"><a id="__codelineno-0-3392" name="__codelineno-0-3392"></a>        <span class="n">obj</span><span class="p">,</span>
-</span><span id="__span-0-3393"><a id="__codelineno-0-3393" name="__codelineno-0-3393"></a>        <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
-</span><span id="__span-0-3394"><a id="__codelineno-0-3394" name="__codelineno-0-3394"></a>        <span class="n">notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
-</span><span id="__span-0-3395"><a id="__codelineno-0-3395" name="__codelineno-0-3395"></a>        <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
-</span><span id="__span-0-3396"><a id="__codelineno-0-3396" name="__codelineno-0-3396"></a>        <span class="n">with_render_information</span><span class="o">=</span><span class="n">with_render_information</span><span class="p">,</span>
-</span><span id="__span-0-3397"><a id="__codelineno-0-3397" name="__codelineno-0-3397"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
-</span><span id="__span-0-3398"><a id="__codelineno-0-3398" name="__codelineno-0-3398"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
-</span><span id="__span-0-3399"><a id="__codelineno-0-3399" name="__codelineno-0-3399"></a>    <span class="p">)</span>
-</span><span id="__span-0-3400"><a id="__codelineno-0-3400" name="__codelineno-0-3400"></a>    <span class="n">sbgnml_sbgn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sbgnml_map</span><span class="p">)</span>
-</span><span id="__span-0-3401"><a id="__codelineno-0-3401" name="__codelineno-0-3401"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-</span><span id="__span-0-3402"><a id="__codelineno-0-3402" name="__codelineno-0-3402"></a>        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-</span><span id="__span-0-3403"><a id="__codelineno-0-3403" name="__codelineno-0-3403"></a>            <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span>
-</span><span id="__span-0-3404"><a id="__codelineno-0-3404" name="__codelineno-0-3404"></a>                <span class="n">sbgnml_sbgn</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span>
-</span><span id="__span-0-3405"><a id="__codelineno-0-3405" name="__codelineno-0-3405"></a>            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-</span><span id="__span-0-3406"><a id="__codelineno-0-3406" name="__codelineno-0-3406"></a>        <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-3406">3406</a></span>
+<span class="normal"><a href="#__codelineno-0-3407">3407</a></span>
+<span class="normal"><a href="#__codelineno-0-3408">3408</a></span>
+<span class="normal"><a href="#__codelineno-0-3409">3409</a></span>
+<span class="normal"><a href="#__codelineno-0-3410">3410</a></span>
+<span class="normal"><a href="#__codelineno-0-3411">3411</a></span>
+<span class="normal"><a href="#__codelineno-0-3412">3412</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-3380"><a id="__codelineno-0-3380" name="__codelineno-0-3380"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-3381"><a id="__codelineno-0-3381" name="__codelineno-0-3381"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
+</span><span id="__span-0-3382"><a id="__codelineno-0-3382" name="__codelineno-0-3382"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-3383"><a id="__codelineno-0-3383" name="__codelineno-0-3383"></a>    <span class="n">obj</span><span class="p">:</span> <span class="n">momapy</span><span class="o">.</span><span class="n">sbgn</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">SBGNMap</span><span class="p">,</span>
+</span><span id="__span-0-3384"><a id="__codelineno-0-3384" name="__codelineno-0-3384"></a>    <span class="n">file_path</span><span class="p">,</span>
+</span><span id="__span-0-3385"><a id="__codelineno-0-3385" name="__codelineno-0-3385"></a>    <span class="n">annotations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3386"><a id="__codelineno-0-3386" name="__codelineno-0-3386"></a>    <span class="n">notes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3387"><a id="__codelineno-0-3387" name="__codelineno-0-3387"></a>    <span class="n">ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3388"><a id="__codelineno-0-3388" name="__codelineno-0-3388"></a>    <span class="n">with_render_information</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-3389"><a id="__codelineno-0-3389" name="__codelineno-0-3389"></a>    <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-3390"><a id="__codelineno-0-3390" name="__codelineno-0-3390"></a>    <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-3391"><a id="__codelineno-0-3391" name="__codelineno-0-3391"></a><span class="p">):</span>
+</span><span id="__span-0-3392"><a id="__codelineno-0-3392" name="__codelineno-0-3392"></a>    <span class="k">if</span> <span class="n">annotations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-3393"><a id="__codelineno-0-3393" name="__codelineno-0-3393"></a>        <span class="n">annotations</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-3394"><a id="__codelineno-0-3394" name="__codelineno-0-3394"></a>    <span class="k">if</span> <span class="n">ids</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-3395"><a id="__codelineno-0-3395" name="__codelineno-0-3395"></a>        <span class="n">ids</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-3396"><a id="__codelineno-0-3396" name="__codelineno-0-3396"></a>    <span class="n">sbgnml_sbgn</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_lxml_element</span><span class="p">(</span><span class="s2">&quot;sbgn&quot;</span><span class="p">,</span> <span class="n">nsmap</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_NSMAP</span><span class="p">)</span>
+</span><span id="__span-0-3397"><a id="__codelineno-0-3397" name="__codelineno-0-3397"></a>    <span class="n">sbgnml_map</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_sbgnml_map_from_map</span><span class="p">(</span>
+</span><span id="__span-0-3398"><a id="__codelineno-0-3398" name="__codelineno-0-3398"></a>        <span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-3399"><a id="__codelineno-0-3399" name="__codelineno-0-3399"></a>        <span class="n">annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+</span><span id="__span-0-3400"><a id="__codelineno-0-3400" name="__codelineno-0-3400"></a>        <span class="n">notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
+</span><span id="__span-0-3401"><a id="__codelineno-0-3401" name="__codelineno-0-3401"></a>        <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+</span><span id="__span-0-3402"><a id="__codelineno-0-3402" name="__codelineno-0-3402"></a>        <span class="n">with_render_information</span><span class="o">=</span><span class="n">with_render_information</span><span class="p">,</span>
+</span><span id="__span-0-3403"><a id="__codelineno-0-3403" name="__codelineno-0-3403"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
+</span><span id="__span-0-3404"><a id="__codelineno-0-3404" name="__codelineno-0-3404"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
+</span><span id="__span-0-3405"><a id="__codelineno-0-3405" name="__codelineno-0-3405"></a>    <span class="p">)</span>
+</span><span id="__span-0-3406"><a id="__codelineno-0-3406" name="__codelineno-0-3406"></a>    <span class="n">sbgnml_sbgn</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sbgnml_map</span><span class="p">)</span>
+</span><span id="__span-0-3407"><a id="__codelineno-0-3407" name="__codelineno-0-3407"></a>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-3408"><a id="__codelineno-0-3408" name="__codelineno-0-3408"></a>        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+</span><span id="__span-0-3409"><a id="__codelineno-0-3409" name="__codelineno-0-3409"></a>            <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span>
+</span><span id="__span-0-3410"><a id="__codelineno-0-3410" name="__codelineno-0-3410"></a>                <span class="n">sbgnml_sbgn</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span>
+</span><span id="__span-0-3411"><a id="__codelineno-0-3411" name="__codelineno-0-3411"></a>            <span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+</span><span id="__span-0-3412"><a id="__codelineno-0-3412" name="__codelineno-0-3412"></a>        <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2379,6 +2391,10 @@
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Version !ENV [VERSION, 'dev']
+    </div>
   
   
     Made with
