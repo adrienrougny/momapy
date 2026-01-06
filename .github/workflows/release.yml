@@ -60,7 +60,7 @@ jobs:
     name: >-
       Publish package to PyPI
     needs:
-    - build
+    - testpypi
     runs-on: ubuntu-latest
     environment:
       name: pypi
