@@ -218,8 +218,7 @@ class CairoRenderer(momapy.rendering.core.Renderer):
         pango_layout.set_font_description(pango_font_description)
         pango_layout.set_text(text.text)
         pos = pango_layout.index_to_pos(0)
-        gi.repository.Pango.extents_to_pixels(pos)
-        x = pos.x
+        x = gi.repository.Pango.units_to_double(pos.x)
         pango_layout_iter = pango_layout.get_iter()
         y = round(
             gi.repository.Pango.units_to_double(

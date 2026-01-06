@@ -6,13 +6,18 @@ import os
 import momapy.io.core
 
 
-DEMO_DIR = "/home/rougny/code/momapy/demo"
-SBGN_FILES = [
-    "phospho1.sbgn",
-    "phospho2.sbgn",
-    "phospho3.sbgn",
-    "mek_erk.sbgn",
-]
+# Get the directory containing this test file
+TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+SBGN_MAPS_DIR = os.path.join(TEST_DIR, "..", "maps", "pd")
+
+# Discover all .sbgn files in the maps directory
+def get_sbgn_files():
+    """Get all SBGN files from the maps directory."""
+    if not os.path.exists(SBGN_MAPS_DIR):
+        return []
+    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith('.sbgn')]
+
+SBGN_FILES = get_sbgn_files()
 
 
 @pytest.fixture
@@ -28,9 +33,9 @@ class TestSBGNRoundTrip:
     @pytest.mark.parametrize("filename", SBGN_FILES)
     def test_roundtrip_sbgn_file(self, filename, temp_dir):
         """Test round-trip: import -> export -> import and check equality."""
-        input_file = os.path.join(DEMO_DIR, filename)
+        input_file = os.path.join(SBGN_MAPS_DIR, filename)
         if not os.path.exists(input_file):
-            pytest.skip(f"Demo file {filename} not found")
+            pytest.skip(f"SBGN file {filename} not found")
         result1 = momapy.io.core.read(input_file)
         map1 = result1.obj
         output_file = os.path.join(temp_dir, f"output_{filename}")

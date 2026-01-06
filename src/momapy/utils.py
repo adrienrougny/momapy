@@ -38,7 +38,6 @@ class SurjectionDict(dict):
 
 class FrozenSurjectionDict(frozendict.frozendict):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
         inverse = {}
         for key, value in self.items():
             inverse.setdefault(value, []).append(key)

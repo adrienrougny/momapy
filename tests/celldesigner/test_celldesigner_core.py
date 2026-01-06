@@ -1,5 +1,4 @@
 """Tests for momapy.celldesigner.core module."""
-import pytest
 
 
 def test_celldesigner_core_import():

@@ -8,6 +8,7 @@ import momapy.builder
 import abc
 import dataclasses
 import typing
+import typing_extensions
 import enum
 import math
 import copy
@@ -84,7 +85,7 @@ class LayoutElement(MapElement, abc.ABC):
         pass
 
     @abc.abstractmethod
-    def childless(self) -> typing.Self:
+    def childless(self) -> typing_extensions.Self:
         """Return a copy of the layout element with no children"""
         pass
 
@@ -367,7 +368,7 @@ class TextLayout(LayoutElement):
         The text layout has no children, so return an empty list"""
         return []
 
-    def childless(self) -> typing.Self:
+    def childless(self) -> typing_extensions.Self:
         """Return a copy of the text layout with no children.
         The text layout has no children, so return a copy of the text layout
         """
@@ -443,7 +444,7 @@ class Shape(LayoutElement):
     """Class for basic shapes. The shape is the most simple layout element.
     It has no children."""
 
-    def childless(self) -> typing.Self:
+    def childless(self) -> typing_extensions.Self:
         """Return a copy of the shape with no children.
         A shape has no children, so return a copy of the shape"""
         return copy.deepcopy(self)
@@ -874,7 +875,7 @@ class Node(GroupLayout):
             center=self.center(),
         )
 
-    def childless(self) -> typing.Self:
+    def childless(self) -> typing_extensions.Self:
         """Return a copy of the node with no children"""
         return dataclasses.replace(self, label=None, layout_elements=tuple([]))
 
@@ -1003,7 +1004,7 @@ class Arc(GroupLayout):
         """Return the ending point of the arc"""
         return self.points()[-1]
 
-    def childless(self) -> typing.Self:
+    def childless(self) -> typing_extensions.Self:
         """Return a copy of the arc with no children"""
         return dataclasses.replace(self, layout_elements=tuple([]))
 
@@ -1998,7 +1999,7 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
         inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, momapy.builder.Builder] | None = None,
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         items = []
         for key, value in obj.items():
             if isinstance(key, frozenset):

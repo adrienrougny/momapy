@@ -6,6 +6,7 @@ import math
 import copy
 import enum
 import typing
+import typing_extensions
 import collections.abc
 
 import shapely.geometry
@@ -222,7 +223,7 @@ class Filter(object):
     x: float | str = "-10%"
     y: float | str = "-10%"
 
-    def to_compat(self) -> typing.Self:
+    def to_compat(self) -> typing_extensions.Self:
         """Return a filter equivalent to the given filter with its filter effects replaced by better supported"""
         effects = []
         for effect in self.effects:
@@ -490,7 +491,7 @@ class Text(DrawingElement):
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Return a copy of the text element"""
         return copy.deepcopy(self)
 
@@ -510,7 +511,7 @@ class Group(DrawingElement):
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Compute and return a copy of the group transformed with the given transformation"""
         elements = []
         for element in self.elements:
@@ -808,7 +809,7 @@ class Path(DrawingElement):
 
     def transformed(
         self, transformation: momapy.geometry.Transformation
-    ) -> typing.Self:
+    ) -> typing_extensions.Self:
         """Compute and return a copy of the path element transformed with the given transformation"""
         actions = []
         current_point = None
@@ -872,7 +873,7 @@ class Path(DrawingElement):
             geom_collection.append(line_string)
         return shapely.geometry.GeometryCollection(geom_collection)
 
-    def to_path_with_bezier_curves(self) -> typing.Self:
+    def to_path_with_bezier_curves(self) -> typing_extensions.Self:
         """Compute and return a path element reproducing the path element with curves and ellipses transformed to bezier curves"""
         new_actions = []
         current_point = momapy.geometry.Point(

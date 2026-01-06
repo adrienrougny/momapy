@@ -2,6 +2,7 @@
 
 import dataclasses
 import typing
+import typing_extensions
 import abc
 import math
 import copy
@@ -106,17 +107,17 @@ class Point(GeometryObject):
         return math.isnan(self.x) or math.isnan(self.y)
 
     @classmethod
-    def from_shapely(cls, point: shapely.Point) -> typing.Self:
+    def from_shapely(cls, point: shapely.Point) -> typing_extensions.Self:
         """Return a point reproducing a given shapely point"""
         return cls(float(point.x), float(point.y))
 
     @classmethod
-    def from_fortranarray(cls, fortranarray: typing.Any) -> typing.Self:
+    def from_fortranarray(cls, fortranarray: typing.Any) -> typing_extensions.Self:
         """Return a point from a numpy fortran array representation"""
         return cls(fortranarray[0][0], fortranarray[1][1])
 
     @classmethod
-    def from_tuple(cls, t: tuple[float, float]) -> typing.Self:
+    def from_tuple(cls, t: tuple[float, float]) -> typing_extensions.Self:
         """Return a point from a tuple representation"""
         return cls(t[0], t[1])
 
@@ -255,7 +256,7 @@ class Segment(GeometryObject):
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     @classmethod
-    def from_shapely(cls, line_string: shapely.LineString) -> typing.Self:
+    def from_shapely(cls, line_string: shapely.LineString) -> typing_extensions.Self:
         """Compute and return the segment reproducing a shapely line string"""
         shapely_points = line_string.boundary.geoms
         return cls(

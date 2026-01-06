@@ -3150,11 +3150,14 @@ class SBGNML0_2Reader(_SBGNMLReader):
     @classmethod
     def check_file(cls, file_path):
         """Return `true` if the given file is an SBGN-ML 0.2 document, `false` otherwise"""
-        with open(file_path) as f:
-            for line in f:
-                if "http://sbgn.org/libsbgn/0.2" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://sbgn.org/libsbgn/0.2" in line:
+                        return True
+            return False
+        except Exception:
+            return False
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
@@ -3176,11 +3179,14 @@ class SBGNML0_3Reader(_SBGNMLReader):
     @classmethod
     def check_file(cls, file_path):
         """Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise"""
-        with open(file_path) as f:
-            for line in f:
-                if "http://sbgn.org/libsbgn/0.3" in line:
-                    return True
-        return False
+        try:
+            with open(file_path) as f:
+                for line in f:
+                    if "http://sbgn.org/libsbgn/0.3" in line:
+                        return True
+            return False
+        except Exception:
+            return False
 
 
 class _SBGNMLWriter(momapy.io.core.Writer):
@@ -3234,10 +3240,10 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         momapy.sbgn.pd.AssociationLayout: "association",
         momapy.sbgn.pd.DissociationLayout: "dissociation",
         momapy.sbgn.pd.PhenotypeLayout: "phenotype",
-        momapy.sbgn.pd.AndOperatorLayout: "and operator",
-        momapy.sbgn.pd.OrOperatorLayout: "or operator",
-        momapy.sbgn.pd.NotOperatorLayout: "not operator",
-        momapy.sbgn.pd.EquivalenceOperatorLayout: "equivalence operator",
+        momapy.sbgn.pd.AndOperatorLayout: "and",
+        momapy.sbgn.pd.OrOperatorLayout: "or",
+        momapy.sbgn.pd.NotOperatorLayout: "not",
+        momapy.sbgn.pd.EquivalenceOperatorLayout: "equivalence",
         momapy.sbgn.pd.ConsumptionLayout: "consumption",
         momapy.sbgn.pd.ProductionLayout: "production",
         momapy.sbgn.pd.ModulationLayout: "modulation",
@@ -3398,7 +3404,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             with_notes=with_notes,
         )
         sbgnml_sbgn.append(sbgnml_map)
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(
                 lxml.etree.tostring(
                     sbgnml_sbgn, pretty_print=True, xml_declaration=True

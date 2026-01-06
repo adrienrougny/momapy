@@ -5,6 +5,8 @@ import dataclasses
 import abc
 import typing
 
+import frozendict
+
 readers = {}
 writers = {}
 
@@ -31,8 +33,8 @@ class ReaderResult(IOResult):
     """Base class for reader results"""
 
     obj: typing.Any | None = None
-    annotations: dict | None = None
-    notes: dict | None = None
+    annotations: frozendict.frozendict | None = None
+    notes: frozendict.frozendict | None = None
     ids: dict | None = None
     file_path: str | os.PathLike | None = None
 
