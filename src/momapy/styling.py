@@ -3,7 +3,7 @@
 import abc
 import collections.abc
 import dataclasses
-import pyparsing as pp
+import pyparsing
 import copy
 
 
@@ -337,26 +337,30 @@ class NotSelector(Selector):
         return not any([selector.select(obj, ancestors) for selector in self.selectors])
 
 
-_css_import_keyword = pp.Literal("@import")
-_css_unset_value = pp.Literal("unset")
-_css_none_value = pp.Literal("none")
-_css_float_value = pp.Combine(pp.Word(pp.nums) + pp.Literal(".") + pp.Word(pp.nums))
-_css_string_value = pp.quoted_string
-_css_color_name_value = pp.Word(pp.alphas + "_")
+_css_import_keyword = pyparsing.Literal("@import")
+_css_unset_value = pyparsing.Literal("unset")
+_css_none_value = pyparsing.Literal("none")
+_css_float_value = pyparsing.Combine(
+    pyparsing.Word(pyparsing.nums)
+    + pyparsing.Literal(".")
+    + pyparsing.Word(pyparsing.nums)
+)
+_css_string_value = pyparsing.quoted_string
+_css_color_name_value = pyparsing.Word(pyparsing.alphas + "_")
 _css_color_value = _css_color_name_value
-_css_int_value = pp.Word(pp.nums)
+_css_int_value = pyparsing.Word(pyparsing.nums)
 _css_drop_shadow_filter_value = (
-    pp.Literal("drop-shadow(")
+    pyparsing.Literal("drop-shadow(")
     + _css_float_value
-    + pp.Literal(",")
+    + pyparsing.Literal(",")
     + _css_float_value
-    + pp.Literal(",")
+    + pyparsing.Literal(",")
     + _css_float_value
-    + pp.Literal(",")
+    + pyparsing.Literal(",")
     + _css_float_value
-    + pp.Literal(",")
+    + pyparsing.Literal(",")
     + _css_color_value
-    + pp.Literal(")")
+    + pyparsing.Literal(")")
 )
 _css_filter_value = _css_drop_shadow_filter_value
 _css_simple_value = (
@@ -368,29 +372,44 @@ _css_simple_value = (
     | _css_color_value
     | _css_int_value
 )
-_css_list_value = pp.Group(pp.delimited_list(_css_simple_value, ",", min=2))
-_css_attribute_value = _css_list_value | _css_simple_value
-_css_attribute_name = pp.Word(pp.alphas + "_", pp.alphanums + "_" + "-")
-
-
-_css_import_statement = _css_import_keyword + _css_string_value + pp.Literal(";")
-_css_style = (
-    _css_attribute_name + pp.Literal(":") + _css_attribute_value + pp.Literal(";")
+_css_list_value = pyparsing.Group(
+    pyparsing.delimited_list(_css_simple_value, ",", min=2)
 )
-_css_style_collection = pp.Literal("{") + pp.Group(_css_style[1, ...]) + pp.Literal("}")
-_css_id = pp.Word(pp.printables, exclude_chars=",")
-_css_id_selector = pp.Literal("#") + _css_id
-_css_class_name = pp.Word(pp.alphas + "_", pp.alphanums + "_")
+_css_attribute_value = _css_list_value | _css_simple_value
+_css_attribute_name = pyparsing.Word(
+    pyparsing.alphas + "_", pyparsing.alphanums + "_" + "-"
+)
+
+
+_css_import_statement = _css_import_keyword + _css_string_value + pyparsing.Literal(";")
+_css_style = (
+    _css_attribute_name
+    + pyparsing.Literal(":")
+    + _css_attribute_value
+    + pyparsing.Literal(";")
+)
+_css_style_collection = (
+    pyparsing.Literal("{")
+    + pyparsing.Group(_css_style[1, ...])
+    + pyparsing.Literal("}")
+)
+_css_id = pyparsing.Word(pyparsing.printables, exclude_chars=",")
+_css_id_selector = pyparsing.Literal("#") + _css_id
+_css_class_name = pyparsing.Word(pyparsing.alphas + "_", pyparsing.alphanums + "_")
 _css_type_selector = _css_class_name.copy()
-_css_class_selector = pp.Literal(".") + _css_class_name
+_css_class_selector = pyparsing.Literal(".") + _css_class_name
 _css_elementary_selector = _css_class_selector | _css_type_selector | _css_id_selector
 _css_child_selector = (
-    _css_elementary_selector + pp.Literal(">") + _css_elementary_selector
+    _css_elementary_selector + pyparsing.Literal(">") + _css_elementary_selector
 )
 _css_descendant_selector = (
-    _css_elementary_selector + pp.OneOrMore(pp.White()) + _css_elementary_selector
+    _css_elementary_selector
+    + pyparsing.OneOrMore(pyparsing.White())
+    + _css_elementary_selector
 )
-_css_or_selector = pp.Group(pp.delimited_list(_css_elementary_selector, ",", min=2))
+_css_or_selector = pyparsing.Group(
+    pyparsing.delimited_list(_css_elementary_selector, ",", min=2)
+)
 _css_selector = (
     _css_child_selector
     | _css_descendant_selector
@@ -398,7 +417,7 @@ _css_selector = (
     | _css_elementary_selector
 )
 _css_rule = _css_selector + _css_style_collection
-_css_style_sheet = pp.Group(_css_rule[1, ...])
+_css_style_sheet = pyparsing.Group(_css_rule[1, ...])
 _css_document = _css_import_statement[...] + _css_style_sheet[...]
 
 
