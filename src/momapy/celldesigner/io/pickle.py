@@ -133,5 +133,5 @@ class CellDesignerPickleWriter(momapy.io.core.Writer):
         )
         with open(file_path, "wb") as f:
             pickle.dump(reader_result, f)
-        writer_result = momapy.io.WriterResult(obj=obj, file_path=file_path)
+        writer_result = momapy.io.core.WriterResult(obj=obj, file_path=file_path)
         return writer_result
