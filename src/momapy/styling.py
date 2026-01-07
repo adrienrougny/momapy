@@ -284,7 +284,7 @@ class DescendantSelector(Selector):
 class OrSelector(Selector):
     """Class for or selectors"""
 
-    selectors: tuple[Selector] = dataclasses.field(
+    selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of disjunct selectors"}
     )
 
@@ -303,7 +303,7 @@ class OrSelector(Selector):
 class CompoundSelector(Selector):
     """Class for compound selectors"""
 
-    selectors: tuple[Selector] = dataclasses.field(
+    selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of conjunct selectors"}
     )
 
@@ -322,7 +322,7 @@ class CompoundSelector(Selector):
 class NotSelector(Selector):
     """Class for not selectors"""
 
-    selectors: tuple[Selector] = dataclasses.field(
+    selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of negated conjunct selectors"}
     )
 
