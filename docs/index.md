@@ -12,9 +12,38 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 ## Installation
 
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows:
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows (Python >=3.10,<=3.12):
 
 `pip install momapy`
+
+### Optional dependencies
+
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes several optional dependencies for rendering maps with the skia or cairo backends:
+
+**skia**
+
+`pip install momapy[skia]`
+
+This extra depends on skia-python (<https://github.com/kyamagu/skia-python>), which itself depends on the following system packages:
+
+* opengl
+* libegl
+* fontconfig
+
+**cairo**
+
+`pip install momapy[cairo]`
+
+This extra depends on pygobject (<https://pygobject.gnome.org/guide/sysdeps.html>), which itself depends on the following system packages:
+
+* glib
+* libffi
+
+**all**
+
+All optional dependencies can also be installed together:
+
+`pip install momapy[all]`
 
 ## Usage
 
