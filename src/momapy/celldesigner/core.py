@@ -2483,7 +2483,7 @@ class ReactionLayout(CellDesignerDoubleHeadedArc):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
     _reaction_node_text: typing.ClassVar[str | None] = None
-    _font_family: typing.ClassVar[str] = "Helvetica"
+    _font_family: typing.ClassVar[str] = "Arial"
     _font_size_func: typing.ClassVar[typing.Callable]
     _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
         momapy.drawing.FontStyle.NORMAL
@@ -3231,7 +3231,7 @@ class AndGateLayout(
 ):
     """Class for and gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Helvetica"
+    _font_family: typing.ClassVar[str] = "Arial"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3257,7 +3257,7 @@ class OrGateLayout(
 ):
     """Class for or gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Helvetica"
+    _font_family: typing.ClassVar[str] = "Arial"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3283,7 +3283,7 @@ class NotGateLayout(
 ):
     """Class for not gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Helvetica"
+    _font_family: typing.ClassVar[str] = "Arial"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -3309,7 +3309,7 @@ class UnknownGateLayout(
 ):
     """Class for unknown gate layouts"""
 
-    _font_family: typing.ClassVar[str] = "Helvetica"
+    _font_family: typing.ClassVar[str] = "Arial"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
