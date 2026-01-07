@@ -1,6 +1,5 @@
 site_name: momapy
 site_url: https://adrienrougny.github.io/momapy/
-copyright: Version !ENV [VERSION, 'dev']
 nav:
   - Home: index.md
   - User manual: demo.ipynb
