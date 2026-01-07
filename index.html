@@ -356,6 +356,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1543,6 +1560,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1604,8 +1638,28 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
 <p>Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span>:</p>
 <p><img alt="Image title" src="features.png" /></p>
 <h2 id="installation">Installation</h2>
-<p><span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows:</p>
+<p><span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows (Python &gt;=3.10,&lt;=3.12):</p>
 <p><code>pip install momapy</code></p>
+<h3 id="optional-dependencies">Optional dependencies</h3>
+<p><span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes several optional dependencies for rendering maps with the skia or cairo backends:</p>
+<p><strong>skia</strong></p>
+<p><code>pip install momapy[skia]</code></p>
+<p>This extra depends on skia-python (<a href="https://github.com/kyamagu/skia-python">https://github.com/kyamagu/skia-python</a>), which itself depends on the following system packages:</p>
+<ul>
+<li>opengl</li>
+<li>libegl</li>
+<li>fontconfig</li>
+</ul>
+<p><strong>cairo</strong></p>
+<p><code>pip install momapy[cairo]</code></p>
+<p>This extra depends on pygobject (<a href="https://pygobject.gnome.org/guide/sysdeps.html">https://pygobject.gnome.org/guide/sysdeps.html</a>), which itself depends on the following system packages:</p>
+<ul>
+<li>glib</li>
+<li>libffi</li>
+</ul>
+<p><strong>all</strong></p>
+<p>All optional dependencies can also be installed together:</p>
+<p><code>pip install momapy[all]</code></p>
 <h2 id="usage">Usage</h2>
 <p>Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes reading a map and exploring its model:</p>
 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span>
@@ -1660,10 +1714,6 @@ This definition is borrowed from <a href="https://www.sbml.org">SBML</a> and its
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
       <div class="md-copyright">
-  
-    <div class="md-copyright__highlight">
-      Version !ENV [VERSION, 'dev']
-    </div>
   
   
     Made with
