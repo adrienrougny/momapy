@@ -11,7 +11,6 @@ import pygments.formatters
 
 import IPython.display
 
-import momapy.rendering.skia
 import momapy.rendering.svg_native
 import momapy.geometry
 import momapy.builder

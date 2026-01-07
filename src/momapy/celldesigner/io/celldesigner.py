@@ -20,7 +20,7 @@ import momapy.sbml.core
 class CellDesignerReader(momapy.io.core.Reader):
     """Class for CellDesigner reader objects"""
 
-    _DEFAULT_FONT_FAMILY = "Helvetica"
+    _DEFAULT_FONT_FAMILY = "Arial"
     _DEFAULT_FONT_SIZE = 12.0
     _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
     _DEFAULT_FONT_FILL = momapy.coloring.black

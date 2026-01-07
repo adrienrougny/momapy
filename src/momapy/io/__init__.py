@@ -35,11 +35,11 @@ def _ensure_registered():
             "celldesigner", momapy.celldesigner.io.celldesigner.CellDesignerReader
         )
         momapy.io.core.register_reader(
-            "celldesigner_pickle",
+            "celldesigner-pickle",
             momapy.celldesigner.io.pickle.CellDesignerPickleReader,
         )
         momapy.io.core.register_writer(
-            "celldesigner_pickle",
+            "celldesigner-pickle",
             momapy.celldesigner.io.pickle.CellDesignerPickleWriter,
         )
 
