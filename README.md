@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/momapy)](https://pypi.org/project/momapy/)
 [![Python](https://img.shields.io/pypi/pyversions/momapy)](https://pypi.org/project/momapy/)
-[![License](https://img.shields.io/github/license/adrienrougny/momapy)](<https://github.com/yourusername/momapy/blob/main/COPYING>
+[![License](https://img.shields.io/github/license/adrienrougny/momapy)](<https://github.com/yourusername/momapy/blob/main/COPYING>)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/demo.ipynb)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://adrienrougny.github.io/momapy/)
 
