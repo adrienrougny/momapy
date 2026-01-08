@@ -32,7 +32,6 @@ Issues = "https://github.com/adrienrougny/momapy/issues"
 skia = ["skia-python>=138.0"]
 cairo = ["pycairo>=1.29.0", "pygobject>=3.54.5"]
 all = ["momapy[cairo, skia]"]
-demo = ["notebook>=7.2.1"]
 
 [dependency-groups]
 dev = [
