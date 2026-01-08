@@ -77,6 +77,25 @@ from momapy.rendering.core import render_map
 render_map(map_, "my_file.pdf", format_="pdf", renderer="skia")
 ```
 
+## Demo
+
+### Online (no installation required)
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/demo.ipynb)
+
+### Local
+
+To run the demo locally:
+
+```bash
+git clone https://github.com/adrienrougny/momapy.git
+cd momapy
+pip install . jupyter
+jupyter notebook demo/demo.ipynb
+```
+
+The demo includes additional files (`utils.py`, example data) in the `demo/` directory that are only available in the repository.
+
 ## Documentation
 
-The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> can be found [here](https://adrienrougny.github.io/momapy/).
+The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available [here](https://adrienrougny.github.io/momapy/).
