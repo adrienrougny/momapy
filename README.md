@@ -1,5 +1,11 @@
 # <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span>
 
+[![PyPI](https://img.shields.io/pypi/v/momapy)](https://pypi.org/project/momapy/)
+[![Python](https://img.shields.io/pypi/pyversions/momapy)](https://pypi.org/project/momapy/)
+[![License](https://img.shields.io/github/license/adrienrougny/momapy)](<https://github.com/adrienrougny/momapy/blob/main/COPYING>)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/demo.ipynb)
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://adrienrougny.github.io/momapy/)
+
 <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is a library for working with molecular maps.
 It currently supports [SBGN](https://www.sbgn.org) and [CellDesigner](https://www.celldesigner.org/) maps.
 Its key feature is its definition of a map, that is formed of two entities: a model, that describes what concepts are represented, and a layout, that describes how these concepts are represented.
