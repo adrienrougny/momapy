@@ -1274,6 +1274,42 @@ class CellDesignerReader(momapy.io.core.Reader):
         return obj, annotations, notes, ids
 
     @classmethod
+    def _get_ordered_compartment_aliases_from_cd_model(
+        cls, cd_model, cd_id_to_cd_element
+    ):
+        cd_compartments = cls._get_compartments_from_cd_model(cd_model)
+        cd_compartment_id_to_cd_outside_id = {}
+        for cd_compartment in cd_compartments:
+            cd_compartment_id = cd_compartment.get("id")
+            cd_outside_id = cd_compartment.get("outside")
+            cd_compartment_id_to_cd_outside_id[cd_compartment_id] = cd_outside_id
+        ordered_cd_compartments = []
+        while cd_compartment_id_to_cd_outside_id:
+            for (
+                cd_compartment_id,
+                cd_outside_id,
+            ) in cd_compartment_id_to_cd_outside_id.items():
+                if cd_outside_id is None:
+                    ordered_cd_compartments.append(cd_compartment_id)
+                    to_delete = cd_compartment_id
+                    break
+            del cd_compartment_id_to_cd_outside_id[to_delete]
+            for (
+                cd_compartment_id,
+                cd_outside_id,
+            ) in cd_compartment_id_to_cd_outside_id.items():
+                if cd_outside_id == to_delete:
+                    cd_compartment_id_to_cd_outside_id[cd_compartment_id] = None
+        cd_compartment_aliases = cls._get_compartment_aliases_from_cd_model(cd_model)
+        ordered_cd_compartment_aliases = sorted(
+            cd_compartment_aliases,
+            key=lambda cd_compartment_alias: ordered_cd_compartments.index(
+                cd_id_to_cd_element[cd_compartment_alias.get("compartment")].get("id")
+            ),
+        )
+        return ordered_cd_compartment_aliases
+
+    @classmethod
     def _make_and_add_compartments_from_cd_model(
         cls,
         cd_model,
@@ -1290,9 +1326,10 @@ class CellDesignerReader(momapy.io.core.Reader):
         with_annotations,
         with_notes,
     ):
-        for cd_compartment_alias in cls._get_compartment_aliases_from_cd_model(
-            cd_model
-        ):
+        cd_compartment_aliases = cls._get_ordered_compartment_aliases_from_cd_model(
+            cd_model, cd_id_to_cd_element
+        )
+        for cd_compartment_alias in cd_compartment_aliases:
             model_element, layout_element = (
                 cls._make_and_add_compartment_from_cd_compartment_alias(
                     cd_compartment_alias=cd_compartment_alias,
