@@ -2098,9 +2098,16 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element.layout_elements.append(layout_element)
                 cd_id_to_layout_element[cd_species_alias.get("id")] = layout_element
             if model is not None and layout is not None:
-                layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
-                )
+                if super_layout_element is None:  # species case
+                    layout_model_mapping.add_mapping(
+                        layout_element, model_element, replace=True
+                    )
+                else:  # included species case
+                    layout_model_mapping.add_mapping(
+                        layout_element,
+                        (model_element, super_model_element),
+                        replace=True,
+                    )
         return model_element, layout_element
 
     @classmethod
