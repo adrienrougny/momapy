@@ -1945,6 +1945,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 model_element = None
             if layout is not None:
                 layout_element = layout.new_element(layout_element_cls)
+                layout_element.id_ = cd_species_alias.get("id")
                 cd_x, cd_y, cd_w, cd_h = cls._get_bounds_from_cd_element(
                     cd_species_alias
                 )
