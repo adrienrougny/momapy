@@ -7,6 +7,8 @@ import typing
 
 import frozendict
 
+import momapy.utils
+
 readers = {}
 writers = {}
 
@@ -35,7 +37,7 @@ class ReaderResult(IOResult):
     obj: typing.Any | None = None
     annotations: frozendict.frozendict | None = None
     notes: frozendict.frozendict | None = None
-    ids: dict | None = None
+    ids: momapy.utils.FrozenSurjectionDict | None = None
     file_path: str | os.PathLike | None = None
 
 

@@ -15,6 +15,7 @@ import momapy.coloring
 import momapy.builder
 import momapy.celldesigner.core
 import momapy.sbml.core
+import momapy.utils
 
 
 class CellDesignerReader(momapy.io.core.Reader):
@@ -1160,7 +1161,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             cd_id_to_model_element = {}
             cd_id_to_layout_element = {}
             map_element_to_annotations = collections.defaultdict(set)
-            map_element_to_ids = collections.defaultdict(set)
+            id_to_map_element = momapy.utils.SurjectionDict()
             map_element_to_notes = collections.defaultdict(set)
             if model is not None and layout is not None:
                 layout_model_mapping = momapy.core.LayoutModelMappingBuilder()
@@ -1179,7 +1180,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 map_element_to_annotations=map_element_to_annotations,
                 map_element_to_notes=map_element_to_notes,
                 layout_model_mapping=layout_model_mapping,
-                map_element_to_ids=map_element_to_ids,
+                id_to_map_element=id_to_map_element,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
             )
@@ -1195,7 +1196,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 map_element_to_annotations=map_element_to_annotations,
                 map_element_to_notes=map_element_to_notes,
                 layout_model_mapping=layout_model_mapping,
-                map_element_to_ids=map_element_to_ids,
+                id_to_map_element=id_to_map_element,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
             )
@@ -1218,7 +1219,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 map_element_to_annotations=map_element_to_annotations,
                 map_element_to_notes=map_element_to_notes,
                 layout_model_mapping=layout_model_mapping,
-                map_element_to_ids=map_element_to_ids,
+                id_to_map_element=id_to_map_element,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
             )
@@ -1236,7 +1237,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 map_element_to_annotations=map_element_to_annotations,
                 map_element_to_notes=map_element_to_notes,
                 layout_model_mapping=layout_model_mapping,
-                map_element_to_ids=map_element_to_ids,
+                id_to_map_element=id_to_map_element,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
             )
@@ -1270,7 +1271,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         notes = frozendict.frozendict(
             {key: frozenset(val) for key, val in map_element_to_notes.items()}
         )
-        ids = dict(map_element_to_ids)
+        ids = momapy.utils.FrozenSurjectionDict(id_to_map_element)
         return obj, annotations, notes, ids
 
     @classmethod
@@ -1322,7 +1323,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1342,7 +1343,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     map_element_to_annotations=map_element_to_annotations,
                     map_element_to_notes=map_element_to_notes,
                     layout_model_mapping=layout_model_mapping,
-                    map_element_to_ids=map_element_to_ids,
+                    id_to_map_element=id_to_map_element,
                     with_annotations=with_annotations,
                     with_notes=with_notes,
                 )
@@ -1364,7 +1365,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                     )
@@ -1383,7 +1384,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1400,7 +1401,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     map_element_to_annotations=map_element_to_annotations,
                     map_element_to_notes=map_element_to_notes,
                     layout_model_mapping=layout_model_mapping,
-                    map_element_to_ids=map_element_to_ids,
+                    id_to_map_element=id_to_map_element,
                     with_annotations=with_annotations,
                     with_notes=with_notes,
                 )
@@ -1419,7 +1420,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1438,7 +1439,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     map_element_to_annotations=map_element_to_annotations,
                     map_element_to_notes=map_element_to_notes,
                     layout_model_mapping=layout_model_mapping,
-                    map_element_to_ids=map_element_to_ids,
+                    id_to_map_element=id_to_map_element,
                     with_annotations=with_annotations,
                     with_notes=with_notes,
                 )
@@ -1457,7 +1458,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1479,7 +1480,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                     )
@@ -1497,7 +1498,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                     )
@@ -1516,7 +1517,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1542,7 +1543,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             map_element_to_annotations=map_element_to_annotations,
                             map_element_to_notes=map_element_to_notes,
                             layout_model_mapping=layout_model_mapping,
-                            map_element_to_ids=map_element_to_ids,
+                            id_to_map_element=id_to_map_element,
                             with_annotations=with_annotations,
                             with_notes=with_notes,
                         )
@@ -1604,6 +1605,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 layout.layout_elements.append(layout_element)
                 cd_id_to_layout_element[cd_compartment_alias.get("id")] = layout_element
+                id_to_map_element[cd_compartment_alias.get("id")] = layout_element
             else:
                 layout_element = None
             if model is not None and layout is not None:
@@ -1625,7 +1627,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1653,7 +1655,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             map_element_to_annotations=map_element_to_annotations,
                             map_element_to_notes=map_element_to_notes,
                             layout_model_mapping=layout_model_mapping,
-                            map_element_to_ids=map_element_to_ids,
+                            id_to_map_element=id_to_map_element,
                             with_annotations=with_annotations,
                             with_notes=with_notes,
                         )
@@ -1667,7 +1669,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 < existing_element.id_,
             )
             cd_id_to_model_element[cd_compartment.get("id")] = model_element
-            map_element_to_ids[model_element].add(cd_compartment.get("id"))
+            id_to_map_element[cd_compartment.get("id")] = model_element
             if with_annotations:
                 annotations = cls._make_annotations_from_cd_element(cd_compartment)
                 if annotations:
@@ -1693,7 +1695,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -1736,7 +1738,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_species_template,
@@ -1764,7 +1766,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     map_element_to_annotations=map_element_to_annotations,
                     map_element_to_notes=map_element_to_notes,
                     layout_model_mapping=layout_model_mapping,
-                    map_element_to_ids=map_element_to_ids,
+                    id_to_map_element=id_to_map_element,
                     with_annotations=with_annotations,
                     with_notes=with_notes,
                     super_cd_element=cd_species_template,
@@ -1779,7 +1781,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 < existing_element.id_,
             )
             cd_id_to_model_element[cd_species_template.get("id")] = model_element
-            map_element_to_ids[model_element].add(cd_species_template.get("id"))
+            id_to_map_element[cd_species_template.get("id")] = model_element
         else:
             model_element = None
         layout_element = None
@@ -1798,7 +1800,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -1826,7 +1828,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             # exceptionally we take the model element's id and not the cd element's
             # id for the reasons explained above
             cd_id_to_model_element[cd_modification_residue_id] = model_element
-            map_element_to_ids[model_element].add(cd_modification_residue_id)
+            id_to_map_element[cd_modification_residue_id] = model_element
         else:
             model_element = None
         layout_element = None  # purely a model element
@@ -1845,7 +1847,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -1872,7 +1874,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             # exceptionally we take the model element's id and not the cd element's
             # id for the reasons explained above
             cd_id_to_model_element[model_element.id_] = model_element
-            map_element_to_ids[model_element].add(cd_region_id)
+            id_to_map_element[cd_region_id] = model_element
         else:
             model_element = None
         layout_element = None  # purely a model element
@@ -1891,7 +1893,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element=None,
@@ -1999,7 +2001,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_species_alias,
@@ -2024,7 +2026,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     map_element_to_annotations=map_element_to_annotations,
                     map_element_to_notes=map_element_to_notes,
                     layout_model_mapping=layout_model_mapping,
-                    map_element_to_ids=map_element_to_ids,
+                    id_to_map_element=id_to_map_element,
                     with_annotations=with_annotations,
                     with_notes=with_notes,
                     super_cd_element=cd_species_alias,
@@ -2050,7 +2052,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_species_alias,
@@ -2090,7 +2092,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_notes[model_element].update(notes)
                 cd_id_to_model_element[cd_species.get("id")] = model_element
                 cd_id_to_model_element[cd_species_alias.get("id")] = model_element
-                map_element_to_ids[model_element].add(cd_species.get("id"))
+                id_to_map_element[cd_species.get("id")] = model_element
             if layout is not None:
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 if super_layout_element is None:  # species case
@@ -2098,6 +2100,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 else:  # included species case
                     super_layout_element.layout_elements.append(layout_element)
                 cd_id_to_layout_element[cd_species_alias.get("id")] = layout_element
+                id_to_map_element[cd_species_alias.get("id")] = layout_element
             if model is not None and layout is not None:
                 if super_layout_element is None:  # species case
                     layout_model_mapping.add_mapping(
@@ -2124,7 +2127,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -2223,6 +2226,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 super_layout_element.layout_elements.append(layout_element)
                 cd_id_to_layout_element[layout_element.id_] = layout_element
+                id_to_map_element[layout_element.id_] = layout_element
             else:
                 layout_element = None
         return model_element, layout_element
@@ -2240,7 +2244,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -2291,7 +2295,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -2367,7 +2371,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_reaction,
@@ -2398,7 +2402,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_reaction,
@@ -2427,7 +2431,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_reaction,
@@ -2456,7 +2460,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_reaction,
@@ -2486,7 +2490,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                         super_cd_element=cd_reaction,
@@ -2508,7 +2512,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     < existing_element.id_,
                 )
                 cd_id_to_model_element[model_element.id_] = model_element
-                map_element_to_ids[model_element].add(cd_reaction.get("id"))
+                id_to_map_element[cd_reaction.get("id")] = model_element
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(cd_reaction)
                     if annotations:
@@ -2520,6 +2524,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 layout.layout_elements.append(layout_element)
                 cd_id_to_layout_element[layout_element.id_] = layout_element
+                id_to_map_element[layout_element.id_] = layout_element
                 layout_elements_for_mapping.append(layout_element)
             if model is not None and layout is not None:
                 layout_model_mapping.add_mapping(
@@ -2744,7 +2749,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -2844,7 +2849,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -2933,7 +2938,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -3030,7 +3035,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -3119,7 +3124,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
         super_cd_element,
@@ -3145,7 +3150,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                     )
@@ -3241,7 +3246,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -3312,7 +3317,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         map_element_to_annotations,
         map_element_to_notes,
         layout_model_mapping,
-        map_element_to_ids,
+        id_to_map_element,
         with_annotations,
         with_notes,
     ):
@@ -3337,7 +3342,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         map_element_to_annotations=map_element_to_annotations,
                         map_element_to_notes=map_element_to_notes,
                         layout_model_mapping=layout_model_mapping,
-                        map_element_to_ids=map_element_to_ids,
+                        id_to_map_element=id_to_map_element,
                         with_annotations=with_annotations,
                         with_notes=with_notes,
                     )
@@ -3358,7 +3363,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             map_element_to_annotations=map_element_to_annotations,
                             map_element_to_notes=map_element_to_notes,
                             layout_model_mapping=layout_model_mapping,
-                            map_element_to_ids=map_element_to_ids,
+                            id_to_map_element=id_to_map_element,
                             with_annotations=with_annotations,
                             with_notes=with_notes,
                         )
@@ -3379,7 +3384,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     func=lambda element, existing_element: element.id_
                     < existing_element.id_,
                 )
-                map_element_to_ids[model_element].add(cd_reaction.get("id"))
+                id_to_map_element[cd_reaction.get("id")] = model_element
                 if with_annotations:
                     annotations = cls._make_annotations_from_cd_element(cd_reaction)
                     if annotations:
@@ -3453,6 +3458,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     layout_element.segments.append(segment)
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 layout.layout_elements.append(layout_element)
+                id_to_map_element[layout_element.id_] = layout_element
             else:
                 layout_element = None
             if model is not None and layout is not None:
