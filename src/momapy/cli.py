@@ -18,7 +18,7 @@ def run(args):
         except Exception:
             pass
         if args.format is None:
-            output_file_path = pathlib.Path(args.output)
+            output_file_path = pathlib.Path(args.output_file_path)
             format_ = output_file_path.suffix[1:]
         else:
             format_ = args.format
@@ -36,10 +36,10 @@ def run(args):
                     break
         else:
             renderer = args.renderer
-        if args.style_sheet:
+        if args.style_sheet_file_path:
             style_sheets = [
-                momapy.styling.StyleSheet.from_file(file_path)
-                for file_path in args.style_sheet
+                momapy.styling.StyleSheet.from_file(style_sheet_file_path)
+                for style_sheet_file_path in args.style_sheet_file_path
             ]
             if len(style_sheets) > 1:
                 style_sheet = momapy.styling.combine_style_sheets(style_sheets)
@@ -48,12 +48,12 @@ def run(args):
         else:
             style_sheet = None
         layouts = []
-        for input_file_path in args.input_file_paths:
+        for input_file_path in args.input_file_path:
             layout = momapy.io.core.read(input_file_path, return_type="layout").obj
             layouts.append(layout)
         momapy.rendering.core.render_layout_elements(
             layout_elements=layouts,
-            file_path=args.output,
+            file_path=args.output_file_path,
             format_=format_,
             renderer=renderer,
             style_sheet=style_sheet,
