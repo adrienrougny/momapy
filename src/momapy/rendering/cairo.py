@@ -29,7 +29,7 @@ import momapy.rendering.core
 class CairoRenderer(momapy.rendering.core.StatefulRenderer):
     """Class for cairo renderers"""
 
-    formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
+    supported_formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
         momapy.drawing.Path: "_render_path",
@@ -70,6 +70,8 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "ps"] = "pdf",
     ) -> typing_extensions.Self:
+        if format_ not in cls.supported_formats:
+            raise ValueError(f"Unsupported format: {format_}")
         config = {}
         if format_ == "pdf":
             surface = cairo.PDFSurface(file_path, width, height)

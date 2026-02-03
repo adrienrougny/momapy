@@ -54,7 +54,7 @@ class SVGElement(object):
 class SVGNativeRenderer(momapy.rendering.core.Renderer):
     """Class for SVG native renderers"""
 
-    formats: typing.ClassVar[list[str]] = ["svg"]
+    supported_formats: typing.ClassVar[list[str]] = ["svg"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_make_group_element",
         momapy.drawing.Path: "_make_path_element",
@@ -136,6 +136,8 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
+        if format_ not in cls.supported_formats:
+            raise ValueError(f"Unsupported format: {format_}")
         if config is None:
             config = {}
         config["output_file"] = output_file

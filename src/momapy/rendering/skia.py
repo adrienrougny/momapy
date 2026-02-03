@@ -22,7 +22,13 @@ import momapy.rendering.core
 class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     """Class for skia renderers"""
 
-    formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "jpeg", "webp"]
+    supported_formats: typing.ClassVar[list[str]] = [
+        "pdf",
+        "svg",
+        "png",
+        "jpeg",
+        "webp",
+    ]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
         momapy.drawing.Path: "_render_path",
@@ -83,7 +89,10 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
     ) -> typing_extensions.Self:
+        if format_ not in cls.supported_formats:
+            raise ValueError(f"Unsupported format: {format_}")
         config = {}
+        canvas = None
         if format_ == "pdf":
             stream = skia.FILEWStream(file_path)
             document = skia.PDF.MakeDocument(stream)
