@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='ASCII'?>
 <sbgn xmlns="http://sbgn.org/libsbgn/0.3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqmodel="http://biomodels.net/model-qualifiers/" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-  <map id="16f7bae7-9750-4f79-ac07-69b2f7f82888" language="process description">
+  <map id="5adce621-01b1-498b-ae44-1df5cabfc171" language="process description">
+    <bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
     <glyph id="glyph2" class="macromolecule">
       <bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
@@ -8,7 +9,7 @@
       </label>
       <glyph id="glyph2a" class="state variable">
         <bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
-        <state value=""/>
+        <state/>
       </glyph>
     </glyph>
     <glyph id="glyph1" class="macromolecule">
@@ -27,5 +28,22 @@
         <bbox x="225.1953125" y="126.8515625" w="9.609375" h="16.296875"/>
       </label>
     </glyph>
+    <glyph id="glyph4" class="process" orientation="horizontal">
+      <bbox x="218.0" y="258.0" w="24.0" h="24.0"/>
+      <port id="glyph4_left" x="206.0" y="270.0"/>
+      <port id="glyph4_right" x="254.0" y="270.0"/>
+    </glyph>
+    <arc id="a9a51748-4460-4d71-9529-64c4e71bd1da" class="consumption" source="glyph2" target="glyph4_left">
+      <start x="139.0" y="270.0"/>
+      <end x="206.0" y="270.0"/>
+    </arc>
+    <arc id="b2443bb9-e98e-4b4d-830e-1860609067bb" class="production" target="glyph1" source="glyph4_right">
+      <start x="254.0" y="270.0"/>
+      <end x="336.0" y="270.0"/>
+    </arc>
+    <arc id="1318c196-3c78-45cd-b3ee-a6a9838e90a2" class="catalysis" target="glyph4" source="glyph3">
+      <start x="230.0" y="165.0"/>
+      <end x="230.0" y="258.0"/>
+    </arc>
   </map>
 </sbgn>
