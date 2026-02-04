@@ -19,7 +19,6 @@ except ModuleNotFoundError as e:
         "You might want to install momapy with the cairo extra: momapy[cairo]"
     ) from e
 
-
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
@@ -27,8 +26,6 @@ import momapy.rendering.core
 
 @dataclasses.dataclass(kw_only=True)
 class CairoRenderer(momapy.rendering.core.StatefulRenderer):
-    """Class for cairo renderers"""
-
     supported_formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
@@ -131,10 +128,9 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
 
     def self_restore(self):
         self.context.restore()
-        self.context.new_path()  # context.restore() does not forget the current path
+        self.context.new_path()
 
     def _make_stroke_paint(self):
-        """Set stroke paint on context"""
         stroke = self.get_current_value("stroke")
         stroke_width = self.get_current_value("stroke_width")
         stroke_dasharray = self.get_current_value("stroke_dasharray")
@@ -142,7 +138,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
 
         if stroke != momapy.drawing.NoneValue and stroke is not None:
             self.context.set_line_width(stroke_width)
-            self.context.set_source_rgba(*stroke.to_rgba(rgba_range=(0, 1)))
+            self.context.set_source_rgba(*stroke.to_rgba(rgba_range=(0.0, 1.0)))
             if (
                 stroke_dasharray is not None
                 and stroke_dasharray != momapy.drawing.NoneValue
@@ -154,15 +150,13 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         return False
 
     def _make_fill_paint(self):
-        """Set fill paint on context"""
         fill = self.get_current_value("fill")
         if fill != momapy.drawing.NoneValue and fill is not None:
-            self.context.set_source_rgba(*fill.to_rgba(rgba_range=(0, 1)))
+            self.context.set_source_rgba(*fill.to_rgba(rgba_range=(0.0, 1.0)))
             return True
         return False
 
     def _stroke_and_fill(self):
-        """Apply stroke and fill to current path"""
         has_fill = self._make_fill_paint()
         has_stroke = self.get_current_value("stroke") not in [
             momapy.drawing.NoneValue,
@@ -292,11 +286,9 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         self.context.close_path()
 
     def _add_elliptical_arc(self, elliptical_arc):
-        # Get current point
         current_point = self.context.get_current_point()
         p1 = momapy.geometry.Point(current_point[0], current_point[1])
 
-        # Create elliptical arc geometry object
         obj = momapy.geometry.EllipticalArc(
             p1=p1,
             p2=elliptical_arc.point,
@@ -307,18 +299,15 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
             sweep_flag=elliptical_arc.sweep_flag,
         )
 
-        # Get center parameterization
         cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
             obj.get_center_parameterization()
         )
 
-        # Apply transformation for rotated ellipse
         self.context.save()
         self.context.translate(cx, cy)
         self.context.rotate(sigma)
         self.context.scale(rx, ry)
 
-        # Draw arc
         if delta_theta > 0:
             self.context.arc(0, 0, 1, theta1, theta2)
         else:
@@ -352,4 +341,4 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         self.context.transform(m)
 
 
-momapy.rendering.core.register_renderer("cairo", CairoRenderer)
+momapy.rendering.core.register_renderer("cairo2", CairoRenderer)
