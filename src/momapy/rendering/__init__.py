@@ -10,16 +10,16 @@ if typing.TYPE_CHECKING:
     import momapy.rendering.core
 
 
-_renderer_registry = momapy.plugins.registry.PluginRegistry(
+renderer_registry = momapy.plugins.registry.PluginRegistry(
     entry_point_group="momapy.renderers",
 )
 
 
 def get_renderer(name: str) -> type[momapy.rendering.core.Renderer]:
     """Get a renderer class by name"""
-    renderer = _renderer_registry.get(name)
+    renderer = renderer_registry.get(name)
     if renderer is None:
-        available = _renderer_registry.list_available()
+        available = renderer_registry.list_available()
         raise ValueError(
             f"No renderer named '{name}'. Available renderers: {', '.join(available)}"
         )
@@ -28,17 +28,17 @@ def get_renderer(name: str) -> type[momapy.rendering.core.Renderer]:
 
 def list_renderers() -> list[str]:
     """List all available renderer names"""
-    return _renderer_registry.list_available()
+    return renderer_registry.list_available()
 
 
 def register_renderer(name: str, cls: type[momapy.rendering.core.Renderer]) -> None:
     """Register a renderer class"""
-    _renderer_registry.register(name, cls)
+    renderer_registry.register(name, cls)
 
 
 def register_lazy_renderer(name: str, import_path: str) -> None:
     """Register a renderer class"""
-    _renderer_registry.register_lazy(name, import_path)
+    renderer_registry.register_lazy(name, import_path)
 
 
 for name, import_path in [
