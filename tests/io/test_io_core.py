@@ -1,54 +1,64 @@
 """Tests for momapy.io.core module."""
+
 import pytest
+import momapy.io
 import momapy.io.core
 
 
-def test_readers_dict_exists():
-    """Test that readers dictionary exists."""
-    assert isinstance(momapy.io.core.readers, dict)
+def test_reader_registry_exists():
+    """Test that reader registry exists."""
+    assert hasattr(momapy.io, "reader_registry")
 
 
-def test_writers_dict_exists():
-    """Test that writers dictionary exists."""
-    assert isinstance(momapy.io.core.writers, dict)
+def test_writer_registry_exists():
+    """Test that writer registry exists."""
+    assert hasattr(momapy.io, "writer_registry")
 
 
 def test_register_reader():
     """Test register_reader function."""
-    class DummyReader:
-        @staticmethod
-        def check_file(file_path):
+
+    class DummyReader(momapy.io.core.Reader):
+        @classmethod
+        def read(cls, file_path, **options):
+            return momapy.io.core.ReaderResult()
+
+        @classmethod
+        def check_file(cls, file_path):
             return False
 
     # Save original state
-    original_readers = momapy.io.core.readers.copy()
+    original_readers = momapy.io.reader_registry.list_loaded()
 
     try:
-        momapy.io.core.register_reader("test_reader", DummyReader)
-        assert "test_reader" in momapy.io.core.readers
-        assert momapy.io.core.readers["test_reader"] == DummyReader
+        momapy.io.register_reader("test_reader", DummyReader)
+        assert momapy.io.reader_registry.is_available("test_reader")
+        assert momapy.io.reader_registry.get("test_reader") == DummyReader
     finally:
-        # Restore original state
-        momapy.io.core.readers.clear()
-        momapy.io.core.readers.update(original_readers)
+        # Restore original state - remove test reader
+        if "test_reader" in momapy.io.reader_registry.list_loaded():
+            del momapy.io.reader_registry._loaded_plugins["test_reader"]
 
 
 def test_register_writer():
     """Test register_writer function."""
-    class DummyWriter:
-        pass
+
+    class DummyWriter(momapy.io.core.Writer):
+        @classmethod
+        def write(cls, obj, file_path, **options):
+            return momapy.io.core.WriterResult()
 
     # Save original state
-    original_writers = momapy.io.core.writers.copy()
+    original_writers = momapy.io.writer_registry.list_loaded()
 
     try:
-        momapy.io.core.register_writer("test_writer", DummyWriter)
-        assert "test_writer" in momapy.io.core.writers
-        assert momapy.io.core.writers["test_writer"] == DummyWriter
+        momapy.io.register_writer("test_writer", DummyWriter)
+        assert momapy.io.writer_registry.is_available("test_writer")
+        assert momapy.io.writer_registry.get("test_writer") == DummyWriter
     finally:
-        # Restore original state
-        momapy.io.core.writers.clear()
-        momapy.io.core.writers.update(original_writers)
+        # Restore original state - remove test writer
+        if "test_writer" in momapy.io.writer_registry.list_loaded():
+            del momapy.io.writer_registry._loaded_plugins["test_writer"]
 
 
 def test_io_result_creation():
@@ -73,11 +83,11 @@ def test_writer_result_creation():
 
 def test_read_function_exists():
     """Test that read function exists."""
-    assert hasattr(momapy.io.core, 'read')
+    assert hasattr(momapy.io.core, "read")
     assert callable(momapy.io.core.read)
 
 
 def test_write_function_exists():
     """Test that write function exists."""
-    assert hasattr(momapy.io.core, 'write')
+    assert hasattr(momapy.io.core, "write")
     assert callable(momapy.io.core.write)
