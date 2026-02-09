@@ -14,12 +14,17 @@ import momapy.geometry
 import momapy.builder
 import momapy.core
 
-renderers = {}
-
 
 def register_renderer(name, renderer_cls):
-    """Register a renderer class"""
-    renderers[name] = renderer_cls
+    """Register a renderer class.
+
+    .. deprecated::
+        Use `momapy.rendering.register_renderer()` instead.
+    """
+    # Delegates to the new registry
+    import momapy.rendering
+
+    momapy.rendering.register_renderer(name, renderer_cls)
 
 
 def render_layout_element(
@@ -113,36 +118,36 @@ def render_layout_elements(
                         break
         return layout_elements, max_x, max_y
 
-    import momapy.rendering
+    from momapy.rendering import get_renderer
 
-    momapy.rendering._ensure_registered()
+    renderer_cls = get_renderer(renderer)
     if not multi_pages:
         prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
             layout_elements, style_sheet, to_top_left
         )
-        renderer = renderers[renderer].from_file(file_path, max_x, max_y, format_)
-        renderer.begin_session()
+        renderer_instance = renderer_cls.from_file(file_path, max_x, max_y, format_)
+        renderer_instance.begin_session()
         for prepared_layout_element in prepared_layout_elements:
-            renderer.render_layout_element(prepared_layout_element)
-        renderer.end_session()
+            renderer_instance.render_layout_element(prepared_layout_element)
+        renderer_instance.end_session()
     else:
         if layout_elements:
             layout_element = layout_elements[0]
             prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
                 [layout_element], style_sheet, to_top_left
             )
-            renderer = renderers[renderer].from_file(file_path, max_x, max_y, format_)
-            renderer.begin_session()
-            renderer.render_layout_element(prepared_layout_elements[0])
+            renderer_instance = renderer_cls.from_file(file_path, max_x, max_y, format_)
+            renderer_instance.begin_session()
+            renderer_instance.render_layout_element(prepared_layout_elements[0])
             for layout_element in layout_elements[1:]:
                 prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
                     [layout_element], style_sheet, to_top_left
                 )
-                renderer.new_page(max_x, max_y)
-                renderer.render_layout_element(prepared_layout_elements[0])
+                renderer_instance.new_page(max_x, max_y)
+                renderer_instance.render_layout_element(prepared_layout_elements[0])
         else:
-            renderer = renderers[renderer].from_file(file_path, 0, 0, format_)
-        renderer.end_session()
+            renderer_instance = renderer_cls.from_file(file_path, 0, 0, format_)
+        renderer_instance.end_session()
 
 
 def render_map(

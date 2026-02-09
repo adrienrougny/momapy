@@ -15,8 +15,10 @@ try:
     import gi.repository.Pango
     import gi.repository.PangoCairo
 except ModuleNotFoundError as e:
-    raise Exception(
-        "You might want to install momapy with the cairo extra: momapy[cairo]"
+    raise ModuleNotFoundError(
+        f"The '{__name__}' module requires 'pycairo' and 'PyGObject'. "
+        f"Install them with: pip install pycairo pygobject  "
+        f"Or install momapy with cairo support: pip install momapy[cairo]"
     ) from e
 
 import momapy.drawing
@@ -339,6 +341,3 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
             y0=matrix_transformation.m[1][2],
         )
         self.context.transform(m)
-
-
-momapy.rendering.core.register_renderer("cairo2", CairoRenderer)

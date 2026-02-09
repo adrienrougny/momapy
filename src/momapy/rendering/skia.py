@@ -9,8 +9,10 @@ import os
 try:
     import skia
 except ModuleNotFoundError as e:
-    raise Exception(
-        "You might want to install momapy with the skia extra: momapy[skia]"
+    raise ModuleNotFoundError(
+        f"The '{__name__}' module requires the 'skia-python' package. "
+        f"Install it with: pip install skia-python  "
+        f"Or install momapy with skia support: pip install momapy[skia]"
     ) from e
 
 import momapy.drawing
@@ -539,6 +541,3 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             pers2=matrix_transformation.m[2][2],
         )
         self.canvas.concat(m)
-
-
-momapy.rendering.core.register_renderer("skia", SkiaRenderer)

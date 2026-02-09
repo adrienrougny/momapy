@@ -1,47 +1,90 @@
-import momapy.io.core
+"""Subpackage for reading and writing."""
 
-_registered = False
+from __future__ import annotations
+
+import typing
+
+import momapy.plugins.registry
+
+if typing.TYPE_CHECKING:
+    import momapy.io.core
 
 
-def _ensure_registered():
-    global _registered
-    if not _registered:
-        import momapy.sbgn.io.sbgnml
-        import momapy.sbgn.io.pickle
-        import momapy.celldesigner.io.celldesigner
-        import momapy.celldesigner.io.pickle
-        import momapy.sbml.io.sbml
+reader_registry = momapy.plugins.registry.PluginRegistry(
+    entry_point_group="momapy.readers"
+)
+writer_registry = momapy.plugins.registry.PluginRegistry(
+    entry_point_group="momapy.writers"
+)
 
-        momapy.io.core.register_reader(
-            "sbgnml-0.2", momapy.sbgn.io.sbgnml.SBGNML0_2Reader
-        )
-        momapy.io.core.register_reader(
-            "sbgnml-0.3", momapy.sbgn.io.sbgnml.SBGNML0_3Reader
-        )
-        momapy.io.core.register_reader("sbgnml", momapy.sbgn.io.sbgnml.SBGNML0_3Reader)
-        momapy.io.core.register_writer(
-            "sbgnml-0.3", momapy.sbgn.io.sbgnml.SBGNML0_3Writer
-        )
-        momapy.io.core.register_writer("sbgnml", momapy.sbgn.io.sbgnml.SBGNML0_3Writer)
 
-        momapy.io.core.register_reader(
-            "sbgn-pickle", momapy.sbgn.io.pickle.SBGNPickleReader
+def get_reader(name: str) -> type[momapy.io.core.Reader]:
+    """Get a reader class by name"""
+    reader = reader_registry.get(name)
+    if reader is None:
+        available = reader_registry.list_available()
+        raise ValueError(
+            f"No reader named '{name}'. Available readers: {', '.join(available)}"
         )
-        momapy.io.core.register_writer(
-            "sbgn-pickle", momapy.sbgn.io.pickle.SBGNPickleWriter
-        )
+    return reader
 
-        momapy.io.core.register_reader(
-            "celldesigner", momapy.celldesigner.io.celldesigner.CellDesignerReader
-        )
-        momapy.io.core.register_reader(
-            "celldesigner-pickle",
-            momapy.celldesigner.io.pickle.CellDesignerPickleReader,
-        )
-        momapy.io.core.register_writer(
-            "celldesigner-pickle",
-            momapy.celldesigner.io.pickle.CellDesignerPickleWriter,
-        )
 
-        momapy.io.core.register_reader("sbml", momapy.sbml.io.sbml.SBMLReader)
-        _registered = True
+def list_readers() -> list[str]:
+    """List all available reader names."""
+    return reader_registry.list_available()
+
+
+def register_reader(name: str, cls: type[momapy.io.core.Reader]) -> None:
+    """Register a reader class."""
+    reader_registry.register(name, cls)
+
+
+def register_lazy_reader(name: str, import_path: str) -> None:
+    """Register a reader class."""
+    reader_registry.register_lazy(name, import_path)
+
+
+def get_writer(name: str) -> type[momapy.io.core.Writer]:
+    """Get a writer class by name."""
+    writer = writer_registry.get(name)
+    if writer is None:
+        available = writer_registry.list_available()
+        raise ValueError(
+            f"No writer named '{name}'. Available writers: {', '.join(available)}"
+        )
+    return writer
+
+
+def list_writers() -> list[str]:
+    """List all available writer names."""
+    return writer_registry.list_available()
+
+
+def register_writer(name: str, cls: type[momapy.io.core.Writer]) -> None:
+    """Register a writer class."""
+    writer_registry.register(name, cls)
+
+
+def register_lazy_writer(name: str, import_path: str) -> None:
+    """Register a reader class."""
+    writer_registry.register_lazy(name, import_path)
+
+
+for name, import_path in [
+    ("sbgnml", "momapy.sbgn.io.sbgnml:SBGNML0_3Reader"),
+    ("sbgnml-0.2", "momapy.sbgn.io.sbgnml:SBGNML0_2Reader"),
+    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml:SBGNML0_3Reader"),
+    ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleReader"),
+    ("celldesigner", "momapy.celldesigner.io.celldesigner:CellDesignerReader"),
+    ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleReader"),
+    ("sbml", "momapy.sbml.io.sbml:SBMLReader"),
+]:
+    register_lazy_reader(name, import_path)
+
+for name, import_path in [
+    ("sbgnml", "momapy.sbgn.io.sbgnml:SBGNML0_3Writer"),
+    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml:SBGNML0_3Writer"),
+    ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleWriter"),
+    ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleWriter"),
+]:
+    register_lazy_writer(name, import_path)

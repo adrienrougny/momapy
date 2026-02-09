@@ -9,19 +9,6 @@ import frozendict
 
 import momapy.utils
 
-readers = {}
-writers = {}
-
-
-def register_reader(name: str, reader_cls: typing.Type):
-    """Register a reader"""
-    readers[name] = reader_cls
-
-
-def register_writer(name, writer_cls):
-    """Register a writer"""
-    writers[name] = writer_cls
-
 
 @dataclasses.dataclass
 class IOResult:
@@ -67,24 +54,21 @@ def read(
     """
     import momapy.io
 
-    momapy.io._ensure_registered()
-
     reader_cls = None
     if reader is not None:
-        reader_cls = readers.get(reader)
-        if reader_cls is None:
-            raise ValueError(f"no registered reader named '{reader}'")
+        reader_cls = momapy.io.get_reader(reader)
     else:
-        for candidate_reader_cls in readers.values():
-            if candidate_reader_cls.check_file(file_path):
-                reader_cls = candidate_reader_cls
+        for name in momapy.io.reader_registry.list_available():
+            candidate_cls = momapy.io.get_reader(name)
+            if candidate_cls.check_file(file_path):
+                reader_cls = candidate_cls
                 break
-    if reader_cls is not None:
-        result = reader_cls.read(file_path, **options)
-    else:
+
+    if reader_cls is None:
         raise ValueError(
             f"could not find a suitable registered reader for file '{file_path}'"
         )
+    result = reader_cls.read(file_path, **options)
     return result
 
 
@@ -107,12 +91,9 @@ def write(
     """
     import momapy.io
 
-    momapy.io._ensure_registered()
-
-    writer_cls = None
-    writer_cls = writers.get(writer)
+    writer_cls = momapy.io.get_writer(writer)
     if writer_cls is None:
-        raise ValueError(f"no registered writer named '{writer}'")
+        raise ValueError(f"could not find writer '{writer}' in the registry")
     result = writer_cls.write(obj, file_path, **options)
     return result
 
@@ -127,6 +108,7 @@ class Reader(abc.ABC):
         pass
 
     @classmethod
+    @abc.abstractmethod
     def check_file(cls, file_path: str | os.PathLike) -> bool:
         """Return `true` if the given file is supported by the reader, `false` otherwise"""
         pass
