@@ -7,4 +7,4 @@ src/momapy/demo/.ipynb_checkpoints/*
 .pdm-python
 dist/
 .tox/
-docs/plans/
+plans/
