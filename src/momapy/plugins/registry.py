@@ -7,9 +7,12 @@ This module provides a generic plugin registry that supports:
 
 Example:
     >>> import momapy.plugins.registry
+    >>> # Create a registry for plugins
     >>> registry = momapy.plugins.registry.PluginRegistry()
-    >>> registry.register("my_plugin", MyPluginClass)
-    >>> plugin = registry.get("my_plugin")
+    >>> # Register a plugin class (MyPluginClass must be defined/imported)
+    >>> # registry.register("my_plugin", MyPluginClass)
+    >>> # Retrieve a registered plugin
+    >>> # plugin = registry.get("my_plugin")
 """
 
 import importlib

@@ -179,9 +179,13 @@ def render_map(
         to_top_left: Whether to move the map to the top left before rendering
 
     Example:
-        >>> import momapy
-        >>> map_ = momapy.io.read("path/to/map.sbgn")
-        >>> momapy.rendering.render_map(map_, "output.svg")
+        >>> from momapy.io.core import read
+        >>> from momapy.rendering.core import render_map
+        >>> # Read a map from file
+        >>> result = read("path/to/map.sbgn")
+        >>> sbgn_map = result.obj
+        >>> # Render the map to SVG
+        >>> render_map(sbgn_map, "output.svg")
     """
     render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
 
@@ -207,10 +211,15 @@ def render_maps(
         multi_pages: Whether to render each map on a separate page
 
     Example:
-        >>> import momapy
-        >>> map1 = momapy.io.read("path/to/map1.sbgn")
-        >>> map2 = momapy.io.read("path/to/map2.sbgn")
-        >>> momapy.rendering.render_maps([map1, map2], "output.pdf", multi_pages=True)
+        >>> from momapy.io.core import read
+        >>> from momapy.rendering.core import render_maps
+        >>> # Read multiple maps from files
+        >>> result1 = read("path/to/map1.sbgn")
+        >>> first_map = result1.obj
+        >>> result2 = read("path/to/map2.sbgn")
+        >>> second_map = result2.obj
+        >>> # Render both maps to a multi-page PDF
+        >>> render_maps([first_map, second_map], "output.pdf", multi_pages=True)
     """
     layout_elements = [map_.layout for map_ in maps]
     render_layout_elements(

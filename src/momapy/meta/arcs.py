@@ -20,10 +20,19 @@ Available arc types:
 
 Example:
     >>> from momapy.meta.arcs import Triangle, Diamond
+    >>> from momapy.meta.nodes import Rectangle
     >>> import momapy.geometry
     >>> # Create nodes with Point positions
-    >>> node1 = Rectangle(position=momapy.geometry.Point(100, 100), width=50, height=30)
-    >>> node2 = Rectangle(position=momapy.geometry.Point(300, 100), width=50, height=30)
+    >>> source_node = Rectangle(
+    ...     position=momapy.geometry.Point(100, 100),
+    ...     width=50,
+    ...     height=30
+    ... )
+    >>> target_node = Rectangle(
+    ...     position=momapy.geometry.Point(300, 100),
+    ...     width=50,
+    ...     height=30
+    ... )
     >>> # Create arc with segments defining the path
     >>> segment = momapy.geometry.Segment(
     ...     momapy.geometry.Point(125, 100),

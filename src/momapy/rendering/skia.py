@@ -32,9 +32,18 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         canvas: The Skia canvas used for rendering
 
     Example:
+        >>> from momapy.meta.nodes import Rectangle
+        >>> import momapy.geometry
+        >>> # Create a layout element to render
+        >>> node = Rectangle(
+        ...     position=momapy.geometry.Point(100, 100),
+        ...     width=200,
+        ...     height=100
+        ... )
+        >>> # Create renderer and render the element
         >>> renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
         >>> renderer.begin_session()
-        >>> renderer.render_layout_element(layout_element)
+        >>> renderer.render_layout_element(node)
         >>> renderer.end_session()
     """
 
