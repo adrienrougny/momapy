@@ -93,10 +93,48 @@ jobs:
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
 
+  changelog:
+    name: Generate changelog
+    needs:
+    - build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Get tag
+      id: get_tag
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" origin/main)
+          echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        else
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Generate changelog for this release
+      uses: orhun/git-cliff-action@v4
+      id: cliff
+      with:
+        config: cliff.toml
+        args: --latest --strip header
+      env:
+        OUTPUT: CHANGELOG_RELEASE.md
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload changelog snippet
+      uses: actions/upload-artifact@v4
+      with:
+        name: changelog-snippet
+        path: CHANGELOG_RELEASE.md
+
   github-release:
     name: Create GitHub Release
     needs:
     - pypi
+    - changelog
     runs-on: ubuntu-latest
 
     permissions:
@@ -119,41 +157,48 @@ jobs:
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         fi
 
-    - name: Download all the dists
+    - name: Download dist artifacts
       uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
+
+    - name: Download changelog snippet
+      uses: actions/download-artifact@v4
+      with:
+        name: changelog-snippet
 
     - name: Extract version from tag
       run: |
         TAG="${{ steps.get_tag.outputs.tag }}"
         echo "VERSION=${TAG#v}" >> $GITHUB_ENV
 
+    - name: Build release body
+      run: |
+        cat > RELEASE_BODY.md << 'HEADER'
+        ## What's Changed
+        HEADER
+        cat CHANGELOG_RELEASE.md >> RELEASE_BODY.md
+        cat >> RELEASE_BODY.md << EOF
+
+        ## Installation
+
+        \`\`\`bash
+        pip install momapy==${{ env.VERSION }}
+        \`\`\`
+
+        ## Links
+
+        - [Documentation](https://adrienrougny.github.io/momapy/)
+        - [PyPI](https://pypi.org/project/momapy/${{ env.VERSION }}/)
+        EOF
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.get_tag.outputs.tag }}
         files: dist/*
-        generate_release_notes: true
-        body: |
-          ## Installation
-
-          Install from PyPI:
-          ```bash
-          pip install momapy==${{ env.VERSION }}
-          ```
-
-          ## Documentation
-
-          [View Documentation](https://adrienrougny.github.io/momapy/)
-
-          ## Package Links
-
-          - [PyPI Release](https://pypi.org/project/momapy/${{ env.VERSION }}/)
-          - [TestPyPI Release](https://test.pypi.org/project/momapy/${{ env.VERSION }}/)
-
-          ---
+        body_path: RELEASE_BODY.md
 
   deploy-docs:
     name: Deploy documentation

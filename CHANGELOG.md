@@ -1,0 +1,1262 @@
+# Changelog
+
+All notable changes to momapy will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/),
+and this project adheres to [Conventional Commits](https://www.conventionalcommits.org/).
+
+## [Unreleased]
+
+### Added
+
+- Added precommit linting (@conventional)
+- Added renderer and format autodetection *(rendering)*
+
+### Fixed
+
+- Distinguish scenario min and all for rendering images
+
+### Miscellaneous
+
+- Docs/plans->plans
+
+### Other
+
+- Added test for demo
+- Plugins.registry->plugins.core
+- Updated docs
+- Updated docs
+- Removed version; updated docs
+- _renderer_registry->renderer_registry
+- Added docs/plans and .tox
+- Rendering.*, io.*: changed registering renderers/readers/writers to plugin system; plugins: new
+- Updated; rendering._cairo: rm
+- Update with renderer changes
+
+### Testing
+
+- Update with new plugin api
+## [0.3.0] - 2026-02-03
+
+### Other
+
+- Fixed bug in argument names
+- Update
+- Init
+- Added entry point momapy
+- Changed 'formats' attributes to 'supported_formats'; added ValueError for unsupported formats
+## [0.2.8] - 2026-01-27
+
+### Fixed
+
+- Fixed python version to 3.13 for packaging
+
+### Other
+
+- Io.core; celldesigner.io.celldesigner: replaced ReaderResult's ids by FrozenSurjectionDict
+- Modified so it gets the latest tag on the main branch when triggering manually (Claude)
+- Add workflow_dispatch option to trigger manually
+## [0.2.7] - 2026-01-26
+
+### Other
+
+- Fixed id of layout element taking id of the cd element it comes from
+## [0.2.6] - 2026-01-21
+
+### Other
+
+- Fixed layout model mapping for subunits
+## [0.2.5] - 2026-01-14
+
+### Other
+
+- Merge branch 'develop' for release
+- Added layout model mapping for compartments
+## [0.2.4] - 2026-01-13
+
+### Other
+
+- Merge branch 'develop' for release
+- Fixed order of compartment aliases so they respect z-order
+## [0.2.3] - 2026-01-08
+
+### Other
+
+- Merge branch 'develop' for release
+- Added specific supported python 3 versions
+- Fixed bug in COPYING badge url
+- Fixed bug in COPYING badge url
+- Added badges
+- Merge branch 'develop'
+- Added binder link and how to run the demo locally
+- Removed useless demo extra; binder/requirements.txt: replaced demo extra by jupyter dep
+- Added demo extra and moved jupyter dep from dev to demo; binder/requirements.txt: added file for binder
+## [0.2.2] - 2026-01-07
+
+### Documentation
+
+- Update with new default rendering and reading modules
+- Removed copyright
+
+### Other
+
+- Merge branch 'develop'
+- Merge branch 'develop'
+## [0.2.1] - 2026-01-07
+
+### Other
+
+- Merge branch 'develop'
+- Fixed bug where rendering.skia was imported
+- Celldesigner.core, celldesigner.io.celldesigner: changed default font to Arial
+- Replaced celldesigner_pickle by celldesigner-pickle
+- Fixed bug momapy.io.WriterResult->momapy.io.core.WriterResult
+- Fixed type hint for .selectors attribute
+- Added tests (Claude)
+- Replaced pp by pyparsing
+- Added Not and Compound selectors
+- Update with new core for io and svg for rendering
+- Update explaining optional deps
+- Made true release conditional to TestPyPi release's success
+## [0.2.0] - 2026-01-06
+
+### Fixed
+
+- Fixed bug in checking files: added try in case the file is binary
+- Fixed bug where super was called in FrozenSurjectionDict init
+- Fixed test
+- Fixed import and extents bug
+- Fixed bug in class names for logical operators
+- Fixed bug: replaced ink_bbox by bbox
+- Fixed bug in value=='' for state variables
+- Fixed bugs in writing sbgnml
+- Fixed bug
+- Fixed bug where only macos would be tested
+- Fixed bug with group_transform in rendering; added transform if no group_transform
+- Fixed bug
+- Fixed bug: LogicArc->LogicArcLayout
+- Fixed bug in making LayoutModelMappingBuilder with new keys as frozendict
+- Fixed bug in filter vs filter_ and filter_.id vs filter_.id_
+- Fixed absent NoneValueType type hint for dahsarrays and others
+- Fixed bug in make_boolean_logic_gate
+
+### Other
+
+- Merge branch 'develop'
+- Made automatic github release
+- Updated tests to have frozendict notes and annotations
+- Changed type of notes and annotations to frozendict
+- One tox job per os
+- Adapted workflow to test all python versions on all os with tox
+- Added explicit utf-8 encoding when writing files to handle windows
+- Added tox.ini and python version
+- Typing.Self->typing_extensions.Self for 3.10 compat
+- Switched from pdm to uv; pdm-bachend to hatchling; made test dep group
+- Changed typing.Self to typing_extensions.Self for compat with 3.10
+- Added ModuleNotFoundError as potential source for not available renderer
+- Update
+- Added pytest tests to push on testing branch
+- Updated with new rendering tests
+- Merge branch 'develop'
+- Cleaned github actions
+- Removed comments and unnecessary asserts
+- Udpated tests
+- Removed all extras
+- Added insallation github action
+- Added pytest and tests generated by Claude
+- Update
+- Solved circular imports when registering; fixed bug in sbgn/io/sbgmml.py
+- Moved readers and writers registration to init of subpackage for sbml and celldesigner
+- Removed buged sbgnml-0.2 writer
+- Moved io to own subpackage; moved registering readers and writers to subpackage init
+- Moved registering svg-native renderer to base of subpackage
+- Changed default renderer to svg-native
+- Moved cairo and skia to extras
+- Added warning about installing extras
+- Added uharfbuzz and matplotlib
+- Replaced ink_bbox by bbox
+- Change default font to DejaVu Sans; replaced ink_bbox by bbox
+- Changed pango layout to harfbuzz and matplotlib (for fonts)
+- Merge branch 'develop' into freetype
+- Added freetype-py dep
+- Added test layout with freetype
+- Updated installation instructions
+- Updated dependencies
+- Added dependencies
+- Added frozen annotations
+- Added reading id
+- Added more layout model mappings
+- Added sbgn/io/pickle.py and rendering/cairo.py that were ai generated based on template files
+- Updated demo
+- Update
+- Update
+- Added print_source function
+- Update
+- Added participants of model elements to layout model mapping for: modulations, processes, logical operators
+- Added support for HAlignment in TextLayout; added HAligment.CENTER to all sbgn labels
+- Updated demo
+- Updated demo
+- Added NoneValue to edge_mode translation
+- Updated demo
+- Id->id_
+- Mod demo: added example; fixed bug in display where markers were transformed
+- _ReactionLayout->ReactionLayout
+- In Filter: id->id_
+- Made left/right_connector_fraction public attributes
+- Added function to set label font size
+- Updated packages
+## [0.1.3] - 2025-08-28
+
+### Fixed
+
+- Fixed link to doc
+## [0.1.2] - 2025-08-28
+
+### Other
+
+- Updated docs/index.md and README.md
+- Cleaned
+- Made version regex start with number after v
+- Publish to testpipy first
+## [0.1.1] - 2025-08-28
+
+### Other
+
+- Added module level doc
+- Build only if version
+- Only on version tags
+- Back to version as v.*
+- Added dynamic versioning
+- Added cd/ci for automatic release on tags
+- Moved to pdm build backend
+- Updated doc page
+## [0.1.0] - 2025-08-12
+
+### Changed
+
+- Refactored; fixed bugs; added truncation layout; id->id_
+- Refactored
+- Refactored reactions and taken into account transport
+- Refactored cairo renderer
+- Refactoring and bugs
+- Refactored code and fixed in set_arcs_to_borders; added tidy function
+- Refactored rendering; render multiple maps
+
+### Fixed
+
+- Fixed typo
+- Fixed merge
+- Fixed bugs and cleaned up
+- Fixed bug in to_top_left
+- Fixed return type of fit function
+- Fixed bug in biology-qualifiers: isValue->is
+- Fix #8
+- Fixed bug outputing wrong map element types depending on mode
+- Fixed typo
+- Fixed bug in intersection of line and shapely object; added rounding
+- Fixed bug type selector
+- Fixed bug no species in map
+- Fixed bug no reaction in map
+- Fixed bug in handling undefined state variables
+- Fixed bug in product from product link: was using Reactant
+- Fixed bug in processing annotations
+- Fixed bug in make_notes...: return [] rather than None
+- Fixed typo in _make_model_no_subelements...: layout->model
+- Fixed bug in finding correct module
+- Fixed bug: compartments and species templates were not added to the model
+- Fixed bug not taking into account subunits
+- Fixed bugs
+- Fixed bug: species_aliases includes subunits; removed subunits from those
+- Fixed bug: species_aliases includes subunits; removed subunits from those
+- Fixed bug in reading structural states
+- Fixed bug in start_arrowhead_base
+- Fixed bug biology-model->model-qualifiers
+- Fixed bug when no tagetLink in reaction modification
+- Fixed imports
+- Fixed module name after moving annotations to sbml
+- Fixed imports
+- Fixed bug: need to escape text values
+- Fixed import bug
+- Fixed childless functions: layout_elements=None->layout_elements=tuple([])
+- Fixed bug in arrowhead_border: is None->isnan
+- Fixed TransportLayout._end_arrowhead_border_drawing_elements: RIGTH->LEFT
+- Fixe bug intersection of line and segment
+- Fixed dimensions of layout
+- Fixed calls to new signature of momapy.positioning.fraction_of function
+- Fixed calls to new signature of momapy.positioning.fit function
+- Fixed bug self_children not implemented for arcs
+- Fixed bug in writer
+- Fixed bugs; took into account AF
+- Fixed variable names
+- Fixed border_*->*
+- Fixed bug with layout.fill being NoneValue
+- Fixed id->id_
+- Fixed bug in arrowhead_drawing_elements
+- Fixed id->id_
+- Fixed bug with file names
+- Fixed type hints
+- Fixed ) bug
+- Fixed type hint: self->Self
+- Fixed bugs with names
+- Fixed bug in Point: __div__ to __truediv__
+- Fixed label_center
+- Fixed bug in product and reactant links
+- Fixed bugs in arrowhead_*
+- Fixed bug in call with wrong signature
+- Fixed bug in end and start arrowhead length
+- Fixed bug in grouplayout bbox
+- Fixed typo group drawing elements
+- Fixed bug in start_arrowhead for double_headed_arcs
+- Fixed bug shorten_bezier_curve, shorten_elliptical_arc: segment->bezier_curve, elliptical_arc
+- Fixed bug transform_elliptical_arc: self->elliptical_arc
+- Fixed bug: north_north_easr->north_north_east
+- Fixed bug setting dasharray to dashoffset
+- Fixed bug with doubleheadedarc
+- Fixed bugs
+- Fixed bugd in DoubleTriangle: momapy.nodes->momapy.meta.shapes, border_drawing_elements->drawing_elements
+- Fixed xsdata version to 23.8
+- Fixed bug position of layouts
+- Fixed bug RectangleCompartment
+- Fixed not right model element when already exists in set
+- Fixed bugs in shapes and receptor_layout
+- Fixed bug in multi_mixin
+- Fixed bug outside_model_element in make_and_add_compartment
+- Fixed bug in build function for frozendict: self->obj
+- Fixed bug with names of celldesignerspeciesreference and gene, rna, antisenserna
+- Fixed bug with name of protein that was a property: species already have a name (from SBML)
+- Fixed bug: did not take into account compartments
+- Fixed few bugs
+- Fixed bug: not taking into account compartment
+- Fixed names
+- Fixed bug
+- Fixed bug
+- Fixed type hint bug in association layout
+- Fixed bug type hint BQ
+- Fixed union bug
+- Fixed bug: color alpha int->float
+- Fixed bug: colors float->int
+- Fixed bug: product was made with Reactant cls
+- Fixed bug: uois added to svs
+- Fixed buggy inheritance of stimulation layout and equivalence arc layout
+- Fixed buggy inheritance of logic arc layout
+- Fixed builder for forward refs; added type | new_type in builder to allow non builders in builders
+- Fixed bug with colors: if colors not in list of color definitions, assumes its hex def
+- Fixed bug when no list_of_color_definitions or no list_of_styles
+- Fixed bug in split_line_coords
+- Fixed with new presentation attributes
+- Fixed type of transform from transformation to tuple[transformation]
+- Fixed bug: subunit attr can be None
+- Fixed typo
+- Fixed bug: no unset in simple value grammar
+- Fixed typo
+- Fixed font_color to new stroke/fill
+- Fixed typo
+- Fixed typing bug
+- Fixed imports
+- Fixed cairo import
+- Fixed bug render_curve_to
+- Fixed bug when saving state
+- Fixed bugs
+- Fixed import errors
+- Fixed kw_only in making skia renderer
+- Fixed fill and stroke for textlayouts
+- Fixed Close->ClosePath
+- Fixed bugs
+- Fixed bug font weight
+- Fixed transformed for text
+- Fixed new meta imports
+- Fixed bug on subunit presentation attributes
+- Fixed typo
+- Fixed typo
+- Fixed typos
+- Fixed typo
+- Fixed bug in bbox for shapely obj
+- Fixed bugs
+- Fixed typos
+- Fixed bug: two times slope1
+- Fixed Ellipse.to_path: now 4 elliptical arcs
+- Fixed bug: use arrohead_base for computing arrohead angle
+- Fixed bug: render_curve_to->add_curve_to
+- Fixed bug: to_cubic->to_curve_to
+- Fixed bug: fx->fX,fy->fY
+- Fixed bug
+- Fixed bugs
+- Fixed bugs
+- Fixed bug: n_segs not passed through for bezier curve to shapely
+- Fixed bug: no compartment
+- Fixed bug comparing points
+- Fixed multipages
+- Fixed bug: inverted is_sublayout relation
+- Fixed bug in compartment_ref
+- Fixed typo
+- Fixed bbox for whole map
+- Fixed bug when no state in sv
+- Fixed bug in hex output
+- Fixed bug: hex repr to 'x'
+- Fixed bug: hex on int not float
+- Fixed bug
+- Fixed bug in get_mapping
+- Fixed bug when no extension
+- Fixed reverse order for points of consumption
+- Fixed bugs
+- Fixed bug when color_str started with '#'
+- Fixed bugs with new layout_model_mapping
+- Fixed bug for ior: now like or and not dict.__ior__
+- Fixed bug
+- Fixed bug with or selector
+- Fixed bug in is_ovav: fields->dataclasses.fields
+- Fixed bug in shortened when self.length() == 0
+- Fixed bug in typing
+- Fixed typo in model: switched SpeciesReference and SimpleSpeciesReference
+- Fixed bug in coinsident lines
+- Fixed bug points to segments
+- Fixed bug: arc.x and arc.y
+- Fixed typo in angle
+- Fixed bug in crosspoint border drawing element
+- Fixed bug: TextLayoutElement -> TextLayout
+- Fixed label textlayout width and height
+- Fixed bug
+- Fixed bug in stylesheet list
+- Fixed bug in reading list of stylesheets
+- Fixed bug with returning results
+- Fixed bug when builders were used instead of built objects
+- Fixed unused imports
+- Fixed namespace error
+- Fixed tidy; set_arcs_to_borders does not do anything if no intersection is found
+- Fixed imports
+- Fixed imports
+- Fixed import
+- Fixed bug
+- Fix + vanted.css
+- Fixed bug in frozendict ini
+- Fixed frozendict bug: initialization from dict rather than list
+- Fix bug
+- Fixed bugs
+- Fixed bug in set_arcs_to_borders
+- Fixed bug when last_segment.length() == 0 in arc anchors
+- Fixed bug: set_matrix -> transform in cairo renderer
+- Fixed bug in intersection of line and circle
+- Fixed bug in render_maps
+- Fixed bug in textlayoutelement
+- Fixed bugs
+- Fixed import bug
+- Fixed bugs and replaced nodelabel by textlayout
+- Fixed bugs in render_maps: calculation of min_x and min_y
+- Fixed bug with labels of compartments in set_compartments...
+- Fixed bug with PhantomLayoutElement
+- Fixed bugs with arrowhead bboxes
+- Fixed bug in copying in render_map with to_top_left==True
+- Fixed bugs
+- Fixed typo
+- Fixed make_builder: Builder is now always a base class, and connectable_attributes are well set
+- Fixed imports
+- Fixed rendering of text with new coord system
+- Fixed import
+- Fixed imports
+
+### Other
+
+- Updated docs
+- Added workflow for building docs
+- Updated doc
+- Updated demo
+- Rm unused import
+- Updated with proper display for layout elements with transformations
+- Bbox now takes into account ink_bbox of text
+- Ruff
+- Merge branch 'develop' into shapely_transform
+- Merge branch 'demo' into develop
+- Updated demo; fixed bug in utils
+- Added transform
+- Made transform a tuple of transformation
+- Udpated docs
+- Added ruff, pygments
+- Rm red layout stroke
+- Removed config from param for creating a skia renderer
+- Updated doc
+- Updated packages and removed sphinx related and black deps
+- Updated doc
+- Updated layout_model_mapping
+- Update
+- Merged
+- Updated doc
+- Updated documentation
+- Updated documentation
+- Merge branch 'develop' into docs_mkdocs
+- Updated documentation
+- Update
+- Added reading sbml skeleton
+- Updated demo
+- Added EMPTY_SET key; fixed bug in writing compartmentRef attribute
+- Updated functions to new layout_model_mapping
+- Added replace=True to add_mappings
+- Added replace option in add_mapping
+- Support for annotations, compartment_refs
+- Merge branch 'develop' into write_sbgnml
+- Replaced call to Pango.extents_to_pixels by pos / Pango.SCALE to avoid new bug with function
+- Merge branch 'develop' into write_sbgnml
+- Added pdm-readiness
+- Added cross_hv_of; cross_vh_of; set_mid_of; set_cross_hv_of; set_cross_vh_of functions
+- Added support in CellDesignerModel for Regions
+- Added mid_of function
+- Closes #19
+- Closes #18
+- Closes #14: replace is not NoneValue by != NoneValue
+- Closes #13: fixed bug in Color.to_rgba; fixed range to float in skia fill and stroke
+- Closes #10
+- Closes #9
+- Updated dependencies
+- Cleaned dependencies
+- Added id and class in rendering
+- Added structural state layout
+- Added post_init to pointbuilder
+- Replaced is momapy.drawing.NoneValue by ==
+- For notes, annotations, ids: frozendict to dict
+- Added hash and eq methods for NoneValue singleton
+- Added handling non text file exception in read
+- Added celldesigner pickle read and write
+- Removed reduduntant exceptions from WriterResult
+- Added _active to ids of active species
+- Added support for dasharray in SingleNode
+- Added support for stroke_dasharray
+- Mappings are now frozendicts
+- Merge branch 'develop' into cd_layout_model_mapping
+- Rounded for shapely
+- Rm unused import
+- Replaced typing for source and target of arc to LayoutElement
+- Added layout model mapping for reactions and modulations
+- Added layout_model_mapping for species
+- Changed require-python to >=3.10
+- Added SurjectionDict
+- Merge branch 'develop' into write_sbgnml
+- Modification residues are now sorted following their angle (ascending)
+- Taken into account undefined names for modification residues with an order attribute
+- Added order to modification residue
+- Update with new sbgnml export
+- Updated writing sbgnml
+- Changed function to make notes; added support for map/model notes and annotations
+- Added support for notes and annotations on the map itself
+- Rm annotations to frozendict
+- Added notes support for elements
+- Added notes for compartments
+- Added export of notes
+- Updated to python 3.12
+- Rm transformation of annotations and notes into frozen sets
+- Changed python
+- Start of new writer
+- Added support for af unit of informations
+- Added specific function for making activities
+- Removed unnecessary _sbgnml_parser*
+- Added support for labels in submaps
+- Added new support for reading af without xsdata
+- Added ids to map_element_to_ids
+- Added ids to ReaderResult
+- Removed print
+- Merge branch 'develop' into cd_ids
+- Merged sbgn_revamp
+- Added model layout mapping
+- Continued revamping
+- Removed annotations and notes
+- Added biomodel qualifiers
+- Rvamped
+- Removed old unused parse file
+- Added map_element_to_ids mapping
+- Removed useless dict transform of model_element_to_layout_element
+- Removed unused parser file
+- Annotations is now frozen
+- Sbml.Annotation->sbml.RDFAnnotation
+- List->set
+- Added ids for reactants and products
+- Stoichiometry can be None
+- Finished model maker
+- Added Palmytoylated
+- Added PALMITOYLATED
+- DON'T CARE->DON_T_CARE
+- Removed unused re import
+- AntisenseRNA->AntisenseRNA
+- Optional listOfModification in reaction
+- Added annotations
+- Removed map_element_to_annotations from CellDesignerMap
+- Added boolean logic gates for modulations
+- Added logic gates
+- Added class for logic arc layouts
+- Changed size and font of logic gates
+- Added gate layouts
+- Continued revamping
+- Removed useless newline
+- Removed useless print
+- Continued revamping
+- Udpated
+- Updated with_model/with_layout options
+- Read/write_file->read/write; added os.PathLike type annotation
+- More new methods
+- In Writer: write()->write_file()
+- Beginning of refactoring celldesigner reading
+- Update
+- Added annotations for included species
+- First fix read_file
+- New way of parsing: model, layout, map; annotations are outside of objects
+- Udpate with doc
+- Added undoc-members
+- Changed conf.py location for new org
+- Update docs/ organization
+- Mv .readthedocs.yaml to root
+- Added files for readthedocs
+- Mv sphinx_docs->docs
+- Removed ipykernel dependency
+- Udpated demo
+- Added dist/
+- Udpate with classifiers and urls
+- Updated package description
+- Update
+- Update
+- Remove intersection of line with drawing and layout elements
+- Added docs
+- Updated demo
+- Updated demo
+- Moved demo to /; cleaned up
+- Added documentation
+- Udpated docs
+- Udpated doc
+- Updated doc
+- Update doc
+- New_builder->new_builder_object; added type hints
+- New_builder->new_builder_object
+- Added full input of SBGN AF maps
+- Update
+- Updated demo
+- Updated type hints and methods
+- Added from_top_left option
+- Removed unused import
+- Update demo
+- Update with new attr names
+- Added center to border and angle functions
+- Update with new attr names
+- Fill of layout set to NoneValue
+- Changed qualified attrs to unqualified attrs (default)
+- Added notebook
+- Added docs"
+- Added __init__.py
+- Added __init__.py
+- To python 3.12
+- Added documentation
+- Updated
+- Added particular anchors for celldesigner shapes
+- Moved labels of modifications
+- Taken into account active; fixed bug in position of compartments
+- Added some anchor points
+- Added support for modulations
+- Taken into account catalysis
+- Put labels in right place
+- Added replacement of _text_ by character
+- Added functions to find angle and border of shapely_object and collection of drawing elements
+- Update with dissociation
+- Replaced fit layout by the size of the layout
+- Added super_or_builder method
+- Added todos
+- Remade taking into account edit points with center or link anchor
+- Added anchor_point method to layout element
+- Added comment
+- Add get_transformation_for_frame_function
+- Partially fixed bug when no link anchor
+- Taken into account omitted transition, unknown transition, transcription, translation
+- Taken into account start node in base reactant layout
+- Refacrtored state_transition_layout and add heterodimer_association_layout
+- Took into account base reactants and edit points for association
+- Added layout for state transition, with reactants and products
+- Begined adding layout for reactions
+- Added with_layout option to prevent from making the layout
+- Added intermediate cardinal points
+- Added state transition layout prototype
+- Added compartment layouts; refactored code
+- Add_or_replace_element_in_set now returns the element that is in the set at the end
+- Code layout
+- In _Modifier: species->referred_species
+- Replaced .species by .referred_species in SpeciesReferences; replaced CellDesignerSpeciesReference by SpeciesTemplate
+- Added reading of empty state variable
+- Readded Annotation
+- Removed notes and annotations from sbase
+- Support for parsing sbml annotations inside notes
+- Added support for reduced boolean logic gates
+- Added listOfGateMember to reaction
+- Rm make layout and model_layout_mapping for celldesigner
+- Added None to model, layout and layout_model_mapping
+- Added annotations
+- Map_element_to_annotation->map_element_to_annotations
+- Added rdf annotations for species
+- Added function to make annotations
+- Qdded attributeFormDefault='qualified' for rdf
+- Added map_element_to_annotation to Map
+- Added attributes of annotations
+- Added empty state which arises sometimes
+- Changed to using aliases instead of species
+- Added acetylated modification
+- Updated schemas and changed location
+- Now transforming aliases rather than species
+- Added hypothetical for species
+- Taken into account: outside for complexed; modifiers with gates
+- Modification->modificationType
+- Homodimer->homomultimer
+- Adapted to minerva bug on type for rna, gene and anitsenserna references
+- Added # abstract
+- Removed momapy-model from ids for model elements
+- Removed metaid, notes and annotations of comparison for species
+- Udpated the celldesigner schema with reduced notation
+- Update
+- Cleaned model
+- Cleaned the model
+- Update
+- Cleaned modulations in CellDesignerModel
+- Cleaned modulations and modifiers
+- Cleaned modifier and added comment
+- Modulators->modifiers
+- No printing of base types or objects evaluating to False (e.g., empty collections)
+- Removed structuralstatevalue: now always str
+- Checks for subclass rather than exact type matching in exclude_cls
+- Cleaned make parser for celldesigner
+- Merge branch 'develop' into celldesigner
+- Updated python version to >3.10 and <3.11
+- Added AuxiliaryUnit concept
+- Redid tpying.union for forwardref
+- Replaced referes_to attribute by reference attribute
+- Got rid of typing.Union
+- Made the ids of model elements deterministic
+- Cleaned
+- Added add_or_replace_elemement_in_set function
+- Merge branch 'fix_builder' into celldesigner
+- Removed UndefinedVariable class; use order instead
+- Added annotations reading for macromolecules
+- Added superclass BiomodelQualifier for BQModel and BQBiol
+- Added module for forwardref of logicaloperator
+- Moved make_pango to new _pango module; forced ids to str
+- Cleaned up
+- Applying stylesheet to objects; to builder becomes _ function
+- Update
+- Shortening a segment of length 0 now returns a copy of the segment
+- Update
+- Updated code
+- Update with new way: build objects
+- Exluded Point from collections in pretty_print function
+- Added class exclusion feature in pretty print; changed color:black->green
+- Simplified names of mappings
+- Added  make_union option to the transform_type
+- Removed add_element method
+- Builder transform type: now returns type_ | new_type
+- Bug fix: stopped transforming default factory functions
+- Changed variable names: field_->field, mappings to more conventional names
+- Antisens->Antisense
+- Merge branch 'develop' into celldesigner
+- Can perform functions on map
+- Changed check_file methods: no use of parser anymore
+- Render extension: made attributes qualified
+- Cleaned up; moved schemas and make_parser outside of src
+- Added parser for sbgnml_0_2 and _0_3
+- Updated the README with link to demo
+- Udpated the demo
+- Update
+- Added License
+- Added text to README
+- Merge branch 'develop' into celldesigner
+- Removed tests from git
+- Readded celldesigner/
+- Readded sbml/core.py
+- Deleted sbml/ and celldesigner/ to move them to branches
+- Pipenv->pdm; cleaned up
+- Changed rectangle compartment
+- Merge branch 'develop' into celldesigner
+- Added script for making a css template file from a module
+- Updated and added styles with @import
+- Updated demo
+- Changed defaults for subunits attributes
+- Updated with new presentation attributes
+- Changed defaults for presentation attributes
+- LogicArc->LogicArcLayout;EquivalenceArc->EquivalenceArcLayout
+- Added | None to types for stroke_width
+- Path_shorten->shorten; added start_shorten to Arc
+- Now built with @import cs_black_and_white and newt_no_cs
+- Added chdir for relative css @import
+- Added import statement feature inside css
+- StyleSheet read_file->StyleSheet.from_file; join_style_sheets->combine_style_sheets;read_string->from_string; added from_files classmethod
+- Update
+- Pseudo-fixed bug with unset
+- Update
+- Added script to make a css template
+- Harmonize initial values
+- Layout is now a Node
+- Added unset css value, that is transformed to Python's None
+- Added default values for presentation attrs of SBGNNode
+- Changed list_colors to print_colors; list_colors now list all pairs (color_name, color) of the module
+- Cleaned up code: new SBGNSingle/DoubleHeadedArc; arrowhead_drawing elements coded for arcs instead of subclassing; cleaned attributes order
+- Updated layouts with new shapes
+- Cleaned typing
+- File creation
+- Added make_node and make_arc functions
+- Changed default values for presentation attritubutes in TextLayout; use of make_pango_layout from utils in textLayout
+- Added get-initial_value method; fixed bug font weight mapping
+- Added get_initial_value method
+- Added FONT_WEIGHT_VALUE_MAPPING
+- Moved testing functions to testing; added make_pango_layout to utils; removed print_classes from utils
+- Added transformation of elliptical arc to bezier curves; cleaning
+- Cleaning
+- Cleaned up
+- Added sbmlutils
+- Continued coding drawing_elements methods
+- Update
+- Font family and size become mandatory on text layouts
+- Filter on all drawing elements
+- Added new StatefulRenderer
+- Added fill to textlayout
+- To python 3.11
+- Normalized presentation attributes; support in svg-native renderer
+- Update with new drawing elements
+- Added new classes following the spec
+- Added import for svg_native renderer
+- Added styling: fill, stroke, font
+- Added support for font style and weight; added support for text-anchor (not skia)
+- Added fill rule
+- Merge branch 'develop' into sbml_layout
+- Removed childless method from GroupLayout
+- NodeLayout->Node; ArcLayout->Arc
+- Update
+- Shorten->path_shorten
+- Added defaults for nodes and arcs; cleaned up
+- Removed nodes width and height in render function
+- Changed defaults of metas
+- Taken into account new shape buisness
+- Simple and Multi mixins return shapes instead of nodes
+- Cleaned up
+- Moved Shape to core
+- Shapes, nodes and arcs to meta dir
+- Revamped to shapely for elliptical arc function
+- Revamped _split_line_string function
+- Removed translated method from layout_element since not used anywhere
+- Updated nodes
+- Finished nodes and added all arcs
+- Removed arrowhead_fill from defaults
+- Reverted width for Bar: should only be arrowhead_stroke_width
+- Added width for Bar
+- Added rendering_testing for arcs; changed rendering nodes on grid to rendering_layout_elements
+- Finished rendering function
+- Cleaned up
+- Renamed geometry functions; added some new functions
+- Added rendering utility functions
+- Revamped intersection function
+- Changed defaults and attributes' order
+- Revamped nodes
+- New styling attributes for connectors
+- Revamped sbgn nodes
+- Cleaned defaults
+- Increased error tolerance for elliptical_arc to shapely
+- Added new arcs
+- Cleaned code and fixed bug with arrowhead_length==0
+- Shapes->nodes
+- Now SingleHeaded and DoubleHeaded arcs
+- Shapes->nodes
+- Started to change to new border style
+- New start and end arrowheads in arc; new border in node
+- New and updated functions for segments, elliptical arcs and bezier curves
+- Cleaned up
+- Added beginning of layout and render
+- First commit
+- Added x and y attribute to Layout
+- MapLayout->Layout
+- Added anchors for MapLayout
+- Width cannot be < to height
+- Removed arrowhead_bbox from arcs
+- Removed addition in path; Close->ClosePath action
+- Update
+- Vanted->sbgned
+- Cleaned up
+- Updated demo
+- Updated demo
+- Added pretty print function
+- Added apply_style_sheet to map
+- Removed return map from write
+- Added compartments to entities
+- Model and layout are now non optional
+- Added support for notes
+- Update
+- Changed notes parsing to strict
+- Added listOfBackgroundImages
+- Added annotations to map, notes to map, model, model_element
+- Cleaned up
+- Added option for reading and writing annotations
+- Support for writing annotations
+- Added annotations to sbgnmodel
+- Specified annotation class
+- Added support for sbml miriam annotation
+- Package name from momapy.__about__
+- Added package name
+- Added option for render_information
+- Added support for more glyphs
+- Added __init__.py
+- Remade parser
+- Added render information attributes
+- Added writing render information
+- Added about with version and author
+- Added leading # to to_hex and to_hexa return string
+- Added to_hex and to_hexa methods
+- Update sbgnml writer
+- Update
+- Udpate
+- Updated tidy function and nodes fit labels function
+- Udpated set_arcs_to_borders
+- Update
+- Updated newt.css
+- Added reversibility of processes; left-to-right of processes and operators
+- Added get_mapping to mapbuilder
+- Added upack option to get_mapping: unpacks the frozenset(frozenset) result; added get_mapping to map
+- Added left_to_right attribute to layout with connectors
+- Removed source and target from children in ArcLayout
+- Added reversibility for processes
+- New set_arcs_to_borders function
+- Added monitoring
+- Changed default renderer to skia
+- Update
+- Cleaned up
+- New subpackage
+- Cleaned up
+- Changed to reader class
+- Staticmethod->classmethod
+- Staticmethod->classmethod
+- Added new reader class
+- Changed parser file name
+- Updated read function; added perturbation unit of informaion to schema
+- Take into account map bbox
+- New read write functions
+- Added additional error: class where add_element is called
+- Base_left/right_connector->left/right_connector_base/g
+- Added two new anchors: left_connector_tip and right_connector_tip
+- Update
+- Update
+- Added utils module with a new str func
+- Added new layout_model_mapping
+- To python 3.11
+- Added pyparsing to setup
+- Cleaned
+- ObjectBoundingBox->ObjectBoundingBox
+- Writes to file only if output_file is defined in config
+- Added reactant and product edit points
+- Changed default width and height of reaction node
+- New nodes taken into account
+- Update
+- Fixed bug in copying dict for joining two stylesheets
+- Removed geometry import
+- Update
+- State variable set to '' is now considered to be None
+- Child can now be None and
+- Added default width and height to Arrow
+- More shapes taken into account
+- Added CellDesigner shapes and layout elements
+- Update
+- Added SBGNPD/AFLayout
+- Update
+- Cleaned up
+- Update
+- Build methods and from_object methods now take a mapping as parameter which avoids rebuilding identical object
+- Remove colors object: momapy.coloring.colors.* -> momapy.coloring.*; rgb, rgba, hex, hexa functions->from_rgb, from_rgba,... methods of Color
+- Update
+- Model_layout_mapping -> layout_model_mapping
+- Updated dependencies
+- Kw_only and new defaults
+- Updated to python 3.10; added Pipfile*
+- - in css is now possible; replace _ by - in css of sbgn
+- Updated notebook
+- Revert "updated notebook and cleaned up"
+
+This reverts commit c115e10923928ebf55f116931bfbf39504451429.
+- Updated notebook and cleaned up
+- Changed defaults for af units of information
+- Made style for logic arc
+- Redeveloped svg native renderer
+- Changed arguments order in SkiaRenderer
+- Bug in renderer ini and added antialiasing to imagefilter painting
+- Added new reaction types
+- Added reactions and reactionmofication
+- Added PHYSICAL_STIMULATION to reaction types
+- Preserves __init__ from being overwritten by xsdata
+- Trigger-> triggering + typo
+- Updated CellDesigner schema
+- Added Compartment
+- Other gates; complexes; compartments
+- Typo
+- Added Modulator and changed modifiers ontology
+- Added rest of modifier types
+- Updated read_file
+- Modulators -> modifiers
+- Modulator to Modifier
+- Added boolean logic gates
+- Added return value for read_file
+- Update
+- Cleaned
+- Added white colorscheme
+- Added classselector; simplified typeselector code
+- Update
+- Added rendering methods for all filter effects
+- Fixed bug;added enums for filter effects
+- Added with_alpha method
+- Added notebook
+- Added is_submapping for ModelLayoutMapping; cleaned is_sublayout
+- Position of text in TextMixin is now label_center() rather than position
+- Updated
+- Cleaned up
+- Added dasharray property
+- Svg implementation of get_region_filter
+- Updated newt style
+- Updated demo
+- Added get_filter_region method to drawing element
+- Bug in shapely method of elleptical arc
+- Implemented drop shadow filter
+- Replaced path in stadium by rectangle
+- Updated demo
+- Cleaned up
+- Cleaned up
+- Updated to_shapely method for elliptical arc
+- Changed sweep flag of stadium shape
+- Udpated demo
+- Added to_polygons option to to_shapely method
+- Fit nodes to labels: to logical bbox
+- Reverted Direction back to momapy.core
+- Anchors no longer abstractmethods, but implemented in parent nodelayout class
+- Moved Direction to sbgn.core
+- Added file
+- Updated gitignore
+- Updated dependencies
+- Fraction moved to core
+- New intersection method with shapely
+- Intersection function: new name
+- Updated demo
+- Added demo as subpackage
+- Cleaned; added general intersection function
+- Added shapely geometry
+- Added shapely dependency
+- Cleaned up and added __div__ for point(builder)
+- Take into account bezier curves
+- Rearranged fraction function for bezier curve
+- Added bezier curve; core/arc: changed points to segments
+- Changed to python 3.9; added bezier module
+- Reworked transformed method for elliptical arc
+- Arrowhead now used transformed method instead of svg-style transform attribute
+- Typo
+- Removed arc drawing element
+- Removed arc drawing element
+- Added transformed methods
+- Updated rendereres
+- Bug skia renderer no dataclass decorator
+- Updated demo
+- Added fraction method to arclayout
+- Cleaned up
+- Updated demo
+- Added default width and height to SBGN glyphs
+- Cleaned up
+- Updated demo
+- Update
+- Added anchors to textlayout; fixed bugs in angles
+- Added anchors for crosspoint
+- Merged
+- Updated demo
+- Ignore demo/*.svg
+- Added demo
+- Moved is_sublayout method from LayoutElement to MapLayout
+- Updated vanted and newt styles with filter: none
+- Ink_bbox() -> bbox()
+- Updated vanted and newt styles with filter: none
+- Updated newt style sheet
+- Updated stylesheet
+- Descendants->ancestors in apply_style_sheet function
+- Added newt stylesheet
+- Cleaned up
+- Added submap, submodel and sublayout methods; added translated method
+- Added crosspoint
+- Updated demo
+- Anchors are computed automatically; shapes are computed using joints
+- Added demo and cleaned up
+- Updated celldesigner model and io
+- Merge branch 'cd' into developpment
+- Cd model elements now inherit from sbml core elements
+- Merge skia
+- Updated with skia
+- Added skia renderer
+- X/ysep for nodes set to 5
+- Updated with required package skia-python
+- New filter effects and new svg-native-compat renderer
+- Implemented af model, layout and rendering
+- Merge remote-tracking branch 'origin/cd_dev' into cd
+- New model elements
+- Merge branch 'main_dev' into cd_dev
+- New celldesigner model
+- Added connectors stroke width
+- Added CardinalityLayout
+- Added support for cardinality and stoichiometry
+- Added package data
+- Import sbgn stylesheets
+- Upadted setup.py
+- New terminal layout
+- Shadows for subunits
+- Added filter for subunits in sbgn shape
+- Added none possibility for filters
+- Clean up
+- Color for subunits of macromolecule multimer layout
+- Added list value type
+- New fit submaps to content function
+- New styles for sumap and tag layout
+- Added new directions
+- Added submap and tag layouts
+- Set position of layout to position of label with anchor label_center
+- Added inverted hexagon shape and perturbing agent layout
+- Updated to new SBGNShape style
+- Updated with beginning of metaclass
+- Cleaned up
+- Is_ovav method
+- Clean up
+- Clean up code
+- Updated style sheets
+- Changed default filter units to object bounding box
+- Translation->translate in svg-native renderer
+- +import momapy.drawing
+- Impl copy and deepcopy for NoneValue singleton
+- Update
+- Added set_complexes_to_fit_content utils function
+- Fill of consumption to none
+- Removed shadows for arcs
+- Emptyset must have a stroke color
+- Set stroke to none
+- Bug _render_filters
+- Typo
+- Typo
+- Typo
+- Typo
+- Added shadows.css stylsheet
+- Added drop-shadow in styling css
+- Added filter with drop shadow effect
+- Typo
+- Layout fill to white
+- Changed font sizes in shapes with text
+- Aux units font
+- Font to Cantarell
+- Font to cantarell
+- Text drawing element: font_color replaced by fill and stroke
+- Rgba to rgb and opacity
+- Layout fill: none; textlayout: font_color
+- Default sbgn style: fill of layout set to none
+- Styling none returns NoneValue
+- Default fill value to black
+- Set_size->set_absolute_size in pango font description
+- String to output file
+- Set_size->set_absolute_size for pango font description
+- Merge branch 'arc_to_elliptical' into native_svg
+- Changed arc to elliptical arc in shapes
+- More methods for native svg renderer
+- First class and methods for nativesvgrenderer
+- Int to float
+- Multiple style sheets; join style sheets
+- Update
+- Added default_colorscheme.css
+- +width and height
+- Added default stylesheet for sbgn
+- Added strict option to applying collection of styles
+- Removed _ from color names to be consistent with css
+- Added none value that does not work
+- Added has_color method to colors
+- Added none value in style_sheets
+- Added set_auilliary_units_to_borders function
+- Added self_border and self_angle functions
+- Splited fontdescription into fontsize and fontfamily
+- +pyparsing
+- Added parser for stylesheets
+- Clean up
+- In node layout: removed foreground_path; renamed background_path to border_drawing_element
+- Render_maps(): changed bbox to self_bbox to compute surface width and height
+- Changed drawing path of Layout: bbox() -> self_bbox()
+- Cleanup
+- Added ancestor and parent selectors;type selector->class selector; now ancestors in select method
+- Added children mehtod to layouts
+- Added tidy and stylesheet options to read_file
+- Can now supply a mapbuilder to apply_style_sheet
+- Added set_arcs_to_borders function
+- Cleaning
+- Addition of point to point builder
+- Added automatic border functions and related changes
+- New function for intersection of line and ellipse
+- Removed y_from_x methods (not much sense)
+- New geometry shapes: Arc, Circle; new intersection functions
+- Recodes parallel lines; added slope and intercept to line; recoded intersection of lines
+- Added set_layout_to_fit_content function
+- Added set_nodes_to_fit_labels
+- Label_center taken into account and bold text in shapes
+- Added label_center anchor
+- Added vertical alignment for textlayoutelement
+- Bugs and replaces text by new text and textlayout
+- Changed nodelabel to textlayoutelement
+- New text drawing element and textlayoutelement
+- Added style_sheets from styling to render_map(s)
+- Added position to sbgn maps when reading sbgn-ml file
+- Added position to layout
+- Removed optional from transform attribute of drawing element (default is tuple)
+- Dfault for transform attribute is set to tuple
+- Merge branch 'main_dev' into sbgn_dev
+- Fit now return position, width, height and not bbox: fixed related bugs in self.bbox() functions
+- Bug in set_compartments_to_fit_content
+- Merge branch 'main_dev' into sbgn_dev
+- Bug in set_fit function
+- New set_compartments_to_fit_content function
+- Merge branch 'main_dev' into sbgn_dev
+- Fit returns position, width and height rather than a bbox; implemented set_fit function
+- Added new sbgn shapes
+- Added EmptySetLayout to emptyset and source and sink
+- New styling feature
+- Completed fraction function
+- Recoded arcs with anchors
+- Cleaned code
+- Maj
+- Bug restore after stroke and fill; factored _stroke_and_fill
+- Added height and width in _make_renderer_for_render_function
+- Typo in parameter name
+- Added a function to render a collection of drawing elements and factored make_renderer_for_render_function
+- Added ellipse to drawing and rendering
+- Added arcs to drawing and rendering
+- Typo
+- Added origin point for rotation
+- Experimental update with updated_object
+- Revamped relative_point to updated_object
+- Removed prints
+- New animating module
+- Bug fix
+- Bug fix in Color.__or__
+- Bug fix in Color.__or__
+- Added png rendering
+- Updated Pipfile
+- Cleanup
+- Cleanup
+- Cleanup
+- Cleaned imports
+- Added alpha modification to Color
+- Mod essai.py
+- Cleanup
+- Reference->phantomlayoutelement, fixed bugs, fixed positioning with new coord sys
+- Added self_bbox to grouplayout and to nodelayout
+- Mod bbox to follow new coord system
+- Mod essai.py
+- Inverted y axis to mimick svg and sbgnml
+- Cleaned rendering and drawing code
+- Updated gitignore
+- Updated grouplayoutelement
+- Cleanup
+- Renderer to rendering
+- Renderer.py to rendering.py
+- Cleanup
+- Removed position.py.save
+- Added folder momapy/
+- Removed submodule momapy
+- Updated gitignore
+- Updated pipfile
+- Initial commit
+
+### Styling
+
+- Styles to/from render_information: border>group attrs for nodes, arrowhead>path>group attrs for arcs
+- Stylesheet is now unfrozen so it can be easily modified
+- Styles in grouplayoutelement applied to the top group element; arcs have styles for arrowhead
+- Style_sheets from files and multiple style_sheets
+- Stylesheet applied to layout instead of map
+

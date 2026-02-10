@@ -3,6 +3,7 @@ site_url: https://adrienrougny.github.io/momapy/
 nav:
   - Home: index.md
   - User manual: demo.ipynb
+  - Changelog: CHANGELOG.md
   - API reference:
     - Momapy: api_reference/momapy.md
     - Core: api_reference/core.md
