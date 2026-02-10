@@ -404,7 +404,7 @@ PRESENTATION_ATTRIBUTES = {
 }
 
 INITIAL_VALUES = {
-    "font_family": "Arial",
+    "font_family": "DejaVu Sans",
     "font_size": 16.0,
 }
 

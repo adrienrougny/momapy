@@ -497,7 +497,7 @@ class AndOperatorLayout(
 ):
     """Layout for AND operators."""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -524,7 +524,7 @@ class OrOperatorLayout(
 ):
     """Layout for OR operators."""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -551,7 +551,7 @@ class NotOperatorLayout(
 ):
     """Layout for NOT operators."""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -578,7 +578,7 @@ class DelayOperatorLayout(
 ):
     """Layout for DELAY operators."""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black

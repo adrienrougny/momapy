@@ -1261,7 +1261,7 @@ class AndOperatorLayout(
 ):
     """Class for and operator layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1288,7 +1288,7 @@ class OrOperatorLayout(
 ):
     """Class for or operator layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1315,7 +1315,7 @@ class NotOperatorLayout(
 ):
     """Class for not operator layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1342,7 +1342,7 @@ class EquivalenceOperatorLayout(
 ):
     """Class for equivalence operator layouts"""
 
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.coloring.black
@@ -1387,7 +1387,7 @@ class OmittedProcessLayout(
     """Class for omitted process layouts"""
 
     _text: typing.ClassVar[str] = "\\\\"
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
@@ -1413,7 +1413,7 @@ class UncertainProcessLayout(
     """Class for uncertain process layouts"""
 
     _text: typing.ClassVar[str] = "?"
-    _font_family: typing.ClassVar[str] = "Cantarell"
+    _font_family: typing.ClassVar[str] = "DejaVu Sans"
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     _font_fill: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
