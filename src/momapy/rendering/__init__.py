@@ -14,13 +14,13 @@ from __future__ import annotations
 
 import typing
 
-import momapy.plugins.registry
+import momapy.plugins.core
 
 if typing.TYPE_CHECKING:
     import momapy.rendering.core
 
 
-renderer_registry = momapy.plugins.registry.PluginRegistry(
+renderer_registry = momapy.plugins.core.PluginRegistry(
     entry_point_group="momapy.renderers",
 )
 

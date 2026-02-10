@@ -13,18 +13,14 @@ from __future__ import annotations
 
 import typing
 
-import momapy.plugins.registry
+import momapy.plugins.core
 
 if typing.TYPE_CHECKING:
     import momapy.io.core
 
 
-reader_registry = momapy.plugins.registry.PluginRegistry(
-    entry_point_group="momapy.readers"
-)
-writer_registry = momapy.plugins.registry.PluginRegistry(
-    entry_point_group="momapy.writers"
-)
+reader_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.readers")
+writer_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.writers")
 
 
 def get_reader(name: str) -> type[momapy.io.core.Reader]:

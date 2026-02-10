@@ -6,9 +6,9 @@ This module provides a generic plugin registry that supports:
 - Discovery via entry points for third-party plugins
 
 Example:
-    >>> import momapy.plugins.registry
+    >>> from momapy.plugins import PluginRegistry
     >>> # Create a registry for plugins
-    >>> registry = momapy.plugins.registry.PluginRegistry()
+    >>> registry = PluginRegistry()
     >>> # Register a plugin class (MyPluginClass must be defined/imported)
     >>> # registry.register("my_plugin", MyPluginClass)
     >>> # Retrieve a registered plugin

@@ -2,7 +2,7 @@
 
 import pytest
 
-import momapy.plugins.registry
+import momapy.plugins.core
 
 
 class TestPluginRegistry:
@@ -10,19 +10,19 @@ class TestPluginRegistry:
 
     def test_get_returns_none_for_nonexistent_plugin(self):
         """Test that get() returns None when plugin is not found."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
         result = registry.get("nonexistent")
         assert result is None
 
     def test_is_available_returns_false_for_nonexistent_plugin(self):
         """Test that is_available() returns False when plugin is not found."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
         result = registry.is_available("nonexistent")
         assert result is False
 
     def test_register_and_get_plugin(self):
         """Test that we can register and retrieve a plugin."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
 
         class TestPlugin:
             pass
@@ -34,7 +34,7 @@ class TestPluginRegistry:
 
     def test_is_available_returns_true_for_registered_plugin(self):
         """Test that is_available() returns True for registered plugin."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
 
         class TestPlugin:
             pass
@@ -46,7 +46,7 @@ class TestPluginRegistry:
 
     def test_list_available_returns_registered_plugins(self):
         """Test that list_available() returns all registered plugin names."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
 
         class TestPlugin1:
             pass
@@ -63,7 +63,7 @@ class TestPluginRegistry:
 
     def test_list_loaded_returns_loaded_plugins(self):
         """Test that list_loaded() returns only loaded plugin names."""
-        registry = momapy.plugins.registry.PluginRegistry()
+        registry = momapy.plugins.core.PluginRegistry()
 
         class TestPlugin:
             pass
