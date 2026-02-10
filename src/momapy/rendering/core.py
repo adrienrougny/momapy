@@ -6,6 +6,7 @@ import abc
 import typing
 import collections.abc
 import os
+import pathlib
 
 import momapy.drawing
 import momapy.styling
@@ -21,17 +22,29 @@ def register_renderer(name, renderer_cls):
     .. deprecated::
         Use `momapy.rendering.register_renderer()` instead.
     """
-    # Delegates to the new registry
     import momapy.rendering
 
     momapy.rendering.register_renderer(name, renderer_cls)
 
 
+def _detect_renderer(format_: str) -> str:
+    import momapy.rendering
+
+    for candidate in ["svg-native", "skia", "cairo"]:
+        try:
+            renderer_cls = momapy.rendering.get_renderer(candidate)
+            if format_ in renderer_cls.supported_formats:
+                return candidate
+        except (ValueError, ImportError, ModuleNotFoundError):
+            continue
+    raise ValueError(f"No renderer available for format '{format_}'")
+
+
 def render_layout_element(
     layout_element: momapy.core.LayoutElement,
     file_path: str | os.PathLike,
-    format_: str = "svg",
-    renderer: str = "svg-native",
+    format_: str | None = None,
+    renderer: str | None = None,
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
@@ -40,8 +53,8 @@ def render_layout_element(
     Args:
         layout_element: The layout element to render
         file_path: The output file path
-        format_: The output format
-        renderer: The registered renderer to use. See [register_renderer][momapy.rendering.core.register_renderer] to register renderers
+        format_: The output format. If None, inferred from file extension.
+        renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the layout element to the top left or not before rendering
     """
@@ -58,8 +71,8 @@ def render_layout_element(
 def render_layout_elements(
     layout_elements: collections.abc.Collection[momapy.core.LayoutElement],
     file_path: str | os.PathLike,
-    format_: str = "svg",
-    renderer: str = "svg-native",
+    format_: str | None = None,
+    renderer: str | None = None,
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
@@ -69,12 +82,21 @@ def render_layout_elements(
     Args:
         layout_elements: The layout elements to render
         file_path: The output file path
-        format_: The output format
-        renderer: The registered renderer to use
+        format_: The output format. If None, inferred from file extension.
+        renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the layout elements to the top left before rendering
         multi_pages: Whether to render each layout element on a separate page
     """
+    if format_ is None:
+        file_path_obj = pathlib.Path(file_path)
+        format_ = file_path_obj.suffix[1:]
+        if not format_:
+            raise ValueError(
+                "Cannot determine format from file path. Please specify format_ parameter."
+            )
+    if renderer is None:
+        renderer = _detect_renderer(format_)
 
     def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
@@ -163,8 +185,8 @@ def render_layout_elements(
 def render_map(
     map_: momapy.core.Map,
     file_path: str | os.PathLike,
-    format_: str = "svg",
-    renderer: str = "svg-native",
+    format_: str | None = None,
+    renderer: str | None = None,
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
@@ -173,8 +195,8 @@ def render_map(
     Args:
         map_: The map to render
         file_path: The output file path
-        format_: The output format
-        renderer: The registered renderer to use
+        format_: The output format. If None, inferred from file extension.
+        renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the map to the top left before rendering
 
@@ -193,8 +215,8 @@ def render_map(
 def render_maps(
     maps: collections.abc.Collection[momapy.core.Map],
     file_path: str | os.PathLike,
-    format_: str = "svg",
-    renderer: str = "svg-native",
+    format_: str | None = None,
+    renderer: str | None = None,
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
@@ -204,8 +226,8 @@ def render_maps(
     Args:
         maps: The maps to render
         file_path: The output file path
-        format_: The output format
-        renderer: The registered renderer to use
+        format_: The output format. If None, inferred from file extension.
+        renderer: The registered renderer to use. If None, auto-detected based on format.
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the maps to the top left before rendering
         multi_pages: Whether to render each map on a separate page

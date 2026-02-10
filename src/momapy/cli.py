@@ -37,25 +37,11 @@ def run(args):
     if args.subcommand == "render":
         import momapy.io.core
         import momapy.rendering
+        import momapy.rendering.core
+        import momapy.styling
 
-        if args.format is None:
-            output_file_path = pathlib.Path(args.output_file_path)
-            format_ = output_file_path.suffix[1:]
-        else:
-            format_ = args.format
-        if args.renderer is None:
-            renderer = "svg-native"
-            for candidate_renderer in ["svg-native", "skia", "cairo"]:
-                try:
-                    renderer_cls = momapy.rendering.get_renderer(candidate_renderer)
-                    if format_ in renderer_cls.supported_formats:
-                        renderer = candidate_renderer
-                        break
-                except ValueError:
-                    # Renderer not available
-                    pass
-        else:
-            renderer = args.renderer
+        format_ = args.format
+        renderer = args.renderer
         if args.style_sheet_file_path:
             style_sheets = [
                 momapy.styling.StyleSheet.from_file(style_sheet_file_path)
