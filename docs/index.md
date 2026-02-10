@@ -67,6 +67,23 @@ from momapy.rendering.core import render_map
 render_map(map_, "my_file.pdf", format_="pdf", renderer="skia")
 ```
 
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> also provides a command-line interface:
+
+```bash
+momapy render my_map.sbgn -o output.pdf
+```
+
+See [CLI reference](cli.md) for details.
+
+You can also customize the appearance using [CSS-like stylesheets](styling.md):
+
+```python
+from momapy.styling import StyleSheet, apply_style_sheet
+
+style_sheet = StyleSheet.from_file("my_style.css")
+apply_style_sheet(map_.layout, style_sheet)
+```
+
 ## User manual
 
 A user manual showcasing the main feature of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available here: [User manual](demo.ipynb).
