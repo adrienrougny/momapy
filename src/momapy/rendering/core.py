@@ -64,7 +64,17 @@ def render_layout_elements(
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
-    """Render a collection of layout elements to a file in the given format with the given registered renderer"""
+    """Render a collection of layout elements to a file in the given format with the given registered renderer.
+
+    Args:
+        layout_elements: The layout elements to render
+        file_path: The output file path
+        format_: The output format
+        renderer: The registered renderer to use
+        style_sheet: An optional style sheet to apply before rendering
+        to_top_left: Whether to move the layout elements to the top left before rendering
+        multi_pages: Whether to render each layout element on a separate page
+    """
 
     def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
@@ -158,7 +168,21 @@ def render_map(
     style_sheet: momapy.styling.StyleSheet | None = None,
     to_top_left: bool = False,
 ):
-    """Render a map to a file in the given format with the given registered renderer"""
+    """Render a map to a file in the given format with the given registered renderer.
+
+    Args:
+        map_: The map to render
+        file_path: The output file path
+        format_: The output format
+        renderer: The registered renderer to use
+        style_sheet: An optional style sheet to apply before rendering
+        to_top_left: Whether to move the map to the top left before rendering
+
+    Example:
+        >>> import momapy
+        >>> map_ = momapy.io.read("path/to/map.sbgn")
+        >>> momapy.rendering.render_map(map_, "output.svg")
+    """
     render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
 
 
@@ -171,7 +195,23 @@ def render_maps(
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
-    """Render a collection of maps to a file in the given format with the given registered renderer"""
+    """Render a collection of maps to a file in the given format with the given registered renderer.
+
+    Args:
+        maps: The maps to render
+        file_path: The output file path
+        format_: The output format
+        renderer: The registered renderer to use
+        style_sheet: An optional style sheet to apply before rendering
+        to_top_left: Whether to move the maps to the top left before rendering
+        multi_pages: Whether to render each map on a separate page
+
+    Example:
+        >>> import momapy
+        >>> map1 = momapy.io.read("path/to/map1.sbgn")
+        >>> map2 = momapy.io.read("path/to/map2.sbgn")
+        >>> momapy.rendering.render_maps([map1, map2], "output.pdf", multi_pages=True)
+    """
     layout_elements = [map_.layout for map_ in maps]
     render_layout_elements(
         layout_elements=layout_elements,
@@ -278,10 +318,20 @@ class StatefulRenderer(Renderer):
 
     @abc.abstractmethod
     def self_save(self):
+        """Save the internal state of the renderer.
+
+        This method must be implemented by subclasses to save any internal
+        state that is not part of the current state dictionary.
+        """
         pass
 
     @abc.abstractmethod
     def self_restore(self):
+        """Restore the internal state of the renderer.
+
+        This method must be implemented by subclasses to restore any internal
+        state that is not part of the current state dictionary.
+        """
         pass
 
     @classmethod
@@ -368,6 +418,14 @@ class StatefulRenderer(Renderer):
             self.set_current_value(attr_name, attr_value)
 
     def _get_state_from_drawing_element(self, drawing_element):
+        """Return the presentation state from a drawing element.
+
+        Args:
+            drawing_element: The drawing element to extract state from
+
+        Returns:
+            A dictionary mapping attribute names to their values
+        """
         state = {}
         for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
             state[attr_name] = getattr(drawing_element, attr_name)

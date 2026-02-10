@@ -1,4 +1,25 @@
-"""Classes and functions for geometry"""
+"""Geometric primitives and transformations for momapy.
+
+This module provides geometric classes and functions for working with points, lines,
+segments, curves, and transformations. It includes support for Bezier curves,
+elliptical arcs, and various geometric operations.
+
+Examples:
+    >>> from momapy.geometry import Point, Line, Segment, Rotation, Translation
+    >>> # Create points
+    >>> p1 = Point(0, 0)
+    >>> p2 = Point(10, 10)
+    >>> # Create a line
+    >>> line = Line(p1, p2)
+    >>> line.slope()
+    1.0
+    >>> # Create a segment
+    >>> segment = Segment(p1, p2)
+    >>> segment.length()
+    14.14...
+    >>> # Apply transformations
+    >>> rotated = p1.transformed(Rotation(math.pi / 2, p2))
+"""
 
 import dataclasses
 import typing
@@ -20,17 +41,33 @@ ROUNDING = 2
 
 @dataclasses.dataclass(frozen=True)
 class GeometryObject(abc.ABC):
-    """Base class for geometry objects"""
+    """Abstract base class for all geometry objects."""
 
     @abc.abstractmethod
     def to_shapely(self) -> shapely.Geometry:
-        """Compute and return a shapely geometry object that reproduces the geometry object"""
+        """Convert to a shapely geometry object.
+
+        Returns:
+            A shapely geometry representing this object.
+        """
         pass
 
 
 @dataclasses.dataclass(frozen=True)
 class Point(GeometryObject):
-    """Class for points"""
+    """Represents a 2D point with x and y coordinates.
+
+    Attributes:
+        x: The x-coordinate.
+        y: The y-coordinate.
+
+    Examples:
+        >>> p = Point(10, 20)
+        >>> p.x
+        10
+        >>> p + (5, 5)
+        Point(x=15, y=25)
+    """
 
     x: float
     y: float
@@ -60,83 +97,178 @@ class Point(GeometryObject):
         yield self.y
 
     def to_matrix(self) -> numpy.ndarray:
-        """Return a `numpy.array` representation of the point"""
+        """Convert to a 3x1 numpy matrix for transformation operations.
+
+        Returns:
+            A numpy array [[x], [y], [1]].
+        """
         m = numpy.array([[self.x], [self.y], [1]], dtype=float)
         return m
 
     def to_tuple(self) -> tuple[float, float]:
-        """Return a tuple representation of the point"""
+        """Convert to a tuple.
+
+        Returns:
+            Tuple (x, y).
+        """
         return (
             self.x,
             self.y,
         )
 
     def get_intersection_with_line(self, line: "Line") -> list["Point"]:
-        """Compute and return a list of the intersections of the point and a given line"""
+        """Get intersection points with a line.
+
+        Args:
+            line: The line to intersect with.
+
+        Returns:
+            List of intersection points (empty if no intersection).
+        """
         return get_intersection_of_line_and_point(line, self)
 
     def get_angle_to_horizontal(self) -> float:
-        """Return the angle in radians formed by the line passing through the origin and the point and the horizontal"""
+        """Get the angle from origin to this point relative to horizontal.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_to_horizontal_of_point(self)
 
     def transformed(self, transformation: "Transformation") -> "Point":
-        """Return a copy of the the point transformed by the given transformation"""
+        """Apply a transformation to this point.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed Point.
+        """
         return transform_point(self, transformation)
 
     def reversed(self) -> "Point":
-        """Return a reversed copy of the point"""
+        """Return a reversed copy (identity for points).
+
+        Returns:
+            A copy of the point.
+        """
         return reverse_point(self)
 
     def round(self, ndigits=None):
+        """Round coordinates to specified digits.
+
+        Args:
+            ndigits: Number of decimal places.
+
+        Returns:
+            A new Point with rounded coordinates.
+        """
         return Point(round(self.x, ndigits), round(self.y, ndigits))
 
     def to_shapely(self) -> shapely.Point:
-        """Return a shapely point that reproduces the point"""
+        """Convert to a shapely Point.
+
+        Returns:
+            A shapely Point.
+        """
         return shapely.Point(self.x, self.y)
 
     def to_fortranarray(self) -> typing.Any:
-        """Return a numpy fortran array representation of the point"""
+        """Convert to a numpy Fortran array.
+
+        Returns:
+            A 2x1 Fortran array [[x], [y]].
+        """
         return numpy.asfortranarray([[self.x], [self.y]])
 
     def bbox(self) -> "Bbox":
-        """Return the bounding box of the point"""
+        """Get the bounding box of this point.
+
+        Returns:
+            A Bbox with zero width and height.
+        """
         return Bbox(copy.deepcopy(self), 0, 0)
 
     def isnan(self) -> bool:
-        """Return `true` if the point has a nan coordinate, `false` otherwise"""
+        """Check if either coordinate is NaN.
+
+        Returns:
+            True if x or y is NaN.
+        """
         return math.isnan(self.x) or math.isnan(self.y)
 
     @classmethod
     def from_shapely(cls, point: shapely.Point) -> typing_extensions.Self:
-        """Return a point reproducing a given shapely point"""
+        """Create a Point from a shapely Point.
+
+        Args:
+            point: A shapely Point.
+
+        Returns:
+            A new Point.
+        """
         return cls(float(point.x), float(point.y))
 
     @classmethod
     def from_fortranarray(cls, fortranarray: typing.Any) -> typing_extensions.Self:
-        """Return a point from a numpy fortran array representation"""
+        """Create a Point from a numpy Fortran array.
+
+        Args:
+            fortranarray: A 2x1 array [[x], [y]].
+
+        Returns:
+            A new Point.
+        """
         return cls(fortranarray[0][0], fortranarray[1][1])
 
     @classmethod
     def from_tuple(cls, t: tuple[float, float]) -> typing_extensions.Self:
-        """Return a point from a tuple representation"""
+        """Create a Point from a tuple.
+
+        Args:
+            t: Tuple (x, y).
+
+        Returns:
+            A new Point.
+        """
         return cls(t[0], t[1])
 
 
 @dataclasses.dataclass(frozen=True)
 class Line(GeometryObject):
-    """Class for lines"""
+    """Represents an infinite line defined by two points.
+
+    Attributes:
+        p1: First point on the line.
+        p2: Second point on the line.
+
+    Examples:
+        >>> line = Line(Point(0, 0), Point(10, 10))
+        >>> line.slope()
+        1.0
+        >>> line.intercept()
+        0.0
+    """
 
     p1: Point
     p2: Point
 
     def slope(self) -> float:
-        """Return the slope of the line"""
+        """Calculate the slope of the line.
+
+        Returns:
+            The slope, or NaN if vertical.
+        """
         if self.p1.x != self.p2.x:
             return round((self.p2.y - self.p1.y) / (self.p2.x - self.p1.x), ROUNDING)
-        return float("NAN")  # infinite slope
+        return float("NAN")
 
     def intercept(self) -> float:
-        """Return the intercept of the line"""
+        """Calculate the y-intercept of the line.
+
+        Returns:
+            The y-intercept, or NaN if vertical.
+        """
         slope = self.slope()
         if not math.isnan(slope):
             return self.p1.y - slope * self.p1.x
@@ -144,39 +276,94 @@ class Line(GeometryObject):
             return float("NAN")
 
     def get_angle_to_horizontal(self) -> float:
-        """Return the angle in radians formed by the line and the horizontal"""
+        """Get the angle of the line relative to horizontal.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_to_horizontal_of_line(self)
 
     def is_parallel_to_line(self, line: "Line") -> bool:
-        """Return `true` if the line is parallel to another given line, and `false` otherwise"""
+        """Check if this line is parallel to another.
+
+        Args:
+            line: The other line.
+
+        Returns:
+            True if parallel.
+        """
         return are_lines_parallel(self, line)
 
     def is_coincident_to_line(self, line: "Line") -> bool:
-        """Return `true` if the line is coincident to another given line, and `false` otherwise"""
+        """Check if this line is coincident with another.
+
+        Args:
+            line: The other line.
+
+        Returns:
+            True if coincident (same infinite line).
+        """
         return are_lines_coincident(self, line)
 
     def get_intersection_with_line(self, line: "Line") -> list["Line"] | list["Point"]:
-        """Compute and return the instersection of the line with another given line"""
+        """Get intersection with another line.
+
+        Args:
+            line: The other line.
+
+        Returns:
+            List containing intersection point(s) or the coincident line.
+        """
         return get_intersection_of_lines(self, line)
 
     def get_distance_to_point(self, point: Point) -> float:
-        """Compute and return the distance of a given point to the line"""
+        """Get perpendicular distance from a point to this line.
+
+        Args:
+            point: The point to measure from.
+
+        Returns:
+            The perpendicular distance.
+        """
         return get_distance_between_line_and_point(self, point)
 
     def has_point(self, point: Point, max_distance: float = 0.01) -> bool:
-        """Return `true` if a given point is on the line, `false` otherwise"""
+        """Check if a point lies on this line.
+
+        Args:
+            point: The point to check.
+            max_distance: Maximum allowed distance from line.
+
+        Returns:
+            True if point is on the line within tolerance.
+        """
         return line_has_point(self, point, max_distance)
 
     def transformed(self, transformation: "Transformation") -> "Line":
-        """Return a copy of the line transformed with the given transformation"""
+        """Apply a transformation to this line.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed Line.
+        """
         return transform_line(self, transformation)
 
     def reversed(self) -> "Line":
-        """Return a reversed copy of the line"""
+        """Return a reversed copy of the line.
+
+        Returns:
+            A new Line with p1 and p2 swapped.
+        """
         return reverse_line(self)
 
     def to_shapely(self) -> shapely.LineString:
-        """Return a shapeply line string reproducing the line"""
+        """Convert to a shapely LineString.
+
+        Returns:
+            A shapely LineString.
+        """
         return shapely.LineString(
             [
                 self.p1.to_tuple(),
@@ -187,43 +374,106 @@ class Line(GeometryObject):
 
 @dataclasses.dataclass(frozen=True)
 class Segment(GeometryObject):
-    """Class for segments"""
+    """Represents a line segment between two points.
+
+    Attributes:
+        p1: Start point.
+        p2: End point.
+
+    Examples:
+        >>> seg = Segment(Point(0, 0), Point(10, 10))
+        >>> seg.length()
+        14.14...
+        >>> seg.get_position_at_fraction(0.5)
+        Point(x=5.0, y=5.0)
+    """
 
     p1: Point
     p2: Point
 
     def length(self) -> float:
-        """Return the length of the segment"""
+        """Calculate the length of the segment.
+
+        Returns:
+            The Euclidean length.
+        """
         return math.sqrt((self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2)
 
     def get_distance_to_point(self, point: Point) -> float:
-        """Return the distance of a given point to the segment"""
+        """Get shortest distance from a point to this segment.
+
+        Args:
+            point: The point to measure from.
+
+        Returns:
+            The shortest distance.
+        """
         return get_distance_between_segment_and_point(self, point)
 
     def has_point(self, point: Point, max_distance: float = 0.01) -> bool:
-        """Return `true` if the given point is on the segment, `false` otherwise"""
+        """Check if a point lies on this segment.
+
+        Args:
+            point: The point to check.
+            max_distance: Maximum allowed distance.
+
+        Returns:
+            True if point is on the segment within tolerance.
+        """
         return segment_has_point(self, point, max_distance)
 
     def get_angle_to_horizontal(self) -> float:
-        """Compute and return the angle formed by the segment and the horizontal"""
+        """Get the angle of the segment relative to horizontal.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_to_horizontal_of_line(self)
 
     def get_intersection_with_line(self, line: Line) -> list[Point] | list["Segment"]:
-        """Compute and return the intersection of the segment with a given line"""
+        """Get intersection with a line.
+
+        Args:
+            line: The line to intersect with.
+
+        Returns:
+            List of intersection points or segment if coincident.
+        """
         return get_intersection_of_line_and_segment(line, self)
 
     def get_position_at_fraction(self, fraction: float) -> Point:
-        """Compute and return the position on the segment at a given fraction (of the total length)"""
+        """Get point at a fraction along the segment.
+
+        Args:
+            fraction: Fraction from 0 to 1 (0 = start, 1 = end).
+
+        Returns:
+            The point at that fraction.
+        """
         return get_position_at_fraction_of_segment(self, fraction)
 
     def get_angle_at_fraction(self, fraction: float) -> float:
-        """Compute and return the angle in radians formed by the segment and the horizontal at a given fraction (of the total length)"""
+        """Get angle at a fraction along the segment.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_at_fraction_of_segment(self, fraction)
 
     def get_position_and_angle_at_fraction(
         self, fraction: float
     ) -> tuple[Point, float]:
-        """Compute and return the position on the segment at a given fraction and the angle in radians formed of the segment and the horizontal at that position"""
+        """Get both position and angle at a fraction.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Tuple of (point, angle in radians).
+        """
         return get_position_and_angle_at_fraction_of_segment(self, fraction)
 
     def shortened(
@@ -231,19 +481,42 @@ class Segment(GeometryObject):
         length: float,
         start_or_end: typing.Literal["start", "end"] = "end",
     ) -> "Segment":
-        """Compute and return a copy of the segment shortened by a given length"""
+        """Return a shortened copy of the segment.
+
+        Args:
+            length: Amount to shorten by.
+            start_or_end: Which end to shorten from.
+
+        Returns:
+            A new shortened Segment.
+        """
         return shorten_segment(self, length, start_or_end)
 
     def transformed(self, transformation: "Transformation") -> "Segment":
-        """Compute and return a copy of the segment transformed with a given transformation"""
+        """Apply a transformation to this segment.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed Segment.
+        """
         return transform_segment(self, transformation)
 
     def reversed(self) -> "Segment":
-        """Compute and return a reversed copy of the segment"""
+        """Return a reversed copy of the segment.
+
+        Returns:
+            A new Segment with p1 and p2 swapped.
+        """
         return reverse_segment(self)
 
     def to_shapely(self) -> shapely.LineString:
-        """Return a shapely line string reproducing the segment"""
+        """Convert to a shapely LineString.
+
+        Returns:
+            A shapely LineString.
+        """
         return shapely.LineString(
             [
                 self.p1.to_tuple(),
@@ -252,12 +525,23 @@ class Segment(GeometryObject):
         )
 
     def bbox(self) -> "Bbox":
-        """Compute and return the bounding box of the segment"""
+        """Get the bounding box of the segment.
+
+        Returns:
+            A Bbox enclosing the segment.
+        """
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     @classmethod
     def from_shapely(cls, line_string: shapely.LineString) -> typing_extensions.Self:
-        """Compute and return the segment reproducing a shapely line string"""
+        """Create a Segment from a shapely LineString.
+
+        Args:
+            line_string: A 2-point LineString.
+
+        Returns:
+            A new Segment.
+        """
         shapely_points = line_string.boundary.geoms
         return cls(
             Point.from_shapely(shapely_points[0]),
@@ -267,7 +551,22 @@ class Segment(GeometryObject):
 
 @dataclasses.dataclass(frozen=True)
 class BezierCurve(GeometryObject):
-    """Class for bezier curves"""
+    """Represents a cubic Bezier curve.
+
+    Attributes:
+        p1: Start point.
+        p2: End point.
+        control_points: Tuple of control points (1 for quadratic, 2 for cubic).
+
+    Examples:
+        >>> curve = BezierCurve(
+        ...     Point(0, 0),
+        ...     Point(10, 0),
+        ...     (Point(3, 5), Point(7, 5))
+        ... )
+        >>> curve.length()
+        11.77...
+    """
 
     p1: Point
     p2: Point
@@ -292,66 +591,155 @@ class BezierCurve(GeometryObject):
         return cls(points[0], points[-1], tuple(points[1:-1]))
 
     def length(self) -> float:
-        """Compute and return the length of the bezier curve"""
+        """Calculate the length of the curve.
+
+        Returns:
+            The arc length.
+        """
         return self._to_bezier().length
 
     def evaluate(self, s: float) -> Point:
-        """Compute and return the point at a given parameter value"""
+        """Evaluate the curve at parameter s.
+
+        Args:
+            s: Parameter value from 0 to 1.
+
+        Returns:
+            The point at parameter s.
+        """
         evaluation = self._to_bezier().evaluate(s)
         return Point.from_fortranarray(evaluation)
 
     def evaluate_multi(self, s: numpy.ndarray) -> list[Point]:
-        """Compute and return the points at given parameter values"""
+        """Evaluate the curve at multiple parameters.
+
+        Args:
+            s: Array of parameter values.
+
+        Returns:
+            List of points.
+        """
         evaluation = self._to_bezier().evaluate_multi(s)
         return [Point(e[0], e[1]) for e in evaluation.T]
 
     def get_intersection_with_line(self, line: Line) -> list[Point] | list[Segment]:
-        """Compute and return the intersection of the bezier curve with a given line"""
+        """Get intersection with a line.
+
+        Args:
+            line: The line to intersect with.
+
+        Returns:
+            List of intersection points or segments.
+        """
         return get_intersection_of_line_and_bezier_curve(line, self)
 
     def get_position_at_fraction(self, fraction: float):
-        """Compute and return the position on the bezier curve at a given fraction (of the total length)"""
+        """Get point at a fraction along the curve.
 
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            The point at that fraction.
+        """
         return get_position_at_fraction_of_bezier_curve(self, fraction)
 
     def get_angle_at_fraction(self, fraction: float):
-        """Compute and return the angle in radians formed by the tangent of the bezier curve and the horizontal at a given fraction (of the total length)"""
+        """Get angle at a fraction along the curve.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_at_fraction_of_bezier_curve(self, fraction)
 
     def get_position_and_angle_at_fraction(self, fraction: float):
-        """Compute and return the position on the bezier curve at a given fraction and the angle in radians formed of the tangent of the bezier curve and the horizontal at that position"""
+        """Get both position and angle at a fraction.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Tuple of (point, angle).
+        """
         return get_position_and_angle_at_fraction_of_bezier_curve(self, fraction)
 
     def shortened(
         self, length: float, start_or_end: typing.Literal["start", "end"] = "end"
     ) -> "BezierCurve":
-        """Compute and return a copy of the bezier curve shortened by a given length"""
+        """Return a shortened copy of the curve.
+
+        Args:
+            length: Amount to shorten by.
+            start_or_end: Which end to shorten from.
+
+        Returns:
+            A new shortened BezierCurve.
+        """
         return shorten_bezier_curve(self, length, start_or_end)
 
     def transformed(self, transformation):
-        """Compute and return a copy of the bezier curve transformed with a given transformation"""
+        """Apply a transformation to this curve.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed BezierCurve.
+        """
         return transform_bezier_curve(self, transformation)
 
     def reversed(self):
-        """Compute and return a reversed copy of the bezier curve"""
+        """Return a reversed copy of the curve.
+
+        Returns:
+            A new BezierCurve going in reverse direction.
+        """
         return reverse_bezier_curve(self)
 
     def to_shapely(self, n_segs=50):
-        """Compute and return a shapely line string reproducing the bezier curve"""
+        """Convert to a shapely LineString.
 
+        Args:
+            n_segs: Number of segments to approximate with.
+
+        Returns:
+            A shapely LineString.
+        """
         points = self.evaluate_multi(
             numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
         )
         return shapely.LineString([point.to_tuple() for point in points])
 
     def bbox(self):
-        """Compute and return the bounding box of the bezier curve"""
+        """Get the bounding box of the curve.
+
+        Returns:
+            A Bbox enclosing the curve.
+        """
         return Bbox.from_bounds(self.to_shapely().bounds)
 
 
 @dataclasses.dataclass(frozen=True)
 class EllipticalArc(GeometryObject):
-    """Class for elliptical arcs"""
+    """Represents an elliptical arc.
+
+    Attributes:
+        p1: Start point.
+        p2: End point.
+        rx: X-radius of the ellipse.
+        ry: Y-radius of the ellipse.
+        x_axis_rotation: Rotation of the x-axis in radians.
+        arc_flag: Large arc flag (0 or 1).
+        sweep_flag: Sweep flag (0 or 1).
+
+    Examples:
+        >>> arc = EllipticalArc(
+        ...     Point(0, 0), Point(10, 0), 5, 5, 0, 0, 1
+        ... )
+    """
 
     p1: Point
     p2: Point
@@ -362,36 +750,75 @@ class EllipticalArc(GeometryObject):
     sweep_flag: int
 
     def get_intersection_with_line(self, line: Line) -> list[Point]:
-        """Compute and return the intersection of the elliptical arc with a given line"""
+        """Get intersection with a line.
+
+        Args:
+            line: The line to intersect with.
+
+        Returns:
+            List of intersection points.
+        """
         return get_intersection_of_line_and_elliptical_arc(line, self)
 
     def get_center_parameterization(
         self,
     ) -> tuple[float, float, float, float, float, float, float, float]:
-        """Compute and return the center paramaterizaion of the elliptical arc (cx, cy, rx, ry, sigma, theta1, theta2, delta_theta)"""
+        """Get the center parameterization of the arc.
+
+        Returns:
+            Tuple of (cx, cy, rx, ry, sigma, theta1, theta2, delta_theta).
+        """
         return get_center_parameterization_of_elliptical_arc(self)
 
     def get_center(self) -> Point:
-        """Compute and return the center of the elliptical arc"""
+        """Get the center point of the ellipse.
+
+        Returns:
+            The center point.
+        """
         return get_center_of_elliptical_arc(self)
 
     def get_position_at_fraction(self, fraction: float) -> Point:
-        """Compute and return the position on the elliptical arc at a given fraction (of the total length)"""
+        """Get point at a fraction along the arc.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            The point at that fraction.
+        """
         return get_position_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_angle_at_fraction(self, fraction: float) -> float:
-        """Compute and return the angle in radians formed by the tangent of the elliptical arc and the horizontal at a given fraction (of the total length)"""
+        """Get angle at a fraction along the arc.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Angle in radians.
+        """
         return get_angle_at_fraction_of_elliptical_arc(self, fraction)
 
     def get_position_and_angle_at_fraction(
         self, fraction: float
     ) -> tuple[Point, float]:
-        """Compute and return the position on the elliptical arc at a given fraction and the angle in radians formed of the tangent of the bezier curve at that position and the horizontal"""
+        """Get both position and angle at a fraction.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Tuple of (point, angle).
+        """
         return get_position_and_angle_at_fraction_of_elliptical_arc(self, fraction)
 
     def to_shapely(self):
-        """Compute and return a shapely linestring reproducing the elliptical arc"""
+        """Convert to a shapely LineString.
 
+        Returns:
+            A shapely LineString approximating the arc.
+        """
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
@@ -445,7 +872,11 @@ class EllipticalArc(GeometryObject):
         return shapely_arc
 
     def bbox(self) -> "Bbox":
-        """Compute and return the bounding box of the elliptical arc"""
+        """Get the bounding box of the arc.
+
+        Returns:
+            A Bbox enclosing the arc.
+        """
         return Bbox.from_bounds(self.to_shapely().bounds)
 
     def shortened(
@@ -453,28 +884,69 @@ class EllipticalArc(GeometryObject):
         length: float,
         start_or_end: typing.Literal["start", "end"] = "end",
     ) -> "EllipticalArc":
-        """Compute and return a copy of the elliptical arc shortened by a given length"""
+        """Return a shortened copy of the arc.
+
+        Args:
+            length: Amount to shorten by.
+            start_or_end: Which end to shorten from.
+
+        Returns:
+            A new shortened EllipticalArc.
+        """
         return shorten_elliptical_arc(self, length, start_or_end)
 
     def transformed(self, transformation: "Transformation") -> "EllipticalArc":
-        """Compute and return a copy of the elliptical arc transformed by a given transformation"""
+        """Apply a transformation to this arc.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed EllipticalArc.
+        """
         return transform_elliptical_arc(self, transformation)
 
     def reversed(self) -> "EllipticalArc":
-        """Compute and return a reversed copy of the elliptical arc"""
+        """Return a reversed copy of the arc.
+
+        Returns:
+            A new EllipticalArc going in reverse direction.
+        """
         return reverse_elliptical_arc(self)
 
     def to_bezier_curves(self) -> BezierCurve:
-        """Compute and return a bezier curve reproducing the elliptical arc"""
+        """Convert to Bezier curves.
+
+        Returns:
+            BezierCurve(s) approximating the arc.
+        """
         return transform_elliptical_arc_to_bezier_curves(self)
 
     def length(self) -> float:
+        """Calculate the length of the arc.
+
+        Returns:
+            The arc length.
+        """
         return self.to_shapely().length
 
 
 @dataclasses.dataclass(frozen=True)
 class Bbox(object):
-    """Class for bounding boxes"""
+    """Represents a bounding box.
+
+    Attributes:
+        position: Center point.
+        width: Width of the box.
+        height: Height of the box.
+
+    Examples:
+        >>> bbox = Bbox(Point(5, 5), 10, 10)
+        >>> bbox.north_west()
+        Point(x=0.0, y=0.0)
+        >>> bbox.south_east()
+        Point(x=10.0, y=10.0)
+    """
 
     position: Point
     width: float
@@ -482,97 +954,119 @@ class Bbox(object):
 
     @property
     def x(self) -> float:
-        """The x coordinate of the bounding box"""
+        """The x coordinate of the center."""
         return self.position.x
 
     @property
     def y(self) -> float:
-        """The y coordinate of the bounding box"""
+        """The y coordinate of the center."""
         return self.position.y
 
     def size(self) -> tuple[float, float]:
-        """The size of the bounding box"""
+        """Get the size as (width, height).
+
+        Returns:
+            Tuple of (width, height).
+        """
         return (self.width, self.height)
 
     def anchor_point(self, anchor_point: str) -> Point:
-        """Return a given anchor point of the bounding box"""
+        """Get a named anchor point.
+
+        Args:
+            anchor_point: Name like 'north', 'south_east', 'center', etc.
+
+        Returns:
+            The anchor point.
+        """
         return getattr(self, anchor_point)()
 
     def north_west(self) -> Point:
-        """Return the north west anchor point of the bounding box"""
+        """Get the north-west corner."""
         return Point(self.x - self.width / 2, self.y - self.height / 2)
 
     def north_north_west(self) -> Point:
-        """Return the north north west anchor point of the bounding box"""
+        """Get the north-north-west point."""
         return Point(self.x - self.width / 4, self.y - self.height / 2)
 
     def north(self) -> Point:
-        """Return the north anchor point of the bounding box"""
+        """Get the north (top center) point."""
         return Point(self.x, self.y - self.height / 2)
 
     def north_north_east(self) -> Point:
-        """Return the north north east anchor point of the bounding box"""
+        """Get the north-north-east point."""
         return Point(self.x + self.width / 4, self.y - self.height / 2)
 
     def north_east(self) -> Point:
-        """Return the north east anchor point of the bounding box"""
+        """Get the north-east corner."""
         return Point(self.x + self.width / 2, self.y - self.height / 2)
 
     def east_north_east(self) -> Point:
-        """Return the east north east anchor point of the bounding box"""
+        """Get the east-north-east point."""
         return Point(self.x + self.width / 2, self.y - self.height / 4)
 
     def east(self) -> Point:
-        """Return the east anchor point of the bounding box"""
+        """Get the east (right center) point."""
         return Point(self.x + self.width / 2, self.y)
 
     def east_south_east(self) -> Point:
-        """Return the east south east anchor point of the bounding box"""
+        """Get the east-south-east point."""
         return Point(self.x + self.width / 2, self.y + self.width / 4)
 
     def south_east(self) -> Point:
-        """Return the south east anchor point of the bounding box"""
+        """Get the south-east corner."""
         return Point(self.x + self.width / 2, self.y + self.height / 2)
 
     def south_south_east(self) -> Point:
-        """Return the south south east anchor point of the bounding box"""
+        """Get the south-south-east point."""
         return Point(self.x + self.width / 4, self.y + self.height / 2)
 
     def south(self) -> Point:
-        """Return the south anchor point of the bounding box"""
+        """Get the south (bottom center) point."""
         return Point(self.x, self.y + self.height / 2)
 
     def south_south_west(self) -> Point:
-        """Return the south south west anchor point of the bounding box"""
+        """Get the south-south-west point."""
         return Point(self.x - self.width / 4, self.y + self.height / 2)
 
     def south_west(self) -> Point:
-        """Return the south west anchor point of the bounding box"""
+        """Get the south-west corner."""
         return Point(self.x - self.width / 2, self.y + self.height / 2)
 
     def west_south_west(self) -> Point:
-        """Return the west south west anchor point of the bounding box"""
+        """Get the west-south-west point."""
         return Point(self.x - self.width / 2, self.y + self.height / 4)
 
     def west(self) -> Point:
-        """Return the west anchor point of the bounding box"""
+        """Get the west (left center) point."""
         return Point(self.x - self.width / 2, self.y)
 
     def west_north_west(self) -> Point:
-        """Return the west north west anchor point of the bounding box"""
+        """Get the west-north-west point."""
         return Point(self.x - self.width / 2, self.y - self.height / 4)
 
     def center(self) -> Point:
-        """Return the center anchor point of the bounding box"""
+        """Get the center point."""
         return Point(self.x, self.y)
 
     def isnan(self) -> bool:
-        """Return `true` if the position of the bounding box has a `nan` coordinate, `false` otherwise"""
+        """Check if the position has NaN coordinates.
+
+        Returns:
+            True if position has NaN.
+        """
         return self.position.isnan()
 
     @classmethod
     def from_bounds(cls, bounds: tuple[float, float, float, float]):
-        """Create and return a bounding box from shaply bounds (min_x, min_y, max_x, max_y)"""
+        """Create a Bbox from shapely bounds.
+
+        Args:
+            bounds: Tuple of (min_x, min_y, max_x, max_y).
+
+        Returns:
+            A new Bbox.
+        """
         return cls(
             Point((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2),
             bounds[2] - bounds[0],
@@ -582,16 +1076,24 @@ class Bbox(object):
 
 @dataclasses.dataclass(frozen=True)
 class Transformation(abc.ABC):
-    """Base class for transformations"""
+    """Abstract base class for geometric transformations."""
 
     @abc.abstractmethod
     def to_matrix(self) -> numpy.typing.NDArray:
-        """Return a matrix representation of the transformation"""
+        """Convert to a 3x3 transformation matrix.
+
+        Returns:
+            A 3x3 numpy array.
+        """
         pass
 
     @abc.abstractmethod
     def inverted(self) -> "Transformation":
-        """Compute and return the inverse transformation"""
+        """Get the inverse transformation.
+
+        Returns:
+            The inverse transformation.
+        """
         pass
 
     def __mul__(self, other):
@@ -600,28 +1102,52 @@ class Transformation(abc.ABC):
 
 @dataclasses.dataclass(frozen=True)
 class MatrixTransformation(Transformation):
-    """Class for matrix transformations"""
+    """Represents a transformation as a 3x3 matrix.
+
+    Attributes:
+        m: The 3x3 transformation matrix.
+    """
 
     m: numpy.typing.NDArray
 
     def to_matrix(self) -> numpy.typing.NDArray:
-        """Return a matrix representation of the matrix transformation"""
+        """Get the matrix representation.
+
+        Returns:
+            The 3x3 matrix.
+        """
         return self.m
 
     def inverted(self) -> Transformation:
-        """Compute and return the inverse of the matrix transformation"""
+        """Get the inverse transformation.
+
+        Returns:
+            The inverse matrix transformation.
+        """
         return invert_matrix_transformation(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Rotation(Transformation):
-    """Class for rotations"""
+    """Represents a rotation transformation.
+
+    Attributes:
+        angle: Rotation angle in radians.
+        point: Optional center of rotation (defaults to origin).
+
+    Examples:
+        >>> rot = Rotation(math.pi / 2, Point(5, 5))
+    """
 
     angle: float
     point: Point | None = None
 
     def to_matrix(self) -> numpy.typing.NDArray:
-        """Compute and return a matrix representation of the rotation"""
+        """Convert to a rotation matrix.
+
+        Returns:
+            A 3x3 rotation matrix.
+        """
         m = numpy.array(
             [
                 [math.cos(self.angle), -math.sin(self.angle), 0],
@@ -639,36 +1165,68 @@ class Rotation(Transformation):
         return m
 
     def inverted(self) -> Transformation:
-        """Compute and return the inverse of the rotation"""
+        """Get the inverse rotation.
+
+        Returns:
+            A rotation by the negative angle.
+        """
         return invert_rotation(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Translation(Transformation):
-    """Class for translations"""
+    """Represents a translation transformation.
+
+    Attributes:
+        tx: Translation in x direction.
+        ty: Translation in y direction.
+
+    Examples:
+        >>> trans = Translation(10, 20)
+    """
 
     tx: float
     ty: float
 
     def to_matrix(self) -> numpy.typing.NDArray:
-        """Return a matrix representation of the translation"""
+        """Convert to a translation matrix.
+
+        Returns:
+            A 3x3 translation matrix.
+        """
         m = numpy.array([[1, 0, self.tx], [0, 1, self.ty], [0, 0, 1]], dtype=float)
         return m
 
     def inverted(self) -> Transformation:
-        """Compute and return the inverse of the translation"""
+        """Get the inverse translation.
+
+        Returns:
+            A translation by (-tx, -ty).
+        """
         return invert_translation(self)
 
 
 @dataclasses.dataclass(frozen=True)
 class Scaling(Transformation):
-    """Class for scalings"""
+    """Represents a scaling transformation.
+
+    Attributes:
+        sx: Scale factor in x direction.
+        sy: Scale factor in y direction.
+
+    Examples:
+        >>> scale = Scaling(2, 2)  # Double size
+    """
 
     sx: float
     sy: float
 
     def to_matrix(self) -> numpy.typing.NDArray:
-        """Return a matrix representation of the scaling"""
+        """Convert to a scaling matrix.
+
+        Returns:
+            A 3x3 scaling matrix.
+        """
         m = numpy.array(
             [
                 [self.sx, 0, 0],
@@ -680,16 +1238,38 @@ class Scaling(Transformation):
         return m
 
     def inverted(self) -> Transformation:
-        """Compute and return the inverse of the scaling"""
+        """Get the inverse scaling.
+
+        Returns:
+            Scaling by (1/sx, 1/sy).
+        """
         return invert_scaling(self)
 
 
 def transform_point(point: Point, transformation: Transformation) -> Point:
+    """Transform a point.
+
+    Args:
+        point: The point to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed point.
+    """
     m = numpy.matmul(transformation.to_matrix(), point.to_matrix())
     return Point(m[0][0], m[1][0])
 
 
 def transform_line(line: Line, transformation: Transformation) -> Line:
+    """Transform a line.
+
+    Args:
+        line: The line to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed line.
+    """
     return Line(
         transform_point(line.p1, transformation),
         transform_point(line.p2, transformation),
@@ -697,6 +1277,15 @@ def transform_line(line: Line, transformation: Transformation) -> Line:
 
 
 def transform_segment(segment: Segment, transformation: Transformation) -> Segment:
+    """Transform a segment.
+
+    Args:
+        segment: The segment to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed segment.
+    """
     return Segment(
         transform_point(segment.p1, transformation),
         transform_point(segment.p2, transformation),
@@ -706,6 +1295,15 @@ def transform_segment(segment: Segment, transformation: Transformation) -> Segme
 def transform_bezier_curve(
     bezier_curve: BezierCurve, transformation: Transformation
 ) -> BezierCurve:
+    """Transform a Bezier curve.
+
+    Args:
+        bezier_curve: The curve to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed BezierCurve.
+    """
     return BezierCurve(
         transform_point(bezier_curve.p1, transformation),
         transform_point(bezier_curve.p2, transformation),
@@ -721,6 +1319,15 @@ def transform_bezier_curve(
 def transform_elliptical_arc(
     elliptical_arc: EllipticalArc, transformation: Transformation
 ) -> EllipticalArc:
+    """Transform an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed EllipticalArc.
+    """
     east = Point(
         math.cos(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
         math.sin(elliptical_arc.x_axis_rotation) * elliptical_arc.rx,
@@ -751,24 +1358,64 @@ def transform_elliptical_arc(
 
 
 def reverse_point(point: Point) -> Point:
+    """Return a copy of the point (points are directionless).
+
+    Args:
+        point: The point.
+
+    Returns:
+        A copy of the point.
+    """
     return Point(point.x, point.y)
 
 
 def reverse_line(line: Line) -> Line:
+    """Reverse a line (swap endpoints).
+
+    Args:
+        line: The line to reverse.
+
+    Returns:
+        A new Line with p1 and p2 swapped.
+    """
     return Line(line.p2, line.p1)
 
 
 def reverse_segment(segment):
+    """Reverse a segment (swap endpoints).
+
+    Args:
+        segment: The segment to reverse.
+
+    Returns:
+        A new Segment with p1 and p2 swapped.
+    """
     return Segment(segment.p2, segment.p1)
 
 
 def reverse_bezier_curve(bezier_curve: BezierCurve) -> BezierCurve:
+    """Reverse a Bezier curve.
+
+    Args:
+        bezier_curve: The curve to reverse.
+
+    Returns:
+        A new BezierCurve going in reverse direction.
+    """
     return BezierCurve(
         bezier_curve.p2, bezier_curve.p1, bezier_curve.control_points[::-1]
     )
 
 
 def reverse_elliptical_arc(elliptical_arc: EllipticalArc) -> EllipticalArc:
+    """Reverse an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc to reverse.
+
+    Returns:
+        A new EllipticalArc going in reverse direction.
+    """
     return EllipticalArc(
         elliptical_arc.p2,
         elliptical_arc.p1,
@@ -785,6 +1432,16 @@ def shorten_segment(
     length: float,
     start_or_end: typing.Literal["start", "end"] = "end",
 ) -> Segment:
+    """Shorten a segment by a given length.
+
+    Args:
+        segment: The segment to shorten.
+        length: Amount to shorten by.
+        start_or_end: Which end to shorten from.
+
+    Returns:
+        A new shortened Segment.
+    """
     if length == 0 or segment.length() == 0:
         shortened_segment = copy.deepcopy(segment)
     else:
@@ -802,6 +1459,16 @@ def shorten_bezier_curve(
     length: float,
     start_or_end: typing.Literal["start", "end"] = "end",
 ) -> BezierCurve:
+    """Shorten a Bezier curve by a given length.
+
+    Args:
+        bezier_curve: The curve to shorten.
+        length: Amount to shorten by.
+        start_or_end: Which end to shorten from.
+
+    Returns:
+        A new shortened BezierCurve.
+    """
     if length == 0 or bezier_curve.length() == 0:
         shortened_bezier_curve = copy.deepcopy(bezier_curve)
     else:
@@ -830,6 +1497,16 @@ def shorten_elliptical_arc(
     length: float,
     start_or_end: typing.Literal["start", "end"] = "end",
 ):
+    """Shorten an elliptical arc by a given length.
+
+    Args:
+        elliptical_arc: The arc to shorten.
+        length: Amount to shorten by.
+        start_or_end: Which end to shorten from.
+
+    Returns:
+        A new shortened EllipticalArc.
+    """
     if length == 0 or elliptical_arc.length() == 0:
         shortened_elliptical_arc = copy.deepcopy(elliptical_arc)
     else:
@@ -847,28 +1524,78 @@ def shorten_elliptical_arc(
 def invert_matrix_transformation(
     matrix_transformation: MatrixTransformation,
 ) -> MatrixTransformation:
+    """Invert a matrix transformation.
+
+    Args:
+        matrix_transformation: The transformation to invert.
+
+    Returns:
+        The inverse transformation.
+    """
     return MatrixTransformation(numpy.linalg.inv(matrix_transformation.m))
 
 
 def invert_rotation(rotation: Rotation) -> Rotation:
+    """Invert a rotation.
+
+    Args:
+        rotation: The rotation to invert.
+
+    Returns:
+        A rotation by the negative angle.
+    """
     return Rotation(-rotation.angle, rotation.point)
 
 
 def invert_translation(translation: Translation) -> Translation:
+    """Invert a translation.
+
+    Args:
+        translation: The translation to invert.
+
+    Returns:
+        A translation by (-tx, -ty).
+    """
     return Translation(-translation.tx, -translation.ty)
 
 
 def invert_scaling(scaling: Scaling) -> Scaling:
+    """Invert a scaling.
+
+    Args:
+        scaling: The scaling to invert.
+
+    Returns:
+        Scaling by the reciprocal factors.
+    """
     return Scaling(-scaling.sx, -scaling.sy)
 
 
 def get_intersection_of_line_and_point(line: Line, point: Point) -> list[Point]:
+    """Get intersection of a line and a point.
+
+    Args:
+        line: The line.
+        point: The point.
+
+    Returns:
+        List containing the point if it lies on the line, empty otherwise.
+    """
     if line.has_point(point):
         return [point]
     return []
 
 
 def get_intersection_of_lines(line1: Line, line2: Line) -> list[Line] | list[Point]:
+    """Get intersection of two lines.
+
+    Args:
+        line1: First line.
+        line2: Second line.
+
+    Returns:
+        List containing intersection point(s) or coincident line.
+    """
     slope1 = line1.slope()
     intercept1 = line1.intercept()
     slope2 = line2.slope()
@@ -904,6 +1631,15 @@ def get_intersection_of_lines(line1: Line, line2: Line) -> list[Line] | list[Poi
 def get_intersection_of_line_and_segment(
     line: Line, segment: Segment
 ) -> list[Point] | list[Segment] | list[Line]:
+    """Get intersection of a line and a segment.
+
+    Args:
+        line: The line.
+        segment: The segment.
+
+    Returns:
+        List of intersection points, segment if coincident, or empty.
+    """
     line2 = Line(segment.p1, segment.p2)
     intersection = line.get_intersection_with_line(line2)
     if len(intersection) > 0 and isinstance(intersection[0], Point):
@@ -924,6 +1660,15 @@ def get_intersection_of_line_and_segment(
 def get_intersection_of_line_and_bezier_curve(
     line: Line, bezier_curve: BezierCurve
 ) -> list[Point] | list[Segment]:
+    """Get intersection of a line and a Bezier curve.
+
+    Args:
+        line: The line.
+        bezier_curve: The Bezier curve.
+
+    Returns:
+        List of intersection points or segments.
+    """
     shapely_object = bezier_curve.to_shapely()
     return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
@@ -931,6 +1676,15 @@ def get_intersection_of_line_and_bezier_curve(
 def get_intersection_of_line_and_elliptical_arc(
     line: Line, elliptical_arc: EllipticalArc
 ) -> list[Point] | list[Segment]:
+    """Get intersection of a line and an elliptical arc.
+
+    Args:
+        line: The line.
+        elliptical_arc: The elliptical arc.
+
+    Returns:
+        List of intersection points or segments.
+    """
     shapely_object = elliptical_arc.to_shapely()
     return get_intersection_of_line_and_shapely_object(line, shapely_object)
 
@@ -938,6 +1692,15 @@ def get_intersection_of_line_and_elliptical_arc(
 def get_intersection_of_line_and_shapely_object(
     line: Line, shapely_object: shapely.Geometry
 ) -> list[Point] | list[Segment]:
+    """Get intersection of a line with a shapely object.
+
+    Args:
+        line: The line.
+        shapely_object: A shapely geometry.
+
+    Returns:
+        List of intersection points or segments.
+    """
     intersection = []
     for shapely_geom in shapely_object.geoms:
         bbox = Bbox.from_bounds(shapely_object.bounds)
@@ -977,12 +1740,30 @@ def get_intersection_of_line_and_shapely_object(
 
 
 def get_shapely_object_bbox(shapely_object: shapely.Geometry) -> Bbox:
+    """Get the bounding box of a shapely object.
+
+    Args:
+        shapely_object: A shapely geometry.
+
+    Returns:
+        The bounding box.
+    """
     return Bbox.from_bounds(shapely_object.bounds)
 
 
 def get_shapely_object_border(
     shapely_object: shapely.Geometry, point: Point, center: Point | None = None
 ) -> Point | None:
+    """Get the border point in a given direction.
+
+    Args:
+        shapely_object: A shapely geometry.
+        point: Direction point.
+        center: Optional center point.
+
+    Returns:
+        The border point or None.
+    """
     if center is None:
         bbox = get_shapely_object_bbox(shapely_object)
         center = bbox.center()
@@ -1021,6 +1802,17 @@ def get_shapely_object_angle(
     unit: typing.Literal["degrees", "radians"] = "degrees",
     center: Point | None = None,
 ) -> Point | None:
+    """Get the border point at a given angle.
+
+    Args:
+        shapely_object: A shapely geometry.
+        angle: The angle.
+        unit: Unit of angle ('degrees' or 'radians').
+        center: Optional center point.
+
+    Returns:
+        The border point or None.
+    """
     if unit == "degrees":
         angle = math.radians(angle)
     angle = -angle
@@ -1039,6 +1831,16 @@ def get_shapely_object_anchor_point(
     anchor_point: str,
     center: Point | None = None,
 ) -> Point:
+    """Get an anchor point of a shapely object.
+
+    Args:
+        shapely_object: A shapely geometry.
+        anchor_point: Name of anchor point.
+        center: Optional center point.
+
+    Returns:
+        The anchor point.
+    """
     bbox = get_shapely_object_bbox(shapely_object)
     if center is None:
         center = bbox.center()
@@ -1049,12 +1851,27 @@ def get_shapely_object_anchor_point(
 
 
 def get_angle_to_horizontal_of_point(point: Point) -> float:
+    """Get angle from origin to point relative to horizontal.
+
+    Args:
+        point: The point.
+
+    Returns:
+        Angle in radians.
+    """
     line = Line(Point(0, 0), point)
     return line.get_angle_to_horizontal()
 
 
-# angle in radians
 def get_angle_to_horizontal_of_line(line: Line | Segment) -> float:
+    """Get angle of a line relative to horizontal.
+
+    Args:
+        line: A Line or Segment.
+
+    Returns:
+        Angle in radians.
+    """
     x1 = line.p1.x
     y1 = line.p1.y
     x2 = line.p2.x
@@ -1064,6 +1881,15 @@ def get_angle_to_horizontal_of_line(line: Line | Segment) -> float:
 
 
 def are_lines_parallel(line1: Line, line2: Line) -> bool:
+    """Check if two lines are parallel.
+
+    Args:
+        line1: First line.
+        line2: Second line.
+
+    Returns:
+        True if parallel.
+    """
     slope1 = line1.slope()
     slope2 = line2.slope()
     if math.isnan(slope1) and math.isnan(slope2):
@@ -1072,6 +1898,15 @@ def are_lines_parallel(line1: Line, line2: Line) -> bool:
 
 
 def are_lines_coincident(line1: Line, line2: Line) -> bool:
+    """Check if two lines are coincident.
+
+    Args:
+        line1: First line.
+        line2: Second line.
+
+    Returns:
+        True if coincident.
+    """
     slope1 = line1.slope()
     intercept1 = line1.intercept()
     slope2 = line2.slope()
@@ -1085,17 +1920,36 @@ def are_lines_coincident(line1: Line, line2: Line) -> bool:
     )
 
 
-# angle in radians
 def is_angle_in_sector(
     angle: float, center: Point, point1: Point, point2: Point
 ) -> bool:
+    """Check if an angle is within a sector.
+
+    Args:
+        angle: The angle to check (radians).
+        center: Center of sector.
+        point1: First sector boundary.
+        point2: Second sector boundary.
+
+    Returns:
+        True if angle is in sector.
+    """
     angle1 = get_angle_to_horizontal_of_line(Line(center, point1))
     angle2 = get_angle_to_horizontal_of_line(Line(center, point2))
     return is_angle_between(angle, angle1, angle2)
 
 
-# angles in radians
 def is_angle_between(angle: float, start_angle: float, end_angle: float) -> bool:
+    """Check if an angle is between two angles.
+
+    Args:
+        angle: The angle to check (radians).
+        start_angle: Start angle (radians).
+        end_angle: End angle (radians).
+
+    Returns:
+        True if angle is between start and end.
+    """
     angle = get_normalized_angle(angle)
     start_angle = get_normalized_angle(start_angle)
     end_angle = get_normalized_angle(end_angle)
@@ -1108,8 +1962,15 @@ def is_angle_between(angle: float, start_angle: float, end_angle: float) -> bool
     return False
 
 
-# angle is in radians; return angle between 0 and 2 * pi
 def get_normalized_angle(angle: float) -> float:
+    """Normalize an angle to [0, 2*pi).
+
+    Args:
+        angle: Angle in radians.
+
+    Returns:
+        Normalized angle.
+    """
     return angle - (angle // (2 * math.pi) * (2 * math.pi))
 
 
@@ -1122,27 +1983,62 @@ def _get_position_at_fraction(segment_or_curve, fraction):
 def get_position_at_fraction_of_segment(
     segment: Segment,
     fraction: float,
-) -> Point:  # fraction in [0, 1]
+) -> Point:
+    """Get point at a fraction along a segment.
+
+    Args:
+        segment: The segment.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        The point at that fraction.
+    """
     return _get_position_at_fraction(segment, fraction)
 
 
 def get_position_at_fraction_of_bezier_curve(
     bezier_curve: BezierCurve,
     fraction: float,
-) -> Point:  # fraction in [0, 1]
+) -> Point:
+    """Get point at a fraction along a Bezier curve.
+
+    Args:
+        bezier_curve: The curve.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        The point at that fraction.
+    """
     return _get_position_at_fraction(bezier_curve, fraction)
 
 
 def get_position_at_fraction_of_elliptical_arc(
     elliptical_arc: EllipticalArc,
     fraction: float,
-) -> Point:  # fraction in [0, 1]
+) -> Point:
+    """Get point at a fraction along an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        The point at that fraction.
+    """
     return _get_position_at_fraction(elliptical_arc, fraction)
 
 
 def get_center_parameterization_of_elliptical_arc(
     elliptical_arc: EllipticalArc,
 ) -> tuple[float, float, float, float, float, float, float, float]:
+    """Get center parameterization of an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc.
+
+    Returns:
+        Tuple of (cx, cy, rx, ry, sigma, theta1, theta2, delta_theta).
+    """
     x1, y1 = elliptical_arc.p1.x, elliptical_arc.p1.y
     sigma = elliptical_arc.x_axis_rotation
     x2, y2 = elliptical_arc.p2.x, elliptical_arc.p2.y
@@ -1157,7 +2053,7 @@ def get_center_parameterization_of_elliptical_arc(
         rx = math.sqrt(l) * rx
         ry = math.sqrt(l) * ry
     r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
-    if r < 0:  # due to imprecision? to fix later
+    if r < 0:
         r = 0
     a = math.sqrt(r / (rx**2 * y1p**2 + ry**2 * x1p**2))
     if fa == fs:
@@ -1183,6 +2079,14 @@ def get_center_parameterization_of_elliptical_arc(
 
 
 def get_center_of_elliptical_arc(elliptical_arc: EllipticalArc) -> Point:
+    """Get center of an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc.
+
+    Returns:
+        The center point.
+    """
     cx, cy, *_ = get_center_parameterization_of_elliptical_arc(elliptical_arc)
     return Point(cx, cy)
 
@@ -1190,6 +2094,14 @@ def get_center_of_elliptical_arc(elliptical_arc: EllipticalArc) -> Point:
 def transform_elliptical_arc_to_bezier_curves(
     elliptical_arc: EllipticalArc,
 ) -> list[BezierCurve]:
+    """Convert an elliptical arc to Bezier curves.
+
+    Args:
+        elliptical_arc: The arc to convert.
+
+    Returns:
+        List of BezierCurve approximating the arc.
+    """
     def _make_angles(angles):
         new_angles = [angles[0]]
         for theta1, theta2 in zip(angles, angles[1:]):
@@ -1247,7 +2159,7 @@ def transform_elliptical_arc_to_bezier_curves(
 def _get_angle_at_fraction(
     segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
-) -> float:  # fraction in [0, 1]
+) -> float:
     line_string = segment_or_curve.to_shapely()
     total_length = line_string.length
     current_length = 0
@@ -1266,28 +2178,55 @@ def _get_angle_at_fraction(
 def get_angle_at_fraction_of_segment(
     segment: Segment,
     fraction: float,
-) -> float:  # fraction in [0, 1]
+) -> float:
+    """Get angle at a fraction along a segment.
+
+    Args:
+        segment: The segment.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Angle in radians.
+    """
     return _get_angle_at_fraction(segment, fraction)
 
 
 def get_angle_at_fraction_of_bezier_curve(
     bezier_curve: BezierCurve,
     fraction: float,
-) -> float:  # fraction in [0, 1]
+) -> float:
+    """Get angle at a fraction along a Bezier curve.
+
+    Args:
+        bezier_curve: The curve.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Angle in radians.
+    """
     return _get_angle_at_fraction(bezier_curve, fraction)
 
 
 def get_angle_at_fraction_of_elliptical_arc(
     elliptical_arc: EllipticalArc,
     fraction: float,
-) -> float:  # fraction in [0, 1]
+) -> float:
+    """Get angle at a fraction along an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Angle in radians.
+    """
     return _get_angle_at_fraction(elliptical_arc, fraction)
 
 
 def _get_position_and_angle_at_fraction(
     segment_or_curve: Segment | BezierCurve | EllipticalArc,
     fraction: float,
-) -> tuple[Point, float]:  # fraction in [0, 1]
+) -> tuple[Point, float]:
     position = _get_position_at_fraction(segment_or_curve, fraction)
     angle = _get_angle_at_fraction(segment_or_curve, fraction)
     return position, angle
@@ -1296,26 +2235,61 @@ def _get_position_and_angle_at_fraction(
 def get_position_and_angle_at_fraction_of_segment(
     segment: Segment,
     fraction: float,
-) -> tuple[Point, float]:  # fraction in [0, 1]
+) -> tuple[Point, float]:
+    """Get position and angle at a fraction along a segment.
+
+    Args:
+        segment: The segment.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Tuple of (point, angle).
+    """
     return _get_position_and_angle_at_fraction(segment, fraction)
 
 
 def get_position_and_angle_at_fraction_of_bezier_curve(
     bezier_curve: BezierCurve,
     fraction: float,
-) -> tuple[Point, float]:  # fraction in [0, 1]
+) -> tuple[Point, float]:
+    """Get position and angle at a fraction along a Bezier curve.
+
+    Args:
+        bezier_curve: The curve.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Tuple of (point, angle).
+    """
     return _get_position_and_angle_at_fraction(bezier_curve, fraction)
 
 
 def get_position_and_angle_at_fraction_of_elliptical_arc(
     elliptical_arc: EllipticalArc,
     fraction: float,
-) -> tuple[Point, float]:  # fraction in [0, 1]
+) -> tuple[Point, float]:
+    """Get position and angle at a fraction along an elliptical arc.
+
+    Args:
+        elliptical_arc: The arc.
+        fraction: Fraction from 0 to 1.
+
+    Returns:
+        Tuple of (point, angle).
+    """
     return _get_position_and_angle_at_fraction(elliptical_arc, fraction)
 
 
-# angle is in radians between -pi and pi
 def get_angle_between_segments(segment1: Segment, segment2: Segment) -> float:
+    """Get angle between two segments.
+
+    Args:
+        segment1: First segment.
+        segment2: Second segment.
+
+    Returns:
+        Angle in radians (range -pi to pi).
+    """
     p1 = segment1.p2 - segment1.p1
     p2 = segment2.p2 - segment2.p1
     scalar_prod = p1.x * p2.x + p1.y * p2.y
@@ -1329,10 +2303,28 @@ def get_angle_between_segments(segment1: Segment, segment2: Segment) -> float:
 
 
 def get_distance_between_points(p1: Point, p2: Point) -> float:
+    """Get distance between two points.
+
+    Args:
+        p1: First point.
+        p2: Second point.
+
+    Returns:
+        The Euclidean distance.
+    """
     return Segment(p1, p2).length()
 
 
 def get_distance_between_line_and_point(line: Line, point: Point) -> float:
+    """Get perpendicular distance from a point to a line.
+
+    Args:
+        line: The line.
+        point: The point.
+
+    Returns:
+        The perpendicular distance.
+    """
     distance = abs(
         (line.p2.x - line.p1.x) * (line.p1.y - point.y)
         - (line.p1.x - point.x) * (line.p2.y - line.p1.y)
@@ -1341,6 +2333,15 @@ def get_distance_between_line_and_point(line: Line, point: Point) -> float:
 
 
 def get_distance_between_segment_and_point(segment: Segment, point: Point) -> float:
+    """Get shortest distance from a point to a segment.
+
+    Args:
+        segment: The segment.
+        point: The point.
+
+    Returns:
+        The shortest distance.
+    """
     a = point.x - segment.p1.x
     b = point.y - segment.p1.y
     c = segment.p2.x - segment.p1.x
@@ -1367,6 +2368,16 @@ def get_distance_between_segment_and_point(segment: Segment, point: Point) -> fl
 
 
 def line_has_point(line: Line, point: Point, max_distance: float = 0.01) -> bool:
+    """Check if a point lies on a line.
+
+    Args:
+        line: The line.
+        point: The point.
+        max_distance: Maximum allowed distance.
+
+    Returns:
+        True if point is on the line within tolerance.
+    """
     d = line.get_distance_to_point(point)
     if d <= max_distance:
         return True
@@ -1376,19 +2387,39 @@ def line_has_point(line: Line, point: Point, max_distance: float = 0.01) -> bool
 def segment_has_point(
     segment: Segment, point: Point, max_distance: float = 0.01
 ) -> bool:
+    """Check if a point lies on a segment.
+
+    Args:
+        segment: The segment.
+        point: The point.
+        max_distance: Maximum allowed distance.
+
+    Returns:
+        True if point is on the segment within tolerance.
+    """
     d = segment.get_distance_to_point(point)
     if d <= max_distance:
         return True
     return False
 
 
-# Given a frame F defined in another reference frame by its origin,
-# unit x axis vector, and unit y axis vector, returns the transformation
-# that must be applied to a point defined in F to obtain its coordinates
-# in the reference frame.
 def get_transformation_for_frame(
     origin: Point, unit_x: Point, unit_y: Point
 ) -> MatrixTransformation:
+    """Get transformation for a frame defined by origin and axes.
+
+    Given a frame F defined by its origin, unit x axis vector, and unit y axis
+    vector, returns the transformation that converts points from F coordinates
+    to reference frame coordinates.
+
+    Args:
+        origin: Origin of the frame.
+        unit_x: Unit x-axis vector.
+        unit_y: Unit y-axis vector.
+
+    Returns:
+        The transformation matrix.
+    """
     m = numpy.array(
         [
             [

@@ -1,3 +1,10 @@
+"""Utility functions for SBGN map manipulation.
+
+This module provides helper functions for adjusting and tidying SBGN maps,
+including fitting compartments, complexes, and submaps to their content,
+adjusting arc endpoints, and applying various layout optimizations.
+"""
+
 import collections
 
 import momapy.positioning
@@ -7,6 +14,19 @@ import momapy.sbgn.af
 
 
 def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
+    """Resize compartments to fit their content.
+
+    Adjusts compartment dimensions to tightly enclose their contained
+    entity pools or activities.
+
+    Args:
+        map_: An SBGN map or map builder.
+        xsep: Horizontal separation padding. Defaults to 0.
+        ysep: Vertical separation padding. Defaults to 0.
+
+    Returns:
+        The modified map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -40,6 +60,18 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
 
 
 def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
+    """Resize complexes to fit their subunits.
+
+    Adjusts complex dimensions to tightly enclose their contained subunits.
+
+    Args:
+        map_: An SBGN map or map builder.
+        xsep: Horizontal separation padding. Defaults to 0.
+        ysep: Vertical separation padding. Defaults to 0.
+
+    Returns:
+        The modified map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -68,6 +100,18 @@ def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
 
 
 def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
+    """Resize submaps to fit their terminals.
+
+    Adjusts submap dimensions to tightly enclose their terminal elements.
+
+    Args:
+        map_: An SBGN map or map builder.
+        xsep: Horizontal separation padding. Defaults to 0.
+        ysep: Vertical separation padding. Defaults to 0.
+
+    Returns:
+        The modified map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -105,6 +149,22 @@ def set_nodes_to_fit_labels(
     restrict_to=None,
     exclude=None,
 ):
+    """Resize nodes to fit their labels.
+
+    Adjusts node dimensions to accommodate label text.
+
+    Args:
+        map_: An SBGN map or map builder.
+        xsep: Horizontal separation padding. Defaults to 0.
+        ysep: Vertical separation padding. Defaults to 0.
+        omit_width: If True, do not adjust width. Defaults to False.
+        omit_height: If True, do not adjust height. Defaults to False.
+        restrict_to: Node types to include. Defaults to all nodes.
+        exclude: Node types to exclude. Defaults to none.
+
+    Returns:
+        The modified map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -142,6 +202,18 @@ def set_nodes_to_fit_labels(
 
 
 def set_arcs_to_borders(map_):
+    """Adjust arc endpoints to node borders.
+
+    Updates arc start and end points to connect at the borders of
+    their source and target nodes rather than centers.
+
+    Args:
+        map_: An SBGN map or map builder.
+
+    Returns:
+        The modified map or map builder.
+    """
+
     def _set_arc_to_borders(
         arc_layout_element, source, source_type, target, target_type
     ):
@@ -336,6 +408,18 @@ def set_arcs_to_borders(map_):
 
 
 def set_auxiliary_units_to_borders(map_):
+    """Position auxiliary units at node borders.
+
+    Moves state variables and units of information to the borders
+    of their parent nodes.
+
+    Args:
+        map_: An SBGN map or map builder.
+
+    Returns:
+        The modified map or map builder.
+    """
+
     def _rec_set_auxiliary_units_to_borders(layout_element):
         for child in layout_element.children():
             if momapy.builder.isinstance_or_builder(
@@ -368,6 +452,16 @@ def set_auxiliary_units_to_borders(map_):
 
 
 def set_auxiliary_units_label_font_size(map_, font_size: float):
+    """Set font size for auxiliary unit labels.
+
+    Args:
+        map_: An SBGN map or map builder.
+        font_size: The font size to apply.
+
+    Returns:
+        The modified map or map builder.
+    """
+
     def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
         for child in layout_element.children():
             if momapy.builder.isinstance_or_builder(
@@ -398,6 +492,18 @@ def set_auxiliary_units_label_font_size(map_, font_size: float):
 
 
 def set_layout_to_fit_content(map_, xsep=0, ysep=0):
+    """Resize layout to fit all elements.
+
+    Adjusts the layout dimensions to contain all layout elements.
+
+    Args:
+        map_: An SBGN map or map builder.
+        xsep: Horizontal separation padding. Defaults to 0.
+        ysep: Vertical separation padding. Defaults to 0.
+
+    Returns:
+        The modified map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -425,6 +531,30 @@ def tidy(
     layout_xsep=0,
     layout_ysep=0,
 ):
+    """Apply comprehensive layout tidying to an SBGN map.
+
+    Performs multiple layout optimization steps including fitting nodes to
+    labels, positioning auxiliary units, resizing complexes and compartments,
+    and adjusting arc endpoints.
+
+    Args:
+        map_: An SBGN map or map builder.
+        auxiliary_units_omit_width: Do not adjust auxiliary unit widths.
+        auxiliary_units_omit_height: Do not adjust auxiliary unit heights.
+        nodes_xsep: Horizontal padding for node sizing.
+        nodes_ysep: Vertical padding for node sizing.
+        auxiliary_units_xsep: Horizontal padding for auxiliary units.
+        auxiliary_units_ysep: Vertical padding for auxiliary units.
+        complexes_xsep: Horizontal padding for complexes.
+        complexes_ysep: Vertical padding for complexes.
+        compartments_xsep: Horizontal padding for compartments.
+        compartments_ysep: Vertical padding for compartments.
+        layout_xsep: Horizontal padding for overall layout.
+        layout_ysep: Vertical padding for overall layout.
+
+    Returns:
+        The tidied map or map builder.
+    """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
@@ -463,6 +593,16 @@ def tidy(
 
 
 def sbgned_tidy(map_):
+    """Apply SBGN-ED style tidying to an SBGN map.
+
+    Uses preset parameters matching the SBGN-ED tool layout.
+
+    Args:
+        map_: An SBGN map or map builder.
+
+    Returns:
+        The tidied map or map builder.
+    """
     return tidy(
         map_,
         auxiliary_units_omit_width=False,
@@ -481,6 +621,16 @@ def sbgned_tidy(map_):
 
 
 def newt_tidy(map_):
+    """Apply Newt style tidying to an SBGN map.
+
+    Uses preset parameters matching the Newt tool layout.
+
+    Args:
+        map_: An SBGN map or map builder.
+
+    Returns:
+        The tidied map or map builder.
+    """
     return tidy(
         map_,
         auxiliary_units_omit_width=False,

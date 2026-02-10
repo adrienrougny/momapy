@@ -1,4 +1,16 @@
-"""Generic plugin registry with lazy loading and entry point support"""
+"""Generic plugin registry with lazy loading and entry point support.
+
+This module provides a generic plugin registry that supports:
+- Direct registration of plugin classes
+- Lazy loading of plugins (import on first access)
+- Discovery via entry points for third-party plugins
+
+Example:
+    >>> import momapy.plugins.registry
+    >>> registry = momapy.plugins.registry.PluginRegistry()
+    >>> registry.register("my_plugin", MyPluginClass)
+    >>> plugin = registry.get("my_plugin")
+"""
 
 import importlib
 import typing
@@ -7,15 +19,24 @@ T = typing.TypeVar("T")
 
 
 class PluginRegistry(typing.Generic[T]):
-    """A generic plugin registry supporting lazy loading and entry points"""
+    """A generic plugin registry supporting lazy loading and entry points.
+
+    Supports direct registration, lazy loading, and entry point discovery.
+
+    Example:
+        >>> registry = PluginRegistry(entry_point_group="myapp.plugins")
+        >>> registry.register("plugin1", PluginClass)
+        >>> registry.register_lazy("plugin2", "module.submodule:PluginClass")
+        >>> plugin = registry.get("plugin1")  # Returns PluginClass
+    """
 
     def __init__(self, entry_point_group: str | None = None):
-        """Initialize the registry
+        """Initialize the registry.
 
         Args:
-            entry_point_group: The entry point group name for discovering
-                third-party plugins (e.g., "momapy.renderers"). If None,
-                entry point discovery is disabled.
+            entry_point_group: Entry point group name for discovering third-party
+                plugins (e.g., "momapy.renderers"). If None, entry point
+                discovery is disabled.
         """
         self._entry_point_group = entry_point_group
         self._lazy_plugins: dict[str, str] = {}
@@ -23,24 +44,33 @@ class PluginRegistry(typing.Generic[T]):
         self._entry_points_loaded = False
 
     def register(self, name: str, plugin: T) -> None:
-        """Register a plugin class directly
+        """Register a plugin class directly.
 
-        Use this for runtime registration or when the class is already imported
+        Use for runtime registration or when the class is already imported.
 
         Args:
-            name: The name to register the plugin under
-            plugin: The plugin class
+            name: Name to register the plugin under.
+            plugin: The plugin class.
+
+        Example:
+            >>> registry.register("my_plugin", MyPlugin)
         """
         self._loaded_plugins[name] = plugin
 
     def register_lazy(self, name: str, import_path: str) -> None:
-        """Register a plugin for lazy loading
+        """Register a plugin for lazy loading.
 
-        The plugin won't be imported until first accessed via get().
+        The plugin is not imported until first accessed via get().
 
         Args:
-            name: The name to register the plugin under
-            import_path: The import path in format "module.path:ClassName"
+            name: Name to register the plugin under.
+            import_path: Import path in format "module.path:ClassName".
+
+        Raises:
+            ValueError: If import_path format is invalid.
+
+        Example:
+            >>> registry.register_lazy("plugin", "mymodule.plugins:PluginClass")
         """
         if ":" not in import_path:
             raise ValueError(
@@ -53,13 +83,18 @@ class PluginRegistry(typing.Generic[T]):
         """Get a plugin by name, loading it if necessary.
 
         Args:
-            name: The plugin name
+            name: The plugin name.
 
         Returns:
-            The plugin class, or None if not found
+            The plugin class, or None if not found.
 
         Raises:
-            ImportError: If the plugin module cannot be imported
+            ImportError: If the plugin module cannot be imported.
+
+        Example:
+            >>> plugin = registry.get("my_plugin")
+            >>> plugin is None
+            True
         """
         if name in self._loaded_plugins:
             return self._loaded_plugins[name]
@@ -71,13 +106,17 @@ class PluginRegistry(typing.Generic[T]):
         return None
 
     def is_available(self, name: str) -> bool:
-        """Check if a plugin is available (without loading it)
+        """Check if a plugin is available without loading it.
 
         Args:
-            name: The plugin name
+            name: The plugin name.
 
         Returns:
-            True if the plugin is registered (lazy or loaded)
+            True if the plugin is registered (lazy or loaded).
+
+        Example:
+            >>> registry.is_available("my_plugin")
+            False
         """
         if not self._entry_points_loaded:
             self._load_entry_points()
@@ -87,7 +126,11 @@ class PluginRegistry(typing.Generic[T]):
         """List all available plugin names.
 
         Returns:
-            A sorted list of all registered plugin names
+            Sorted list of all registered plugin names.
+
+        Example:
+            >>> registry.list_available()
+            ['plugin1', 'plugin2']
         """
         if not self._entry_points_loaded:
             self._load_entry_points()
@@ -99,7 +142,11 @@ class PluginRegistry(typing.Generic[T]):
         """List plugins that have been loaded into memory.
 
         Returns:
-            A sorted list of loaded plugin names
+            Sorted list of loaded plugin names.
+
+        Example:
+            >>> registry.list_loaded()
+            ['plugin1']
         """
         return sorted(self._loaded_plugins.keys())
 
@@ -107,10 +154,10 @@ class PluginRegistry(typing.Generic[T]):
         """Load a lazy plugin and cache it.
 
         Args:
-            name: The plugin name (must exist in _lazy_plugins)
+            name: Plugin name. Must exist in _lazy_plugins.
 
         Returns:
-            The loaded plugin class
+            The loaded plugin class.
         """
         import_path = self._lazy_plugins[name]
         module_path, class_name = import_path.rsplit(":", 1)
@@ -121,7 +168,11 @@ class PluginRegistry(typing.Generic[T]):
         return plugin
 
     def _load_entry_points(self) -> None:
-        """Discover and register plugins from entry points."""
+        """Discover and register plugins from entry points.
+
+        Scans entry points for the configured entry_point_group and
+        registers them as lazy plugins.
+        """
         if self._entry_points_loaded:
             return
         self._entry_points_loaded = True

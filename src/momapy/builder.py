@@ -1,4 +1,23 @@
-"""Classes and functions for building maps and map elements"""
+"""Classes and functions for building objects from dataclasses.
+
+This module provides functionality to automatically generate builder classes
+from dataclasses, allowing for flexible object construction and transformation
+between objects and their builder representations.
+
+Example:
+    >>> from dataclasses import dataclass
+    >>> @dataclass
+    ... class Person:
+    ...     name: str
+    ...     age: int
+    >>>
+    >>> # Create a builder class automatically
+    >>> Builder = get_or_make_builder_cls(Person)
+    >>> builder = Builder(name="John", age=30)
+    >>> person = builder.build()
+    >>> print(person)
+    Person(name='John', age=30)
+"""
 
 import abc
 import dataclasses
@@ -13,7 +32,14 @@ import momapy.monitoring
 
 
 class Builder(abc.ABC, momapy.monitoring.Monitored):
-    """Abstract class for builder objects"""
+    """Abstract base class for builder objects.
+
+    Builder classes are automatically generated from dataclasses to provide
+    a mutable representation for constructing immutable objects.
+
+    Attributes:
+        _cls_to_build: The class that this builder constructs.
+    """
 
     _cls_to_build: typing.ClassVar[type]
 
@@ -23,7 +49,17 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ) -> typing.Any:
-        """Build and return an object from the builder object"""
+        """Build and return an object from the builder.
+
+        Args:
+            inside_collections: Whether to recursively build objects inside
+                collections (lists, dicts, etc.). Defaults to True.
+            builder_to_object: Optional cache mapping builder ids to built
+                objects for handling circular references.
+
+        Returns:
+            The constructed object of type `_cls_to_build`.
+        """
         pass
 
     @classmethod
@@ -35,7 +71,20 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ) -> typing_extensions.Self:
-        """Create and return a builder object from an object"""
+        """Create a builder from an existing object.
+
+        Args:
+            obj: The object to convert to a builder.
+            inside_collections: Whether to recursively convert objects inside
+                collections. Defaults to True.
+            omit_keys: Whether to skip converting dictionary keys to builders.
+                Defaults to True.
+            object_to_builder: Optional cache mapping object ids to builders
+                for handling circular references.
+
+        Returns:
+            A builder instance representing the input object.
+        """
         pass
 
 
@@ -203,7 +252,35 @@ def object_from_builder(
     inside_collections=True,
     builder_to_object: dict[int, typing.Any] | None = None,
 ):
-    """Create and return an object from a builder object"""
+    """Convert a builder (or collection of builders) to actual object(s).
+
+    Recursively converts builder objects to their corresponding class instances.
+    Handles collections (list, tuple, set, dict) and circular references.
+
+    Args:
+        builder: A builder instance, collection of builders, or regular object.
+        inside_collections: Whether to recursively process items inside
+            collections. Defaults to True.
+        builder_to_object: Optional cache mapping builder ids to already-built
+            objects for handling circular references.
+
+    Returns:
+        The built object, collection of built objects, or the original value
+        if not a builder.
+
+    Example:
+        >>> from dataclasses import dataclass
+        >>> @dataclass
+        ... class Point:
+        ...     x: float
+        ...     y: float
+        >>>
+        >>> PointBuilder = get_or_make_builder_cls(Point)
+        >>> builder = PointBuilder(x=1.0, y=2.0)
+        >>> point = object_from_builder(builder)
+        >>> print(point)
+        Point(x=1.0, y=2.0)
+    """
     if builder_to_object is not None:
         if id(builder) in builder_to_object:
             return builder_to_object[id(builder)]
@@ -255,7 +332,36 @@ def builder_from_object(
     omit_keys=True,
     object_to_builder: dict[int, "Builder"] | None = None,
 ) -> Builder:
-    """Create and return a builder object from an object"""
+    """Convert an object (or collection of objects) to builder(s).
+
+    Recursively converts class instances to their corresponding builder objects.
+    Handles collections (list, tuple, set, dict) and circular references.
+
+    Args:
+        obj: An object instance, collection of objects, or any value.
+        inside_collections: Whether to recursively process items inside
+            collections. Defaults to True.
+        omit_keys: Whether to skip converting dictionary keys to builders.
+            Defaults to True.
+        object_to_builder: Optional cache mapping object ids to already-created
+            builders for handling circular references.
+
+    Returns:
+        The builder object, collection of builders, or the original value
+        if no builder class exists.
+
+    Example:
+        >>> from dataclasses import dataclass
+        >>> @dataclass
+        ... class Point:
+        ...     x: float
+        ...     y: float
+        >>>
+        >>> point = Point(x=1.0, y=2.0)
+        >>> builder = builder_from_object(point)
+        >>> print(type(builder).__name__)
+        PointBuilder
+    """
     if object_to_builder is not None:
         builder = object_to_builder.get(id(obj))
         if builder is not None:
@@ -319,7 +425,27 @@ def builder_from_object(
 
 
 def new_builder_object(cls: typing.Type, *args, **kwargs) -> Builder:
-    """Create and return a builder object from an object class or a builder class"""
+    """Create a new builder instance for a given class.
+
+    Args:
+        cls: The class to build (or a builder class).
+        *args: Positional arguments for the builder.
+        **kwargs: Keyword arguments for the builder.
+
+    Returns:
+        A new builder instance.
+
+    Example:
+        >>> from dataclasses import dataclass
+        >>> @dataclass
+        ... class Person:
+        ...     name: str
+        ...     age: int = 0
+        >>>
+        >>> builder = new_builder_object(Person, name="Alice")
+        >>> print(builder.name)
+        Alice
+    """
     if not issubclass(cls, Builder):
         cls = get_or_make_builder_cls(cls)
     return cls(*args, **kwargs)
@@ -333,7 +459,33 @@ def get_or_make_builder_cls(
     builder_bases: typing.Collection[typing.Type] | None = None,
     builder_namespace: dict[str, typing.Any] | None = None,
 ) -> typing.Type:
-    """Get and return an existing builder class for the given class or make and return a new builder class for it"""
+    """Get an existing builder class or create a new one.
+
+    Returns the registered builder class for the given class if it exists,
+    otherwise creates and registers a new builder class.
+
+    Args:
+        cls: The class to get or create a builder for.
+        builder_fields: Optional collection of additional fields to include
+            in the builder class.
+        builder_bases: Optional collection of base classes for the builder.
+        builder_namespace: Optional namespace dictionary for the builder class.
+
+    Returns:
+        The builder class for the given class, or the original class if
+        it's not a dataclass.
+
+    Example:
+        >>> from dataclasses import dataclass
+        >>> @dataclass
+        ... class Point:
+        ...     x: float
+        ...     y: float
+        >>>
+        >>> PointBuilder = get_or_make_builder_cls(Point)
+        >>> print(PointBuilder.__name__)
+        PointBuilder
+    """
     builder_cls = get_builder_cls(cls)
     if builder_cls is None:
         if dataclasses.is_dataclass(cls):
@@ -347,24 +499,67 @@ def get_or_make_builder_cls(
 
 
 def has_builder_cls(cls: typing.Type) -> bool:
-    """Return `true` if there is a registered builder class for the given class, and `false` otherwise"""
+    """Check if a builder class is registered for a given class.
+
+    Args:
+        cls: The class to check.
+
+    Returns:
+        True if a builder class is registered, False otherwise.
+    """
     return cls in builders
 
 
 def get_builder_cls(cls: typing.Type) -> typing.Type:
-    """Return the builder class registered for the given class or `None` if no builder class is registered for that class"""
+    """Get the registered builder class for a given class.
+
+    Args:
+        cls: The class to get the builder for.
+
+    Returns:
+        The builder class if registered, None otherwise.
+    """
     return builders.get(cls)
 
 
 def register_builder_cls(builder_cls: typing.Type) -> None:
-    """Register a builder class"""
+    """Register a builder class.
+
+    Registers a builder class so it can be looked up by its target class.
+
+    Args:
+        builder_cls: The builder class to register. Must have a `_cls_to_build`
+            attribute indicating the target class.
+    """
     builders[builder_cls._cls_to_build] = builder_cls
 
 
 def isinstance_or_builder(
     obj: typing.Any, type_: typing.Type | tuple[typing.Type]
 ) -> bool:
-    """Return `true` if the object is an istance of the given classes or of their registered builder classes, and `false` otherwise"""
+    """Check if object is instance of class or its builder class.
+
+    Extends isinstance() to also check against registered builder classes.
+
+    Args:
+        obj: The object to check.
+        type_: The type or tuple of types to check against.
+
+    Returns:
+        True if obj is an instance of type_ or its builder class(es).
+
+    Example:
+        >>> from dataclasses import dataclass
+        >>> @dataclass
+        ... class Point:
+        ...     x: float
+        ...     y: float
+        >>>
+        >>> PointBuilder = get_or_make_builder_cls(Point)
+        >>> builder = PointBuilder(x=1.0, y=2.0)
+        >>> isinstance_or_builder(builder, Point)
+        True
+    """
     if isinstance(type_, type):
         type_ = (type_,)
     type_ += tuple([get_or_make_builder_cls(t) for t in type_])
@@ -374,7 +569,17 @@ def isinstance_or_builder(
 def issubclass_or_builder(
     cls: typing.Type, type_: typing.Type | tuple[typing.Type]
 ) -> bool:
-    """Return `true` if the class is a subclass of the given classes or of their registered builder classes, and `false` otherwise"""
+    """Check if class is subclass of class or its builder class.
+
+    Extends issubclass() to also check against registered builder classes.
+
+    Args:
+        cls: The class to check.
+        type_: The type or tuple of types to check against.
+
+    Returns:
+        True if cls is a subclass of type_ or its builder class(es).
+    """
     if isinstance(type_, type):
         type_ = (type_,)
     type_ += tuple([get_or_make_builder_cls(t) for t in type_])
@@ -382,7 +587,18 @@ def issubclass_or_builder(
 
 
 def super_or_builder(type_: typing.Type, obj: typing.Any) -> typing.Type:
-    """Return the super class for a given class or its builder class and an object"""
+    """Get super() proxy for a class or its builder class.
+
+    Attempts to get the super() proxy for the given type. If that fails,
+    tries with the builder class of the given type.
+
+    Args:
+        type_: The class to get super() for.
+        obj: The object to get the super proxy of.
+
+    Returns:
+        A super() proxy object.
+    """
     try:
         s = super(type_, obj)
     except TypeError:

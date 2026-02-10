@@ -1,4 +1,18 @@
-"""Classes and functions for styling layout elements using style sheets"""
+"""Classes and functions for styling layout elements using style sheets.
+
+This module provides a CSS-like styling system for layout elements, supporting:
+- Style sheets with selectors (type, class, id, child, descendant, compound)
+- Style collections that group related style properties
+- CSS parsing from files or strings
+- Style application to layout elements
+
+Example:
+    >>> from momapy.styling import StyleSheet
+    >>> # Load a CSS file
+    >>> stylesheet = StyleSheet.from_file("styles.css")
+    >>> # Apply to a layout element
+    >>> styled_element = apply_style_sheet(element, stylesheet)
+"""
 
 import abc
 import collections.abc
@@ -13,13 +27,33 @@ import momapy.core
 
 
 class StyleCollection(dict):
-    """Class for style collections"""
+    """A dictionary-based collection of style properties.
+
+    StyleCollection maps attribute names to their values, similar to a CSS
+    declaration block. It is used within StyleSheets to store styles for
+    specific selectors.
+
+    Example:
+        >>> styles = StyleCollection({"fill": "red", "stroke_width": 2})
+        >>> styles["fill"]
+        'red'
+    """
 
     pass
 
 
 class StyleSheet(dict):
-    """Class for style sheets"""
+    """A dictionary-based stylesheet mapping selectors to style collections.
+
+    StyleSheet extends dict to map Selector objects to StyleCollection objects.
+    Supports merging stylesheets using the | operator.
+
+    Example:
+        >>> from momapy.styling import StyleSheet, TypeSelector
+        >>> ss = StyleSheet({TypeSelector("Rectangle"): StyleCollection({"fill": "blue"})})
+        >>> # Merge stylesheets
+        >>> combined = ss | another_stylesheet
+    """
 
     def __or__(self, other):
         d = copy.deepcopy(self)
@@ -35,19 +69,50 @@ class StyleSheet(dict):
 
     @classmethod
     def from_file(cls, file_path: str) -> "StyleSheet":
-        """Read and return a style sheet from a file"""
+        """Parse and return a StyleSheet from a CSS file.
+
+        Args:
+            file_path: Path to the CSS file to parse.
+
+        Returns:
+            A StyleSheet containing the parsed selectors and style collections.
+
+        Raises:
+            pyparsing.ParseException: If the CSS file is malformed.
+        """
         style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
         return style_sheet
 
     @classmethod
     def from_string(cls, s: str) -> "StyleSheet":
-        """Read and return a style sheet from a string"""
+        """Parse and return a StyleSheet from a CSS string.
+
+        Args:
+            s: CSS string to parse.
+
+        Returns:
+            A StyleSheet containing the parsed selectors and style collections.
+
+        Raises:
+            pyparsing.ParseException: If the CSS string is malformed.
+
+        Example:
+            >>> css = "Rectangle { fill: red; }"
+            >>> ss = StyleSheet.from_string(css)
+        """
         style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
 
     @classmethod
     def from_files(cls, file_paths: collections.abc.Collection[str]) -> "StyleSheet":
-        """Read and return a style sheet from a collection of files"""
+        """Parse and combine multiple CSS files into a single StyleSheet.
+
+        Args:
+            file_paths: Collection of paths to CSS files.
+
+        Returns:
+            A merged StyleSheet containing all parsed styles.
+        """
         style_sheets = []
         for file_path in file_paths:
             style_sheet = StyleSheet.from_file(file_path)
@@ -59,7 +124,14 @@ class StyleSheet(dict):
 def combine_style_sheets(
     style_sheets: collections.abc.Collection[StyleSheet],
 ) -> StyleSheet:
-    """Merge a collection of style sheets into a unique style sheet and return it"""
+    """Merge multiple StyleSheets into a single StyleSheet.
+
+    Args:
+        style_sheets: Collection of StyleSheets to merge.
+
+    Returns:
+        A combined StyleSheet, or None if the input is empty.
+    """
     if not style_sheets:
         return None
     output_style_sheet = style_sheets[0]
@@ -73,7 +145,20 @@ def apply_style_collection(
     style_collection: StyleCollection,
     strict: bool = True,
 ) -> momapy.core.LayoutElement | momapy.core.LayoutElementBuilder:
-    """Apply a style collection to a layout element"""
+    """Apply a StyleCollection to a layout element.
+
+    Args:
+        layout_element: The element or builder to apply styles to.
+        style_collection: The styles to apply.
+        strict: If True, raises AttributeError for invalid attributes.
+            If False, silently ignores them.
+
+    Returns:
+        The modified layout element or builder.
+
+    Raises:
+        AttributeError: If strict=True and an attribute doesn't exist on the element.
+    """
     if not isinstance(layout_element, momapy.builder.Builder):
         layout_element = momapy.builder.builder_from_object(layout_element)
         is_builder = False
@@ -110,7 +195,17 @@ def apply_style_sheet(
     | momapy.core.LayoutElementBuilder
     | momapy.core.MapBuilder
 ):
-    """Apply a style sheet to a layout element or (layout of) a map"""
+    """Apply a StyleSheet to a layout element or map layout recursively.
+
+    Args:
+        map_or_layout_element: The map, element, or builder to style.
+        style_sheet: The stylesheet to apply.
+        strict: If True, raises errors for invalid attributes.
+        ancestors: Internal list of ancestor elements for selector matching.
+
+    Returns:
+        The modified map, layout element, or builder.
+    """
     if not isinstance(map_or_layout_element, momapy.builder.Builder):
         map_or_layout_element = momapy.builder.builder_from_object(
             map_or_layout_element
@@ -147,7 +242,11 @@ def apply_style_sheet(
 
 @dataclasses.dataclass(frozen=True)
 class Selector(object):
-    """Abstract class for selectors"""
+    """Abstract base class for CSS-like selectors.
+
+    Selectors determine whether a layout element matches specific criteria.
+    All selector types inherit from this class and implement the select() method.
+    """
 
     @abc.abstractmethod
     def select(
@@ -157,13 +256,29 @@ class Selector(object):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ) -> bool:
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the layout element matches this selector.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if the element matches, False otherwise.
+        """
         pass
 
 
 @dataclasses.dataclass(frozen=True)
 class TypeSelector(Selector):
-    """Class for type selectors"""
+    """Selector that matches elements by their exact class name.
+
+    Attributes:
+        class_name: The exact class name to match (e.g., "Rectangle").
+
+    Example:
+        >>> selector = TypeSelector("Rectangle")
+        >>> selector.match(some_rectangle)  # True if type is Rectangle
+    """
 
     class_name: str = dataclasses.field(
         metadata={"description": "The name of the class"}
@@ -176,7 +291,15 @@ class TypeSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the object's class name matches exactly.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements (unused for type matching).
+
+        Returns:
+            True if the object's class name or builder name matches.
+        """
         obj_cls_name = type(obj).__name__
         return (
             obj_cls_name == self.class_name
@@ -186,7 +309,15 @@ class TypeSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class ClassSelector(Selector):
-    """Class for class selectors"""
+    """Selector that matches elements by class (including subclasses).
+
+    Attributes:
+        class_name: The class name to match (matches subclasses too).
+
+    Example:
+        >>> selector = ClassSelector("Shape")
+        >>> selector.match(some_rectangle)  # True if Rectangle is a Shape subclass
+    """
 
     class_name: str = dataclasses.field(
         metadata={"description": "The name of the class"}
@@ -199,10 +330,17 @@ class ClassSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the object is an instance of the specified class.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements (unused for class matching).
+
+        Returns:
+            True if the object is an instance of class_name or its subclasses.
+        """
         for cls in type(obj).__mro__:
             cls_name = cls.__name__
-            # print(cls_name, f"{self.class_name}Builder")
             if cls_name == self.class_name or cls_name == f"{self.class_name}Builder":
                 return True
         return False
@@ -210,7 +348,15 @@ class ClassSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class IdSelector(Selector):
-    """Class for id selectors"""
+    """Selector that matches elements by their id attribute.
+
+    Attributes:
+        id_: The identifier to match.
+
+    Example:
+        >>> selector = IdSelector("main_node")
+        >>> selector.match(element)  # True if element.id_ == "main_node"
+    """
 
     id_: str = dataclasses.field(metadata={"description": "The id"})
 
@@ -221,13 +367,30 @@ class IdSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the object has the specified id.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements (unused for id matching).
+
+        Returns:
+            True if the object has an id_ attribute matching the selector.
+        """
         return hasattr(obj, "id_") and obj.id_ == self.id_
 
 
 @dataclasses.dataclass(frozen=True)
 class ChildSelector(Selector):
-    """Class for child selectors"""
+    """Selector that matches elements that are direct children of a parent.
+
+    Attributes:
+        parent_selector: The selector for the parent element.
+        child_selector: The selector for the child element.
+
+    Example:
+        >>> selector = ChildSelector(TypeSelector("Group"), TypeSelector("Rectangle"))
+        >>> selector.match(rect, [group])  # True if rect is direct child of group
+    """
 
     parent_selector: Selector = dataclasses.field(
         metadata={"description": "The parent selector"}
@@ -243,7 +406,16 @@ class ChildSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the object is a direct child matching the criteria.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if the object matches child_selector and its immediate
+            parent matches parent_selector.
+        """
         if not ancestors:
             return False
         return self.child_selector.select(
@@ -253,7 +425,16 @@ class ChildSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class DescendantSelector(Selector):
-    """Class for descendant selectors"""
+    """Selector that matches elements that are descendants of an ancestor.
+
+    Attributes:
+        ancestor_selector: The selector for any ancestor element.
+        descendant_selector: The selector for the descendant element.
+
+    Example:
+        >>> selector = DescendantSelector(TypeSelector("Group"), TypeSelector("Text"))
+        >>> selector.match(text, [subgroup, group])  # True if text is somewhere inside group
+    """
 
     ancestor_selector: Selector = dataclasses.field(
         metadata={"description": "The ancestor selector"}
@@ -269,7 +450,16 @@ class DescendantSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if the object is a descendant matching the criteria.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if the object matches descendant_selector and any ancestor
+            matches ancestor_selector.
+        """
         if not ancestors:
             return False
         return self.descendant_selector.select(obj, ancestors) and any(
@@ -282,7 +472,15 @@ class DescendantSelector(Selector):
 
 @dataclasses.dataclass(frozen=True)
 class OrSelector(Selector):
-    """Class for or selectors"""
+    """Selector that matches if any of its component selectors match (OR logic).
+
+    Attributes:
+        selectors: Tuple of selectors, any of which can match.
+
+    Example:
+        >>> selector = OrSelector((TypeSelector("Rectangle"), TypeSelector("Circle")))
+        >>> selector.match(some_shape)  # True if shape is Rectangle OR Circle
+    """
 
     selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of disjunct selectors"}
@@ -295,13 +493,29 @@ class OrSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if any selector in the tuple matches.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if any selector matches the object.
+        """
         return any([selector.select(obj, ancestors) for selector in self.selectors])
 
 
 @dataclasses.dataclass(frozen=True)
 class CompoundSelector(Selector):
-    """Class for compound selectors"""
+    """Selector that matches only if all of its component selectors match (AND logic).
+
+    Attributes:
+        selectors: Tuple of selectors, all of which must match.
+
+    Example:
+        >>> selector = CompoundSelector((TypeSelector("Rectangle"), ClassSelector("Colored")))
+        >>> selector.match(element)  # True if element is Rectangle AND Colored
+    """
 
     selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of conjunct selectors"}
@@ -314,13 +528,29 @@ class CompoundSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if all selectors in the tuple match.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if all selectors match the object.
+        """
         return all([selector.select(obj, ancestors) for selector in self.selectors])
 
 
 @dataclasses.dataclass(frozen=True)
 class NotSelector(Selector):
-    """Class for not selectors"""
+    """Selector that matches if none of its component selectors match (NOT logic).
+
+    Attributes:
+        selectors: Tuple of selectors, none of which should match.
+
+    Example:
+        >>> selector = NotSelector((TypeSelector("Hidden"),))
+        >>> selector.match(element)  # True if element is NOT of type Hidden
+    """
 
     selectors: tuple[Selector, ...] = dataclasses.field(
         metadata={"description": "The tuple of negated conjunct selectors"}
@@ -333,7 +563,15 @@ class NotSelector(Selector):
             momapy.core.LayoutElement | momapy.core.LayoutElementBuilder
         ],
     ):
-        """Return `true` if the given layout element satisfies the selector, and `false` otherwise"""
+        """Check if none of the selectors in the tuple match.
+
+        Args:
+            obj: The layout element or builder to test.
+            ancestors: List of ancestor elements.
+
+        Returns:
+            True if no selector matches the object.
+        """
         return not any([selector.select(obj, ancestors) for selector in self.selectors])
 
 

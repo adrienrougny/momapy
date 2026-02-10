@@ -22,7 +22,21 @@ import momapy.rendering.core
 
 @dataclasses.dataclass(kw_only=True)
 class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
-    """Class for skia renderers"""
+    """Renderer implementation using the Skia graphics library.
+
+    This renderer supports multiple output formats including PDF, SVG, PNG,
+    JPEG, and WebP. It provides hardware-accelerated rendering capabilities
+    and advanced features like filters and effects.
+
+    Attributes:
+        canvas: The Skia canvas used for rendering
+
+    Example:
+        >>> renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
+        >>> renderer.begin_session()
+        >>> renderer.render_layout_element(layout_element)
+        >>> renderer.end_session()
+    """
 
     supported_formats: typing.ClassVar[list[str]] = [
         "pdf",
@@ -91,6 +105,23 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
     ) -> typing_extensions.Self:
+        """Create a SkiaRenderer instance from a file path.
+
+        Args:
+            file_path: The output file path
+            width: The width of the canvas
+            height: The height of the canvas
+            format_: The output format (pdf, svg, png, jpeg, or webp)
+
+        Returns:
+            A new SkiaRenderer instance
+
+        Raises:
+            ValueError: If the format is not supported
+
+        Example:
+            >>> renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
+        """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         config = {}
@@ -117,9 +148,22 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         return cls(canvas=canvas, _config=config)
 
     def begin_session(self):
+        """Begin a rendering session.
+
+        This method initializes the rendering context. For SkiaRenderer,
+        no explicit initialization is needed beyond the canvas setup.
+        """
         pass
 
     def end_session(self):
+        """End the rendering session and save the output.
+
+        This method finalizes the rendering, flushes the canvas, and saves
+        the output to the file. The specific actions depend on the output format:
+        - PDF: Ends the page and closes the document
+        - PNG/JPEG/WebP: Takes a snapshot and saves the image
+        - SVG: Flushes the stream
+        """
         self.canvas.flush()
         format_ = self._config.get("format")
         if format_ == "pdf":
@@ -139,6 +183,15 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             self._config["stream"].flush()
 
     def new_page(self, width, height):
+        """Create a new page in the output document.
+
+        Args:
+            width: The width of the new page
+            height: The height of the new page
+
+        Note:
+            Only PDF format supports multiple pages. Other formats will ignore this call.
+        """
         format_ = self._config.get("format")
         if format_ == "pdf":
             self._config["document"].endPage()
@@ -146,14 +199,32 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             self.canvas = canvas
 
     def render_map(self, map_):
+        """Render a map to the output.
+
+        Args:
+            map_: The map to render
+        """
         self.render_layout_element(map_.layout)
 
     def render_layout_element(self, layout_element):
+        """Render a layout element to the output.
+
+        Args:
+            layout_element: The layout element to render
+        """
         drawing_elements = layout_element.drawing_elements()
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
+        """Render a drawing element to the output.
+
+        Args:
+            drawing_element: The drawing element to render
+
+        This method handles filters, transformations, and delegates to
+        the appropriate rendering method based on the drawing element type.
+        """
         self.save()
         self.set_current_state_from_drawing_element(drawing_element)
         self._add_transform_from_drawing_element(drawing_element)
@@ -187,9 +258,19 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         self.restore()
 
     def self_save(self):
+        """Save the Skia canvas state.
+
+        This method saves the current state of the Skia canvas, including
+        transformations and clipping regions.
+        """
         self.canvas.save()
 
     def self_restore(self):
+        """Restore the Skia canvas state.
+
+        This method restores the Skia canvas to the state saved by the
+        most recent call to self_save().
+        """
         self.canvas.restore()
 
     def _make_stroke_paint(self):

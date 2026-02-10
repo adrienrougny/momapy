@@ -1,4 +1,14 @@
-"""Subpackage for rendering."""
+"""Rendering subpackage for exporting maps to various formats.
+
+Provides functions and registries for rendering molecular maps to
+images (PNG, PDF, SVG) using different backends (Skia, Cairo, SVG).
+
+Example:
+    >>> from momapy.rendering import get_renderer, list_renderers
+    >>> renderer = get_renderer("skia")
+    >>> list_renderers()
+    ['cairo', 'skia', 'svg-native']
+"""
 
 from __future__ import annotations
 
@@ -16,7 +26,21 @@ renderer_registry = momapy.plugins.registry.PluginRegistry(
 
 
 def get_renderer(name: str) -> type[momapy.rendering.core.Renderer]:
-    """Get a renderer class by name"""
+    """Get a renderer class by name.
+
+    Args:
+        name: Renderer name (e.g., "skia", "cairo", "svg-native").
+
+    Returns:
+        Renderer class for the specified backend.
+
+    Raises:
+        ValueError: If no renderer with that name exists.
+
+    Example:
+        >>> from momapy.rendering import get_renderer
+        >>> renderer = get_renderer("skia")
+    """
     renderer = renderer_registry.get(name)
     if renderer is None:
         available = renderer_registry.list_available()
@@ -27,17 +51,44 @@ def get_renderer(name: str) -> type[momapy.rendering.core.Renderer]:
 
 
 def list_renderers() -> list[str]:
-    """List all available renderer names"""
+    """List all available renderer names.
+
+    Returns:
+        Sorted list of available renderer names.
+
+    Example:
+        >>> from momapy.rendering import list_renderers
+        >>> list_renderers()
+        ['cairo', 'skia', 'svg-native']
+    """
     return renderer_registry.list_available()
 
 
 def register_renderer(name: str, cls: type[momapy.rendering.core.Renderer]) -> None:
-    """Register a renderer class"""
+    """Register a renderer class.
+
+    Args:
+        name: Name to register the renderer under.
+        cls: Renderer class (must inherit from Renderer).
+
+    Example:
+        >>> from momapy.rendering import register_renderer
+        >>> register_renderer("myrenderer", MyRenderer)
+    """
     renderer_registry.register(name, cls)
 
 
 def register_lazy_renderer(name: str, import_path: str) -> None:
-    """Register a renderer class"""
+    """Register a renderer for lazy loading.
+
+    Args:
+        name: Name to register the renderer under.
+        import_path: Import path in format "module.path:ClassName".
+
+    Example:
+        >>> from momapy.rendering import register_lazy_renderer
+        >>> register_lazy_renderer("myrenderer", "mymodule.rendering:MyRenderer")
+    """
     renderer_registry.register_lazy(name, import_path)
 
 

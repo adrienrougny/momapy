@@ -1,3 +1,39 @@
+"""Geometric shape classes for drawing and layout.
+
+This module provides various geometric shapes that can be used as borders
+or standalone drawing elements. Shapes include basic geometric forms like
+rectangles, ellipses, and polygons, as well as more complex shapes with
+configurable corners and orientations.
+
+Available shapes:
+    - Rectangle: Rectangles with customizable rounded or cut corners
+    - Ellipse: Ellipses and circles
+    - Stadium: Rounded rectangles
+    - Hexagon: Regular hexagons with configurable orientation
+    - TurnedHexagon: Rotated hexagons
+    - Triangle: Triangles with configurable orientation
+    - Diamond: Diamond/rhombus shapes
+    - Parallelogram: Parallelograms with configurable angle
+    - RectangleWithSlantedSides: Rectangles with slanted sides
+    - Pentagon: Pentagon shapes
+    - HexagonWithSlantedSides: Hexagons with slanted sides
+    - Barrel: Barrel/cylinder shapes
+    - BottomRectangleHalfCircle: Composite bottom-rectangle half-circle shape
+    - CutRectangle: Rectangles with cut corners
+    - TriangleRectangle: Combined triangle and rectangle shapes
+    - StadiumWithNotch: Stadium shapes with notches
+    - TurnedStadiumWithNotch: Rotated stadium shapes with notches
+    - RoundedRectangle: Fully rounded rectangles
+    - DefaultShape: Default rectangular shape
+    - Line: Simple line shapes
+
+Example:
+    >>> from momapy.meta.shapes import Rectangle, Ellipse
+    >>> import momapy.geometry
+    >>> rect = Rectangle(position=momapy.geometry.Point(0, 0), width=100, height=50)
+    >>> ellipse = Ellipse(position=momapy.geometry.Point(200, 200), width=100, height=80)
+"""
+
 import math
 import dataclasses
 
@@ -83,59 +119,67 @@ class Rectangle(momapy.core.Shape):
             if self.top_right_rounded_or_cut == "cut":
                 actions.append(momapy.drawing.LineTo(self.joint3()))
             elif self.top_right_rounded_or_cut == "rounded":
-                actions.append(
-                    momapy.drawing.EllipticalArc(
-                        self.joint3(),
-                        self.top_right_rx,
-                        self.top_right_ry,
-                        0,
-                        0,
-                        1,
-                    )
-                ),
+                (
+                    actions.append(
+                        momapy.drawing.EllipticalArc(
+                            self.joint3(),
+                            self.top_right_rx,
+                            self.top_right_ry,
+                            0,
+                            0,
+                            1,
+                        )
+                    ),
+                )
         actions.append(momapy.drawing.LineTo(self.joint4()))
         if self.bottom_right_rx != 0 and self.bottom_right_ry != 0:
             if self.bottom_right_rounded_or_cut == "cut":
                 actions.append(momapy.drawing.LineTo(self.joint5()))
             elif self.bottom_right_rounded_or_cut == "rounded":
-                actions.append(
-                    momapy.drawing.EllipticalArc(
-                        self.joint5(),
-                        self.bottom_right_rx,
-                        self.bottom_right_ry,
-                        0,
-                        0,
-                        1,
-                    )
-                ),
+                (
+                    actions.append(
+                        momapy.drawing.EllipticalArc(
+                            self.joint5(),
+                            self.bottom_right_rx,
+                            self.bottom_right_ry,
+                            0,
+                            0,
+                            1,
+                        )
+                    ),
+                )
         actions.append(momapy.drawing.LineTo(self.joint6()))
         if self.bottom_left_rx != 0 and self.bottom_left_ry != 0:
             if self.bottom_left_rounded_or_cut == "cut":
                 actions.append(momapy.drawing.LineTo(self.joint7()))
             elif self.bottom_left_rounded_or_cut == "rounded":
-                actions.append(
-                    momapy.drawing.EllipticalArc(
-                        self.joint7(),
-                        self.bottom_left_rx,
-                        self.bottom_left_ry,
-                        0,
-                        0,
-                        1,
-                    )
-                ),
+                (
+                    actions.append(
+                        momapy.drawing.EllipticalArc(
+                            self.joint7(),
+                            self.bottom_left_rx,
+                            self.bottom_left_ry,
+                            0,
+                            0,
+                            1,
+                        )
+                    ),
+                )
         actions.append(momapy.drawing.LineTo(self.joint8()))
         if self.top_left_rx != 0 and self.top_left_ry != 0:
             if self.top_left_rounded_or_cut == "rounded":
-                actions.append(
-                    momapy.drawing.EllipticalArc(
-                        self.joint1(),
-                        self.top_left_rx,
-                        self.top_left_ry,
-                        0,
-                        0,
-                        1,
-                    )
-                ),
+                (
+                    actions.append(
+                        momapy.drawing.EllipticalArc(
+                            self.joint1(),
+                            self.top_left_rx,
+                            self.top_left_ry,
+                            0,
+                            0,
+                            1,
+                        )
+                    ),
+                )
         actions.append(momapy.drawing.ClosePath())
         drawing_element = momapy.drawing.Path(actions=actions)
         return [drawing_element]

@@ -1,4 +1,9 @@
-"""Classes for SBGN AF maps"""
+"""Classes for SBGN Activity Flow (AF) maps.
+
+This module provides classes for modeling and laying out SBGN-AF maps,
+including biological activities, influences, logical operators, and their
+visual representations.
+"""
 
 import enum
 import dataclasses
@@ -11,62 +16,82 @@ import momapy.sbgn.pd
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(momapy.sbgn.core.SBGNModelElement):
-    """Class for compartments"""
+    """Compartment in an SBGN-AF map.
+
+    Compartments represent distinct spatial regions where activities are located.
+
+    Attributes:
+        label: The label of the compartment.
+    """
 
     label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
-    """Base class for units of information"""
+    """Unit of information for activities.
+
+    Units of information provide additional annotations about activities,
+    such as cellular location or entity type.
+
+    Attributes:
+        label: The label of the unit of information.
+    """
 
     label: typing.Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeUnitOfInformation(UnitOfInformation):
-    """Class for marcomolecule units of information"""
+    """Unit of information for macromolecules."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureUnitOfInformation(UnitOfInformation):
-    """Class for nucleic acid feature units of information"""
+    """Unit of information for nucleic acid features."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexUnitOfInformation(UnitOfInformation):
-    """Class for complex units of information"""
+    """Unit of information for complexes."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalUnitOfInformation(UnitOfInformation):
-    """Class for simple chemical units of information"""
+    """Unit of information for simple chemicals."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityUnitOfInformation(UnitOfInformation):
-    """Class for unspecified entity units of information"""
+    """Unit of information for unspecified entities."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbationUnitOfInformation(UnitOfInformation):
-    """Class for perturbation units of information"""
+    """Unit of information for perturbations."""
 
     pass
 
 
 class Activity(momapy.sbgn.core.SBGNModelElement):
-    """Class for activities"""
+    """Activity in an SBGN-AF map.
+
+    Activities represent biological activities or processes.
+
+    Attributes:
+        label: The label of the activity.
+        compartment: The compartment containing this activity.
+    """
 
     label: typing.Optional[str] = None
     compartment: typing.Optional[Compartment] = None
@@ -74,7 +99,13 @@ class Activity(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BiologicalActivity(Activity):
-    """Class for biological activities"""
+    """Biological activity.
+
+    Represents a biological activity with associated units of information.
+
+    Attributes:
+        units_of_information: Units of information for the activity.
+    """
 
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
@@ -83,21 +114,36 @@ class BiologicalActivity(Activity):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Activity):
-    """Class for phenotypes"""
+    """Phenotype activity.
+
+    Represents the manifestation of a phenotype or observable characteristic.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
-    """Class for inputs of logical operators"""
+    """Input to a logical operator.
+
+    Represents an input connection to a logical operator.
+
+    Attributes:
+        element: The biological activity or logical operator providing the input.
+    """
 
     element: typing.Union[BiologicalActivity, "LogicalOperator"]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
-    """Class for logical operators"""
+    """Logical operator.
+
+    Represents logical operations (AND, OR, NOT, DELAY) on activities.
+
+    Attributes:
+        inputs: Input connections to the logical operator.
+    """
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
         default_factory=frozenset
@@ -106,35 +152,42 @@ class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperator(LogicalOperator):
-    """Class for or operators"""
+    """OR logical operator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperator(LogicalOperator):
-    """Class for and operators"""
+    """AND logical operator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperator(LogicalOperator):
-    """Class for not operators"""
+    """NOT logical operator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DelayOperator(LogicalOperator):
-    """Class for delay operators"""
+    """DELAY logical operator."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Influence(momapy.sbgn.core.SBGNModelElement):
-    """Class for influences"""
+    """Influence between activities.
+
+    Represents an influence from a source activity to a target activity.
+
+    Attributes:
+        source: The source activity or logical operator.
+        target: The target activity being influenced.
+    """
 
     source: BiologicalActivity | LogicalOperator
     target: Activity
@@ -142,49 +195,64 @@ class Influence(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluence(Influence):
-    """Class for unknown influences"""
+    """Unknown influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluence(Influence):
-    """Class for positive influences"""
+    """Positive influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluence(Influence):
-    """Class for negative influences"""
+    """Negative influence."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulation(Influence):
-    """Class for necessary stimulations"""
+    """Necessary stimulation."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(momapy.sbgn.core.SBGNRole):
-    """Class for references of terminals"""
+    """Reference to a terminal.
+
+    Attributes:
+        element: The activity or compartment being referenced.
+    """
 
     element: typing.Union[Activity, Compartment]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(momapy.sbgn.core.SBGNRole):
-    """Class for references of tags"""
+    """Reference to a tag.
+
+    Attributes:
+        element: The activity or compartment being referenced.
+    """
 
     element: typing.Union[Activity, Compartment]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(momapy.sbgn.core.SBGNModelElement):
-    """Class for terminals"""
+    """Terminal element.
+
+    Terminals represent connection points to submaps.
+
+    Attributes:
+        label: The label of the terminal.
+        refers_to: Reference to the terminal target.
+    """
 
     label: typing.Optional[str] = None
     refers_to: typing.Optional[TerminalReference] = None
@@ -192,7 +260,14 @@ class Terminal(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(momapy.sbgn.core.SBGNModelElement):
-    """Class for tags"""
+    """Tag element.
+
+    Tags provide identifiers that can be referenced from other locations.
+
+    Attributes:
+        label: The label of the tag.
+        refers_to: Reference to the tagged element.
+    """
 
     label: typing.Optional[str] = None
     refers_to: typing.Optional[TagReference] = None
@@ -200,27 +275,37 @@ class Tag(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Submap(momapy.sbgn.core.SBGNModelElement):
-    """Class for submaps"""
+    """Submap element.
+
+    Submaps represent embedded or referenced sub-diagrams.
+
+    Attributes:
+        label: The label of the submap.
+        terminals: Terminal connection points of the submap.
+    """
 
     label: typing.Optional[str] = None
-    terminals: frozenset[Terminal] = dataclasses.field(
-        default_factory=frozenset
-    )
+    terminals: frozenset[Terminal] = dataclasses.field(default_factory=frozenset)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFModel(momapy.sbgn.core.SBGNModel):
-    """Class for SBGN-AF models"""
+    """SBGN-AF model.
 
-    activities: frozenset[Activity] = dataclasses.field(
-        default_factory=frozenset
-    )
-    compartments: frozenset[Compartment] = dataclasses.field(
-        default_factory=frozenset
-    )
-    influences: frozenset[Influence] = dataclasses.field(
-        default_factory=frozenset
-    )
+    Represents a complete SBGN Activity Flow model.
+
+    Attributes:
+        activities: Activities in the model.
+        compartments: Compartments in the model.
+        influences: Influences in the model.
+        logical_operators: Logical operators in the model.
+        submaps: Submaps in the model.
+        tags: Tags in the model.
+    """
+
+    activities: frozenset[Activity] = dataclasses.field(default_factory=frozenset)
+    compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
+    influences: frozenset[Influence] = dataclasses.field(default_factory=frozenset)
     logical_operators: frozenset[LogicalOperator] = dataclasses.field(
         default_factory=frozenset
     )
@@ -228,7 +313,14 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
     tags: frozenset[Tag] = dataclasses.field(default_factory=frozenset)
 
     def is_submodel(self, other: "SBGNAFModel") -> bool:
-        """Return `true` if the another given SBGN-AF model is a submodel of the SBGN-AF model, `false` otherwise"""
+        """Check if another model is a submodel of this model.
+
+        Args:
+            other: Another SBGN-AF model to compare against.
+
+        Returns:
+            True if other is a submodel of this model, False otherwise.
+        """
         return (
             self.activities.issubset(other.activities)
             and self.compartments.issubset(other.compartments)
@@ -241,7 +333,10 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
-    """Class for SBGN-AF layouts"""
+    """SBGN-AF layout.
+
+    Represents the visual layout of an SBGN-AF model.
+    """
 
     pass
 
@@ -250,7 +345,7 @@ class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
 class UnspecifiedEntityUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for unspecified entity unit of information layouts"""
+    """Layout for unspecified entity units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -263,7 +358,7 @@ class UnspecifiedEntityUnitOfInformationLayout(
 class SimpleChemicalUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for simple chemical unit of information layouts"""
+    """Layout for simple chemical units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -276,7 +371,7 @@ class SimpleChemicalUnitOfInformationLayout(
 class MacromoleculeUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for macromolecule unit of information layouts"""
+    """Layout for macromolecule units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -290,7 +385,7 @@ class MacromoleculeUnitOfInformationLayout(
 class NucleicAcidFeatureUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for nucleic acid feature unit of information layouts"""
+    """Layout for nucleic acid feature units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -304,7 +399,7 @@ class NucleicAcidFeatureUnitOfInformationLayout(
 class ComplexUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for complex unit of information layouts"""
+    """Layout for complex units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -318,7 +413,7 @@ class ComplexUnitOfInformationLayout(
 class PerturbationUnitOfInformationLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for perturbation unit of information layouts"""
+    """Layout for perturbation units of information."""
 
     width: float = 12.0
     height: float = 12.0
@@ -330,7 +425,7 @@ class PerturbationUnitOfInformationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
-    """Class for terminal layouts"""
+    """Layout for terminals."""
 
     width: float = 35.0
     height: float = 35.0
@@ -342,10 +437,8 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CompartmentLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
-    """Class for compartment layouts"""
+class CompartmentLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    """Layout for compartments."""
 
     width: float = 80.0
     height: float = 80.0
@@ -358,7 +451,7 @@ class CompartmentLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
-    """Class for submap layouts"""
+    """Layout for submaps."""
 
     width: float = 80.0
     height: float = 80.0
@@ -372,7 +465,7 @@ class SubmapLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 class BiologicalActivityLayout(
     momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
 ):
-    """Class for biological activity layouts"""
+    """Layout for biological activities."""
 
     width: float = 60.0
     height: float = 30.0
@@ -384,10 +477,8 @@ class BiologicalActivityLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PhenotypeLayout(
-    momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode
-):
-    """Class for phenotype layouts"""
+class PhenotypeLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    """Layout for phenotypes."""
 
     width: float = 60.0
     height: float = 30.0
@@ -404,7 +495,7 @@ class AndOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    """Class for and operator layouts"""
+    """Layout for AND operators."""
 
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
@@ -413,9 +504,7 @@ class AndOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "AND"
     width: float = 30.0
     height: float = 30.0
@@ -433,7 +522,7 @@ class OrOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    """Class for or operator layouts"""
+    """Layout for OR operators."""
 
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
@@ -442,9 +531,7 @@ class OrOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "OR"
     width: float = 30.0
     height: float = 30.0
@@ -462,7 +549,7 @@ class NotOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    """Class for not operator layouts"""
+    """Layout for NOT operators."""
 
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
@@ -471,9 +558,7 @@ class NotOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 3
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "NOT"
     width: float = 30.0
     height: float = 30.0
@@ -491,7 +576,7 @@ class DelayOperatorLayout(
     momapy.sbgn.core._TextMixin,
     momapy.sbgn.core.SBGNNode,
 ):
-    """Class for delay operator layouts"""
+    """Layout for DELAY operators."""
 
     _font_family: typing.ClassVar[str] = "Cantarell"
     _font_fill: typing.ClassVar[
@@ -500,9 +585,7 @@ class DelayOperatorLayout(
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    _font_size_func: typing.ClassVar[typing.Callable] = (
-        lambda obj: obj.width / 2
-    )
+    _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
     _text: typing.ClassVar[str] = "τ"
     width: float = 30.0
     height: float = 30.0
@@ -515,7 +598,7 @@ class DelayOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(momapy.sbgn.pd.TagLayout):
-    """Class for tag layouts"""
+    """Layout for tags."""
 
     width: float = 35.0
     height: float = 35.0
@@ -528,33 +611,29 @@ class TagLayout(momapy.sbgn.pd.TagLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for unknown influence layouts"""
+    """Layout for unknown influences."""
 
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for positive influence layouts"""
+    """Layout for positive influences."""
 
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for necessary stimulation layouts"""
+    """Layout for necessary stimulations."""
 
     arrowhead_bar_height: float = 12.0
     arrowhead_sep: float = 3.0
@@ -573,9 +652,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
         bar = momapy.drawing.Path(actions=actions)
         actions = [
             momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(
-                momapy.geometry.Point(self.arrowhead_sep, 0)
-            ),
+            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
@@ -591,7 +668,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for negative influence layouts"""
+    """Layout for negative influences."""
 
     arrowhead_height: float = 10.0
 
@@ -601,36 +678,39 @@ class NegativeInfluenceLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for logic arc layouts"""
+    """Layout for logic arcs."""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceArcLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
-    """Class for equivalence arc layouts"""
+    """Layout for equivalence arcs."""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(
-            self
-        )
+        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNAFMap(momapy.sbgn.core.SBGNMap):
-    """Class for SBGN-AF maps"""
+    """SBGN-AF map.
+
+    Represents a complete SBGN Activity Flow map with model and layout.
+
+    Attributes:
+        model: The SBGN-AF model.
+        layout: The visual layout of the map.
+    """
 
     model: typing.Optional[SBGNAFModel] = None
     layout: typing.Optional[SBGNAFLayout] = None
 
 
 SBGNAFModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFModel)
-"""Class for SBGN-AF model builders"""
+"""Builder class for SBGNAFModel."""
 SBGNAFLayoutBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFLayout)
-"""Class for SBGN-AF layout builders"""
+"""Builder class for SBGNAFLayout."""
 
 
 def _sbgnaf_map_builder_new_model(self, *args, **kwargs):
@@ -648,4 +728,4 @@ SBGNAFMapBuilder = momapy.builder.get_or_make_builder_cls(
         "new_layout": _sbgnaf_map_builder_new_layout,
     },
 )
-"""Class for SBGN-AF map builders"""
+"""Builder class for SBGNAFMap."""

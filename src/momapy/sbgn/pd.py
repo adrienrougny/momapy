@@ -1,4 +1,17 @@
-"""Classes for SBGN PD maps"""
+"""Classes for SBGN Process Description (PD) maps.
+
+This module provides classes for modeling and laying out SBGN-PD maps,
+including entity pools, processes, logical operators, and their visual
+representations. It supports all standard SBGN-PD glyphs such as
+macromolecules, simple chemicals, complexes, and various types of
+interactions and relationships.
+
+Example:
+    >>> from momapy.sbgn.pd import Macromolecule, Process, SBGNPDMap
+    >>> protein = Macromolecule(label="Protein A")
+    >>> process = Process()
+    >>> map_ = SBGNPDMap(model_elements=[protein, process])
+"""
 
 import dataclasses
 import typing

@@ -1,22 +1,43 @@
+"""Command-line interface for momapy.
+
+This module provides a CLI for working with molecular maps, including commands
+for rendering maps to various image formats.
+
+Example:
+    # Render an SBGN-ML file to SVG
+    $ momapy render map.sbgn -o output.svg
+
+    # Render with a specific renderer
+    $ momapy render map.sbgn -o output.pdf -r cairo
+
+    # Apply a style sheet
+    $ momapy render map.sbgn -o output.svg -s custom_style.css
+"""
+
 import argparse
 import pathlib
 
 
 def run(args):
+    """Execute the CLI command based on parsed arguments.
+
+    Args:
+        args: Parsed command-line arguments with subcommand and options.
+
+    Raises:
+        ValueError: If the subcommand is not supported.
+
+    Example:
+        >>> import argparse
+        >>> parser = argparse.ArgumentParser()
+        >>> parser.add_argument("subcommand", default="render")
+        >>> args = parser.parse_args(["render"])
+        >>> run(args)  # Executes the render command
+    """
     if args.subcommand == "render":
         import momapy.io.core
-        import momapy.rendering.core
-        import momapy.rendering.svg_native
+        import momapy.rendering
 
-        momapy.rendering._ensure_registered()
-        try:
-            import momapy.rendering.skia
-        except Exception:
-            pass
-        try:
-            import momapy.rendering.cairo
-        except Exception:
-            pass
         if args.format is None:
             output_file_path = pathlib.Path(args.output_file_path)
             format_ = output_file_path.suffix[1:]
@@ -25,15 +46,14 @@ def run(args):
         if args.renderer is None:
             renderer = "svg-native"
             for candidate_renderer in ["svg-native", "skia", "cairo"]:
-                if (
-                    candidate_renderer in momapy.rendering.core.renderers
-                    and format_
-                    in momapy.rendering.core.renderers[
-                        candidate_renderer
-                    ].supported_formats
-                ):
-                    renderer = candidate_renderer
-                    break
+                try:
+                    renderer_cls = momapy.rendering.get_renderer(candidate_renderer)
+                    if format_ in renderer_cls.supported_formats:
+                        renderer = candidate_renderer
+                        break
+                except ValueError:
+                    # Renderer not available
+                    pass
         else:
             renderer = args.renderer
         if args.style_sheet_file_path:
@@ -65,6 +85,18 @@ def run(args):
 
 
 def main():
+    """Parse command-line arguments and run the appropriate command.
+
+    This function sets up the argument parser with subcommands and options,
+    then calls run() with the parsed arguments.
+
+    Returns:
+        None
+
+    Example:
+        # From command line:
+        $ python -m momapy.cli render input.sbgn -o output.svg
+    """
     parser = argparse.ArgumentParser(
         description="Tool for working with molecular maps. Currently, only the 'render' subcommand is supported.",
     )

@@ -1,4 +1,15 @@
-"""Classes for CellDesigner maps"""
+"""Core classes for CellDesigner maps.
+
+This module provides classes for representing CellDesigner pathway diagrams,
+including model elements (species, reactions, modifications) and layout elements
+(nodes, arcs, compartments). CellDesigner is a tool for visualizing biochemical
+pathways and networks.
+
+Example:
+    >>> from momapy.celldesigner.core import CellDesignerModel, CellDesignerLayout
+    >>> model = CellDesignerModel(name="MAPK_cascade")
+    >>> layout = CellDesignerLayout()
+"""
 
 import dataclasses
 import enum
@@ -28,14 +39,25 @@ class CellDesignerModelElement(momapy.core.ModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModificationResidue(CellDesignerModelElement):
-    """Class for modification residues"""
+    """Modification residue for protein post-translational modifications.
+
+    Residues represent specific amino acid positions that can be modified.
+
+    Attributes:
+        name: Name of the residue (e.g., amino acid name).
+        order: Sequential order of the residue in the protein.
+    """
 
     name: str | None = None
     order: int | None = None
 
 
 class ModificationState(enum.Enum):
-    """Class for modification states"""
+    """Enumeration of protein modification states.
+
+    Represents common post-translational modification types with their
+    standard abbreviations.
+    """
 
     PHOSPHORYLATED = "P"
     UBIQUITINATED = "Ub"
@@ -709,7 +731,16 @@ class UnknownTriggering(UnknownModulation):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModel(momapy.sbml.core.Model):
-    """Class for CellDesigner models"""
+    """CellDesigner model container.
+
+    Aggregates all elements of a CellDesigner pathway model including
+    species, reactions, templates, and modulations.
+
+    Attributes:
+        species_templates: Set of species templates defining reusable structures.
+        boolean_logic_gates: Set of Boolean logic gates for combinatorial regulation.
+        modulations: Set of modulations representing regulatory influences.
+    """
 
     species_templates: frozenset[SpeciesTemplate] = dataclasses.field(
         default_factory=frozenset,

@@ -1,7 +1,21 @@
+"""Testing utilities for rendering and validating layout elements.
+
+This module provides functions for rendering nodes and arcs in a grid layout
+for testing and visualization purposes. It supports visual testing of node
+anchors, arc paths, and layout element positioning.
+
+Example:
+    >>> from momapy.testing import render_nodes_testing
+    >>> from momapy.meta.nodes import Rectangle
+    >>> configs = [(Rectangle, {"width": 50, "height": 30})]
+    >>> render_nodes_testing("test.pdf", configs, 100, 80)
+"""
+
 import momapy.core
 import momapy.builder
 import momapy.meta.nodes
 import momapy.rendering.core
+import numpy
 
 
 def render_layout_elements_on_grid(
@@ -15,10 +29,25 @@ def render_layout_elements_on_grid(
     format="pdf",
     renderer="skia",
 ):
+    """Render layout elements in a grid pattern.
+
+    Args:
+        output_file: Path to the output file.
+        layout_elements: List of layout elements to render.
+        n_cols: Number of columns in the grid.
+        width: Width of each grid cell.
+        height: Height of each grid cell.
+        x_margin: Horizontal margin around the grid.
+        y_margin: Vertical margin around the grid.
+        format: Output format (e.g., "pdf", "png").
+        renderer: Renderer to use (e.g., "skia").
+
+    Example:
+        >>> elements = [node1, node2, arc1]
+        >>> render_layout_elements_on_grid("output.pdf", elements, 2, 100, 80)
+    """
     max_x = x_margin * 2 + n_cols * width
-    n_rows = len(layout_elements) // n_cols + int(
-        bool(len(layout_elements) % n_cols)
-    )
+    n_rows = len(layout_elements) // n_cols + int(bool(len(layout_elements) % n_cols))
     max_y = y_margin * 2 + n_rows * height
     renderer = momapy.rendering.core.renderers[renderer].from_file(
         output_file, max_x, max_y, format
@@ -31,15 +60,11 @@ def render_layout_elements_on_grid(
             x_margin + width * (n_col + 1 / 2),
             y_margin + height * (n_row + 1 / 2),
         )
-        if momapy.builder.isinstance_or_builder(
-            layout_element, momapy.core.Arc
-        ):
+        if momapy.builder.isinstance_or_builder(layout_element, momapy.core.Arc):
             old_position = layout_element.points()[0] * (
                 1 / 2
             ) + layout_element.points()[-1] * (1 / 2)
-        elif momapy.builder.isinstance_or_builder(
-            layout_element, momapy.core.Node
-        ):
+        elif momapy.builder.isinstance_or_builder(layout_element, momapy.core.Node):
             old_position = layout_element.position
         else:
             raise TypeError(
@@ -68,6 +93,32 @@ def render_nodes_testing(
     format="pdf",
     renderer="skia",
 ):
+    """Render nodes with anchor points and angle markers for testing.
+
+    Generates a grid of nodes showing:
+    - Node name labels
+    - The node itself
+    - Anchor point markers (north, south, east, west, etc.)
+    - Angle point markers at 30-degree intervals
+
+    Args:
+        output_file: Path to the output file.
+        node_configs: List of (node_class, kwargs) tuples.
+        width: Width of each grid cell.
+        height: Height of each grid cell.
+        x_margin: Horizontal margin around the grid.
+        y_margin: Vertical margin around the grid.
+        format: Output format (e.g., "pdf", "png").
+        renderer: Renderer to use.
+
+    Example:
+        >>> from momapy.meta.nodes import Rectangle, Ellipse
+        >>> configs = [
+        ...     (Rectangle, {"width": 50, "height": 30}),
+        ...     (Ellipse, {"width": 60, "height": 40}),
+        ... ]
+        >>> render_nodes_testing("nodes.pdf", configs, 120, 100)
+    """
     node_objs = []
     for node_config in node_configs:
         node_cls = node_config[0]
@@ -166,6 +217,37 @@ def render_arcs_testing(
     arrowhead_stroke=None,
     arrowhead_stroke_width=None,
 ):
+    """Render arcs with anchor points and fraction markers for testing.
+
+    Generates a grid of arcs showing:
+    - Arc name labels
+    - The arc itself
+    - Anchor point markers (start_point, end_point, arrowhead_base, arrowhead_tip)
+    - Fraction point markers along the arc
+
+    Args:
+        output_file: Path to the output file.
+        arc_configs: List of (arc_class, kwargs) tuples.
+        width: Width of each grid cell.
+        height: Height of each grid cell.
+        x_margin: Horizontal margin around the grid.
+        y_margin: Vertical margin around the grid.
+        format: Output format (e.g., "pdf", "png").
+        renderer: Renderer to use.
+        path_stroke: Default stroke color for arc paths.
+        path_stroke_width: Default stroke width for arc paths.
+        path_fill: Default fill color for arc paths.
+        arrowhead_stroke: Default stroke color for arrowheads.
+        arrowhead_stroke_width: Default stroke width for arrowheads.
+
+    Example:
+        >>> from momapy.meta.nodes import Line, Bezier
+        >>> configs = [
+        ...     (Line, {"stroke_width": 2}),
+        ...     (Bezier, {"stroke_width": 2}),
+        ... ]
+        >>> render_arcs_testing("arcs.pdf", configs, 120, 100)
+    """
     arc_objs = []
     for arc_config in arc_configs:
         arc_cls = arc_config[0]

@@ -1,3 +1,38 @@
+"""Arc classes with predefined arrowheads for connecting nodes.
+
+This module provides arc classes that use specific arrowhead shapes from the
+meta.shapes module. These arcs can be used directly in map layouts to
+connect nodes with various arrowhead styles.
+
+Available arc types:
+    - PolyLine: Straight lines without arrowheads
+    - Triangle: Lines with triangular arrowheads
+    - ReversedTriangle: Lines with reversed triangular arrowheads
+    - Diamond: Lines with diamond-shaped arrowheads
+    - ReversedDiamond: Lines with reversed diamond arrowheads
+    - Bar: Lines with bar-shaped arrowheads
+    - Rectangle: Lines with rectangular arrowheads
+    - Circle: Lines with circular arrowheads
+    - DoubleTriangle: Lines with double triangular arrowheads
+    - DoubleTriangleNoStraight: Lines with double triangular arrowheads (angled)
+    - Ellipse: Lines with elliptical arrowheads
+    - DoubleTriangleBar: Lines with double triangle and bar arrowheads
+
+Example:
+    >>> from momapy.meta.arcs import Triangle, Diamond
+    >>> import momapy.geometry
+    >>> # Create nodes with Point positions
+    >>> node1 = Rectangle(position=momapy.geometry.Point(100, 100), width=50, height=30)
+    >>> node2 = Rectangle(position=momapy.geometry.Point(300, 100), width=50, height=30)
+    >>> # Create arc with segments defining the path
+    >>> segment = momapy.geometry.Segment(
+    ...     momapy.geometry.Point(125, 100),
+    ...     momapy.geometry.Point(275, 100)
+    ... )
+    >>> arc1 = Triangle(segments=(segment,))
+    >>> arc2 = Diamond(segments=(segment,))
+"""
+
 from dataclasses import dataclass
 
 import momapy.core
@@ -116,9 +151,9 @@ class ArcBarb(momapy.core.SingleHeadedArc):
 
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.drawing.NoneValue
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = momapy.meta.shapes.ArcBarb(
@@ -136,9 +171,9 @@ class StraightBarb(momapy.core.SingleHeadedArc):
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.drawing.NoneValue
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = momapy.meta.shapes.StraightBarb(
@@ -156,9 +191,9 @@ class To(momapy.core.SingleHeadedArc):
 
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
-    arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.drawing.NoneValue
+    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = momapy.meta.shapes.To(

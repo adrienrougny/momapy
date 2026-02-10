@@ -1,4 +1,26 @@
-"""Classes for common node types"""
+"""Node classes with predefined shapes for map layouts.
+
+This module provides node classes that use specific shapes from the
+meta.shapes module. These nodes can be used directly in map layouts
+without needing to define custom shapes.
+
+Available node types:
+    - Rectangle: Rectangular nodes with optional rounded corners
+    - Ellipse: Elliptical or circular nodes
+    - Stadium: Stadium-shaped (rounded rectangle) nodes
+    - Hexagon: Hexagonal nodes
+    - TurnedHexagon: Rotated hexagonal nodes
+    - Triangle: Triangular nodes
+    - Diamond: Diamond-shaped nodes
+    - Parallelogram: Parallelogram-shaped nodes
+    - Bar: Bar or line-shaped nodes
+
+Example:
+    >>> from momapy.meta.nodes import Rectangle, Ellipse
+    >>> import momapy.geometry
+    >>> rect = Rectangle(position=momapy.geometry.Point(100, 100), width=200, height=100)
+    >>> circle = Ellipse(position=momapy.geometry.Point(300, 300), width=150, height=150)
+"""
 
 import dataclasses
 

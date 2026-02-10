@@ -28,6 +28,21 @@ import momapy.rendering.core
 
 @dataclasses.dataclass(kw_only=True)
 class CairoRenderer(momapy.rendering.core.StatefulRenderer):
+    """Renderer implementation using the Cairo graphics library.
+
+    This renderer supports multiple output formats including PDF, SVG, PNG,
+    and PostScript. It uses Pango for text rendering.
+
+    Attributes:
+        context: The Cairo context used for rendering
+
+    Example:
+        >>> renderer = CairoRenderer.from_file("output.pdf", 800, 600, "pdf")
+        >>> renderer.begin_session()
+        >>> renderer.render_layout_element(layout_element)
+        >>> renderer.end_session()
+    """
+
     supported_formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
         momapy.drawing.Group: "_render_group",
@@ -69,6 +84,23 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "ps"] = "pdf",
     ) -> typing_extensions.Self:
+        """Create a CairoRenderer instance from a file path.
+
+        Args:
+            file_path: The output file path
+            width: The width of the canvas
+            height: The height of the canvas
+            format_: The output format (pdf, svg, png, or ps)
+
+        Returns:
+            A new CairoRenderer instance
+
+        Raises:
+            ValueError: If the format is not supported
+
+        Example:
+            >>> renderer = CairoRenderer.from_file("output.pdf", 800, 600, "pdf")
+        """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         config = {}
@@ -89,9 +121,20 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         return cls(context=context, _config=config)
 
     def begin_session(self):
+        """Begin a rendering session.
+
+        This method initializes the rendering context. For CairoRenderer,
+        no explicit initialization is needed beyond the context setup.
+        """
         pass
 
     def end_session(self):
+        """End the rendering session and save the output.
+
+        This method finalizes the rendering and saves the output to the file.
+        For PNG format, it writes the image data. For other formats, it
+        finishes and flushes the surface.
+        """
         surface = self.context.get_target()
         format_ = self._config.get("format")
         if format_ == "png":
@@ -100,6 +143,16 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         surface.flush()
 
     def new_page(self, width, height):
+        """Create a new page in the output document.
+
+        Args:
+            width: The width of the new page
+            height: The height of the new page
+
+        Note:
+            Only PDF and PostScript formats support multiple pages.
+            Other formats will ignore this call.
+        """
         format_ = self._config.get("format")
         if format_ == "pdf" or format_ == "ps":
             self.context.show_page()
@@ -107,14 +160,32 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
             surface.set_size(width, height)
 
     def render_map(self, map_):
+        """Render a map to the output.
+
+        Args:
+            map_: The map to render
+        """
         self.render_layout_element(map_.layout)
 
     def render_layout_element(self, layout_element):
+        """Render a layout element to the output.
+
+        Args:
+            layout_element: The layout element to render
+        """
         drawing_elements = layout_element.drawing_elements()
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
+        """Render a drawing element to the output.
+
+        Args:
+            drawing_element: The drawing element to render
+
+        This method handles transformations and delegates to
+        the appropriate rendering method based on the drawing element type.
+        """
         self.save()
         self.set_current_state_from_drawing_element(drawing_element)
         self._add_transform_from_drawing_element(drawing_element)
@@ -126,9 +197,19 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         self.restore()
 
     def self_save(self):
+        """Save the Cairo context state.
+
+        This method saves the current state of the Cairo context, including
+        transformations, clipping regions, and drawing parameters.
+        """
         self.context.save()
 
     def self_restore(self):
+        """Restore the Cairo context state.
+
+        This method restores the Cairo context to the state saved by the
+        most recent call to self_save().
+        """
         self.context.restore()
         self.context.new_path()
 

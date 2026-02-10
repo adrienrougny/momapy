@@ -1,3 +1,5 @@
+"""Styling module for SBGN maps."""
+
 import pathlib
 import os
 
@@ -18,9 +20,7 @@ sbgned = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("sbgned.css")
 )
 """SBGN-ED style sheet"""
-newt = momapy.styling.StyleSheet.from_file(
-    pathlib.Path(__file__).with_name("newt.css")
-)
+newt = momapy.styling.StyleSheet.from_file(pathlib.Path(__file__).with_name("newt.css"))
 """Newt style sheet"""
 fs_shadows = momapy.styling.StyleSheet.from_file(
     pathlib.Path(__file__).with_name("fs_shadows.css")

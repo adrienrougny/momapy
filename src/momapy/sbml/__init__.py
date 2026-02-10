@@ -1,1 +1,1 @@
-"""Subpackge for SBML maps (skeleton)"""
+"""Subpackage for SBML maps (skeleton)."""

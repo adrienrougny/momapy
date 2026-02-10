@@ -1,4 +1,13 @@
-"""Base classes and functions for reading and writing maps"""
+"""Base classes and functions for reading and writing maps.
+
+Provides abstract base classes for readers and writers, along with
+convenience functions for reading and writing map files.
+
+Example:
+    >>> from momapy.io.core import read, write
+    >>> result = read("map.sbgn")
+    >>> write(result.obj, "output.sbgn", writer="sbgnml")
+"""
 
 import os
 import dataclasses
@@ -12,14 +21,26 @@ import momapy.utils
 
 @dataclasses.dataclass
 class IOResult:
-    """Base class for I/O results"""
+    """Base class for I/O results.
+
+    Attributes:
+        exceptions: List of exceptions that occurred during I/O.
+    """
 
     exceptions: list[Exception] = dataclasses.field(default_factory=list)
 
 
 @dataclasses.dataclass
 class ReaderResult(IOResult):
-    """Base class for reader results"""
+    """Result from reading a map file.
+
+    Attributes:
+        obj: The read map object (MapElement or None).
+        annotations: Annotations associated with the read.
+        notes: Notes associated with the read.
+        ids: Mapping of IDs between file and loaded objects.
+        file_path: Path of the file that was read.
+    """
 
     obj: typing.Any | None = None
     annotations: frozendict.frozendict | None = None
@@ -30,7 +51,12 @@ class ReaderResult(IOResult):
 
 @dataclasses.dataclass
 class WriterResult(IOResult):
-    """Base class for writer results"""
+    """Result from writing a map file.
+
+    Attributes:
+        obj: The written object.
+        file_path: Path of the file that was written.
+    """
 
     obj: typing.Any | None = None
     file_path: str | os.PathLike | None = None
@@ -41,16 +67,28 @@ def read(
     reader: str | None = None,
     **options,
 ) -> ReaderResult:
-    """Read a map file and return a reader result using the given registered reader. If no reader is given, will check for an appropriate reader among the registered readers, using the `check_file` method of each reader. If there is more than one appropriate reader, will use the first one.
+    """Read a map file.
+
+    If reader is specified, uses that reader. Otherwise, checks all registered
+    readers to find one that supports the file format using their check_file
+    method. Uses the first matching reader found.
 
     Args:
-        file_path: The path of the file to read
-        reader: The registered reader
-        options: Options to be passed to the reader
+        file_path: Path of the file to read.
+        reader: Name of registered reader to use (e.g., "sbgnml"). If None,
+            auto-detects based on file format.
+        options: Additional options passed to the reader.
 
     Returns:
-        A reader result
+        ReaderResult containing the read object and metadata.
 
+    Raises:
+        ValueError: If no suitable reader is found.
+
+    Example:
+        >>> from momapy.io.core import read
+        >>> result = read("map.sbgn")
+        >>> map_obj = result.obj
     """
     import momapy.io
 
@@ -78,16 +116,23 @@ def write(
     writer: str,
     **options,
 ) -> WriterResult:
-    """Write an object to a file and return a writer result using the given registered writer
+    """Write an object to a file.
 
     Args:
-        obj: The object to write
-        file_path: The path of the file to write to
-        writer: The registered writer
-        options: Options to be passed to the writer
+        obj: Object to write (typically a MapElement).
+        file_path: Path of the file to write to.
+        writer: Name of registered writer to use (e.g., "sbgnml").
+        options: Additional options passed to the writer.
 
     Returns:
-        A writer result
+        WriterResult containing the written object and metadata.
+
+    Raises:
+        ValueError: If the writer is not found.
+
+    Example:
+        >>> from momapy.io.core import write
+        >>> write(map_obj, "output.sbgn", writer="sbgnml")
     """
     import momapy.io
 
@@ -99,23 +144,62 @@ def write(
 
 
 class Reader(abc.ABC):
-    """Base class for readers"""
+    """Abstract base class for map readers.
+
+    Implementations must override read() and check_file() methods.
+
+    Example:
+        >>> class MyFormatReader(Reader):
+        ...     @classmethod
+        ...     def read(cls, file_path, **options):
+        ...         # Implementation
+        ...         pass
+        ...
+        ...     @classmethod
+        ...     def check_file(cls, file_path):
+        ...         return file_path.endswith(".myfmt")
+    """
 
     @classmethod
     @abc.abstractmethod
     def read(cls, file_path: str | os.PathLike, **options) -> ReaderResult:
-        """Read a file and return a reader result using the reader"""
+        """Read a file and return the result.
+
+        Args:
+            file_path: Path of the file to read.
+            options: Reader-specific options.
+
+        Returns:
+            ReaderResult containing the read object.
+        """
         pass
 
     @classmethod
     @abc.abstractmethod
     def check_file(cls, file_path: str | os.PathLike) -> bool:
-        """Return `true` if the given file is supported by the reader, `false` otherwise"""
+        """Check if this reader supports the given file.
+
+        Args:
+            file_path: Path of the file to check.
+
+        Returns:
+            True if the file is supported by this reader.
+        """
         pass
 
 
 class Writer(abc.ABC):
-    """Base class for writers"""
+    """Abstract base class for map writers.
+
+    Implementations must override the write() method.
+
+    Example:
+        >>> class MyFormatWriter(Writer):
+        ...     @classmethod
+        ...     def write(cls, obj, file_path, **options):
+        ...         # Implementation
+        ...         pass
+    """
 
     @classmethod
     @abc.abstractmethod
@@ -125,5 +209,14 @@ class Writer(abc.ABC):
         file_path: str | os.PathLike,
         **options,
     ) -> WriterResult:
-        """Write an object to a file and return a writer result using the writer"""
+        """Write an object to a file.
+
+        Args:
+            obj: Object to write.
+            file_path: Path of the file to write to.
+            options: Writer-specific options.
+
+        Returns:
+            WriterResult containing the written object.
+        """
         pass

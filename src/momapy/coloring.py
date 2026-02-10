@@ -1,4 +1,25 @@
-"""Classes and objects for defining colors"""
+"""Color definitions and utilities for momapy.
+
+This module provides the Color class for representing colors with RGBA components,
+along with a comprehensive set of predefined named colors. Colors can be created
+from various formats (RGB, RGBA, HEX, HEXA) and converted between formats.
+
+Examples:
+    >>> from momapy.coloring import Color, red, blue
+    >>> # Using predefined colors
+    >>> color = red
+    >>> # Creating from hex
+    >>> color = Color.from_hex("#FF5733")
+    >>> # Creating from RGB
+    >>> color = Color.from_rgb(255, 87, 51)
+    >>> # With alpha transparency
+    >>> color = Color.from_rgba(255, 87, 51, 0.5)
+    >>> # Convert to different formats
+    >>> color.to_hex()
+    '#ff5733'
+    >>> color.to_rgba()
+    (255, 87, 51, 0.5)
+"""
 
 import dataclasses
 import typing
@@ -7,7 +28,20 @@ import typing_extensions
 
 @dataclasses.dataclass(frozen=True)
 class Color(object):
-    """Class for colors"""
+    """Represents an RGBA color.
+
+    Attributes:
+        red: Red component (0-255).
+        green: Green component (0-255).
+        blue: Blue component (0-255).
+        alpha: Alpha component (0.0-1.0), defaults to 1.0 (fully opaque).
+
+    Examples:
+        >>> color = Color(255, 87, 51)
+        >>> color.red
+        255
+        >>> color_with_alpha = Color(255, 87, 51, 0.5)
+    """
 
     red: int = dataclasses.field(
         metadata={"description": "The red component of the color"}
@@ -24,6 +58,17 @@ class Color(object):
     )
 
     def __or__(self, alpha: float) -> "Color":
+        """Return a new color with the specified alpha value.
+
+        Args:
+            alpha: Alpha value as percentage (0-100).
+
+        Returns:
+            A new Color with the specified alpha.
+
+        Raises:
+            ValueError: If alpha is not between 0 and 100.
+        """
         if alpha < 0 or alpha > 100:
             raise ValueError("alpha should be a number between 0 and 100")
         return dataclasses.replace(self, alpha=alpha / 100)
@@ -34,7 +79,23 @@ class Color(object):
         alpha_range: tuple[float, float] = (0.0, 1.0),
         rgba_range: tuple[float, float] | None = None,
     ) -> tuple[int, int, int, float]:
-        """Return the color in the RBGA format"""
+        """Return the color as RGBA tuple.
+
+        Args:
+            rgb_range: Range for RGB components, defaults to (0, 255).
+            alpha_range: Range for alpha component, defaults to (0.0, 1.0).
+            rgba_range: Override range for all components.
+
+        Returns:
+            Tuple of (red, green, blue, alpha).
+
+        Examples:
+            >>> color = Color(255, 128, 0)
+            >>> color.to_rgba()
+            (255, 128, 0, 1.0)
+            >>> color.to_rgba(rgb_range=(0, 1))
+            (1, 0, 0, 1.0)
+        """
         if rgba_range is not None:
             rgb_range = rgba_range
             alpha_range = rgba_range
@@ -53,7 +114,19 @@ class Color(object):
     def to_rgb(
         self, rgb_range: tuple[float, float] | tuple[int, int] = (0, 255)
     ) -> tuple[int, int, int]:
-        """Return the color in the RBG format"""
+        """Return the color as RGB tuple.
+
+        Args:
+            rgb_range: Range for RGB components, defaults to (0, 255).
+
+        Returns:
+            Tuple of (red, green, blue).
+
+        Examples:
+            >>> color = Color(255, 128, 0)
+            >>> color.to_rgb()
+            (255, 128, 0)
+        """
         width = int(rgb_range[1] - rgb_range[0])
         red = rgb_range[0] + (self.red / 255) * width
         green = rgb_range[0] + (self.green / 255) * width
@@ -65,39 +138,104 @@ class Color(object):
         return (red, green, blue)
 
     def to_hex(self) -> str:
-        """Return the color in the HEX format"""
+        """Return the color as hexadecimal string.
+
+        Returns:
+            Hex color string (e.g., "#ff5733").
+
+        Examples:
+            >>> color = Color(255, 87, 51)
+            >>> color.to_hex()
+            '#ff5733'
+        """
         color_str = f"#{format(self.red, '02x')}{format(self.green, '02x')}{format(self.blue, '02x')}"
         return color_str
 
     def to_hexa(self) -> str:
-        """Return the color in the HEXA format"""
+        """Return the color as hexadecimal string with alpha.
+
+        Returns:
+            Hex color string with alpha (e.g., "#ff5733ff").
+
+        Examples:
+            >>> color = Color(255, 87, 51, 0.5)
+            >>> color.to_hexa()
+            '#ff573380'
+        """
         color_str = f"{self.to_hex()}{format(int(self.alpha * 255), '02x')}"
         return color_str
 
     def with_alpha(
         self, alpha: float, alpha_range: tuple[float, float] = (0, 1)
     ) -> typing_extensions.Self:
-        """Return the a copy of the color with its alpha component set to the given number"""
+        """Return a copy of the color with the specified alpha.
+
+        Args:
+            alpha: Alpha value.
+            alpha_range: Range for alpha component, defaults to (0, 1).
+
+        Returns:
+            A new Color with the specified alpha.
+        """
         alpha_width = alpha_range[1] - alpha_range[0]
-        return dataclasses.replace(
-            self, alpha=alpha_range[0] + alpha * alpha_width
-        )
+        return dataclasses.replace(self, alpha=alpha_range[0] + alpha * alpha_width)
 
     @classmethod
     def from_rgba(
         cls, red: int, green: int, blue: int, alpha: float
     ) -> typing_extensions.Self:
-        """Return a color from its RGBA components"""
+        """Create a color from RGBA components.
+
+        Args:
+            red: Red component (0-255).
+            green: Green component (0-255).
+            blue: Blue component (0-255).
+            alpha: Alpha component (0.0-1.0).
+
+        Returns:
+            A new Color instance.
+
+        Examples:
+            >>> Color.from_rgba(255, 87, 51, 0.5)
+            Color(red=255, green=87, blue=51, alpha=0.5)
+        """
         return cls(red, green, blue, alpha)
 
     @classmethod
     def from_rgb(cls, red: int, green: int, blue: int):
-        """Return a color from its RGB components"""
+        """Create a color from RGB components.
+
+        Args:
+            red: Red component (0-255).
+            green: Green component (0-255).
+            blue: Blue component (0-255).
+
+        Returns:
+            A new Color instance with alpha=1.0.
+
+        Examples:
+            >>> Color.from_rgb(255, 87, 51)
+            Color(red=255, green=87, blue=51, alpha=1.0)
+        """
         return cls(red, green, blue)
 
     @classmethod
     def from_hex(cls, color_str: str):
-        """Return a color from its HEX value"""
+        """Create a color from a hexadecimal string.
+
+        Args:
+            color_str: Hex color string (e.g., "#FF5733" or "FF5733").
+
+        Returns:
+            A new Color instance.
+
+        Raises:
+            ValueError: If the hex string is invalid.
+
+        Examples:
+            >>> Color.from_hex("#FF5733")
+            Color(red=255, green=87, blue=51, alpha=1.0)
+        """
         color_str = color_str.lstrip("#")
         if len(color_str) != 6:
             raise ValueError(f"invalid hexadecimal RBG value {color_str}")
@@ -108,7 +246,21 @@ class Color(object):
 
     @classmethod
     def from_hexa(cls, color_str):
-        """Return a color from its HEXA value"""
+        """Create a color from a hexadecimal string with alpha.
+
+        Args:
+            color_str: Hex color string with alpha (e.g., "#FF5733FF").
+
+        Returns:
+            A new Color instance.
+
+        Raises:
+            ValueError: If the hex string is invalid.
+
+        Examples:
+            >>> Color.from_hexa("#FF573380")
+            Color(red=255, green=87, blue=51, alpha=0.5)
+        """
         color_str = color_str.lstrip("#")
         if len(color_str) != 8:
             raise ValueError(f"invalid hexadecimal RBGA value {color_str}")
@@ -120,7 +272,16 @@ class Color(object):
 
 
 def list_colors():
-    """List all available named colors"""
+    """Return a list of all available named colors.
+
+    Returns:
+        List of tuples (color_name, Color) for all predefined colors.
+
+    Examples:
+        >>> colors = list_colors()
+        >>> len(colors) > 0
+        True
+    """
     return [
         (color_name, color)
         for color_name, color in globals().items()
@@ -129,13 +290,32 @@ def list_colors():
 
 
 def print_colors():
-    """Print all available named colors"""
+    """Print all available named colors with their names.
+
+    Displays color names in their actual color in the terminal.
+
+    Examples:
+        >>> print_colors()  # Prints all colors
+    """
     for color_name, color in list_colors():
         print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
 
 
 def has_color(color_name):
-    """Return `true` if a color with the given name is available, `false` otherwise"""
+    """Check if a named color exists.
+
+    Args:
+        color_name: Name of the color to check.
+
+    Returns:
+        True if the color exists, False otherwise.
+
+    Examples:
+        >>> has_color("red")
+        True
+        >>> has_color("not_a_color")
+        False
+    """
     for color_name2, color in globals().items():
         if isinstance(color, Color) and color_name2 == color_name:
             return True

@@ -12,7 +12,26 @@ import momapy.rendering.core
 
 @dataclasses.dataclass
 class SVGElement(object):
-    """Class for SVG elements"""
+    """Class for SVG elements.
+
+    This class represents an SVG element with a name, optional text value,
+    attributes, and child elements.
+
+    Attributes:
+        name: The tag name of the SVG element (e.g., 'svg', 'rect', 'path')
+        value: Optional text content of the element
+        attributes: Dictionary of attribute names and values
+        elements: List of child SVGElement instances
+
+    Example:
+        >>> element = SVGElement(
+        ...     name="rect",
+        ...     attributes={"x": "0", "y": "0", "width": "100", "height": "100"}
+        ... )
+        >>> print(element)
+        <rect x="0" y="0" width="100" height="100">
+        </rect>
+    """
 
     name: str
     value: typing.Optional[str] = None
@@ -20,7 +39,14 @@ class SVGElement(object):
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
     def to_string(self, indent: int = 0):
-        """Return the SVG string representing the element"""
+        """Return the SVG string representing the element.
+
+        Args:
+            indent: The indentation level (number of tabs)
+
+        Returns:
+            The SVG markup as a string
+        """
         s_indent = "\t" * indent
         s_value = f"{s_indent}{self.value}\n" if self.value is not None else ""
         if self.attributes:
@@ -46,13 +72,31 @@ class SVGElement(object):
         return self.to_string()
 
     def add_element(self, element):
-        """Add an sub-element to the SVG element"""
+        """Add a sub-element to the SVG element.
+
+        Args:
+            element: The child SVGElement to add
+        """
         self.elements.append(element)
 
 
 @dataclasses.dataclass
 class SVGNativeRenderer(momapy.rendering.core.Renderer):
-    """Class for SVG native renderers"""
+    """Renderer implementation for generating native SVG output.
+
+    This renderer creates SVG markup directly without external dependencies.
+    It supports all standard SVG features including filters, transformations,
+    and presentation attributes.
+
+    Attributes:
+        svg: The root SVGElement that will contain all rendered content
+
+    Example:
+        >>> renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
+        >>> renderer.begin_session()
+        >>> renderer.render_layout_element(layout_element)
+        >>> renderer.end_session()
+    """
 
     supported_formats: typing.ClassVar[list[str]] = ["svg"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
@@ -136,6 +180,24 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
     @classmethod
     def from_file(cls, output_file, width, height, format_, config=None):
+        """Create an SVGNativeRenderer instance from a file path.
+
+        Args:
+            output_file: The output file path
+            width: The width of the SVG canvas
+            height: The height of the SVG canvas
+            format_: The output format (must be "svg")
+            config: Optional configuration dictionary
+
+        Returns:
+            A new SVGNativeRenderer instance
+
+        Raises:
+            ValueError: If the format is not supported
+
+        Example:
+            >>> renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
+        """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         if config is None:
@@ -154,9 +216,20 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         return cls(svg=svg, config=config)
 
     def begin_session(self):
+        """Begin a rendering session.
+
+        This method initializes the rendering context. For SVGNativeRenderer,
+        no explicit initialization is needed as the SVG element is created
+        during instantiation.
+        """
         pass
 
     def end_session(self):
+        """End the rendering session and save the output.
+
+        This method finalizes the SVG document, adds any filter definitions
+        to the defs section, and writes the output to the file.
+        """
         if self._filter_elements:
             defs = SVGElement(name="defs", elements=self._filter_elements)
             self.svg.add_element(defs)
@@ -165,17 +238,44 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
                 f.write(str(self.svg))
 
     def new_page(self, width, height):
+        """Create a new page in the output document.
+
+        Args:
+            width: The width of the new page
+            height: The height of the new page
+
+        Note:
+            SVG format does not support multiple pages. This method is a no-op.
+        """
         pass
 
     def render_map(self, map_):
+        """Render a map to the output.
+
+        Args:
+            map_: The map to render
+        """
         self.render_layout_element(map_.layout)
 
     def render_layout_element(self, layout_element):
+        """Render a layout element to the output.
+
+        Args:
+            layout_element: The layout element to render
+        """
         drawing_elements = layout_element.drawing_elements()
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
     def render_drawing_element(self, drawing_element):
+        """Render a drawing element to the output.
+
+        Args:
+            drawing_element: The drawing element to render
+
+        This method converts the drawing element to an SVG element
+        and adds it to the SVG document.
+        """
         element = self._make_drawing_element_element(drawing_element)
         self.svg.add_element(element)
 
@@ -523,9 +623,30 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
 
 @dataclasses.dataclass
 class SVGNativeCompatRenderer(SVGNativeRenderer):
-    """Class for SVG native compat renderers"""
+    """Renderer for SVG with compatibility mode filters.
+
+    This renderer extends SVGNativeRenderer to provide compatibility with
+    older SVG viewers by converting filters to a compatible format.
+
+    Example:
+        >>> renderer = SVGNativeCompatRenderer.from_file("output.svg", 800, 600, "svg")
+        >>> renderer.begin_session()
+        >>> renderer.render_layout_element(layout_element)
+        >>> renderer.end_session()
+    """
 
     def _make_filter_element(self, filter_):
+        """Create an SVG filter element with compatibility conversion.
+
+        Args:
+            filter_: The filter to convert to an SVG element
+
+        Returns:
+            An SVGElement representing the filter
+
+        This method converts the filter to a compatible format before
+        creating the SVG element.
+        """
         filter_ = filter_.to_compat()
         element = super()._make_filter_element(filter_)
         return element
