@@ -45,6 +45,7 @@ dev = [
   "mkdocs-jupyter>=0.25.1",
   "mkdocs-pygments>=0.0.2",
   "ruff>=0.12.8",
+  "pre-commit>=4.5.1",
   { include-group = "test" },
 ]
 test = ["pytest>=9.0.2"]
