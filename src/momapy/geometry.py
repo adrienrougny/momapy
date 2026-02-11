@@ -219,7 +219,7 @@ class Point(GeometryObject):
         Returns:
             A new Point.
         """
-        return cls(fortranarray[0][0], fortranarray[1][1])
+        return cls(fortranarray[0][0], fortranarray[1][0])
 
     @classmethod
     def from_tuple(cls, t: tuple[float, float]) -> typing_extensions.Self:
@@ -1703,7 +1703,12 @@ def get_intersection_of_line_and_shapely_object(
         List of intersection points or segments.
     """
     intersection = []
-    for shapely_geom in shapely_object.geoms:
+    # Handle both single geometries and collections
+    if hasattr(shapely_object, "geoms"):
+        geoms = shapely_object.geoms
+    else:
+        geoms = [shapely_object]
+    for shapely_geom in geoms:
         bbox = Bbox.from_bounds(shapely_object.bounds)
         slope = line.slope()
         north_west = bbox.north_west()
