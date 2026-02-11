@@ -8,3 +8,5 @@ src/momapy/demo/.ipynb_checkpoints/*
 dist/
 .tox/
 plans/
+.coverage
+htmlcov/
