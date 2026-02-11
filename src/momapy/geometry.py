@@ -819,6 +819,7 @@ class EllipticalArc(GeometryObject):
         Returns:
             A shapely LineString approximating the arc.
         """
+
         def _split_line_string(
             line_string: shapely.LineString,
             point: Point,
@@ -1568,7 +1569,7 @@ def invert_scaling(scaling: Scaling) -> Scaling:
     Returns:
         Scaling by the reciprocal factors.
     """
-    return Scaling(-scaling.sx, -scaling.sy)
+    return Scaling(1 / scaling.sx, 1 / scaling.sy)
 
 
 def get_intersection_of_line_and_point(line: Line, point: Point) -> list[Point]:
@@ -2102,6 +2103,7 @@ def transform_elliptical_arc_to_bezier_curves(
     Returns:
         List of BezierCurve approximating the arc.
     """
+
     def _make_angles(angles):
         new_angles = [angles[0]]
         for theta1, theta2 in zip(angles, angles[1:]):
