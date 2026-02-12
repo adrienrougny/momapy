@@ -1,0 +1,4027 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://adrienrougny.github.io/momapy/CHANGELOG/">
+      
+      
+        <link rel="prev" href="../api_reference/sbml/io/sbml/">
+      
+      
+        <link rel="next" href="../about/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Changelog - momapy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="momapy" class="md-header__button md-logo" aria-label="momapy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            momapy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../demo/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  User manual
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../styling/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Styling
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../cli/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  CLI reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_reference/momapy/" class="md-tabs__link">
+          
+  
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="momapy" class="md-nav__button md-logo" aria-label="momapy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    momapy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User manual
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/momapy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Momapy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drawing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/coloring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coloring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/geometry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rendering
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rendering
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/rendering/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/rendering/skia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/rendering/svg_native/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SVG-native
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBGN
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SBGN
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbgn/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbgn/pd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbgn/af/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_11_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11_4" id="__nav_5_11_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbgn/io/sbgnml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBGN-ML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CellDesigner
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CellDesigner
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/celldesigner/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_12_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12_2" id="__nav_5_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_12_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/celldesigner/io/celldesigner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBML
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SBML
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbml/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_13_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13_2" id="__nav_5_13_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_13_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/sbml/io/sbml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[Unreleased]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Miscellaneous
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030-2026-02-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] - 2026-02-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] - 2026-02-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#028-2026-01-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.8] - 2026-01-27
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.8] - 2026-01-27">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#027-2026-01-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.7] - 2026-01-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.7] - 2026-01-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#026-2026-01-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.6] - 2026-01-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.6] - 2026-01-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#025-2026-01-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.5] - 2026-01-14
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.5] - 2026-01-14">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#024-2026-01-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.4] - 2026-01-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.4] - 2026-01-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#023-2026-01-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.3] - 2026-01-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.3] - 2026-01-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#022-2026-01-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.2] - 2026-01-07
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.2] - 2026-01-07">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#021-2026-01-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.1] - 2026-01-07
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.1] - 2026-01-07">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2026-01-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0] - 2026-01-06
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0] - 2026-01-06">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#013-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.3] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.3] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#012-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.2] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.2] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.1] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.1] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2025-08-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] - 2025-08-12
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] - 2025-08-12">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[Unreleased]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#miscellaneous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Miscellaneous
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#030-2026-02-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.3.0] - 2026-02-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.3.0] - 2026-02-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#028-2026-01-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.8] - 2026-01-27
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.8] - 2026-01-27">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#027-2026-01-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.7] - 2026-01-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.7] - 2026-01-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#026-2026-01-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.6] - 2026-01-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.6] - 2026-01-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#025-2026-01-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.5] - 2026-01-14
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.5] - 2026-01-14">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#024-2026-01-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.4] - 2026-01-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.4] - 2026-01-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#023-2026-01-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.3] - 2026-01-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.3] - 2026-01-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#022-2026-01-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.2] - 2026-01-07
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.2] - 2026-01-07">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#021-2026-01-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.1] - 2026-01-07
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.1] - 2026-01-07">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#020-2026-01-06" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.2.0] - 2026-01-06
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.2.0] - 2026-01-06">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#013-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.3] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.3] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixed_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#012-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.2] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.2] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#011-2025-08-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.1] - 2025-08-28
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.1] - 2025-08-28">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#other_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2025-08-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] - 2025-08-12
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] - 2025-08-12">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixed_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#styling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Styling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to momapy will be documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/">Keep a Changelog</a>,
+and this project adheres to <a href="https://www.conventionalcommits.org/">Conventional Commits</a>.</p>
+<h2 id="unreleased">[Unreleased]</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Added precommit linting (@conventional)</li>
+<li>Added renderer and format autodetection <em>(rendering)</em></li>
+</ul>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Distinguish scenario min and all for rendering images</li>
+</ul>
+<h3 id="miscellaneous">Miscellaneous</h3>
+<ul>
+<li>Docs/plans-&gt;plans</li>
+</ul>
+<h3 id="other">Other</h3>
+<ul>
+<li>Added test for demo</li>
+<li>Plugins.registry-&gt;plugins.core</li>
+<li>Updated docs</li>
+<li>Updated docs</li>
+<li>Removed version; updated docs</li>
+<li>_renderer_registry-&gt;renderer_registry</li>
+<li>Added docs/plans and .tox</li>
+<li>Rendering.<em>, io.</em>: changed registering renderers/readers/writers to plugin system; plugins: new</li>
+<li>Updated; rendering._cairo: rm</li>
+<li>Update with renderer changes</li>
+</ul>
+<h3 id="testing">Testing</h3>
+<ul>
+<li>Update with new plugin api</li>
+</ul>
+<h2 id="030-2026-02-03">[0.3.0] - 2026-02-03</h2>
+<h3 id="other_1">Other</h3>
+<ul>
+<li>Fixed bug in argument names</li>
+<li>Update</li>
+<li>Init</li>
+<li>Added entry point momapy</li>
+<li>Changed 'formats' attributes to 'supported_formats'; added ValueError for unsupported formats</li>
+</ul>
+<h2 id="028-2026-01-27">[0.2.8] - 2026-01-27</h2>
+<h3 id="fixed_1">Fixed</h3>
+<ul>
+<li>Fixed python version to 3.13 for packaging</li>
+</ul>
+<h3 id="other_2">Other</h3>
+<ul>
+<li>Io.core; celldesigner.io.celldesigner: replaced ReaderResult's ids by FrozenSurjectionDict</li>
+<li>Modified so it gets the latest tag on the main branch when triggering manually (Claude)</li>
+<li>Add workflow_dispatch option to trigger manually</li>
+</ul>
+<h2 id="027-2026-01-26">[0.2.7] - 2026-01-26</h2>
+<h3 id="other_3">Other</h3>
+<ul>
+<li>Fixed id of layout element taking id of the cd element it comes from</li>
+</ul>
+<h2 id="026-2026-01-21">[0.2.6] - 2026-01-21</h2>
+<h3 id="other_4">Other</h3>
+<ul>
+<li>Fixed layout model mapping for subunits</li>
+</ul>
+<h2 id="025-2026-01-14">[0.2.5] - 2026-01-14</h2>
+<h3 id="other_5">Other</h3>
+<ul>
+<li>Merge branch 'develop' for release</li>
+<li>Added layout model mapping for compartments</li>
+</ul>
+<h2 id="024-2026-01-13">[0.2.4] - 2026-01-13</h2>
+<h3 id="other_6">Other</h3>
+<ul>
+<li>Merge branch 'develop' for release</li>
+<li>Fixed order of compartment aliases so they respect z-order</li>
+</ul>
+<h2 id="023-2026-01-08">[0.2.3] - 2026-01-08</h2>
+<h3 id="other_7">Other</h3>
+<ul>
+<li>Merge branch 'develop' for release</li>
+<li>Added specific supported python 3 versions</li>
+<li>Fixed bug in COPYING badge url</li>
+<li>Fixed bug in COPYING badge url</li>
+<li>Added badges</li>
+<li>Merge branch 'develop'</li>
+<li>Added binder link and how to run the demo locally</li>
+<li>Removed useless demo extra; binder/requirements.txt: replaced demo extra by jupyter dep</li>
+<li>Added demo extra and moved jupyter dep from dev to demo; binder/requirements.txt: added file for binder</li>
+</ul>
+<h2 id="022-2026-01-07">[0.2.2] - 2026-01-07</h2>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>Update with new default rendering and reading modules</li>
+<li>Removed copyright</li>
+</ul>
+<h3 id="other_8">Other</h3>
+<ul>
+<li>Merge branch 'develop'</li>
+<li>Merge branch 'develop'</li>
+</ul>
+<h2 id="021-2026-01-07">[0.2.1] - 2026-01-07</h2>
+<h3 id="other_9">Other</h3>
+<ul>
+<li>Merge branch 'develop'</li>
+<li>Fixed bug where rendering.skia was imported</li>
+<li>Celldesigner.core, celldesigner.io.celldesigner: changed default font to Arial</li>
+<li>Replaced celldesigner_pickle by celldesigner-pickle</li>
+<li>Fixed bug momapy.io.WriterResult-&gt;momapy.io.core.WriterResult</li>
+<li>Fixed type hint for .selectors attribute</li>
+<li>Added tests (Claude)</li>
+<li>Replaced pp by pyparsing</li>
+<li>Added Not and Compound selectors</li>
+<li>Update with new core for io and svg for rendering</li>
+<li>Update explaining optional deps</li>
+<li>Made true release conditional to TestPyPi release's success</li>
+</ul>
+<h2 id="020-2026-01-06">[0.2.0] - 2026-01-06</h2>
+<h3 id="fixed_2">Fixed</h3>
+<ul>
+<li>Fixed bug in checking files: added try in case the file is binary</li>
+<li>Fixed bug where super was called in FrozenSurjectionDict init</li>
+<li>Fixed test</li>
+<li>Fixed import and extents bug</li>
+<li>Fixed bug in class names for logical operators</li>
+<li>Fixed bug: replaced ink_bbox by bbox</li>
+<li>Fixed bug in value=='' for state variables</li>
+<li>Fixed bugs in writing sbgnml</li>
+<li>Fixed bug</li>
+<li>Fixed bug where only macos would be tested</li>
+<li>Fixed bug with group_transform in rendering; added transform if no group_transform</li>
+<li>Fixed bug</li>
+<li>Fixed bug: LogicArc-&gt;LogicArcLayout</li>
+<li>Fixed bug in making LayoutModelMappingBuilder with new keys as frozendict</li>
+<li>Fixed bug in filter vs filter_ and filter_.id vs filter_.id_</li>
+<li>Fixed absent NoneValueType type hint for dahsarrays and others</li>
+<li>Fixed bug in make_boolean_logic_gate</li>
+</ul>
+<h3 id="other_10">Other</h3>
+<ul>
+<li>Merge branch 'develop'</li>
+<li>Made automatic github release</li>
+<li>Updated tests to have frozendict notes and annotations</li>
+<li>Changed type of notes and annotations to frozendict</li>
+<li>One tox job per os</li>
+<li>Adapted workflow to test all python versions on all os with tox</li>
+<li>Added explicit utf-8 encoding when writing files to handle windows</li>
+<li>Added tox.ini and python version</li>
+<li>Typing.Self-&gt;typing_extensions.Self for 3.10 compat</li>
+<li>Switched from pdm to uv; pdm-bachend to hatchling; made test dep group</li>
+<li>Changed typing.Self to typing_extensions.Self for compat with 3.10</li>
+<li>Added ModuleNotFoundError as potential source for not available renderer</li>
+<li>Update</li>
+<li>Added pytest tests to push on testing branch</li>
+<li>Updated with new rendering tests</li>
+<li>Merge branch 'develop'</li>
+<li>Cleaned github actions</li>
+<li>Removed comments and unnecessary asserts</li>
+<li>Udpated tests</li>
+<li>Removed all extras</li>
+<li>Added insallation github action</li>
+<li>Added pytest and tests generated by Claude</li>
+<li>Update</li>
+<li>Solved circular imports when registering; fixed bug in sbgn/io/sbgmml.py</li>
+<li>Moved readers and writers registration to init of subpackage for sbml and celldesigner</li>
+<li>Removed buged sbgnml-0.2 writer</li>
+<li>Moved io to own subpackage; moved registering readers and writers to subpackage init</li>
+<li>Moved registering svg-native renderer to base of subpackage</li>
+<li>Changed default renderer to svg-native</li>
+<li>Moved cairo and skia to extras</li>
+<li>Added warning about installing extras</li>
+<li>Added uharfbuzz and matplotlib</li>
+<li>Replaced ink_bbox by bbox</li>
+<li>Change default font to DejaVu Sans; replaced ink_bbox by bbox</li>
+<li>Changed pango layout to harfbuzz and matplotlib (for fonts)</li>
+<li>Merge branch 'develop' into freetype</li>
+<li>Added freetype-py dep</li>
+<li>Added test layout with freetype</li>
+<li>Updated installation instructions</li>
+<li>Updated dependencies</li>
+<li>Added dependencies</li>
+<li>Added frozen annotations</li>
+<li>Added reading id</li>
+<li>Added more layout model mappings</li>
+<li>Added sbgn/io/pickle.py and rendering/cairo.py that were ai generated based on template files</li>
+<li>Updated demo</li>
+<li>Update</li>
+<li>Update</li>
+<li>Added print_source function</li>
+<li>Update</li>
+<li>Added participants of model elements to layout model mapping for: modulations, processes, logical operators</li>
+<li>Added support for HAlignment in TextLayout; added HAligment.CENTER to all sbgn labels</li>
+<li>Updated demo</li>
+<li>Updated demo</li>
+<li>Added NoneValue to edge_mode translation</li>
+<li>Updated demo</li>
+<li>Id-&gt;id_</li>
+<li>Mod demo: added example; fixed bug in display where markers were transformed</li>
+<li>_ReactionLayout-&gt;ReactionLayout</li>
+<li>In Filter: id-&gt;id_</li>
+<li>Made left/right_connector_fraction public attributes</li>
+<li>Added function to set label font size</li>
+<li>Updated packages</li>
+</ul>
+<h2 id="013-2025-08-28">[0.1.3] - 2025-08-28</h2>
+<h3 id="fixed_3">Fixed</h3>
+<ul>
+<li>Fixed link to doc</li>
+</ul>
+<h2 id="012-2025-08-28">[0.1.2] - 2025-08-28</h2>
+<h3 id="other_11">Other</h3>
+<ul>
+<li>Updated docs/index.md and README.md</li>
+<li>Cleaned</li>
+<li>Made version regex start with number after v</li>
+<li>Publish to testpipy first</li>
+</ul>
+<h2 id="011-2025-08-28">[0.1.1] - 2025-08-28</h2>
+<h3 id="other_12">Other</h3>
+<ul>
+<li>Added module level doc</li>
+<li>Build only if version</li>
+<li>Only on version tags</li>
+<li>Back to version as v.*</li>
+<li>Added dynamic versioning</li>
+<li>Added cd/ci for automatic release on tags</li>
+<li>Moved to pdm build backend</li>
+<li>Updated doc page</li>
+</ul>
+<h2 id="010-2025-08-12">[0.1.0] - 2025-08-12</h2>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Refactored; fixed bugs; added truncation layout; id-&gt;id_</li>
+<li>Refactored</li>
+<li>Refactored reactions and taken into account transport</li>
+<li>Refactored cairo renderer</li>
+<li>Refactoring and bugs</li>
+<li>Refactored code and fixed in set_arcs_to_borders; added tidy function</li>
+<li>Refactored rendering; render multiple maps</li>
+</ul>
+<h3 id="fixed_4">Fixed</h3>
+<ul>
+<li>Fixed typo</li>
+<li>Fixed merge</li>
+<li>Fixed bugs and cleaned up</li>
+<li>Fixed bug in to_top_left</li>
+<li>Fixed return type of fit function</li>
+<li>Fixed bug in biology-qualifiers: isValue-&gt;is</li>
+<li>Fix #8</li>
+<li>Fixed bug outputing wrong map element types depending on mode</li>
+<li>Fixed typo</li>
+<li>Fixed bug in intersection of line and shapely object; added rounding</li>
+<li>Fixed bug type selector</li>
+<li>Fixed bug no species in map</li>
+<li>Fixed bug no reaction in map</li>
+<li>Fixed bug in handling undefined state variables</li>
+<li>Fixed bug in product from product link: was using Reactant</li>
+<li>Fixed bug in processing annotations</li>
+<li>Fixed bug in make_notes...: return [] rather than None</li>
+<li>Fixed typo in _make_model_no_subelements...: layout-&gt;model</li>
+<li>Fixed bug in finding correct module</li>
+<li>Fixed bug: compartments and species templates were not added to the model</li>
+<li>Fixed bug not taking into account subunits</li>
+<li>Fixed bugs</li>
+<li>Fixed bug: species_aliases includes subunits; removed subunits from those</li>
+<li>Fixed bug: species_aliases includes subunits; removed subunits from those</li>
+<li>Fixed bug in reading structural states</li>
+<li>Fixed bug in start_arrowhead_base</li>
+<li>Fixed bug biology-model-&gt;model-qualifiers</li>
+<li>Fixed bug when no tagetLink in reaction modification</li>
+<li>Fixed imports</li>
+<li>Fixed module name after moving annotations to sbml</li>
+<li>Fixed imports</li>
+<li>Fixed bug: need to escape text values</li>
+<li>Fixed import bug</li>
+<li>Fixed childless functions: layout_elements=None-&gt;layout_elements=tuple([])</li>
+<li>Fixed bug in arrowhead_border: is None-&gt;isnan</li>
+<li>Fixed TransportLayout._end_arrowhead_border_drawing_elements: RIGTH-&gt;LEFT</li>
+<li>Fixe bug intersection of line and segment</li>
+<li>Fixed dimensions of layout</li>
+<li>Fixed calls to new signature of momapy.positioning.fraction_of function</li>
+<li>Fixed calls to new signature of momapy.positioning.fit function</li>
+<li>Fixed bug self_children not implemented for arcs</li>
+<li>Fixed bug in writer</li>
+<li>Fixed bugs; took into account AF</li>
+<li>Fixed variable names</li>
+<li>Fixed border_<em>-&gt;</em></li>
+<li>Fixed bug with layout.fill being NoneValue</li>
+<li>Fixed id-&gt;id_</li>
+<li>Fixed bug in arrowhead_drawing_elements</li>
+<li>Fixed id-&gt;id_</li>
+<li>Fixed bug with file names</li>
+<li>Fixed type hints</li>
+<li>Fixed ) bug</li>
+<li>Fixed type hint: self-&gt;Self</li>
+<li>Fixed bugs with names</li>
+<li>Fixed bug in Point: <strong>div</strong> to <strong>truediv</strong></li>
+<li>Fixed label_center</li>
+<li>Fixed bug in product and reactant links</li>
+<li>Fixed bugs in arrowhead_*</li>
+<li>Fixed bug in call with wrong signature</li>
+<li>Fixed bug in end and start arrowhead length</li>
+<li>Fixed bug in grouplayout bbox</li>
+<li>Fixed typo group drawing elements</li>
+<li>Fixed bug in start_arrowhead for double_headed_arcs</li>
+<li>Fixed bug shorten_bezier_curve, shorten_elliptical_arc: segment-&gt;bezier_curve, elliptical_arc</li>
+<li>Fixed bug transform_elliptical_arc: self-&gt;elliptical_arc</li>
+<li>Fixed bug: north_north_easr-&gt;north_north_east</li>
+<li>Fixed bug setting dasharray to dashoffset</li>
+<li>Fixed bug with doubleheadedarc</li>
+<li>Fixed bugs</li>
+<li>Fixed bugd in DoubleTriangle: momapy.nodes-&gt;momapy.meta.shapes, border_drawing_elements-&gt;drawing_elements</li>
+<li>Fixed xsdata version to 23.8</li>
+<li>Fixed bug position of layouts</li>
+<li>Fixed bug RectangleCompartment</li>
+<li>Fixed not right model element when already exists in set</li>
+<li>Fixed bugs in shapes and receptor_layout</li>
+<li>Fixed bug in multi_mixin</li>
+<li>Fixed bug outside_model_element in make_and_add_compartment</li>
+<li>Fixed bug in build function for frozendict: self-&gt;obj</li>
+<li>Fixed bug with names of celldesignerspeciesreference and gene, rna, antisenserna</li>
+<li>Fixed bug with name of protein that was a property: species already have a name (from SBML)</li>
+<li>Fixed bug: did not take into account compartments</li>
+<li>Fixed few bugs</li>
+<li>Fixed bug: not taking into account compartment</li>
+<li>Fixed names</li>
+<li>Fixed bug</li>
+<li>Fixed bug</li>
+<li>Fixed type hint bug in association layout</li>
+<li>Fixed bug type hint BQ</li>
+<li>Fixed union bug</li>
+<li>Fixed bug: color alpha int-&gt;float</li>
+<li>Fixed bug: colors float-&gt;int</li>
+<li>Fixed bug: product was made with Reactant cls</li>
+<li>Fixed bug: uois added to svs</li>
+<li>Fixed buggy inheritance of stimulation layout and equivalence arc layout</li>
+<li>Fixed buggy inheritance of logic arc layout</li>
+<li>Fixed builder for forward refs; added type | new_type in builder to allow non builders in builders</li>
+<li>Fixed bug with colors: if colors not in list of color definitions, assumes its hex def</li>
+<li>Fixed bug when no list_of_color_definitions or no list_of_styles</li>
+<li>Fixed bug in split_line_coords</li>
+<li>Fixed with new presentation attributes</li>
+<li>Fixed type of transform from transformation to tuple[transformation]</li>
+<li>Fixed bug: subunit attr can be None</li>
+<li>Fixed typo</li>
+<li>Fixed bug: no unset in simple value grammar</li>
+<li>Fixed typo</li>
+<li>Fixed font_color to new stroke/fill</li>
+<li>Fixed typo</li>
+<li>Fixed typing bug</li>
+<li>Fixed imports</li>
+<li>Fixed cairo import</li>
+<li>Fixed bug render_curve_to</li>
+<li>Fixed bug when saving state</li>
+<li>Fixed bugs</li>
+<li>Fixed import errors</li>
+<li>Fixed kw_only in making skia renderer</li>
+<li>Fixed fill and stroke for textlayouts</li>
+<li>Fixed Close-&gt;ClosePath</li>
+<li>Fixed bugs</li>
+<li>Fixed bug font weight</li>
+<li>Fixed transformed for text</li>
+<li>Fixed new meta imports</li>
+<li>Fixed bug on subunit presentation attributes</li>
+<li>Fixed typo</li>
+<li>Fixed typo</li>
+<li>Fixed typos</li>
+<li>Fixed typo</li>
+<li>Fixed bug in bbox for shapely obj</li>
+<li>Fixed bugs</li>
+<li>Fixed typos</li>
+<li>Fixed bug: two times slope1</li>
+<li>Fixed Ellipse.to_path: now 4 elliptical arcs</li>
+<li>Fixed bug: use arrohead_base for computing arrohead angle</li>
+<li>Fixed bug: render_curve_to-&gt;add_curve_to</li>
+<li>Fixed bug: to_cubic-&gt;to_curve_to</li>
+<li>Fixed bug: fx-&gt;fX,fy-&gt;fY</li>
+<li>Fixed bug</li>
+<li>Fixed bugs</li>
+<li>Fixed bugs</li>
+<li>Fixed bug: n_segs not passed through for bezier curve to shapely</li>
+<li>Fixed bug: no compartment</li>
+<li>Fixed bug comparing points</li>
+<li>Fixed multipages</li>
+<li>Fixed bug: inverted is_sublayout relation</li>
+<li>Fixed bug in compartment_ref</li>
+<li>Fixed typo</li>
+<li>Fixed bbox for whole map</li>
+<li>Fixed bug when no state in sv</li>
+<li>Fixed bug in hex output</li>
+<li>Fixed bug: hex repr to 'x'</li>
+<li>Fixed bug: hex on int not float</li>
+<li>Fixed bug</li>
+<li>Fixed bug in get_mapping</li>
+<li>Fixed bug when no extension</li>
+<li>Fixed reverse order for points of consumption</li>
+<li>Fixed bugs</li>
+<li>Fixed bug when color_str started with '#'</li>
+<li>Fixed bugs with new layout_model_mapping</li>
+<li>Fixed bug for ior: now like or and not dict.<strong>ior</strong></li>
+<li>Fixed bug</li>
+<li>Fixed bug with or selector</li>
+<li>Fixed bug in is_ovav: fields-&gt;dataclasses.fields</li>
+<li>Fixed bug in shortened when self.length() == 0</li>
+<li>Fixed bug in typing</li>
+<li>Fixed typo in model: switched SpeciesReference and SimpleSpeciesReference</li>
+<li>Fixed bug in coinsident lines</li>
+<li>Fixed bug points to segments</li>
+<li>Fixed bug: arc.x and arc.y</li>
+<li>Fixed typo in angle</li>
+<li>Fixed bug in crosspoint border drawing element</li>
+<li>Fixed bug: TextLayoutElement -&gt; TextLayout</li>
+<li>Fixed label textlayout width and height</li>
+<li>Fixed bug</li>
+<li>Fixed bug in stylesheet list</li>
+<li>Fixed bug in reading list of stylesheets</li>
+<li>Fixed bug with returning results</li>
+<li>Fixed bug when builders were used instead of built objects</li>
+<li>Fixed unused imports</li>
+<li>Fixed namespace error</li>
+<li>Fixed tidy; set_arcs_to_borders does not do anything if no intersection is found</li>
+<li>Fixed imports</li>
+<li>Fixed imports</li>
+<li>Fixed import</li>
+<li>Fixed bug</li>
+<li>Fix + vanted.css</li>
+<li>Fixed bug in frozendict ini</li>
+<li>Fixed frozendict bug: initialization from dict rather than list</li>
+<li>Fix bug</li>
+<li>Fixed bugs</li>
+<li>Fixed bug in set_arcs_to_borders</li>
+<li>Fixed bug when last_segment.length() == 0 in arc anchors</li>
+<li>Fixed bug: set_matrix -&gt; transform in cairo renderer</li>
+<li>Fixed bug in intersection of line and circle</li>
+<li>Fixed bug in render_maps</li>
+<li>Fixed bug in textlayoutelement</li>
+<li>Fixed bugs</li>
+<li>Fixed import bug</li>
+<li>Fixed bugs and replaced nodelabel by textlayout</li>
+<li>Fixed bugs in render_maps: calculation of min_x and min_y</li>
+<li>Fixed bug with labels of compartments in set_compartments...</li>
+<li>Fixed bug with PhantomLayoutElement</li>
+<li>Fixed bugs with arrowhead bboxes</li>
+<li>Fixed bug in copying in render_map with to_top_left==True</li>
+<li>Fixed bugs</li>
+<li>Fixed typo</li>
+<li>Fixed make_builder: Builder is now always a base class, and connectable_attributes are well set</li>
+<li>Fixed imports</li>
+<li>Fixed rendering of text with new coord system</li>
+<li>Fixed import</li>
+<li>Fixed imports</li>
+</ul>
+<h3 id="other_13">Other</h3>
+<ul>
+<li>Updated docs</li>
+<li>Added workflow for building docs</li>
+<li>Updated doc</li>
+<li>Updated demo</li>
+<li>Rm unused import</li>
+<li>Updated with proper display for layout elements with transformations</li>
+<li>Bbox now takes into account ink_bbox of text</li>
+<li>Ruff</li>
+<li>Merge branch 'develop' into shapely_transform</li>
+<li>Merge branch 'demo' into develop</li>
+<li>Updated demo; fixed bug in utils</li>
+<li>Added transform</li>
+<li>Made transform a tuple of transformation</li>
+<li>Udpated docs</li>
+<li>Added ruff, pygments</li>
+<li>Rm red layout stroke</li>
+<li>Removed config from param for creating a skia renderer</li>
+<li>Updated doc</li>
+<li>Updated packages and removed sphinx related and black deps</li>
+<li>Updated doc</li>
+<li>Updated layout_model_mapping</li>
+<li>Update</li>
+<li>Merged</li>
+<li>Updated doc</li>
+<li>Updated documentation</li>
+<li>Updated documentation</li>
+<li>Merge branch 'develop' into docs_mkdocs</li>
+<li>Updated documentation</li>
+<li>Update</li>
+<li>Added reading sbml skeleton</li>
+<li>Updated demo</li>
+<li>Added EMPTY_SET key; fixed bug in writing compartmentRef attribute</li>
+<li>Updated functions to new layout_model_mapping</li>
+<li>Added replace=True to add_mappings</li>
+<li>Added replace option in add_mapping</li>
+<li>Support for annotations, compartment_refs</li>
+<li>Merge branch 'develop' into write_sbgnml</li>
+<li>Replaced call to Pango.extents_to_pixels by pos / Pango.SCALE to avoid new bug with function</li>
+<li>Merge branch 'develop' into write_sbgnml</li>
+<li>Added pdm-readiness</li>
+<li>Added cross_hv_of; cross_vh_of; set_mid_of; set_cross_hv_of; set_cross_vh_of functions</li>
+<li>Added support in CellDesignerModel for Regions</li>
+<li>Added mid_of function</li>
+<li>Closes #19</li>
+<li>Closes #18</li>
+<li>Closes #14: replace is not NoneValue by != NoneValue</li>
+<li>Closes #13: fixed bug in Color.to_rgba; fixed range to float in skia fill and stroke</li>
+<li>Closes #10</li>
+<li>Closes #9</li>
+<li>Updated dependencies</li>
+<li>Cleaned dependencies</li>
+<li>Added id and class in rendering</li>
+<li>Added structural state layout</li>
+<li>Added post_init to pointbuilder</li>
+<li>Replaced is momapy.drawing.NoneValue by ==</li>
+<li>For notes, annotations, ids: frozendict to dict</li>
+<li>Added hash and eq methods for NoneValue singleton</li>
+<li>Added handling non text file exception in read</li>
+<li>Added celldesigner pickle read and write</li>
+<li>Removed reduduntant exceptions from WriterResult</li>
+<li>Added _active to ids of active species</li>
+<li>Added support for dasharray in SingleNode</li>
+<li>Added support for stroke_dasharray</li>
+<li>Mappings are now frozendicts</li>
+<li>Merge branch 'develop' into cd_layout_model_mapping</li>
+<li>Rounded for shapely</li>
+<li>Rm unused import</li>
+<li>Replaced typing for source and target of arc to LayoutElement</li>
+<li>Added layout model mapping for reactions and modulations</li>
+<li>Added layout_model_mapping for species</li>
+<li>Changed require-python to &gt;=3.10</li>
+<li>Added SurjectionDict</li>
+<li>Merge branch 'develop' into write_sbgnml</li>
+<li>Modification residues are now sorted following their angle (ascending)</li>
+<li>Taken into account undefined names for modification residues with an order attribute</li>
+<li>Added order to modification residue</li>
+<li>Update with new sbgnml export</li>
+<li>Updated writing sbgnml</li>
+<li>Changed function to make notes; added support for map/model notes and annotations</li>
+<li>Added support for notes and annotations on the map itself</li>
+<li>Rm annotations to frozendict</li>
+<li>Added notes support for elements</li>
+<li>Added notes for compartments</li>
+<li>Added export of notes</li>
+<li>Updated to python 3.12</li>
+<li>Rm transformation of annotations and notes into frozen sets</li>
+<li>Changed python</li>
+<li>Start of new writer</li>
+<li>Added support for af unit of informations</li>
+<li>Added specific function for making activities</li>
+<li>Removed unnecessary _sbgnml_parser*</li>
+<li>Added support for labels in submaps</li>
+<li>Added new support for reading af without xsdata</li>
+<li>Added ids to map_element_to_ids</li>
+<li>Added ids to ReaderResult</li>
+<li>Removed print</li>
+<li>Merge branch 'develop' into cd_ids</li>
+<li>Merged sbgn_revamp</li>
+<li>Added model layout mapping</li>
+<li>Continued revamping</li>
+<li>Removed annotations and notes</li>
+<li>Added biomodel qualifiers</li>
+<li>Rvamped</li>
+<li>Removed old unused parse file</li>
+<li>Added map_element_to_ids mapping</li>
+<li>Removed useless dict transform of model_element_to_layout_element</li>
+<li>Removed unused parser file</li>
+<li>Annotations is now frozen</li>
+<li>Sbml.Annotation-&gt;sbml.RDFAnnotation</li>
+<li>List-&gt;set</li>
+<li>Added ids for reactants and products</li>
+<li>Stoichiometry can be None</li>
+<li>Finished model maker</li>
+<li>Added Palmytoylated</li>
+<li>Added PALMITOYLATED</li>
+<li>DON'T CARE-&gt;DON_T_CARE</li>
+<li>Removed unused re import</li>
+<li>AntisenseRNA-&gt;AntisenseRNA</li>
+<li>Optional listOfModification in reaction</li>
+<li>Added annotations</li>
+<li>Removed map_element_to_annotations from CellDesignerMap</li>
+<li>Added boolean logic gates for modulations</li>
+<li>Added logic gates</li>
+<li>Added class for logic arc layouts</li>
+<li>Changed size and font of logic gates</li>
+<li>Added gate layouts</li>
+<li>Continued revamping</li>
+<li>Removed useless newline</li>
+<li>Removed useless print</li>
+<li>Continued revamping</li>
+<li>Udpated</li>
+<li>Updated with_model/with_layout options</li>
+<li>Read/write_file-&gt;read/write; added os.PathLike type annotation</li>
+<li>More new methods</li>
+<li>In Writer: write()-&gt;write_file()</li>
+<li>Beginning of refactoring celldesigner reading</li>
+<li>Update</li>
+<li>Added annotations for included species</li>
+<li>First fix read_file</li>
+<li>New way of parsing: model, layout, map; annotations are outside of objects</li>
+<li>Udpate with doc</li>
+<li>Added undoc-members</li>
+<li>Changed conf.py location for new org</li>
+<li>Update docs/ organization</li>
+<li>Mv .readthedocs.yaml to root</li>
+<li>Added files for readthedocs</li>
+<li>Mv sphinx_docs-&gt;docs</li>
+<li>Removed ipykernel dependency</li>
+<li>Udpated demo</li>
+<li>Added dist/</li>
+<li>Udpate with classifiers and urls</li>
+<li>Updated package description</li>
+<li>Update</li>
+<li>Update</li>
+<li>Remove intersection of line with drawing and layout elements</li>
+<li>Added docs</li>
+<li>Updated demo</li>
+<li>Updated demo</li>
+<li>Moved demo to /; cleaned up</li>
+<li>Added documentation</li>
+<li>Udpated docs</li>
+<li>Udpated doc</li>
+<li>Updated doc</li>
+<li>Update doc</li>
+<li>New_builder-&gt;new_builder_object; added type hints</li>
+<li>New_builder-&gt;new_builder_object</li>
+<li>Added full input of SBGN AF maps</li>
+<li>Update</li>
+<li>Updated demo</li>
+<li>Updated type hints and methods</li>
+<li>Added from_top_left option</li>
+<li>Removed unused import</li>
+<li>Update demo</li>
+<li>Update with new attr names</li>
+<li>Added center to border and angle functions</li>
+<li>Update with new attr names</li>
+<li>Fill of layout set to NoneValue</li>
+<li>Changed qualified attrs to unqualified attrs (default)</li>
+<li>Added notebook</li>
+<li>Added docs"</li>
+<li>Added <strong>init</strong>.py</li>
+<li>Added <strong>init</strong>.py</li>
+<li>To python 3.12</li>
+<li>Added documentation</li>
+<li>Updated</li>
+<li>Added particular anchors for celldesigner shapes</li>
+<li>Moved labels of modifications</li>
+<li>Taken into account active; fixed bug in position of compartments</li>
+<li>Added some anchor points</li>
+<li>Added support for modulations</li>
+<li>Taken into account catalysis</li>
+<li>Put labels in right place</li>
+<li>Added replacement of <em>text</em> by character</li>
+<li>Added functions to find angle and border of shapely_object and collection of drawing elements</li>
+<li>Update with dissociation</li>
+<li>Replaced fit layout by the size of the layout</li>
+<li>Added super_or_builder method</li>
+<li>Added todos</li>
+<li>Remade taking into account edit points with center or link anchor</li>
+<li>Added anchor_point method to layout element</li>
+<li>Added comment</li>
+<li>Add get_transformation_for_frame_function</li>
+<li>Partially fixed bug when no link anchor</li>
+<li>Taken into account omitted transition, unknown transition, transcription, translation</li>
+<li>Taken into account start node in base reactant layout</li>
+<li>Refacrtored state_transition_layout and add heterodimer_association_layout</li>
+<li>Took into account base reactants and edit points for association</li>
+<li>Added layout for state transition, with reactants and products</li>
+<li>Begined adding layout for reactions</li>
+<li>Added with_layout option to prevent from making the layout</li>
+<li>Added intermediate cardinal points</li>
+<li>Added state transition layout prototype</li>
+<li>Added compartment layouts; refactored code</li>
+<li>Add_or_replace_element_in_set now returns the element that is in the set at the end</li>
+<li>Code layout</li>
+<li>In _Modifier: species-&gt;referred_species</li>
+<li>Replaced .species by .referred_species in SpeciesReferences; replaced CellDesignerSpeciesReference by SpeciesTemplate</li>
+<li>Added reading of empty state variable</li>
+<li>Readded Annotation</li>
+<li>Removed notes and annotations from sbase</li>
+<li>Support for parsing sbml annotations inside notes</li>
+<li>Added support for reduced boolean logic gates</li>
+<li>Added listOfGateMember to reaction</li>
+<li>Rm make layout and model_layout_mapping for celldesigner</li>
+<li>Added None to model, layout and layout_model_mapping</li>
+<li>Added annotations</li>
+<li>Map_element_to_annotation-&gt;map_element_to_annotations</li>
+<li>Added rdf annotations for species</li>
+<li>Added function to make annotations</li>
+<li>Qdded attributeFormDefault='qualified' for rdf</li>
+<li>Added map_element_to_annotation to Map</li>
+<li>Added attributes of annotations</li>
+<li>Added empty state which arises sometimes</li>
+<li>Changed to using aliases instead of species</li>
+<li>Added acetylated modification</li>
+<li>Updated schemas and changed location</li>
+<li>Now transforming aliases rather than species</li>
+<li>Added hypothetical for species</li>
+<li>Taken into account: outside for complexed; modifiers with gates</li>
+<li>Modification-&gt;modificationType</li>
+<li>Homodimer-&gt;homomultimer</li>
+<li>Adapted to minerva bug on type for rna, gene and anitsenserna references</li>
+<li>Added # abstract</li>
+<li>Removed momapy-model from ids for model elements</li>
+<li>Removed metaid, notes and annotations of comparison for species</li>
+<li>Udpated the celldesigner schema with reduced notation</li>
+<li>Update</li>
+<li>Cleaned model</li>
+<li>Cleaned the model</li>
+<li>Update</li>
+<li>Cleaned modulations in CellDesignerModel</li>
+<li>Cleaned modulations and modifiers</li>
+<li>Cleaned modifier and added comment</li>
+<li>Modulators-&gt;modifiers</li>
+<li>No printing of base types or objects evaluating to False (e.g., empty collections)</li>
+<li>Removed structuralstatevalue: now always str</li>
+<li>Checks for subclass rather than exact type matching in exclude_cls</li>
+<li>Cleaned make parser for celldesigner</li>
+<li>Merge branch 'develop' into celldesigner</li>
+<li>Updated python version to &gt;3.10 and &lt;3.11</li>
+<li>Added AuxiliaryUnit concept</li>
+<li>Redid tpying.union for forwardref</li>
+<li>Replaced referes_to attribute by reference attribute</li>
+<li>Got rid of typing.Union</li>
+<li>Made the ids of model elements deterministic</li>
+<li>Cleaned</li>
+<li>Added add_or_replace_elemement_in_set function</li>
+<li>Merge branch 'fix_builder' into celldesigner</li>
+<li>Removed UndefinedVariable class; use order instead</li>
+<li>Added annotations reading for macromolecules</li>
+<li>Added superclass BiomodelQualifier for BQModel and BQBiol</li>
+<li>Added module for forwardref of logicaloperator</li>
+<li>Moved make_pango to new _pango module; forced ids to str</li>
+<li>Cleaned up</li>
+<li>Applying stylesheet to objects; to builder becomes _ function</li>
+<li>Update</li>
+<li>Shortening a segment of length 0 now returns a copy of the segment</li>
+<li>Update</li>
+<li>Updated code</li>
+<li>Update with new way: build objects</li>
+<li>Exluded Point from collections in pretty_print function</li>
+<li>Added class exclusion feature in pretty print; changed color:black-&gt;green</li>
+<li>Simplified names of mappings</li>
+<li>Added  make_union option to the transform_type</li>
+<li>Removed add_element method</li>
+<li>Builder transform type: now returns type_ | new_type</li>
+<li>Bug fix: stopped transforming default factory functions</li>
+<li>Changed variable names: field_-&gt;field, mappings to more conventional names</li>
+<li>Antisens-&gt;Antisense</li>
+<li>Merge branch 'develop' into celldesigner</li>
+<li>Can perform functions on map</li>
+<li>Changed check_file methods: no use of parser anymore</li>
+<li>Render extension: made attributes qualified</li>
+<li>Cleaned up; moved schemas and make_parser outside of src</li>
+<li>Added parser for sbgnml_0_2 and _0_3</li>
+<li>Updated the README with link to demo</li>
+<li>Udpated the demo</li>
+<li>Update</li>
+<li>Added License</li>
+<li>Added text to README</li>
+<li>Merge branch 'develop' into celldesigner</li>
+<li>Removed tests from git</li>
+<li>Readded celldesigner/</li>
+<li>Readded sbml/core.py</li>
+<li>Deleted sbml/ and celldesigner/ to move them to branches</li>
+<li>Pipenv-&gt;pdm; cleaned up</li>
+<li>Changed rectangle compartment</li>
+<li>Merge branch 'develop' into celldesigner</li>
+<li>Added script for making a css template file from a module</li>
+<li>Updated and added styles with @import</li>
+<li>Updated demo</li>
+<li>Changed defaults for subunits attributes</li>
+<li>Updated with new presentation attributes</li>
+<li>Changed defaults for presentation attributes</li>
+<li>LogicArc-&gt;LogicArcLayout;EquivalenceArc-&gt;EquivalenceArcLayout</li>
+<li>Added | None to types for stroke_width</li>
+<li>Path_shorten-&gt;shorten; added start_shorten to Arc</li>
+<li>Now built with @import cs_black_and_white and newt_no_cs</li>
+<li>Added chdir for relative css @import</li>
+<li>Added import statement feature inside css</li>
+<li>StyleSheet read_file-&gt;StyleSheet.from_file; join_style_sheets-&gt;combine_style_sheets;read_string-&gt;from_string; added from_files classmethod</li>
+<li>Update</li>
+<li>Pseudo-fixed bug with unset</li>
+<li>Update</li>
+<li>Added script to make a css template</li>
+<li>Harmonize initial values</li>
+<li>Layout is now a Node</li>
+<li>Added unset css value, that is transformed to Python's None</li>
+<li>Added default values for presentation attrs of SBGNNode</li>
+<li>Changed list_colors to print_colors; list_colors now list all pairs (color_name, color) of the module</li>
+<li>Cleaned up code: new SBGNSingle/DoubleHeadedArc; arrowhead_drawing elements coded for arcs instead of subclassing; cleaned attributes order</li>
+<li>Updated layouts with new shapes</li>
+<li>Cleaned typing</li>
+<li>File creation</li>
+<li>Added make_node and make_arc functions</li>
+<li>Changed default values for presentation attritubutes in TextLayout; use of make_pango_layout from utils in textLayout</li>
+<li>Added get-initial_value method; fixed bug font weight mapping</li>
+<li>Added get_initial_value method</li>
+<li>Added FONT_WEIGHT_VALUE_MAPPING</li>
+<li>Moved testing functions to testing; added make_pango_layout to utils; removed print_classes from utils</li>
+<li>Added transformation of elliptical arc to bezier curves; cleaning</li>
+<li>Cleaning</li>
+<li>Cleaned up</li>
+<li>Added sbmlutils</li>
+<li>Continued coding drawing_elements methods</li>
+<li>Update</li>
+<li>Font family and size become mandatory on text layouts</li>
+<li>Filter on all drawing elements</li>
+<li>Added new StatefulRenderer</li>
+<li>Added fill to textlayout</li>
+<li>To python 3.11</li>
+<li>Normalized presentation attributes; support in svg-native renderer</li>
+<li>Update with new drawing elements</li>
+<li>Added new classes following the spec</li>
+<li>Added import for svg_native renderer</li>
+<li>Added styling: fill, stroke, font</li>
+<li>Added support for font style and weight; added support for text-anchor (not skia)</li>
+<li>Added fill rule</li>
+<li>Merge branch 'develop' into sbml_layout</li>
+<li>Removed childless method from GroupLayout</li>
+<li>NodeLayout-&gt;Node; ArcLayout-&gt;Arc</li>
+<li>Update</li>
+<li>Shorten-&gt;path_shorten</li>
+<li>Added defaults for nodes and arcs; cleaned up</li>
+<li>Removed nodes width and height in render function</li>
+<li>Changed defaults of metas</li>
+<li>Taken into account new shape buisness</li>
+<li>Simple and Multi mixins return shapes instead of nodes</li>
+<li>Cleaned up</li>
+<li>Moved Shape to core</li>
+<li>Shapes, nodes and arcs to meta dir</li>
+<li>Revamped to shapely for elliptical arc function</li>
+<li>Revamped _split_line_string function</li>
+<li>Removed translated method from layout_element since not used anywhere</li>
+<li>Updated nodes</li>
+<li>Finished nodes and added all arcs</li>
+<li>Removed arrowhead_fill from defaults</li>
+<li>Reverted width for Bar: should only be arrowhead_stroke_width</li>
+<li>Added width for Bar</li>
+<li>Added rendering_testing for arcs; changed rendering nodes on grid to rendering_layout_elements</li>
+<li>Finished rendering function</li>
+<li>Cleaned up</li>
+<li>Renamed geometry functions; added some new functions</li>
+<li>Added rendering utility functions</li>
+<li>Revamped intersection function</li>
+<li>Changed defaults and attributes' order</li>
+<li>Revamped nodes</li>
+<li>New styling attributes for connectors</li>
+<li>Revamped sbgn nodes</li>
+<li>Cleaned defaults</li>
+<li>Increased error tolerance for elliptical_arc to shapely</li>
+<li>Added new arcs</li>
+<li>Cleaned code and fixed bug with arrowhead_length==0</li>
+<li>Shapes-&gt;nodes</li>
+<li>Now SingleHeaded and DoubleHeaded arcs</li>
+<li>Shapes-&gt;nodes</li>
+<li>Started to change to new border style</li>
+<li>New start and end arrowheads in arc; new border in node</li>
+<li>New and updated functions for segments, elliptical arcs and bezier curves</li>
+<li>Cleaned up</li>
+<li>Added beginning of layout and render</li>
+<li>First commit</li>
+<li>Added x and y attribute to Layout</li>
+<li>MapLayout-&gt;Layout</li>
+<li>Added anchors for MapLayout</li>
+<li>Width cannot be &lt; to height</li>
+<li>Removed arrowhead_bbox from arcs</li>
+<li>Removed addition in path; Close-&gt;ClosePath action</li>
+<li>Update</li>
+<li>Vanted-&gt;sbgned</li>
+<li>Cleaned up</li>
+<li>Updated demo</li>
+<li>Updated demo</li>
+<li>Added pretty print function</li>
+<li>Added apply_style_sheet to map</li>
+<li>Removed return map from write</li>
+<li>Added compartments to entities</li>
+<li>Model and layout are now non optional</li>
+<li>Added support for notes</li>
+<li>Update</li>
+<li>Changed notes parsing to strict</li>
+<li>Added listOfBackgroundImages</li>
+<li>Added annotations to map, notes to map, model, model_element</li>
+<li>Cleaned up</li>
+<li>Added option for reading and writing annotations</li>
+<li>Support for writing annotations</li>
+<li>Added annotations to sbgnmodel</li>
+<li>Specified annotation class</li>
+<li>Added support for sbml miriam annotation</li>
+<li>Package name from momapy.<strong>about</strong></li>
+<li>Added package name</li>
+<li>Added option for render_information</li>
+<li>Added support for more glyphs</li>
+<li>Added <strong>init</strong>.py</li>
+<li>Remade parser</li>
+<li>Added render information attributes</li>
+<li>Added writing render information</li>
+<li>Added about with version and author</li>
+<li>Added leading # to to_hex and to_hexa return string</li>
+<li>Added to_hex and to_hexa methods</li>
+<li>Update sbgnml writer</li>
+<li>Update</li>
+<li>Udpate</li>
+<li>Updated tidy function and nodes fit labels function</li>
+<li>Udpated set_arcs_to_borders</li>
+<li>Update</li>
+<li>Updated newt.css</li>
+<li>Added reversibility of processes; left-to-right of processes and operators</li>
+<li>Added get_mapping to mapbuilder</li>
+<li>Added upack option to get_mapping: unpacks the frozenset(frozenset) result; added get_mapping to map</li>
+<li>Added left_to_right attribute to layout with connectors</li>
+<li>Removed source and target from children in ArcLayout</li>
+<li>Added reversibility for processes</li>
+<li>New set_arcs_to_borders function</li>
+<li>Added monitoring</li>
+<li>Changed default renderer to skia</li>
+<li>Update</li>
+<li>Cleaned up</li>
+<li>New subpackage</li>
+<li>Cleaned up</li>
+<li>Changed to reader class</li>
+<li>Staticmethod-&gt;classmethod</li>
+<li>Staticmethod-&gt;classmethod</li>
+<li>Added new reader class</li>
+<li>Changed parser file name</li>
+<li>Updated read function; added perturbation unit of informaion to schema</li>
+<li>Take into account map bbox</li>
+<li>New read write functions</li>
+<li>Added additional error: class where add_element is called</li>
+<li>Base_left/right_connector-&gt;left/right_connector_base/g</li>
+<li>Added two new anchors: left_connector_tip and right_connector_tip</li>
+<li>Update</li>
+<li>Update</li>
+<li>Added utils module with a new str func</li>
+<li>Added new layout_model_mapping</li>
+<li>To python 3.11</li>
+<li>Added pyparsing to setup</li>
+<li>Cleaned</li>
+<li>ObjectBoundingBox-&gt;ObjectBoundingBox</li>
+<li>Writes to file only if output_file is defined in config</li>
+<li>Added reactant and product edit points</li>
+<li>Changed default width and height of reaction node</li>
+<li>New nodes taken into account</li>
+<li>Update</li>
+<li>Fixed bug in copying dict for joining two stylesheets</li>
+<li>Removed geometry import</li>
+<li>Update</li>
+<li>State variable set to '' is now considered to be None</li>
+<li>Child can now be None and</li>
+<li>Added default width and height to Arrow</li>
+<li>More shapes taken into account</li>
+<li>Added CellDesigner shapes and layout elements</li>
+<li>Update</li>
+<li>Added SBGNPD/AFLayout</li>
+<li>Update</li>
+<li>Cleaned up</li>
+<li>Update</li>
+<li>Build methods and from_object methods now take a mapping as parameter which avoids rebuilding identical object</li>
+<li>Remove colors object: momapy.coloring.colors.<em> -&gt; momapy.coloring.</em>; rgb, rgba, hex, hexa functions-&gt;from_rgb, from_rgba,... methods of Color</li>
+<li>Update</li>
+<li>Model_layout_mapping -&gt; layout_model_mapping</li>
+<li>Updated dependencies</li>
+<li>Kw_only and new defaults</li>
+<li>Updated to python 3.10; added Pipfile*</li>
+<li>
+<ul>
+<li>in css is now possible; replace _ by - in css of sbgn</li>
+</ul>
+</li>
+<li>Updated notebook</li>
+<li>Revert "updated notebook and cleaned up"</li>
+</ul>
+<p>This reverts commit c115e10923928ebf55f116931bfbf39504451429.
+- Updated notebook and cleaned up
+- Changed defaults for af units of information
+- Made style for logic arc
+- Redeveloped svg native renderer
+- Changed arguments order in SkiaRenderer
+- Bug in renderer ini and added antialiasing to imagefilter painting
+- Added new reaction types
+- Added reactions and reactionmofication
+- Added PHYSICAL_STIMULATION to reaction types
+- Preserves <strong>init</strong> from being overwritten by xsdata
+- Trigger-&gt; triggering + typo
+- Updated CellDesigner schema
+- Added Compartment
+- Other gates; complexes; compartments
+- Typo
+- Added Modulator and changed modifiers ontology
+- Added rest of modifier types
+- Updated read_file
+- Modulators -&gt; modifiers
+- Modulator to Modifier
+- Added boolean logic gates
+- Added return value for read_file
+- Update
+- Cleaned
+- Added white colorscheme
+- Added classselector; simplified typeselector code
+- Update
+- Added rendering methods for all filter effects
+- Fixed bug;added enums for filter effects
+- Added with_alpha method
+- Added notebook
+- Added is_submapping for ModelLayoutMapping; cleaned is_sublayout
+- Position of text in TextMixin is now label_center() rather than position
+- Updated
+- Cleaned up
+- Added dasharray property
+- Svg implementation of get_region_filter
+- Updated newt style
+- Updated demo
+- Added get_filter_region method to drawing element
+- Bug in shapely method of elleptical arc
+- Implemented drop shadow filter
+- Replaced path in stadium by rectangle
+- Updated demo
+- Cleaned up
+- Cleaned up
+- Updated to_shapely method for elliptical arc
+- Changed sweep flag of stadium shape
+- Udpated demo
+- Added to_polygons option to to_shapely method
+- Fit nodes to labels: to logical bbox
+- Reverted Direction back to momapy.core
+- Anchors no longer abstractmethods, but implemented in parent nodelayout class
+- Moved Direction to sbgn.core
+- Added file
+- Updated gitignore
+- Updated dependencies
+- Fraction moved to core
+- New intersection method with shapely
+- Intersection function: new name
+- Updated demo
+- Added demo as subpackage
+- Cleaned; added general intersection function
+- Added shapely geometry
+- Added shapely dependency
+- Cleaned up and added <strong>div</strong> for point(builder)
+- Take into account bezier curves
+- Rearranged fraction function for bezier curve
+- Added bezier curve; core/arc: changed points to segments
+- Changed to python 3.9; added bezier module
+- Reworked transformed method for elliptical arc
+- Arrowhead now used transformed method instead of svg-style transform attribute
+- Typo
+- Removed arc drawing element
+- Removed arc drawing element
+- Added transformed methods
+- Updated rendereres
+- Bug skia renderer no dataclass decorator
+- Updated demo
+- Added fraction method to arclayout
+- Cleaned up
+- Updated demo
+- Added default width and height to SBGN glyphs
+- Cleaned up
+- Updated demo
+- Update
+- Added anchors to textlayout; fixed bugs in angles
+- Added anchors for crosspoint
+- Merged
+- Updated demo
+- Ignore demo/*.svg
+- Added demo
+- Moved is_sublayout method from LayoutElement to MapLayout
+- Updated vanted and newt styles with filter: none
+- Ink_bbox() -&gt; bbox()
+- Updated vanted and newt styles with filter: none
+- Updated newt style sheet
+- Updated stylesheet
+- Descendants-&gt;ancestors in apply_style_sheet function
+- Added newt stylesheet
+- Cleaned up
+- Added submap, submodel and sublayout methods; added translated method
+- Added crosspoint
+- Updated demo
+- Anchors are computed automatically; shapes are computed using joints
+- Added demo and cleaned up
+- Updated celldesigner model and io
+- Merge branch 'cd' into developpment
+- Cd model elements now inherit from sbml core elements
+- Merge skia
+- Updated with skia
+- Added skia renderer
+- X/ysep for nodes set to 5
+- Updated with required package skia-python
+- New filter effects and new svg-native-compat renderer
+- Implemented af model, layout and rendering
+- Merge remote-tracking branch 'origin/cd_dev' into cd
+- New model elements
+- Merge branch 'main_dev' into cd_dev
+- New celldesigner model
+- Added connectors stroke width
+- Added CardinalityLayout
+- Added support for cardinality and stoichiometry
+- Added package data
+- Import sbgn stylesheets
+- Upadted setup.py
+- New terminal layout
+- Shadows for subunits
+- Added filter for subunits in sbgn shape
+- Added none possibility for filters
+- Clean up
+- Color for subunits of macromolecule multimer layout
+- Added list value type
+- New fit submaps to content function
+- New styles for sumap and tag layout
+- Added new directions
+- Added submap and tag layouts
+- Set position of layout to position of label with anchor label_center
+- Added inverted hexagon shape and perturbing agent layout
+- Updated to new SBGNShape style
+- Updated with beginning of metaclass
+- Cleaned up
+- Is_ovav method
+- Clean up
+- Clean up code
+- Updated style sheets
+- Changed default filter units to object bounding box
+- Translation-&gt;translate in svg-native renderer
+- +import momapy.drawing
+- Impl copy and deepcopy for NoneValue singleton
+- Update
+- Added set_complexes_to_fit_content utils function
+- Fill of consumption to none
+- Removed shadows for arcs
+- Emptyset must have a stroke color
+- Set stroke to none
+- Bug _render_filters
+- Typo
+- Typo
+- Typo
+- Typo
+- Added shadows.css stylsheet
+- Added drop-shadow in styling css
+- Added filter with drop shadow effect
+- Typo
+- Layout fill to white
+- Changed font sizes in shapes with text
+- Aux units font
+- Font to Cantarell
+- Font to cantarell
+- Text drawing element: font_color replaced by fill and stroke
+- Rgba to rgb and opacity
+- Layout fill: none; textlayout: font_color
+- Default sbgn style: fill of layout set to none
+- Styling none returns NoneValue
+- Default fill value to black
+- Set_size-&gt;set_absolute_size in pango font description
+- String to output file
+- Set_size-&gt;set_absolute_size for pango font description
+- Merge branch 'arc_to_elliptical' into native_svg
+- Changed arc to elliptical arc in shapes
+- More methods for native svg renderer
+- First class and methods for nativesvgrenderer
+- Int to float
+- Multiple style sheets; join style sheets
+- Update
+- Added default_colorscheme.css
+- +width and height
+- Added default stylesheet for sbgn
+- Added strict option to applying collection of styles
+- Removed _ from color names to be consistent with css
+- Added none value that does not work
+- Added has_color method to colors
+- Added none value in style_sheets
+- Added set_auilliary_units_to_borders function
+- Added self_border and self_angle functions
+- Splited fontdescription into fontsize and fontfamily
+- +pyparsing
+- Added parser for stylesheets
+- Clean up
+- In node layout: removed foreground_path; renamed background_path to border_drawing_element
+- Render_maps(): changed bbox to self_bbox to compute surface width and height
+- Changed drawing path of Layout: bbox() -&gt; self_bbox()
+- Cleanup
+- Added ancestor and parent selectors;type selector-&gt;class selector; now ancestors in select method
+- Added children mehtod to layouts
+- Added tidy and stylesheet options to read_file
+- Can now supply a mapbuilder to apply_style_sheet
+- Added set_arcs_to_borders function
+- Cleaning
+- Addition of point to point builder
+- Added automatic border functions and related changes
+- New function for intersection of line and ellipse
+- Removed y_from_x methods (not much sense)
+- New geometry shapes: Arc, Circle; new intersection functions
+- Recodes parallel lines; added slope and intercept to line; recoded intersection of lines
+- Added set_layout_to_fit_content function
+- Added set_nodes_to_fit_labels
+- Label_center taken into account and bold text in shapes
+- Added label_center anchor
+- Added vertical alignment for textlayoutelement
+- Bugs and replaces text by new text and textlayout
+- Changed nodelabel to textlayoutelement
+- New text drawing element and textlayoutelement
+- Added style_sheets from styling to render_map(s)
+- Added position to sbgn maps when reading sbgn-ml file
+- Added position to layout
+- Removed optional from transform attribute of drawing element (default is tuple)
+- Dfault for transform attribute is set to tuple
+- Merge branch 'main_dev' into sbgn_dev
+- Fit now return position, width, height and not bbox: fixed related bugs in self.bbox() functions
+- Bug in set_compartments_to_fit_content
+- Merge branch 'main_dev' into sbgn_dev
+- Bug in set_fit function
+- New set_compartments_to_fit_content function
+- Merge branch 'main_dev' into sbgn_dev
+- Fit returns position, width and height rather than a bbox; implemented set_fit function
+- Added new sbgn shapes
+- Added EmptySetLayout to emptyset and source and sink
+- New styling feature
+- Completed fraction function
+- Recoded arcs with anchors
+- Cleaned code
+- Maj
+- Bug restore after stroke and fill; factored _stroke_and_fill
+- Added height and width in _make_renderer_for_render_function
+- Typo in parameter name
+- Added a function to render a collection of drawing elements and factored make_renderer_for_render_function
+- Added ellipse to drawing and rendering
+- Added arcs to drawing and rendering
+- Typo
+- Added origin point for rotation
+- Experimental update with updated_object
+- Revamped relative_point to updated_object
+- Removed prints
+- New animating module
+- Bug fix
+- Bug fix in Color.<strong>or</strong>
+- Bug fix in Color.<strong>or</strong>
+- Added png rendering
+- Updated Pipfile
+- Cleanup
+- Cleanup
+- Cleanup
+- Cleaned imports
+- Added alpha modification to Color
+- Mod essai.py
+- Cleanup
+- Reference-&gt;phantomlayoutelement, fixed bugs, fixed positioning with new coord sys
+- Added self_bbox to grouplayout and to nodelayout
+- Mod bbox to follow new coord system
+- Mod essai.py
+- Inverted y axis to mimick svg and sbgnml
+- Cleaned rendering and drawing code
+- Updated gitignore
+- Updated grouplayoutelement
+- Cleanup
+- Renderer to rendering
+- Renderer.py to rendering.py
+- Cleanup
+- Removed position.py.save
+- Added folder momapy/
+- Removed submodule momapy
+- Updated gitignore
+- Updated pipfile
+- Initial commit</p>
+<h3 id="styling">Styling</h3>
+<ul>
+<li>Styles to/from render_information: border&gt;group attrs for nodes, arrowhead&gt;path&gt;group attrs for arcs</li>
+<li>Stylesheet is now unfrozen so it can be easily modified</li>
+<li>Styles in grouplayoutelement applied to the top group element; arcs have styles for arrowhead</li>
+<li>Style_sheets from files and multiple style_sheets</li>
+<li>Stylesheet applied to layout instead of map</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
