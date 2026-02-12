@@ -5,7 +5,6 @@ nav:
   - User manual: demo.ipynb
   - Styling: styling.md
   - CLI reference: cli.md
-  - Changelog: CHANGELOG.md
   - API reference:
     - Momapy: api_reference/momapy.md
     - Core: api_reference/core.md
@@ -34,6 +33,7 @@ nav:
       - Core: api_reference/sbml/core.md
       - I/O:
         - SBML: api_reference/sbml/io/sbml.md
+  - Changelog: CHANGELOG.md
   - About: about.md
 theme:
   name: material
