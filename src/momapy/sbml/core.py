@@ -205,7 +205,7 @@ class SpeciesReference(SimpleSpeciesReference):
         >>> ref = SpeciesReference(referred_species=species, stoichiometry=2)
     """
 
-    stoichiometry: int | None = None
+    stoichiometry: float | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
