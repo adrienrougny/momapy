@@ -5,17 +5,21 @@ import tempfile
 import os
 import momapy.io.core
 
+pytestmark = pytest.mark.slow
+
 
 # Get the directory containing this test file
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SBGN_MAPS_DIR = os.path.join(TEST_DIR, "..", "maps", "pd")
+
 
 # Discover all .sbgn files in the maps directory
 def get_sbgn_files():
     """Get all SBGN files from the maps directory."""
     if not os.path.exists(SBGN_MAPS_DIR):
         return []
-    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith('.sbgn')]
+    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith(".sbgn")]
+
 
 SBGN_FILES = get_sbgn_files()
 

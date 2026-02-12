@@ -361,3 +361,261 @@ class TestTransformations:
         trans2 = momapy.geometry.Translation(5.0, 10.0)
         combined = trans1 * trans2
         assert isinstance(combined, momapy.geometry.MatrixTransformation)
+
+    def test_invert_scaling_reciprocal(self):
+        """Test that invert_scaling returns reciprocal, not negation."""
+        scaling = momapy.geometry.Scaling(2.0, 3.0)
+        inverted = momapy.geometry.invert_scaling(scaling)
+        assert inverted.sx == 0.5  # 1/2, not -2
+        assert inverted.sy == pytest.approx(1.0 / 3.0)  # 1/3, not -3
+
+    def test_invert_scaling_composition(self):
+        """Test that scaling and inverse return to original."""
+        p = momapy.geometry.Point(10.0, 20.0)
+        scaling = momapy.geometry.Scaling(2.0, 4.0)
+        inverted = momapy.geometry.invert_scaling(scaling)
+
+        # Apply scaling then inverse
+        scaled = p.transformed(scaling)
+        restored = scaled.transformed(inverted)
+
+        assert restored.x == pytest.approx(p.x, rel=1e-10)
+        assert restored.y == pytest.approx(p.y, rel=1e-10)
+
+
+class TestIntersectionFunctions:
+    """Tests for intersection functions."""
+
+    def test_intersection_of_perpendicular_lines(self):
+        """Test intersection of perpendicular lines."""
+        # Horizontal line: y = 5
+        line1 = momapy.geometry.Line(
+            momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
+        )
+        # Vertical line: x = 3
+        line2 = momapy.geometry.Line(
+            momapy.geometry.Point(3.0, 0.0), momapy.geometry.Point(3.0, 10.0)
+        )
+
+        intersections = momapy.geometry.get_intersection_of_lines(line1, line2)
+        assert len(intersections) == 1
+        assert isinstance(intersections[0], momapy.geometry.Point)
+        assert intersections[0].x == 3.0
+        assert intersections[0].y == 5.0
+
+    def test_intersection_of_parallel_lines(self):
+        """Test that parallel lines return empty list."""
+        line1 = momapy.geometry.Line(
+            momapy.geometry.Point(0.0, 0.0), momapy.geometry.Point(10.0, 0.0)
+        )
+        line2 = momapy.geometry.Line(
+            momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
+        )
+
+        intersections = momapy.geometry.get_intersection_of_lines(line1, line2)
+        assert len(intersections) == 0
+
+    def test_intersection_line_and_segment_inside(self):
+        """Test intersection when line crosses segment."""
+        line = momapy.geometry.Line(
+            momapy.geometry.Point(5.0, 0.0), momapy.geometry.Point(5.0, 10.0)
+        )
+        segment = momapy.geometry.Segment(
+            momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
+        )
+
+        intersections = momapy.geometry.get_intersection_of_line_and_segment(
+            line, segment
+        )
+        assert len(intersections) == 1
+        assert isinstance(intersections[0], momapy.geometry.Point)
+        assert intersections[0].x == 5.0
+        assert intersections[0].y == 5.0
+
+    def test_intersection_line_and_segment_outside(self):
+        """Test intersection when line misses segment."""
+        line = momapy.geometry.Line(
+            momapy.geometry.Point(15.0, 0.0), momapy.geometry.Point(15.0, 10.0)
+        )
+        segment = momapy.geometry.Segment(
+            momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
+        )
+
+        intersections = momapy.geometry.get_intersection_of_line_and_segment(
+            line, segment
+        )
+        assert len(intersections) == 0
+
+
+class TestBezierCurve:
+    """Tests for BezierCurve class."""
+
+    def test_bezier_curve_creation(self):
+        """Test creating a BezierCurve."""
+        curve = momapy.geometry.BezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(3.0, 0.0),
+            control_points=(
+                momapy.geometry.Point(1.0, 0.5),
+                momapy.geometry.Point(2.0, 0.5),
+            ),
+        )
+        assert curve.p1.x == 0.0
+        assert curve.p2.x == 3.0
+
+    def test_bezier_curve_evaluate_start(self):
+        """Test evaluate at t=0 returns start point."""
+        start = momapy.geometry.Point(0.0, 0.0)
+        curve = momapy.geometry.BezierCurve(
+            start,
+            momapy.geometry.Point(3.0, 0.0),
+            control_points=(
+                momapy.geometry.Point(1.0, 1.0),
+                momapy.geometry.Point(2.0, 1.0),
+            ),
+        )
+        result = curve.evaluate(0.0)
+        assert result.x == start.x
+        assert result.y == start.y
+
+    def test_bezier_curve_evaluate_end(self):
+        """Test evaluate at t=1 returns end point."""
+        end = momapy.geometry.Point(3.0, 0.0)
+        curve = momapy.geometry.BezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            end,
+            control_points=(
+                momapy.geometry.Point(1.0, 1.0),
+                momapy.geometry.Point(2.0, 1.0),
+            ),
+        )
+        result = curve.evaluate(1.0)
+        assert result.x == end.x
+        assert result.y == end.y
+
+    def test_bezier_curve_to_shapely(self):
+        """Test that bezier curve converts to shapely."""
+        curve = momapy.geometry.BezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(3.0, 0.0),
+            control_points=(
+                momapy.geometry.Point(1.0, 1.0),
+                momapy.geometry.Point(2.0, 1.0),
+            ),
+        )
+        shapely_obj = curve.to_shapely()
+        assert shapely_obj is not None
+
+    def test_bezier_curve_transformed(self):
+        """Test transformed bezier curve."""
+        curve = momapy.geometry.BezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(3.0, 0.0),
+            control_points=(
+                momapy.geometry.Point(1.0, 1.0),
+                momapy.geometry.Point(2.0, 1.0),
+            ),
+        )
+        # Apply translation
+        translation = momapy.geometry.Translation(5.0, 10.0)
+        transformed = curve.transformed(translation)
+
+        # Check that all points were translated
+        assert transformed.p1.x == 5.0
+        assert transformed.p1.y == 10.0
+        assert transformed.p2.x == 8.0
+        assert transformed.p2.y == 10.0
+
+    def test_bezier_curve_reversed(self):
+        """Test reversed bezier curve swaps endpoints."""
+        start = momapy.geometry.Point(0.0, 0.0)
+        end = momapy.geometry.Point(3.0, 0.0)
+        curve = momapy.geometry.BezierCurve(
+            start,
+            end,
+            control_points=(
+                momapy.geometry.Point(1.0, 1.0),
+                momapy.geometry.Point(2.0, 1.0),
+            ),
+        )
+        reversed_curve = curve.reversed()
+        assert reversed_curve.p1.x == end.x
+        assert reversed_curve.p2.x == start.x
+
+
+class TestSegmentMethods:
+    """Tests for Segment additional methods."""
+
+    def test_segment_get_position_at_fraction_start(self):
+        """Test get_position_at_fraction at 0 returns p1."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 10.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        result = segment.get_position_at_fraction(0.0)
+        assert result.x == p1.x
+        assert result.y == p1.y
+
+    def test_segment_get_position_at_fraction_end(self):
+        """Test get_position_at_fraction at 1 returns p2."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 10.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        result = segment.get_position_at_fraction(1.0)
+        assert result.x == p2.x
+        assert result.y == p2.y
+
+    def test_segment_get_position_at_fraction_midpoint(self):
+        """Test get_position_at_fraction at 0.5 returns midpoint."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 10.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        result = segment.get_position_at_fraction(0.5)
+        assert result.x == 5.0
+        assert result.y == 5.0
+
+    def test_segment_shortened_from_start(self):
+        """Test shortening segment from start."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        shortened = segment.shortened(length=2.0, start_or_end="start")
+        assert shortened.length() == pytest.approx(8.0)
+
+    def test_segment_shortened_from_end(self):
+        """Test shortening segment from end."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        shortened = segment.shortened(length=2.0, start_or_end="end")
+        assert shortened.length() == pytest.approx(8.0)
+
+    def test_segment_reversed(self):
+        """Test reversed segment swaps endpoints."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 10.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        reversed_seg = segment.reversed()
+        assert reversed_seg.p1.x == p2.x
+        assert reversed_seg.p2.x == p1.x
+
+
+class TestShapelyBorderAndAnchor:
+    """Tests for shapely object border and anchor functions."""
+
+    def test_shapely_object_border(self):
+        """Test getting border point of shapely object."""
+        import shapely.geometry
+
+        rect = shapely.geometry.Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
+        north_point = momapy.geometry.Point(5.0, 20.0)
+        border = momapy.geometry.get_shapely_object_border(rect, north_point)
+        assert border is not None
+        assert isinstance(border, momapy.geometry.Point)
+
+    def test_shapely_object_anchor_point(self):
+        """Test getting anchor point from shapely object."""
+        import shapely.geometry
+
+        rect = shapely.geometry.Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
+        anchor = momapy.geometry.get_shapely_object_anchor_point(rect, "north")
+        assert isinstance(anchor, momapy.geometry.Point)

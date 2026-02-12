@@ -8,6 +8,8 @@ import pathlib
 
 import pytest
 
+pytestmark = pytest.mark.slow
+
 import momapy.io.core
 import momapy.builder
 import momapy.coloring
