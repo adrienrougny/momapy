@@ -10,3 +10,4 @@ dist/
 plans/
 .coverage
 htmlcov/
+site/
