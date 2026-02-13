@@ -2005,8 +2005,8 @@
 <h2 id="overview">Overview</h2>
 <p>The <code>momapy</code> command-line interface (CLI) allows you to render molecular maps directly from the command line without writing Python code. It supports SBGN-ML and CellDesigner map formats and can output to various image formats (SVG, PDF, PNG, JPEG, WebP).</p>
 <h2 id="synopsis">Synopsis</h2>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>&lt;input_file_path&gt;...<span class="w"> </span>-o<span class="w"> </span>&lt;output_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>&lt;input_file_path&gt;...<span class="w"> </span>-o<span class="w"> </span>&lt;output_file_path&gt;<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</span></code></pre></div>
 <h2 id="subcommand-render">Subcommand: <code>render</code></h2>
 <p>Renders one or more molecular maps to an image file.</p>
 <h3 id="arguments">Arguments</h3>
@@ -2113,47 +2113,43 @@
 <h2 id="examples">Examples</h2>
 <h3 id="basic-rendering">Basic rendering</h3>
 <p>Render an SBGN-ML file to SVG:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg
+</span></code></pre></div>
 <h3 id="render-to-pdf">Render to PDF</h3>
 <p>Render to PDF (requires skia or cairo renderer):</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.pdf
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.pdf
+</span></code></pre></div>
 <h3 id="specify-renderer-explicitly">Specify renderer explicitly</h3>
 <p>Force the use of a specific renderer:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.pdf<span class="w"> </span>-r<span class="w"> </span>cairo
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.pdf<span class="w"> </span>-r<span class="w"> </span>cairo
+</span></code></pre></div>
 <h3 id="multiple-input-files">Multiple input files</h3>
 <p>Render multiple maps into a single multi-page PDF:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-4-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>map1.sbgn<span class="w"> </span>map2.sbgn<span class="w"> </span>map3.sbgn<span class="w"> </span>-o<span class="w"> </span>combined.pdf<span class="w"> </span>-m
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>map1.sbgn<span class="w"> </span>map2.sbgn<span class="w"> </span>map3.sbgn<span class="w"> </span>-o<span class="w"> </span>combined.pdf<span class="w"> </span>-m
+</span></code></pre></div>
 <h3 id="apply-style-sheets">Apply style sheets</h3>
 <p>Apply one or more CSS style sheets to customize the appearance:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-5-1">1</a></span>
-<span class="normal"><a href="#__codelineno-5-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-s<span class="w"> </span>custom_styles.css
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-s<span class="w"> </span>base.css<span class="w"> </span>-s<span class="w"> </span>overrides.css
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-s<span class="w"> </span>custom_styles.css
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-s<span class="w"> </span>base.css<span class="w"> </span>-s<span class="w"> </span>overrides.css
+</span></code></pre></div>
 <h3 id="adjust-layout-position">Adjust layout position</h3>
 <p>Move all elements to the top-left corner of the output:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-6-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-t
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>momapy<span class="w"> </span>render<span class="w"> </span>my_map.sbgn<span class="w"> </span>-o<span class="w"> </span>output.svg<span class="w"> </span>-t
+</span></code></pre></div>
 <h2 id="installation">Installation</h2>
 <p>The CLI is installed automatically when you install momapy:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-7-1">1</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy
+</span></code></pre></div>
 <p>To use PDF, PNG, JPEG, or WebP output formats, install the optional rendering dependencies:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-8-1">1</a></span>
-<span class="normal"><a href="#__codelineno-8-2">2</a></span>
-<span class="normal"><a href="#__codelineno-8-3">3</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>skia<span class="o">]</span><span class="w">  </span><span class="c1"># For skia renderer</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>cairo<span class="o">]</span><span class="w">  </span><span class="c1"># For cairo renderer</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>all<span class="o">]</span><span class="w">    </span><span class="c1"># For all renderers</span>
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>skia<span class="o">]</span><span class="w">  </span><span class="c1"># For skia renderer</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>cairo<span class="o">]</span><span class="w">  </span><span class="c1"># For cairo renderer</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>pip<span class="w"> </span>install<span class="w"> </span>momapy<span class="o">[</span>all<span class="o">]</span><span class="w">    </span><span class="c1"># For all renderers</span>
+</span></code></pre></div>
 <h2 id="getting-help">Getting Help</h2>
 <p>Display help information:</p>
-<div class="language-bash highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-9-1">1</a></span>
-<span class="normal"><a href="#__codelineno-9-2">2</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1"></a>momapy<span class="w"> </span>--help
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2"></a>momapy<span class="w"> </span>render<span class="w"> </span>--help
-</span></code></pre></div></td></tr></table></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>momapy<span class="w"> </span>--help
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>momapy<span class="w"> </span>render<span class="w"> </span>--help
+</span></code></pre></div>
 
 
 
