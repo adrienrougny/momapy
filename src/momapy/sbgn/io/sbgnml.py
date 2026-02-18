@@ -620,6 +620,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
     @classmethod
     def _get_direction_from_sbgnml_element(cls, sbgnml_element):
         sbgnml_orientation = sbgnml_element.get("orientation")
+        if sbgnml_orientation is None:
+            return momapy.core.Direction.RIGHT
         orientation = cls._transform_sbgnml_class(sbgnml_orientation)
         return momapy.core.Direction[orientation]
 
