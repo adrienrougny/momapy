@@ -1,9 +1,11 @@
 name: Tests
 
 on:
+  workflow_call:
   push:
     branches:
       - testing
+      - main
 
 jobs:
   test:

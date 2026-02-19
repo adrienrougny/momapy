@@ -1,0 +1,47 @@
+name: Deploy documentation
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+
+jobs:
+  deploy-docs:
+    name: Deploy documentation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Get latest tag and checkout
+      id: get_tag
+      run: |
+        LATEST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" origin/main)
+        echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        git checkout $LATEST_TAG
+
+    - name: Configure Git Credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+    - uses: actions/setup-python@v5
+      with:
+        python-version: 3.x
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        key: mkdocs-material-${{ github.run_id }}
+        path: ~/.cache
+        restore-keys: |
+          mkdocs-material-
+    - name: Install MkDocs and dependencies
+      run: pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments
+    - name: Deploy documentation
+      run: mkdocs gh-deploy --force
