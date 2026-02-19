@@ -1016,7 +1016,9 @@ class Arc(GroupLayout):
             current_length += segment.length()
             if current_length >= length_to_reach:
                 break
-        position, angle = segment.get_position_and_angle_at_fraction(fraction)
+        segment_start_length = current_length - segment.length()
+        segment_fraction = (length_to_reach - segment_start_length) / segment.length()
+        position, angle = segment.get_position_and_angle_at_fraction(segment_fraction)
         return position, angle
 
     @classmethod
