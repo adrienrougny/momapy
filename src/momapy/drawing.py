@@ -41,6 +41,7 @@ import enum
 import typing
 import typing_extensions
 import collections.abc
+import platform
 
 import shapely.geometry
 import shapely.affinity
@@ -403,8 +404,12 @@ PRESENTATION_ATTRIBUTES = {
     },
 }
 
+DEFAULT_FONT_FAMILY = (
+    "Arial" if platform.system() in ("Darwin", "Windows") else "DejaVu Sans"
+)
+
 INITIAL_VALUES = {
-    "font_family": "DejaVu Sans",
+    "font_family": DEFAULT_FONT_FAMILY,
     "font_size": 16.0,
 }
 

@@ -21,7 +21,7 @@ import momapy.utils
 class CellDesignerReader(momapy.io.core.Reader):
     """Class for CellDesigner reader objects"""
 
-    _DEFAULT_FONT_FAMILY = "DejaVu Sans"
+    _DEFAULT_FONT_FAMILY = momapy.drawing.DEFAULT_FONT_FAMILY
     _DEFAULT_FONT_SIZE = 12.0
     _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
     _DEFAULT_FONT_FILL = momapy.coloring.black

@@ -260,7 +260,7 @@ class Renderer(abc.ABC):
     """Base class for renderers"""
 
     initial_values: typing.ClassVar[dict] = {
-        "font_family": "DejaVu Sans",
+        "font_family": momapy.drawing.DEFAULT_FONT_FAMILY,
         "font_weight": 16.0,
     }
     font_weight_value_mapping: typing.ClassVar[dict] = {
