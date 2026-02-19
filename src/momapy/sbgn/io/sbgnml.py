@@ -296,8 +296,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             momapy.sbgn.af.AndOperatorLayout,
         ),
         ("ACTIVITY_FLOW", "GLYPH", "OR"): (
-            momapy.sbgn.af.AndOperator,
-            momapy.sbgn.af.AndOperatorLayout,
+            momapy.sbgn.af.OrOperator,
+            momapy.sbgn.af.OrOperatorLayout,
         ),
         ("ACTIVITY_FLOW", "GLYPH", "NOT"): (
             momapy.sbgn.af.NotOperator,
