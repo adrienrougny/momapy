@@ -15,19 +15,6 @@ import momapy.sbgn.pd
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Compartment(momapy.sbgn.core.SBGNModelElement):
-    """Compartment in an SBGN-AF map.
-
-    Compartments represent distinct spatial regions where activities are located.
-
-    Attributes:
-        label: The label of the compartment.
-    """
-
-    label: typing.Optional[str] = None
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
     """Unit of information for activities and compartments.
 
@@ -38,6 +25,22 @@ class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
     """
 
     label: typing.Optional[str] = None
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class Compartment(momapy.sbgn.core.SBGNModelElement):
+    """Compartment in an SBGN-AF map.
+
+    Compartments represent distinct spatial regions where activities are located.
+
+    Attributes:
+        label: The label of the compartment.
+    """
+
+    label: typing.Optional[str] = None
+    units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
+        default_factory=frozenset
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
