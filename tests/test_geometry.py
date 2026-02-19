@@ -599,6 +599,123 @@ class TestSegmentMethods:
         assert reversed_seg.p2.x == p1.x
 
 
+class TestSegmentGetPositionAndAngleAtFraction:
+    """Tests for Segment.get_position_and_angle_at_fraction."""
+
+    def test_position_at_start(self):
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        position, _ = segment.get_position_and_angle_at_fraction(0.0)
+        assert position.x == pytest.approx(0.0, abs=0.01)
+        assert position.y == pytest.approx(0.0, abs=0.01)
+
+    def test_position_at_end(self):
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        position, _ = segment.get_position_and_angle_at_fraction(1.0)
+        assert position.x == pytest.approx(10.0, abs=0.01)
+        assert position.y == pytest.approx(0.0, abs=0.01)
+
+    def test_position_at_midpoint(self):
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
+        segment = momapy.geometry.Segment(p1, p2)
+        position, _ = segment.get_position_and_angle_at_fraction(0.5)
+        assert position.x == pytest.approx(5.0, abs=0.01)
+        assert position.y == pytest.approx(0.0, abs=0.01)
+
+    def test_angle_horizontal_segment(self):
+        segment = momapy.geometry.Segment(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+        )
+        _, angle = segment.get_position_and_angle_at_fraction(0.5)
+        assert angle == pytest.approx(0.0, abs=0.01)
+
+    def test_angle_diagonal_segment(self):
+        segment = momapy.geometry.Segment(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 10.0),
+        )
+        _, angle = segment.get_position_and_angle_at_fraction(0.5)
+        assert angle == pytest.approx(math.pi / 4, abs=0.01)
+
+
+class TestBezierCurveGetPositionAndAngleAtFraction:
+    """Tests for BezierCurve.get_position_and_angle_at_fraction.
+
+    Uses a symmetric cubic curve (p1=(0,0), p2=(10,0), cp1=(3,5), cp2=(7,5))
+    whose peak is at the arc-length midpoint (by symmetry).
+    """
+
+    @pytest.fixture
+    def symmetric_curve(self):
+        return momapy.geometry.BezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            control_points=(
+                momapy.geometry.Point(3.0, 5.0),
+                momapy.geometry.Point(7.0, 5.0),
+            ),
+        )
+
+    def test_position_at_start(self, symmetric_curve):
+        position, _ = symmetric_curve.get_position_and_angle_at_fraction(0.0)
+        assert position.x == pytest.approx(0.0, abs=0.01)
+        assert position.y == pytest.approx(0.0, abs=0.01)
+
+    def test_position_at_end(self, symmetric_curve):
+        position, _ = symmetric_curve.get_position_and_angle_at_fraction(1.0)
+        assert position.x == pytest.approx(10.0, abs=0.01)
+        assert position.y == pytest.approx(0.0, abs=0.01)
+
+    def test_angle_at_midpoint_is_horizontal(self, symmetric_curve):
+        # At the arc-length midpoint of a symmetric curve the tangent is
+        # horizontal, i.e. angle == 0 (mod 2π).  Before the _get_angle_at_fraction
+        # fix (missing `previous_coord = current_coord` update) this returned
+        # a wrong non-zero angle.
+        _, angle = symmetric_curve.get_position_and_angle_at_fraction(0.5)
+        # Normalise to (-π, π] for comparison
+        angle_signed = (angle + math.pi) % (2 * math.pi) - math.pi
+        assert angle_signed == pytest.approx(0.0, abs=0.05)
+
+
+class TestEllipticalArcGetPositionAndAngleAtFraction:
+    """Tests for EllipticalArc.get_position_and_angle_at_fraction."""
+
+    @pytest.fixture
+    def semicircle(self):
+        # Semicircle: centre at (5,0), radius 5, sweeping upward
+        return momapy.geometry.EllipticalArc(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            rx=5.0,
+            ry=5.0,
+            x_axis_rotation=0.0,
+            arc_flag=0,
+            sweep_flag=0,
+        )
+
+    def test_position_at_start(self, semicircle):
+        position, _ = semicircle.get_position_and_angle_at_fraction(0.0)
+        assert position.x == pytest.approx(0.0, abs=0.1)
+        assert position.y == pytest.approx(0.0, abs=0.1)
+
+    def test_position_at_end(self, semicircle):
+        position, _ = semicircle.get_position_and_angle_at_fraction(1.0)
+        assert position.x == pytest.approx(10.0, abs=0.1)
+        assert position.y == pytest.approx(0.0, abs=0.1)
+
+    def test_position_at_midpoint_is_bottom_of_arc(self, semicircle):
+        # SVG y-axis points down; sweep_flag=0 sweeps downward, so the
+        # midpoint of the semicircle is at (5, 5).
+        position, _ = semicircle.get_position_and_angle_at_fraction(0.5)
+        assert position.x == pytest.approx(5.0, abs=0.1)
+        assert position.y == pytest.approx(5.0, abs=0.1)
+
+
 class TestShapelyBorderAndAnchor:
     """Tests for shapely object border and anchor functions."""
 
