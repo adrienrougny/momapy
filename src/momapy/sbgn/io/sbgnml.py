@@ -26,7 +26,8 @@ import momapy.sbml.core
 
 class _SBGNMLReader(momapy.io.core.Reader):
     _DEFAULT_FONT_FAMILY = momapy.drawing.DEFAULT_FONT_FAMILY
-    _DEFAULT_FONT_SIZE = 14.0
+    _DEFAULT_FONT_SIZE = 11.0
+    _DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 9.0
     _DEFAULT_FONT_FILL = momapy.coloring.black
     _RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     _KEY_TO_MODULE = {
@@ -1894,7 +1895,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
                 text_layout = momapy.core.TextLayout(
                     text=text,
-                    font_size=cls._DEFAULT_FONT_SIZE,
+                    font_size=cls._DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
                     font_family=cls._DEFAULT_FONT_FAMILY,
                     fill=cls._DEFAULT_FONT_FILL,
                     stroke=momapy.drawing.NoneValue,
@@ -1955,7 +1956,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 if sbgnml_label is not None:
                     text_layout = momapy.core.TextLayout(
                         text=sbgnml_label.get("text"),
-                        font_size=cls._DEFAULT_FONT_SIZE,
+                        font_size=cls._DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
