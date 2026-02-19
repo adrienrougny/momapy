@@ -289,8 +289,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             momapy.sbgn.af.NecessaryStimulationLayout,
         ),
         ("ACTIVITY_FLOW", "SUBGLYPH", "UNIT_OF_INFORMATION"): (
-            momapy.sbgn.af.NecessaryStimulation,
-            momapy.sbgn.af.NecessaryStimulationLayout,
+            momapy.sbgn.af.UnitOfInformation,
+            momapy.sbgn.af.UnitOfInformationLayout,
         ),
         ("ACTIVITY_FLOW", "GLYPH", "AND"): (
             momapy.sbgn.af.AndOperator,
@@ -985,7 +985,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
         for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(sbgnml_element):
             key = cls._get_key_from_sbgnml_subglyph(sbgnml_subglyph, sbgnml_map)
             model_element_cls, _ = cls._KEY_TO_CLASS[key]
-            if issubclass(model_element_cls, momapy.sbgn.pd.Terminal):
+            if issubclass(
+                model_element_cls, (momapy.sbgn.pd.Terminal, momapy.sbgn.af.Terminal)
+            ):
                 sbgnml_terminals.append(sbgnml_subglyph)
         return sbgnml_terminals
 
@@ -1312,24 +1314,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 model_element.id_ = sbgnml_compartment.get("id")
                 if sbgnml_label is not None:
                     model_element.label = sbgnml_label.get("text")
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.utils.add_or_replace_element_in_set(
-                    model_element,
-                    model.compartments,
-                    func=lambda element, existing_element: element.id_
-                    < existing_element.id_,
-                )
-                sbgnml_id_to_model_element[sbgnml_compartment.get("id")] = model_element
-                if with_annotations:
-                    annotations = cls._make_annotations_from_sbgnml_element(
-                        sbgnml_compartment
-                    )
-                    if annotations:
-                        map_element_to_annotations[model_element].update(annotations)
-                if with_notes:
-                    notes = cls._make_notes_from_sbgnml_element(sbgnml_compartment)
-                    if notes:
-                        map_element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if layout is not None:
@@ -1354,14 +1338,83 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         horizontal_alignment=momapy.core.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
+            else:
+                layout_element = None
+            auxiliary_units_map_elements = []
+            for (
+                sbgnml_unit_of_information
+            ) in cls._get_units_of_information_from_sbgnml_element(
+                sbgnml_compartment, sbgnml_map
+            ):
+                (
+                    unit_of_information_model_element,
+                    unit_of_information_layout_element,
+                ) = cls._make_unit_of_information_from_sbgnml_unit_of_information(
+                    sbgnml_map=sbgnml_map,
+                    sbgnml_unit_of_information=sbgnml_unit_of_information,
+                    model=model,
+                    layout=layout,
+                    sbgnml_id_to_model_element=sbgnml_id_to_model_element,
+                    sbgnml_id_to_layout_element=sbgnml_id_to_layout_element,
+                    sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
+                    map_element_to_annotations=map_element_to_annotations,
+                    map_element_to_notes=map_element_to_notes,
+                    layout_model_mapping=layout_model_mapping,
+                    with_annotations=with_annotations,
+                    with_notes=with_notes,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
+                )
+                if model is not None:
+                    model_element.units_of_information.add(
+                        unit_of_information_model_element
+                    )
+                if layout is not None:
+                    layout_element.layout_elements.append(
+                        unit_of_information_layout_element
+                    )
+                if model is not None and layout is not None:
+                    auxiliary_units_map_elements.append(
+                        (
+                            unit_of_information_model_element,
+                            unit_of_information_layout_element,
+                        )
+                    )
+            if model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
+                model_element = momapy.utils.add_or_replace_element_in_set(
+                    model_element,
+                    model.compartments,
+                    func=lambda element, existing_element: element.id_
+                    < existing_element.id_,
+                )
+                sbgnml_id_to_model_element[sbgnml_compartment.get("id")] = model_element
+                if with_annotations:
+                    annotations = cls._make_annotations_from_sbgnml_element(
+                        sbgnml_compartment
+                    )
+                    if annotations:
+                        map_element_to_annotations[model_element].update(annotations)
+                if with_notes:
+                    notes = cls._make_notes_from_sbgnml_element(sbgnml_compartment)
+                    if notes:
+                        map_element_to_notes[model_element].update(notes)
+            if layout is not None:
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 layout.layout_elements.append(layout_element)
                 sbgnml_id_to_layout_element[sbgnml_compartment.get("id")] = (
                     layout_element
                 )
-            else:
-                layout_element = None
             if model is not None and layout is not None:
+                for (
+                    auxiliary_unit_model_element,
+                    auxiliary_unit_layout_element,
+                ) in auxiliary_units_map_elements:
+                    layout_model_mapping.add_mapping(
+                        auxiliary_unit_layout_element,
+                        (auxiliary_unit_model_element, model_element),
+                        replace=True,
+                    )
                 layout_model_mapping.add_mapping(
                     layout_element, model_element, replace=True
                 )
