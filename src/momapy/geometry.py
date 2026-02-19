@@ -2179,6 +2179,7 @@ def _get_angle_at_fraction(
         current_length += segment.length()
         if current_length / total_length >= fraction:
             break
+        previous_coord = current_coord
     return segment.get_angle_to_horizontal()
 
 
