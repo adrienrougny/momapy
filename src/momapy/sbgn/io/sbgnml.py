@@ -16,6 +16,7 @@ import momapy.io.core
 import momapy.coloring
 import momapy.positioning
 import momapy.builder
+import momapy.drawing
 import momapy.styling
 import momapy.sbgn.core
 import momapy.sbgn.pd
@@ -960,6 +961,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
             ):
                 sbgnml_units_of_information.append(sbgnml_subglyph)
         return sbgnml_units_of_information
+
+    @classmethod
+    def _get_stoichiometry_from_sbgnml_element(cls, sbgnml_element):
+        for sbgnml_subglyph in cls._get_glyphs_from_sbgnml_element(sbgnml_element):
+            if sbgnml_subglyph.get("class") == "stoichiometry":
+                return sbgnml_subglyph
+        return None
 
     @classmethod
     def _get_subunits_from_sbgnml_element(cls, sbgnml_element, sbgnml_map):
@@ -2506,11 +2514,23 @@ class _SBGNMLReader(momapy.io.core.Reader):
     ):
         if model is not None or layout is not None:
             sbgnml_source_id = sbgnml_consumption_arc.get("source")
+            sbgnml_stoichiometry = cls._get_stoichiometry_from_sbgnml_element(
+                sbgnml_consumption_arc
+            )
             if model is not None:
                 model_element = model.new_element(momapy.sbgn.pd.Reactant)
                 model_element.id_ = sbgnml_consumption_arc.get("id")
                 source_model_element = sbgnml_id_to_model_element[sbgnml_source_id]
                 model_element.element = source_model_element
+                if sbgnml_stoichiometry is not None:
+                    sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
+                    if sbgnml_label is not None:
+                        sbgnml_stoichiometry_text = sbgnml_label.get("text")
+                        try:
+                            stoichiometry = float(sbgnml_stoichiometry_text)
+                        except ValueError:
+                            stoichiometry = sbgnml_stoichiometry_text
+                        model_element.stoichiometry = float(stoichiometry)
                 model_element = momapy.builder.object_from_builder(model_element)
             else:
                 model_element = None
@@ -2532,6 +2552,31 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     layout_element.segments.append(segment)
                 source_layout_element = sbgnml_id_to_layout_element[sbgnml_source_id]
                 layout_element.target = source_layout_element
+                if sbgnml_stoichiometry is not None:
+                    stoichiometry_layout_element = layout.new_element(
+                        momapy.sbgn.pd.CardinalityLayout
+                    )
+                    cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                        stoichiometry_layout_element, sbgnml_stoichiometry
+                    )
+                    sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
+                    if sbgnml_label is not None:
+                        text = sbgnml_label.get("text")
+                        if text is None:
+                            text = ""
+                        text_layout = momapy.core.TextLayout(
+                            text=text,
+                            font_size=cls._DEFAULT_FONT_SIZE,
+                            font_family=cls._DEFAULT_FONT_FAMILY,
+                            fill=cls._DEFAULT_FONT_FILL,
+                            stroke=momapy.drawing.NoneValue,
+                            position=stoichiometry_layout_element.position,
+                            horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        )
+                        stoichiometry_layout_element.label = text_layout
+                        layout_element.layout_elements.append(
+                            stoichiometry_layout_element
+                        )
                 layout_element = momapy.builder.object_from_builder(layout_element)
             else:
                 layout_element = None
@@ -2562,6 +2607,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
     ):
         if model is not None or layout is not None:
             sbgnml_target_id = sbgnml_production_arc.get("target")
+            sbgnml_stoichiometry = cls._get_stoichiometry_from_sbgnml_element(
+                sbgnml_production_arc
+            )
             if model is not None:
                 if super_model_element.reversible:
                     process_direction = super_model_element.direction
@@ -2585,6 +2633,15 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 model_element.id_ = sbgnml_production_arc.get("id")
                 target_model_element = sbgnml_id_to_model_element[sbgnml_target_id]
                 model_element.element = target_model_element
+                if sbgnml_stoichiometry is not None:
+                    sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
+                    if sbgnml_label is not None:
+                        sbgnml_stoichiometry_text = sbgnml_label.get("text")
+                        try:
+                            stoichiometry = float(sbgnml_stoichiometry_text)
+                        except ValueError:
+                            stoichiometry = sbgnml_stoichiometry_text
+                        model_element.stoichiometry = float(stoichiometry)
                 model_element = momapy.builder.object_from_builder(model_element)
             else:
                 model_element = None
@@ -2602,6 +2659,32 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     layout_element.segments.append(segment)
                 target_layout_element = sbgnml_id_to_layout_element[sbgnml_target_id]
                 layout_element.target = target_layout_element
+                if sbgnml_stoichiometry is not None:
+                    stoichiometry_layout_element = layout.new_element(
+                        momapy.sbgn.pd.CardinalityLayout
+                    )
+                    cls._set_layout_element_position_and_size_from_sbgnml_glyph(
+                        stoichiometry_layout_element, sbgnml_stoichiometry
+                    )
+                    sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
+                    if sbgnml_label is not None:
+                        text = sbgnml_label.get("text")
+                        if text is None:
+                            text = ""
+                        text_layout = momapy.core.TextLayout(
+                            text=text,
+                            font_size=cls._DEFAULT_FONT_SIZE,
+                            font_family=cls._DEFAULT_FONT_FAMILY,
+                            fill=cls._DEFAULT_FONT_FILL,
+                            stroke=momapy.drawing.NoneValue,
+                            position=stoichiometry_layout_element.position,
+                            horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        )
+                        stoichiometry_layout_element.label = text_layout
+                        layout_element.layout_elements.append(
+                            stoichiometry_layout_element
+                        )
+
                 layout_element = momapy.builder.object_from_builder(layout_element)
             else:
                 layout_element = None
