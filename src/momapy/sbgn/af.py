@@ -5,10 +5,10 @@ including biological activities, influences, logical operators, and their
 visual representations.
 """
 
-import enum
 import dataclasses
 import typing
 
+import momapy.drawing
 import momapy.meta.shapes
 import momapy.sbgn.core
 import momapy.sbgn.pd
@@ -29,10 +29,9 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
-    """Unit of information for activities.
+    """Unit of information for activities and compartments.
 
-    Units of information provide additional annotations about activities,
-    such as cellular location or entity type.
+    Units of information provide additional information about activities or compartments.
 
     Attributes:
         label: The label of the unit of information.
@@ -339,6 +338,21 @@ class SBGNAFLayout(momapy.sbgn.core.SBGNLayout):
     """
 
     pass
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnitOfInformationLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
+    """Class for unit of information layouts"""
+
+    width: float = 12.0
+    height: float = 12.0
+
+    def _make_shape(self):
+        return momapy.meta.shapes.Rectangle(
+            position=self.position,
+            width=self.width,
+            height=self.height,
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
