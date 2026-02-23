@@ -15,7 +15,7 @@ Example:
 """
 
 import argparse
-import pathlib
+import momapy.sbgn.utils
 
 
 def run(args):
@@ -55,7 +55,20 @@ def run(args):
             style_sheet = None
         layouts = []
         for input_file_path in args.input_file_path:
-            layout = momapy.io.core.read(input_file_path, return_type="layout").obj
+            map_ = momapy.io.core.read(input_file_path).obj
+            if args.tidy:
+                map_ = momapy.sbgn.utils.tidy(
+                    map_,
+                    nodes_xsep=4.0,
+                    nodes_ysep=4.0,
+                    auxiliary_units_xsep=2.0,
+                    auxiliary_units_ysep=2.0,
+                    complexes_xsep=10.0,
+                    complexes_ysep=10.0,
+                    compartments_xsep=10.0,
+                    compartments_ysep=10.0,
+                )
+            layout = map_.layout
             layouts.append(layout)
         momapy.rendering.core.render_layout_elements(
             layout_elements=layouts,
@@ -120,6 +133,13 @@ def main():
         action="store_true",
         default=False,
         help="move the elements to the top left of the page",
+    )
+    render_parser.add_argument(
+        "-c",
+        "--tidy",
+        action="store_true",
+        default=False,
+        help="tidy the map (reroute arcs, fit labels, etc.)",
     )
     render_parser.add_argument(
         "-s",
