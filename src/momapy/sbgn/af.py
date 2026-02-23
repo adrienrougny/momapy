@@ -85,6 +85,7 @@ class PerturbationUnitOfInformation(UnitOfInformation):
     pass
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class Activity(momapy.sbgn.core.SBGNModelElement):
     """Activity in an SBGN-AF map.
 
