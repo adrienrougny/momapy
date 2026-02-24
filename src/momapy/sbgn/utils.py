@@ -9,6 +9,7 @@ import collections
 
 import momapy.positioning
 import momapy.builder
+import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
 
@@ -51,9 +52,10 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
                     elements.append(entity_layout)
             momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
-                compartment_layout.label.position = compartment_layout.position
-                compartment_layout.label.width = compartment_layout.width
-                compartment_layout.label.height = compartment_layout.height
+                compartment_layout.label.position = compartment_layout.south() - (
+                    0.0,
+                    compartment_layout.label.font_size,
+                )
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -88,12 +90,10 @@ def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
                     for subunit_layout in subunit_layouts:
                         if subunit_layout in complex_layout.layout_elements:
                             elements.append(subunit_layout)
-                if len(elements) > 0:
+                if elements:
                     momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
                     if complex_layout.label is not None:
                         complex_layout.label.position = complex_layout.position
-                        complex_layout.label.width = complex_layout.width
-                        complex_layout.label.height = complex_layout.height
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -128,13 +128,15 @@ def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
                 )
                 for terminal_layout in terminal_layouts:
                     if terminal_layout in submap_layout.layout_elements:
-                        elements.append(terminal_layout)
-            if len(elements) > 0:
-                momapy.positioning.set_fit(submap_layout, elements, xsep, ysep)
+                        elements.append(terminal_layout.childless())
+            if elements:
+                bbox = momapy.positioning.fit(elements, xsep, ysep)
+                if bbox.width > submap_layout.width:
+                    submap_layout.width = bbox.width
+                if bbox.height > submap_layout.height:
+                    submap_layout.height = bbox.height
                 if submap_layout.label is not None:
                     submap_layout.label.position = submap_layout.position
-                    submap_layout.label.width = submap_layout.width
-                    submap_layout.label.height = submap_layout.height
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -232,7 +234,7 @@ def set_arcs_to_borders(map_):
                     start_reference_point = target.left_connector_tip()
                 else:
                     start_reference_point = target.right_connector_tip()
-            start_point = source.border(start_reference_point)
+            start_point = source.self_border(start_reference_point)
         if target_type == "left":
             end_point = target.left_connector_tip()
         elif target_type == "right":
@@ -247,7 +249,7 @@ def set_arcs_to_borders(map_):
                     end_reference_point = source.left_connector_tip()
                 else:
                     end_reference_point = source.right_connector_tip()
-            end_point = target.border(end_reference_point)
+            end_point = target.self_border(end_reference_point)
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )
@@ -350,9 +352,9 @@ def set_arcs_to_borders(map_):
                     ),
                 ):
                     if target.left_to_right:
-                        target_type = "left"
-                    else:
                         target_type = "right"
+                    else:
+                        target_type = "left"
                 else:
                     target_type = "border"
                 _set_arc_to_borders(
@@ -362,6 +364,40 @@ def set_arcs_to_borders(map_):
                     target,
                     target_type,
                 )
+        # equivalence arcs
+        elif momapy.builder.isinstance_or_builder(
+            layout_element,
+            (
+                momapy.sbgn.pd.SubmapLayout,
+                momapy.sbgn.af.SubmapLayout,
+            ),
+        ):
+            for sub_layout_element in layout_element.layout_elements:
+                if momapy.builder.isinstance_or_builder(
+                    sub_layout_element,
+                    (
+                        momapy.sbgn.pd.TerminalLayout,
+                        momapy.sbgn.af.TerminalLayout,
+                    ),
+                ):
+                    for sub_sub_layout_element in sub_layout_element.layout_elements:
+                        if momapy.builder.isinstance_or_builder(
+                            sub_sub_layout_element,
+                            (
+                                momapy.sbgn.pd.EquivalenceArcLayout,
+                                momapy.sbgn.af.EquivalenceArcLayout,
+                            ),
+                        ):
+                            source_type = "border"
+                            target_type = "border"
+                            _set_arc_to_borders(
+                                sub_sub_layout_element,
+                                sub_layout_element,
+                                "border",
+                                sub_sub_layout_element.target,
+                                "border",
+                            )
+        # modulations
         elif momapy.builder.isinstance_or_builder(
             layout_element,
             (
@@ -567,6 +603,7 @@ def tidy(
             momapy.sbgn.pd.StateVariableLayout,
             momapy.sbgn.pd.UnitOfInformationLayout,
             momapy.sbgn.pd.ComplexLayout,
+            momapy.sbgn.af.UnitOfInformationLayout,
         ],
     )
     set_auxiliary_units_to_borders(map_builder)
@@ -579,6 +616,7 @@ def tidy(
         restrict_to=[
             momapy.sbgn.pd.StateVariableLayout,
             momapy.sbgn.pd.UnitOfInformationLayout,
+            momapy.sbgn.af.UnitOfInformationLayout,
         ],
     )
     if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
