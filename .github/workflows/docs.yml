@@ -43,5 +43,14 @@ jobs:
           mkdocs-material-
     - name: Install MkDocs and dependencies
       run: pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments
+    - name: Generate changelog
+      uses: orhun/git-cliff-action@v4
+      with:
+        config: cliff.toml
+        args: --verbose
+      env:
+        OUTPUT: CHANGELOG.md
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Deploy documentation
       run: mkdocs gh-deploy --force
