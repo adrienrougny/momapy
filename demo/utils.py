@@ -50,7 +50,7 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
     max_y = bbox.y + bbox.height / 2 - min_y + ysep
     layout_element = momapy.builder.builder_from_object(layout_element)
     if layout_element.group_transform is None:
-        layout_element.group_transform = momapy.core.TupleBuilder()
+        layout_element.group_transform = []
     translation = momapy.geometry.Translation(-min_x, -min_y)
     layout_element.group_transform.insert(0, translation)
     cp_builder_cls = momapy.builder.get_or_make_builder_cls(
@@ -214,9 +214,7 @@ def make_toy_arc(
         m.end_arrowhead_triangle_width = m.end_arrowhead_triangle_width * scale
     if hasattr(m, "end_arrowhead_triangle_height"):
         m.end_arrowhead_triangle_height = m.end_arrowhead_triangle_height * scale
-    m.segments = momapy.core.TupleBuilder(
-        [momapy.geometry.Segment(start_point, end_point)]
-    )
+    m.segments = [momapy.geometry.Segment(start_point, end_point)]
     if make_auxiliary:
         UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
             momapy.sbgn.pd.UnitOfInformationLayout

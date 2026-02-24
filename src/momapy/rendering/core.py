@@ -144,7 +144,7 @@ def render_layout_elements(
                     if hasattr(layout_element, attr_name):
                         if getattr(layout_element, attr_name) is None:
                             setattr(
-                                layout_element, attr_name, momapy.core.TupleBuilder()
+                                layout_element, attr_name, []
                             )
                         getattr(layout_element, attr_name).append(translation)
                         break

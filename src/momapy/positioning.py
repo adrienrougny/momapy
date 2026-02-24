@@ -867,7 +867,7 @@ def set_fraction_of(
     position, angle = fraction_of(arc_layout_element, fraction)
     rotation = momapy.geometry.Rotation(angle, position)
     set_position(obj, position, anchor)
-    obj.transform = momapy.core.TupleBuilder([rotation])
+    obj.transform = [rotation]
 
 
 def set_mid_of(

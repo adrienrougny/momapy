@@ -46,14 +46,11 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
     @abc.abstractmethod
     def build(
         self,
-        inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ) -> typing.Any:
         """Build and return an object from the builder.
 
         Args:
-            inside_collections: Whether to recursively build objects inside
-                collections (lists, dicts, etc.). Defaults to True.
             builder_to_object: Optional cache mapping builder ids to built
                 objects for handling circular references.
 
@@ -67,7 +64,6 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
     def from_object(
         cls,
         obj: typing.Any,
-        inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ) -> typing_extensions.Self:
@@ -75,8 +71,6 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
 
         Args:
             obj: The object to convert to a builder.
-            inside_collections: Whether to recursively convert objects inside
-                collections. Defaults to True.
             omit_keys: Whether to skip converting dictionary keys to builders.
                 Defaults to True.
             object_to_builder: Optional cache mapping object ids to builders
@@ -89,6 +83,17 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
 
 
 builders = {}
+
+_builder_collection_to_immutable: dict[type, type] = {
+    list: tuple,
+    set: frozenset,
+    dict: frozendict.frozendict,
+}
+_immutable_collection_to_builder: dict[type, type] = {
+    tuple: list,
+    frozenset: set,
+    frozendict.frozendict: dict,
+}
 
 
 def _transform_type(type_, make_optional=False, make_union=False):
@@ -103,6 +108,8 @@ def _transform_type(type_, make_optional=False, make_union=False):
             if isinstance(o_type, type):  # o_type is a type
                 if o_type == types.UnionType:  # from t1 | t2 syntax
                     new_o_type = typing.Union
+                elif o_type in _immutable_collection_to_builder:
+                    new_o_type = _immutable_collection_to_builder[o_type]
                 else:
                     new_o_type = get_or_make_builder_cls(o_type)
             else:  # o_type is an object from typing
@@ -112,9 +119,12 @@ def _transform_type(type_, make_optional=False, make_union=False):
             ]
         else:  # type_ has no origin
             if isinstance(type_, type):  # type_ is a type
-                new_type = get_or_make_builder_cls(type_)
-                if new_type is None:
-                    new_type = type_
+                if type_ in _immutable_collection_to_builder:
+                    new_type = _immutable_collection_to_builder[type_]
+                else:
+                    new_type = get_or_make_builder_cls(type_)
+                    if new_type is None:
+                        new_type = type_
             else:
                 new_type = type_
     if make_optional:
@@ -129,7 +139,6 @@ def _make_builder_cls(
 ):
     def _builder_build(
         self,
-        inside_collections: bool = True,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
         if builder_to_object is not None:
@@ -143,7 +152,6 @@ def _make_builder_cls(
             attr_value = getattr(self, field.name)
             args[field.name] = object_from_builder(
                 builder=attr_value,
-                inside_collections=inside_collections,
                 builder_to_object=builder_to_object,
             )
         obj = self._cls_to_build(**args)
@@ -153,7 +161,6 @@ def _make_builder_cls(
     def _builder_from_object(
         cls,
         obj,
-        inside_collections: bool = True,
         omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ):
@@ -168,7 +175,6 @@ def _make_builder_cls(
             attr_value = getattr(obj, field_.name)
             args[field_.name] = builder_from_object(
                 obj=attr_value,
-                inside_collections=inside_collections,
                 omit_keys=omit_keys,
                 object_to_builder=object_to_builder,
             )
@@ -249,18 +255,17 @@ def _make_builder_cls(
 
 def object_from_builder(
     builder: Builder,
-    inside_collections=True,
     builder_to_object: dict[int, typing.Any] | None = None,
 ):
     """Convert a builder (or collection of builders) to actual object(s).
 
     Recursively converts builder objects to their corresponding class instances.
     Handles collections (list, tuple, set, dict) and circular references.
+    Mutable collection types are converted to their immutable counterparts:
+    list → tuple, set → frozenset, dict → frozendict.
 
     Args:
         builder: A builder instance, collection of builders, or regular object.
-        inside_collections: Whether to recursively process items inside
-            collections. Defaults to True.
         builder_to_object: Optional cache mapping builder ids to already-built
             objects for handling circular references.
 
@@ -288,47 +293,43 @@ def object_from_builder(
         builder_to_object = {}
     if isinstance(builder, Builder):
         obj = builder.build(
-            inside_collections=inside_collections,
             builder_to_object=builder_to_object,
         )
         builder_to_object[id(builder)] = obj
         return obj
-    if inside_collections:
-        if isinstance(builder, (list, tuple, set, frozenset)):
-            return type(builder)(
-                [
+    if isinstance(builder, (list, tuple, set, frozenset)):
+        target = _builder_collection_to_immutable.get(type(builder), type(builder))
+        return target(
+            [
+                object_from_builder(
+                    builder=e,
+                    builder_to_object=builder_to_object,
+                )
+                for e in builder
+            ]
+        )
+    elif isinstance(builder, (dict, frozendict.frozendict)):
+        target = _builder_collection_to_immutable.get(type(builder), type(builder))
+        return target(
+            [
+                (
                     object_from_builder(
-                        builder=e,
-                        inside_collections=inside_collections,
+                        builder=k,
                         builder_to_object=builder_to_object,
-                    )
-                    for e in builder
-                ]
-            )
-        elif isinstance(builder, (dict, frozendict.frozendict)):
-            return type(builder)(
-                [
-                    (
-                        object_from_builder(
-                            builder=k,
-                            inside_collections=inside_collections,
-                            builder_to_object=builder_to_object,
-                        ),
-                        object_from_builder(
-                            builder=v,
-                            inside_collections=inside_collections,
-                            builder_to_object=builder_to_object,
-                        ),
-                    )
-                    for k, v in builder.items()
-                ]
-            )
+                    ),
+                    object_from_builder(
+                        builder=v,
+                        builder_to_object=builder_to_object,
+                    ),
+                )
+                for k, v in builder.items()
+            ]
+        )
     return builder
 
 
 def builder_from_object(
     obj: typing.Any,
-    inside_collections=True,
     omit_keys=True,
     object_to_builder: dict[int, "Builder"] | None = None,
 ) -> Builder:
@@ -336,11 +337,11 @@ def builder_from_object(
 
     Recursively converts class instances to their corresponding builder objects.
     Handles collections (list, tuple, set, dict) and circular references.
+    Immutable collection types are converted to their mutable counterparts:
+    tuple → list, frozenset → set, frozendict → dict.
 
     Args:
         obj: An object instance, collection of objects, or any value.
-        inside_collections: Whether to recursively process items inside
-            collections. Defaults to True.
         omit_keys: Whether to skip converting dictionary keys to builders.
             Defaults to True.
         object_to_builder: Optional cache mapping object ids to already-created
@@ -372,55 +373,51 @@ def builder_from_object(
     if issubclass(cls, Builder):
         return cls.from_object(
             obj=obj,
-            inside_collections=inside_collections,
             omit_keys=omit_keys,
             object_to_builder=object_to_builder,
         )
-    if inside_collections:
-        if isinstance(obj, (list, tuple, set, frozenset)):
-            return type(obj)(
-                [
-                    builder_from_object(
-                        obj=e,
-                        inside_collections=inside_collections,
-                        omit_keys=omit_keys,
-                        object_to_builder=object_to_builder,
-                    )
-                    for e in obj
-                ]
-            )
-        elif isinstance(obj, (dict, frozendict.frozendict)):
-            return type(obj)(
-                [
+    if isinstance(obj, (list, tuple, set, frozenset)):
+        builder_type = _immutable_collection_to_builder.get(type(obj), type(obj))
+        return builder_type(
+            [
+                builder_from_object(
+                    obj=e,
+                    omit_keys=omit_keys,
+                    object_to_builder=object_to_builder,
+                )
+                for e in obj
+            ]
+        )
+    elif isinstance(obj, (dict, frozendict.frozendict)):
+        builder_type = _immutable_collection_to_builder.get(type(obj), type(obj))
+        return builder_type(
+            [
+                (
                     (
-                        (
-                            builder_from_object(
-                                obj=k,
-                                inside_collections=inside_collections,
-                                omit_keys=omit_keys,
-                                object_to_builder=object_to_builder,
-                            ),
-                            builder_from_object(
-                                obj=v,
-                                inside_collections=inside_collections,
-                                omit_keys=omit_keys,
-                                object_to_builder=object_to_builder,
-                            ),
-                        )
-                        if not omit_keys
-                        else (
-                            k,
-                            builder_from_object(
-                                obj=v,
-                                inside_collections=inside_collections,
-                                omit_keys=omit_keys,
-                                object_to_builder=object_to_builder,
-                            ),
-                        )
+                        builder_from_object(
+                            obj=k,
+                            omit_keys=omit_keys,
+                            object_to_builder=object_to_builder,
+                        ),
+                        builder_from_object(
+                            obj=v,
+                            omit_keys=omit_keys,
+                            object_to_builder=object_to_builder,
+                        ),
                     )
-                    for k, v in obj.items()
-                ]
-            )
+                    if not omit_keys
+                    else (
+                        k,
+                        builder_from_object(
+                            obj=v,
+                            omit_keys=omit_keys,
+                            object_to_builder=object_to_builder,
+                        ),
+                    )
+                )
+                for k, v in obj.items()
+            ]
+        )
     return obj
 
 

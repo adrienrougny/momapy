@@ -703,7 +703,7 @@ def _resolve_css_drop_shadow_filter_value(results):
         flood_color=results[9],
     )
     filter = momapy.builder.get_or_make_builder_cls(momapy.drawing.Filter)(
-        effects=momapy.core.TupleBuilder([filter_effect])
+        effects=[filter_effect]
     )
     return filter
 
@@ -717,7 +717,7 @@ def _resolve_css_simple_value(results):
 
 @_css_list_value.set_parse_action
 def _resolve_css_list_value(results):
-    return [momapy.core.TupleBuilder(results[0])]
+    return [list(results[0])]
 
 
 @_css_attribute_value.set_parse_action
