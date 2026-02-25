@@ -2533,6 +2533,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     frozenset(layout_elements_for_mapping),
                     model_element,
                     replace=True,
+                    anchor=layout_element,
                 )
                 for (
                     participant_model_element,
@@ -3470,5 +3471,6 @@ class CellDesignerReader(momapy.io.core.Reader):
                     ),
                     model_element,
                     replace=True,
+                    anchor=layout_element,
                 )
         return model_element, layout_element

@@ -2534,6 +2534,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ),
                     model_element,
                     replace=True,
+                    anchor=layout_element,
                 )
                 for (
                     participant_model_element,
@@ -2865,6 +2866,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ),
                     model_element,
                     replace=True,
+                    anchor=layout_element,
                 )
                 for (
                     input_model_element,
@@ -3037,6 +3039,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ),
                     model_element,
                     replace=True,
+                    anchor=layout_element,
                 )
         else:
             model_element = None
@@ -3476,11 +3479,6 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         with_notes=True,
     ):
         model_element = map_.get_mapping(layout_element)
-        if model_element is None:
-            for key in map_.layout_model_mapping:
-                if isinstance(key, frozenset) and layout_element in key:
-                    model_element = map_.get_mapping(key)
-                    break
         if model_element is not None:
             if isinstance(layout_element, momapy.core.layout.Node):
                 sbgnml_elements = cls._make_sbgnml_elements_from_node(
