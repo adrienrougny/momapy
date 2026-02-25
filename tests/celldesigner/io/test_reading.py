@@ -121,3 +121,51 @@ class TestCellDesignerReadOptionalParameters:
         assert hasattr(result, 'notes')
         # Should be empty frozendict when with_notes=False
         assert result.notes == frozendict.frozendict()
+
+
+class TestCellDesignerEmptyModifications:
+    """Test that modification residues absent from listOfModifications are
+    stored as Modification(state=None), matching the state="empty" behaviour.
+
+    Uses Neuroinflammation.xml which contains MAPK14 (protein p_7, residues
+    T180/mr_re_1_1 and Y182/mr_re_2_1):
+
+    - s_id_ne10f: empty <listOfModifications> → both residues should appear
+      with state=None after the fix.
+    - s_id_ne207: mr_re_1_1 listed as phosphorylated → mr_re_2_1 should be
+      added with state=None by the fix.
+    """
+
+    NEUROINFLAMMATION = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "maps", "Neuroinflammation.xml"
+    )
+
+    @pytest.fixture(scope="class")
+    def neuroinflammation_map(self):
+        if not os.path.exists(self.NEUROINFLAMMATION):
+            pytest.skip("Neuroinflammation.xml not found")
+        return momapy.io.core.read(self.NEUROINFLAMMATION).obj
+
+    def _get_species(self, map_, species_id):
+        return next(s for s in map_.model.species if s.id_ == species_id)
+
+    def test_empty_list_of_modifications_creates_residues_from_template(
+        self, neuroinflammation_map
+    ):
+        # s_id_ne10f has an empty <listOfModifications>; p_7 template defines
+        # two residues, so both must appear with state=None.
+        species = self._get_species(neuroinflammation_map, "s_id_ne10f")
+        assert len(species.modifications) == 2
+        for mod in species.modifications:
+            assert mod.state is None
+
+    def test_partial_list_of_modifications_fills_uncovered_residues(
+        self, neuroinflammation_map
+    ):
+        # s_id_ne207 has mr_re_1_1 explicitly listed as phosphorylated.
+        # The fix must add mr_re_2_1 with state=None.
+        species = self._get_species(neuroinflammation_map, "s_id_ne207")
+        assert len(species.modifications) == 2
+        states = {mod.state for mod in species.modifications}
+        assert momapy.celldesigner.core.ModificationState.PHOSPHORYLATED in states
+        assert None in states

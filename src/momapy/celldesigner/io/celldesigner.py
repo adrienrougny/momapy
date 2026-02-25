@@ -1988,9 +1988,11 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element.n = homomultimer
             else:
                 layout_element = None
+            covered_cd_residue_ids = set()
             for (
                 cd_species_modification
             ) in cls._get_species_modifications_from_cd_species(cd_species):
+                covered_cd_residue_ids.add(cd_species_modification.get("residue"))
                 modification_model_element, modification_layout_element = (
                     cls._make_and_add_species_modification_from_cd_species_modification(
                         model=model,
@@ -2011,6 +2013,37 @@ class CellDesignerReader(momapy.io.core.Reader):
                         super_layout_element=layout_element,
                     )
                 )
+            cd_species_template = cls._get_template_from_cd_species_alias(
+                cd_species_alias, cd_id_to_cd_element
+            )
+            for (
+                cd_modification_residue
+            ) in cls._get_modification_residues_from_cd_species_template(
+                cd_species_template
+            ):
+                residue_xml_id = cd_modification_residue.get("id")
+                if residue_xml_id not in covered_cd_residue_ids:
+                    cls._make_and_add_species_modification_from_cd_species_modification(
+                        model=model,
+                        layout=layout,
+                        cd_species_modification={
+                            "state": "empty",
+                            "residue": residue_xml_id,
+                        },
+                        cd_id_to_model_element=cd_id_to_model_element,
+                        cd_id_to_layout_element=cd_id_to_layout_element,
+                        cd_id_to_cd_element=cd_id_to_cd_element,
+                        cd_complex_alias_id_to_cd_included_species_ids=cd_complex_alias_id_to_cd_included_species_ids,
+                        map_element_to_annotations=map_element_to_annotations,
+                        map_element_to_notes=map_element_to_notes,
+                        layout_model_mapping=layout_model_mapping,
+                        id_to_map_element=id_to_map_element,
+                        with_annotations=with_annotations,
+                        with_notes=with_notes,
+                        super_cd_element=cd_species_alias,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
+                    )
             for (
                 cd_species_structural_state
             ) in cls._get_species_structural_states_from_cd_species(cd_species):
@@ -2206,7 +2239,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element.label = text_layout
                 cd_modification_residue_name = cd_modification_residue.get("name")
                 if cd_modification_residue_name is not None:
-                    residue_text_layout = layout.new_element(momapy.core.layout.TextLayout)
+                    residue_text_layout = layout.new_element(
+                        momapy.core.layout.TextLayout
+                    )
                     residue_text_layout.text = cd_modification_residue_name
                     residue_text_layout.font_size = cls._DEFAULT_MODIFICATION_FONT_SIZE
                     residue_text_layout.font_family = cls._DEFAULT_FONT_FAMILY
