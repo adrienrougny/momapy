@@ -42,6 +42,7 @@ class Builder(abc.ABC, momapy.monitoring.Monitored):
     """
 
     _cls_to_build: typing.ClassVar[type]
+    __hash__ = object.__hash__
 
     @abc.abstractmethod
     def build(
