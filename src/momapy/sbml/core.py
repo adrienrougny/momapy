@@ -15,6 +15,8 @@ import typing
 import enum
 
 import momapy.core
+import momapy.core.elements
+import momapy.core.model
 
 
 class BiomodelQualifier(enum.Enum):
@@ -86,7 +88,7 @@ class BQBiol(BiomodelQualifier):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class RDFAnnotation(momapy.core.ModelElement):
+class RDFAnnotation(momapy.core.elements.ModelElement):
     """RDF annotation linking model elements to external resources.
 
     Attributes:
@@ -107,7 +109,7 @@ class RDFAnnotation(momapy.core.ModelElement):
 
 # to be defined
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBOTerm(momapy.core.ModelElement):
+class SBOTerm(momapy.core.elements.ModelElement):
     """SBO (Systems Biology Ontology) term annotation.
 
     SBO terms provide standardized vocabulary for describing model elements.
@@ -118,7 +120,7 @@ class SBOTerm(momapy.core.ModelElement):
 
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBase(momapy.core.ModelElement):
+class SBase(momapy.core.elements.ModelElement):
     """Abstract base class for all SBML elements.
 
     SBase provides common attributes shared by all SBML components.
@@ -243,7 +245,7 @@ class Reaction(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(SBase, momapy.core.Model):
+class Model(SBase, momapy.core.model.Model):
     """SBML model container.
 
     Models aggregate compartments, species, and reactions into a

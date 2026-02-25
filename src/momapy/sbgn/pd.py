@@ -25,6 +25,9 @@ import momapy.builder
 import momapy.meta.arcs
 import momapy.meta.shapes
 import momapy.coloring
+import momapy.core.builders
+import momapy.core.elements
+import momapy.core.layout
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -749,7 +752,7 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
@@ -1202,7 +1205,7 @@ class ComplexMultimerLayout(momapy.sbgn.core._MultiMixin, momapy.sbgn.core.SBGNN
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _EmptySetShape(momapy.core.Shape):
+class _EmptySetShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -1451,7 +1454,7 @@ class AssociationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DissociationShape(momapy.core.Shape):
+class _DissociationShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -1517,11 +1520,11 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             return momapy.meta.shapes.Hexagon(
                 position=self.position,
                 width=self.width,
@@ -1529,7 +1532,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
                 left_angle=90.0,
                 right_angle=self.angle,
             )
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             return momapy.meta.shapes.Hexagon(
                 position=self.position,
                 width=self.width,
@@ -1537,7 +1540,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
                 left_angle=self.angle,
                 right_angle=90.0,
             )
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             return momapy.meta.shapes.TurnedHexagon(
                 position=self.position,
                 width=self.width,
@@ -1545,7 +1548,7 @@ class TagLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
                 top_angle=self.angle,
                 bottom_angle=90.0,
             )
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             return momapy.meta.shapes.TurnedHexagon(
                 position=self.position,
                 width=self.width,
@@ -1632,7 +1635,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
             ),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 

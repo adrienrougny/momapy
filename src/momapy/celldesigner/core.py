@@ -17,6 +17,10 @@ import math
 import typing
 
 import momapy.core
+import momapy.core.builders
+import momapy.core.elements
+import momapy.core.layout
+import momapy.core.map
 import momapy.geometry
 import momapy.coloring
 import momapy.drawing
@@ -31,7 +35,7 @@ import momapy.sbgn.pd
 
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerModelElement(momapy.core.ModelElement):
+class CellDesignerModelElement(momapy.core.elements.ModelElement):
     """Base class for CellDesigner model elements"""
 
     pass
@@ -767,7 +771,7 @@ class CellDesignerNode(momapy.sbgn.core.SBGNNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerSingleHeadedArc(momapy.core.SingleHeadedArc):
+class CellDesignerSingleHeadedArc(momapy.core.layout.SingleHeadedArc):
     """Base class for CellDesigner single-headed arcs"""
 
     arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -799,7 +803,7 @@ class CellDesignerSingleHeadedArc(momapy.core.SingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerDoubleHeadedArc(momapy.core.DoubleHeadedArc):
+class CellDesignerDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
     """Base class for CellDesigner double-headed arcs"""
 
     path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -932,7 +936,7 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _IonChannelShape(momapy.core.Shape):
+class _IonChannelShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -1150,7 +1154,7 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DegradedShape(momapy.core.Shape):
+class _DegradedShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -1721,7 +1725,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _TruncatedProteinShape(momapy.core.Shape):
+class _TruncatedProteinShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -2012,7 +2016,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DrugShape(momapy.core.Shape):
+class _DrugShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -2145,7 +2149,7 @@ class ModificationLayout(_SimpleNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _OvalCompartmentShape(momapy.core.Shape):
+class _OvalCompartmentShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -2199,7 +2203,7 @@ class OvalCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _RectangleCompartmentShape(momapy.core.Shape):
+class _RectangleCompartmentShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
     height: float
@@ -2461,7 +2465,7 @@ class TriggeringLayout(CellDesignerSingleHeadedArc):
             ),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 
@@ -2501,7 +2505,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
             ),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 
@@ -2601,7 +2605,7 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
     def _make_reaction_node(self):
         position = self._get_reaction_node_position()
         if self._reaction_node_text is not None:
-            label = momapy.core.TextLayout(
+            label = momapy.core.layout.TextLayout(
                 text=self._reaction_node_text,
                 position=position,
                 font_family=self._font_family,
@@ -3034,7 +3038,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
                 ),
                 width=self.start_arrowhead_triangle_width,
                 height=self.start_arrowhead_triangle_height,
-                direction=momapy.core.Direction.LEFT,
+                direction=momapy.core.elements.Direction.LEFT,
             )
             return [bar, sep] + triangle.drawing_elements()
         return []
@@ -3061,7 +3065,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
             ),
             width=self.end_arrowhead_triangle_width,
             height=self.end_arrowhead_triangle_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 
@@ -3367,14 +3371,14 @@ class LogicArcLayout(CellDesignerSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerLayout(momapy.core.Layout):
+class CellDesignerLayout(momapy.core.layout.Layout):
     """Class for CellDesigner layouts"""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerMap(momapy.core.Map):
+class CellDesignerMap(momapy.core.map.Map):
     """Class for CellDesigner maps"""
 
     model: CellDesignerModel | None = None

@@ -10,8 +10,10 @@ import typing
 
 import momapy.drawing
 import momapy.meta.shapes
+import momapy.core.builders
 import momapy.sbgn.core
 import momapy.sbgn.pd
+import momapy.core.elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -447,7 +449,7 @@ class TerminalLayout(momapy.sbgn.core._SimpleMixin, momapy.sbgn.core.SBGNNode):
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
@@ -620,7 +622,7 @@ class TagLayout(momapy.sbgn.pd.TagLayout):
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.Direction = momapy.core.Direction.RIGHT
+    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
@@ -679,7 +681,7 @@ class NecessaryStimulationLayout(momapy.sbgn.core.SBGNSingleHeadedArc):
             ),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 

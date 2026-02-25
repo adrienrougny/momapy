@@ -3,13 +3,15 @@ import dataclasses
 import math
 import pytest
 import momapy.core
+import momapy.core.elements
+import momapy.core.layout
 import momapy.geometry
 import momapy.coloring
 
 
 # Minimal concrete Arc subclass for testing Arc.fraction()
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _ConcreteArc(momapy.core.Arc):
+class _ConcreteArc(momapy.core.layout.Arc):
     def self_drawing_elements(self):
         return []
 
@@ -19,75 +21,75 @@ class _ConcreteArc(momapy.core.Arc):
 
 def test_direction_enum():
     """Test Direction enum."""
-    assert momapy.core.Direction.HORIZONTAL is not None
-    assert momapy.core.Direction.VERTICAL is not None
-    assert momapy.core.Direction.UP is not None
-    assert momapy.core.Direction.RIGHT is not None
-    assert momapy.core.Direction.DOWN is not None
-    assert momapy.core.Direction.LEFT is not None
+    assert momapy.core.elements.Direction.HORIZONTAL is not None
+    assert momapy.core.elements.Direction.VERTICAL is not None
+    assert momapy.core.elements.Direction.UP is not None
+    assert momapy.core.elements.Direction.RIGHT is not None
+    assert momapy.core.elements.Direction.DOWN is not None
+    assert momapy.core.elements.Direction.LEFT is not None
 
 
 def test_halignment_enum():
     """Test HAlignment enum."""
-    assert momapy.core.HAlignment.LEFT is not None
-    assert momapy.core.HAlignment.CENTER is not None
-    assert momapy.core.HAlignment.RIGHT is not None
+    assert momapy.core.elements.HAlignment.LEFT is not None
+    assert momapy.core.elements.HAlignment.CENTER is not None
+    assert momapy.core.elements.HAlignment.RIGHT is not None
 
 
 def test_valignment_enum():
     """Test VAlignment enum."""
-    assert momapy.core.VAlignment.TOP is not None
-    assert momapy.core.VAlignment.CENTER is not None
-    assert momapy.core.VAlignment.BOTTOM is not None
+    assert momapy.core.elements.VAlignment.TOP is not None
+    assert momapy.core.elements.VAlignment.CENTER is not None
+    assert momapy.core.elements.VAlignment.BOTTOM is not None
 
 
 def test_map_element_creation():
     """Test MapElement creation."""
-    element = momapy.core.MapElement()
+    element = momapy.core.elements.MapElement()
     assert element.id_ is not None
     assert isinstance(element.id_, str)
 
 
 def test_map_element_with_custom_id():
     """Test MapElement with custom id."""
-    element = momapy.core.MapElement(id_="custom_id")
+    element = momapy.core.elements.MapElement(id_="custom_id")
     assert element.id_ == "custom_id"
 
 
 def test_model_element_creation():
     """Test ModelElement creation."""
-    element = momapy.core.ModelElement()
+    element = momapy.core.elements.ModelElement()
     assert element.id_ is not None
     assert isinstance(element.id_, str)
 
 
 def test_text_layout_creation(sample_point):
     """Test TextLayout creation."""
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Hello World",
         position=sample_point,
     )
     assert text_layout.text == "Hello World"
     assert text_layout.position == sample_point
-    assert text_layout.horizontal_alignment == momapy.core.HAlignment.LEFT
-    assert text_layout.vertical_alignment == momapy.core.VAlignment.TOP
+    assert text_layout.horizontal_alignment == momapy.core.elements.HAlignment.LEFT
+    assert text_layout.vertical_alignment == momapy.core.elements.VAlignment.TOP
 
 
 def test_text_layout_with_custom_alignment(sample_point):
     """Test TextLayout with custom alignment."""
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test",
         position=sample_point,
-        horizontal_alignment=momapy.core.HAlignment.CENTER,
-        vertical_alignment=momapy.core.VAlignment.CENTER,
+        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
+        vertical_alignment=momapy.core.elements.VAlignment.CENTER,
     )
-    assert text_layout.horizontal_alignment == momapy.core.HAlignment.CENTER
-    assert text_layout.vertical_alignment == momapy.core.VAlignment.CENTER
+    assert text_layout.horizontal_alignment == momapy.core.elements.HAlignment.CENTER
+    assert text_layout.vertical_alignment == momapy.core.elements.VAlignment.CENTER
 
 
 def test_layout_creation(sample_point):
     """Test Layout creation."""
-    layout = momapy.core.Layout(
+    layout = momapy.core.layout.Layout(
         position=sample_point,
         width=100,
         height=100,
@@ -100,11 +102,11 @@ def test_layout_creation(sample_point):
 
 def test_layout_with_elements(sample_point):
     """Test Layout with elements."""
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test",
         position=sample_point,
     )
-    layout = momapy.core.Layout(
+    layout = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0),
         width=200,
         height=200,

@@ -17,6 +17,7 @@ import tempfile
 import ffmpeg
 
 import momapy.core
+import momapy.core.layout
 import momapy.rendering
 
 
@@ -38,7 +39,7 @@ class Animator(object):
         >>> animator.build("animation.mp4")
     """
 
-    layout: momapy.core.Layout
+    layout: momapy.core.layout.Layout
     fps: int = 60
 
     def __post_init__(self):

@@ -45,13 +45,15 @@ Example:
 from dataclasses import dataclass
 
 import momapy.core
+import momapy.core.elements
+import momapy.core.layout
 import momapy.meta.shapes
 import momapy.drawing
 import momapy.geometry
 
 
 @dataclass(frozen=True, kw_only=True)
-class PolyLine(momapy.core.SingleHeadedArc):
+class PolyLine(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with no arrowhead"""
 
     def _arrowhead_border_drawing_elements(self):
@@ -59,7 +61,7 @@ class PolyLine(momapy.core.SingleHeadedArc):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Triangle(momapy.core.SingleHeadedArc):
+class Triangle(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a triangle arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -70,13 +72,13 @@ class Triangle(momapy.core.SingleHeadedArc):
             position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
             height=self.arrowhead_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return shape.drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class ReversedTriangle(momapy.core.SingleHeadedArc):
+class ReversedTriangle(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a reversed triangle arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -87,13 +89,13 @@ class ReversedTriangle(momapy.core.SingleHeadedArc):
             position=momapy.geometry.Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
             height=self.arrowhead_height,
-            direction=momapy.core.Direction.LEFT,
+            direction=momapy.core.elements.Direction.LEFT,
         )
         return shape.drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class Rectangle(momapy.core.SingleHeadedArc):
+class Rectangle(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a rectangle arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -109,7 +111,7 @@ class Rectangle(momapy.core.SingleHeadedArc):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Ellipse(momapy.core.SingleHeadedArc):
+class Ellipse(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with an ellipse arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -125,7 +127,7 @@ class Ellipse(momapy.core.SingleHeadedArc):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Diamond(momapy.core.SingleHeadedArc):
+class Diamond(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a diamond arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -141,7 +143,7 @@ class Diamond(momapy.core.SingleHeadedArc):
 
 
 @dataclass(frozen=True, kw_only=True)
-class Bar(momapy.core.SingleHeadedArc):
+class Bar(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a bar arrowhead"""
 
     arrowhead_height: float = 10.0
@@ -155,7 +157,7 @@ class Bar(momapy.core.SingleHeadedArc):
 
 
 @dataclass(frozen=True, kw_only=True)
-class ArcBarb(momapy.core.SingleHeadedArc):
+class ArcBarb(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with an arc barb arrowhead"""
 
     arrowhead_width: float = 5.0
@@ -169,13 +171,13 @@ class ArcBarb(momapy.core.SingleHeadedArc):
             position=momapy.geometry.Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
             height=self.arrowhead_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return shape.drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class StraightBarb(momapy.core.SingleHeadedArc):
+class StraightBarb(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a straight barb arrowhead"""
 
     arrowhead_width: float = 10.0
@@ -189,13 +191,13 @@ class StraightBarb(momapy.core.SingleHeadedArc):
             position=momapy.geometry.Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
             height=self.arrowhead_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return shape.drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class To(momapy.core.SingleHeadedArc):
+class To(momapy.core.layout.SingleHeadedArc):
     """Class for single-headed arcs with a to arrowhead"""
 
     arrowhead_width: float = 5.0
@@ -209,13 +211,13 @@ class To(momapy.core.SingleHeadedArc):
             position=momapy.geometry.Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
             height=self.arrowhead_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return shape.drawing_elements()
 
 
 @dataclass(frozen=True, kw_only=True)
-class DoubleTriangle(momapy.core.DoubleHeadedArc):
+class DoubleTriangle(momapy.core.layout.DoubleHeadedArc):
     """Class for double-headed arcs with triangle arrowheads"""
 
     start_arrowhead_width: float = 10.0
@@ -228,7 +230,7 @@ class DoubleTriangle(momapy.core.DoubleHeadedArc):
             position=momapy.geometry.Point(-self.start_arrowhead_width / 2, 0),
             width=self.start_arrowhead_width,
             height=self.start_arrowhead_height,
-            direction=momapy.core.Direction.LEFT,
+            direction=momapy.core.elements.Direction.LEFT,
         )
         return shape.drawing_elements()
 
@@ -237,6 +239,6 @@ class DoubleTriangle(momapy.core.DoubleHeadedArc):
             position=momapy.geometry.Point(self.end_arrowhead_width / 2, 0),
             width=self.end_arrowhead_width,
             height=self.end_arrowhead_height,
-            direction=momapy.core.Direction.RIGHT,
+            direction=momapy.core.elements.Direction.RIGHT,
         )
         return shape.drawing_elements()

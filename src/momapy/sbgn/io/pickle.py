@@ -5,6 +5,7 @@ import typing
 import pickle
 
 import momapy.core
+import momapy.core.elements
 import momapy.builder
 import momapy.io.core
 import momapy.sbgn.core
@@ -63,7 +64,7 @@ class SBGNPickleReader(momapy.io.core.Reader):
             ]:
                 if mapping is not None:
                     _del_key_from_mapping_by_classes(
-                        mapping, include_classes=[momapy.core.ModelElement]
+                        mapping, include_classes=[momapy.core.elements.ModelElement]
                     )
         elif return_type == "layout":
             obj = obj.layout
@@ -74,7 +75,7 @@ class SBGNPickleReader(momapy.io.core.Reader):
             ]:
                 if mapping is not None:
                     _del_key_from_mapping_by_classes(
-                        mapping, include_classes=[momapy.core.LayoutElement]
+                        mapping, include_classes=[momapy.core.elements.LayoutElement]
                     )
         else:
             if not with_model or not with_layout:
@@ -90,7 +91,7 @@ class SBGNPickleReader(momapy.io.core.Reader):
                             _del_key_from_mapping_by_classes(
                                 mapping,
                                 exclude_classes=[
-                                    momapy.core.ModelElement,
+                                    momapy.core.elements.ModelElement,
                                 ],
                             )
 
@@ -105,7 +106,7 @@ class SBGNPickleReader(momapy.io.core.Reader):
                             _del_key_from_mapping_by_classes(
                                 mapping,
                                 exclude_classes=[
-                                    momapy.core.LayoutElement,
+                                    momapy.core.elements.LayoutElement,
                                 ],
                             )
                 map_builder.layout_model_mapping = None

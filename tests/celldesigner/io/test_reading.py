@@ -4,6 +4,7 @@ import pytest
 import os
 import momapy.io.core
 import momapy.celldesigner.core
+import momapy.core.layout
 import frozendict
 
 
@@ -50,7 +51,7 @@ class TestCellDesignerReadOptionalParameters:
     @pytest.mark.parametrize("return_type,expected_type", [
         ("map", momapy.celldesigner.core.CellDesignerMap),
         ("model", momapy.celldesigner.core.CellDesignerModel),
-        ("layout", momapy.core.Layout),
+        ("layout", momapy.core.layout.Layout),
     ])
     def test_return_type_parameter(self, test_file, return_type, expected_type):
         """Test return_type parameter returns correct object type."""

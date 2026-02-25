@@ -12,6 +12,7 @@ import momapy.builder
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
+import momapy.core.layout
 
 
 def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
@@ -174,7 +175,7 @@ def set_nodes_to_fit_labels(
     if restrict_to is None:
         restrict_to = []
     if not restrict_to:
-        restrict_to = [momapy.core.Node]
+        restrict_to = [momapy.core.layout.Node]
     if exclude is None:
         exclude = []
     exclude = tuple(exclude)

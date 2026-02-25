@@ -4,6 +4,7 @@ import pytest
 import momapy.meta.shapes
 import momapy.geometry
 import momapy.core
+import momapy.core.elements
 
 
 # Simple shapes that only need position, width, height
@@ -21,17 +22,17 @@ SHAPE_PARAMS = {
     momapy.meta.shapes.ArcBarb: {
         "width": 100.0,
         "height": 60.0,
-        "direction": momapy.core.Direction.RIGHT,
+        "direction": momapy.core.elements.Direction.RIGHT,
     },
     momapy.meta.shapes.StraightBarb: {
         "width": 100.0,
         "height": 60.0,
-        "direction": momapy.core.Direction.RIGHT,
+        "direction": momapy.core.elements.Direction.RIGHT,
     },
     momapy.meta.shapes.To: {
         "width": 100.0,
         "height": 60.0,
-        "direction": momapy.core.Direction.RIGHT,
+        "direction": momapy.core.elements.Direction.RIGHT,
     },
     momapy.meta.shapes.Hexagon: {
         "width": 100.0,
@@ -48,7 +49,7 @@ SHAPE_PARAMS = {
     momapy.meta.shapes.Triangle: {
         "width": 100.0,
         "height": 60.0,
-        "direction": momapy.core.Direction.RIGHT,
+        "direction": momapy.core.elements.Direction.RIGHT,
     },
     momapy.meta.shapes.Parallelogram: {"width": 100.0, "height": 60.0, "angle": 60},
 }

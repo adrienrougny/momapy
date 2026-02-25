@@ -48,12 +48,14 @@ import math
 import dataclasses
 
 import momapy.core
+import momapy.core.elements
+import momapy.core.layout
 import momapy.geometry
 import momapy.drawing
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Rectangle(momapy.core.Shape):
+class Rectangle(momapy.core.layout.Shape):
     """Class for rectangle shapes"""
 
     position: momapy.geometry.Point
@@ -196,7 +198,7 @@ class Rectangle(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Ellipse(momapy.core.Shape):
+class Ellipse(momapy.core.layout.Shape):
     """Class for ellipse shapes"""
 
     position: momapy.geometry.Point
@@ -211,7 +213,7 @@ class Ellipse(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Stadium(momapy.core.Shape):
+class Stadium(momapy.core.layout.Shape):
     """Class for stadium shapes"""
 
     position: momapy.geometry.Point
@@ -258,7 +260,7 @@ class Stadium(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Hexagon(momapy.core.Shape):
+class Hexagon(momapy.core.layout.Shape):
     """Class for hexagon shapes"""
 
     position: momapy.geometry.Point
@@ -327,7 +329,7 @@ class Hexagon(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TurnedHexagon(momapy.core.Shape):
+class TurnedHexagon(momapy.core.layout.Shape):
     """Class for hexagon turned by 90 degrees shapes"""
 
     position: momapy.geometry.Point
@@ -451,7 +453,7 @@ class TurnedHexagon(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Parallelogram(momapy.core.Shape):
+class Parallelogram(momapy.core.layout.Shape):
     """Class for parallelogram shapes"""
 
     position: momapy.geometry.Point
@@ -503,7 +505,7 @@ class Parallelogram(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CrossPoint(momapy.core.Shape):
+class CrossPoint(momapy.core.layout.Shape):
     """Class for cross point shapes"""
 
     position: momapy.geometry.Point
@@ -525,47 +527,47 @@ class CrossPoint(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Triangle(momapy.core.Shape):
+class Triangle(momapy.core.layout.Shape):
     """Class for triangle shapes"""
 
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction
+    direction: momapy.core.elements.Direction
 
     def joint1(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.DOWN
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.DOWN
         ):
             p = self.position + (-self.width / 2, -self.height / 2)
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             p = self.position + (0, -self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint2(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif (
-            self.direction == momapy.core.Direction.UP
-            or self.direction == momapy.core.Direction.LEFT
+            self.direction == momapy.core.elements.Direction.UP
+            or self.direction == momapy.core.elements.Direction.LEFT
         ):
             p = self.position + (self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint3(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.UP
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.UP
         ):
             p = self.position + (-self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (-self.width / 2, 0)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (0, self.height / 2)
         return p
 
@@ -581,7 +583,7 @@ class Triangle(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Diamond(momapy.core.Shape):
+class Diamond(momapy.core.layout.Shape):
     """Class for diamond shapes"""
 
     position: momapy.geometry.Point
@@ -613,7 +615,7 @@ class Diamond(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Bar(momapy.core.Shape):
+class Bar(momapy.core.layout.Shape):
     """Class for bar shapes"""
 
     position: momapy.geometry.Point
@@ -635,40 +637,40 @@ class Bar(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ArcBarb(momapy.core.Shape):
+class ArcBarb(momapy.core.layout.Shape):
     """Class for arc barb shapes"""
 
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction
+    direction: momapy.core.elements.Direction
 
     def joint1(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.DOWN
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.DOWN
         ):
             p = self.position + (-self.width / 2, -self.height / 2)
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             p = self.position + (self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint2(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.UP
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.UP
         ):
             p = self.position + (-self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def drawing_elements(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -680,7 +682,7 @@ class ArcBarb(momapy.core.Shape):
                     1,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -692,7 +694,7 @@ class ArcBarb(momapy.core.Shape):
                     0,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -704,7 +706,7 @@ class ArcBarb(momapy.core.Shape):
                     0,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -721,70 +723,70 @@ class ArcBarb(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StraightBarb(momapy.core.Shape):
+class StraightBarb(momapy.core.layout.Shape):
     """Class for straight barb shapes"""
 
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction
+    direction: momapy.core.elements.Direction
 
     def joint1(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.DOWN
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.DOWN
         ):
             p = self.position + (-self.width / 2, -self.height / 2)
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             p = self.position + (0, -self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint2(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif (
-            self.direction == momapy.core.Direction.UP
-            or self.direction == momapy.core.Direction.LEFT
+            self.direction == momapy.core.elements.Direction.UP
+            or self.direction == momapy.core.elements.Direction.LEFT
         ):
             p = self.position + (self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint3(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.UP
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.UP
         ):
             p = self.position + (-self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (-self.width / 2, 0)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (0, self.height / 2)
         return p
 
     def drawing_elements(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.LineTo(self.joint2()),
                 momapy.drawing.LineTo(self.joint3()),
             ]
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             actions = [
                 momapy.drawing.MoveTo(self.joint3()),
                 momapy.drawing.LineTo(self.joint1()),
                 momapy.drawing.LineTo(self.joint2()),
             ]
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.LineTo(self.joint3()),
                 momapy.drawing.LineTo(self.joint2()),
             ]
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.LineTo(self.joint3()),
@@ -795,52 +797,52 @@ class StraightBarb(momapy.core.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class To(momapy.core.Shape):
+class To(momapy.core.layout.Shape):
     """Class for to shapes"""
 
     position: momapy.geometry.Point
     width: float
     height: float
-    direction: momapy.core.Direction
+    direction: momapy.core.elements.Direction
 
     def joint1(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.DOWN
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.DOWN
         ):
             p = self.position + (-self.width / 2, -self.height / 2)
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             p = self.position + (0, -self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint2(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif (
-            self.direction == momapy.core.Direction.UP
-            or self.direction == momapy.core.Direction.LEFT
+            self.direction == momapy.core.elements.Direction.UP
+            or self.direction == momapy.core.elements.Direction.LEFT
         ):
             p = self.position + (self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
     def joint3(self):
         if (
-            self.direction == momapy.core.Direction.RIGHT
-            or self.direction == momapy.core.Direction.UP
+            self.direction == momapy.core.elements.Direction.RIGHT
+            or self.direction == momapy.core.elements.Direction.UP
         ):
             p = self.position + (-self.width / 2, self.height / 2)
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             p = self.position + (-self.width / 2, 0)
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             p = self.position + (0, self.height / 2)
         return p
 
     def drawing_elements(self):
-        if self.direction == momapy.core.Direction.RIGHT:
+        if self.direction == momapy.core.elements.Direction.RIGHT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -860,7 +862,7 @@ class To(momapy.core.Shape):
                     0,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.UP:
+        elif self.direction == momapy.core.elements.Direction.UP:
             actions = [
                 momapy.drawing.MoveTo(self.joint3()),
                 momapy.drawing.EllipticalArc(
@@ -880,7 +882,7 @@ class To(momapy.core.Shape):
                     0,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.LEFT:
+        elif self.direction == momapy.core.elements.Direction.LEFT:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(
@@ -900,7 +902,7 @@ class To(momapy.core.Shape):
                     1,
                 ),
             ]
-        elif self.direction == momapy.core.Direction.DOWN:
+        elif self.direction == momapy.core.elements.Direction.DOWN:
             actions = [
                 momapy.drawing.MoveTo(self.joint1()),
                 momapy.drawing.EllipticalArc(

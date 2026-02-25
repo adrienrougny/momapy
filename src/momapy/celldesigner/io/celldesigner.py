@@ -9,6 +9,8 @@ import frozendict
 import lxml.objectify
 
 import momapy.core
+import momapy.core.mapping
+import momapy.core.layout
 import momapy.geometry
 import momapy.io.core
 import momapy.coloring
@@ -1164,7 +1166,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             id_to_map_element = momapy.utils.SurjectionDict()
             map_element_to_notes = collections.defaultdict(set)
             if model is not None and layout is not None:
-                layout_model_mapping = momapy.core.LayoutModelMappingBuilder()
+                layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
             else:
                 layout_model_mapping = None
             # we make and add the  model and layout elements from the cd elements
@@ -1593,7 +1595,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     float(cd_compartment_alias.namePoint.get("x")),
                     float(cd_compartment_alias.namePoint.get("y")),
                 )
-                text_layout = momapy.core.TextLayout(
+                text_layout = momapy.core.layout.TextLayout(
                     text=text,
                     font_size=cls._DEFAULT_FONT_SIZE,
                     font_family=cls._DEFAULT_FONT_FAMILY,
@@ -1957,7 +1959,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 layout_element.width = float(cd_w)
                 layout_element.height = float(cd_h)
-                text_layout = momapy.core.TextLayout(
+                text_layout = momapy.core.layout.TextLayout(
                     text=name,
                     font_size=float(cd_species_alias.font.get("size")),
                     font_family=cls._DEFAULT_FONT_FAMILY,
@@ -2193,7 +2195,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 text = (
                     modification_state.value if modification_state is not None else ""
                 )
-                text_layout = momapy.core.TextLayout(
+                text_layout = momapy.core.layout.TextLayout(
                     text=text,
                     font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
                     font_family=cls._DEFAULT_FONT_FAMILY,
@@ -2204,7 +2206,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element.label = text_layout
                 cd_modification_residue_name = cd_modification_residue.get("name")
                 if cd_modification_residue_name is not None:
-                    residue_text_layout = layout.new_element(momapy.core.TextLayout)
+                    residue_text_layout = layout.new_element(momapy.core.layout.TextLayout)
                     residue_text_layout.text = cd_modification_residue_name
                     residue_text_layout.font_size = cls._DEFAULT_MODIFICATION_FONT_SIZE
                     residue_text_layout.font_family = cls._DEFAULT_FONT_FAMILY
@@ -2264,7 +2266,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
             layout_element.position = super_layout_element.self_angle(90)
             text = cd_species_structural_state.get("structuralState")
-            text_layout = momapy.core.TextLayout(
+            text_layout = momapy.core.layout.TextLayout(
                 text=text,
                 font_size=cls._DEFAULT_MODIFICATION_FONT_SIZE,
                 font_family=cls._DEFAULT_FONT_FAMILY,

@@ -4,6 +4,7 @@ import pytest
 import os
 import momapy.io.core
 import momapy.sbgn.core
+import momapy.core.layout
 import frozendict
 
 
@@ -34,7 +35,7 @@ class TestSBGNReadOptionalParameters:
     @pytest.mark.parametrize("return_type,expected_type", [
         ("map", momapy.sbgn.core.SBGNMap),
         ("model", momapy.sbgn.core.SBGNModel),
-        ("layout", momapy.core.Layout),
+        ("layout", momapy.core.layout.Layout),
     ])
     def test_return_type_parameter(self, test_file, return_type, expected_type):
         """Test return_type parameter returns correct object type."""

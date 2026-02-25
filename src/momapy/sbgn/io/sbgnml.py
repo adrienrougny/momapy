@@ -12,6 +12,9 @@ import lxml.etree
 import momapy.geometry
 import momapy.utils
 import momapy.core
+import momapy.core.mapping
+import momapy.core.elements
+import momapy.core.layout
 import momapy.io.core
 import momapy.coloring
 import momapy.positioning
@@ -614,18 +617,18 @@ class _SBGNMLReader(momapy.io.core.Reader):
             ) or float(sbgnml_port.get("x")) >= float(
                 sbgnml_process.bbox.get("x")
             ) + float(sbgnml_process.bbox.get("w")):  # LEFT OR RIGHT
-                return momapy.core.Direction.HORIZONTAL
+                return momapy.core.elements.Direction.HORIZONTAL
             else:
-                return momapy.core.Direction.VERTICAL
-        return momapy.core.Direction.VERTICAL  # default is vertical
+                return momapy.core.elements.Direction.VERTICAL
+        return momapy.core.elements.Direction.VERTICAL  # default is vertical
 
     @classmethod
     def _get_direction_from_sbgnml_element(cls, sbgnml_element):
         sbgnml_orientation = sbgnml_element.get("orientation")
         if sbgnml_orientation is None:
-            return momapy.core.Direction.RIGHT
+            return momapy.core.elements.Direction.RIGHT
         orientation = cls._transform_sbgnml_class(sbgnml_orientation)
-        return momapy.core.Direction[orientation]
+        return momapy.core.elements.Direction[orientation]
 
     @classmethod
     def _is_sbgnml_operator_left_to_right(
@@ -643,7 +646,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             sbgnml_operator, sbgnml_glyph_id_to_sbgnml_arcs
         )
         for sbgnml_logic_arc in sbgnml_logic_arcs:
-            if operator_direction == momapy.core.Direction.HORIZONTAL:
+            if operator_direction == momapy.core.elements.Direction.HORIZONTAL:
                 if float(sbgnml_logic_arc.end.get("x")) < float(
                     sbgnml_operator.bbox.get("x")
                 ):
@@ -675,7 +678,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             if not sbgnml_production_arcs:  # process is reversible
                 return True  # defaults to left to right
             sbgnml_production_arc = sbgnml_production_arcs[0]
-            if process_direction == momapy.core.Direction.HORIZONTAL:
+            if process_direction == momapy.core.elements.Direction.HORIZONTAL:
                 if float(sbgnml_production_arc.start.get("x")) >= float(
                     sbgnml_process.bbox.get("x")
                 ):
@@ -690,7 +693,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 return False
         if sbgnml_consumption_arcs:
             sbgnml_consumption_arc = sbgnml_consumption_arcs[0]
-            if process_direction == momapy.core.Direction.HORIZONTAL:
+            if process_direction == momapy.core.elements.Direction.HORIZONTAL:
                 if float(sbgnml_consumption_arc.end.get("x")) <= float(
                     sbgnml_process.bbox.get("x")
                 ):
@@ -1068,7 +1071,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             map_element_to_annotations = collections.defaultdict(set)
             map_element_to_notes = collections.defaultdict(set)
             if model is not None and layout is not None:
-                layout_model_mapping = momapy.core.LayoutModelMappingBuilder()
+                layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
             else:
                 layout_model_mapping = None
             # We make model and layout elements from glyphs and arcs; when an arc or
@@ -1329,14 +1332,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     text = sbgnml_label.get("text")
                     if text is None:
                         text = ""
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=text,
                         font_size=cls._DEFAULT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -1542,14 +1545,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     text = sbgnml_label.get("text")
                     if text is None:
                         text = ""
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=text,
                         font_size=cls._DEFAULT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -1748,14 +1751,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     text = sbgnml_label.get("text")
                     if text is None:
                         text = ""
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=text,
                         font_size=cls._DEFAULT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -1893,14 +1896,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 cls._set_layout_element_position_and_size_from_sbgnml_glyph(
                     layout_element, sbgnml_state_variable
                 )
-                text_layout = momapy.core.TextLayout(
+                text_layout = momapy.core.layout.TextLayout(
                     text=text,
                     font_size=cls._DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
                     font_family=cls._DEFAULT_FONT_FAMILY,
                     fill=cls._DEFAULT_FONT_FILL,
                     stroke=momapy.drawing.NoneValue,
                     position=layout_element.label_center(),
-                    horizontal_alignment=momapy.core.HAlignment.CENTER,
+                    horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                 )
                 layout_element.label = text_layout
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1954,14 +1957,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     layout_element, sbgnml_unit_of_information
                 )
                 if sbgnml_label is not None:
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=sbgnml_label.get("text"),
                         font_size=cls._DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -2011,14 +2014,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     text = sbgnml_label.get("text")
                     if text is None:
                         text = ""
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=text,
                         font_size=cls._DEFAULT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -2144,14 +2147,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     text = sbgnml_label.get("text")
                     if text is None:
                         text = ""
-                    text_layout = momapy.core.TextLayout(
+                    text_layout = momapy.core.layout.TextLayout(
                         text=text,
                         font_size=cls._DEFAULT_FONT_SIZE,
                         font_family=cls._DEFAULT_FONT_FAMILY,
                         fill=cls._DEFAULT_FONT_FILL,
                         stroke=momapy.drawing.NoneValue,
                         position=layout_element.label_center(),
-                        horizontal_alignment=momapy.core.HAlignment.CENTER,
+                        horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                     )
                     layout_element.label = text_layout
             else:
@@ -2618,14 +2621,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         text = sbgnml_label.get("text")
                         if text is None:
                             text = ""
-                        text_layout = momapy.core.TextLayout(
+                        text_layout = momapy.core.layout.TextLayout(
                             text=text,
                             font_size=cls._DEFAULT_FONT_SIZE,
                             font_family=cls._DEFAULT_FONT_FAMILY,
                             fill=cls._DEFAULT_FONT_FILL,
                             stroke=momapy.drawing.NoneValue,
                             position=stoichiometry_layout_element.position,
-                            horizontal_alignment=momapy.core.HAlignment.CENTER,
+                            horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                         )
                         stoichiometry_layout_element.label = text_layout
                         layout_element.layout_elements.append(
@@ -2667,7 +2670,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             if model is not None:
                 if super_model_element.reversible:
                     process_direction = super_model_element.direction
-                    if process_direction == momapy.core.Direction.HORIZONTAL:
+                    if process_direction == momapy.core.elements.Direction.HORIZONTAL:
                         if float(sbgnml_production_arc.start.get("x")) > float(
                             super_sbgnml_element.bbox.get("x")
                         ):  # RIGHT
@@ -2725,14 +2728,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         text = sbgnml_label.get("text")
                         if text is None:
                             text = ""
-                        text_layout = momapy.core.TextLayout(
+                        text_layout = momapy.core.layout.TextLayout(
                             text=text,
                             font_size=cls._DEFAULT_FONT_SIZE,
                             font_family=cls._DEFAULT_FONT_FAMILY,
                             fill=cls._DEFAULT_FONT_FILL,
                             stroke=momapy.drawing.NoneValue,
                             position=stoichiometry_layout_element.position,
-                            horizontal_alignment=momapy.core.HAlignment.CENTER,
+                            horizontal_alignment=momapy.core.elements.HAlignment.CENTER,
                         )
                         stoichiometry_layout_element.label = text_layout
                         layout_element.layout_elements.append(
@@ -3139,7 +3142,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         node_label_selector = momapy.styling.ChildSelector(
                             node_selector,
                             momapy.styling.TypeSelector(
-                                momapy.core.TextLayout.__name__
+                                momapy.core.layout.TextLayout.__name__
                             ),
                         )
                         style_sheet[node_label_selector] = label_style_collection
@@ -3147,7 +3150,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         arc_label_selector = momapy.styling.ChildSelector(
                             arc_selector,
                             momapy.styling.TypeSelector(
-                                momapy.core.TextLayout.__name__
+                                momapy.core.layout.TextLayout.__name__
                             ),
                         )
                         style_sheet[arc_label_selector] = label_style_collection
@@ -3212,12 +3215,12 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         "bqbiol": "http://biomodels.net/biology-qualifiers/",
     }
     _DIRECTION_TO_SBGNML_ORIENTATION = {
-        momapy.core.Direction.HORIZONTAL: "horizontal",
-        momapy.core.Direction.VERTICAL: "vertical",
-        momapy.core.Direction.RIGHT: "right",
-        momapy.core.Direction.LEFT: "left",
-        momapy.core.Direction.DOWN: "down",
-        momapy.core.Direction.UP: "up",
+        momapy.core.elements.Direction.HORIZONTAL: "horizontal",
+        momapy.core.elements.Direction.VERTICAL: "vertical",
+        momapy.core.elements.Direction.RIGHT: "right",
+        momapy.core.elements.Direction.LEFT: "left",
+        momapy.core.elements.Direction.DOWN: "down",
+        momapy.core.elements.Direction.UP: "up",
     }
     _CLASS_TO_SBGNML_CLASS_ATTRIBUTE = {
         momapy.sbgn.pd.SBGNPDMap: "process description",
@@ -3479,7 +3482,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                     model_element = map_.get_mapping(key)
                     break
         if model_element is not None:
-            if isinstance(layout_element, momapy.core.Node):
+            if isinstance(layout_element, momapy.core.layout.Node):
                 sbgnml_elements = cls._make_sbgnml_elements_from_node(
                     map_=map_,
                     node=layout_element,
@@ -3488,7 +3491,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                 )
             elif isinstance(
                 layout_element,
-                (momapy.core.SingleHeadedArc, momapy.core.DoubleHeadedArc),
+                (momapy.core.layout.SingleHeadedArc, momapy.core.layout.DoubleHeadedArc),
             ):
                 sbgnml_elements = cls._make_sbgnml_elements_from_arc(
                     map_=map_,
@@ -3600,7 +3603,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             )
             sbgnml_element.append(sbgnml_port)
         for layout_element in node.layout_elements:
-            if isinstance(layout_element, momapy.core.Node):
+            if isinstance(layout_element, momapy.core.layout.Node):
                 sub_sbgnml_elements = cls._make_sbgnml_elements_from_node(
                     map_=map_,
                     node=layout_element,
@@ -3614,7 +3617,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                         sbgnml_elements.append(sub_sbgnml_element)
             elif isinstance(
                 layout_element,
-                (momapy.core.SingleHeadedArc, momapy.core.DoubleHeadedArc),
+                (momapy.core.layout.SingleHeadedArc, momapy.core.layout.DoubleHeadedArc),
             ):
                 sub_sbgnml_elements = cls._make_sbgnml_elements_from_arc(
                     map_=map_,

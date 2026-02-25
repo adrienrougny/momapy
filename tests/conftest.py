@@ -4,6 +4,7 @@ import pytest
 import momapy.geometry
 import momapy.coloring
 import momapy.core
+import momapy.core.layout
 import momapy.drawing
 
 
@@ -30,7 +31,7 @@ def sample_color():
 @pytest.fixture
 def sample_layout():
     """Create a simple Layout for testing."""
-    return momapy.core.Layout(
+    return momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=200, height=200, layout_elements=[]
     )
 

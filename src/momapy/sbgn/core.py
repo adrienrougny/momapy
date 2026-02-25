@@ -16,11 +16,15 @@ import dataclasses
 import typing
 
 import momapy.core
+import momapy.core.elements
+import momapy.core.layout
+import momapy.core.map
+import momapy.core.model
 import momapy.geometry
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNModelElement(momapy.core.ModelElement):
+class SBGNModelElement(momapy.core.elements.ModelElement):
     """Base class for all SBGN model elements.
 
     Provides the foundation for SBGN-specific model components.
@@ -54,7 +58,7 @@ class SBGNRole(SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNModel(momapy.core.Model):
+class SBGNModel(momapy.core.model.Model):
     """Base class for SBGN models.
 
     SBGN models contain the semantic information represented in
@@ -68,7 +72,7 @@ class SBGNModel(momapy.core.Model):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNLayout(momapy.core.Layout):
+class SBGNLayout(momapy.core.layout.Layout):
     """Base class for SBGN layouts.
 
     SBGN layouts define the visual representation of SBGN models,
@@ -87,7 +91,7 @@ class SBGNLayout(momapy.core.Layout):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNMap(momapy.core.Map):
+class SBGNMap(momapy.core.map.Map):
     """Base class for SBGN maps.
 
     SBGN maps combine a model and its visual layout into a complete
@@ -108,7 +112,7 @@ class SBGNMap(momapy.core.Map):
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNNode(momapy.core.Node):
+class SBGNNode(momapy.core.layout.Node):
     """Base class for SBGN nodes (glyphs).
 
     SBGN nodes represent biological entities such as macromolecules,
@@ -151,7 +155,7 @@ class SBGNNode(momapy.core.Node):
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
+class SBGNSingleHeadedArc(momapy.core.layout.SingleHeadedArc):
     """Base class for SBGN arcs with a single arrowhead.
 
     Single-headed arcs represent directional relationships in SBGN,
@@ -183,7 +187,7 @@ class SBGNSingleHeadedArc(momapy.core.SingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNDoubleHeadedArc(momapy.core.DoubleHeadedArc):
+class SBGNDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
     """Base class for SBGN arcs with arrowheads at both ends.
 
     Double-headed arcs represent reversible or bidirectional
@@ -260,7 +264,7 @@ class _ConnectorsMixin(_SBGNMixin):
         right_connector_length: Length of the right connector.
     """
 
-    direction: momapy.core.Direction = momapy.core.Direction.HORIZONTAL
+    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.HORIZONTAL
     left_to_right: bool = True
     left_connector_length: float = 10.0
     right_connector_length: float = 10.0
@@ -305,7 +309,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point where the left connector attaches to the shape.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(self.x, self.y - self.height / 2)
         else:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
@@ -316,7 +320,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point where the right connector attaches to the shape.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(self.x, self.y + self.height / 2)
         else:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
@@ -327,7 +331,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point at the end of the left connector line.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y - self.height / 2 - self.left_connector_length
             )
@@ -342,7 +346,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point at the end of the right connector line.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y + self.height / 2 + self.right_connector_length
             )
@@ -357,7 +361,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the west side of the element.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
         else:
             return momapy.geometry.Point(
@@ -370,7 +374,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the south side of the element.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y + self.height / 2 + self.right_connector_length
             )
@@ -383,7 +387,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the east side of the element.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
         else:
             return momapy.geometry.Point(
@@ -396,7 +400,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the north side of the element.
         """
-        if self.direction == momapy.core.Direction.VERTICAL:
+        if self.direction == momapy.core.elements.Direction.VERTICAL:
             return momapy.geometry.Point(
                 self.x, self.y - self.height / 2 - self.left_connector_length
             )
@@ -413,7 +417,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             List of drawing elements for the connector lines.
         """
-        if obj.direction == momapy.core.Direction.VERTICAL:
+        if obj.direction == momapy.core.elements.Direction.VERTICAL:
             left_actions = [
                 momapy.drawing.MoveTo(obj.left_connector_base()),
                 momapy.drawing.LineTo(
@@ -635,7 +639,7 @@ class _TextMixin(_SBGNMixin):
         Returns:
             TextLayout object configured for this node's label.
         """
-        text_layout = momapy.core.TextLayout(
+        text_layout = momapy.core.layout.TextLayout(
             text=self._text,
             position=self.label_center(),
             font_family=self._font_family,

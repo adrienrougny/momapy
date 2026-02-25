@@ -3,6 +3,7 @@
 import pytest
 import momapy.styling
 import momapy.coloring
+import momapy.core.layout
 
 
 def test_style_collection_creation():
@@ -88,7 +89,7 @@ def test_type_selector_matches_exact_type():
     import momapy.geometry
 
     selector = momapy.styling.TypeSelector(class_name="TextLayout")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -102,7 +103,7 @@ def test_type_selector_matches_builder():
     import momapy.builder
 
     selector = momapy.styling.TypeSelector(class_name="TextLayout")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
     builder = momapy.builder.builder_from_object(text_layout)
@@ -116,7 +117,7 @@ def test_type_selector_does_not_match_different_type():
     import momapy.geometry
 
     selector = momapy.styling.TypeSelector(class_name="Shape")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -129,7 +130,7 @@ def test_class_selector_matches_exact_class():
     import momapy.geometry
 
     selector = momapy.styling.ClassSelector(class_name="TextLayout")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -142,7 +143,7 @@ def test_class_selector_matches_parent_class():
     import momapy.geometry
 
     selector = momapy.styling.ClassSelector(class_name="LayoutElement")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -156,7 +157,7 @@ def test_class_selector_matches_builder():
     import momapy.builder
 
     selector = momapy.styling.ClassSelector(class_name="TextLayout")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
     builder = momapy.builder.builder_from_object(text_layout)
@@ -170,7 +171,7 @@ def test_class_selector_does_not_match_unrelated_class():
     import momapy.geometry
 
     selector = momapy.styling.ClassSelector(class_name="UnrelatedClass")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -183,7 +184,7 @@ def test_id_selector_matches_id():
     import momapy.geometry
 
     selector = momapy.styling.IdSelector(id_="my_element")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="my_element"
     )
 
@@ -196,7 +197,7 @@ def test_id_selector_does_not_match_different_id():
     import momapy.geometry
 
     selector = momapy.styling.IdSelector(id_="my_element")
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="other_element"
     )
 
@@ -230,10 +231,10 @@ def test_child_selector_matches_direct_child():
         parent_selector=parent_selector, child_selector=child_selector
     )
 
-    parent = momapy.core.Layout(
+    parent = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=100, height=100, layout_elements=[]
     )
-    child = momapy.core.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
 
     # Child with parent in ancestors
     # Using ClassSelector since Layout inherits from Node which inherits from GroupLayout
@@ -251,7 +252,7 @@ def test_child_selector_does_not_match_without_parent():
         parent_selector=parent_selector, child_selector=child_selector
     )
 
-    child = momapy.core.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
 
     # Child without ancestors
     assert selector.select(child, []) is False
@@ -268,10 +269,10 @@ def test_child_selector_does_not_match_wrong_parent():
         parent_selector=parent_selector, child_selector=child_selector
     )
 
-    wrong_parent = momapy.core.TextLayout(
+    wrong_parent = momapy.core.layout.TextLayout(
         text="Wrong Parent", position=momapy.geometry.Point(0, 0)
     )
-    child = momapy.core.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
 
     # Child with wrong parent type in ancestors
     assert selector.select(child, [wrong_parent]) is False
@@ -288,10 +289,10 @@ def test_child_selector_does_not_match_wrong_child():
         parent_selector=parent_selector, child_selector=child_selector
     )
 
-    parent = momapy.core.Layout(
+    parent = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=100, height=100, layout_elements=[]
     )
-    wrong_child = momapy.core.Layout(
+    wrong_child = momapy.core.layout.Layout(
         position=momapy.geometry.Point(10, 10), width=50, height=50, layout_elements=[]
     )
 
@@ -311,10 +312,10 @@ def test_descendant_selector_matches_direct_descendant():
         ancestor_selector=ancestor_selector, descendant_selector=descendant_selector
     )
 
-    ancestor = momapy.core.Layout(
+    ancestor = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=100, height=100, layout_elements=[]
     )
-    descendant = momapy.core.TextLayout(
+    descendant = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(10, 10)
     )
 
@@ -334,16 +335,16 @@ def test_descendant_selector_matches_nested_descendant():
         ancestor_selector=ancestor_selector, descendant_selector=descendant_selector
     )
 
-    grandparent = momapy.core.Layout(
+    grandparent = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=200, height=200, layout_elements=[]
     )
-    parent = momapy.core.Layout(
+    parent = momapy.core.layout.Layout(
         position=momapy.geometry.Point(10, 10),
         width=100,
         height=100,
         layout_elements=[],
     )
-    descendant = momapy.core.TextLayout(
+    descendant = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(20, 20)
     )
 
@@ -363,7 +364,7 @@ def test_descendant_selector_does_not_match_without_ancestors():
         ancestor_selector=ancestor_selector, descendant_selector=descendant_selector
     )
 
-    descendant = momapy.core.TextLayout(
+    descendant = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(10, 10)
     )
 
@@ -382,14 +383,14 @@ def test_descendant_selector_does_not_match_wrong_ancestor():
         ancestor_selector=ancestor_selector, descendant_selector=descendant_selector
     )
 
-    wrong_ancestor = momapy.core.Layout(
+    wrong_ancestor = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0),
         width=100,
         height=100,
         layout_elements=[],
         id_="other_group",
     )
-    descendant = momapy.core.TextLayout(
+    descendant = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(10, 10)
     )
 
@@ -406,7 +407,7 @@ def test_or_selector_matches_first_selector():
     selector2 = momapy.styling.TypeSelector(class_name="GroupLayout")
     or_selector = momapy.styling.OrSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -423,7 +424,7 @@ def test_or_selector_matches_second_selector():
     selector2 = momapy.styling.TypeSelector(class_name="TextLayout")
     or_selector = momapy.styling.OrSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -440,7 +441,7 @@ def test_or_selector_matches_multiple_selectors():
     selector2 = momapy.styling.ClassSelector(class_name="LayoutElement")
     or_selector = momapy.styling.OrSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -457,7 +458,7 @@ def test_or_selector_does_not_match_any():
     selector2 = momapy.styling.IdSelector(id_="special_element")
     or_selector = momapy.styling.OrSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="normal_element"
     )
 
@@ -477,7 +478,7 @@ def test_compound_selector_matches_all_selectors():
         selectors=(selector1, selector2, selector3)
     )
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="special_text"
     )
 
@@ -496,7 +497,7 @@ def test_compound_selector_does_not_match_one_fails():
         selectors=(selector1, selector2)
     )
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="normal_text"
     )
 
@@ -515,7 +516,7 @@ def test_compound_selector_does_not_match_none():
         selectors=(selector1, selector2)
     )
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="normal_element"
     )
 
@@ -534,7 +535,7 @@ def test_compound_selector_with_two_matching():
         selectors=(selector1, selector2)
     )
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -550,7 +551,7 @@ def test_not_selector_matches_when_selector_does_not_match():
     selector = momapy.styling.TypeSelector(class_name="GroupLayout")
     not_selector = momapy.styling.NotSelector(selectors=(selector,))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -566,7 +567,7 @@ def test_not_selector_does_not_match_when_selector_matches():
     selector = momapy.styling.TypeSelector(class_name="TextLayout")
     not_selector = momapy.styling.NotSelector(selectors=(selector,))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -583,7 +584,7 @@ def test_not_selector_with_multiple_selectors_none_match():
     selector2 = momapy.styling.IdSelector(id_="special_element")
     not_selector = momapy.styling.NotSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="normal_element"
     )
 
@@ -600,7 +601,7 @@ def test_not_selector_with_multiple_selectors_one_matches():
     selector2 = momapy.styling.IdSelector(id_="special_element")
     not_selector = momapy.styling.NotSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0), id_="normal_element"
     )
 
@@ -617,7 +618,7 @@ def test_not_selector_with_multiple_selectors_all_match():
     selector2 = momapy.styling.ClassSelector(class_name="LayoutElement")
     not_selector = momapy.styling.NotSelector(selectors=(selector1, selector2))
 
-    text_layout = momapy.core.TextLayout(
+    text_layout = momapy.core.layout.TextLayout(
         text="Test", position=momapy.geometry.Point(0, 0)
     )
 
@@ -634,7 +635,7 @@ class TestStyleApplication:
         import momapy.geometry
         import momapy.coloring
 
-        text_layout = momapy.core.TextLayout(
+        text_layout = momapy.core.layout.TextLayout(
             text="Test",
             position=momapy.geometry.Point(0, 0),
         )
@@ -659,7 +660,7 @@ class TestStyleApplication:
         import momapy.coloring
 
         # Create a layout tree
-        text_layout = momapy.core.TextLayout(
+        text_layout = momapy.core.layout.TextLayout(
             text="Test",
             position=momapy.geometry.Point(0, 0),
         )
@@ -677,5 +678,5 @@ class TestStyleApplication:
         result = momapy.styling.apply_style_sheet(text_layout, style_sheet)
 
         # Check that style was applied to the text layout within the result
-        assert isinstance(result, momapy.core.TextLayout)
+        assert isinstance(result, momapy.core.layout.TextLayout)
         assert result.font_size == 24.0

@@ -14,6 +14,9 @@ import momapy.positioning
 import momapy.geometry
 import momapy.builder
 import momapy.core
+import momapy.core.builders
+import momapy.core.elements
+import momapy.core.map
 
 
 def register_renderer(name, renderer_cls):
@@ -41,7 +44,7 @@ def _detect_renderer(format_: str) -> str:
 
 
 def render_layout_element(
-    layout_element: momapy.core.LayoutElement,
+    layout_element: momapy.core.elements.LayoutElement,
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
@@ -69,7 +72,7 @@ def render_layout_element(
 
 
 def render_layout_elements(
-    layout_elements: collections.abc.Collection[momapy.core.LayoutElement],
+    layout_elements: collections.abc.Collection[momapy.core.elements.LayoutElement],
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
@@ -106,11 +109,11 @@ def render_layout_elements(
         if style_sheet is not None or to_top_left:
             new_layout_elements = []
             for layout_element in layout_elements:
-                if isinstance(layout_element, momapy.core.LayoutElement):
+                if isinstance(layout_element, momapy.core.elements.LayoutElement):
                     new_layout_elements.append(
                         momapy.builder.builder_from_object(layout_element)
                     )
-                elif isinstance(layout_element, momapy.core.LayoutElementBuilder):
+                elif isinstance(layout_element, momapy.core.builders.LayoutElementBuilder):
                     new_layout_elements.append(copy.deepcopy(layout_element))
             layout_elements = new_layout_elements
         if style_sheet is not None:
@@ -183,7 +186,7 @@ def render_layout_elements(
 
 
 def render_map(
-    map_: momapy.core.Map,
+    map_: momapy.core.map.Map,
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
@@ -213,7 +216,7 @@ def render_map(
 
 
 def render_maps(
-    maps: collections.abc.Collection[momapy.core.Map],
+    maps: collections.abc.Collection[momapy.core.map.Map],
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
@@ -284,12 +287,12 @@ class Renderer(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def render_map(self, map_: momapy.core.Map):
+    def render_map(self, map_: momapy.core.map.Map):
         """Render a map"""
         pass
 
     @abc.abstractmethod
-    def render_layout_element(self, layout_element: momapy.core.LayoutElement):
+    def render_layout_element(self, layout_element: momapy.core.elements.LayoutElement):
         """Render a layout element"""
         pass
 

@@ -1,141 +1,26 @@
-"""Base classes for core components defining maps and their elements"""
+"""Layout element hierarchy: all visual element classes."""
+
+import abc
+import collections
+import dataclasses
+import typing
+import typing_extensions
+import math
+import copy
+
+import shapely
+import uharfbuzz
+import matplotlib.font_manager
 
 import momapy.drawing
 import momapy.geometry
 import momapy.coloring
-import momapy.utils
 import momapy.builder
-import abc
-import dataclasses
-import typing
-import typing_extensions
-import enum
-import math
-import copy
-import shapely
-import frozendict
-import functools
-import operator
-import uharfbuzz
-import matplotlib.font_manager
-
-
-class Direction(enum.Enum):
-    HORIZONTAL = 1
-    VERTICAL = 2
-    UP = 3
-    RIGHT = 4
-    DOWN = 5
-    LEFT = 6
-
-
-class HAlignment(enum.Enum):
-    LEFT = 1
-    CENTER = 2
-    RIGHT = 3
-
-
-class VAlignment(enum.Enum):
-    TOP = 1
-    CENTER = 2
-    BOTTOM = 3
+import momapy.core.elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MapElement:
-    """Base class for map elements"""
-
-    id_: str = dataclasses.field(
-        hash=False,
-        compare=False,
-        default_factory=momapy.utils.make_uuid4_as_str,
-        metadata={
-            "description": """The id of the map element. This id is purely for the user to keep track
-    of the element, it does not need to be unique and is not part of the
-    identity of the element, i.e., it is not considered when testing for
-    equality between two map elements or when hashing the map element"""
-        },
-    )
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class ModelElement(MapElement):
-    """Base class for model elements"""
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class LayoutElement(MapElement, abc.ABC):
-    """Abstract base class for layout elements"""
-
-    @abc.abstractmethod
-    def bbox(self) -> momapy.geometry.Bbox:
-        """Compute and return the bounding box of the layout element"""
-        pass
-
-    @abc.abstractmethod
-    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
-        """Return the drawing elements of the layout element"""
-        pass
-
-    @abc.abstractmethod
-    def children(self) -> list["LayoutElement"]:
-        """Return the children of the layout element"""
-        pass
-
-    @abc.abstractmethod
-    def childless(self) -> typing_extensions.Self:
-        """Return a copy of the layout element with no children"""
-        pass
-
-    def descendants(self) -> list["LayoutElement"]:
-        """Return the descendants of the layout element"""
-        descendants = []
-        for child in self.children():
-            descendants.append(child)
-            descendants += child.descendants()
-        return descendants
-
-    def flattened(self) -> list["LayoutElement"]:
-        """Return a list containing copy of the layout element with no children and all its descendants with no children"""
-        flattened = [self.childless()]
-        for child in self.children():
-            flattened += child.flattened()
-        return flattened
-
-    def equals(
-        self, other: "LayoutElement", flattened: bool = False, unordered: bool = False
-    ) -> bool:
-        """Return `true` if the layout element is equal to another layout element, `false` otherwise"""
-        if type(self) is type(other):
-            if not flattened:
-                return self == other
-            else:
-                if not unordered:
-                    return self.flattened() == other.flattened()
-                else:
-                    return set(self.flattened()) == set(other.flattened())
-        return False
-
-    def contains(self, other: "LayoutElement") -> bool:
-        """Return `true` if another layout element is a descendant of the layout element, `false` otherwise"""
-        return other in self.descendants()
-
-    def to_shapely(self, to_polygons: bool = False) -> shapely.GeometryCollection:
-        """Return a shapely collection of geometries reproducing the drawing elements of the layout element"""
-        geom_collection = []
-        for drawing_element in self.drawing_elements():
-            geom_collection += drawing_element.to_shapely(to_polygons=to_polygons).geoms
-        return shapely.GeometryCollection(geom_collection)
-
-    def anchor_point(self, anchor_name: str) -> momapy.geometry.Point:
-        """Return an anchor point of the layout element"""
-        return getattr(self, anchor_name)()
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class TextLayout(LayoutElement):
+class TextLayout(momapy.core.elements.LayoutElement):
     """Class for text layouts"""
 
     text: str = dataclasses.field(
@@ -166,12 +51,12 @@ class TextLayout(LayoutElement):
     height: float | None = dataclasses.field(
         default=None, metadata={"description": "The height of the text layout"}
     )
-    horizontal_alignment: HAlignment = dataclasses.field(
-        default=HAlignment.LEFT,
+    horizontal_alignment: momapy.core.elements.HAlignment = dataclasses.field(
+        default=momapy.core.elements.HAlignment.LEFT,
         metadata={"description": "The horizontal alignment of the text layout"},
     )
-    vertical_alignment: VAlignment = dataclasses.field(
-        default=VAlignment.TOP,
+    vertical_alignment: momapy.core.elements.VAlignment = dataclasses.field(
+        default=momapy.core.elements.VAlignment.TOP,
         metadata={"description": "The vertical alignment of the text layout"},
     )
     justify: bool = dataclasses.field(
@@ -286,18 +171,18 @@ class TextLayout(LayoutElement):
         text_height = font_height * (len(lines) - 1) + font_ascent + font_descent
         for i, line in enumerate(lines):
             line_width = self._get_text_width(line, font)
-            if self.width is not None and self.horizontal_alignment is HAlignment.LEFT:
+            if self.width is not None and self.horizontal_alignment is momapy.core.elements.HAlignment.LEFT:
                 x = self.position.x - self.width / 2
             elif (
-                self.width is not None and self.horizontal_alignment is HAlignment.RIGHT
+                self.width is not None and self.horizontal_alignment is momapy.core.elements.HAlignment.RIGHT
             ):
                 x = self.position.x + self.width / 2 - line_width
             else:
                 x = self.position.x - line_width / 2
-            if self.height is not None and self.vertical_alignment is VAlignment.TOP:
+            if self.height is not None and self.vertical_alignment is momapy.core.elements.VAlignment.TOP:
                 y = self.position.y - self.height / 2 + font_ascent + i * font_height
             elif (
-                self.height is not None and self.vertical_alignment is VAlignment.BOTTOM
+                self.height is not None and self.vertical_alignment is momapy.core.elements.VAlignment.BOTTOM
             ):
                 y = (
                     self.position.y
@@ -363,7 +248,7 @@ class TextLayout(LayoutElement):
             max_y - min_y,
         )
 
-    def children(self) -> list[LayoutElement]:
+    def children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the children of the text layout.
         The text layout has no children, so return an empty list"""
         return []
@@ -440,7 +325,7 @@ class TextLayout(LayoutElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Shape(LayoutElement):
+class Shape(momapy.core.elements.LayoutElement):
     """Class for basic shapes. The shape is the most simple layout element.
     It has no children."""
 
@@ -449,7 +334,7 @@ class Shape(LayoutElement):
         A shape has no children, so return a copy of the shape"""
         return copy.deepcopy(self)
 
-    def children(self) -> list[LayoutElement]:
+    def children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the children of the shape.
         A shape has no children, so return an empty list"""
         return []
@@ -461,13 +346,13 @@ class Shape(LayoutElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class GroupLayout(LayoutElement):
+class GroupLayout(momapy.core.elements.LayoutElement):
     """Base class for group layouts. A group layout is a layout element grouping other layout elements.
     It has its own drawing elements and set of children (called self drawing elements and self children, respectively).
     The drawing elements of a group layout is a group drawing element formed of its self drawing elements and those of its children
     """
 
-    layout_elements: tuple[LayoutElement] = dataclasses.field(
+    layout_elements: tuple[momapy.core.elements.LayoutElement] = dataclasses.field(
         default_factory=tuple,
         metadata={
             "description": "The sub-layout elements of the group layout. These are part of the children of the group layout"
@@ -577,7 +462,7 @@ class GroupLayout(LayoutElement):
         pass
 
     @abc.abstractmethod
-    def self_children(self) -> list[LayoutElement]:
+    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the group layout"""
         pass
 
@@ -609,7 +494,7 @@ class GroupLayout(LayoutElement):
         )
         return [group]
 
-    def children(self) -> list[LayoutElement]:
+    def children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the children of the group layout.
         These are the self children of the group layout (returned by the `self_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
         """
@@ -699,7 +584,7 @@ class Node(GroupLayout):
         )
         return [group]
 
-    def self_children(self) -> list[LayoutElement]:
+    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the node. A node has unique child that is its label"""
         if self.label is not None:
             return [self.label]
@@ -964,14 +849,14 @@ class Arc(GroupLayout):
         default_factory=tuple,
         metadata={"description": "The path segments of the arc"},
     )
-    source: LayoutElement | None = dataclasses.field(
+    source: momapy.core.elements.LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The source of the arc"}
     )
     start_shorten: float = dataclasses.field(
         default=0.0,
         metadata={"description": "The length the start of the arc will be shorten by"},
     )
-    target: LayoutElement | None = dataclasses.field(
+    target: momapy.core.elements.LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The target of the arc"}
     )
     transform: (
@@ -980,7 +865,7 @@ class Arc(GroupLayout):
         default=None, metadata={"description": "The transform of the arc"}
     )
 
-    def self_children(self) -> list[LayoutElement]:
+    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the arc"""
         return []
 
@@ -1575,15 +1460,6 @@ class DoubleHeadedArc(Arc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(MapElement):
-    """Base class for models"""
-
-    @abc.abstractmethod
-    def is_submodel(self, other) -> bool:
-        pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class Layout(Node):
     """Class for layouts"""
 
@@ -1637,264 +1513,3 @@ class Layout(Node):
                 unordered=unordered,
             )
         return _is_sublist(self.children(), other.children(), unordered=unordered)
-
-
-class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
-    """Class for mappings between model elements and layout elements"""
-
-    def get_mapping(
-        self,
-        map_element: MapElement,
-    ) -> ModelElement | list[LayoutElement]:
-        if map_element in self:
-            return self[map_element]
-        return self.inverse.get(map_element)
-
-    def is_submapping(self, other) -> bool:
-        """Return `true` if the mapping is a submapping of another `LayoutModelMapping`, `false` otherwise"""
-        return self.items() <= other.items()
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class Map(MapElement):
-    """Class for maps"""
-
-    model: Model | None = dataclasses.field(
-        default=None, metadata={"description": "The model of the map"}
-    )
-    layout: Layout | None = dataclasses.field(
-        default=None, metadata={"description": "The layout of the map"}
-    )
-    layout_model_mapping: LayoutModelMapping | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The layout model mapping of the map"},
-    )
-
-    def is_submap(self, other):
-        """Return `true` if another given map is a submap of the `Map`, `false` otherwise"""
-        if (
-            self.model is None
-            or self.layout is None
-            or self.layout_model_mapping is None
-        ):
-            return False
-        return (
-            self.model.is_submodel(other.model)
-            and self.layout.is_sublayout(other.layout)
-            and self.layout_model_mapping.is_submapping(other.layout_model_mapping)
-        )
-
-    def get_mapping(
-        self,
-        map_element: MapElement | tuple[ModelElement, ModelElement],
-    ):
-        """Return the layout elements mapped to the given model element"""
-        return self.layout_model_mapping.get_mapping(map_element)
-
-
-
-def _map_element_builder_hash(self):
-    return hash(self.id_)
-
-
-def _map_element_builder_eq(self, other):
-    return self.__class__ == other.__class__ and self.id_ == other.id_
-
-
-MapElementBuilder = momapy.builder.get_or_make_builder_cls(
-    MapElement,
-    builder_namespace={
-        "__hash__": _map_element_builder_hash,
-        "__eq__": _map_element_builder_eq,
-    },
-)
-
-ModelElementBuilder = momapy.builder.get_or_make_builder_cls(ModelElement)
-"""Base class for model element builders"""
-LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(LayoutElement)
-"""Base class for layout element builders"""
-NodeBuilder = momapy.builder.get_or_make_builder_cls(Node)
-"""Base class for node builders"""
-SingleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(SingleHeadedArc)
-"""Base class for single-headed arc builders"""
-DoubleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(DoubleHeadedArc)
-"""Base class for double-headed arc builders"""
-TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(TextLayout)
-"""Class for text layout builders"""
-
-
-def _model_builder_new_element(self, element_cls, *args, **kwargs):
-    if not momapy.builder.issubclass_or_builder(element_cls, ModelElement):
-        raise TypeError(
-            "element class must be a subclass of ModelElementBuilder or ModelElement"
-        )
-    return momapy.builder.new_builder_object(element_cls, *args, **kwargs)
-
-
-ModelBuilder = momapy.builder.get_or_make_builder_cls(
-    Model,
-    builder_namespace={"new_element": _model_builder_new_element},
-)
-"""Base class for model builders"""
-
-
-def _layout_builder_new_element(self, element_cls, *args, **kwargs):
-    if not momapy.builder.issubclass_or_builder(element_cls, LayoutElement):
-        raise TypeError(
-            "element class must be a subclass of LayoutElementBuilder or LayoutElement"
-        )
-    return momapy.builder.new_builder_object(element_cls, *args, **kwargs)
-
-
-LayoutBuilder = momapy.builder.get_or_make_builder_cls(
-    Layout,
-    builder_namespace={"new_element": _layout_builder_new_element},
-)
-"""Base class for layout builders"""
-
-
-class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Builder):
-    _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def get_mapping(
-        self,
-        map_element: MapElementBuilder | MapElement | tuple[ModelElement, ModelElement],
-    ):
-        if map_element in self:
-            return self[map_element]
-        return self.inverse.get(map_element)
-
-    def add_mapping(
-        self,
-        layout_element: LayoutElement,
-        model_element: ModelElement | tuple[ModelElement, ModelElement],
-        replace=False,
-    ):
-        if replace:
-            existing_layout_elements = self.get_mapping(model_element)
-            if existing_layout_elements is not None:
-                for existing_layout_element in existing_layout_elements:
-                    del self[existing_layout_element]
-                    self[existing_layout_element] = model_element
-        self[layout_element] = model_element
-
-    def build(
-        self,
-        builder_to_object: dict[int, typing.Any] | None = None,
-    ):
-        return self._cls_to_build(
-            {
-                momapy.builder.object_from_builder(
-                    key, builder_to_object=builder_to_object
-                ): momapy.builder.object_from_builder(
-                    value, builder_to_object=builder_to_object
-                )
-                for key, value in self.items()
-            }
-        )
-
-    @classmethod
-    def from_object(
-        cls,
-        obj,
-        omit_keys: bool = True,
-        object_to_builder: dict[int, momapy.builder.Builder] | None = None,
-    ) -> typing_extensions.Self:
-        items = []
-        for key, value in obj.items():
-            if isinstance(key, frozenset):
-                new_key = frozenset(
-                    [
-                        momapy.builder.builder_from_object(
-                            element, object_to_builder=object_to_builder
-                        )
-                        for element in key
-                    ]
-                )
-            else:
-                new_key = momapy.builder.builder_from_object(
-                    key, object_to_builder=object_to_builder
-                )
-            if isinstance(value, tuple):
-                new_value = tuple(
-                    [
-                        momapy.builder.builder_from_object(
-                            element, object_to_builder=object_to_builder
-                        )
-                        for element in value
-                    ]
-                )
-            else:
-                new_value = momapy.builder.builder_from_object(
-                    value, object_to_builder=object_to_builder
-                )
-            items.append(
-                (
-                    new_key,
-                    new_value,
-                )
-            )
-        return cls(items)
-
-
-momapy.builder.register_builder_cls(LayoutModelMappingBuilder)
-
-
-@abc.abstractmethod
-def _map_builder_new_model(self, *args, **kwargs) -> ModelBuilder:
-    pass
-
-
-@abc.abstractmethod
-def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
-    pass
-
-
-def _map_builder_new_layout_model_mapping(self) -> LayoutModelMappingBuilder:
-    return LayoutModelMappingBuilder()
-
-
-def _map_builder_new_model_element(
-    self, element_cls, *args, **kwargs
-) -> ModelElementBuilder:
-    model_element = self.model.new_element(element_cls, *args, **kwargs)
-    return model_element
-
-
-def _map_builder_new_layout_element(
-    self, element_cls, *args, **kwargs
-) -> LayoutElementBuilder:
-    layout_element = self.layout.new_element(element_cls, *args, **kwargs)
-    return layout_element
-
-
-def _map_builder_add_mapping(
-    self,
-    layout_element: LayoutElement,
-    model_element: ModelElement | tuple[ModelElement, ModelElement],
-):
-    self.layout_model_mapping.add_mapping(layout_element, model_element)
-
-
-def _map_builder_get_mapping(
-    self,
-    map_element: MapElement,
-) -> ModelElement | list[LayoutElement]:
-    return self.layout_model_mapping.get_mapping(map_element)
-
-
-MapBuilder = momapy.builder.get_or_make_builder_cls(
-    Map,
-    builder_namespace={
-        "new_model": _map_builder_new_model,
-        "new_layout": _map_builder_new_layout,
-        "new_layout_model_mapping": _map_builder_new_layout_model_mapping,
-        "new_model_element": _map_builder_new_model_element,
-        "new_layout_element": _map_builder_new_layout_element,
-        "add_mapping": _map_builder_add_mapping,
-    },
-)
-"""Base class for map builders"""

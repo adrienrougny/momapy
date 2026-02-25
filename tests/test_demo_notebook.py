@@ -19,6 +19,8 @@ import momapy.rendering.core
 import momapy.sbgn.styling
 import momapy.sbgn.utils
 import momapy.core
+import momapy.core.elements
+import momapy.core.layout
 import momapy.sbgn.pd
 import momapy.geometry
 import momapy.meta.shapes
@@ -48,7 +50,7 @@ def test_demo_notebook(tmp_path):
         momapy.utils.pretty_print(e)
 
         assert isinstance(e, momapy.sbgn.pd.EntityPool)
-        assert isinstance(e, momapy.core.ModelElement)
+        assert isinstance(e, momapy.core.elements.ModelElement)
 
         momapy.utils.pretty_print(m.layout)
         momapy.utils.pretty_print(m.layout.drawing_elements())
@@ -181,7 +183,7 @@ def test_demo_notebook(tmp_path):
 
         # Custom types section
         @dataclasses.dataclass(frozen=True)
-        class MyRectangle(momapy.core.Node):
+        class MyRectangle(momapy.core.layout.Node):
             width: float = 40.0
             height: float = 30.0
 
@@ -191,7 +193,7 @@ def test_demo_notebook(tmp_path):
                 )
 
         @dataclasses.dataclass(frozen=True)
-        class MyTriangle(momapy.core.SingleHeadedArc):
+        class MyTriangle(momapy.core.layout.SingleHeadedArc):
             arrowhead_width: float = 20.0
             arrowhead_height: float = 10.0
 
@@ -203,7 +205,7 @@ def test_demo_notebook(tmp_path):
                 )
 
         @dataclasses.dataclass(frozen=True)
-        class MyRectangleArrow(momapy.core.SingleHeadedArc):
+        class MyRectangleArrow(momapy.core.layout.SingleHeadedArc):
             arrowhead_width: float = 20.0
             arrowhead_height: float = 10.0
 
@@ -215,7 +217,7 @@ def test_demo_notebook(tmp_path):
                 )
 
         @dataclasses.dataclass(frozen=True)
-        class MyDoubleRectangleArrow(momapy.core.DoubleHeadedArc):
+        class MyDoubleRectangleArrow(momapy.core.layout.DoubleHeadedArc):
             start_arrowhead_width: float = 10.0
             start_arrowhead_height: float = 10.0
             start_arrowhead_fill = momapy.coloring.white
