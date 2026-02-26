@@ -221,7 +221,7 @@ def get_or_return_element_from_collection(element, collection):
     return element
 
 
-def add_or_replace_element_in_set(element, set_, func=None):
+def add_or_replace_element_in_set(element, set_, func=None, cache=None):
     """Add element to set or replace existing element based on condition.
 
     If the element doesn't exist in the set, it is added. If it exists
@@ -233,6 +233,9 @@ def add_or_replace_element_in_set(element, set_, func=None):
         set_: The set to modify.
         func: Optional comparison function func(new, existing) that returns
             True if the new element should replace the existing one.
+        cache: Optional dict mapping elements to themselves. When provided,
+            uses O(1) dict lookup instead of O(n) linear scan. The cache
+            is kept in sync with the set on add/replace.
 
     Returns:
         The element that is now in the set (either the existing or new one).
@@ -248,14 +251,22 @@ def add_or_replace_element_in_set(element, set_, func=None):
         >>> add_or_replace_element_in_set(2, s, lambda new, old: new > old)
         2  # Not replaced since 2 is not > 2
     """
-    existing_element = get_element_from_collection(element, set_)
+    if cache is not None:
+        existing_element = cache.get(element)
+    else:
+        existing_element = get_element_from_collection(element, set_)
     if existing_element is None:
         set_.add(element)
+        if cache is not None:
+            cache[element] = element
         return element
     # Replaces existing element by input element if func(element, existing_element) is True
     elif func is not None and func(element, existing_element):
         set_.remove(existing_element)
         set_.add(element)
+        if cache is not None:
+            del cache[existing_element]
+            cache[element] = element
         return element
     return existing_element
 
