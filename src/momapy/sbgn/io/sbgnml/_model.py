@@ -1,51 +1,186 @@
 """Standalone model-building functions for SBGN-ML reader."""
 
+import lxml.etree
+
 import momapy.builder
 import momapy.core.elements
 import momapy.sbgn.pd
+import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._parsing
 
 
-def make_model_compartment(sbgnml_compartment, model, module):
-    model_element = model.new_element(module.Compartment)
-    model_element.id_ = sbgnml_compartment.get("id")
-    sbgnml_label = getattr(sbgnml_compartment, "label", None)
+_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "encodes",
+    ): momapy.sbml.core.BQBiol.ENCODES,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasPart",
+    ): momapy.sbml.core.BQBiol.HAS_PART,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasProperty",
+    ): momapy.sbml.core.BQBiol.HAS_PROPERTY,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasVersion",
+    ): momapy.sbml.core.BQBiol.HAS_VERSION,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "is",
+    ): momapy.sbml.core.BQBiol.IS,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isDescribedBy",
+    ): momapy.sbml.core.BQBiol.IS_DESCRIBED_BY,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isEncodedBy",
+    ): momapy.sbml.core.BQBiol.IS_ENCODED_BY,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isHomologTo",
+    ): momapy.sbml.core.BQBiol.IS_HOMOLOG_TO,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isPartOf",
+    ): momapy.sbml.core.BQBiol.IS_PART_OF,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isPropertyOf",
+    ): momapy.sbml.core.BQBiol.IS_PROPERTY_OF,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "isVersionOf",
+    ): momapy.sbml.core.BQBiol.IS_VERSION_OF,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "occursIn",
+    ): momapy.sbml.core.BQBiol.OCCURS_IN,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasTaxon",
+    ): momapy.sbml.core.BQBiol.HAS_TAXON,
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasInstance",
+    ): momapy.sbml.core.BQModel.HAS_INSTANCE,
+    (
+        "http://biomodels.net/model-qualifiers/",
+        "is",
+    ): momapy.sbml.core.BQModel.IS,
+    (
+        "http://biomodels.net/model-qualifiers/",
+        "isDerivedFrom",
+    ): momapy.sbml.core.BQModel.IS_DERIVED_FROM,
+    (
+        "http://biomodels.net/model-qualifiers/",
+        "isDescribedBy",
+    ): momapy.sbml.core.BQModel.IS_DESCRIBED_BY,
+    (
+        "http://biomodels.net/model-qualifiers/",
+        "isInstanceOf",
+    ): momapy.sbml.core.BQModel.IS_INSTANCE_OF,
+}
+
+
+def make_annotations(sbgnml_element):
+    annotations = []
+    sbgnml_rdf = momapy.sbgn.io.sbgnml._parsing.get_rdf(sbgnml_element)
+    if sbgnml_rdf is not None:
+        description = momapy.sbgn.io.sbgnml._parsing.get_description(sbgnml_rdf)
+        if description is not None:
+            for bq_element in description.getchildren():
+                key = momapy.sbgn.io.sbgnml._parsing.get_prefix_and_name(bq_element.tag)
+                qualifier = _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
+                if qualifier is not None:
+                    bags = momapy.sbgn.io.sbgnml._parsing.get_bags(bq_element)
+                    for bag in bags:
+                        lis = momapy.sbgn.io.sbgnml._parsing.get_list_items(bag)
+                        resources = [
+                            li.get(
+                                f"{{{momapy.sbgn.io.sbgnml._parsing._RDF_NAMESPACE}}}resource"
+                            )
+                            for li in lis
+                        ]
+                        annotation = momapy.sbml.core.RDFAnnotation(
+                            qualifier=qualifier,
+                            resources=frozenset(resources),
+                        )
+                        annotations.append(annotation)
+    return annotations
+
+
+def make_notes(sbgnml_element):
+    sbgnml_notes = momapy.sbgn.io.sbgnml._parsing.get_notes(sbgnml_element)
+    if sbgnml_notes is not None:
+        for child_element in sbgnml_notes.iterchildren():
+            break
+        notes = lxml.etree.tostring(child_element)
+        return notes
+    return []
+
+
+def set_label(model_element, sbgnml_element):
+    sbgnml_label = getattr(sbgnml_element, "label", None)
     if sbgnml_label is not None:
         model_element.label = sbgnml_label.get("text")
+
+
+def set_compartment(
+    model_element, sbgnml_element, sbgnml_id_to_model_element
+):
+    sbgnml_compartment_ref = sbgnml_element.get("compartmentRef")
+    if sbgnml_compartment_ref is not None:
+        model_element.compartment = sbgnml_id_to_model_element[sbgnml_compartment_ref]
+
+
+def set_stoichiometry(model_element, sbgnml_stoichiometry):
+    if sbgnml_stoichiometry is None:
+        return
+    sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
+    if sbgnml_label is not None:
+        sbgnml_stoichiometry_text = sbgnml_label.get("text")
+        try:
+            stoichiometry = float(sbgnml_stoichiometry_text)
+        except ValueError:
+            stoichiometry = sbgnml_stoichiometry_text
+        model_element.stoichiometry = float(stoichiometry)
+
+
+def make_compartment(sbgnml_compartment, model, module):
+    model_element = model.new_element(module.Compartment)
+    model_element.id_ = sbgnml_compartment.get("id")
+    set_label(model_element, sbgnml_compartment)
     return model_element
 
 
-def make_model_entity_pool_or_subunit(
+def make_entity_pool_or_subunit(
     sbgnml_entity_pool_or_subunit, model, model_element_cls, sbgnml_id_to_model_element
 ):
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_entity_pool_or_subunit.get("id")
-    sbgnml_compartment_ref = sbgnml_entity_pool_or_subunit.get("compartmentRef")
-    if sbgnml_compartment_ref is not None:
-        compartment_model_element = sbgnml_id_to_model_element[sbgnml_compartment_ref]
-        model_element.compartment = compartment_model_element
-    sbgnml_label = getattr(sbgnml_entity_pool_or_subunit, "label", None)
-    if sbgnml_label is not None:
-        model_element.label = sbgnml_label.get("text")
+    set_compartment(
+        model_element, sbgnml_entity_pool_or_subunit, sbgnml_id_to_model_element
+    )
+    set_label(model_element, sbgnml_entity_pool_or_subunit)
     return model_element
 
 
-def make_model_activity(
+def make_activity(
     sbgnml_activity, model, model_element_cls, sbgnml_id_to_model_element
 ):
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_activity.get("id")
-    sbgnml_compartment_ref = sbgnml_activity.get("compartmentRef")
-    if sbgnml_compartment_ref is not None:
-        compartment_model_element = sbgnml_id_to_model_element[sbgnml_compartment_ref]
-        model_element.compartment = compartment_model_element
-    sbgnml_label = getattr(sbgnml_activity, "label", None)
-    if sbgnml_label is not None:
-        model_element.label = sbgnml_label.get("text")
+    set_compartment(
+        model_element, sbgnml_activity, sbgnml_id_to_model_element
+    )
+    set_label(model_element, sbgnml_activity)
     return model_element
 
 
-def make_model_state_variable(sbgnml_state_variable, model, order=None):
+def make_state_variable(sbgnml_state_variable, model, order=None):
     sbgnml_id = sbgnml_state_variable.get("id")
     sbgnml_state = getattr(sbgnml_state_variable, "state", None)
     if sbgnml_state is None:
@@ -68,7 +203,7 @@ def make_model_state_variable(sbgnml_state_variable, model, order=None):
     return model_element
 
 
-def make_model_unit_of_information(sbgnml_unit_of_information, model, model_element_cls):
+def make_unit_of_information(sbgnml_unit_of_information, model, model_element_cls):
     sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
     sbgnml_id = sbgnml_unit_of_information.get("id")
     model_element = model.new_element(model_element_cls)
@@ -82,31 +217,27 @@ def make_model_unit_of_information(sbgnml_unit_of_information, model, model_elem
     return model_element
 
 
-def make_model_submap(sbgnml_submap, model, model_element_cls):
-    sbgnml_label = getattr(sbgnml_submap, "label", None)
+def make_submap(sbgnml_submap, model, model_element_cls):
     sbgnml_id = sbgnml_submap.get("id")
     model_element = model.new_element(model_element_cls)
-    if sbgnml_label is not None:
-        model_element.label = sbgnml_label.get("text")
     model_element.id_ = sbgnml_id
+    set_label(model_element, sbgnml_submap)
     return model_element
 
 
-def make_model_terminal_or_tag(sbgnml_terminal_or_tag, model, is_terminal):
+def make_terminal_or_tag(sbgnml_terminal_or_tag, model, is_terminal):
     sbgnml_id = sbgnml_terminal_or_tag.get("id")
-    sbgnml_label = getattr(sbgnml_terminal_or_tag, "label", None)
     if is_terminal:
         model_element_cls = momapy.sbgn.pd.Terminal
     else:
         model_element_cls = momapy.sbgn.pd.Tag
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_id
-    if sbgnml_label is not None:
-        model_element.label = sbgnml_label.get("text")
+    set_label(model_element, sbgnml_terminal_or_tag)
     return model_element
 
 
-def make_model_reference(
+def make_reference(
     sbgnml_equivalence_arc, model, sbgnml_id_to_model_element, is_terminal
 ):
     sbgnml_id = sbgnml_equivalence_arc.get("id")
@@ -126,41 +257,33 @@ def make_model_reference(
     return model_element
 
 
-def make_model_stoichiometric_process(
+def make_stoichiometric_process(
     sbgnml_process, model, model_element_cls, sbgnml_glyph_id_to_sbgnml_arcs
 ):
     sbgnml_id = sbgnml_process.get("id")
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_id
-    model_element.reversible = momapy.sbgn.io.sbgnml._parsing.is_sbgnml_process_reversible(
+    model_element.reversible = momapy.sbgn.io.sbgnml._parsing.is_process_reversible(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
     return model_element
 
 
-def make_model_reactant(sbgnml_consumption_arc, model, sbgnml_id_to_model_element):
+def make_reactant(sbgnml_consumption_arc, model, sbgnml_id_to_model_element):
     sbgnml_source_id = sbgnml_consumption_arc.get("source")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry_from_sbgnml_element(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
     model_element = model.new_element(momapy.sbgn.pd.Reactant)
     model_element.id_ = sbgnml_consumption_arc.get("id")
     source_model_element = sbgnml_id_to_model_element[sbgnml_source_id]
     model_element.element = source_model_element
-    if sbgnml_stoichiometry is not None:
-        sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
-        if sbgnml_label is not None:
-            sbgnml_stoichiometry_text = sbgnml_label.get("text")
-            try:
-                stoichiometry = float(sbgnml_stoichiometry_text)
-            except ValueError:
-                stoichiometry = sbgnml_stoichiometry_text
-            model_element.stoichiometry = float(stoichiometry)
+    set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = momapy.builder.object_from_builder(model_element)
     return model_element
 
 
-def make_model_product(
+def make_product(
     sbgnml_production_arc,
     model,
     sbgnml_id_to_model_element,
@@ -169,7 +292,7 @@ def make_model_product(
     process_direction,
 ):
     sbgnml_target_id = sbgnml_production_arc.get("target")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry_from_sbgnml_element(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
         sbgnml_production_arc
     )
     if super_model_element.reversible:
@@ -193,27 +316,19 @@ def make_model_product(
     model_element.id_ = sbgnml_production_arc.get("id")
     target_model_element = sbgnml_id_to_model_element[sbgnml_target_id]
     model_element.element = target_model_element
-    if sbgnml_stoichiometry is not None:
-        sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
-        if sbgnml_label is not None:
-            sbgnml_stoichiometry_text = sbgnml_label.get("text")
-            try:
-                stoichiometry = float(sbgnml_stoichiometry_text)
-            except ValueError:
-                stoichiometry = sbgnml_stoichiometry_text
-            model_element.stoichiometry = float(stoichiometry)
+    set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = momapy.builder.object_from_builder(model_element)
     return model_element
 
 
-def make_model_logical_operator(sbgnml_logical_operator, model, model_element_cls):
+def make_logical_operator(sbgnml_logical_operator, model, model_element_cls):
     sbgnml_id = sbgnml_logical_operator.get("id")
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_id
     return model_element
 
 
-def make_model_logical_operator_input(sbgnml_logic_arc, model, source_model_element):
+def make_logical_operator_input(sbgnml_logic_arc, model, source_model_element):
     model_element = model.new_element(momapy.sbgn.pd.LogicalOperatorInput)
     model_element.id_ = sbgnml_logic_arc.get("id")
     model_element.element = source_model_element
@@ -221,7 +336,7 @@ def make_model_logical_operator_input(sbgnml_logic_arc, model, source_model_elem
     return model_element
 
 
-def make_model_modulation(
+def make_modulation(
     sbgnml_modulation, model, model_element_cls, source_model_element, target_model_element
 ):
     model_element = model.new_element(model_element_cls)

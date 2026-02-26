@@ -158,9 +158,9 @@ def register_lazy_writer(name: str, import_path: str) -> None:
 
 
 for name, import_path in [
-    ("sbgnml", "momapy.sbgn.io.sbgnml:SBGNML0_3Reader"),
-    ("sbgnml-0.2", "momapy.sbgn.io.sbgnml:SBGNML0_2Reader"),
-    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml:SBGNML0_3Reader"),
+    ("sbgnml", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
+    ("sbgnml-0.2", "momapy.sbgn.io.sbgnml.reader:SBGNML0_2Reader"),
+    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
     ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleReader"),
     ("celldesigner", "momapy.celldesigner.io.celldesigner:CellDesignerReader"),
     ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleReader"),
@@ -169,8 +169,8 @@ for name, import_path in [
     register_lazy_reader(name, import_path)
 
 for name, import_path in [
-    ("sbgnml", "momapy.sbgn.io.sbgnml:SBGNML0_3Writer"),
-    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml:SBGNML0_3Writer"),
+    ("sbgnml", "momapy.sbgn.io.sbgnml.writer:SBGNML0_3Writer"),
+    ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.writer:SBGNML0_3Writer"),
     ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleWriter"),
     ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleWriter"),
 ]:
