@@ -11,3 +11,22 @@ plans/
 .coverage
 htmlcov/
 site/
+
+# Claude Code sandbox artifacts
+.bash_profile
+.bashrc
+.claude/
+.gitconfig
+.gitmodules
+.idea
+.mcp.json
+.profile
+.ripgreprc
+.vscode
+.zprofile
+.zshrc
+/HEAD
+/config
+/hooks
+/objects
+/refs
