@@ -7,82 +7,7 @@ import momapy.core.elements
 import momapy.sbgn.pd
 import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._parsing
-
-
-_QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "encodes",
-    ): momapy.sbml.core.BQBiol.ENCODES,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "hasPart",
-    ): momapy.sbml.core.BQBiol.HAS_PART,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "hasProperty",
-    ): momapy.sbml.core.BQBiol.HAS_PROPERTY,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "hasVersion",
-    ): momapy.sbml.core.BQBiol.HAS_VERSION,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "is",
-    ): momapy.sbml.core.BQBiol.IS,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isDescribedBy",
-    ): momapy.sbml.core.BQBiol.IS_DESCRIBED_BY,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isEncodedBy",
-    ): momapy.sbml.core.BQBiol.IS_ENCODED_BY,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isHomologTo",
-    ): momapy.sbml.core.BQBiol.IS_HOMOLOG_TO,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isPartOf",
-    ): momapy.sbml.core.BQBiol.IS_PART_OF,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isPropertyOf",
-    ): momapy.sbml.core.BQBiol.IS_PROPERTY_OF,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "isVersionOf",
-    ): momapy.sbml.core.BQBiol.IS_VERSION_OF,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "occursIn",
-    ): momapy.sbml.core.BQBiol.OCCURS_IN,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "hasTaxon",
-    ): momapy.sbml.core.BQBiol.HAS_TAXON,
-    (
-        "http://biomodels.net/biology-qualifiers/",
-        "hasInstance",
-    ): momapy.sbml.core.BQModel.HAS_INSTANCE,
-    (
-        "http://biomodels.net/model-qualifiers/",
-        "is",
-    ): momapy.sbml.core.BQModel.IS,
-    (
-        "http://biomodels.net/model-qualifiers/",
-        "isDerivedFrom",
-    ): momapy.sbml.core.BQModel.IS_DERIVED_FROM,
-    (
-        "http://biomodels.net/model-qualifiers/",
-        "isDescribedBy",
-    ): momapy.sbml.core.BQModel.IS_DESCRIBED_BY,
-    (
-        "http://biomodels.net/model-qualifiers/",
-        "isInstanceOf",
-    ): momapy.sbml.core.BQModel.IS_INSTANCE_OF,
-}
+import momapy.sbgn.io.sbgnml._qualifiers
 
 
 def make_annotations(sbgnml_element):
@@ -93,7 +18,7 @@ def make_annotations(sbgnml_element):
         if description is not None:
             for bq_element in description.getchildren():
                 key = momapy.sbgn.io.sbgnml._parsing.get_prefix_and_name(bq_element.tag)
-                qualifier = _QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
+                qualifier = momapy.sbgn.io.sbgnml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
                 if qualifier is not None:
                     bags = momapy.sbgn.io.sbgnml._parsing.get_bags(bq_element)
                     for bag in bags:

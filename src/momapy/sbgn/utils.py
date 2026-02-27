@@ -235,7 +235,7 @@ def set_arcs_to_borders(map_):
                     start_reference_point = target.left_connector_tip()
                 else:
                     start_reference_point = target.right_connector_tip()
-            start_point = source.self_border(start_reference_point)
+            start_point = source.border(start_reference_point)
         if target_type == "left":
             end_point = target.left_connector_tip()
         elif target_type == "right":
@@ -250,7 +250,7 @@ def set_arcs_to_borders(map_):
                     end_reference_point = source.left_connector_tip()
                 else:
                     end_reference_point = source.right_connector_tip()
-            end_point = target.self_border(end_reference_point)
+            end_point = target.border(end_reference_point)
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )
@@ -263,142 +263,101 @@ def set_arcs_to_borders(map_):
     else:
         map_builder = map_
     for layout_element in map_builder.layout.layout_elements:
-        # Flux arcs
+        # Flux arcs - Consumption
         if momapy.builder.isinstance_or_builder(
-            layout_element,
-            (
-                momapy.sbgn.pd.GenericProcessLayout,
-                momapy.sbgn.pd.AssociationLayout,
-                momapy.sbgn.pd.DissociationLayout,
-                momapy.sbgn.pd.OmittedProcessLayout,
-                momapy.sbgn.pd.UncertainProcessLayout,
-            ),
+            layout_element, momapy.sbgn.pd.ConsumptionLayout
         ):
-            for sub_layout_element in layout_element.layout_elements:
-                if momapy.builder.isinstance_or_builder(
-                    sub_layout_element, (momapy.sbgn.pd.ConsumptionLayout)
-                ):
-                    if layout_element.left_to_right:
-                        source_type = "left"
-                    else:
-                        source_type = "right"
-                    _set_arc_to_borders(
-                        sub_layout_element,
-                        layout_element,
-                        source_type,
-                        sub_layout_element.target,
-                        "border",
-                    )
-                elif momapy.builder.isinstance_or_builder(
-                    sub_layout_element, (momapy.sbgn.pd.ProductionLayout)
-                ):
-                    product, _ = map_builder.get_mapping(sub_layout_element)
-                    if momapy.builder.isinstance_or_builder(
-                        product, momapy.sbgn.pd.Product
-                    ):
-                        if layout_element.left_to_right:
-                            source_type = "right"
-                        else:
-                            source_type = "left"
-                    else:
-                        if layout_element.left_to_right:
-                            source_type = "left"
-                        else:
-                            source_type = "right"
-                    _set_arc_to_borders(
-                        sub_layout_element,
-                        layout_element,
-                        source_type,
-                        sub_layout_element.target,
-                        "border",
-                    )
-        # Logical arcs
+            source = layout_element.source
+            if source.left_to_right:
+                source_type = "left"
+            else:
+                source_type = "right"
+            _set_arc_to_borders(
+                layout_element,
+                source,
+                source_type,
+                layout_element.target,
+                "border",
+            )
+        # Flux arcs - Production
         elif momapy.builder.isinstance_or_builder(
-            layout_element,
-            (
-                momapy.sbgn.pd.AndOperatorLayout,
-                momapy.sbgn.pd.OrOperatorLayout,
-                momapy.sbgn.pd.NotOperatorLayout,
-                momapy.sbgn.af.AndOperatorLayout,
-                momapy.sbgn.af.OrOperatorLayout,
-                momapy.sbgn.af.NotOperatorLayout,
-                momapy.sbgn.af.DelayOperatorLayout,
-                momapy.sbgn.pd.EquivalenceOperatorLayout,
-            ),
+            layout_element, momapy.sbgn.pd.ProductionLayout
         ):
-            for sub_layout_element in layout_element.layout_elements:
-                if momapy.builder.isinstance_or_builder(
-                    sub_layout_element,
-                    (
-                        momapy.sbgn.pd.LogicArcLayout,
-                        momapy.sbgn.af.LogicArcLayout,
-                    ),
-                ):
-                    target = sub_layout_element.target
-                    if layout_element.left_to_right:
-                        source_type = "left"
-                    else:
-                        source_type = "right"
-                if momapy.builder.isinstance_or_builder(
-                    target,
-                    (
-                        momapy.sbgn.pd.AndOperatorLayout,
-                        momapy.sbgn.pd.OrOperatorLayout,
-                        momapy.sbgn.pd.NotOperatorLayout,
-                        momapy.sbgn.af.AndOperatorLayout,
-                        momapy.sbgn.af.OrOperatorLayout,
-                        momapy.sbgn.af.NotOperatorLayout,
-                        momapy.sbgn.af.DelayOperatorLayout,
-                        momapy.sbgn.pd.EquivalenceOperatorLayout,
-                    ),
-                ):
-                    if target.left_to_right:
-                        target_type = "right"
-                    else:
-                        target_type = "left"
+            source = layout_element.source
+            product, _ = map_builder.get_mapping(layout_element)
+            if momapy.builder.isinstance_or_builder(product, momapy.sbgn.pd.Product):
+                if source.left_to_right:
+                    source_type = "right"
                 else:
-                    target_type = "border"
-                _set_arc_to_borders(
-                    sub_layout_element,
-                    layout_element,
-                    source_type,
-                    target,
-                    target_type,
-                )
-        # equivalence arcs
+                    source_type = "left"
+            else:
+                if source.left_to_right:
+                    source_type = "left"
+                else:
+                    source_type = "right"
+            _set_arc_to_borders(
+                layout_element,
+                source,
+                source_type,
+                layout_element.target,
+                "border",
+            )
+        # Logic arcs
         elif momapy.builder.isinstance_or_builder(
             layout_element,
             (
-                momapy.sbgn.pd.SubmapLayout,
-                momapy.sbgn.af.SubmapLayout,
+                momapy.sbgn.pd.LogicArcLayout,
+                momapy.sbgn.af.LogicArcLayout,
             ),
         ):
-            for sub_layout_element in layout_element.layout_elements:
-                if momapy.builder.isinstance_or_builder(
-                    sub_layout_element,
-                    (
-                        momapy.sbgn.pd.TerminalLayout,
-                        momapy.sbgn.af.TerminalLayout,
-                    ),
-                ):
-                    for sub_sub_layout_element in sub_layout_element.layout_elements:
-                        if momapy.builder.isinstance_or_builder(
-                            sub_sub_layout_element,
-                            (
-                                momapy.sbgn.pd.EquivalenceArcLayout,
-                                momapy.sbgn.af.EquivalenceArcLayout,
-                            ),
-                        ):
-                            source_type = "border"
-                            target_type = "border"
-                            _set_arc_to_borders(
-                                sub_sub_layout_element,
-                                sub_layout_element,
-                                "border",
-                                sub_sub_layout_element.target,
-                                "border",
-                            )
-        # modulations
+            source = layout_element.source
+            target = layout_element.target
+            if source.left_to_right:
+                source_type = "left"
+            else:
+                source_type = "right"
+            if momapy.builder.isinstance_or_builder(
+                target,
+                (
+                    momapy.sbgn.pd.AndOperatorLayout,
+                    momapy.sbgn.pd.OrOperatorLayout,
+                    momapy.sbgn.pd.NotOperatorLayout,
+                    momapy.sbgn.af.AndOperatorLayout,
+                    momapy.sbgn.af.OrOperatorLayout,
+                    momapy.sbgn.af.NotOperatorLayout,
+                    momapy.sbgn.af.DelayOperatorLayout,
+                    momapy.sbgn.pd.EquivalenceOperatorLayout,
+                ),
+            ):
+                if target.left_to_right:
+                    target_type = "right"
+                else:
+                    target_type = "left"
+            else:
+                target_type = "border"
+            _set_arc_to_borders(
+                layout_element,
+                source,
+                source_type,
+                target,
+                target_type,
+            )
+        # Equivalence arcs
+        elif momapy.builder.isinstance_or_builder(
+            layout_element,
+            (
+                momapy.sbgn.pd.EquivalenceArcLayout,
+                momapy.sbgn.af.EquivalenceArcLayout,
+            ),
+        ):
+            _set_arc_to_borders(
+                layout_element,
+                layout_element.source,
+                "border",
+                layout_element.target,
+                "border",
+            )
+        # Modulations
         elif momapy.builder.isinstance_or_builder(
             layout_element,
             (

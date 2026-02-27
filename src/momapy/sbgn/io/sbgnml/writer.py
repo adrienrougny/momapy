@@ -1,19 +1,29 @@
 """SBGN-ML writer classes."""
 
+import dataclasses
+import typing
+
 import lxml.etree
 
-import momapy.geometry
 import momapy.core.elements
 import momapy.core.layout
 import momapy.io.core
-import momapy.builder
-import momapy.coloring
-import momapy.drawing
-import momapy.styling
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
-import momapy.sbml.core
+import momapy.sbgn.io.sbgnml._qualifiers
+
+
+@dataclasses.dataclass
+class WritingContext:
+    """Bundles the shared state passed across all writer methods."""
+
+    map_: typing.Any
+    annotations: dict
+    notes: dict
+    ids: dict
+    with_annotations: bool
+    with_notes: bool
 
 
 class _SBGNMLWriter(momapy.io.core.Writer):
@@ -37,7 +47,6 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         momapy.sbgn.pd.SBGNPDLayout: "process description",
         momapy.sbgn.pd.StateVariableLayout: "state variable",
         momapy.sbgn.pd.UnitOfInformationLayout: "unit of information",
-        momapy.sbgn.pd.UnspecifiedEntityLayout: "unspecified entity",
         momapy.sbgn.pd.TerminalLayout: "terminal",
         momapy.sbgn.pd.MacromoleculeSubunitLayout: "macromolecule",
         momapy.sbgn.pd.SimpleChemicalSubunitLayout: "simple chemical",
@@ -103,80 +112,6 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         momapy.sbgn.af.LogicArcLayout: "logic arc",
         momapy.sbgn.af.EquivalenceArcLayout: "equivalence arc",
     }
-    _QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE = {
-        momapy.sbml.core.BQBiol.ENCODES: (
-            "http://biomodels.net/biology-qualifiers/",
-            "encodes",
-        ),
-        momapy.sbml.core.BQBiol.HAS_PART: (
-            "http://biomodels.net/biology-qualifiers/",
-            "hasPart",
-        ),
-        momapy.sbml.core.BQBiol.HAS_PROPERTY: (
-            "http://biomodels.net/biology-qualifiers/",
-            "hasProperty",
-        ),
-        momapy.sbml.core.BQBiol.HAS_VERSION: (
-            "http://biomodels.net/biology-qualifiers/",
-            "hasVersion",
-        ),
-        momapy.sbml.core.BQBiol.IS: (
-            "http://biomodels.net/biology-qualifiers/",
-            "is",
-        ),
-        momapy.sbml.core.BQBiol.IS_DESCRIBED_BY: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isDescribedBy1",
-        ),
-        momapy.sbml.core.BQBiol.IS_ENCODED_BY: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isEncodedBy",
-        ),
-        momapy.sbml.core.BQBiol.IS_HOMOLOG_TO: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isHomologTo",
-        ),
-        momapy.sbml.core.BQBiol.IS_PART_OF: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isPartOf",
-        ),
-        momapy.sbml.core.BQBiol.IS_PROPERTY_OF: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isPropertyOf",
-        ),
-        momapy.sbml.core.BQBiol.IS_VERSION_OF: (
-            "http://biomodels.net/biology-qualifiers/",
-            "isVersionOf",
-        ),
-        momapy.sbml.core.BQBiol.OCCURS_IN: (
-            "http://biomodels.net/biology-qualifiers/",
-            "occursIn",
-        ),
-        momapy.sbml.core.BQBiol.HAS_TAXON: (
-            "http://biomodels.net/biology-qualifiers/",
-            "hasTaxon",
-        ),
-        momapy.sbml.core.BQModel.HAS_INSTANCE: (
-            "http://biomodels.net/model-qualifiers/",
-            "hasInstance",
-        ),
-        momapy.sbml.core.BQModel.IS: (
-            "http://biomodels.net/model-qualifiers/",
-            "is",
-        ),
-        momapy.sbml.core.BQModel.IS_DERIVED_FROM: (
-            "http://biomodels.net/model-qualifiers/",
-            "isDerivedFrom",
-        ),
-        momapy.sbml.core.BQModel.IS_DESCRIBED_BY: (
-            "http://biomodels.net/model-qualifiers/",
-            "isDescribedBy",
-        ),
-        momapy.sbml.core.BQModel.IS_INSTANCE_OF: (
-            "http://biomodels.net/model-qualifiers/",
-            "isInstanceOf",
-        ),
-    }
 
     @classmethod
     def _make_lxml_element(
@@ -218,18 +153,20 @@ class _SBGNMLWriter(momapy.io.core.Writer):
     ):
         if annotations is None:
             annotations = {}
+        if notes is None:
+            notes = {}
         if ids is None:
             ids = {}
-        sbgnml_sbgn = cls._make_lxml_element("sbgn", nsmap=cls._NSMAP)
-        sbgnml_map = cls._make_sbgnml_map_from_map(
-            obj,
+        ctx = WritingContext(
+            map_=obj,
             annotations=annotations,
             notes=notes,
             ids=ids,
-            with_render_information=with_render_information,
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
+        sbgnml_sbgn = cls._make_lxml_element("sbgn", nsmap=cls._NSMAP)
+        sbgnml_map = cls._make_sbgnml_map_from_map(ctx)
         sbgnml_sbgn.append(sbgnml_map)
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(
@@ -239,80 +176,53 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             )
 
     @classmethod
-    def _make_sbgnml_map_from_map(
-        cls,
-        map_,
-        annotations,
-        notes,
-        ids,
-        with_render_information=True,
-        with_annotations=True,
-        with_notes=True,
-    ):
-        language = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(map_)]
-        id_ = ids.get(map_)
+    def _make_sbgnml_map_from_map(cls, ctx):
+        language = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(ctx.map_)]
+        id_ = ctx.ids.get(ctx.map_)
         if id_ is None:
-            id_ = map_.id_
+            id_ = ctx.map_.id_
         else:
             id_ = id_[0]
         attributes = {"id": id_, "language": language}
         sbgnml_map = cls._make_lxml_element("map", attributes=attributes)
-        sbgnml_bbox = cls._make_sbgnml_bbox_from_node(map_.layout)
+        sbgnml_bbox = cls._make_sbgnml_bbox_from_node(ctx.map_.layout)
         sbgnml_map.append(sbgnml_bbox)
-        for layout_element in map_.layout.layout_elements:
+        for layout_element in ctx.map_.layout.layout_elements:
             cls._make_and_add_sbgnml_elements_from_layout_element(
-                map_=map_,
+                ctx=ctx,
                 sbgnml_map=sbgnml_map,
                 layout_element=layout_element,
-                annotations=annotations,
-                notes=notes,
-                ids=ids,
-                with_annotations=with_annotations,
-                with_notes=with_notes,
             )
         return sbgnml_map
 
     @classmethod
     def _make_and_add_sbgnml_elements_from_layout_element(
-        cls,
-        map_,
-        sbgnml_map,
-        layout_element,
-        annotations,
-        notes,
-        ids,
-        with_annotations=True,
-        with_notes=True,
+        cls, ctx, sbgnml_map, layout_element
     ):
-        model_element = map_.get_mapping(layout_element)
+        model_element = ctx.map_.get_mapping(layout_element)
         if model_element is not None:
             if isinstance(layout_element, momapy.core.layout.Node):
                 sbgnml_elements = cls._make_sbgnml_elements_from_node(
-                    map_=map_,
+                    ctx=ctx,
                     node=layout_element,
-                    annotations=annotations,
-                    ids=ids,
                 )
             elif isinstance(
                 layout_element,
                 (momapy.core.layout.SingleHeadedArc, momapy.core.layout.DoubleHeadedArc),
             ):
                 sbgnml_elements = cls._make_sbgnml_elements_from_arc(
-                    map_=map_,
+                    ctx=ctx,
                     arc=layout_element,
-                    annotations=annotations,
-                    ids=ids,
-                    super_layout_element=None,
                 )
-            if with_annotations:
-                if annotations is not None:
-                    element_annotations = annotations.get(model_element)
+            if ctx.with_annotations:
+                if ctx.annotations is not None:
+                    element_annotations = ctx.annotations.get(model_element)
                     if element_annotations is not None:
                         sbgnml_annotation = (
                             cls._make_sbgnml_annotation_from_annotations(
                                 element_annotations,
                                 sbgnml_id=cls._get_sbgnml_id_from_map_element(
-                                    model_element, ids
+                                    model_element, ctx.ids
                                 ),
                             )
                         )
@@ -320,10 +230,10 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                         sbgnml_extension.append(sbgnml_annotation)
                         for sbgnml_element in sbgnml_elements:
                             sbgnml_element.append(sbgnml_extension)
-            if with_notes:
-                if notes is not None:
-                    element_notes = notes.get(model_element)
-                    if notes is not None:
+            if ctx.with_notes:
+                if ctx.notes is not None:
+                    element_notes = ctx.notes.get(model_element)
+                    if element_notes is not None:
                         sbgnml_notes = cls._make_lxml_element(tag="notes")
                         notes_root = lxml.etree.fromstring(element_notes)
                         sbgnml_notes.append(notes_root)
@@ -346,7 +256,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         )
         sbgnml_rdf.append(sbgnml_description)
         for annotation in annotations:
-            namespace, tag = cls._QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
+            namespace, tag = momapy.sbgn.io.sbgnml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
                 annotation.qualifier
             ]
             sbgnml_bq = cls._make_lxml_element(tag=tag, namespace=namespace)
@@ -363,25 +273,21 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         return sbgnml_annotation
 
     @classmethod
-    def _make_sbgnml_elements_from_node(cls, map_, node, annotations, ids):
-        sbgnml_ids = ids.get(node)
-        if sbgnml_ids is None:
-            sbgnml_id = node.id_
-        else:
-            sbgnml_id = sbgnml_ids[0]
+    def _make_sbgnml_elements_from_node(cls, ctx, node):
+        sbgnml_id = cls._get_sbgnml_id_from_map_element(node, ctx.ids)
         sbgnml_class = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(node)]
         attributes = {"id": sbgnml_id, "class": sbgnml_class}
         direction = getattr(node, "direction", None)
         if direction is not None:
             sbgnml_orientation = cls._DIRECTION_TO_SBGNML_ORIENTATION[direction]
             attributes["orientation"] = sbgnml_orientation
-        model_element = map_.get_mapping(node)
+        model_element = ctx.map_.get_mapping(node)
         if isinstance(
             model_element, (momapy.sbgn.pd.EntityPool, momapy.sbgn.af.Activity)
         ):
             compartment = model_element.compartment
             if compartment is not None:
-                compartment_id = cls._get_sbgnml_id_from_map_element(compartment, ids)
+                compartment_id = cls._get_sbgnml_id_from_map_element(compartment, ctx.ids)
                 attributes["compartmentRef"] = compartment_id
         sbgnml_element = cls._make_lxml_element("glyph", attributes=attributes)
         sbgnml_elements = [sbgnml_element]
@@ -394,86 +300,37 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             else:
                 sbgnml_label = cls._make_sbgnml_label_from_text_layout(node.label)
                 sbgnml_element.append(sbgnml_label)
-        if hasattr(node, "left_connector_tip"):
-            left_connector_tip = node.left_connector_tip()
-            sbgnml_port = cls._make_sbgnml_port_from_point(
-                left_connector_tip, port_id=f"{sbgnml_id}_left"
-            )
-            sbgnml_element.append(sbgnml_port)
-        if hasattr(node, "right_connector_tip"):
-            right_connector_tip = node.right_connector_tip()
-            sbgnml_port = cls._make_sbgnml_port_from_point(
-                right_connector_tip, port_id=f"{sbgnml_id}_right"
-            )
-            sbgnml_element.append(sbgnml_port)
+        for side, attr in [("left", "left_connector_tip"), ("right", "right_connector_tip")]:
+            if hasattr(node, attr):
+                connector_tip = getattr(node, attr)()
+                sbgnml_port = cls._make_sbgnml_port_from_point(
+                    connector_tip, port_id=f"{sbgnml_id}_{side}"
+                )
+                sbgnml_element.append(sbgnml_port)
         for layout_element in node.layout_elements:
             if isinstance(layout_element, momapy.core.layout.Node):
                 sub_sbgnml_elements = cls._make_sbgnml_elements_from_node(
-                    map_=map_,
+                    ctx=ctx,
                     node=layout_element,
-                    annotations=annotations,
-                    ids=ids,
                 )
                 for sub_sbgnml_element in sub_sbgnml_elements:
                     if sub_sbgnml_element.tag == "glyph":
                         sbgnml_element.append(sub_sbgnml_element)
                     else:
                         sbgnml_elements.append(sub_sbgnml_element)
-            elif isinstance(
-                layout_element,
-                (momapy.core.layout.SingleHeadedArc, momapy.core.layout.DoubleHeadedArc),
-            ):
-                sub_sbgnml_elements = cls._make_sbgnml_elements_from_arc(
-                    map_=map_,
-                    arc=layout_element,
-                    annotations=annotations,
-                    ids=ids,
-                    super_layout_element=node,
-                )
-                sbgnml_elements += sub_sbgnml_elements
         return sbgnml_elements
 
     @classmethod
-    def _make_sbgnml_elements_from_arc(
-        cls, map_, arc, annotations, ids, super_layout_element=None
-    ):
-        sbgnml_ids = ids.get(arc)
-        if sbgnml_ids is None:
-            sbgnml_id = arc.id_
-        else:
-            sbgnml_id = sbgnml_ids[0]
+    def _make_sbgnml_elements_from_arc(cls, ctx, arc):
+        sbgnml_id = cls._get_sbgnml_id_from_map_element(arc, ctx.ids)
         sbgnml_class = cls._CLASS_TO_SBGNML_CLASS_ATTRIBUTE[type(arc)]
         attributes = {
             "id": sbgnml_id,
             "class": sbgnml_class,
         }
         points = arc.points()
-        # the source may be absent for some arcs that belong to nodes (flux arcs,
-        # logic arcs, equivalence arc). When it is the case, we use the super
-        # layout element to find the id of the source of the arc
-        # TODO: check what happens for equivalence arcs and tags/terminals, as
-        # those nodes to not have any connectors
-        if arc.source is None:
-            sbgnml_source_id = cls._get_sbgnml_id_from_map_element(
-                super_layout_element, ids
-            )
-            if hasattr(super_layout_element, "left_connector_tip"):
-                distance_to_left = momapy.geometry.get_distance_between_points(
-                    super_layout_element.left_connector_tip(),
-                    points[0],
-                )
-                distance_to_right = momapy.geometry.get_distance_between_points(
-                    super_layout_element.right_connector_tip(),
-                    points[0],
-                )
-                if distance_to_left < distance_to_right:
-                    sbgnml_source_id_suffix = "left"
-                else:
-                    sbgnml_source_id_suffix = "right"
-                sbgnml_source_id = f"{sbgnml_source_id}_{sbgnml_source_id_suffix}"
-        else:
-            sbgnml_source_id = cls._get_sbgnml_id_from_map_element(arc.source, ids)
-        sbgnml_target_id = cls._get_sbgnml_id_from_map_element(arc.target, ids)
+        sbgnml_source_id = cls._get_sbgnml_id_from_map_element(arc.source, ctx.ids)
+        sbgnml_target_id = cls._get_sbgnml_id_from_map_element(arc.target, ctx.ids)
         # momapy reverts the consumption and logic arc direction compared to
         # SBGN-ML, so we need to revert it back here
         if isinstance(

@@ -1334,6 +1334,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
             else:
                 layout_element = None
+            # Build and freeze the terminal/tag layout before creating
+            # references, so it can be passed as source to arc layouts.
+            if ctx.layout is not None:
+                layout_element = momapy.builder.object_from_builder(layout_element)
             reference_map_elements = []
             for (
                 sbgnml_equivalence_arc
@@ -1345,23 +1349,19 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 (
                     reference_model_element,
                     reference_layout_element,
-                ) = cls._make_reference(
+                ) = cls._make_and_add_reference(
                     ctx=ctx,
                     sbgnml_equivalence_arc=sbgnml_equivalence_arc,
                     is_terminal=is_terminal,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
                 )
-                if ctx.model is not None:
-                    model_element.reference = reference_model_element
-                if ctx.layout is not None:
-                    layout_element.layout_elements.append(reference_layout_element)
                 if ctx.model is not None and ctx.layout is not None:
                     reference_map_elements.append(
                         (reference_model_element, reference_layout_element)
                     )
             if ctx.model is not None:
                 model_element = momapy.builder.object_from_builder(model_element)
-            if ctx.layout is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
             if ctx.model is not None and ctx.layout is not None:
                 for (
                     reference_model_element,
@@ -1378,11 +1378,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_reference(
+    def _make_and_add_reference(
         cls,
         ctx,
         sbgnml_equivalence_arc,
         is_terminal,
+        super_model_element,
+        super_layout_element=None,
     ):
         if ctx.model is not None or ctx.layout is not None:
             if ctx.model is not None:
@@ -1399,9 +1401,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_equivalence_arc=sbgnml_equivalence_arc,
                     layout=ctx.layout,
                     sbgnml_id_to_layout_element=ctx.sbgnml_id_to_layout_element,
+                    super_layout_element=super_layout_element,
                 )
             else:
                 layout_element = None
+            if ctx.model is not None:
+                super_model_element.reference = model_element
+            if ctx.layout is not None:
+                ctx.layout.layout_elements.append(layout_element)
         else:
             model_element = None
             layout_element = None
@@ -1505,8 +1512,12 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
             else:
                 layout_element = None
-            # We add the reactants and products to the model element, and the
-            # corresponding layouts to the layout element.
+            if ctx.layout is not None:
+                layout_element = momapy.builder.object_from_builder(layout_element)
+                ctx.layout.layout_elements.append(layout_element)
+                ctx.sbgnml_id_to_layout_element[sbgnml_process.get("id")] = (
+                    layout_element
+                )
             participant_map_elements = []
             sbgnml_consumption_arcs, sbgnml_production_arcs = (
                 momapy.sbgn.io.sbgnml._parsing.get_consumption_and_production_arcs(
@@ -1514,33 +1525,29 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
             )
             for sbgnml_consumption_arc in sbgnml_consumption_arcs:
-                reactant_model_element, reactant_layout_element = cls._make_reactant(
-                    ctx=ctx,
-                    sbgnml_consumption_arc=sbgnml_consumption_arc,
-                    super_model_element=model_element,
-                    super_layout_element=layout_element,
+                reactant_model_element, reactant_layout_element = (
+                    cls._make_and_add_reactant(
+                        ctx=ctx,
+                        sbgnml_consumption_arc=sbgnml_consumption_arc,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
+                    )
                 )
-                if ctx.model is not None:
-                    model_element.reactants.add(reactant_model_element)
-                if ctx.layout is not None:
-                    layout_element.layout_elements.append(reactant_layout_element)
                 if ctx.model is not None and ctx.layout is not None:
                     participant_map_elements.append(
                         (reactant_model_element, reactant_layout_element)
                     )
             for sbgnml_production_arc in sbgnml_production_arcs:
-                product_model_element, product_layout_element = cls._make_product(
-                    ctx=ctx,
-                    sbgnml_production_arc=sbgnml_production_arc,
-                    super_model_element=model_element,
-                    super_layout_element=layout_element,
-                    super_sbgnml_element=sbgnml_process,
-                    sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                product_model_element, product_layout_element = (
+                    cls._make_and_add_product(
+                        ctx=ctx,
+                        sbgnml_production_arc=sbgnml_production_arc,
+                        super_model_element=model_element,
+                        super_layout_element=layout_element,
+                        super_sbgnml_element=sbgnml_process,
+                        sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
+                    )
                 )
-                if model_element is not None:
-                    model_element.products.add(product_model_element)
-                if layout_element is not None:
-                    layout_element.layout_elements.append(product_layout_element)
                 if ctx.model is not None and ctx.layout is not None:
                     participant_map_elements.append(
                         (product_model_element, product_layout_element)
@@ -1558,18 +1565,16 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     model_element,
                     ctx,
                 )
-            if ctx.layout is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
-                ctx.layout.layout_elements.append(layout_element)
-                ctx.sbgnml_id_to_layout_element[sbgnml_process.get("id")] = (
-                    layout_element
-                )
             if ctx.model is not None and ctx.layout is not None:
                 ctx.layout_model_mapping.add_mapping(
                     frozenset(
                         [layout_element]
                         + [
                             participant_map_element[1]
+                            for participant_map_element in participant_map_elements
+                        ]
+                        + [
+                            participant_map_element[1].target
                             for participant_map_element in participant_map_elements
                         ]
                     ),
@@ -1592,7 +1597,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_reactant(
+    def _make_and_add_reactant(
         cls,
         ctx,
         sbgnml_consumption_arc,
@@ -1613,16 +1618,21 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_consumption_arc=sbgnml_consumption_arc,
                     layout=ctx.layout,
                     sbgnml_id_to_layout_element=ctx.sbgnml_id_to_layout_element,
+                    super_layout_element=super_layout_element,
                 )
             else:
                 layout_element = None
+            if ctx.model is not None:
+                super_model_element.reactants.add(model_element)
+            if ctx.layout is not None:
+                ctx.layout.layout_elements.append(layout_element)
         else:
             model_element = None
             layout_element = None
         return model_element, layout_element
 
     @classmethod
-    def _make_product(
+    def _make_and_add_product(
         cls,
         ctx,
         sbgnml_production_arc,
@@ -1651,9 +1661,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_production_arc=sbgnml_production_arc,
                     layout=ctx.layout,
                     sbgnml_id_to_layout_element=ctx.sbgnml_id_to_layout_element,
+                    super_layout_element=super_layout_element,
                 )
             else:
                 layout_element = None
+            if ctx.model is not None:
+                super_model_element.products.add(model_element)
+            if ctx.layout is not None:
+                ctx.layout.layout_elements.append(layout_element)
         else:
             model_element = None
             layout_element = None
@@ -1687,6 +1702,12 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
             else:
                 layout_element = None
+            if ctx.layout is not None:
+                layout_element = momapy.builder.object_from_builder(layout_element)
+                ctx.layout.layout_elements.append(layout_element)
+                ctx.sbgnml_id_to_layout_element[sbgnml_logical_operator.get("id")] = (
+                    layout_element
+                )
             input_map_elements = []
             sbgnml_logic_arcs = momapy.sbgn.io.sbgnml._parsing.get_logic_arcs(
                 sbgnml_operator=sbgnml_logical_operator,
@@ -1695,7 +1716,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             )
             for sbgnml_logic_arc in sbgnml_logic_arcs:
                 input_model_element, input_layout_element = (
-                    cls._make_logical_operator_input(
+                    cls._make_and_add_logical_operator_input(
                         ctx=ctx,
                         sbgnml_logic_arc=sbgnml_logic_arc,
                         sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,
@@ -1703,10 +1724,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         super_layout_element=layout_element,
                     )
                 )
-                if ctx.model is not None:
-                    model_element.inputs.add(input_model_element)
-                if ctx.layout is not None:
-                    layout_element.layout_elements.append(input_layout_element)
                 if ctx.model is not None and ctx.layout is not None:
                     input_map_elements.append(
                         (input_model_element, input_layout_element)
@@ -1719,12 +1736,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ctx.sbgnml_id_to_model_element,
                     cache=ctx.model_element_cache,
                 )
-            if ctx.layout is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
-                ctx.layout.layout_elements.append(layout_element)
-                ctx.sbgnml_id_to_layout_element[sbgnml_logical_operator.get("id")] = (
-                    layout_element
-                )
             if ctx.model is not None and ctx.layout is not None:
                 ctx.layout_model_mapping.add_mapping(
                     frozenset(
@@ -1733,7 +1744,11 @@ class _SBGNMLReader(momapy.io.core.Reader):
                             input_map_element[1]
                             for input_map_element in input_map_elements
                         ]
-                    ),
+                        + [
+                            input_map_element[1].target
+                            for input_map_element in input_map_elements
+                        ]
+                    ),  # TODO: add whole logical function tree?
                     model_element,
                     replace=True,
                     anchor=layout_element,
@@ -1753,7 +1768,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         return model_element, layout_element
 
     @classmethod
-    def _make_logical_operator_input(
+    def _make_and_add_logical_operator_input(
         cls,
         ctx,
         sbgnml_logic_arc,
@@ -1795,10 +1810,15 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         sbgnml_logic_arc=sbgnml_logic_arc,
                         layout=ctx.layout,
                         source_layout_element=source_layout_element,
+                        super_layout_element=super_layout_element,
                     )
                 )
             else:
                 layout_element = None
+            if ctx.model is not None:
+                super_model_element.inputs.add(model_element)
+            if ctx.layout is not None:
+                ctx.layout.layout_elements.append(layout_element)
         else:
             model_element = None
             layout_element = None
