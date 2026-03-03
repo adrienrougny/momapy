@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.3">
+    <map language="process description" id="map_annotated">
+        <glyph id="glyph1" class="macromolecule">
+            <label text="ERK"/>
+            <bbox y="100.0" x="100.0" h="60.0" w="120.0"/>
+            <extension>
+                <annotation>
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                             xmlns:bqbiol="http://biomodels.net/biology-qualifiers/"
+                             xmlns:bqmodel="http://biomodels.net/model-qualifiers/">
+                        <rdf:Description rdf:about="#glyph1">
+                            <bqbiol:is>
+                                <rdf:Bag>
+                                    <rdf:li rdf:resource="urn:miriam:uniprot:P28482"/>
+                                </rdf:Bag>
+                            </bqbiol:is>
+                            <bqbiol:isDescribedBy>
+                                <rdf:Bag>
+                                    <rdf:li rdf:resource="urn:miriam:pubmed:12345678"/>
+                                </rdf:Bag>
+                            </bqbiol:isDescribedBy>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </annotation>
+            </extension>
+            <notes>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                    <body>ERK is a MAP kinase involved in cell signaling.</body>
+                </html>
+            </notes>
+        </glyph>
+        <glyph id="glyph2" class="macromolecule">
+            <label text="MEK"/>
+            <bbox y="100.0" x="300.0" h="60.0" w="120.0"/>
+            <extension>
+                <annotation>
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                             xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+                        <rdf:Description rdf:about="#glyph2">
+                            <bqbiol:is>
+                                <rdf:Bag>
+                                    <rdf:li rdf:resource="urn:miriam:uniprot:Q02750"/>
+                                </rdf:Bag>
+                            </bqbiol:is>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </annotation>
+            </extension>
+        </glyph>
+        <glyph id="glyph3" class="process">
+            <bbox y="120.0" x="250.0" h="20.0" w="20.0"/>
+            <port id="glyph3.1" y="130.0" x="240.0"/>
+            <port id="glyph3.2" y="130.0" x="280.0"/>
+        </glyph>
+        <arc id="arc1" target="glyph3.1" source="glyph2" class="consumption">
+            <start y="130.0" x="300.0"/>
+            <end y="130.0" x="240.0"/>
+        </arc>
+        <arc id="arc2" target="glyph1" source="glyph3.2" class="production">
+            <start y="130.0" x="280.0"/>
+            <end y="130.0" x="220.0"/>
+        </arc>
+    </map>
+</sbgn>

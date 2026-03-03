@@ -5,6 +5,7 @@ import os
 import momapy.io.core
 import momapy.celldesigner.core
 import momapy.core.layout
+import momapy.sbml.core
 import frozendict
 
 
@@ -121,6 +122,153 @@ class TestCellDesignerReadOptionalParameters:
         assert hasattr(result, 'notes')
         # Should be empty frozendict when with_notes=False
         assert result.notes == frozendict.frozendict()
+
+
+class TestCellDesignerAnnotationsContent:
+    """Tests that annotations are correctly parsed from CellDesigner files.
+
+    Uses Apoptosis_pathway.xml which contains RDF annotations on compartments,
+    species, and reactions.
+    """
+
+    APOPTOSIS = os.path.join(CELLDESIGNER_MAPS_DIR, "Apoptosis_pathway.xml")
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(self.APOPTOSIS):
+            pytest.skip("Apoptosis_pathway.xml not found")
+        return momapy.io.core.read(self.APOPTOSIS, with_annotations=True, with_notes=True)
+
+    def _get_element_by_id(self, result, id_):
+        """Find an annotated element by its id_."""
+        for elem in result.annotations:
+            if getattr(elem, "id_", None) == id_:
+                return elem
+        return None
+
+    def _get_annotations_by_id(self, result, id_):
+        """Get the frozenset of annotations for an element by its id_."""
+        elem = self._get_element_by_id(result, id_)
+        if elem is not None:
+            return result.annotations.get(elem, frozenset())
+        return frozenset()
+
+    def test_annotations_are_non_empty(self, result):
+        """Test that the file produces a non-empty annotations dict."""
+        non_empty = {
+            elem: annots
+            for elem, annots in result.annotations.items()
+            if annots
+        }
+        assert len(non_empty) > 0
+
+    def test_annotation_values_are_frozensets_of_rdf_annotations(self, result):
+        """Test that each value is a frozenset of RDFAnnotation objects."""
+        for elem, annots in result.annotations.items():
+            assert isinstance(annots, frozenset)
+            for a in annots:
+                assert isinstance(a, momapy.sbml.core.RDFAnnotation)
+
+    def test_compartment_annotation(self, result):
+        """Test annotation on compartment s_id_ca4 (plasma membrane)."""
+        annots = self._get_annotations_by_id(result, "s_id_ca4")
+        assert len(annots) == 1
+        annotation = next(iter(annots))
+        assert annotation.qualifier == momapy.sbml.core.BQBiol.IS
+        assert annotation.resources == frozenset(
+            {"urn:miriam:obo.go:GO%3A0005886"}
+        )
+
+    def test_species_annotations(self, result):
+        """Test annotations on species s_id_sa30 (BAX protein)."""
+        annots = self._get_annotations_by_id(result, "s_id_sa30")
+        assert len(annots) == 6
+        qualifiers = {a.qualifier for a in annots}
+        assert qualifiers == {momapy.sbml.core.BQBiol.IS_DESCRIBED_BY}
+        resources = {r for a in annots for r in a.resources}
+        assert "urn:miriam:uniprot:Q07812" in resources
+        assert "urn:miriam:hgnc.symbol:BAX" in resources
+        assert "urn:miriam:hgnc:959" in resources
+
+    def test_annotations_span_multiple_element_types(self, result):
+        """Test that annotations cover compartments, species, and reactions."""
+        types_with_annotations = {
+            type(elem).__name__
+            for elem, annots in result.annotations.items()
+            if annots
+        }
+        assert "Compartment" in types_with_annotations
+        assert "GenericProtein" in types_with_annotations
+        assert "StateTransition" in types_with_annotations
+
+
+class TestCellDesignerNotesContent:
+    """Tests that notes are correctly parsed from CellDesigner files.
+
+    Uses Apoptosis_pathway.xml which contains notes on compartments,
+    species, and the map itself.
+    """
+
+    APOPTOSIS = os.path.join(CELLDESIGNER_MAPS_DIR, "Apoptosis_pathway.xml")
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(self.APOPTOSIS):
+            pytest.skip("Apoptosis_pathway.xml not found")
+        return momapy.io.core.read(self.APOPTOSIS, with_annotations=True, with_notes=True)
+
+    def test_notes_are_non_empty(self, result):
+        """Test that the file produces a non-empty notes dict."""
+        non_empty = {
+            elem: notes
+            for elem, notes in result.notes.items()
+            if notes
+        }
+        assert len(non_empty) > 0
+
+    def test_notes_values_are_frozensets_of_strings(self, result):
+        """Test that each value is a frozenset of str."""
+        for elem, notes in result.notes.items():
+            assert isinstance(notes, frozenset)
+            for n in notes:
+                assert isinstance(n, str)
+
+    def test_notes_contain_xml(self, result):
+        """Test that note strings are valid XML fragments."""
+        for elem, notes in result.notes.items():
+            for n in notes:
+                assert n.startswith("<")
+                break
+            break
+
+    def test_map_level_notes(self, result):
+        """Test that the map object has notes."""
+        map_notes = result.notes.get(result.obj)
+        assert map_notes is not None
+        assert len(map_notes) == 1
+        note = next(iter(map_notes))
+        assert isinstance(note, str)
+        assert "<html" in note
+
+    def test_compartment_notes_contain_description(self, result):
+        """Test that compartment s_id_ca4 (plasma membrane) has notes."""
+        for elem, notes in result.notes.items():
+            if getattr(elem, "id_", None) == "s_id_ca4" and notes:
+                note = next(iter(notes))
+                assert "plasma membrane" in note
+                return
+        pytest.fail("No notes found for compartment s_id_ca4")
+
+    def test_notes_span_multiple_element_types(self, result):
+        """Test that notes cover compartments, species, and the map."""
+        types_with_notes = {
+            type(elem).__name__
+            for elem, notes in result.notes.items()
+            if notes
+        }
+        assert "Compartment" in types_with_notes
+        assert "GenericProtein" in types_with_notes
+        assert "CellDesignerMap" in types_with_notes
 
 
 class TestCellDesignerEmptyModifications:

@@ -4,6 +4,8 @@ import pytest
 import os
 import momapy.io.core
 import momapy.sbgn.core
+import momapy.sbgn.pd
+import momapy.sbml.core
 import momapy.core.layout
 import frozendict
 
@@ -104,4 +106,149 @@ class TestSBGNReadOptionalParameters:
         result = momapy.io.core.read(test_file, with_notes=False)
         assert hasattr(result, 'notes')
         # Should be empty frozendict when with_notes=False
+        assert result.notes == frozendict.frozendict()
+
+
+ANNOTATED_FILE = os.path.join(SBGN_MAPS_DIR, "simple_annotated.sbgn")
+
+
+class TestSBGNAnnotationsContent:
+    """Tests that annotations are correctly parsed from SBGN-ML files.
+
+    Uses simple_annotated.sbgn which has RDF annotations on two
+    macromolecule glyphs (ERK and MEK).
+    """
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(ANNOTATED_FILE):
+            pytest.skip("simple_annotated.sbgn not found")
+        return momapy.io.core.read(
+            ANNOTATED_FILE, with_annotations=True, with_notes=True
+        )
+
+    def _get_element_by_id(self, result, id_):
+        """Find an annotated element by its id_."""
+        for elem in result.annotations:
+            if getattr(elem, "id_", None) == id_:
+                return elem
+        return None
+
+    def _get_annotations_by_id(self, result, id_):
+        """Get the frozenset of annotations for an element by its id_."""
+        elem = self._get_element_by_id(result, id_)
+        if elem is not None:
+            return result.annotations.get(elem, frozenset())
+        return frozenset()
+
+    def test_annotations_are_non_empty(self, result):
+        """Test that the file produces a non-empty annotations dict."""
+        non_empty = {
+            elem: annots
+            for elem, annots in result.annotations.items()
+            if annots
+        }
+        assert len(non_empty) > 0
+
+    def test_annotation_values_are_frozensets_of_rdf_annotations(self, result):
+        """Test that each value is a frozenset of RDFAnnotation objects."""
+        for elem, annots in result.annotations.items():
+            assert isinstance(annots, frozenset)
+            for a in annots:
+                assert isinstance(a, momapy.sbml.core.RDFAnnotation)
+
+    def test_erk_annotations(self, result):
+        """Test annotations on glyph1 (ERK macromolecule)."""
+        annots = self._get_annotations_by_id(result, "glyph1")
+        assert len(annots) == 2
+        qualifiers = {a.qualifier for a in annots}
+        assert qualifiers == {
+            momapy.sbml.core.BQBiol.IS,
+            momapy.sbml.core.BQBiol.IS_DESCRIBED_BY,
+        }
+        resources = {r for a in annots for r in a.resources}
+        assert "urn:miriam:uniprot:P28482" in resources
+        assert "urn:miriam:pubmed:12345678" in resources
+
+    def test_mek_annotation(self, result):
+        """Test annotation on glyph2 (MEK macromolecule)."""
+        annots = self._get_annotations_by_id(result, "glyph2")
+        assert len(annots) == 1
+        annotation = next(iter(annots))
+        assert annotation.qualifier == momapy.sbml.core.BQBiol.IS
+        assert annotation.resources == frozenset(
+            {"urn:miriam:uniprot:Q02750"}
+        )
+
+    def test_annotated_elements_are_macromolecules(self, result):
+        """Test that annotated elements are Macromolecule instances."""
+        for elem, annots in result.annotations.items():
+            if annots:
+                assert isinstance(elem, momapy.sbgn.pd.Macromolecule)
+
+    def test_with_annotations_false_produces_empty(self):
+        """Test that with_annotations=False produces no annotations."""
+        if not os.path.exists(ANNOTATED_FILE):
+            pytest.skip("simple_annotated.sbgn not found")
+        result = momapy.io.core.read(
+            ANNOTATED_FILE, with_annotations=False
+        )
+        assert result.annotations == frozendict.frozendict()
+
+
+class TestSBGNNotesContent:
+    """Tests that notes are correctly parsed from SBGN-ML files.
+
+    Uses simple_annotated.sbgn which has notes on the ERK glyph.
+    """
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(ANNOTATED_FILE):
+            pytest.skip("simple_annotated.sbgn not found")
+        return momapy.io.core.read(
+            ANNOTATED_FILE, with_annotations=True, with_notes=True
+        )
+
+    def test_notes_are_non_empty(self, result):
+        """Test that the file produces a non-empty notes dict."""
+        non_empty = {
+            elem: notes
+            for elem, notes in result.notes.items()
+            if notes
+        }
+        assert len(non_empty) > 0
+
+    def test_notes_values_are_frozensets_of_strings(self, result):
+        """Test that each value is a frozenset of str."""
+        for elem, notes in result.notes.items():
+            assert isinstance(notes, frozenset)
+            for n in notes:
+                assert isinstance(n, str)
+
+    def test_erk_notes_content(self, result):
+        """Test that glyph1 (ERK) has notes with expected content."""
+        for elem, notes in result.notes.items():
+            if getattr(elem, "id_", None) == "glyph1" and notes:
+                assert len(notes) == 1
+                note = next(iter(notes))
+                assert "ERK is a MAP kinase" in note
+                assert "<html" in note
+                return
+        pytest.fail("No notes found for glyph1 (ERK)")
+
+    def test_mek_has_no_notes(self, result):
+        """Test that glyph2 (MEK) has no notes."""
+        for elem, notes in result.notes.items():
+            if getattr(elem, "id_", None) == "glyph2":
+                assert len(notes) == 0
+                return
+
+    def test_with_notes_false_produces_empty(self):
+        """Test that with_notes=False produces no notes."""
+        if not os.path.exists(ANNOTATED_FILE):
+            pytest.skip("simple_annotated.sbgn not found")
+        result = momapy.io.core.read(
+            ANNOTATED_FILE, with_notes=False
+        )
         assert result.notes == frozendict.frozendict()
