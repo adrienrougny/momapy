@@ -32,14 +32,14 @@ class TestSBMLModel:
         """Test creating an SBML model."""
         import momapy.sbml.core
 
-        model = momapy.sbml.core.Model()
+        model = momapy.sbml.core.SBMLModel()
         assert model is not None
 
     def test_model_has_expected_attributes(self):
         """Test that SBML model has expected attributes."""
         import momapy.sbml.core
 
-        model = momapy.sbml.core.Model()
+        model = momapy.sbml.core.SBMLModel()
 
         # Check for common model attributes
         assert hasattr(model, "id_")
