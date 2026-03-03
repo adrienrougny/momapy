@@ -7,25 +7,26 @@ import momapy.core.elements
 import momapy.sbgn.pd
 import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._parsing
-import momapy.sbgn.io.sbgnml._qualifiers
+import momapy.sbml.io.sbml._parsing
+import momapy.sbml.io.sbml._qualifiers
 
 
 def make_annotations(sbgnml_element):
     annotations = []
     sbgnml_rdf = momapy.sbgn.io.sbgnml._parsing.get_rdf(sbgnml_element)
     if sbgnml_rdf is not None:
-        description = momapy.sbgn.io.sbgnml._parsing.get_description(sbgnml_rdf)
+        description = momapy.sbml.io.sbml._parsing.get_description(sbgnml_rdf)
         if description is not None:
             for bq_element in description.getchildren():
-                key = momapy.sbgn.io.sbgnml._parsing.get_prefix_and_name(bq_element.tag)
-                qualifier = momapy.sbgn.io.sbgnml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
+                key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
+                qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
                 if qualifier is not None:
-                    bags = momapy.sbgn.io.sbgnml._parsing.get_bags(bq_element)
+                    bags = momapy.sbml.io.sbml._parsing.get_bags(bq_element)
                     for bag in bags:
-                        lis = momapy.sbgn.io.sbgnml._parsing.get_list_items(bag)
+                        lis = momapy.sbml.io.sbml._parsing.get_list_items(bag)
                         resources = [
                             li.get(
-                                f"{{{momapy.sbgn.io.sbgnml._parsing._RDF_NAMESPACE}}}resource"
+                                f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource"
                             )
                             for li in lis
                         ]
@@ -42,8 +43,7 @@ def make_notes(sbgnml_element):
     if sbgnml_notes is not None:
         for child_element in sbgnml_notes.iterchildren():
             break
-        notes = lxml.etree.tostring(child_element)
-        return notes
+        return [lxml.etree.tostring(child_element, encoding="unicode")]
     return []
 
 

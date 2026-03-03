@@ -11,7 +11,7 @@ import momapy.io.core
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
-import momapy.sbgn.io.sbgnml._qualifiers
+import momapy.sbml.io.sbml._qualifiers
 
 
 @dataclasses.dataclass
@@ -234,11 +234,12 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                 if ctx.notes is not None:
                     element_notes = ctx.notes.get(model_element)
                     if element_notes is not None:
-                        sbgnml_notes = cls._make_lxml_element(tag="notes")
-                        notes_root = lxml.etree.fromstring(element_notes)
-                        sbgnml_notes.append(notes_root)
-                        for sbgnml_element in sbgnml_elements:
-                            sbgnml_element.append(sbgnml_notes)
+                        for note in element_notes:
+                            sbgnml_notes = cls._make_lxml_element(tag="notes")
+                            notes_root = lxml.etree.fromstring(note)
+                            sbgnml_notes.append(notes_root)
+                            for sbgnml_element in sbgnml_elements:
+                                sbgnml_element.append(sbgnml_notes)
             for sbgnml_element in sbgnml_elements:
                 sbgnml_map.append(sbgnml_element)
 
@@ -256,7 +257,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         )
         sbgnml_rdf.append(sbgnml_description)
         for annotation in annotations:
-            namespace, tag = momapy.sbgn.io.sbgnml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
+            namespace, tag = momapy.sbml.io.sbml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
                 annotation.qualifier
             ]
             sbgnml_bq = cls._make_lxml_element(tag=tag, namespace=namespace)

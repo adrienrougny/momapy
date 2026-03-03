@@ -6,9 +6,7 @@ objectify trees and return raw Python / geometry values.
 """
 
 import momapy.core.elements
-
-
-_RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+import momapy.sbml.io.sbml._parsing
 
 
 def transform_class(sbgnml_class):
@@ -78,24 +76,7 @@ def get_rdf(sbgnml_element):
     annotation = get_annotation(sbgnml_element)
     if annotation is None:
         return None
-    return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
-
-
-def get_description(rdf):
-    return getattr(rdf, "Description", None)
-
-
-def get_bags(bq_element):
-    return list(getattr(bq_element, f"{{{_RDF_NAMESPACE}}}Bag", []))
-
-
-def get_list_items(bag):
-    return list(getattr(bag, "li", []))
-
-
-def get_prefix_and_name(tag):
-    prefix, name = tag.split("}")
-    return prefix[1:], name
+    return getattr(annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None)
 
 
 _SBGNML_STATE_VARIABLE_CLASSES = {"state variable"}

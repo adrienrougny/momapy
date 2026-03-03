@@ -1,4 +1,8 @@
-"""Shared qualifier mappings for SBGN-ML reader and writer."""
+"""Qualifier mappings for SBML-based readers and writers.
+
+This is the canonical location for qualifier mappings. SBGN-ML and
+CellDesigner import from here.
+"""
 
 import momapy.sbml.core
 
@@ -81,3 +85,10 @@ QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE = {
 QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
     v: k for k, v in QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE.items()
 }
+
+# Extra entry: biology-qualifiers/hasInstance maps to BQModel.HAS_INSTANCE
+# (used in SBML and CellDesigner readers, not in the writer)
+QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[(
+    "http://biomodels.net/biology-qualifiers/",
+    "hasInstance",
+)] = momapy.sbml.core.BQModel.HAS_INSTANCE
