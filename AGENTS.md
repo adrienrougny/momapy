@@ -2,8 +2,8 @@
 
 **momapy** is a Python library for working with molecular maps (SBGN, CellDesigner). It reads/writes map files, computes geometry, applies CSS-like styling, and renders to SVG/PDF/PNG/JPEG/WebP.
 
-- **Docs**: https://adrienrougny.github.io/momapy/
-- **Issues**: https://github.com/adrienrougny/momapy/issues
+- **Docs**: <https://adrienrougny.github.io/momapy/>
+- **Issues**: <https://github.com/adrienrougny/momapy/issues>
 
 ## Key Commands
 
@@ -69,6 +69,7 @@ docs/
 ## Code Conventions
 
 ### Frozen Dataclasses (Critical)
+
 All map/layout/model elements are **frozen dataclasses**. Never mutate them directly.
 
 ```python
@@ -80,6 +81,7 @@ class MyElement(momapy.core.LayoutElement):
 ```
 
 To modify, use the builder pattern:
+
 ```python
 builder = momapy.builder.builder_from_object(obj)
 builder.some_field = new_value
@@ -87,19 +89,24 @@ modified = builder.build()
 ```
 
 ### Naming
+
 - Trailing underscore for reserved words: `id_`, `map_`, `type_`, `object_`
 - Private attributes: `_name` prefix
 - Classes: `PascalCase`; functions/variables: `snake_case`
 - Enum members: `UPPER_CASE`
 
 ### Type Hints
+
 Always use type hints. Use modern syntax (Python 3.10+):
+
 - `list[T]` not `List[T]`
 - `str | None` not `Optional[str]`
 - `typing_extensions.Self` for methods returning `self`
 
 ### Docstrings
+
 Google-style docstrings on all public APIs:
+
 ```python
 def func(param1: str, param2: int = 0) -> list[str]:
     """Brief description.
@@ -117,11 +124,13 @@ def func(param1: str, param2: int = 0) -> list[str]:
 ```
 
 ### Geometry
+
 - Positions: `momapy.geometry.Point(x, y)`
 - Bounding boxes: `momapy.geometry.Bbox(top_left, width, height)`
 - Complex operations: use `shapely`
 
 ### Colors
+
 - `momapy.coloring.Color` class
 - Predefined: `momapy.coloring.black`, `momapy.coloring.white`, etc.
 
@@ -132,6 +141,7 @@ Enforced via commitlint. Format: `<type>(<scope>): <subject>`
 Types: `feat`, `fix`, `perf`, `refactor`, `doc`, `style`, `test`, `ci`, `chore`
 
 Examples:
+
 - `feat(sbgn.io): added support for AF compartment`
 - `fix: activity is now a dataclass`
 - `chore(sbgn.io.sbgnml): cleaned useless function`
@@ -139,6 +149,7 @@ Examples:
 ## Architecture Overview
 
 A **Map** has:
+
 1. **Model** — semantic info (entities, processes, compartments)
 2. **Layout** — visual info (positions, sizes, styles)
 3. **Mapping** — links between model and layout elements
@@ -154,6 +165,7 @@ layout = map_.layout
 ```
 
 Every `LayoutElement` (frozen dataclass) must implement:
+
 - `bbox()` → bounding box
 - `drawing_elements()` → visual primitives
 - `children()` → child elements
@@ -182,6 +194,7 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 ## DO / DON'T
 
 **DO:**
+
 - Use frozen dataclasses for model/layout elements
 - Use builder pattern for modifications
 - Add type hints and Google-style docstrings everywhere
@@ -189,7 +202,9 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 - Use conventional commits
 
 **DON'T:**
+
 - Mutate frozen dataclasses directly
 - Skip type hints or docstrings
 - Bypass test coverage (70% minimum)
 - Add unnecessary complexity or premature abstractions
+- Use dangerouslyDisableSandbox (Claude code)
