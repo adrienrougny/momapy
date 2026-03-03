@@ -7,10 +7,11 @@ src/momapy/demo/.ipynb_checkpoints/*
 .pdm-python
 dist/
 .tox/
-plans/
 .coverage
 htmlcov/
 site/
+plans/
+debates/
 
 # Claude Code sandbox artifacts
 .bash_profile
