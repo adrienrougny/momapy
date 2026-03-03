@@ -499,20 +499,18 @@ class _SBGNMLReader(momapy.io.core.Reader):
     def _register_model_element(
         model_element,
         collection,
-        sbgnml_id,
-        sbgnml_id_to_model_element,
-        build=True,
+        id_,
+        id_to_model_element,
         cache=None,
     ):
-        if build:
-            model_element = momapy.builder.object_from_builder(model_element)
         model_element = momapy.utils.add_or_replace_element_in_set(
             model_element,
             collection,
-            func=lambda element, existing_element: element.id_ < existing_element.id_,
+            func=lambda element, existing_element: element.id_
+            < existing_element.id_,
             cache=cache,
         )
-        sbgnml_id_to_model_element[sbgnml_id] = model_element
+        id_to_model_element[id_] = model_element
         return model_element
 
     @classmethod
@@ -831,6 +829,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if ctx.model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
                 model_element = cls._register_model_element(
                     model_element,
                     ctx.model.compartments,
@@ -885,7 +884,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ctx.model.entity_pools,
                 sbgnml_entity_pool.get("id"),
                 ctx.sbgnml_id_to_model_element,
-                build=False,
                 cache=ctx.model_element_cache,
             )
             cls._make_annotations_and_notes(
@@ -1117,6 +1115,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if ctx.model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
                 model_element = cls._register_model_element(
                     model_element,
                     ctx.model.activities,
@@ -1273,6 +1272,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         (terminal_model_element, terminal_layout_element)
                     )
             if ctx.model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
                 model_element = cls._register_model_element(
                     model_element,
                     ctx.model.submaps,
@@ -1433,7 +1433,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ctx.model.tags,
                 sbgnml_tag.get("id"),
                 ctx.sbgnml_id_to_model_element,
-                build=False,
                 cache=ctx.model_element_cache,
             )
         if ctx.layout is not None:
@@ -1463,7 +1462,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ctx.model.processes,
                 sbgnml_phenotype.get("id"),
                 ctx.sbgnml_id_to_model_element,
-                build=False,
                 cache=ctx.model_element_cache,
             )
             cls._make_annotations_and_notes(
@@ -1553,6 +1551,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         (product_model_element, product_layout_element)
                     )
             if ctx.model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
                 model_element = cls._register_model_element(
                     model_element,
                     ctx.model.processes,
@@ -1729,6 +1728,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         (input_model_element, input_layout_element)
                     )
             if ctx.model is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
                 model_element = cls._register_model_element(
                     model_element,
                     ctx.model.logical_operators,
@@ -1857,7 +1857,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ),
                     sbgnml_modulation.get("id"),
                     ctx.sbgnml_id_to_model_element,
-                    build=False,
                     cache=ctx.model_element_cache,
                 )
                 cls._make_annotations_and_notes(
