@@ -733,7 +733,7 @@ class UnknownTriggering(UnknownModulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CellDesignerModel(momapy.sbml.core.Model):
+class CellDesignerModel(momapy.sbml.core.SBMLModel):
     """CellDesigner model container.
 
     Aggregates all elements of a CellDesigner pathway model including

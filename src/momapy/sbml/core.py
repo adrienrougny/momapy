@@ -245,7 +245,7 @@ class Reaction(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(SBase, momapy.core.model.Model):
+class SBMLModel(SBase, momapy.core.model.Model):
     """SBML model container.
 
     Models aggregate compartments, species, and reactions into a
@@ -257,7 +257,7 @@ class Model(SBase, momapy.core.model.Model):
         reactions: Set of reactions in the model.
 
     Example:
-        >>> model = Model(
+        >>> model = SBMLModel(
         ...     name="glycolysis",
         ...     compartments={cytosol},
         ...     species={glucose, atp, g6p},
@@ -268,6 +268,9 @@ class Model(SBase, momapy.core.model.Model):
     compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)
     reactions: frozenset[Reaction] = dataclasses.field(default_factory=frozenset)
+
+    def is_submodel(self, other):
+        pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -285,7 +288,7 @@ class SBML(SBase):
 
     Example:
         >>> sbml = SBML(
-        ...     model=Model(name="glycolysis"),
+        ...     model=SBMLModel(name="glycolysis"),
         ...     level=3,
         ...     version=2
         ... )
@@ -294,4 +297,11 @@ class SBML(SBase):
     xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"
     level: int = 3
     version: int = 2
-    model: Model | None = None
+    model: SBMLModel | None = None
+
+
+# Import core.builders first to ensure ModelBuilder is created with
+# new_element before SBMLModelBuilder is derived from it.
+import momapy.core.builders  # noqa: E402
+
+SBMLModelBuilder = momapy.builder.get_or_make_builder_cls(SBMLModel)
