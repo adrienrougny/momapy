@@ -829,68 +829,20 @@ class CellDesignerDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
         return drawing_elements
 
 
+_ACTIVE_XSEP = 4.0
+_ACTIVE_YSEP = 4.0
+
+
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleNodeMixin(momapy.sbgn.core._SimpleMixin):
-    active: bool = False
-    active_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
-    active_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = None
-    active_sep: float = 4.0
-    active_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
-    active_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
-        4,
-        2,
-    )
-    active_stroke_dashoffset: float | None = None
-    active_stroke_width: float | None = 1.0
-    active_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = None
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        if obj.active:
-            layout_element = dataclasses.replace(
-                obj,
-                width=obj.width + obj.active_sep * 2,
-                height=obj.height + obj.active_sep * 2,
-                label=None,
-                fill=obj.active_fill,
-                stroke=obj.active_stroke,
-                stroke_width=obj.active_stroke_width,
-                stroke_dasharray=obj.active_stroke_dasharray,
-                stroke_dashoffset=obj.active_stroke_dashoffset,
-            )
-            drawing_elements = layout_element.obj_drawing_elements()
-        else:
-            drawing_elements = []
-        drawing_elements += momapy.sbgn.core._SimpleMixin._mixin_drawing_elements(obj)
-        return drawing_elements
+        return momapy.sbgn.core._SimpleMixin._mixin_drawing_elements(obj)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _MultiNodeMixin(momapy.sbgn.core._MultiMixin):
-    active: bool = False
-    active_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
-    active_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = None
-    active_sep: float = 4.0
-    active_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
-    active_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
-        4,
-        2,
-    )
-    active_stroke_dashoffset: float | None = None
-    active_stroke_width: float | None = 1.0
-    active_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = None
     n: int = 1
 
     @property
@@ -899,25 +851,7 @@ class _MultiNodeMixin(momapy.sbgn.core._MultiMixin):
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
-        if obj.active:
-            layout_element = dataclasses.replace(
-                obj,
-                active=False,
-                fill=obj.active_fill,
-                filter=obj.active_filter,
-                height=obj.height + obj.active_sep * 2,
-                label=None,
-                stroke=obj.active_stroke,
-                stroke_width=obj.active_stroke_width,
-                stroke_dasharray=obj.active_stroke_dasharray,
-                stroke_dashoffset=obj.active_stroke_dashoffset,
-                width=obj.width + obj.active_sep * 2,
-            )
-            drawing_elements = layout_element.self_drawing_elements()
-        else:
-            drawing_elements = []
-        drawing_elements += momapy.sbgn.core._MultiMixin._mixin_drawing_elements(obj)
-        return drawing_elements
+        return momapy.sbgn.core._MultiMixin._mixin_drawing_elements(obj)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -927,6 +861,28 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
     rounded_corners: float = 5.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.sbgn.pd.MacromoleculeMultimerLayout._make_subunit_shape(
+            self, position, width, height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for generic protein layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    rounded_corners: float = 5.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return momapy.sbgn.pd.MacromoleculeMultimerLayout._make_subunit_shape(
@@ -1082,6 +1038,33 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for ion channel layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    rounded_corners: float = 5.0
+    right_rectangle_width: float = 20.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return _IonChannelShape(
+            position=position,
+            width=width,
+            height=height,
+            rounded_corners=self.rounded_corners,
+            right_rectangle_width=self.right_rectangle_width,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for complex layouts"""
 
@@ -1114,11 +1097,66 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for complex layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    cut_corners: float = 6.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Rectangle(
+            position=position,
+            width=width,
+            height=height,
+            top_left_rx=self.cut_corners,
+            top_left_ry=self.cut_corners,
+            top_left_rounded_or_cut="cut",
+            top_right_rx=self.cut_corners,
+            top_right_ry=self.cut_corners,
+            top_right_rounded_or_cut="cut",
+            bottom_left_rx=self.cut_corners,
+            bottom_left_ry=self.cut_corners,
+            bottom_left_rounded_or_cut="cut",
+            bottom_right_rx=self.cut_corners,
+            bottom_right_ry=self.cut_corners,
+            bottom_right_rounded_or_cut="cut",
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for simple chemical layouts"""
 
     width: float = 60.0
     height: float = 30.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Ellipse(position=position, width=width, height=height)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for simple molecule layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return momapy.meta.shapes.Ellipse(position=position, width=width, height=height)
@@ -1136,6 +1174,25 @@ class IonLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for ion layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Ellipse(position=position, width=width, height=height)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for unknown species layouts"""
 
@@ -1147,6 +1204,25 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
         momapy.coloring.gray
     )
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Ellipse(position=position, width=width, height=height)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for unknown species layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return momapy.meta.shapes.Ellipse(position=position, width=width, height=height)
@@ -1182,11 +1258,51 @@ class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for degraded layouts."""
+
+    width: float = 30.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return _DegradedShape(position=position, width=width, height=height)
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class GeneLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for gene layouts"""
 
     width: float = 60.0
     height: float = 30.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Rectangle(
+            position=position, width=width, height=height
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for gene layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return momapy.meta.shapes.Rectangle(
@@ -1373,6 +1489,32 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for phenotype layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    angle: float = 60.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Hexagon(
+            position=position,
+            width=width,
+            height=height,
+            left_angle=self.angle,
+            right_angle=self.angle,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class RNALayout(_MultiNodeMixin, CellDesignerNode):
     """Class for RNA layouts"""
 
@@ -1544,6 +1686,28 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         )
         shape = self._make_subunit_shape(position, width, height)
         return shape.joint4() * 0.25 + shape.joint1() * 0.75
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for RNA layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    angle: float = 45.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Parallelogram(
+            position=position, width=width, height=height, angle=self.angle
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -1724,6 +1888,31 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for antisense RNA layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    angle: float = 45.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return momapy.meta.shapes.Parallelogram(
+            position=position,
+            width=width,
+            height=height,
+            angle=180 - self.angle,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _TruncatedProteinShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
@@ -1821,6 +2010,35 @@ class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
     rounded_corners: float = 15.0
     vertical_truncation: float = 0.40
     horizontal_truncation: float = 0.20
+
+    def _make_subunit_shape(self, position, width, height):
+        return _TruncatedProteinShape(
+            position=position,
+            width=width,
+            height=height,
+            rounded_corners=self.rounded_corners,
+            vertical_truncation=self.vertical_truncation,
+            horizontal_truncation=self.horizontal_truncation,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for truncated protein layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    rounded_corners: float = 15.0
+    vertical_truncation: float = 0.40
+    horizontal_truncation: float = 0.20
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return _TruncatedProteinShape(
@@ -2015,6 +2233,35 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
+class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for receptor layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    vertical_truncation: float = 0.10
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
+
+    def _make_subunit_shape(self, position, width, height):
+        angle = math.atan2(width / 2, self.vertical_truncation * height)
+        angle = momapy.geometry.get_normalized_angle(angle)
+        angle = math.degrees(angle)
+        return momapy.meta.shapes.TurnedHexagon(
+            position=position,
+            width=width,
+            height=height,
+            top_angle=180 - angle,
+            bottom_angle=angle,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _DrugShape(momapy.core.layout.Shape):
     position: momapy.geometry.Point
     width: float
@@ -2110,6 +2357,33 @@ class DrugLayout(_MultiNodeMixin, CellDesignerNode):
     height: float = 30.0
     horizontal_proportion: float = 0.20
     sep: float = 4.0
+
+    def _make_subunit_shape(self, position, width, height):
+        return _DrugShape(
+            position=position,
+            width=width,
+            height=height,
+            horizontal_proportion=self.horizontal_proportion,
+            sep=self.sep,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
+    """Active border for drug layouts."""
+
+    width: float = 60.0 + _ACTIVE_XSEP * 2
+    height: float = 30.0 + _ACTIVE_YSEP * 2
+    horizontal_proportion: float = 0.20
+    sep: float = 4.0
+    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.drawing.NoneValue
+    )
+    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
+        4,
+        2,
+    )
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return _DrugShape(

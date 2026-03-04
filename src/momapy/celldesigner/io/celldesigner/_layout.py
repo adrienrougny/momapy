@@ -19,6 +19,23 @@ _DEFAULT_FONT_SIZE = 12.0
 _DEFAULT_MODIFICATION_FONT_SIZE = 9.0
 _DEFAULT_FONT_FILL = momapy.coloring.black
 
+_LAYOUT_TO_ACTIVE_LAYOUT = {
+    momapy.celldesigner.core.GenericProteinLayout: momapy.celldesigner.core.GenericProteinActiveLayout,
+    momapy.celldesigner.core.IonChannelLayout: momapy.celldesigner.core.IonChannelActiveLayout,
+    momapy.celldesigner.core.ComplexLayout: momapy.celldesigner.core.ComplexActiveLayout,
+    momapy.celldesigner.core.SimpleMoleculeLayout: momapy.celldesigner.core.SimpleMoleculeActiveLayout,
+    momapy.celldesigner.core.IonLayout: momapy.celldesigner.core.IonActiveLayout,
+    momapy.celldesigner.core.UnknownLayout: momapy.celldesigner.core.UnknownActiveLayout,
+    momapy.celldesigner.core.DegradedLayout: momapy.celldesigner.core.DegradedActiveLayout,
+    momapy.celldesigner.core.GeneLayout: momapy.celldesigner.core.GeneActiveLayout,
+    momapy.celldesigner.core.PhenotypeLayout: momapy.celldesigner.core.PhenotypeActiveLayout,
+    momapy.celldesigner.core.RNALayout: momapy.celldesigner.core.RNAActiveLayout,
+    momapy.celldesigner.core.AntisenseRNALayout: momapy.celldesigner.core.AntisenseRNAActiveLayout,
+    momapy.celldesigner.core.TruncatedProteinLayout: momapy.celldesigner.core.TruncatedProteinActiveLayout,
+    momapy.celldesigner.core.ReceptorLayout: momapy.celldesigner.core.ReceptorActiveLayout,
+    momapy.celldesigner.core.DrugLayout: momapy.celldesigner.core.DrugActiveLayout,
+}
+
 
 def make_empty_layout(cd_element):
     layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
@@ -84,8 +101,16 @@ def make_species(cd_species_alias, layout, layout_element_cls, name, homomultime
     layout_element.fill = momapy.coloring.Color.from_hexa(
         cd_species_alias_fill_color
     )
-    layout_element.active = active
     layout_element.n = homomultimer
+    if active:
+        active_cls = _LAYOUT_TO_ACTIVE_LAYOUT[layout_element_cls]
+        active_element = layout.new_element(active_cls)
+        active_element.position = layout_element.position
+        active_element.width = layout_element.width + momapy.celldesigner.core._ACTIVE_XSEP * 2
+        active_element.height = layout_element.height + momapy.celldesigner.core._ACTIVE_YSEP * 2
+        active_element.n = homomultimer
+        active_element = momapy.builder.object_from_builder(active_element)
+        layout_element.layout_elements.append(active_element)
     return layout_element
 
 
@@ -271,7 +296,7 @@ def make_segments_non_t_shape(cd_reaction, cd_id_to_layout_element):
             reference_point = product_layout_element.anchor_point(
                 product_anchor_name
             )
-        start_point = reactant_layout_element.border(reference_point)
+        start_point = reactant_layout_element.self_border(reference_point)
     else:
         start_point = reactant_layout_element.anchor_point(reactant_anchor_name)
     if product_anchor_name == "center":
@@ -281,7 +306,7 @@ def make_segments_non_t_shape(cd_reaction, cd_id_to_layout_element):
             reference_point = reactant_layout_element.anchor_point(
                 reactant_anchor_name
             )
-        end_point = product_layout_element.border(reference_point)
+        end_point = product_layout_element.self_border(reference_point)
     else:
         end_point = product_layout_element.anchor_point(product_anchor_name)
     points = [start_point] + intermediate_points + [end_point]
@@ -345,7 +370,7 @@ def make_segments_left_t_shape(cd_reaction, cd_id_to_layout_element):
             reference_point = intermediate_points[-1]
         else:
             reference_point = start_point
-        end_point = product_layout_element.border(reference_point)
+        end_point = product_layout_element.self_border(reference_point)
     points = [start_point] + intermediate_points + [end_point]
     return make_segments(points)
 
@@ -408,7 +433,7 @@ def make_segments_right_t_shape(cd_reaction, cd_id_to_layout_element):
             reference_point = intermediate_points[0]
         else:
             reference_point = end_point
-        start_point = reactant_layout_element.border(reference_point)
+        start_point = reactant_layout_element.self_border(reference_point)
     points = [start_point] + intermediate_points + [end_point]
     return make_segments(points)
 
@@ -507,7 +532,7 @@ def make_reactant_from_base(
             reference_point = intermediate_points[0]
         else:
             reference_point = super_layout_element.start_point()
-        start_point = species_layout_element.border(reference_point)
+        start_point = species_layout_element.self_border(reference_point)
     else:
         start_point = species_layout_element.anchor_point(reactant_anchor_name)
     if intermediate_points:
@@ -558,7 +583,7 @@ def make_reactant_from_link(cd_reactant_link, layout, cd_id_to_layout_element, s
             reference_point = intermediate_points[0]
         else:
             reference_point = end_point
-        start_point = species_layout_element.border(reference_point)
+        start_point = species_layout_element.self_border(reference_point)
     else:
         start_point = species_layout_element.anchor_point(reactant_anchor_name)
     points = [start_point] + intermediate_points + [end_point]
@@ -612,7 +637,7 @@ def make_product_from_base(
             reference_point = intermediate_points[-1]
         else:
             reference_point = super_layout_element.end_point()
-        end_point = product_layout_element.border(reference_point)
+        end_point = product_layout_element.self_border(reference_point)
     else:
         end_point = product_layout_element.anchor_point(product_anchor_name)
     if intermediate_points:
@@ -664,7 +689,7 @@ def make_product_from_link(cd_product_link, layout, cd_id_to_layout_element, sup
             reference_point = intermediate_points[-1]
         else:
             reference_point = start_point
-        end_point = species_layout_element.border(reference_point)
+        end_point = species_layout_element.self_border(reference_point)
     else:
         end_point = species_layout_element.anchor_point(product_anchor_name)
     points = [start_point] + intermediate_points + [end_point]
@@ -716,7 +741,7 @@ def make_modifier(
             reference_point = intermediate_points[0]
         else:
             reference_point = unit_x
-        start_point = source_layout_element.border(reference_point)
+        start_point = source_layout_element.self_border(reference_point)
     else:
         start_point = origin
     if intermediate_points:
@@ -747,8 +772,8 @@ def make_logic_gate(cd_element, layout, layout_element_cls, cd_id_to_layout_elem
         layout_logic_arc = layout.new_element(
             momapy.celldesigner.core.LogicArcLayout
         )
-        start_point = layout_input_element.border(position)
-        end_point = layout_element.border(start_point)
+        start_point = layout_input_element.self_border(position)
+        end_point = layout_element.self_border(start_point)
         segment = momapy.geometry.Segment(start_point, end_point)
         layout_logic_arc.segments.append(segment)
         layout_logic_arc.target = layout_input_element
@@ -807,7 +832,7 @@ def make_modulation(
             reference_point = intermediate_points[0]
         else:
             reference_point = unit_x
-        start_point = source_layout_element.border(reference_point)
+        start_point = source_layout_element.self_border(reference_point)
     else:
         start_point = origin
     if target_anchor_name == "center":
@@ -815,7 +840,7 @@ def make_modulation(
             reference_point = intermediate_points[-1]
         else:
             reference_point = start_point
-        end_point = target_layout_element.border(reference_point)
+        end_point = target_layout_element.self_border(reference_point)
     else:
         end_point = target_layout_element.anchor_point(target_anchor_name)
     points = [start_point] + intermediate_points + [end_point]
