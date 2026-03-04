@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
@@ -1504,17 +1504,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#momapy.sbml.core.Model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#momapy.sbml.core.ModifierSpeciesReference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1552,6 +1541,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#momapy.sbml.core.SBMLModel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBMLModel
       
     </span>
   </a>
@@ -1867,17 +1867,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#momapy.sbml.core.Model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#momapy.sbml.core.ModifierSpeciesReference" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1915,6 +1904,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#momapy.sbml.core.SBMLModel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBMLModel
       
     </span>
   </a>
@@ -2086,19 +2086,6 @@ model = Model(name="glycolysis", compartments={compartment}, species={species})<
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="            Model
-
-
-  
-      dataclass
-   (momapy.sbml.core.Model)" href="#momapy.sbml.core.Model">Model</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>SBML model container.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
             <td><code><a class="autorefs autorefs-internal" title="            ModifierSpeciesReference
 
 
@@ -2147,6 +2134,19 @@ model = Model(name="glycolysis", compartments={compartment}, species={species})<
             <td>
               <div class="doc-md-description">
                 <p>Root container for SBML documents.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="            SBMLModel
+
+
+  
+      dataclass
+   (momapy.sbml.core.SBMLModel)" href="#momapy.sbml.core.SBMLModel">SBMLModel</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>SBML model container.</p>
               </div>
             </td>
           </tr>
@@ -2707,172 +2707,6 @@ nucleus = Compartment(name="nucleus", outside=cytosol)</p>
 
 
 
-<h3 id="momapy.sbml.core.Model" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">Model</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Model</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="momapy.utils.make_uuid4_as_str">make_uuid4_as_str</span></span><span class="p">(),</span> <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sbo_term</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            SBOTerm
-
-
-  
-      dataclass
-   (momapy.sbml.core.SBOTerm)" href="#momapy.sbml.core.SBOTerm">SBOTerm</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metaid</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">compartments</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Compartment
-
-
-  
-      dataclass
-   (momapy.sbml.core.Compartment)" href="#momapy.sbml.core.Compartment">Compartment</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">(),</span> <span class="n">species</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Species
-
-
-  
-      dataclass
-   (momapy.sbml.core.Species)" href="#momapy.sbml.core.Species">Species</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">(),</span> <span class="n">reactions</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Reaction
-
-
-  
-      dataclass
-   (momapy.sbml.core.Reaction)" href="#momapy.sbml.core.Reaction">Reaction</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">())</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="            SBase
-
-
-  
-      dataclass
-   (momapy.sbml.core.SBase)" href="#momapy.sbml.core.SBase">SBase</a></code>, <code><a class="autorefs autorefs-internal" title="            Model
-
-
-  
-      dataclass
-   (momapy.core.Model)" href="../../core/#momapy.core.Model">Model</a></code></p>
-
-
-
-        <p>SBML model container.</p>
-<p>Models aggregate compartments, species, and reactions into a
-complete biological system description.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="momapy.sbml.core.Model.compartments">compartments</span></code></td>
-            <td>
-                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Compartment
-
-
-  
-      dataclass
-   (momapy.sbml.core.Compartment)" href="#momapy.sbml.core.Compartment">Compartment</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Set of compartments in the model.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="momapy.sbml.core.Model.species">species</span></code></td>
-            <td>
-                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Species
-
-
-  
-      dataclass
-   (momapy.sbml.core.Species)" href="#momapy.sbml.core.Species">Species</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Set of species in the model.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="momapy.sbml.core.Model.reactions">reactions</span></code></td>
-            <td>
-                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Reaction
-
-
-  
-      dataclass
-   (momapy.sbml.core.Reaction)" href="#momapy.sbml.core.Reaction">Reaction</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Set of reactions in the model.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="example" open>
-  <summary>Example</summary>
-  <blockquote>
-<blockquote>
-<blockquote>
-<p>model = Model(
-...     name="glycolysis",
-...     compartments={cytosol},
-...     species={glucose, atp, g6p},
-...     reactions={hexokinase}
-... )</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</details>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-
-
-
-
-
-<div class="doc doc-object doc-class">
-
-
-
 <h3 id="momapy.sbml.core.ModifierSpeciesReference" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">ModifierSpeciesReference</span>
 
@@ -2960,12 +2794,7 @@ consumed or produced (e.g., catalysts, inhibitors).</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="            ModelElement
-
-
-  
-      dataclass
-   (momapy.core.ModelElement)" href="../../core/#momapy.core.ModelElement">ModelElement</a></code></p>
+              Bases: <code><span title="momapy.core.elements.ModelElement">ModelElement</span></code></p>
 
 
 
@@ -3265,12 +3094,12 @@ potentially influenced by modifiers.</p>
 
   
       dataclass
-   (momapy.sbml.core.SBOTerm)" href="#momapy.sbml.core.SBOTerm">SBOTerm</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metaid</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;http://www.sbml.org/sbml/level3/version2/core&#39;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            Model
+   (momapy.sbml.core.SBOTerm)" href="#momapy.sbml.core.SBOTerm">SBOTerm</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metaid</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">xmlns</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;http://www.sbml.org/sbml/level3/version2/core&#39;</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">version</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            SBMLModel
 
 
   
       dataclass
-   (momapy.sbml.core.Model)" href="#momapy.sbml.core.Model">Model</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+   (momapy.sbml.core.SBMLModel)" href="#momapy.sbml.core.SBMLModel">SBMLModel</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3335,12 +3164,12 @@ and the model definition.</p>
           <tr class="doc-section-item">
             <td><code><span title="momapy.sbml.core.SBML.model">model</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="            Model
+                  <code><a class="autorefs autorefs-internal" title="            SBMLModel
 
 
   
       dataclass
-   (momapy.sbml.core.Model)" href="#momapy.sbml.core.Model">Model</a> | None</code>
+   (momapy.sbml.core.SBMLModel)" href="#momapy.sbml.core.SBMLModel">SBMLModel</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3358,9 +3187,170 @@ and the model definition.</p>
 <blockquote>
 <blockquote>
 <p>sbml = SBML(
-...     model=Model(name="glycolysis"),
+...     model=SBMLModel(name="glycolysis"),
 ...     level=3,
 ...     version=2
+... )</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</details>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="momapy.sbml.core.SBMLModel" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">SBMLModel</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">SBMLModel</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">id_</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="momapy.utils.make_uuid4_as_str">make_uuid4_as_str</span></span><span class="p">(),</span> <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sbo_term</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            SBOTerm
+
+
+  
+      dataclass
+   (momapy.sbml.core.SBOTerm)" href="#momapy.sbml.core.SBOTerm">SBOTerm</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">metaid</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">compartments</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Compartment
+
+
+  
+      dataclass
+   (momapy.sbml.core.Compartment)" href="#momapy.sbml.core.Compartment">Compartment</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">(),</span> <span class="n">species</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Species
+
+
+  
+      dataclass
+   (momapy.sbml.core.Species)" href="#momapy.sbml.core.Species">Species</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">(),</span> <span class="n">reactions</span><span class="p">:</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            Reaction
+
+
+  
+      dataclass
+   (momapy.sbml.core.Reaction)" href="#momapy.sbml.core.Reaction">Reaction</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="frozenset">frozenset</span></span><span class="p">())</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="            SBase
+
+
+  
+      dataclass
+   (momapy.sbml.core.SBase)" href="#momapy.sbml.core.SBase">SBase</a></code>, <code><span title="momapy.core.model.Model">Model</span></code></p>
+
+
+
+        <p>SBML model container.</p>
+<p>Models aggregate compartments, species, and reactions into a
+complete biological system description.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="momapy.sbml.core.SBMLModel.compartments">compartments</span></code></td>
+            <td>
+                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Compartment
+
+
+  
+      dataclass
+   (momapy.sbml.core.Compartment)" href="#momapy.sbml.core.Compartment">Compartment</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Set of compartments in the model.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="momapy.sbml.core.SBMLModel.species">species</span></code></td>
+            <td>
+                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Species
+
+
+  
+      dataclass
+   (momapy.sbml.core.Species)" href="#momapy.sbml.core.Species">Species</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Set of species in the model.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="momapy.sbml.core.SBMLModel.reactions">reactions</span></code></td>
+            <td>
+                  <code><span title="frozenset">frozenset</span>[<a class="autorefs autorefs-internal" title="            Reaction
+
+
+  
+      dataclass
+   (momapy.sbml.core.Reaction)" href="#momapy.sbml.core.Reaction">Reaction</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Set of reactions in the model.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<details class="example" open>
+  <summary>Example</summary>
+  <blockquote>
+<blockquote>
+<blockquote>
+<p>model = SBMLModel(
+...     name="glycolysis",
+...     compartments={cytosol},
+...     species={glucose, atp, g6p},
+...     reactions={hexokinase}
 ... )</p>
 </blockquote>
 </blockquote>
@@ -3416,12 +3406,7 @@ and the model definition.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="            ModelElement
-
-
-  
-      dataclass
-   (momapy.core.ModelElement)" href="../../core/#momapy.core.ModelElement">ModelElement</a></code></p>
+              Bases: <code><span title="momapy.core.elements.ModelElement">ModelElement</span></code></p>
 
 
 
@@ -3483,12 +3468,7 @@ and the model definition.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="            ModelElement
-
-
-  
-      dataclass
-   (momapy.core.ModelElement)" href="../../core/#momapy.core.ModelElement">ModelElement</a></code></p>
+              Bases: <code><span title="momapy.core.elements.ModelElement">ModelElement</span></code></p>
 
 
 
