@@ -191,6 +191,10 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 - **Release** (`.github/workflows/release.yml`): triggered by `v*.*.*` tags → test → build → publish to PyPI → generate changelog → GitHub release
 - **Docs** (`.github/workflows/docs.yml`): deploy to GitHub Pages after release
 
+## Plans
+
+Write implementation plans to `./plans/` as markdown files. Use descriptive filenames (e.g., `active_border_child_nodes.md`). Also write design debates to `./debates/`.
+
 ## DO / DON'T
 
 **DO:**
