@@ -4,8 +4,6 @@ import abc
 import dataclasses
 import typing_extensions
 import enum
-import shapely
-
 import momapy.drawing
 import momapy.geometry
 import momapy.utils
@@ -113,12 +111,18 @@ class LayoutElement(MapElement, abc.ABC):
         """Return `true` if another layout element is a descendant of the layout element, `false` otherwise"""
         return other in self.descendants()
 
-    def to_shapely(self, to_polygons: bool = False) -> shapely.GeometryCollection:
-        """Return a shapely collection of geometries reproducing the drawing elements of the layout element"""
-        geom_collection = []
-        for drawing_element in self.drawing_elements():
-            geom_collection += drawing_element.to_shapely(to_polygons=to_polygons).geoms
-        return shapely.GeometryCollection(geom_collection)
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Return a list of geometry primitives from the drawing elements."""
+        return momapy.drawing.drawing_elements_to_geometry(
+            self.drawing_elements()
+        )
 
     def anchor_point(self, anchor_name: str) -> momapy.geometry.Point:
         """Return an anchor point of the layout element"""

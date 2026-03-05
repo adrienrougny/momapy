@@ -2843,12 +2843,16 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
         rotation = self._make_reaction_node_rotation()
         rotated_point = point.transformed(rotation)
         border_point = reaction_node.border(rotated_point)
+        if border_point is None:
+            border_point = reaction_node.center()
         border_point = border_point.transformed(rotation.inverted())
         return border_point
 
     def reaction_node_angle(self, angle):
         reaction_node = self._make_reaction_node()
         border_point = reaction_node.angle(angle, self._get_reaction_node_position())
+        if border_point is None:
+            border_point = reaction_node.center()
         rotation = self._make_reaction_node_rotation()
         border_point = border_point.transformed(
             rotation, self._get_reaction_node_position()

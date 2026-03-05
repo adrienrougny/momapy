@@ -236,6 +236,8 @@ def set_arcs_to_borders(map_):
                 else:
                     start_reference_point = target.right_connector_tip()
             start_point = source.border(start_reference_point)
+            if start_point is None:
+                start_point = source.center()
         if target_type == "left":
             end_point = target.left_connector_tip()
         elif target_type == "right":
@@ -251,6 +253,8 @@ def set_arcs_to_borders(map_):
                 else:
                     end_reference_point = source.right_connector_tip()
             end_point = target.border(end_reference_point)
+            if end_point is None:
+                end_point = target.center()
         arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
             start_point
         )

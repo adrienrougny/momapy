@@ -43,5 +43,3 @@ jobs:
         run: |
           tox -e py310-min,py311-min,py312-min
         shell: bash
-        env:
-          BEZIER_NO_EXTENSION: 1

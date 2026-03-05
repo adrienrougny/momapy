@@ -18,8 +18,8 @@ class TestPoint:
     def test_point_rounding(self):
         """Test that points are rounded on creation."""
         p = momapy.geometry.Point(10.123456789, 20.987654321)
-        assert p.x == 10.12  # ROUNDING = 2
-        assert p.y == 20.99
+        assert p.x == 10.1235  # ROUNDING = 4
+        assert p.y == 20.9877
 
     def test_point_addition(self):
         """Test point addition."""
@@ -138,13 +138,12 @@ class TestLine:
         line = momapy.geometry.Line(p1, p2)
         assert line.intercept() == 5.0
 
-    def test_line_to_shapely(self):
-        """Test line to_shapely conversion."""
-        p1 = momapy.geometry.Point(0.0, 0.0)
-        p2 = momapy.geometry.Point(10.0, 10.0)
+    def test_line_slope_vertical(self):
+        """Test line slope for vertical line is NaN."""
+        p1 = momapy.geometry.Point(5.0, 0.0)
+        p2 = momapy.geometry.Point(5.0, 10.0)
         line = momapy.geometry.Line(p1, p2)
-        shapely_line = line.to_shapely()
-        assert shapely_line is not None
+        assert math.isnan(line.slope())
 
 
 class TestSegment:
@@ -165,13 +164,12 @@ class TestSegment:
         segment = momapy.geometry.Segment(p1, p2)
         assert segment.length() == 5.0
 
-    def test_segment_to_shapely(self):
-        """Test segment to_shapely conversion."""
+    def test_segment_get_angle_to_horizontal(self):
+        """Test segment angle to horizontal."""
         p1 = momapy.geometry.Point(0.0, 0.0)
-        p2 = momapy.geometry.Point(10.0, 10.0)
+        p2 = momapy.geometry.Point(10.0, 0.0)
         segment = momapy.geometry.Segment(p1, p2)
-        shapely_seg = segment.to_shapely()
-        assert shapely_seg is not None
+        assert segment.get_angle_to_horizontal() == pytest.approx(0.0, abs=0.01)
 
     def test_segment_bbox(self):
         """Test segment bbox method."""
@@ -197,15 +195,16 @@ class TestEllipticalArc:
         assert arc.rx == 5.0
         assert arc.ry == 5.0
 
-    def test_elliptical_arc_to_shapely(self):
-        """Test elliptical arc to_shapely conversion."""
+    def test_elliptical_arc_length(self):
+        """Test elliptical arc length computation."""
         p1 = momapy.geometry.Point(0.0, 0.0)
         p2 = momapy.geometry.Point(10.0, 0.0)
         arc = momapy.geometry.EllipticalArc(
             p1, p2, rx=5.0, ry=5.0, x_axis_rotation=0.0, arc_flag=0, sweep_flag=1
         )
-        shapely_arc = arc.to_shapely()
-        assert shapely_arc is not None
+        length = arc.length()
+        # Semicircle with r=5 has length ~15.7
+        assert length == pytest.approx(math.pi * 5, abs=0.5)
 
 
 class TestBbox:
@@ -280,15 +279,6 @@ class TestBbox:
         ne = bbox.north_east()
         assert ne.x == 100.0
         assert ne.y == 20.0
-
-    def test_bbox_from_bounds(self):
-        """Test creating Bbox from bounds."""
-        bounds = (0.0, 0.0, 100.0, 60.0)  # (min_x, min_y, max_x, max_y)
-        bbox = momapy.geometry.Bbox.from_bounds(bounds)
-        assert bbox.position.x == 50.0
-        assert bbox.position.y == 30.0
-        assert bbox.width == 100.0
-        assert bbox.height == 60.0
 
     def test_bbox_isnan(self):
         """Test bbox isnan method."""
@@ -447,100 +437,173 @@ class TestIntersectionFunctions:
         assert len(intersections) == 0
 
 
-class TestBezierCurve:
-    """Tests for BezierCurve class."""
+class TestCubicBezierCurve:
+    """Tests for CubicBezierCurve class."""
 
-    def test_bezier_curve_creation(self):
-        """Test creating a BezierCurve."""
-        curve = momapy.geometry.BezierCurve(
+    def test_cubic_bezier_curve_creation(self):
+        """Test creating a CubicBezierCurve."""
+        curve = momapy.geometry.CubicBezierCurve(
             momapy.geometry.Point(0.0, 0.0),
             momapy.geometry.Point(3.0, 0.0),
-            control_points=(
-                momapy.geometry.Point(1.0, 0.5),
-                momapy.geometry.Point(2.0, 0.5),
-            ),
+            momapy.geometry.Point(1.0, 0.5),
+            momapy.geometry.Point(2.0, 0.5),
         )
         assert curve.p1.x == 0.0
         assert curve.p2.x == 3.0
 
-    def test_bezier_curve_evaluate_start(self):
+    def test_cubic_bezier_curve_evaluate_start(self):
         """Test evaluate at t=0 returns start point."""
         start = momapy.geometry.Point(0.0, 0.0)
-        curve = momapy.geometry.BezierCurve(
+        curve = momapy.geometry.CubicBezierCurve(
             start,
             momapy.geometry.Point(3.0, 0.0),
-            control_points=(
-                momapy.geometry.Point(1.0, 1.0),
-                momapy.geometry.Point(2.0, 1.0),
-            ),
+            momapy.geometry.Point(1.0, 1.0),
+            momapy.geometry.Point(2.0, 1.0),
         )
         result = curve.evaluate(0.0)
         assert result.x == start.x
         assert result.y == start.y
 
-    def test_bezier_curve_evaluate_end(self):
+    def test_cubic_bezier_curve_evaluate_end(self):
         """Test evaluate at t=1 returns end point."""
         end = momapy.geometry.Point(3.0, 0.0)
-        curve = momapy.geometry.BezierCurve(
+        curve = momapy.geometry.CubicBezierCurve(
             momapy.geometry.Point(0.0, 0.0),
             end,
-            control_points=(
-                momapy.geometry.Point(1.0, 1.0),
-                momapy.geometry.Point(2.0, 1.0),
-            ),
+            momapy.geometry.Point(1.0, 1.0),
+            momapy.geometry.Point(2.0, 1.0),
         )
         result = curve.evaluate(1.0)
         assert result.x == end.x
         assert result.y == end.y
 
-    def test_bezier_curve_to_shapely(self):
-        """Test that bezier curve converts to shapely."""
-        curve = momapy.geometry.BezierCurve(
+    def test_cubic_bezier_curve_evaluate_multi(self):
+        """Test that cubic bezier curve evaluates at multiple points."""
+        curve = momapy.geometry.CubicBezierCurve(
             momapy.geometry.Point(0.0, 0.0),
             momapy.geometry.Point(3.0, 0.0),
-            control_points=(
-                momapy.geometry.Point(1.0, 1.0),
-                momapy.geometry.Point(2.0, 1.0),
-            ),
+            momapy.geometry.Point(1.0, 1.0),
+            momapy.geometry.Point(2.0, 1.0),
         )
-        shapely_obj = curve.to_shapely()
-        assert shapely_obj is not None
+        import numpy
+        points = curve.evaluate_multi(numpy.array([0.0, 0.5, 1.0]))
+        assert len(points) == 3
+        assert points[0].x == pytest.approx(0.0, abs=0.01)
+        assert points[2].x == pytest.approx(3.0, abs=0.01)
 
-    def test_bezier_curve_transformed(self):
-        """Test transformed bezier curve."""
-        curve = momapy.geometry.BezierCurve(
+    def test_cubic_bezier_curve_transformed(self):
+        """Test transformed cubic bezier curve."""
+        curve = momapy.geometry.CubicBezierCurve(
             momapy.geometry.Point(0.0, 0.0),
             momapy.geometry.Point(3.0, 0.0),
-            control_points=(
-                momapy.geometry.Point(1.0, 1.0),
-                momapy.geometry.Point(2.0, 1.0),
-            ),
+            momapy.geometry.Point(1.0, 1.0),
+            momapy.geometry.Point(2.0, 1.0),
         )
-        # Apply translation
         translation = momapy.geometry.Translation(5.0, 10.0)
         transformed = curve.transformed(translation)
-
-        # Check that all points were translated
         assert transformed.p1.x == 5.0
         assert transformed.p1.y == 10.0
         assert transformed.p2.x == 8.0
         assert transformed.p2.y == 10.0
 
-    def test_bezier_curve_reversed(self):
-        """Test reversed bezier curve swaps endpoints."""
+    def test_cubic_bezier_curve_reversed(self):
+        """Test reversed cubic bezier curve swaps endpoints."""
         start = momapy.geometry.Point(0.0, 0.0)
         end = momapy.geometry.Point(3.0, 0.0)
-        curve = momapy.geometry.BezierCurve(
+        curve = momapy.geometry.CubicBezierCurve(
             start,
             end,
-            control_points=(
-                momapy.geometry.Point(1.0, 1.0),
-                momapy.geometry.Point(2.0, 1.0),
-            ),
+            momapy.geometry.Point(1.0, 1.0),
+            momapy.geometry.Point(2.0, 1.0),
         )
         reversed_curve = curve.reversed()
         assert reversed_curve.p1.x == end.x
         assert reversed_curve.p2.x == start.x
+
+    def test_cubic_bezier_curve_bbox(self):
+        """Test bounding box of cubic bezier curve."""
+        curve = momapy.geometry.CubicBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(3.0, 5.0),
+            momapy.geometry.Point(7.0, 5.0),
+        )
+        bbox = curve.bbox()
+        assert bbox is not None
+        assert bbox.width > 0
+        assert bbox.height > 0
+
+    def test_cubic_bezier_curve_length(self):
+        """Test arc length of cubic bezier curve."""
+        curve = momapy.geometry.CubicBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(3.0, 5.0),
+            momapy.geometry.Point(7.0, 5.0),
+        )
+        length = curve.length()
+        # Should be longer than straight distance of 10
+        assert length > 10.0
+
+    def test_cubic_bezier_curve_split(self):
+        """Test splitting cubic bezier curve."""
+        curve = momapy.geometry.CubicBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(3.0, 5.0),
+            momapy.geometry.Point(7.0, 5.0),
+        )
+        left, right = curve.split(0.5)
+        assert left.p1.x == pytest.approx(0.0, abs=0.01)
+        assert right.p2.x == pytest.approx(10.0, abs=0.01)
+
+
+class TestQuadraticBezierCurve:
+    """Tests for QuadraticBezierCurve class."""
+
+    def test_quadratic_bezier_curve_creation(self):
+        """Test creating a QuadraticBezierCurve."""
+        curve = momapy.geometry.QuadraticBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        assert curve.p1.x == 0.0
+        assert curve.p2.x == 10.0
+
+    def test_quadratic_bezier_curve_evaluate_start(self):
+        """Test evaluate at t=0 returns start point."""
+        start = momapy.geometry.Point(0.0, 0.0)
+        curve = momapy.geometry.QuadraticBezierCurve(
+            start,
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        result = curve.evaluate(0.0)
+        assert result.x == start.x
+        assert result.y == start.y
+
+    def test_quadratic_bezier_curve_evaluate_end(self):
+        """Test evaluate at t=1 returns end point."""
+        end = momapy.geometry.Point(10.0, 0.0)
+        curve = momapy.geometry.QuadraticBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            end,
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        result = curve.evaluate(1.0)
+        assert result.x == end.x
+        assert result.y == end.y
+
+    def test_quadratic_bezier_curve_length(self):
+        """Test arc length of quadratic bezier curve."""
+        curve = momapy.geometry.QuadraticBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        length = curve.length()
+        assert length > 10.0
 
 
 class TestSegmentMethods:
@@ -644,7 +707,7 @@ class TestSegmentGetPositionAndAngleAtFraction:
 
 
 class TestBezierCurveGetPositionAndAngleAtFraction:
-    """Tests for BezierCurve.get_position_and_angle_at_fraction.
+    """Tests for CubicBezierCurve.get_position_and_angle_at_fraction.
 
     Uses a symmetric cubic curve (p1=(0,0), p2=(10,0), cp1=(3,5), cp2=(7,5))
     whose peak is at the arc-length midpoint (by symmetry).
@@ -652,13 +715,11 @@ class TestBezierCurveGetPositionAndAngleAtFraction:
 
     @pytest.fixture
     def symmetric_curve(self):
-        return momapy.geometry.BezierCurve(
+        return momapy.geometry.CubicBezierCurve(
             momapy.geometry.Point(0.0, 0.0),
             momapy.geometry.Point(10.0, 0.0),
-            control_points=(
-                momapy.geometry.Point(3.0, 5.0),
-                momapy.geometry.Point(7.0, 5.0),
-            ),
+            momapy.geometry.Point(3.0, 5.0),
+            momapy.geometry.Point(7.0, 5.0),
         )
 
     def test_position_at_start(self, symmetric_curve):
@@ -716,23 +777,46 @@ class TestEllipticalArcGetPositionAndAngleAtFraction:
         assert position.y == pytest.approx(5.0, abs=0.1)
 
 
-class TestShapelyBorderAndAnchor:
-    """Tests for shapely object border and anchor functions."""
+class TestGeometryBorderAndAnchor:
+    """Tests for geometry border and anchor functions."""
 
-    def test_shapely_object_border(self):
-        """Test getting border point of shapely object."""
-        import shapely.geometry
-
-        rect = shapely.geometry.Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
-        north_point = momapy.geometry.Point(5.0, 20.0)
-        border = momapy.geometry.get_shapely_object_border(rect, north_point)
+    def test_geometry_border(self):
+        """Test getting border point of geometry primitives."""
+        # Rectangle as 4 segments
+        primitives = [
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0.0, 0.0), momapy.geometry.Point(10.0, 0.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(10.0, 0.0), momapy.geometry.Point(10.0, 10.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(10.0, 10.0), momapy.geometry.Point(0.0, 10.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0.0, 10.0), momapy.geometry.Point(0.0, 0.0)
+            ),
+        ]
+        south_point = momapy.geometry.Point(5.0, 20.0)
+        border = momapy.geometry.get_geometry_border(primitives, south_point)
         assert border is not None
         assert isinstance(border, momapy.geometry.Point)
 
-    def test_shapely_object_anchor_point(self):
-        """Test getting anchor point from shapely object."""
-        import shapely.geometry
-
-        rect = shapely.geometry.Polygon([(0, 0), (10, 0), (10, 10), (0, 10)])
-        anchor = momapy.geometry.get_shapely_object_anchor_point(rect, "north")
+    def test_geometry_anchor_point(self):
+        """Test getting anchor point from geometry primitives."""
+        primitives = [
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0.0, 0.0), momapy.geometry.Point(10.0, 0.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(10.0, 0.0), momapy.geometry.Point(10.0, 10.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(10.0, 10.0), momapy.geometry.Point(0.0, 10.0)
+            ),
+            momapy.geometry.Segment(
+                momapy.geometry.Point(0.0, 10.0), momapy.geometry.Point(0.0, 0.0)
+            ),
+        ]
+        anchor = momapy.geometry.get_geometry_anchor_point(primitives, "north")
         assert isinstance(anchor, momapy.geometry.Point)

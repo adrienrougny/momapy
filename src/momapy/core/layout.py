@@ -8,7 +8,6 @@ import typing_extensions
 import math
 import copy
 
-import shapely
 import uharfbuzz
 import matplotlib.font_manager
 
@@ -341,8 +340,13 @@ class Shape(momapy.core.elements.LayoutElement):
 
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the shape"""
-        bounds = self.to_shapely().bounds
-        return momapy.geometry.Bbox.from_bounds(bounds)
+        primitives = self.to_geometry()
+        if not primitives:
+            return momapy.geometry.Bbox(
+                momapy.geometry.Point(0, 0), 0, 0
+            )
+        bboxes = [p.bbox() for p in primitives]
+        return momapy.geometry.Bbox.union(bboxes)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -423,14 +427,28 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         metadata={"description": "The transform of the group layout"},
     )
 
-    def self_to_shapely(self) -> shapely.GeometryCollection:
-        """Compute and return a shapely collection of geometries reproducing the self drawing elements of the group layout"""
-        return momapy.drawing.drawing_elements_to_shapely(self.drawing_elements())
+    def self_to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Return a list of geometry primitives from the self drawing elements."""
+        return momapy.drawing.drawing_elements_to_geometry(
+            self.drawing_elements()
+        )
 
     def self_bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the self drawing element of the group layout"""
-        bounds = self.self_to_shapely().bounds
-        return momapy.geometry.Bbox.from_bounds(bounds)
+        primitives = self.self_to_geometry()
+        if not primitives:
+            return momapy.geometry.Bbox(
+                momapy.geometry.Point(0, 0), 0, 0
+            )
+        bboxes = [p.bbox() for p in primitives]
+        return momapy.geometry.Bbox.union(bboxes)
 
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the group layout element"""
@@ -714,7 +732,7 @@ class Node(GroupLayout):
         """Return the label center anchor of the node"""
         return self.position
 
-    def self_border(self, point: momapy.geometry.Point) -> momapy.geometry.Point:
+    def self_border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line formed of the center anchor point of the node and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
@@ -724,7 +742,7 @@ class Node(GroupLayout):
             center=self.center(),
         )
 
-    def border(self, point: momapy.geometry.Point) -> momapy.geometry.Point:
+    def border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the drawing elements of the node with the line formed of the center anchor point of the node and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
@@ -738,7 +756,7 @@ class Node(GroupLayout):
         self,
         angle: float,
         unit: typing.Literal["degrees", "radians"] = "degrees",
-    ) -> momapy.geometry.Point:
+    ) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line passing through the center anchor point of the node and at a given angle from the horizontal."""
         return momapy.drawing.get_drawing_elements_angle(
             drawing_elements=self.self_drawing_elements(),
@@ -751,7 +769,7 @@ class Node(GroupLayout):
         self,
         angle: float,
         unit: typing.Literal["degrees", "radians"] = "degrees",
-    ) -> momapy.geometry.Point:
+    ) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the drawing elements of the node with the line passing through the center anchor point of the node and at a given angle from the horizontal."""
         return momapy.drawing.get_drawing_elements_angle(
             drawing_elements=self.drawing_elements(),
@@ -843,7 +861,8 @@ class Arc(GroupLayout):
     )
     segments: tuple[
         momapy.geometry.Segment
-        | momapy.geometry.BezierCurve
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
         | momapy.geometry.EllipticalArc
     ] = dataclasses.field(
         default_factory=tuple,
@@ -910,17 +929,16 @@ class Arc(GroupLayout):
     def _make_path_action_from_segment(cls, segment):
         if momapy.builder.isinstance_or_builder(segment, momapy.geometry.Segment):
             path_action = momapy.drawing.LineTo(segment.p2)
-        elif momapy.builder.isinstance_or_builder(segment, momapy.geometry.BezierCurve):
-            if len(segment.control_points) >= 2:
-                path_action = momapy.drawing.CurveTo(
-                    segment.p2,
-                    segment.control_points[0],
-                    segment.control_points[1],
-                )
-            else:
-                path_action = momapy.drawing.QuadraticCurveTo(
-                    segment.p2, segment.control_points[0]
-                )
+        elif momapy.builder.isinstance_or_builder(segment, momapy.geometry.CubicBezierCurve):
+            path_action = momapy.drawing.CurveTo(
+                segment.p2,
+                segment.control_point1,
+                segment.control_point2,
+            )
+        elif momapy.builder.isinstance_or_builder(segment, momapy.geometry.QuadraticBezierCurve):
+            path_action = momapy.drawing.QuadraticCurveTo(
+                segment.p2, segment.control_point
+            )
         elif momapy.builder.isinstance_or_builder(
             segment, momapy.geometry.EllipticalArc
         ):
@@ -1039,10 +1057,13 @@ class SingleHeadedArc(Arc):
         arrowhead_base = self.arrowhead_base()
         last_segment = self.segments[-1]
         if arrowhead_length == 0:
-            last_segment_coords = last_segment.to_shapely().coords
-            p1 = momapy.geometry.Point.from_tuple(last_segment_coords[-2])
-            p2 = momapy.geometry.Point.from_tuple(last_segment_coords[-1])
-            line = momapy.geometry.Line(p1, p2)
+            end_point = last_segment.p2
+            end_angle = last_segment.get_angle_at_fraction(1.0)
+            p1 = momapy.geometry.Point(
+                end_point.x - math.cos(end_angle),
+                end_point.y - math.sin(end_angle),
+            )
+            line = momapy.geometry.Line(p1, end_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, last_segment.p2)
         angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
@@ -1253,7 +1274,7 @@ class DoubleHeadedArc(Arc):
         point = momapy.drawing.get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
         )
-        if point.isnan():
+        if point is None:
             return self.start_arrowhead_tip()
         return point
 
@@ -1301,7 +1322,7 @@ class DoubleHeadedArc(Arc):
         point = momapy.drawing.get_drawing_elements_border(
             self.end_arrowhead_drawing_elements(), point
         )
-        if point.isnan():
+        if point is None:
             return self.end_arrowhead_tip()
         return point
 
@@ -1324,10 +1345,13 @@ class DoubleHeadedArc(Arc):
         arrowhead_base = self.start_arrowhead_base()
         segment = self.segments[0]
         if arrowhead_length == 0:
-            segment_coords = segment.to_shapely().coords
-            p1 = momapy.geometry.Point.from_tuple(segment_coords[1])
-            p2 = momapy.geometry.Point.from_tuple(segment_coords[0])
-            line = momapy.geometry.Line(p1, p2)
+            start_point = segment.p1
+            start_angle = segment.get_angle_at_fraction(0.0)
+            p1 = momapy.geometry.Point(
+                start_point.x + math.cos(start_angle),
+                start_point.y + math.sin(start_angle),
+            )
+            line = momapy.geometry.Line(p1, start_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p1)
         angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
@@ -1362,10 +1386,13 @@ class DoubleHeadedArc(Arc):
         arrowhead_base = self.end_arrowhead_base()
         segment = self.segments[-1]
         if arrowhead_length == 0:
-            segment_coords = segment.to_shapely().coords
-            p1 = momapy.geometry.Point.from_tuple(segment_coords[-2])
-            p2 = momapy.geometry.Point.from_tuple(segment_coords[-1])
-            line = momapy.geometry.Line(p1, p2)
+            end_point = segment.p2
+            end_angle = segment.get_angle_at_fraction(1.0)
+            p1 = momapy.geometry.Point(
+                end_point.x - math.cos(end_angle),
+                end_point.y - math.sin(end_angle),
+            )
+            line = momapy.geometry.Line(p1, end_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p2)
         angle = momapy.geometry.get_angle_to_horizontal_of_line(line)

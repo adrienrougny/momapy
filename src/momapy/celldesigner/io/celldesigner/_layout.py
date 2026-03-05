@@ -142,9 +142,12 @@ def make_species_modification(
             super_layout_element.height * math.sin(angle),
         )
         angle = math.atan2(point.y, point.x)
-    layout_element.position = super_layout_element.angle(
+    position = super_layout_element.angle(
         angle, unit="radians"
     )
+    if position is None:
+        position = super_layout_element.center()
+    layout_element.position = position
     text = modification_state.value if modification_state is not None else ""
     text_layout = momapy.core.layout.TextLayout(
         text=text,

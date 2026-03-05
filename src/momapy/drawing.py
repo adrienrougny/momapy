@@ -2,7 +2,7 @@
 
 This module provides classes for creating and manipulating SVG-like drawing
 elements including paths, shapes, text, filters, and groups. It supports
-transformations, styling attributes, and conversion to/from shapely geometries.
+transformations, styling attributes, and conversion to geometry primitives.
 
 Examples:
     >>> from momapy.drawing import Path, MoveTo, LineTo, Rectangle, Text
@@ -42,10 +42,6 @@ import typing
 import typing_extensions
 import collections.abc
 import platform
-
-import shapely.geometry
-import shapely.affinity
-import shapely.ops
 
 import momapy.geometry
 import momapy.coloring
@@ -519,14 +515,18 @@ class DrawingElement(abc.ABC):
     )
 
     @abc.abstractmethod
-    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Convert to a shapely geometry collection.
-
-        Args:
-            to_polygons: Whether to convert to polygons.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
         Returns:
-            A shapely GeometryCollection.
+            A list of geometry primitives.
         """
         pass
 
@@ -536,14 +536,13 @@ class DrawingElement(abc.ABC):
         Returns:
             The bounding box.
         """
-        bounds = self.to_shapely().bounds
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(
-                (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
-            ),
-            bounds[2] - bounds[0],
-            bounds[3] - bounds[1],
-        )
+        primitives = self.to_geometry()
+        if not primitives:
+            return momapy.geometry.Bbox(
+                momapy.geometry.Point(0, 0), 0, 0
+            )
+        bboxes = [p.bbox() for p in primitives]
+        return momapy.geometry.Bbox.union(bboxes)
 
     def get_filter_region(self) -> momapy.geometry.Bbox:
         """Get the filter region.
@@ -632,17 +631,22 @@ class Text(DrawingElement):
         """
         return copy.deepcopy(self)
 
-    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
-        Args:
-            to_polygons: Whether to convert to polygons.
+        Text has no geometry primitives.
 
         Returns:
-            A GeometryCollection containing the point.
+            An empty list.
         """
-        return shapely.geometry.GeometryCollection([self.point.to_shapely()])
-
+        return []
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Group(DrawingElement):
@@ -673,16 +677,20 @@ class Group(DrawingElement):
             elements.append(element.transformed(transformation))
         return dataclasses.replace(self, elements=tuple(elements))
 
-    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
-
-        Args:
-            to_polygons: Whether to convert to polygons.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
         Returns:
-            A GeometryCollection of all elements.
+            A list of geometry primitives from all child elements.
         """
-        return drawing_elements_to_shapely(self.elements)
+        return drawing_elements_to_geometry(self.elements)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -781,17 +789,6 @@ class LineTo(PathAction):
             A Segment from current_point to self.point.
         """
         return momapy.geometry.Segment(current_point, self.point)
-
-    def to_shapely(self, current_point: momapy.geometry.Point) -> shapely.LineString:
-        """Convert to shapely LineString.
-
-        Args:
-            current_point: Start point.
-
-        Returns:
-            A LineString.
-        """
-        return self.to_geometry(current_point).to_shapely()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -901,20 +898,6 @@ class EllipticalArc(PathAction):
             self.sweep_flag,
         )
 
-    def to_shapely(
-        self, current_point: momapy.geometry.Point
-    ) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
-
-        Args:
-            current_point: Start point.
-
-        Returns:
-            A LineString approximating the arc.
-        """
-        elliptical_arc = self.to_geometry(current_point)
-        return elliptical_arc.to_shapely()
-
 
 @dataclasses.dataclass(frozen=True)
 class CurveTo(PathAction):
@@ -968,35 +951,21 @@ class CurveTo(PathAction):
 
     def to_geometry(
         self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.BezierCurve:
-        """Convert to BezierCurve geometry.
+    ) -> momapy.geometry.CubicBezierCurve:
+        """Convert to CubicBezierCurve geometry.
 
         Args:
             current_point: Start point.
 
         Returns:
-            A BezierCurve.
+            A CubicBezierCurve.
         """
-        return momapy.geometry.BezierCurve(
+        return momapy.geometry.CubicBezierCurve(
             current_point,
             self.point,
-            tuple([self.control_point1, self.control_point2]),
+            self.control_point1,
+            self.control_point2,
         )
-
-    def to_shapely(
-        self, current_point: momapy.geometry.Point, n_segs: int = 50
-    ) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
-
-        Args:
-            current_point: Start point.
-            n_segs: Number of segments.
-
-        Returns:
-            A LineString approximating the curve.
-        """
-        bezier_curve = self.to_geometry(current_point)
-        return bezier_curve.to_shapely(n_segs)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -1061,33 +1030,20 @@ class QuadraticCurveTo(PathAction):
 
     def to_geometry(
         self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.BezierCurve:
-        """Convert to BezierCurve geometry.
+    ) -> momapy.geometry.QuadraticBezierCurve:
+        """Convert to QuadraticBezierCurve geometry.
 
         Args:
             current_point: Start point.
 
         Returns:
-            A BezierCurve.
+            A QuadraticBezierCurve.
         """
-        return momapy.geometry.BezierCurve(
+        return momapy.geometry.QuadraticBezierCurve(
             current_point,
             self.point,
-            tuple([self.control_point]),
+            self.control_point,
         )
-
-    def to_shapely(self, current_point, n_segs=50):
-        """Convert to shapely geometry.
-
-        Args:
-            current_point: Start point.
-            n_segs: Number of segments.
-
-        Returns:
-            A LineString approximating the curve.
-        """
-        bezier_curve = self.to_geometry(current_point)
-        return bezier_curve.to_shapely()
 
 
 @dataclasses.dataclass(frozen=True)
@@ -1146,60 +1102,40 @@ class Path(DrawingElement):
                 current_point = None
         return dataclasses.replace(self, actions=tuple(actions))
 
-    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
-
-        Args:
-            to_polygons: Whether to convert closed paths to polygons.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
         Returns:
-            A GeometryCollection.
+            A list of Segment, QuadraticBezierCurve, CubicBezierCurve,
+            or EllipticalArc objects.
         """
+        primitives = []
         current_point = momapy.geometry.Point(0, 0)
         initial_point = current_point
-        geom_collection = []
-        line_strings = []
-        previous_action = None
-        for current_action in self.actions:
-            if isinstance(current_action, MoveTo):
-                current_point = current_action.point
+        for action in self.actions:
+            if isinstance(action, MoveTo):
+                current_point = action.point
                 initial_point = current_point
-                if (
-                    not isinstance(previous_action, ClosePath)
-                    and previous_action is not None
-                ):
-                    multi_linestring = shapely.geometry.MultiLineString(line_strings)
-                    line_string = shapely.ops.linemerge(multi_linestring)
-                    geom_collection.append(line_string)
-                line_strings = []
-            elif isinstance(current_action, ClosePath):
+            elif isinstance(action, ClosePath):
                 if (
                     current_point.x != initial_point.x
                     or current_point.y != initial_point.y
                 ):
-                    line_string = shapely.geometry.LineString(
-                        [current_point.to_tuple(), initial_point.to_tuple()]
+                    primitives.append(
+                        momapy.geometry.Segment(current_point, initial_point)
                     )
-                    line_strings.append(line_string)
-                if not to_polygons:
-                    multi_line = shapely.MultiLineString(line_strings)
-                    line_string = shapely.ops.linemerge(multi_line)
-                    geom_collection.append(line_string)
-                else:
-                    polygons = shapely.ops.polygonize(line_strings)
-                    for polygon in polygons:
-                        geom_collection.append(polygon)
                 current_point = initial_point
             else:
-                line_string = current_action.to_shapely(current_point)
-                line_strings.append(line_string)
-                current_point = current_action.point
-            previous_action = current_action
-        if not isinstance(current_action, (MoveTo, ClosePath)):
-            multi_linestring = shapely.geometry.MultiLineString(line_strings)
-            line_string = shapely.ops.linemerge(multi_linestring)
-            geom_collection.append(line_string)
-        return shapely.geometry.GeometryCollection(geom_collection)
+                primitives.append(action.to_geometry(current_point))
+                current_point = action.point
+        return primitives
 
     def to_path_with_bezier_curves(self) -> typing_extensions.Self:
         """Convert to path with only Bezier curves.
@@ -1264,6 +1200,10 @@ class Ellipse(DrawingElement):
         metadata={"description": "The y-radius of the ellipse"}
     )
 
+    def __post_init__(self):
+        object.__setattr__(self, "rx", round(self.rx, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "ry", round(self.ry, momapy.geometry.ROUNDING))
+
     @property
     def x(self):
         """X coordinate of center."""
@@ -1314,22 +1254,20 @@ class Ellipse(DrawingElement):
         path = self.to_path()
         return path.transformed(transformation)
 
-    def to_shapely(self, to_polygons=False):
-        """Convert to shapely geometry.
-
-        Args:
-            to_polygons: Whether to return polygons.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
         Returns:
-            A GeometryCollection containing the ellipse.
+            A list of geometry primitives.
         """
-        point = self.point.to_shapely()
-        circle = point.buffer(1)
-        ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
-        if not to_polygons:
-            ellipse = ellipse.boundary
-        return shapely.geometry.GeometryCollection([ellipse])
-
+        return self.to_path().to_geometry()
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(DrawingElement):
@@ -1358,6 +1296,12 @@ class Rectangle(DrawingElement):
     ry: float = dataclasses.field(
         metadata={"description": "The y-radius of the rounded corners of the rectangle"}
     )
+
+    def __post_init__(self):
+        object.__setattr__(self, "width", round(self.width, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "height", round(self.height, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "rx", round(self.rx, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "ry", round(self.ry, momapy.geometry.ROUNDING))
 
     @property
     def x(self):
@@ -1436,40 +1380,49 @@ class Rectangle(DrawingElement):
         path = self.to_path()
         return path.transformed(transformation)
 
-    def to_shapely(self, to_polygons=False) -> shapely.GeometryCollection:
-        """Convert to shapely geometry.
-
-        Args:
-            to_polygons: Whether to return polygons.
+    def to_geometry(
+        self,
+    ) -> list[
+        momapy.geometry.Segment
+        | momapy.geometry.QuadraticBezierCurve
+        | momapy.geometry.CubicBezierCurve
+        | momapy.geometry.EllipticalArc
+    ]:
+        """Convert to a list of geometry primitives.
 
         Returns:
-            A GeometryCollection.
+            A list of geometry primitives.
         """
-        return self.to_path().to_shapely(to_polygons=to_polygons)
+        return self.to_path().to_geometry()
 
 
-def drawing_elements_to_shapely(
+def drawing_elements_to_geometry(
     drawing_elements: collections.abc.Sequence[DrawingElement],
-) -> shapely.GeometryCollection:
-    """Convert drawing elements to shapely geometry.
+) -> list[
+    momapy.geometry.Segment
+    | momapy.geometry.QuadraticBezierCurve
+    | momapy.geometry.CubicBezierCurve
+    | momapy.geometry.EllipticalArc
+]:
+    """Convert drawing elements to geometry primitives.
 
     Args:
         drawing_elements: Sequence of drawing elements.
 
     Returns:
-        A GeometryCollection.
+        A list of geometry primitives.
     """
-    geom_collection = []
+    primitives = []
     for drawing_element in drawing_elements:
-        geom_collection += drawing_element.to_shapely(to_polygons=False).geoms
-    return shapely.GeometryCollection(geom_collection)
+        primitives.extend(drawing_element.to_geometry())
+    return primitives
 
 
 def get_drawing_elements_border(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     point: momapy.geometry.Point,
     center: momapy.geometry.Point | None = None,
-) -> momapy.geometry.Point:
+) -> momapy.geometry.Point | None:
     """Get border point in a direction from center.
 
     Args:
@@ -1478,20 +1431,20 @@ def get_drawing_elements_border(
         center: Optional center point.
 
     Returns:
-        The border point.
+        The border point or None.
     """
-    shapely_object = drawing_elements_to_shapely(drawing_elements)
-    return momapy.geometry.get_shapely_object_border(
-        shapely_object=shapely_object, point=point, center=center
+    primitives = drawing_elements_to_geometry(drawing_elements)
+    return momapy.geometry.get_geometry_border(
+        primitives=primitives, point=point, center=center
     )
 
 
 def get_drawing_elements_angle(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     angle: float,
-    unit="degrees",
+    unit: str = "degrees",
     center: momapy.geometry.Point | None = None,
-) -> momapy.geometry.Point:
+) -> momapy.geometry.Point | None:
     """Get border point at an angle from center.
 
     Args:
@@ -1501,11 +1454,11 @@ def get_drawing_elements_angle(
         center: Optional center point.
 
     Returns:
-        The border point.
+        The border point or None.
     """
-    shapely_object = drawing_elements_to_shapely(drawing_elements)
-    return momapy.geometry.get_shapely_object_angle(
-        shapely_object=shapely_object, angle=angle, unit=unit, center=center
+    primitives = drawing_elements_to_geometry(drawing_elements)
+    return momapy.geometry.get_geometry_angle(
+        primitives=primitives, angle=angle, unit=unit, center=center
     )
 
 
@@ -1520,12 +1473,13 @@ def get_drawing_elements_bbox(
     Returns:
         The bounding box.
     """
-    shapely_object = drawing_elements_to_shapely(drawing_elements)
-    return momapy.geometry.Bbox.from_bounds(shapely_object.bounds)
+    primitives = drawing_elements_to_geometry(drawing_elements)
+    bboxes = [p.bbox() for p in primitives]
+    return momapy.geometry.Bbox.union(bboxes)
 
 
 def get_drawing_elements_anchor_point(
-    drawing_elements,
+    drawing_elements: collections.abc.Sequence[DrawingElement],
     anchor_point: str,
     center: momapy.geometry.Point | None = None,
 ) -> momapy.geometry.Point:
@@ -1539,7 +1493,7 @@ def get_drawing_elements_anchor_point(
     Returns:
         The anchor point.
     """
-    shapely_object = drawing_elements_to_shapely(drawing_elements)
-    return momapy.geometry.get_shapely_object_anchor_point(
-        shapely_object=shapely_object, anchor_point=anchor_point, center=center
+    primitives = drawing_elements_to_geometry(drawing_elements)
+    return momapy.geometry.get_geometry_anchor_point(
+        primitives=primitives, anchor_point=anchor_point, center=center
     )

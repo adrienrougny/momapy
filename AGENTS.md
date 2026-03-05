@@ -28,7 +28,7 @@ momapy render map.sbgn -o output.svg -s style.css
 mkdocs serve
 ```
 
-**Note**: Tests use `BEZIER_NO_EXTENSION=1` (disables bezier C extension). Slow tests are marked `@pytest.mark.slow`.
+**Note**: Slow tests are marked `@pytest.mark.slow`.
 
 ## Project Structure
 
@@ -62,7 +62,7 @@ docs/
 ## Tech Stack
 
 - **Python**: 3.10–3.12
-- **Key deps**: numpy, shapely, bezier, lxml, frozendict, pyparsing, uharfbuzz, matplotlib
+- **Key deps**: numpy, lxml, frozendict, pyparsing, uharfbuzz, matplotlib
 - **Optional**: skia-python, pycairo
 - **Dev**: pytest, ruff, tox, mkdocs, git-cliff
 
@@ -127,7 +127,7 @@ def func(param1: str, param2: int = 0) -> list[str]:
 
 - Positions: `momapy.geometry.Point(x, y)`
 - Bounding boxes: `momapy.geometry.Bbox(top_left, width, height)`
-- Complex operations: use `shapely`
+- Complex operations: analytical geometry (no shapely/bezier dependencies)
 
 ### Colors
 
@@ -204,6 +204,7 @@ Write implementation plans to `./plans/` as markdown files. Use descriptive file
 - Add type hints and Google-style docstrings everywhere
 - Mark slow tests with `@pytest.mark.slow`
 - Use conventional commits
+- Break the API when needed — we are still in a 0.X version
 
 **DON'T:**
 

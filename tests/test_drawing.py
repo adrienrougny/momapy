@@ -111,8 +111,8 @@ class TestPath:
         assert isinstance(path.actions[0], momapy.drawing.MoveTo)
         assert isinstance(path.actions[1], momapy.drawing.LineTo)
 
-    def test_path_to_shapely_produces_geometry(self):
-        """Test that Path.to_shapely() produces valid geometry."""
+    def test_path_to_geometry_produces_primitives(self):
+        """Test that Path.to_geometry() produces geometry primitives."""
         path = momapy.drawing.Path(
             actions=(
                 momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
@@ -122,9 +122,11 @@ class TestPath:
                 momapy.drawing.ClosePath(),
             )
         )
-        shapely_geom = path.to_shapely()
-        assert shapely_geom is not None
-        assert not shapely_geom.is_empty
+        primitives = path.to_geometry()
+        assert len(primitives) == 4
+        assert all(
+            isinstance(p, momapy.geometry.Segment) for p in primitives
+        )
 
     def test_path_transformed_with_translation(self):
         """Test Path.transformed() shifts coordinates correctly."""
@@ -173,12 +175,12 @@ class TestPathActions:
         assert line.point.x == 15.0
         assert line.point.y == 20.0
 
-    def test_line_to_to_shapely(self):
-        """Test LineTo.to_shapely() produces LineString."""
+    def test_line_to_to_geometry(self):
+        """Test LineTo.to_geometry() produces Segment."""
         line = momapy.drawing.LineTo(momapy.geometry.Point(10, 10))
         current_point = momapy.geometry.Point(0, 0)
-        shapely_line = line.to_shapely(current_point)
-        assert shapely_line is not None
+        geom = line.to_geometry(current_point)
+        assert isinstance(geom, momapy.geometry.Segment)
 
     def test_close_path_creation(self):
         """Test creating a ClosePath action."""
@@ -214,8 +216,8 @@ class TestRectangle:
         assert isinstance(path, momapy.drawing.Path)
         assert len(path.actions) > 0
 
-    def test_rectangle_to_shapely(self):
-        """Test Rectangle.to_shapely() produces valid geometry."""
+    def test_rectangle_to_geometry(self):
+        """Test Rectangle.to_geometry() produces geometry primitives."""
         rect = momapy.drawing.Rectangle(
             point=momapy.geometry.Point(0, 0),
             width=10,
@@ -223,8 +225,8 @@ class TestRectangle:
             rx=0,
             ry=0,
         )
-        shapely_geom = rect.to_shapely()
-        assert shapely_geom is not None
+        primitives = rect.to_geometry()
+        assert len(primitives) > 0
 
 
 class TestEllipse:
@@ -276,14 +278,14 @@ class TestText:
         assert text.font_size == 14.0
         assert text.font_family == "Arial"
 
-    def test_text_to_shapely(self):
-        """Test Text.to_shapely() produces geometry."""
+    def test_text_to_geometry(self):
+        """Test Text.to_geometry() returns empty list."""
         text = momapy.drawing.Text(
             text="Test",
             point=momapy.geometry.Point(10, 20),
         )
-        shapely_geom = text.to_shapely()
-        assert shapely_geom is not None
+        primitives = text.to_geometry()
+        assert primitives == []
 
 
 class TestGroup:
@@ -301,8 +303,8 @@ class TestGroup:
         group = momapy.drawing.Group(elements=(rect,))
         assert len(group.elements) == 1
 
-    def test_group_to_shapely_aggregates_children(self):
-        """Test Group.to_shapely() aggregates children."""
+    def test_group_to_geometry_aggregates_children(self):
+        """Test Group.to_geometry() aggregates children."""
         rect = momapy.drawing.Rectangle(
             point=momapy.geometry.Point(0, 0),
             width=10,
@@ -316,7 +318,6 @@ class TestGroup:
             ry=3,
         )
         group = momapy.drawing.Group(elements=(rect, ellipse))
-        shapely_geom = group.to_shapely()
-        assert shapely_geom is not None
-        # GeometryCollection should contain both shapes
-        assert len(shapely_geom.geoms) >= 2
+        primitives = group.to_geometry()
+        # Should have primitives from both shapes
+        assert len(primitives) >= 2

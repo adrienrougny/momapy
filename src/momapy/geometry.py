@@ -29,28 +29,18 @@ import math
 import copy
 
 import numpy
-import shapely
-import shapely.ops
-import bezier.curve
 
 import momapy.builder
 
 
-ROUNDING = 2
+ROUNDING = 4
 
 
 @dataclasses.dataclass(frozen=True)
 class GeometryObject(abc.ABC):
     """Abstract base class for all geometry objects."""
 
-    @abc.abstractmethod
-    def to_shapely(self) -> shapely.Geometry:
-        """Convert to a shapely geometry object.
-
-        Returns:
-            A shapely geometry representing this object.
-        """
-        pass
+    pass
 
 
 @dataclasses.dataclass(frozen=True)
@@ -165,22 +155,6 @@ class Point(GeometryObject):
         """
         return Point(round(self.x, ndigits), round(self.y, ndigits))
 
-    def to_shapely(self) -> shapely.Point:
-        """Convert to a shapely Point.
-
-        Returns:
-            A shapely Point.
-        """
-        return shapely.Point(self.x, self.y)
-
-    def to_fortranarray(self) -> typing.Any:
-        """Convert to a numpy Fortran array.
-
-        Returns:
-            A 2x1 Fortran array [[x], [y]].
-        """
-        return numpy.asfortranarray([[self.x], [self.y]])
-
     def bbox(self) -> "Bbox":
         """Get the bounding box of this point.
 
@@ -196,30 +170,6 @@ class Point(GeometryObject):
             True if x or y is NaN.
         """
         return math.isnan(self.x) or math.isnan(self.y)
-
-    @classmethod
-    def from_shapely(cls, point: shapely.Point) -> typing_extensions.Self:
-        """Create a Point from a shapely Point.
-
-        Args:
-            point: A shapely Point.
-
-        Returns:
-            A new Point.
-        """
-        return cls(float(point.x), float(point.y))
-
-    @classmethod
-    def from_fortranarray(cls, fortranarray: typing.Any) -> typing_extensions.Self:
-        """Create a Point from a numpy Fortran array.
-
-        Args:
-            fortranarray: A 2x1 array [[x], [y]].
-
-        Returns:
-            A new Point.
-        """
-        return cls(fortranarray[0][0], fortranarray[1][0])
 
     @classmethod
     def from_tuple(cls, t: tuple[float, float]) -> typing_extensions.Self:
@@ -358,18 +308,6 @@ class Line(GeometryObject):
         """
         return reverse_line(self)
 
-    def to_shapely(self) -> shapely.LineString:
-        """Convert to a shapely LineString.
-
-        Returns:
-            A shapely LineString.
-        """
-        return shapely.LineString(
-            [
-                self.p1.to_tuple(),
-                self.p2.to_tuple(),
-            ]
-        )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -450,7 +388,9 @@ class Segment(GeometryObject):
         Returns:
             The point at that fraction.
         """
-        return get_position_at_fraction_of_segment(self, fraction)
+        x = self.p1.x + fraction * (self.p2.x - self.p1.x)
+        y = self.p1.y + fraction * (self.p2.y - self.p1.y)
+        return Point(x, y)
 
     def get_angle_at_fraction(self, fraction: float) -> float:
         """Get angle at a fraction along the segment.
@@ -461,7 +401,7 @@ class Segment(GeometryObject):
         Returns:
             Angle in radians.
         """
-        return get_angle_at_fraction_of_segment(self, fraction)
+        return self.get_angle_to_horizontal()
 
     def get_position_and_angle_at_fraction(
         self, fraction: float
@@ -474,7 +414,7 @@ class Segment(GeometryObject):
         Returns:
             Tuple of (point, angle in radians).
         """
-        return get_position_and_angle_at_fraction_of_segment(self, fraction)
+        return (self.get_position_at_fraction(fraction), self.get_angle_at_fraction(fraction))
 
     def shortened(
         self,
@@ -511,118 +451,292 @@ class Segment(GeometryObject):
         """
         return reverse_segment(self)
 
-    def to_shapely(self) -> shapely.LineString:
-        """Convert to a shapely LineString.
-
-        Returns:
-            A shapely LineString.
-        """
-        return shapely.LineString(
-            [
-                self.p1.to_tuple(),
-                self.p2.to_tuple(),
-            ]
-        )
-
     def bbox(self) -> "Bbox":
         """Get the bounding box of the segment.
 
         Returns:
             A Bbox enclosing the segment.
         """
-        return Bbox.from_bounds(self.to_shapely().bounds)
-
-    @classmethod
-    def from_shapely(cls, line_string: shapely.LineString) -> typing_extensions.Self:
-        """Create a Segment from a shapely LineString.
-
-        Args:
-            line_string: A 2-point LineString.
-
-        Returns:
-            A new Segment.
-        """
-        shapely_points = line_string.boundary.geoms
-        return cls(
-            Point.from_shapely(shapely_points[0]),
-            Point.from_shapely(shapely_points[1]),
+        min_x = min(self.p1.x, self.p2.x)
+        max_x = max(self.p1.x, self.p2.x)
+        min_y = min(self.p1.y, self.p2.y)
+        max_y = max(self.p1.y, self.p2.y)
+        return Bbox(
+            Point((min_x + max_x) / 2, (min_y + max_y) / 2),
+            max_x - min_x,
+            max_y - min_y,
         )
 
 
+# Precomputed 16-point Gauss-Legendre nodes and weights on [-1, 1]
+_GL_NODES_16 = [
+    -0.9894009349916499,
+    -0.9445750230732326,
+    -0.8656312023878318,
+    -0.7554044083550030,
+    -0.6178762444026438,
+    -0.4580167776572274,
+    -0.2816035507792589,
+    -0.0950125098376374,
+    0.0950125098376374,
+    0.2816035507792589,
+    0.4580167776572274,
+    0.6178762444026438,
+    0.7554044083550030,
+    0.8656312023878318,
+    0.9445750230732326,
+    0.9894009349916499,
+]
+_GL_WEIGHTS_16 = [
+    0.0271524594117541,
+    0.0622535239386479,
+    0.0951585116824928,
+    0.1246289712555339,
+    0.1495959888165767,
+    0.1691565193950025,
+    0.1826034150449236,
+    0.1894506104550685,
+    0.1894506104550685,
+    0.1826034150449236,
+    0.1691565193950025,
+    0.1495959888165767,
+    0.1246289712555339,
+    0.0951585116824928,
+    0.0622535239386479,
+    0.0271524594117541,
+]
+
+
+def _arc_length(derivative_fn, t0: float, t1: float) -> float:
+    """Gauss-Legendre quadrature of |derivative(t)| from t0 to t1.
+
+    Args:
+        derivative_fn: Function returning (dx, dy) at parameter t.
+        t0: Start parameter.
+        t1: End parameter.
+
+    Returns:
+        The arc length between t0 and t1.
+    """
+    mid = (t0 + t1) / 2
+    half = (t1 - t0) / 2
+    total = 0.0
+    for node, weight in zip(_GL_NODES_16, _GL_WEIGHTS_16):
+        t = mid + half * node
+        dx, dy = derivative_fn(t)
+        total += weight * math.sqrt(dx * dx + dy * dy)
+    return total * half
+
+
+def _find_t_at_arc_length_fraction(
+    derivative_fn, total_length: float, fraction: float, tol: float = 1e-8
+) -> float:
+    """Binary search for t such that arc_length(0, t) / total_length ~ fraction.
+
+    Args:
+        derivative_fn: Function returning (dx, dy) at parameter t.
+        total_length: Total arc length of the curve.
+        fraction: Target fraction of total length.
+        tol: Tolerance (unused, kept for API).
+
+    Returns:
+        Parameter t corresponding to the fraction.
+    """
+    target = fraction * total_length
+    lo, hi = 0.0, 1.0
+    for _ in range(64):
+        mid = (lo + hi) / 2
+        if _arc_length(derivative_fn, 0.0, mid) < target:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
 @dataclasses.dataclass(frozen=True)
-class BezierCurve(GeometryObject):
-    """Represents a cubic Bezier curve.
+class QuadraticBezierCurve(GeometryObject):
+    """Represents a quadratic Bezier curve.
 
     Attributes:
         p1: Start point.
         p2: End point.
-        control_points: Tuple of control points (1 for quadratic, 2 for cubic).
+        control_point: The single control point.
 
     Examples:
-        >>> curve = BezierCurve(
+        >>> curve = QuadraticBezierCurve(
         ...     Point(0, 0),
         ...     Point(10, 0),
-        ...     (Point(3, 5), Point(7, 5))
+        ...     Point(5, 5)
         ... )
-        >>> curve.length()
-        11.77...
     """
 
     p1: Point
     p2: Point
-    control_points: tuple[Point, ...] = dataclasses.field(default_factory=tuple)
+    control_point: Point
 
-    def _to_bezier(self):
-        x = []
-        y = []
-        x.append(self.p1.x)
-        y.append(self.p1.y)
-        for point in self.control_points:
-            x.append(point.x)
-            y.append(point.y)
-        x.append(self.p2.x)
-        y.append(self.p2.y)
-        nodes = [x, y]
-        return bezier.curve.Curve.from_nodes(nodes)
-
-    @classmethod
-    def _from_bezier(cls, bezier_curve):
-        points = [Point.from_tuple(t) for t in bezier_curve.nodes.T]
-        return cls(points[0], points[-1], tuple(points[1:-1]))
-
-    def length(self) -> float:
-        """Calculate the length of the curve.
-
-        Returns:
-            The arc length.
-        """
-        return self._to_bezier().length
-
-    def evaluate(self, s: float) -> Point:
-        """Evaluate the curve at parameter s.
+    def evaluate(self, t: float) -> Point:
+        """Evaluate the curve at parameter t.
 
         Args:
-            s: Parameter value from 0 to 1.
+            t: Parameter value from 0 to 1.
 
         Returns:
-            The point at parameter s.
+            The point at parameter t.
         """
-        evaluation = self._to_bezier().evaluate(s)
-        return Point.from_fortranarray(evaluation)
+        u = 1 - t
+        x = u * u * self.p1.x + 2 * u * t * self.control_point.x + t * t * self.p2.x
+        y = u * u * self.p1.y + 2 * u * t * self.control_point.y + t * t * self.p2.y
+        return Point(x, y)
 
-    def evaluate_multi(self, s: numpy.ndarray) -> list[Point]:
+    def evaluate_multi(self, t_array: numpy.ndarray) -> list[Point]:
         """Evaluate the curve at multiple parameters.
 
         Args:
-            s: Array of parameter values.
+            t_array: Array of parameter values.
 
         Returns:
             List of points.
         """
-        evaluation = self._to_bezier().evaluate_multi(s)
-        return [Point(e[0], e[1]) for e in evaluation.T]
+        t = numpy.asarray(t_array, dtype="double")
+        u = 1 - t
+        x = u * u * self.p1.x + 2 * u * t * self.control_point.x + t * t * self.p2.x
+        y = u * u * self.p1.y + 2 * u * t * self.control_point.y + t * t * self.p2.y
+        return [Point(float(xi), float(yi)) for xi, yi in zip(x, y)]
 
-    def get_intersection_with_line(self, line: Line) -> list[Point] | list[Segment]:
+    def derivative(self, t: float) -> tuple[float, float]:
+        """Compute the derivative at parameter t.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            Tuple of (dx/dt, dy/dt).
+        """
+        u = 1 - t
+        dx = 2 * u * (self.control_point.x - self.p1.x) + 2 * t * (self.p2.x - self.control_point.x)
+        dy = 2 * u * (self.control_point.y - self.p1.y) + 2 * t * (self.p2.y - self.control_point.y)
+        return (dx, dy)
+
+    def split(self, t: float) -> tuple["QuadraticBezierCurve", "QuadraticBezierCurve"]:
+        """Split the curve at parameter t using De Casteljau subdivision.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            Tuple of two QuadraticBezierCurves.
+        """
+        u = 1 - t
+        m0x = u * self.p1.x + t * self.control_point.x
+        m0y = u * self.p1.y + t * self.control_point.y
+        m1x = u * self.control_point.x + t * self.p2.x
+        m1y = u * self.control_point.y + t * self.p2.y
+        mx = u * m0x + t * m1x
+        my = u * m0y + t * m1y
+        mid = Point(mx, my)
+        left = QuadraticBezierCurve(self.p1, mid, Point(m0x, m0y))
+        right = QuadraticBezierCurve(mid, self.p2, Point(m1x, m1y))
+        return (left, right)
+
+    def length(self) -> float:
+        """Calculate the arc length of the curve.
+
+        Returns:
+            The arc length.
+        """
+        return _arc_length(self.derivative, 0.0, 1.0)
+
+    def bbox(self) -> "Bbox":
+        """Get the bounding box of the curve.
+
+        Returns:
+            A Bbox enclosing the curve.
+        """
+        # Extrema candidates: endpoints + roots of derivative
+        xs = [self.p1.x, self.p2.x]
+        ys = [self.p1.y, self.p2.y]
+        # dx/dt = 2(1-t)(cp-p1) + 2t(p2-cp) = 0 => t = (p1-cp)/(p1-2cp+p2)
+        for vals, lst in [
+            ((self.p1.x, self.control_point.x, self.p2.x), xs),
+            ((self.p1.y, self.control_point.y, self.p2.y), ys),
+        ]:
+            a, b, c = vals
+            denom = a - 2 * b + c
+            if abs(denom) > 1e-12:
+                t = (a - b) / denom
+                if 0 < t < 1:
+                    pt = self.evaluate(t)
+                    lst.append(pt.x if lst is xs else pt.y)
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        return Bbox(
+            Point(min_x, min_y),
+            max_x - min_x,
+            max_y - min_y,
+        )
+
+    def get_position_at_fraction(self, fraction: float) -> Point:
+        """Get point at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            The point at that fraction.
+        """
+        if fraction <= 0:
+            return Point(self.p1.x, self.p1.y)
+        if fraction >= 1:
+            return Point(self.p2.x, self.p2.y)
+        total = self.length()
+        t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        return self.evaluate(t)
+
+    def get_angle_at_fraction(self, fraction: float) -> float:
+        """Get angle at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Angle in radians.
+        """
+        total = self.length()
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        dx, dy = self.derivative(t)
+        return math.atan2(dy, dx)
+
+    def get_position_and_angle_at_fraction(
+        self, fraction: float
+    ) -> tuple[Point, float]:
+        """Get both position and angle at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Tuple of (point, angle_in_radians).
+        """
+        total = self.length()
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        pos = self.evaluate(t)
+        dx, dy = self.derivative(t)
+        angle = math.atan2(dy, dx)
+        return (pos, angle)
+
+    def get_intersection_with_line(
+        self, line: Line
+    ) -> list[Point] | list[Segment]:
         """Get intersection with a line.
 
         Args:
@@ -631,44 +745,11 @@ class BezierCurve(GeometryObject):
         Returns:
             List of intersection points or segments.
         """
-        return get_intersection_of_line_and_bezier_curve(line, self)
-
-    def get_position_at_fraction(self, fraction: float):
-        """Get point at a fraction along the curve.
-
-        Args:
-            fraction: Fraction from 0 to 1.
-
-        Returns:
-            The point at that fraction.
-        """
-        return get_position_at_fraction_of_bezier_curve(self, fraction)
-
-    def get_angle_at_fraction(self, fraction: float):
-        """Get angle at a fraction along the curve.
-
-        Args:
-            fraction: Fraction from 0 to 1.
-
-        Returns:
-            Angle in radians.
-        """
-        return get_angle_at_fraction_of_bezier_curve(self, fraction)
-
-    def get_position_and_angle_at_fraction(self, fraction: float):
-        """Get both position and angle at a fraction.
-
-        Args:
-            fraction: Fraction from 0 to 1.
-
-        Returns:
-            Tuple of (point, angle).
-        """
-        return get_position_and_angle_at_fraction_of_bezier_curve(self, fraction)
+        return get_intersection_of_line_and_quadratic_bezier_curve(line, self)
 
     def shortened(
         self, length: float, start_or_end: typing.Literal["start", "end"] = "end"
-    ) -> "BezierCurve":
+    ) -> "QuadraticBezierCurve":
         """Return a shortened copy of the curve.
 
         Args:
@@ -676,50 +757,325 @@ class BezierCurve(GeometryObject):
             start_or_end: Which end to shorten from.
 
         Returns:
-            A new shortened BezierCurve.
+            A new shortened QuadraticBezierCurve.
         """
-        return shorten_bezier_curve(self, length, start_or_end)
+        return shorten_quadratic_bezier_curve(self, length, start_or_end)
 
-    def transformed(self, transformation):
+    def reversed(self) -> "QuadraticBezierCurve":
+        """Return a reversed copy of the curve.
+
+        Returns:
+            A new QuadraticBezierCurve going in reverse direction.
+        """
+        return QuadraticBezierCurve(self.p2, self.p1, self.control_point)
+
+    def transformed(self, transformation) -> "QuadraticBezierCurve":
         """Apply a transformation to this curve.
 
         Args:
             transformation: The transformation to apply.
 
         Returns:
-            A new transformed BezierCurve.
+            A new transformed QuadraticBezierCurve.
         """
-        return transform_bezier_curve(self, transformation)
+        return transform_quadratic_bezier_curve(self, transformation)
 
-    def reversed(self):
-        """Return a reversed copy of the curve.
 
-        Returns:
-            A new BezierCurve going in reverse direction.
-        """
-        return reverse_bezier_curve(self)
 
-    def to_shapely(self, n_segs=50):
-        """Convert to a shapely LineString.
+@dataclasses.dataclass(frozen=True)
+class CubicBezierCurve(GeometryObject):
+    """Represents a cubic Bezier curve.
+
+    Attributes:
+        p1: Start point.
+        p2: End point.
+        control_point1: First control point.
+        control_point2: Second control point.
+
+    Examples:
+        >>> curve = CubicBezierCurve(
+        ...     Point(0, 0),
+        ...     Point(10, 0),
+        ...     Point(3, 5),
+        ...     Point(7, 5)
+        ... )
+    """
+
+    p1: Point
+    p2: Point
+    control_point1: Point
+    control_point2: Point
+
+    def evaluate(self, t: float) -> Point:
+        """Evaluate the curve at parameter t.
 
         Args:
-            n_segs: Number of segments to approximate with.
+            t: Parameter value from 0 to 1.
 
         Returns:
-            A shapely LineString.
+            The point at parameter t.
         """
-        points = self.evaluate_multi(
-            numpy.arange(0, 1 + 1 / n_segs, 1 / n_segs, dtype="double")
+        u = 1 - t
+        u2 = u * u
+        t2 = t * t
+        x = (
+            u2 * u * self.p1.x
+            + 3 * u2 * t * self.control_point1.x
+            + 3 * u * t2 * self.control_point2.x
+            + t2 * t * self.p2.x
         )
-        return shapely.LineString([point.to_tuple() for point in points])
+        y = (
+            u2 * u * self.p1.y
+            + 3 * u2 * t * self.control_point1.y
+            + 3 * u * t2 * self.control_point2.y
+            + t2 * t * self.p2.y
+        )
+        return Point(x, y)
 
-    def bbox(self):
+    def evaluate_multi(self, t_array: numpy.ndarray) -> list[Point]:
+        """Evaluate the curve at multiple parameters.
+
+        Args:
+            t_array: Array of parameter values.
+
+        Returns:
+            List of points.
+        """
+        t = numpy.asarray(t_array, dtype="double")
+        u = 1 - t
+        u2 = u * u
+        t2 = t * t
+        x = (
+            u2 * u * self.p1.x
+            + 3 * u2 * t * self.control_point1.x
+            + 3 * u * t2 * self.control_point2.x
+            + t2 * t * self.p2.x
+        )
+        y = (
+            u2 * u * self.p1.y
+            + 3 * u2 * t * self.control_point1.y
+            + 3 * u * t2 * self.control_point2.y
+            + t2 * t * self.p2.y
+        )
+        return [Point(float(xi), float(yi)) for xi, yi in zip(x, y)]
+
+    def derivative(self, t: float) -> tuple[float, float]:
+        """Compute the derivative at parameter t.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            Tuple of (dx/dt, dy/dt).
+        """
+        u = 1 - t
+        dx = (
+            3 * u * u * (self.control_point1.x - self.p1.x)
+            + 6 * u * t * (self.control_point2.x - self.control_point1.x)
+            + 3 * t * t * (self.p2.x - self.control_point2.x)
+        )
+        dy = (
+            3 * u * u * (self.control_point1.y - self.p1.y)
+            + 6 * u * t * (self.control_point2.y - self.control_point1.y)
+            + 3 * t * t * (self.p2.y - self.control_point2.y)
+        )
+        return (dx, dy)
+
+    def split(self, t: float) -> tuple["CubicBezierCurve", "CubicBezierCurve"]:
+        """Split the curve at parameter t using De Casteljau subdivision.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            Tuple of two CubicBezierCurves.
+        """
+        u = 1 - t
+        # Level 1
+        m0x = u * self.p1.x + t * self.control_point1.x
+        m0y = u * self.p1.y + t * self.control_point1.y
+        m1x = u * self.control_point1.x + t * self.control_point2.x
+        m1y = u * self.control_point1.y + t * self.control_point2.y
+        m2x = u * self.control_point2.x + t * self.p2.x
+        m2y = u * self.control_point2.y + t * self.p2.y
+        # Level 2
+        n0x = u * m0x + t * m1x
+        n0y = u * m0y + t * m1y
+        n1x = u * m1x + t * m2x
+        n1y = u * m1y + t * m2y
+        # Level 3 (point on curve)
+        px = u * n0x + t * n1x
+        py = u * n0y + t * n1y
+        mid = Point(px, py)
+        left = CubicBezierCurve(
+            self.p1, mid, Point(m0x, m0y), Point(n0x, n0y)
+        )
+        right = CubicBezierCurve(
+            mid, self.p2, Point(n1x, n1y), Point(m2x, m2y)
+        )
+        return (left, right)
+
+    def length(self) -> float:
+        """Calculate the arc length of the curve.
+
+        Returns:
+            The arc length.
+        """
+        return _arc_length(self.derivative, 0.0, 1.0)
+
+    def bbox(self) -> "Bbox":
         """Get the bounding box of the curve.
 
         Returns:
             A Bbox enclosing the curve.
         """
-        return Bbox.from_bounds(self.to_shapely().bounds)
+        xs = [self.p1.x, self.p2.x]
+        ys = [self.p1.y, self.p2.y]
+        # Solve derivative = 0 for each axis (quadratic in t)
+        for vals, lst in [
+            (
+                (self.p1.x, self.control_point1.x, self.control_point2.x, self.p2.x),
+                xs,
+            ),
+            (
+                (self.p1.y, self.control_point1.y, self.control_point2.y, self.p2.y),
+                ys,
+            ),
+        ]:
+            p0, p1, p2, p3 = vals
+            # derivative coefficients: a*t^2 + b*t + c = 0
+            a = -3 * p0 + 9 * p1 - 9 * p2 + 3 * p3
+            b = 6 * p0 - 12 * p1 + 6 * p2
+            c = -3 * p0 + 3 * p1
+            if abs(a) < 1e-12:
+                if abs(b) > 1e-12:
+                    t = -c / b
+                    if 0 < t < 1:
+                        pt = self.evaluate(t)
+                        lst.append(pt.x if lst is xs else pt.y)
+            else:
+                disc = b * b - 4 * a * c
+                if disc >= 0:
+                    sqrt_disc = math.sqrt(disc)
+                    for t in [(-b + sqrt_disc) / (2 * a), (-b - sqrt_disc) / (2 * a)]:
+                        if 0 < t < 1:
+                            pt = self.evaluate(t)
+                            lst.append(pt.x if lst is xs else pt.y)
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        return Bbox(
+            Point(min_x, min_y),
+            max_x - min_x,
+            max_y - min_y,
+        )
+
+    def get_position_at_fraction(self, fraction: float) -> Point:
+        """Get point at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            The point at that fraction.
+        """
+        if fraction <= 0:
+            return Point(self.p1.x, self.p1.y)
+        if fraction >= 1:
+            return Point(self.p2.x, self.p2.y)
+        total = self.length()
+        t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        return self.evaluate(t)
+
+    def get_angle_at_fraction(self, fraction: float) -> float:
+        """Get angle at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Angle in radians.
+        """
+        total = self.length()
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        dx, dy = self.derivative(t)
+        return math.atan2(dy, dx)
+
+    def get_position_and_angle_at_fraction(
+        self, fraction: float
+    ) -> tuple[Point, float]:
+        """Get both position and angle at a fraction of the arc length.
+
+        Args:
+            fraction: Fraction from 0 to 1.
+
+        Returns:
+            Tuple of (point, angle_in_radians).
+        """
+        total = self.length()
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        pos = self.evaluate(t)
+        dx, dy = self.derivative(t)
+        angle = math.atan2(dy, dx)
+        return (pos, angle)
+
+    def get_intersection_with_line(
+        self, line: Line
+    ) -> list[Point] | list[Segment]:
+        """Get intersection with a line.
+
+        Args:
+            line: The line to intersect with.
+
+        Returns:
+            List of intersection points or segments.
+        """
+        return get_intersection_of_line_and_cubic_bezier_curve(line, self)
+
+    def shortened(
+        self, length: float, start_or_end: typing.Literal["start", "end"] = "end"
+    ) -> "CubicBezierCurve":
+        """Return a shortened copy of the curve.
+
+        Args:
+            length: Amount to shorten by.
+            start_or_end: Which end to shorten from.
+
+        Returns:
+            A new shortened CubicBezierCurve.
+        """
+        return shorten_cubic_bezier_curve(self, length, start_or_end)
+
+    def reversed(self) -> "CubicBezierCurve":
+        """Return a reversed copy of the curve.
+
+        Returns:
+            A new CubicBezierCurve going in reverse direction.
+        """
+        return CubicBezierCurve(
+            self.p2, self.p1, self.control_point2, self.control_point1
+        )
+
+    def transformed(self, transformation) -> "CubicBezierCurve":
+        """Apply a transformation to this curve.
+
+        Args:
+            transformation: The transformation to apply.
+
+        Returns:
+            A new transformed CubicBezierCurve.
+        """
+        return transform_cubic_bezier_curve(self, transformation)
+
 
 
 @dataclasses.dataclass(frozen=True)
@@ -748,6 +1104,10 @@ class EllipticalArc(GeometryObject):
     x_axis_rotation: float
     arc_flag: int
     sweep_flag: int
+
+    def __post_init__(self):
+        object.__setattr__(self, "rx", round(self.rx, ROUNDING))
+        object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
     def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Get intersection with a line.
@@ -778,6 +1138,27 @@ class EllipticalArc(GeometryObject):
         """
         return get_center_of_elliptical_arc(self)
 
+    def evaluate(self, t: float) -> Point:
+        """Evaluate the arc at parameter t using center parameterization.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            The point at parameter t.
+        """
+        cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
+            self.get_center_parameterization()
+        )
+        theta = theta1 + t * delta_theta
+        cos_sigma = math.cos(sigma)
+        sin_sigma = math.sin(sigma)
+        cos_theta = math.cos(theta)
+        sin_theta = math.sin(theta)
+        x = cx + rx * cos_theta * cos_sigma - ry * sin_theta * sin_sigma
+        y = cy + rx * cos_theta * sin_sigma + ry * sin_theta * cos_sigma
+        return Point(x, y)
+
     def get_position_at_fraction(self, fraction: float) -> Point:
         """Get point at a fraction along the arc.
 
@@ -787,7 +1168,25 @@ class EllipticalArc(GeometryObject):
         Returns:
             The point at that fraction.
         """
-        return get_position_at_fraction_of_elliptical_arc(self, fraction)
+        if fraction <= 0:
+            return Point(self.p1.x, self.p1.y)
+        if fraction >= 1:
+            return Point(self.p2.x, self.p2.y)
+        bezier_curves = self.to_bezier_curves()
+        if not bezier_curves:
+            return Point(self.p1.x, self.p1.y)
+        lengths = [bc.length() for bc in bezier_curves]
+        total_length = sum(lengths)
+        if total_length == 0:
+            return Point(self.p1.x, self.p1.y)
+        target = fraction * total_length
+        cumulative = 0.0
+        for bc, bc_len in zip(bezier_curves, lengths):
+            if cumulative + bc_len >= target:
+                local_fraction = (target - cumulative) / bc_len if bc_len > 0 else 0
+                return bc.get_position_at_fraction(local_fraction)
+            cumulative += bc_len
+        return bezier_curves[-1].get_position_at_fraction(1.0)
 
     def get_angle_at_fraction(self, fraction: float) -> float:
         """Get angle at a fraction along the arc.
@@ -798,7 +1197,21 @@ class EllipticalArc(GeometryObject):
         Returns:
             Angle in radians.
         """
-        return get_angle_at_fraction_of_elliptical_arc(self, fraction)
+        bezier_curves = self.to_bezier_curves()
+        if not bezier_curves:
+            return 0.0
+        lengths = [bc.length() for bc in bezier_curves]
+        total_length = sum(lengths)
+        if total_length == 0:
+            return 0.0
+        target = fraction * total_length
+        cumulative = 0.0
+        for bc, bc_len in zip(bezier_curves, lengths):
+            if cumulative + bc_len >= target:
+                local_fraction = (target - cumulative) / bc_len if bc_len > 0 else 0
+                return bc.get_angle_at_fraction(local_fraction)
+            cumulative += bc_len
+        return bezier_curves[-1].get_angle_at_fraction(1.0)
 
     def get_position_and_angle_at_fraction(
         self, fraction: float
@@ -811,66 +1224,21 @@ class EllipticalArc(GeometryObject):
         Returns:
             Tuple of (point, angle).
         """
-        return get_position_and_angle_at_fraction_of_elliptical_arc(self, fraction)
-
-    def to_shapely(self):
-        """Convert to a shapely LineString.
-
-        Returns:
-            A shapely LineString approximating the arc.
-        """
-
-        def _split_line_string(
-            line_string: shapely.LineString,
-            point: Point,
-        ):
-            segment = Segment(
-                Point.from_tuple(line_string.coords[0]),
-                Point.from_tuple(line_string.coords[1]),
-            )
-            min_distance = segment.get_distance_to_point(point)
-            min_i = 0
-            for i, current_coord in enumerate(line_string.coords[2:]):
-                previous_coord = line_string.coords[i + 1]
-                segment = Segment(
-                    Point.from_tuple(previous_coord),
-                    Point.from_tuple(current_coord),
-                )
-                distance = segment.get_distance_to_point(point)
-                if distance <= min_distance:
-                    min_distance = distance
-                    min_i = i
-            left_coords = line_string.coords[0 : min_i + 1] + [point.to_shapely()]
-            right_coords = [point.to_shapely()] + line_string.coords[min_i + 1 :]
-            left_line_string = shapely.LineString(left_coords)
-            right_line_string = shapely.LineString(right_coords)
-            return [left_line_string, right_line_string]
-
-        origin = shapely.Point(0, 0)
-        circle = origin.buffer(1.0).boundary
-        ellipse = shapely.affinity.scale(circle, self.rx, self.ry)
-        ellipse = shapely.affinity.rotate(ellipse, self.x_axis_rotation)
-        center = self.get_center()
-        ellipse = shapely.affinity.translate(ellipse, center.x, center.y)
-        line1 = Line(center, Point.from_tuple(ellipse.coords[0]))
-        angle1 = get_angle_to_horizontal_of_line(line1)
-        line2 = Line(center, Point.from_tuple(ellipse.coords[-2]))
-        angle2 = get_angle_to_horizontal_of_line(line2)
-        angle = angle1 - angle2
-        if angle >= 0:
-            sweep = 1
-        else:
-            sweep = 0
-        if sweep != self.sweep_flag:
-            ellipse = shapely.LineString(ellipse.coords[::-1])
-        if ellipse.coords[0] == self.p1.to_tuple():
-            ellipse = shapely.LineString(ellipse.coords[1:] + [ellipse.coords[0]])
-        first_split = _split_line_string(ellipse, self.p1)
-        multi_line = shapely.MultiLineString([first_split[1], first_split[0]])
-        line_string = shapely.ops.linemerge(multi_line)
-        second_split = _split_line_string(line_string, self.p2)
-        shapely_arc = second_split[0]
-        return shapely_arc
+        bezier_curves = self.to_bezier_curves()
+        if not bezier_curves:
+            return (Point(self.p1.x, self.p1.y), 0.0)
+        lengths = [bc.length() for bc in bezier_curves]
+        total_length = sum(lengths)
+        if total_length == 0:
+            return (Point(self.p1.x, self.p1.y), 0.0)
+        target = fraction * total_length
+        cumulative = 0.0
+        for bc, bc_len in zip(bezier_curves, lengths):
+            if cumulative + bc_len >= target:
+                local_fraction = (target - cumulative) / bc_len if bc_len > 0 else 0
+                return bc.get_position_and_angle_at_fraction(local_fraction)
+            cumulative += bc_len
+        return bezier_curves[-1].get_position_and_angle_at_fraction(1.0)
 
     def bbox(self) -> "Bbox":
         """Get the bounding box of the arc.
@@ -878,7 +1246,11 @@ class EllipticalArc(GeometryObject):
         Returns:
             A Bbox enclosing the arc.
         """
-        return Bbox.from_bounds(self.to_shapely().bounds)
+        bezier_curves = self.to_bezier_curves()
+        if not bezier_curves:
+            return Bbox(self.p1, 0, 0)
+        bboxes = [bc.bbox() for bc in bezier_curves]
+        return Bbox.union(bboxes)
 
     def shortened(
         self,
@@ -915,11 +1287,11 @@ class EllipticalArc(GeometryObject):
         """
         return reverse_elliptical_arc(self)
 
-    def to_bezier_curves(self) -> BezierCurve:
-        """Convert to Bezier curves.
+    def to_bezier_curves(self) -> list[CubicBezierCurve]:
+        """Convert to cubic Bezier curves.
 
         Returns:
-            BezierCurve(s) approximating the arc.
+            List of CubicBezierCurve approximating the arc.
         """
         return transform_elliptical_arc_to_bezier_curves(self)
 
@@ -929,7 +1301,7 @@ class EllipticalArc(GeometryObject):
         Returns:
             The arc length.
         """
-        return self.to_shapely().length
+        return sum(bc.length() for bc in self.to_bezier_curves())
 
 
 @dataclasses.dataclass(frozen=True)
@@ -952,6 +1324,10 @@ class Bbox(object):
     position: Point
     width: float
     height: float
+
+    def __post_init__(self):
+        object.__setattr__(self, "width", round(self.width, ROUNDING))
+        object.__setattr__(self, "height", round(self.height, ROUNDING))
 
     @property
     def x(self) -> float:
@@ -1059,19 +1435,25 @@ class Bbox(object):
         return self.position.isnan()
 
     @classmethod
-    def from_bounds(cls, bounds: tuple[float, float, float, float]):
-        """Create a Bbox from shapely bounds.
+    def union(cls, bboxes: list["Bbox"]) -> "Bbox":
+        """Create a Bbox enclosing all given bounding boxes.
 
         Args:
-            bounds: Tuple of (min_x, min_y, max_x, max_y).
+            bboxes: List of Bbox objects to merge.
 
         Returns:
-            A new Bbox.
+            A new Bbox enclosing all input bboxes.
         """
+        if not bboxes:
+            return cls(Point(0, 0), 0, 0)
+        min_x = min(b.x - b.width / 2 for b in bboxes)
+        max_x = max(b.x + b.width / 2 for b in bboxes)
+        min_y = min(b.y - b.height / 2 for b in bboxes)
+        max_y = max(b.y + b.height / 2 for b in bboxes)
         return cls(
-            Point((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2),
-            bounds[2] - bounds[0],
-            bounds[3] - bounds[1],
+            Point((min_x + max_x) / 2, (min_y + max_y) / 2),
+            max_x - min_x,
+            max_y - min_y,
         )
 
 
@@ -1293,27 +1675,42 @@ def transform_segment(segment: Segment, transformation: Transformation) -> Segme
     )
 
 
-def transform_bezier_curve(
-    bezier_curve: BezierCurve, transformation: Transformation
-) -> BezierCurve:
-    """Transform a Bezier curve.
+def transform_quadratic_bezier_curve(
+    bezier_curve: QuadraticBezierCurve, transformation: Transformation
+) -> QuadraticBezierCurve:
+    """Transform a quadratic Bezier curve.
 
     Args:
         bezier_curve: The curve to transform.
         transformation: The transformation to apply.
 
     Returns:
-        The transformed BezierCurve.
+        The transformed QuadraticBezierCurve.
     """
-    return BezierCurve(
+    return QuadraticBezierCurve(
         transform_point(bezier_curve.p1, transformation),
         transform_point(bezier_curve.p2, transformation),
-        tuple(
-            [
-                transform_point(point, transformation)
-                for point in bezier_curve.control_points
-            ]
-        ),
+        transform_point(bezier_curve.control_point, transformation),
+    )
+
+
+def transform_cubic_bezier_curve(
+    bezier_curve: CubicBezierCurve, transformation: Transformation
+) -> CubicBezierCurve:
+    """Transform a cubic Bezier curve.
+
+    Args:
+        bezier_curve: The curve to transform.
+        transformation: The transformation to apply.
+
+    Returns:
+        The transformed CubicBezierCurve.
+    """
+    return CubicBezierCurve(
+        transform_point(bezier_curve.p1, transformation),
+        transform_point(bezier_curve.p2, transformation),
+        transform_point(bezier_curve.control_point1, transformation),
+        transform_point(bezier_curve.control_point2, transformation),
     )
 
 
@@ -1394,17 +1791,38 @@ def reverse_segment(segment):
     return Segment(segment.p2, segment.p1)
 
 
-def reverse_bezier_curve(bezier_curve: BezierCurve) -> BezierCurve:
-    """Reverse a Bezier curve.
+def reverse_quadratic_bezier_curve(
+    bezier_curve: QuadraticBezierCurve,
+) -> QuadraticBezierCurve:
+    """Reverse a quadratic Bezier curve.
 
     Args:
         bezier_curve: The curve to reverse.
 
     Returns:
-        A new BezierCurve going in reverse direction.
+        A new QuadraticBezierCurve going in reverse direction.
     """
-    return BezierCurve(
-        bezier_curve.p2, bezier_curve.p1, bezier_curve.control_points[::-1]
+    return QuadraticBezierCurve(
+        bezier_curve.p2, bezier_curve.p1, bezier_curve.control_point
+    )
+
+
+def reverse_cubic_bezier_curve(
+    bezier_curve: CubicBezierCurve,
+) -> CubicBezierCurve:
+    """Reverse a cubic Bezier curve.
+
+    Args:
+        bezier_curve: The curve to reverse.
+
+    Returns:
+        A new CubicBezierCurve going in reverse direction.
+    """
+    return CubicBezierCurve(
+        bezier_curve.p2,
+        bezier_curve.p1,
+        bezier_curve.control_point2,
+        bezier_curve.control_point1,
     )
 
 
@@ -1455,12 +1873,12 @@ def shorten_segment(
     return shortened_segment
 
 
-def shorten_bezier_curve(
-    bezier_curve: BezierCurve,
+def shorten_quadratic_bezier_curve(
+    bezier_curve: QuadraticBezierCurve,
     length: float,
     start_or_end: typing.Literal["start", "end"] = "end",
-) -> BezierCurve:
-    """Shorten a Bezier curve by a given length.
+) -> QuadraticBezierCurve:
+    """Shorten a quadratic Bezier curve by a given length.
 
     Args:
         bezier_curve: The curve to shorten.
@@ -1468,29 +1886,51 @@ def shorten_bezier_curve(
         start_or_end: Which end to shorten from.
 
     Returns:
-        A new shortened BezierCurve.
+        A new shortened QuadraticBezierCurve.
     """
     if length == 0 or bezier_curve.length() == 0:
-        shortened_bezier_curve = copy.deepcopy(bezier_curve)
-    else:
-        if start_or_end == "start":
-            shortened_bezier_curve = (
-                bezier_curve.reversed().shortened(length).reversed()
-            )
-        else:
-            lib_bezier_curve = bezier_curve._to_bezier()
-            total_length = lib_bezier_curve.length
-            if length > total_length:
-                length = total_length
-            fraction = 1 - length / total_length
-            point = bezier_curve.get_position_at_fraction(fraction)
-            horizontal_line = BezierCurve(point - (5, 0), point + (5, 0))._to_bezier()
-            s = lib_bezier_curve.intersect(horizontal_line)[0][0]
-            lib_shortened_bezier_curve = lib_bezier_curve.specialize(0, s)
-            shortened_bezier_curve = BezierCurve._from_bezier(
-                lib_shortened_bezier_curve
-            )
-    return shortened_bezier_curve
+        return copy.deepcopy(bezier_curve)
+    if start_or_end == "start":
+        return bezier_curve.reversed().shortened(length).reversed()
+    total_length = bezier_curve.length()
+    if length > total_length:
+        length = total_length
+    fraction = 1 - length / total_length
+    t = _find_t_at_arc_length_fraction(
+        bezier_curve.derivative, total_length, fraction
+    )
+    left, _ = bezier_curve.split(t)
+    return left
+
+
+def shorten_cubic_bezier_curve(
+    bezier_curve: CubicBezierCurve,
+    length: float,
+    start_or_end: typing.Literal["start", "end"] = "end",
+) -> CubicBezierCurve:
+    """Shorten a cubic Bezier curve by a given length.
+
+    Args:
+        bezier_curve: The curve to shorten.
+        length: Amount to shorten by.
+        start_or_end: Which end to shorten from.
+
+    Returns:
+        A new shortened CubicBezierCurve.
+    """
+    if length == 0 or bezier_curve.length() == 0:
+        return copy.deepcopy(bezier_curve)
+    if start_or_end == "start":
+        return bezier_curve.reversed().shortened(length).reversed()
+    total_length = bezier_curve.length()
+    if length > total_length:
+        length = total_length
+    fraction = 1 - length / total_length
+    t = _find_t_at_arc_length_fraction(
+        bezier_curve.derivative, total_length, fraction
+    )
+    left, _ = bezier_curve.split(t)
+    return left
 
 
 def shorten_elliptical_arc(
@@ -1658,132 +2098,184 @@ def get_intersection_of_line_and_segment(
     return intersection
 
 
-def get_intersection_of_line_and_bezier_curve(
-    line: Line, bezier_curve: BezierCurve
-) -> list[Point] | list[Segment]:
-    """Get intersection of a line and a Bezier curve.
+def get_intersection_of_line_and_quadratic_bezier_curve(
+    line: Line, bezier_curve: QuadraticBezierCurve
+) -> list[Point]:
+    """Get intersection of a line and a quadratic Bezier curve.
+
+    Expresses the line as a*x + b*y + c = 0, substitutes the quadratic
+    Bezier parametric equations, and solves the resulting quadratic in t.
 
     Args:
         line: The line.
-        bezier_curve: The Bezier curve.
+        bezier_curve: The quadratic Bezier curve.
 
     Returns:
-        List of intersection points or segments.
+        List of intersection points.
     """
-    shapely_object = bezier_curve.to_shapely()
-    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+    # Line equation: a*x + b*y + c = 0
+    a = line.p2.y - line.p1.y
+    b = line.p1.x - line.p2.x
+    c = line.p2.x * line.p1.y - line.p1.x * line.p2.y
+    # Bezier: B(t) = (1-t)^2 * p0 + 2(1-t)t * p1 + t^2 * p2
+    p0x, p0y = bezier_curve.p1.x, bezier_curve.p1.y
+    p1x, p1y = bezier_curve.control_point.x, bezier_curve.control_point.y
+    p2x, p2y = bezier_curve.p2.x, bezier_curve.p2.y
+    # Substitute into line equation: A*t^2 + B*t + C = 0
+    ax_coeff = a * (p0x - 2 * p1x + p2x) + b * (p0y - 2 * p1y + p2y)
+    bx_coeff = a * (-2 * p0x + 2 * p1x) + b * (-2 * p0y + 2 * p1y)
+    cx_coeff = a * p0x + b * p0y + c
+    roots = []
+    if abs(ax_coeff) < 1e-12:
+        if abs(bx_coeff) > 1e-12:
+            roots.append(-cx_coeff / bx_coeff)
+    else:
+        disc = bx_coeff * bx_coeff - 4 * ax_coeff * cx_coeff
+        if disc >= 0:
+            sqrt_disc = math.sqrt(disc)
+            roots.append((-bx_coeff + sqrt_disc) / (2 * ax_coeff))
+            roots.append((-bx_coeff - sqrt_disc) / (2 * ax_coeff))
+    result = []
+    for t in roots:
+        if -1e-10 <= t <= 1 + 1e-10:
+            t = max(0.0, min(1.0, t))
+            result.append(bezier_curve.evaluate(t))
+    return result
+
+
+def get_intersection_of_line_and_cubic_bezier_curve(
+    line: Line, bezier_curve: CubicBezierCurve
+) -> list[Point]:
+    """Get intersection of a line and a cubic Bezier curve.
+
+    Expresses the line as a*x + b*y + c = 0, substitutes the cubic
+    Bezier parametric equations, and solves the resulting cubic in t
+    using numpy.roots().
+
+    Args:
+        line: The line.
+        bezier_curve: The cubic Bezier curve.
+
+    Returns:
+        List of intersection points.
+    """
+    # Line equation: a*x + b*y + c = 0
+    a = line.p2.y - line.p1.y
+    b = line.p1.x - line.p2.x
+    c = line.p2.x * line.p1.y - line.p1.x * line.p2.y
+    # Cubic Bezier: B(t) = (1-t)^3*P0 + 3(1-t)^2*t*P1 + 3(1-t)*t^2*P2 + t^3*P3
+    p0x, p0y = bezier_curve.p1.x, bezier_curve.p1.y
+    p1x, p1y = bezier_curve.control_point1.x, bezier_curve.control_point1.y
+    p2x, p2y = bezier_curve.control_point2.x, bezier_curve.control_point2.y
+    p3x, p3y = bezier_curve.p2.x, bezier_curve.p2.y
+    # Expand B(t) in powers of t for x and y:
+    # x(t) = (-p0+3p1-3p2+p3)t^3 + (3p0-6p1+3p2)t^2 + (-3p0+3p1)t + p0
+    c3x = -p0x + 3 * p1x - 3 * p2x + p3x
+    c2x = 3 * p0x - 6 * p1x + 3 * p2x
+    c1x = -3 * p0x + 3 * p1x
+    c0x = p0x
+    c3y = -p0y + 3 * p1y - 3 * p2y + p3y
+    c2y = 3 * p0y - 6 * p1y + 3 * p2y
+    c1y = -3 * p0y + 3 * p1y
+    c0y = p0y
+    # Substituting: a*(c3x*t^3+c2x*t^2+c1x*t+c0x) + b*(c3y*t^3+...) + c = 0
+    coeff3 = a * c3x + b * c3y
+    coeff2 = a * c2x + b * c2y
+    coeff1 = a * c1x + b * c1y
+    coeff0 = a * c0x + b * c0y + c
+    roots = numpy.roots([coeff3, coeff2, coeff1, coeff0])
+    result = []
+    for root in roots:
+        if abs(root.imag) < 1e-8:
+            t = root.real
+            if -1e-10 <= t <= 1 + 1e-10:
+                t = max(0.0, min(1.0, t))
+                result.append(bezier_curve.evaluate(t))
+    return result
 
 
 def get_intersection_of_line_and_elliptical_arc(
     line: Line, elliptical_arc: EllipticalArc
-) -> list[Point] | list[Segment]:
+) -> list[Point]:
     """Get intersection of a line and an elliptical arc.
+
+    Converts the arc to cubic Bezier curves and finds intersections
+    with each sub-curve.
 
     Args:
         line: The line.
         elliptical_arc: The elliptical arc.
 
     Returns:
-        List of intersection points or segments.
+        List of intersection points.
     """
-    shapely_object = elliptical_arc.to_shapely()
-    return get_intersection_of_line_and_shapely_object(line, shapely_object)
+    result = []
+    for bc in elliptical_arc.to_bezier_curves():
+        result.extend(get_intersection_of_line_and_cubic_bezier_curve(line, bc))
+    return result
 
 
-def get_intersection_of_line_and_shapely_object(
-    line: Line, shapely_object: shapely.Geometry
-) -> list[Point] | list[Segment]:
-    """Get intersection of a line with a shapely object.
+def _intersect_line_with_primitive(
+    line: Line,
+    primitive: "Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc",
+) -> list[Point]:
+    """Get intersection of a line with a geometry primitive.
 
     Args:
         line: The line.
-        shapely_object: A shapely geometry.
+        primitive: A geometry primitive.
 
     Returns:
-        List of intersection points or segments.
+        List of intersection points.
     """
-    intersection = []
-    # Handle both single geometries and collections
-    if hasattr(shapely_object, "geoms"):
-        geoms = shapely_object.geoms
-    else:
-        geoms = [shapely_object]
-    for shapely_geom in geoms:
-        bbox = Bbox.from_bounds(shapely_object.bounds)
-        slope = line.slope()
-        north_west = bbox.north_west()
-        south_east = bbox.south_east()
-        offset = 100.0
-        if not math.isnan(slope):
-            intercept = line.intercept()
-            left_x = north_west.x - offset
-            left_y = slope * left_x + intercept
-            right_x = south_east.x + offset
-            right_y = slope * right_x + intercept
-        else:
-            left_x = line.p1.x
-            left_y = north_west.y - offset
-            right_x = line.p1.x
-            right_y = south_east.y + offset
-        left_point = Point(left_x, left_y)
-        right_point = Point(right_x, right_y)
-        line_string = shapely.LineString(
-            [left_point.to_shapely(), right_point.to_shapely()]
-        )
-        shapely_intersection = line_string.intersection(shapely_geom)
-        if not hasattr(shapely_intersection, "geoms"):
-            shapely_intersection = [shapely_intersection]
-        else:
-            shapely_intersection = shapely_intersection.geoms
-        for shapely_obj in shapely_intersection:
-            if not shapely.is_empty(shapely_obj):
-                if isinstance(shapely_obj, shapely.Point):
-                    intersection_obj = Point.from_shapely(shapely_obj)
-                elif isinstance(shapely_obj, shapely.LineString):
-                    intersection_obj = Segment.from_shapely(shapely_obj)
-                intersection.append(intersection_obj)
-    return intersection
+    if isinstance(primitive, Segment):
+        result = get_intersection_of_line_and_segment(line, primitive)
+        points = []
+        for obj in result:
+            if isinstance(obj, Point):
+                points.append(obj)
+            elif isinstance(obj, Segment):
+                points.append(obj.p1)
+                points.append(obj.p2)
+        return points
+    elif isinstance(primitive, QuadraticBezierCurve):
+        return get_intersection_of_line_and_quadratic_bezier_curve(line, primitive)
+    elif isinstance(primitive, CubicBezierCurve):
+        return get_intersection_of_line_and_cubic_bezier_curve(line, primitive)
+    elif isinstance(primitive, EllipticalArc):
+        return get_intersection_of_line_and_elliptical_arc(line, primitive)
+    return []
 
 
-def get_shapely_object_bbox(shapely_object: shapely.Geometry) -> Bbox:
-    """Get the bounding box of a shapely object.
-
-    Args:
-        shapely_object: A shapely geometry.
-
-    Returns:
-        The bounding box.
-    """
-    return Bbox.from_bounds(shapely_object.bounds)
-
-
-def get_shapely_object_border(
-    shapely_object: shapely.Geometry, point: Point, center: Point | None = None
+def get_geometry_border(
+    primitives: list[
+        "Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc"
+    ],
+    point: Point,
+    center: Point | None = None,
 ) -> Point | None:
-    """Get the border point in a given direction.
+    """Get the border point of geometry primitives in a given direction.
 
     Args:
-        shapely_object: A shapely geometry.
+        primitives: List of geometry primitives.
         point: Direction point.
-        center: Optional center point.
+        center: Optional center point. Defaults to bbox center.
 
     Returns:
         The border point or None.
     """
+    if not primitives:
+        return None
     if center is None:
-        bbox = get_shapely_object_bbox(shapely_object)
+        bboxes = [p.bbox() for p in primitives]
+        bbox = Bbox.union(bboxes)
         center = bbox.center()
     if center.isnan():
-        return Point(float("nan"), float("nan"))
+        return None
     line = Line(center, point)
-    intersection = get_intersection_of_line_and_shapely_object(line, shapely_object)
     candidate_points = []
-    for intersection_obj in intersection:
-        if isinstance(intersection_obj, Segment):
-            candidate_points.append(intersection_obj.p1)
-            candidate_points.append(intersection_obj.p2)
-        elif isinstance(intersection_obj, Point):
-            candidate_points.append(intersection_obj)
+    for primitive in primitives:
+        candidate_points.extend(_intersect_line_with_primitive(line, primitive))
     intersection_point = None
     max_d = -1
     ok_direction_exists = False
@@ -1802,8 +2294,10 @@ def get_shapely_object_border(
     return intersection_point
 
 
-def get_shapely_object_angle(
-    shapely_object: shapely.Geometry,
+def get_geometry_angle(
+    primitives: list[
+        "Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc"
+    ],
     angle: float,
     unit: typing.Literal["degrees", "radians"] = "degrees",
     center: Point | None = None,
@@ -1811,7 +2305,7 @@ def get_shapely_object_angle(
     """Get the border point at a given angle.
 
     Args:
-        shapely_object: A shapely geometry.
+        primitives: List of geometry primitives.
         angle: The angle.
         unit: Unit of angle ('degrees' or 'radians').
         center: Optional center point.
@@ -1824,36 +2318,40 @@ def get_shapely_object_angle(
     angle = -angle
     d = 100
     if center is None:
-        bbox = get_shapely_object_bbox(shapely_object)
+        bboxes = [p.bbox() for p in primitives]
+        bbox = Bbox.union(bboxes)
         center = bbox.center()
         if center.isnan():
-            return Point(float("nan"), float("nan"))
+            return None
     point = center + (d * math.cos(angle), d * math.sin(angle))
-    return get_shapely_object_border(shapely_object, point, center)
+    return get_geometry_border(primitives, point, center)
 
 
-def get_shapely_object_anchor_point(
-    shapely_object: shapely.Geometry,
+def get_geometry_anchor_point(
+    primitives: list[
+        "Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc"
+    ],
     anchor_point: str,
     center: Point | None = None,
-) -> Point:
-    """Get an anchor point of a shapely object.
+) -> Point | None:
+    """Get an anchor point of geometry primitives.
 
     Args:
-        shapely_object: A shapely geometry.
+        primitives: List of geometry primitives.
         anchor_point: Name of anchor point.
         center: Optional center point.
 
     Returns:
-        The anchor point.
+        The anchor point or None.
     """
-    bbox = get_shapely_object_bbox(shapely_object)
+    bboxes = [p.bbox() for p in primitives]
+    bbox = Bbox.union(bboxes)
     if center is None:
         center = bbox.center()
     if center.isnan():
-        return Point(float("nan"), float("nan"))
+        return None
     point = bbox.anchor_point(anchor_point)
-    return get_shapely_object_border(shapely_object, point, center)
+    return get_geometry_border(primitives, point, center)
 
 
 def get_angle_to_horizontal_of_point(point: Point) -> float:
@@ -1980,12 +2478,6 @@ def get_normalized_angle(angle: float) -> float:
     return angle - (angle // (2 * math.pi) * (2 * math.pi))
 
 
-def _get_position_at_fraction(segment_or_curve, fraction):
-    line_string = segment_or_curve.to_shapely()
-    shapely_point = line_string.interpolate(fraction, normalized=True)
-    return Point.from_shapely(shapely_point)
-
-
 def get_position_at_fraction_of_segment(
     segment: Segment,
     fraction: float,
@@ -1999,11 +2491,11 @@ def get_position_at_fraction_of_segment(
     Returns:
         The point at that fraction.
     """
-    return _get_position_at_fraction(segment, fraction)
+    return segment.get_position_at_fraction(fraction)
 
 
 def get_position_at_fraction_of_bezier_curve(
-    bezier_curve: BezierCurve,
+    bezier_curve: QuadraticBezierCurve | CubicBezierCurve,
     fraction: float,
 ) -> Point:
     """Get point at a fraction along a Bezier curve.
@@ -2015,7 +2507,7 @@ def get_position_at_fraction_of_bezier_curve(
     Returns:
         The point at that fraction.
     """
-    return _get_position_at_fraction(bezier_curve, fraction)
+    return bezier_curve.get_position_at_fraction(fraction)
 
 
 def get_position_at_fraction_of_elliptical_arc(
@@ -2031,7 +2523,7 @@ def get_position_at_fraction_of_elliptical_arc(
     Returns:
         The point at that fraction.
     """
-    return _get_position_at_fraction(elliptical_arc, fraction)
+    return elliptical_arc.get_position_at_fraction(fraction)
 
 
 def get_center_parameterization_of_elliptical_arc(
@@ -2099,21 +2591,21 @@ def get_center_of_elliptical_arc(elliptical_arc: EllipticalArc) -> Point:
 
 def transform_elliptical_arc_to_bezier_curves(
     elliptical_arc: EllipticalArc,
-) -> list[BezierCurve]:
-    """Convert an elliptical arc to Bezier curves.
+) -> list[CubicBezierCurve]:
+    """Convert an elliptical arc to cubic Bezier curves.
 
     Args:
         elliptical_arc: The arc to convert.
 
     Returns:
-        List of BezierCurve approximating the arc.
+        List of CubicBezierCurve approximating the arc.
     """
 
     def _make_angles(angles):
         new_angles = [angles[0]]
         for theta1, theta2 in zip(angles, angles[1:]):
             delta_theta = theta2 - theta1
-            if delta_theta > math.pi / 2:
+            if abs(delta_theta) > math.pi / 2:
                 new_angles.append(theta1 + delta_theta / 2)
             new_angles.append(theta2)
         if len(new_angles) != len(angles):
@@ -2156,31 +2648,14 @@ def transform_elliptical_arc_to_bezier_curves(
         p2 = Point(x2, y2)
         control_point1 = Point(cp1x, cp1y)
         control_point2 = Point(cp2x, cp2y)
-        bezier_curve = BezierCurve(
-            p1=p1, p2=p2, control_points=tuple([control_point1, control_point2])
+        bezier_curve = CubicBezierCurve(
+            p1=p1,
+            p2=p2,
+            control_point1=control_point1,
+            control_point2=control_point2,
         ).transformed(transformation)
         bezier_curves.append(bezier_curve)
     return bezier_curves
-
-
-def _get_angle_at_fraction(
-    segment_or_curve: Segment | BezierCurve | EllipticalArc,
-    fraction: float,
-) -> float:
-    line_string = segment_or_curve.to_shapely()
-    total_length = line_string.length
-    current_length = 0
-    previous_coord = line_string.coords[0]
-    for current_coord in line_string.coords[1:]:
-        segment = Segment(
-            Point.from_tuple(previous_coord),
-            Point.from_tuple(current_coord),
-        )
-        current_length += segment.length()
-        if current_length / total_length >= fraction:
-            break
-        previous_coord = current_coord
-    return segment.get_angle_to_horizontal()
 
 
 def get_angle_at_fraction_of_segment(
@@ -2196,11 +2671,11 @@ def get_angle_at_fraction_of_segment(
     Returns:
         Angle in radians.
     """
-    return _get_angle_at_fraction(segment, fraction)
+    return segment.get_angle_at_fraction(fraction)
 
 
 def get_angle_at_fraction_of_bezier_curve(
-    bezier_curve: BezierCurve,
+    bezier_curve: QuadraticBezierCurve | CubicBezierCurve,
     fraction: float,
 ) -> float:
     """Get angle at a fraction along a Bezier curve.
@@ -2212,7 +2687,7 @@ def get_angle_at_fraction_of_bezier_curve(
     Returns:
         Angle in radians.
     """
-    return _get_angle_at_fraction(bezier_curve, fraction)
+    return bezier_curve.get_angle_at_fraction(fraction)
 
 
 def get_angle_at_fraction_of_elliptical_arc(
@@ -2228,16 +2703,7 @@ def get_angle_at_fraction_of_elliptical_arc(
     Returns:
         Angle in radians.
     """
-    return _get_angle_at_fraction(elliptical_arc, fraction)
-
-
-def _get_position_and_angle_at_fraction(
-    segment_or_curve: Segment | BezierCurve | EllipticalArc,
-    fraction: float,
-) -> tuple[Point, float]:
-    position = _get_position_at_fraction(segment_or_curve, fraction)
-    angle = _get_angle_at_fraction(segment_or_curve, fraction)
-    return position, angle
+    return elliptical_arc.get_angle_at_fraction(fraction)
 
 
 def get_position_and_angle_at_fraction_of_segment(
@@ -2253,11 +2719,11 @@ def get_position_and_angle_at_fraction_of_segment(
     Returns:
         Tuple of (point, angle).
     """
-    return _get_position_and_angle_at_fraction(segment, fraction)
+    return segment.get_position_and_angle_at_fraction(fraction)
 
 
 def get_position_and_angle_at_fraction_of_bezier_curve(
-    bezier_curve: BezierCurve,
+    bezier_curve: QuadraticBezierCurve | CubicBezierCurve,
     fraction: float,
 ) -> tuple[Point, float]:
     """Get position and angle at a fraction along a Bezier curve.
@@ -2269,7 +2735,7 @@ def get_position_and_angle_at_fraction_of_bezier_curve(
     Returns:
         Tuple of (point, angle).
     """
-    return _get_position_and_angle_at_fraction(bezier_curve, fraction)
+    return bezier_curve.get_position_and_angle_at_fraction(fraction)
 
 
 def get_position_and_angle_at_fraction_of_elliptical_arc(
@@ -2285,7 +2751,7 @@ def get_position_and_angle_at_fraction_of_elliptical_arc(
     Returns:
         Tuple of (point, angle).
     """
-    return _get_position_and_angle_at_fraction(elliptical_arc, fraction)
+    return elliptical_arc.get_position_and_angle_at_fraction(fraction)
 
 
 def get_angle_between_segments(segment1: Segment, segment2: Segment) -> float:
