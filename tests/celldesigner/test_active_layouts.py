@@ -1,7 +1,7 @@
 """Tests for CellDesigner active layout border behaviour.
 
 Active species nodes have a dashed active border added as a child
-``layout_element``.  When routing arcs, ``self_border()`` (which only
+``layout_element``.  When routing arcs, ``own_border()`` (which only
 considers the node's own drawing elements) must be used so that arcs
 connect to the inner shape, not the outer dashed border returned by
 ``border()`` (which includes children).
@@ -104,13 +104,13 @@ class TestActiveLayoutStructure:
 
 
 class TestSelfBorderVsBorder:
-    """Tests that ``self_border`` ignores the active child while
+    """Tests that ``own_border`` ignores the active child while
     ``border`` includes it."""
 
     @pytest.mark.parametrize("layout_cls,active_cls", _LAYOUT_PAIRS,
                              ids=[c[0].__name__ for c in _LAYOUT_PAIRS])
-    def test_self_border_is_closer_to_center_than_border(self, layout_cls, active_cls):
-        """``self_border()`` should return a point on the inner shape
+    def test_own_border_is_closer_to_center_than_border(self, layout_cls, active_cls):
+        """``own_border()`` should return a point on the inner shape
         (closer to center) while ``border()`` returns a point on the
         outer active border (farther from center)."""
         node = _build_species_with_active_child(layout_cls, active_cls)
@@ -118,11 +118,11 @@ class TestSelfBorderVsBorder:
         # between center and this point.
         far_point = momapy.geometry.Point(300.0, 100.0)
 
-        self_border_pt = node.self_border(far_point)
+        own_border_pt = node.own_border(far_point)
         border_pt = node.border(far_point)
 
         center = node.center()
-        dist_self = _dist(center,self_border_pt)
+        dist_self = _dist(center,own_border_pt)
         dist_full = _dist(center,border_pt)
 
         # The outer (full) border must be strictly farther out
@@ -130,8 +130,8 @@ class TestSelfBorderVsBorder:
 
     @pytest.mark.parametrize("layout_cls,active_cls", _LAYOUT_PAIRS,
                              ids=[c[0].__name__ for c in _LAYOUT_PAIRS])
-    def test_self_border_matches_node_without_active_child(self, layout_cls, active_cls):
-        """``self_border()`` on a node with an active child should give
+    def test_own_border_matches_node_without_active_child(self, layout_cls, active_cls):
+        """``own_border()`` on a node with an active child should give
         the same result as ``border()`` on the same node without one."""
         position = momapy.geometry.Point(100.0, 100.0)
         width, height = 60.0, 30.0
@@ -151,16 +151,16 @@ class TestSelfBorderVsBorder:
 
         far_point = momapy.geometry.Point(300.0, 100.0)
 
-        self_border_pt = node_active.self_border(far_point)
+        own_border_pt = node_active.own_border(far_point)
         plain_border_pt = node_plain.border(far_point)
 
-        assert self_border_pt.x == pytest.approx(plain_border_pt.x, abs=1e-6)
-        assert self_border_pt.y == pytest.approx(plain_border_pt.y, abs=1e-6)
+        assert own_border_pt.x == pytest.approx(plain_border_pt.x, abs=1e-6)
+        assert own_border_pt.y == pytest.approx(plain_border_pt.y, abs=1e-6)
 
     @pytest.mark.parametrize("layout_cls,active_cls", _LAYOUT_PAIRS,
                              ids=[c[0].__name__ for c in _LAYOUT_PAIRS])
-    def test_self_border_from_multiple_directions(self, layout_cls, active_cls):
-        """``self_border()`` is strictly inside ``border()`` from several
+    def test_own_border_from_multiple_directions(self, layout_cls, active_cls):
+        """``own_border()`` is strictly inside ``border()`` from several
         approach angles."""
         node = _build_species_with_active_child(layout_cls, active_cls)
         center = node.center()
@@ -173,27 +173,27 @@ class TestSelfBorderVsBorder:
         ]
 
         for far_point in far_points:
-            self_border_pt = node.self_border(far_point)
+            own_border_pt = node.own_border(far_point)
             border_pt = node.border(far_point)
 
-            dist_self = _dist(center,self_border_pt)
+            dist_self = _dist(center,own_border_pt)
             dist_full = _dist(center,border_pt)
 
             assert dist_full > dist_self, (
-                f"border() should be farther than self_border() "
+                f"border() should be farther than own_border() "
                 f"for far_point={far_point}"
             )
 
 
 class TestNodeWithoutActiveChild:
-    """When there is no active child, ``self_border`` and ``border``
+    """When there is no active child, ``own_border`` and ``border``
     should agree (aside from the label, which produces no border
     geometry)."""
 
     @pytest.mark.parametrize("layout_cls,active_cls", _LAYOUT_PAIRS,
                              ids=[c[0].__name__ for c in _LAYOUT_PAIRS])
-    def test_self_border_equals_border_without_active(self, layout_cls, active_cls):
-        """For a plain (non-active) node, ``self_border`` ≈ ``border``."""
+    def test_own_border_equals_border_without_active(self, layout_cls, active_cls):
+        """For a plain (non-active) node, ``own_border`` ≈ ``border``."""
         builder = momapy.builder.new_builder_object(layout_cls)
         builder.position = momapy.geometry.Point(100.0, 100.0)
         builder.width = 60.0
@@ -203,8 +203,8 @@ class TestNodeWithoutActiveChild:
 
         far_point = momapy.geometry.Point(300.0, 100.0)
 
-        self_border_pt = node.self_border(far_point)
+        own_border_pt = node.own_border(far_point)
         border_pt = node.border(far_point)
 
-        assert self_border_pt.x == pytest.approx(border_pt.x, abs=1e-6)
-        assert self_border_pt.y == pytest.approx(border_pt.y, abs=1e-6)
+        assert own_border_pt.x == pytest.approx(border_pt.x, abs=1e-6)
+        assert own_border_pt.y == pytest.approx(border_pt.y, abs=1e-6)

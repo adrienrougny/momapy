@@ -785,10 +785,10 @@ class CellDesignerSingleHeadedArc(momapy.core.layout.SingleHeadedArc):
     )
     path_stroke_width: float | None = 1.0
 
-    def self_drawing_elements(self):
+    def own_drawing_elements(self):
         drawing_elements = momapy.builder.super_or_builder(
             CellDesignerSingleHeadedArc, self
-        ).self_drawing_elements()
+        ).own_drawing_elements()
         done_bases = []
         for base in type(self).__mro__:
             if (
@@ -813,10 +813,10 @@ class CellDesignerDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
     )
     path_stroke_width: float | None = 1.0
 
-    def self_drawing_elements(self):
+    def own_drawing_elements(self):
         drawing_elements = momapy.builder.super_or_builder(
             CellDesignerDoubleHeadedArc, self
-        ).self_drawing_elements()
+        ).own_drawing_elements()
         done_bases = []
         for base in type(self).__mro__:
             if (

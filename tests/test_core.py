@@ -12,7 +12,7 @@ import momapy.coloring
 # Minimal concrete Arc subclass for testing Arc.fraction()
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ConcreteArc(momapy.core.layout.Arc):
-    def self_drawing_elements(self):
+    def own_drawing_elements(self):
         return []
 
     def _arrowhead_border_drawing_elements(self):

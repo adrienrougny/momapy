@@ -159,13 +159,13 @@ def make_toy_node(
         s1 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
-            position=m.self_angle(130),
+            position=m.own_angle(130),
         )
         m.layout_elements.append(s1)
         s2 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
-            position=m.self_angle(50),
+            position=m.own_angle(50),
         )
         m.layout_elements.append(s2)
         u1 = UnitOfInformationLayoutBuilder(
@@ -292,7 +292,7 @@ def show_room(cls, type_="anchor"):
         m = momapy.builder.builder_from_object(m)
         if type_ == "anchor":
             l = NODE_ANCHORS.keys()
-        elif type_ == "angle" or type_ == "self_angle":
+        elif type_ == "angle" or type_ == "own_angle":
             l = range(0, 360, ANGLE_STEP)
         for i, elem in enumerate(l):
             if type_ == "anchor":
@@ -301,8 +301,8 @@ def show_room(cls, type_="anchor"):
             elif type_ == "angle":
                 position = m.angle(elem)
                 text = str(elem)
-            elif type_ == "self_angle":
-                position = m.self_angle(elem)
+            elif type_ == "own_angle":
+                position = m.own_angle(elem)
                 text = str(elem)
             cross = CrossPointBuilder(
                 width=CROSS_SIZE,
@@ -332,7 +332,7 @@ def show_room(cls, type_="anchor"):
                         .replace("west", "left")
                     )
                     attach = NODE_ANCHORS[elem]
-            elif type_ == "self_angle" or type_ == "angle":
+            elif type_ == "own_angle" or type_ == "angle":
                 if i % 2 == 0:
                     func_name = "set_above_right_of"
                     attach = "south_west"

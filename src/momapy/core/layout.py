@@ -438,7 +438,7 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         metadata={"description": "The transform of the group layout"},
     )
 
-    def self_to_geometry(
+    def own_to_geometry(
         self,
     ) -> list[
         momapy.geometry.Segment
@@ -449,9 +449,9 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         """Return a list of geometry primitives from the self drawing elements."""
         return momapy.drawing.drawing_elements_to_geometry(self.drawing_elements())
 
-    def self_bbox(self) -> momapy.geometry.Bbox:
+    def own_bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the self drawing element of the group layout"""
-        primitives = self.self_to_geometry()
+        primitives = self.own_to_geometry()
         if not primitives:
             return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
@@ -459,12 +459,12 @@ class GroupLayout(momapy.core.elements.LayoutElement):
 
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the group layout element"""
-        self_bbox = self.self_bbox()
+        own_bbox = self.own_bbox()
         bboxes = [child.bbox() for child in self.children()]
-        min_x = self_bbox.north_west().x
-        min_y = self_bbox.north_west().y
-        max_x = self_bbox.south_east().x
-        max_y = self_bbox.south_east().y
+        min_x = own_bbox.north_west().x
+        min_y = own_bbox.north_west().y
+        max_x = own_bbox.south_east().x
+        max_y = own_bbox.south_east().y
         for bbox in bboxes:
             if bbox.north_west().x < min_x:
                 min_x = bbox.north_west().x
@@ -482,12 +482,12 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         return bbox
 
     @abc.abstractmethod
-    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the self drawing elements of the group layout"""
         pass
 
     @abc.abstractmethod
-    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the group layout"""
         pass
 
@@ -495,7 +495,7 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         """Return the drawing elements of the group layout.
         The returned drawing elements are a group drawing element formed of the self drawing elements of the group layout and the drawing elements of its children
         """
-        drawing_elements = self.self_drawing_elements()
+        drawing_elements = self.own_drawing_elements()
         for child in self.children():
             if child is not None:
                 drawing_elements += child.drawing_elements()
@@ -521,9 +521,9 @@ class GroupLayout(momapy.core.elements.LayoutElement):
 
     def children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the children of the group layout.
-        These are the self children of the group layout (returned by the `self_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
+        These are the self children of the group layout (returned by the `own_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
         """
-        return self.self_children() + list(self.layout_elements)
+        return self.own_children() + list(self.layout_elements)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -592,7 +592,7 @@ class Node(GroupLayout):
     def _border_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         pass
 
-    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the node's own drawing elements"""
         drawing_elements = self._border_drawing_elements()
         group = momapy.drawing.Group(
@@ -609,7 +609,7 @@ class Node(GroupLayout):
         )
         return [group]
 
-    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the node. A node has unique child that is its label"""
         if self.label is not None:
             return [self.label]
@@ -625,7 +625,7 @@ class Node(GroupLayout):
             self.center(), self.center() - (self.width / 2, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def north_north_west(self) -> momapy.geometry.Point:
         """Return the north north west anchor of the node"""
@@ -633,11 +633,11 @@ class Node(GroupLayout):
             self.center(), self.center() - (self.width / 4, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def north(self) -> momapy.geometry.Point:
         """Return the north anchor of the node"""
-        return self.self_angle(90)
+        return self.own_angle(90)
 
     def north_north_east(self) -> momapy.geometry.Point:
         """Return the north north east anchor of the node"""
@@ -645,7 +645,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 4, -self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def north_east(self) -> momapy.geometry.Point:
         """Return the north east anchor of the node"""
@@ -653,7 +653,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 2, -self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def east_north_east(self) -> momapy.geometry.Point:
         """Return the east north east anchor of the node"""
@@ -661,11 +661,11 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 2, -self.height / 4)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def east(self) -> momapy.geometry.Point:
         """Return the east anchor of the node"""
-        return self.self_angle(0)
+        return self.own_angle(0)
 
     def east_south_east(self) -> momapy.geometry.Point:
         """Return the east south east west anchor of the node"""
@@ -673,7 +673,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 2, self.height / 4)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def south_east(self) -> momapy.geometry.Point:
         """Return the south east anchor of the node"""
@@ -681,7 +681,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 2, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def south_south_east(self) -> momapy.geometry.Point:
         """Return the south south east anchor of the node"""
@@ -689,11 +689,11 @@ class Node(GroupLayout):
             self.center(), self.center() + (self.width / 4, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def south(self) -> momapy.geometry.Point:
         """Return the south anchor of the node"""
-        return self.self_angle(270)
+        return self.own_angle(270)
 
     def south_south_west(self) -> momapy.geometry.Point:
         """Return the south south west anchor of the node"""
@@ -701,7 +701,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (-self.width / 4, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def south_west(self) -> momapy.geometry.Point:
         """Return the south west anchor of the node"""
@@ -709,7 +709,7 @@ class Node(GroupLayout):
             self.center(), self.center() + (-self.width / 2, self.height / 2)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def west_south_west(self) -> momapy.geometry.Point:
         """Return the west south west anchor of the node"""
@@ -717,11 +717,11 @@ class Node(GroupLayout):
             self.center(), self.center() + (-self.width / 2, self.height / 4)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def west(self) -> momapy.geometry.Point:
         """Return the west anchor of the node"""
-        return self.self_angle(180)
+        return self.own_angle(180)
 
     def west_north_west(self) -> momapy.geometry.Point:
         """Return the west north west anchor of the node"""
@@ -729,7 +729,7 @@ class Node(GroupLayout):
             self.center(), self.center() - (self.width / 2, self.height / 4)
         )
         angle = -line.get_angle_to_horizontal()
-        return self.self_angle(angle, unit="radians")
+        return self.own_angle(angle, unit="radians")
 
     def center(self) -> momapy.geometry.Point:
         """Return the center anchor of the node"""
@@ -739,12 +739,12 @@ class Node(GroupLayout):
         """Return the label center anchor of the node"""
         return self.position
 
-    def self_border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
+    def own_border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line formed of the center anchor point of the node and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
         return momapy.drawing.get_drawing_elements_border(
-            drawing_elements=self.self_drawing_elements(),
+            drawing_elements=self.own_drawing_elements(),
             point=point,
             center=self.center(),
         )
@@ -759,14 +759,14 @@ class Node(GroupLayout):
             center=self.center(),
         )
 
-    def self_angle(
+    def own_angle(
         self,
         angle: float,
         unit: typing.Literal["degrees", "radians"] = "degrees",
     ) -> momapy.geometry.Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line passing through the center anchor point of the node and at a given angle from the horizontal."""
         return momapy.drawing.get_drawing_elements_angle(
-            drawing_elements=self.self_drawing_elements(),
+            drawing_elements=self.own_drawing_elements(),
             angle=angle,
             unit=unit,
             center=self.center(),
@@ -891,7 +891,7 @@ class Arc(GroupLayout):
         default=None, metadata={"description": "The transform of the arc"}
     )
 
-    def self_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
         """Return the self children of the arc"""
         return []
 
@@ -1143,7 +1143,7 @@ class SingleHeadedArc(Arc):
         )
         return [path]
 
-    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the self drawing elements of the single-headed arc"""
         drawing_elements = (
             self.path_drawing_elements() + self.arrowhead_drawing_elements()
@@ -1474,7 +1474,7 @@ class DoubleHeadedArc(Arc):
         )
         return [path]
 
-    def self_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
         """Return the self drawing elements of the double-headed arc. These include the drawing elements of the arc path, the start arrowhead, and the end arrowhead"""
         drawing_elements = (
             self.path_drawing_elements()

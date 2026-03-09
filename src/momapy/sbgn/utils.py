@@ -435,7 +435,7 @@ def set_auxiliary_units_to_borders(map_):
                     momapy.sbgn.af.PerturbationUnitOfInformationLayout,
                 ),
             ):
-                position = layout_element.self_border(child.position)
+                position = layout_element.own_border(child.position)
                 child.position = position
                 if child.label is not None:
                     child.label.position = position
