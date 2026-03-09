@@ -21,6 +21,7 @@ Examples:
     >>> rotated = p1.transformed(Rotation(math.pi / 2, p2))
 """
 
+import collections.abc
 import dataclasses
 import typing
 import typing_extensions
@@ -1435,6 +1436,43 @@ class Bbox(object):
         return self.position.isnan()
 
     @classmethod
+    def around_points(
+        cls, points: collections.abc.Iterable[Point]
+    ) -> "Bbox":
+        """Create a minimal Bbox enclosing all given points.
+
+        Args:
+            points: An iterable of Point objects.
+
+        Returns:
+            A new Bbox that tightly encloses all input points.
+
+        Raises:
+            ValueError: If the iterable is empty.
+        """
+        it = iter(points)
+        try:
+            first = next(it)
+        except StopIteration:
+            raise ValueError("points must contain at least one point")
+        min_x = max_x = first.x
+        min_y = max_y = first.y
+        for p in it:
+            if p.x < min_x:
+                min_x = p.x
+            elif p.x > max_x:
+                max_x = p.x
+            if p.y < min_y:
+                min_y = p.y
+            elif p.y > max_y:
+                max_y = p.y
+        return cls(
+            Point((min_x + max_x) / 2, (min_y + max_y) / 2),
+            max_x - min_x,
+            max_y - min_y,
+        )
+
+    @classmethod
     def union(cls, bboxes: list["Bbox"]) -> "Bbox":
         """Create a Bbox enclosing all given bounding boxes.
 
@@ -1446,15 +1484,11 @@ class Bbox(object):
         """
         if not bboxes:
             return cls(Point(0, 0), 0, 0)
-        min_x = min(b.x - b.width / 2 for b in bboxes)
-        max_x = max(b.x + b.width / 2 for b in bboxes)
-        min_y = min(b.y - b.height / 2 for b in bboxes)
-        max_y = max(b.y + b.height / 2 for b in bboxes)
-        return cls(
-            Point((min_x + max_x) / 2, (min_y + max_y) / 2),
-            max_x - min_x,
-            max_y - min_y,
-        )
+        corners = []
+        for b in bboxes:
+            corners.append(b.north_west())
+            corners.append(b.south_east())
+        return cls.around_points(corners)
 
 
 @dataclasses.dataclass(frozen=True)

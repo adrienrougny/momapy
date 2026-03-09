@@ -395,31 +395,13 @@ def fit(
             points.append(bbox.south_east())
         else:
             raise TypeError(f"{type(element)} not supported")
-    point = points[0]
-    max_x = point.x
-    max_y = point.y
-    min_x = point.x
-    min_y = point.y
-    for point in points[1:]:
-        if point.x > max_x:
-            max_x = point.x
-        elif point.x < min_x:
-            min_x = point.x
-        if point.y > max_y:
-            max_y = point.y
-        elif point.y < min_y:
-            min_y = point.y
-    max_x += xsep
-    min_x -= xsep
-    max_y += ysep
-    min_y -= ysep
-    width = max_x - min_x
-    height = max_y - min_y
-    bbox = momapy.geometry.Bbox(
-        momapy.geometry.Point(min_x + width / 2, min_y + height / 2),
-        width,
-        height,
-    )
+    bbox = momapy.geometry.Bbox.around_points(points)
+    if xsep or ysep:
+        bbox = momapy.geometry.Bbox(
+            bbox.position,
+            bbox.width + 2 * xsep,
+            bbox.height + 2 * ysep,
+        )
     return bbox
 
 
