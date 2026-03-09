@@ -9,7 +9,7 @@ import math
 import copy
 
 import uharfbuzz
-import matplotlib.font_manager
+import momapy.core.fonts
 
 import momapy.drawing
 import momapy.geometry
@@ -117,17 +117,11 @@ class TextLayout(momapy.core.elements.LayoutElement):
 
     @classmethod
     def _get_font_file_path(cls, font_family, font_weight, font_style):
-        if isinstance(font_weight, momapy.drawing.FontWeight):
-            weight = font_weight.name.lower()
-        else:
-            weight = font_weight
-        font_properties = matplotlib.font_manager.FontProperties(
+        return momapy.core.fonts.find_font(
             family=font_family,
-            weight=weight,
-            style=font_style.name.lower(),
+            weight=font_weight,
+            style=font_style,
         )
-        font_file_path = matplotlib.font_manager.findfont(font_properties)
-        return font_file_path
 
     @classmethod
     def _make_font(cls, font_file_path, font_size):

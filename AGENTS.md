@@ -62,7 +62,7 @@ docs/
 ## Tech Stack
 
 - **Python**: 3.10–3.12
-- **Key deps**: numpy, lxml, frozendict, pyparsing, uharfbuzz, matplotlib
+- **Key deps**: numpy, lxml, frozendict, pyparsing, uharfbuzz
 - **Optional**: skia-python, pycairo
 - **Dev**: pytest, ruff, tox, mkdocs, git-cliff
 
