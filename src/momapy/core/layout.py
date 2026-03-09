@@ -170,18 +170,26 @@ class TextLayout(momapy.core.elements.LayoutElement):
         text_height = font_height * (len(lines) - 1) + font_ascent + font_descent
         for i, line in enumerate(lines):
             line_width = self._get_text_width(line, font)
-            if self.width is not None and self.horizontal_alignment is momapy.core.elements.HAlignment.LEFT:
+            if (
+                self.width is not None
+                and self.horizontal_alignment is momapy.core.elements.HAlignment.LEFT
+            ):
                 x = self.position.x - self.width / 2
             elif (
-                self.width is not None and self.horizontal_alignment is momapy.core.elements.HAlignment.RIGHT
+                self.width is not None
+                and self.horizontal_alignment is momapy.core.elements.HAlignment.RIGHT
             ):
                 x = self.position.x + self.width / 2 - line_width
             else:
                 x = self.position.x - line_width / 2
-            if self.height is not None and self.vertical_alignment is momapy.core.elements.VAlignment.TOP:
+            if (
+                self.height is not None
+                and self.vertical_alignment is momapy.core.elements.VAlignment.TOP
+            ):
                 y = self.position.y - self.height / 2 + font_ascent + i * font_height
             elif (
-                self.height is not None and self.vertical_alignment is momapy.core.elements.VAlignment.BOTTOM
+                self.height is not None
+                and self.vertical_alignment is momapy.core.elements.VAlignment.BOTTOM
             ):
                 y = (
                     self.position.y
@@ -204,21 +212,26 @@ class TextLayout(momapy.core.elements.LayoutElement):
             text = momapy.drawing.Text(
                 text=line,
                 point=position,
-                fill=self.fill,
-                filter=self.filter,
-                font_family=self.font_family,
-                font_size=self.font_size,
-                font_style=self.font_style,
-                font_weight=self.font_weight,
-                stroke=self.stroke,
-                stroke_dasharray=self.stroke_dasharray,
-                stroke_dashoffset=self.stroke_dashoffset,
-                stroke_width=self.stroke_width,
-                text_anchor=self.text_anchor,
-                transform=self.transform,
             )
             drawing_elements.append(text)
-        return drawing_elements
+        group = momapy.drawing.Group(
+            class_=f"{type(self).__name__}",
+            elements=tuple(drawing_elements),
+            id_=f"{self.id_}",
+            fill=self.fill,
+            filter=self.filter,
+            font_family=self.font_family,
+            font_size=self.font_size,
+            font_style=self.font_style,
+            font_weight=self.font_weight,
+            stroke=self.stroke,
+            stroke_dasharray=self.stroke_dasharray,
+            stroke_dashoffset=self.stroke_dashoffset,
+            stroke_width=self.stroke_width,
+            text_anchor=self.text_anchor,
+            transform=self.transform,
+        )
+        return [group]
 
     def bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the layout element"""
@@ -342,9 +355,7 @@ class Shape(momapy.core.elements.LayoutElement):
         """Compute and return the bounding box of the shape"""
         primitives = self.to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(
-                momapy.geometry.Point(0, 0), 0, 0
-            )
+            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return momapy.geometry.Bbox.union(bboxes)
 
@@ -436,17 +447,13 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         | momapy.geometry.EllipticalArc
     ]:
         """Return a list of geometry primitives from the self drawing elements."""
-        return momapy.drawing.drawing_elements_to_geometry(
-            self.drawing_elements()
-        )
+        return momapy.drawing.drawing_elements_to_geometry(self.drawing_elements())
 
     def self_bbox(self) -> momapy.geometry.Bbox:
         """Compute and return the bounding box of the self drawing element of the group layout"""
         primitives = self.self_to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(
-                momapy.geometry.Point(0, 0), 0, 0
-            )
+            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return momapy.geometry.Bbox.union(bboxes)
 
@@ -493,9 +500,9 @@ class GroupLayout(momapy.core.elements.LayoutElement):
             if child is not None:
                 drawing_elements += child.drawing_elements()
         group = momapy.drawing.Group(
-            class_=f"{type(self).__name__}_group",
+            class_=f"{type(self).__name__}",
             elements=tuple(drawing_elements),
-            id_=f"{self.id_}_group",
+            id_=f"{self.id_}",
             fill=self.group_fill,
             fill_rule=self.group_fill_rule,
             filter=self.group_filter,
@@ -589,11 +596,11 @@ class Node(GroupLayout):
         """Return the node's own drawing elements"""
         drawing_elements = self._border_drawing_elements()
         group = momapy.drawing.Group(
-            class_=type(self).__name__,
+            class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
             filter=self.filter,
-            id_=self.id_,
+            id_=f"{self.id_}_own",
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
@@ -929,13 +936,17 @@ class Arc(GroupLayout):
     def _make_path_action_from_segment(cls, segment):
         if momapy.builder.isinstance_or_builder(segment, momapy.geometry.Segment):
             path_action = momapy.drawing.LineTo(segment.p2)
-        elif momapy.builder.isinstance_or_builder(segment, momapy.geometry.CubicBezierCurve):
+        elif momapy.builder.isinstance_or_builder(
+            segment, momapy.geometry.CubicBezierCurve
+        ):
             path_action = momapy.drawing.CurveTo(
                 segment.p2,
                 segment.control_point1,
                 segment.control_point2,
             )
-        elif momapy.builder.isinstance_or_builder(segment, momapy.geometry.QuadraticBezierCurve):
+        elif momapy.builder.isinstance_or_builder(
+            segment, momapy.geometry.QuadraticBezierCurve
+        ):
             path_action = momapy.drawing.QuadraticCurveTo(
                 segment.p2, segment.control_point
             )
@@ -1138,11 +1149,11 @@ class SingleHeadedArc(Arc):
             self.path_drawing_elements() + self.arrowhead_drawing_elements()
         )
         group = momapy.drawing.Group(
-            class_=type(self).__name__,
+            class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
             filter=self.filter,
-            id_=self.id_,
+            id_=f"{self.id_}_own",
             stroke=self.stroke,
             stroke_dasharray=self.stroke_dasharray,
             stroke_dashoffset=self.stroke_dashoffset,
