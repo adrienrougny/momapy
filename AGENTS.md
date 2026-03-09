@@ -61,7 +61,7 @@ docs/
 
 ## Tech Stack
 
-- **Python**: 3.10–3.12
+- **Python**: 3.10–3.14
 - **Key deps**: numpy, lxml, frozendict, pyparsing, uharfbuzz
 - **Optional**: skia-python, pycairo
 - **Dev**: pytest, ruff, tox, mkdocs, git-cliff
@@ -187,7 +187,7 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 
 ## CI/CD
 
-- **Tests** (`.github/workflows/tests.yml`): ubuntu + windows + macos, Python 3.10/3.11/3.12
+- **Tests** (`.github/workflows/tests.yml`): ubuntu + windows + macos, Python 3.10/3.11/3.12/3.13/3.14
 - **Release** (`.github/workflows/release.yml`): triggered by `v*.*.*` tags → test → build → publish to PyPI → generate changelog → GitHub release
 - **Docs** (`.github/workflows/docs.yml`): deploy to GitHub Pages after release
 
