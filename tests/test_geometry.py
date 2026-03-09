@@ -286,6 +286,67 @@ class TestBbox:
         bbox = momapy.geometry.Bbox(position, 100.0, 60.0)
         assert not bbox.isnan()
 
+    def test_around_points_basic(self):
+        """Test around_points with two points."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(10.0, 20.0)
+        bbox = momapy.geometry.Bbox.around_points([p1, p2])
+        assert bbox.position == momapy.geometry.Point(5.0, 10.0)
+        assert bbox.width == 10.0
+        assert bbox.height == 20.0
+
+    def test_around_points_single_point(self):
+        """Test around_points with a single point gives zero-size bbox."""
+        p = momapy.geometry.Point(3.0, 7.0)
+        bbox = momapy.geometry.Bbox.around_points([p])
+        assert bbox.position == p
+        assert bbox.width == 0.0
+        assert bbox.height == 0.0
+
+    def test_around_points_empty_raises(self):
+        """Test around_points raises ValueError on empty input."""
+        with pytest.raises(ValueError):
+            momapy.geometry.Bbox.around_points([])
+
+    def test_around_points_collinear(self):
+        """Test around_points with collinear horizontal points."""
+        points = [
+            momapy.geometry.Point(1.0, 5.0),
+            momapy.geometry.Point(3.0, 5.0),
+            momapy.geometry.Point(7.0, 5.0),
+        ]
+        bbox = momapy.geometry.Bbox.around_points(points)
+        assert bbox.position == momapy.geometry.Point(4.0, 5.0)
+        assert bbox.width == 6.0
+        assert bbox.height == 0.0
+
+    def test_around_points_generator(self):
+        """Test around_points accepts a generator."""
+        def gen():
+            yield momapy.geometry.Point(0.0, 0.0)
+            yield momapy.geometry.Point(4.0, 6.0)
+
+        bbox = momapy.geometry.Bbox.around_points(gen())
+        assert bbox.position == momapy.geometry.Point(2.0, 3.0)
+        assert bbox.width == 4.0
+        assert bbox.height == 6.0
+
+    def test_union_empty(self):
+        """Test union of empty list returns zero bbox."""
+        bbox = momapy.geometry.Bbox.union([])
+        assert bbox.position == momapy.geometry.Point(0.0, 0.0)
+        assert bbox.width == 0.0
+        assert bbox.height == 0.0
+
+    def test_union_basic(self):
+        """Test union of two bboxes."""
+        b1 = momapy.geometry.Bbox(momapy.geometry.Point(5.0, 5.0), 10.0, 10.0)
+        b2 = momapy.geometry.Bbox(momapy.geometry.Point(15.0, 15.0), 10.0, 10.0)
+        bbox = momapy.geometry.Bbox.union([b1, b2])
+        assert bbox.position == momapy.geometry.Point(10.0, 10.0)
+        assert bbox.width == 20.0
+        assert bbox.height == 20.0
+
 
 class TestTransformations:
     """Tests for Transformation classes."""
