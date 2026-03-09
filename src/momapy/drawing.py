@@ -736,7 +736,7 @@ class MoveTo(PathAction):
         Returns:
             A new MoveTo with transformed point.
         """
-        return MoveTo(momapy.geometry.transform_point(self.point, transformation))
+        return MoveTo(self.point.transformed(transformation))
 
 
 @dataclasses.dataclass(frozen=True)
@@ -775,7 +775,7 @@ class LineTo(PathAction):
         Returns:
             A new LineTo with transformed point.
         """
-        return LineTo(momapy.geometry.transform_point(self.point, transformation))
+        return LineTo(self.point.transformed(transformation))
 
     def to_geometry(
         self, current_point: momapy.geometry.Point
@@ -855,18 +855,14 @@ class EllipticalArc(PathAction):
             math.cos(self.x_axis_rotation) * self.ry,
             math.sin(self.x_axis_rotation) * self.ry,
         )
-        new_center = momapy.geometry.transform_point(
-            momapy.geometry.Point(0, 0), transformation
-        )
-        new_east = momapy.geometry.transform_point(east, transformation)
-        new_north = momapy.geometry.transform_point(north, transformation)
+        new_center = momapy.geometry.Point(0, 0).transformed(transformation)
+        new_east = east.transformed(transformation)
+        new_north = north.transformed(transformation)
         new_rx = momapy.geometry.Segment(new_center, new_east).length()
         new_ry = momapy.geometry.Segment(new_center, new_north).length()
-        new_end_point = momapy.geometry.transform_point(self.point, transformation)
+        new_end_point = self.point.transformed(transformation)
         new_x_axis_rotation = math.degrees(
-            momapy.geometry.get_angle_to_horizontal_of_line(
-                momapy.geometry.Line(new_center, new_east)
-            )
+            momapy.geometry.Line(new_center, new_east).get_angle_to_horizontal()
         )
         return EllipticalArc(
             new_end_point,
@@ -944,9 +940,9 @@ class CurveTo(PathAction):
             A new CurveTo with transformed points.
         """
         return CurveTo(
-            momapy.geometry.transform_point(self.point, transformation),
-            momapy.geometry.transform_point(self.control_point1, transformation),
-            momapy.geometry.transform_point(self.control_point2, transformation),
+            self.point.transformed(transformation),
+            self.control_point1.transformed(transformation),
+            self.control_point2.transformed(transformation),
         )
 
     def to_geometry(
@@ -1009,8 +1005,8 @@ class QuadraticCurveTo(PathAction):
             A new QuadraticCurveTo with transformed points.
         """
         return QuadraticCurveTo(
-            momapy.geometry.transform_point(self.point, transformation),
-            momapy.geometry.transform_point(self.control_point, transformation),
+            self.point.transformed(transformation),
+            self.control_point.transformed(transformation),
         )
 
     def to_curve_to(self, current_point: momapy.geometry.Point) -> CurveTo:
@@ -1434,7 +1430,7 @@ def get_drawing_elements_border(
         The border point or None.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_geometry_border(
+    return momapy.geometry.get_primitives_border(
         primitives=primitives, point=point, center=center
     )
 
@@ -1457,7 +1453,7 @@ def get_drawing_elements_angle(
         The border point or None.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_geometry_angle(
+    return momapy.geometry.get_primitives_angle(
         primitives=primitives, angle=angle, unit=unit, center=center
     )
 
@@ -1494,6 +1490,6 @@ def get_drawing_elements_anchor_point(
         The anchor point.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_geometry_anchor_point(
+    return momapy.geometry.get_primitives_anchor_point(
         primitives=primitives, anchor_point=anchor_point, center=center
     )

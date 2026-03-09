@@ -2870,7 +2870,7 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
 
     def _get_reaction_node_rotation_angle(self):
         segment = self.segments[self.reaction_node_segment]
-        angle = momapy.geometry.get_angle_to_horizontal_of_line(segment)
+        angle = segment.get_angle_to_horizontal()
         return angle
 
     def _make_reaction_node_rotation(self):

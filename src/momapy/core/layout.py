@@ -624,7 +624,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def north_north_west(self) -> momapy.geometry.Point:
@@ -632,7 +632,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 4, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def north(self) -> momapy.geometry.Point:
@@ -644,7 +644,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 4, -self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def north_east(self) -> momapy.geometry.Point:
@@ -652,7 +652,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, -self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def east_north_east(self) -> momapy.geometry.Point:
@@ -660,7 +660,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, -self.height / 4)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def east(self) -> momapy.geometry.Point:
@@ -672,7 +672,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 4)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def south_east(self) -> momapy.geometry.Point:
@@ -680,7 +680,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def south_south_east(self) -> momapy.geometry.Point:
@@ -688,7 +688,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (self.width / 4, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def south(self) -> momapy.geometry.Point:
@@ -700,7 +700,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 4, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def south_west(self) -> momapy.geometry.Point:
@@ -708,7 +708,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 2, self.height / 2)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def west_south_west(self) -> momapy.geometry.Point:
@@ -716,7 +716,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() + (-self.width / 2, self.height / 4)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def west(self) -> momapy.geometry.Point:
@@ -728,7 +728,7 @@ class Node(GroupLayout):
         line = momapy.geometry.Line(
             self.center(), self.center() - (self.width / 2, self.height / 4)
         )
-        angle = -momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = -line.get_angle_to_horizontal()
         return self.self_angle(angle, unit="radians")
 
     def center(self) -> momapy.geometry.Point:
@@ -1077,7 +1077,7 @@ class SingleHeadedArc(Arc):
             line = momapy.geometry.Line(p1, end_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, last_segment.p2)
-        angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = line.get_angle_to_horizontal()
         translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
         return rotation * translation
@@ -1365,7 +1365,7 @@ class DoubleHeadedArc(Arc):
             line = momapy.geometry.Line(p1, start_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p1)
-        angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = line.get_angle_to_horizontal()
         angle += math.pi
         translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
@@ -1406,7 +1406,7 @@ class DoubleHeadedArc(Arc):
             line = momapy.geometry.Line(p1, end_point)
         else:
             line = momapy.geometry.Line(arrowhead_base, segment.p2)
-        angle = momapy.geometry.get_angle_to_horizontal_of_line(line)
+        angle = line.get_angle_to_horizontal()
         translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
         rotation = momapy.geometry.Rotation(angle, arrowhead_base)
         return rotation * translation
