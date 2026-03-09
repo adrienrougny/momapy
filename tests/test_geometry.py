@@ -138,6 +138,14 @@ class TestLine:
         line = momapy.geometry.Line(p1, p2)
         assert line.intercept() == 5.0
 
+    def test_line_intercept_rounded(self):
+        """Test line intercept is rounded to ROUNDING decimals."""
+        p1 = momapy.geometry.Point(0.0, 0.0)
+        p2 = momapy.geometry.Point(3.0, 1.0)
+        line = momapy.geometry.Line(p1, p2)
+        intercept = line.intercept()
+        assert intercept == round(intercept, momapy.geometry.ROUNDING)
+
     def test_line_slope_vertical(self):
         """Test line slope for vertical line is NaN."""
         p1 = momapy.geometry.Point(5.0, 0.0)
@@ -394,7 +402,7 @@ class TestTransformations:
         """Test transforming a point with translation."""
         p = momapy.geometry.Point(10.0, 20.0)
         trans = momapy.geometry.Translation(5.0, 10.0)
-        transformed = momapy.geometry.transform_point(p, trans)
+        transformed = p.transformed(trans)
         assert transformed.x == 15.0
         assert transformed.y == 30.0
 
@@ -414,9 +422,9 @@ class TestTransformations:
         assert isinstance(combined, momapy.geometry.MatrixTransformation)
 
     def test_invert_scaling_reciprocal(self):
-        """Test that invert_scaling returns reciprocal, not negation."""
+        """Test that inverted scaling returns reciprocal, not negation."""
         scaling = momapy.geometry.Scaling(2.0, 3.0)
-        inverted = momapy.geometry.invert_scaling(scaling)
+        inverted = scaling.inverted()
         assert inverted.sx == 0.5  # 1/2, not -2
         assert inverted.sy == pytest.approx(1.0 / 3.0)  # 1/3, not -3
 
@@ -424,7 +432,7 @@ class TestTransformations:
         """Test that scaling and inverse return to original."""
         p = momapy.geometry.Point(10.0, 20.0)
         scaling = momapy.geometry.Scaling(2.0, 4.0)
-        inverted = momapy.geometry.invert_scaling(scaling)
+        inverted = scaling.inverted()
 
         # Apply scaling then inverse
         scaled = p.transformed(scaling)
@@ -448,7 +456,7 @@ class TestIntersectionFunctions:
             momapy.geometry.Point(3.0, 0.0), momapy.geometry.Point(3.0, 10.0)
         )
 
-        intersections = momapy.geometry.get_intersection_of_lines(line1, line2)
+        intersections = line1.get_intersection_with_line(line2)
         assert len(intersections) == 1
         assert isinstance(intersections[0], momapy.geometry.Point)
         assert intersections[0].x == 3.0
@@ -463,7 +471,7 @@ class TestIntersectionFunctions:
             momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
         )
 
-        intersections = momapy.geometry.get_intersection_of_lines(line1, line2)
+        intersections = line1.get_intersection_with_line(line2)
         assert len(intersections) == 0
 
     def test_intersection_line_and_segment_inside(self):
@@ -475,9 +483,7 @@ class TestIntersectionFunctions:
             momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
         )
 
-        intersections = momapy.geometry.get_intersection_of_line_and_segment(
-            line, segment
-        )
+        intersections = segment.get_intersection_with_line(line)
         assert len(intersections) == 1
         assert isinstance(intersections[0], momapy.geometry.Point)
         assert intersections[0].x == 5.0
@@ -492,9 +498,7 @@ class TestIntersectionFunctions:
             momapy.geometry.Point(0.0, 5.0), momapy.geometry.Point(10.0, 5.0)
         )
 
-        intersections = momapy.geometry.get_intersection_of_line_and_segment(
-            line, segment
-        )
+        intersections = segment.get_intersection_with_line(line)
         assert len(intersections) == 0
 
 
@@ -655,6 +659,30 @@ class TestQuadraticBezierCurve:
         result = curve.evaluate(1.0)
         assert result.x == end.x
         assert result.y == end.y
+
+    def test_quadratic_bezier_curve_evaluate_multi_with_list(self):
+        """Test evaluate_multi accepts a plain list."""
+        curve = momapy.geometry.QuadraticBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        results = curve.evaluate_multi([0.0, 0.5, 1.0])
+        assert len(results) == 3
+        assert results[0].x == 0.0
+        assert results[2].x == 10.0
+
+    def test_quadratic_bezier_curve_evaluate_delegates(self):
+        """Test evaluate matches evaluate_multi for same parameter."""
+        curve = momapy.geometry.QuadraticBezierCurve(
+            momapy.geometry.Point(0.0, 0.0),
+            momapy.geometry.Point(10.0, 0.0),
+            momapy.geometry.Point(5.0, 5.0),
+        )
+        single = curve.evaluate(0.5)
+        multi = curve.evaluate_multi([0.5])[0]
+        assert single.x == multi.x
+        assert single.y == multi.y
 
     def test_quadratic_bezier_curve_length(self):
         """Test arc length of quadratic bezier curve."""
@@ -859,7 +887,7 @@ class TestGeometryBorderAndAnchor:
             ),
         ]
         south_point = momapy.geometry.Point(5.0, 20.0)
-        border = momapy.geometry.get_geometry_border(primitives, south_point)
+        border = momapy.geometry.get_primitives_border(primitives, south_point)
         assert border is not None
         assert isinstance(border, momapy.geometry.Point)
 
@@ -879,5 +907,5 @@ class TestGeometryBorderAndAnchor:
                 momapy.geometry.Point(0.0, 10.0), momapy.geometry.Point(0.0, 0.0)
             ),
         ]
-        anchor = momapy.geometry.get_geometry_anchor_point(primitives, "north")
+        anchor = momapy.geometry.get_primitives_anchor_point(primitives, "north")
         assert isinstance(anchor, momapy.geometry.Point)
