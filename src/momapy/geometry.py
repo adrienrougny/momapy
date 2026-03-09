@@ -1274,15 +1274,68 @@ class EllipticalArc(GeometryObject):
     def get_intersection_with_line(self, line: Line) -> list[Point]:
         """Get intersection with a line.
 
+        Uses analytical ellipse-line intersection by solving
+        A*cos(theta) + B*sin(theta) + C = 0 via atan2.
+
         Args:
             line: The line to intersect with.
 
         Returns:
             List of intersection points.
         """
+        cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
+            self.get_center_parameterization()
+        )
+        # Line in implicit form: a*x + b*y + c = 0
+        dx = line.p2.x - line.p1.x
+        dy = line.p2.y - line.p1.y
+        a = -dy
+        b = dx
+        c = -(a * line.p1.x + b * line.p1.y)
+        cos_sigma = math.cos(sigma)
+        sin_sigma = math.sin(sigma)
+        # Substitute parametric arc equations into line equation
+        A = a * rx * cos_sigma + b * rx * sin_sigma
+        B = a * (-ry * sin_sigma) + b * ry * cos_sigma
+        C = a * cx + b * cy + c
+        R = math.sqrt(A * A + B * B)
+        if R < ZERO_TOLERANCE:
+            return []
+        ratio = -C / R
+        if abs(ratio) > 1 + ZERO_TOLERANCE:
+            return []
+        ratio = max(-1.0, min(1.0, ratio))
+        phi = math.atan2(B, A)
+        acos_val = math.acos(ratio)
+        candidates = [phi + acos_val, phi - acos_val]
+        if delta_theta > 0:
+            theta_min = theta1
+            theta_max = theta1 + delta_theta
+        else:
+            theta_min = theta1 + delta_theta
+            theta_max = theta1
         result = []
-        for bezier_curve in self.to_bezier_curves():
-            result.extend(bezier_curve.get_intersection_with_line(line))
+        for theta_candidate in candidates:
+            # Normalize into range by trying multiple periods
+            for k in range(-3, 4):
+                theta_c = theta_candidate + k * 2 * math.pi
+                if theta_min - ZERO_TOLERANCE <= theta_c <= theta_max + ZERO_TOLERANCE:
+                    t = (theta_c - theta1) / delta_theta
+                    if -ZERO_TOLERANCE <= t <= 1 + ZERO_TOLERANCE:
+                        t = max(0.0, min(1.0, t))
+                        point = self.evaluate(t)
+                        # Avoid duplicates
+                        is_dup = False
+                        for existing in result:
+                            if (
+                                abs(existing.x - point.x) < ROUNDING_TOLERANCE
+                                and abs(existing.y - point.y)
+                                < ROUNDING_TOLERANCE
+                            ):
+                                is_dup = True
+                                break
+                        if not is_dup:
+                            result.append(point)
         return result
 
     def get_center_parameterization(
@@ -1361,6 +1414,31 @@ class EllipticalArc(GeometryObject):
         y = cy + rx * cos_theta * sin_sigma + ry * sin_theta * cos_sigma
         return Point(x, y)
 
+    def derivative(self, t: float) -> tuple[float, float]:
+        """Compute the derivative of the arc at parameter t.
+
+        Args:
+            t: Parameter value from 0 to 1.
+
+        Returns:
+            Tuple of (dx, dy) derivatives.
+        """
+        cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
+            self.get_center_parameterization()
+        )
+        theta = theta1 + t * delta_theta
+        cos_sigma = math.cos(sigma)
+        sin_sigma = math.sin(sigma)
+        cos_theta = math.cos(theta)
+        sin_theta = math.sin(theta)
+        dx = delta_theta * (
+            -rx * sin_theta * cos_sigma - ry * cos_theta * sin_sigma
+        )
+        dy = delta_theta * (
+            -rx * sin_theta * sin_sigma + ry * cos_theta * cos_sigma
+        )
+        return (dx, dy)
+
     def get_position_at_fraction(self, fraction: float) -> Point:
         """Get point at a fraction along the arc.
 
@@ -1374,27 +1452,11 @@ class EllipticalArc(GeometryObject):
             return Point(self.p1.x, self.p1.y)
         if fraction >= 1:
             return Point(self.p2.x, self.p2.y)
-        bezier_curves = self.to_bezier_curves()
-        if not bezier_curves:
+        total = self.length()
+        if total == 0:
             return Point(self.p1.x, self.p1.y)
-        bezier_curve_lengths = [bezier_curve.length() for bezier_curve in bezier_curves]
-        total_length = sum(bezier_curve_lengths)
-        if total_length == 0:
-            return Point(self.p1.x, self.p1.y)
-        target = fraction * total_length
-        cumulative = 0.0
-        for bezier_curve, bezier_curve_length in zip(
-            bezier_curves, bezier_curve_lengths
-        ):
-            if cumulative + bezier_curve_length >= target:
-                local_fraction = (
-                    (target - cumulative) / bezier_curve_length
-                    if bezier_curve_length > 0
-                    else 0
-                )
-                return bezier_curve.get_position_at_fraction(local_fraction)
-            cumulative += bezier_curve_length
-        return bezier_curves[-1].get_position_at_fraction(1.0)
+        t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        return self.evaluate(t)
 
     def get_angle_at_fraction(self, fraction: float) -> float:
         """Get angle at a fraction along the arc.
@@ -1405,27 +1467,17 @@ class EllipticalArc(GeometryObject):
         Returns:
             Angle in radians.
         """
-        bezier_curves = self.to_bezier_curves()
-        if not bezier_curves:
+        total = self.length()
+        if total == 0:
             return 0.0
-        bezier_curve_lengths = [bezier_curve.length() for bezier_curve in bezier_curves]
-        total_length = sum(bezier_curve_lengths)
-        if total_length == 0:
-            return 0.0
-        target = fraction * total_length
-        cumulative = 0.0
-        for bezier_curve, bezier_curve_length in zip(
-            bezier_curves, bezier_curve_lengths
-        ):
-            if cumulative + bezier_curve_length >= target:
-                local_fraction = (
-                    (target - cumulative) / bezier_curve_length
-                    if bezier_curve_length > 0
-                    else 0
-                )
-                return bezier_curve.get_angle_at_fraction(local_fraction)
-            cumulative += bezier_curve_length
-        return bezier_curves[-1].get_angle_at_fraction(1.0)
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
+        dx, dy = self.derivative(t)
+        return math.atan2(dy, dx)
 
     def get_position_and_angle_at_fraction(
         self, fraction: float
@@ -1438,27 +1490,21 @@ class EllipticalArc(GeometryObject):
         Returns:
             Tuple of (point, angle).
         """
-        bezier_curves = self.to_bezier_curves()
-        if not bezier_curves:
+        total = self.length()
+        if total == 0:
             return (Point(self.p1.x, self.p1.y), 0.0)
-        bezier_curve_lengths = [bezier_curve.length() for bezier_curve in bezier_curves]
-        total_length = sum(bezier_curve_lengths)
-        if total_length == 0:
-            return (Point(self.p1.x, self.p1.y), 0.0)
-        target = fraction * total_length
-        cumulative = 0.0
-        for bezier_curve, bezier_curve_length in zip(
-            bezier_curves, bezier_curve_lengths
-        ):
-            if cumulative + bezier_curve_length >= target:
-                local_fraction = (
-                    (target - cumulative) / bezier_curve_length
-                    if bezier_curve_length > 0
-                    else 0
-                )
-                return bezier_curve.get_position_and_angle_at_fraction(local_fraction)
-            cumulative += bezier_curve_length
-        return bezier_curves[-1].get_position_and_angle_at_fraction(1.0)
+        if fraction <= 0:
+            t = 0.0
+        elif fraction >= 1:
+            t = 1.0
+        else:
+            t = _find_t_at_arc_length_fraction(
+                self.derivative, total, fraction
+            )
+        pos = self.evaluate(t)
+        dx, dy = self.derivative(t)
+        angle = math.atan2(dy, dx)
+        return (pos, angle)
 
     def bbox(self) -> "Bbox":
         """Get the bounding box of the arc.
@@ -1466,11 +1512,49 @@ class EllipticalArc(GeometryObject):
         Returns:
             A Bbox enclosing the arc.
         """
-        bezier_curves = self.to_bezier_curves()
-        if not bezier_curves:
-            return Bbox(self.p1, 0, 0)
-        bboxes = [bezier_curve.bbox() for bezier_curve in bezier_curves]
-        return Bbox.union(bboxes)
+        cx, cy, rx, ry, sigma, theta1, theta2, delta_theta = (
+            self.get_center_parameterization()
+        )
+        cos_sigma = math.cos(sigma)
+        sin_sigma = math.sin(sigma)
+        # Extrema of x(theta): dx/dtheta = 0
+        # -rx*sin(theta)*cos(sigma) - ry*cos(theta)*sin(sigma) = 0
+        # tan(theta) = -(ry*sin(sigma)) / (rx*cos(sigma))
+        theta_x = math.atan2(-ry * sin_sigma, rx * cos_sigma)
+        # Extrema of y(theta): dy/dtheta = 0
+        # -rx*sin(theta)*sin(sigma) + ry*cos(theta)*cos(sigma) = 0
+        # tan(theta) = (ry*cos(sigma)) / (rx*sin(sigma))
+        theta_y = math.atan2(ry * cos_sigma, rx * sin_sigma)
+        # Collect candidate points: endpoints + extrema within arc range
+        points = [self.p1, self.p2]
+        if delta_theta > 0:
+            theta_min = theta1
+            theta_max = theta1 + delta_theta
+        else:
+            theta_min = theta1 + delta_theta
+            theta_max = theta1
+        for theta_base in (theta_x, theta_y):
+            # Check both solutions (theta_base and theta_base + pi)
+            for candidate in (theta_base, theta_base + math.pi):
+                # Normalize candidate into [theta_min - 2pi, theta_max + 2pi]
+                # and check if it falls within range
+                normalized = candidate
+                while normalized < theta_min - 2 * math.pi:
+                    normalized += 2 * math.pi
+                while normalized > theta_max + 2 * math.pi:
+                    normalized -= 2 * math.pi
+                # Try multiple periods
+                for offset in (
+                    -2 * math.pi,
+                    0,
+                    2 * math.pi,
+                ):
+                    theta_c = normalized + offset
+                    if theta_min - ZERO_TOLERANCE <= theta_c <= theta_max + ZERO_TOLERANCE:
+                        t = (theta_c - theta1) / delta_theta
+                        if -ZERO_TOLERANCE <= t <= 1 + ZERO_TOLERANCE:
+                            points.append(self.evaluate(max(0, min(1, t))))
+        return Bbox.around_points(points)
 
     def shortened(
         self,
@@ -1547,76 +1631,13 @@ class EllipticalArc(GeometryObject):
             abs(self.sweep_flag - 1),
         )
 
-    def to_bezier_curves(self) -> list[CubicBezierCurve]:
-        """Convert to cubic Bezier curves.
-
-        Returns:
-            List of CubicBezierCurve approximating the arc.
-        """
-
-        def _make_angles(angles):
-            new_angles = [angles[0]]
-            for theta1, theta2 in zip(angles, angles[1:]):
-                delta_theta = theta2 - theta1
-                if abs(delta_theta) > math.pi / 2:
-                    new_angles.append(theta1 + delta_theta / 2)
-                new_angles.append(theta2)
-            if len(new_angles) != len(angles):
-                new_angles = _make_angles(new_angles)
-            return new_angles
-
-        bezier_curves = []
-        (
-            cx,
-            cy,
-            rx,
-            ry,
-            sigma,
-            theta1,
-            theta2,
-            delta_theta,
-        ) = self.get_center_parameterization()
-        translation = Translation(cx, cy)
-        scaling = Scaling(rx, ry)
-        rotation = Rotation(sigma)
-        transformation = translation * rotation * scaling
-        angles = _make_angles([theta1, theta2])
-        for theta1, theta2 in zip(angles, angles[1:]):
-            x1 = math.cos(theta1)
-            y1 = math.sin(theta1)
-            x2 = math.cos(theta2)
-            y2 = math.sin(theta2)
-            ax = x1
-            ay = y1
-            bx = x2
-            by = y2
-            q1 = ax * ax + ay * ay
-            q2 = q1 + ax * bx + ay * by
-            k2 = (4 / 3) * (math.sqrt(2 * q1 * q2) - q2) / (ax * by - ay * bx)
-            cp1x = ax - k2 * ay
-            cp1y = ay + k2 * ax
-            cp2x = bx + k2 * by
-            cp2y = by - k2 * bx
-            p1 = Point(x1, y1)
-            p2 = Point(x2, y2)
-            control_point1 = Point(cp1x, cp1y)
-            control_point2 = Point(cp2x, cp2y)
-            bezier_curve = CubicBezierCurve(
-                p1=p1,
-                p2=p2,
-                control_point1=control_point1,
-                control_point2=control_point2,
-            ).transformed(transformation)
-            bezier_curves.append(bezier_curve)
-        return bezier_curves
-
     def length(self) -> float:
         """Calculate the length of the arc.
 
         Returns:
             The arc length.
         """
-        return sum(bc.length() for bc in self.to_bezier_curves())
+        return _arc_length(self.derivative, 0.0, 1.0)
 
 
 @dataclasses.dataclass(frozen=True)

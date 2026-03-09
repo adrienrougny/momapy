@@ -1133,47 +1133,6 @@ class Path(DrawingElement):
                 current_point = action.point
         return primitives
 
-    def to_path_with_bezier_curves(self) -> typing_extensions.Self:
-        """Convert to path with only Bezier curves.
-
-        Converts elliptical arcs to Bezier curves.
-
-        Returns:
-            A new Path with Bezier curves only.
-        """
-        new_actions = []
-        current_point = momapy.geometry.Point(0, 0)
-        initial_point = current_point
-        for action in self.actions:
-            if isinstance(action, MoveTo):
-                current_point = action.point
-                initial_point = current_point
-                new_actions.append(action)
-            elif isinstance(action, ClosePath):
-                current_point = initial_point
-                new_actions.append(action)
-            elif isinstance(
-                action,
-                (
-                    LineTo,
-                    CurveTo,
-                    QuadraticCurveTo,
-                ),
-            ):
-                current_point = action.point
-                new_actions.append(action)
-            elif isinstance(action, EllipticalArc):
-                geom_object = action.to_geometry(current_point)
-                bezier_curves = geom_object.to_bezier_curves()
-                for bezier_curve in bezier_curves:
-                    new_action = CurveTo(
-                        point=bezier_curve.p2,
-                        control_point1=bezier_curve.control_points[0],
-                        control_point2=bezier_curve.control_points[1],
-                    )
-                    new_actions.append(new_action)
-        new_path = dataclasses.replace(self, actions=new_actions)
-        return new_path
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
