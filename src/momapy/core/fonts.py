@@ -28,6 +28,10 @@ _FONT_WEIGHT_MAP: dict[momapy.drawing.FontWeight, int] = {
 _FONT_EXTENSIONS = frozenset({".ttf", ".otf", ".ttc"})
 
 _font_cache: list[_FontEntry] | None = None
+_query_cache: dict[
+    tuple[str, momapy.drawing.FontWeight | int, momapy.drawing.FontStyle],
+    str | None,
+] = {}
 
 
 def _get_font_directories() -> list[str]:
@@ -55,13 +59,11 @@ def _get_font_directories() -> list[str]:
         windir = os.environ.get("WINDIR", r"C:\Windows")
         candidates = [
             os.path.join(windir, "Fonts"),
-            os.path.join(
-                home, "AppData", "Local", "Microsoft", "Windows", "Fonts"
-            ),
+            os.path.join(home, "AppData", "Local", "Microsoft", "Windows", "Fonts"),
         ]
     else:
         candidates = []
-    return [d for d in candidates if os.path.isdir(d)]
+    return [candidate for candidate in candidates if os.path.isdir(candidate)]
 
 
 def _read_font_metadata(path: str) -> list[_FontEntry]:
@@ -97,18 +99,12 @@ def _read_font_metadata(path: str) -> list[_FontEntry]:
                 os2_blob = face.reference_table(b"OS/2")
                 os2_bytes = memoryview(os2_blob)
                 if len(os2_bytes) >= 6:
-                    weight = int.from_bytes(
-                        os2_bytes[4:6], byteorder="big"
-                    )
+                    weight = int.from_bytes(os2_bytes[4:6], byteorder="big")
                 if len(os2_bytes) >= 64:
-                    fs_selection = int.from_bytes(
-                        os2_bytes[62:64], byteorder="big"
-                    )
+                    fs_selection = int.from_bytes(os2_bytes[62:64], byteorder="big")
                     is_italic = bool(fs_selection & 1)
             # Fallback: check subfamily string
-            if not is_italic and (
-                "italic" in subfamily or "oblique" in subfamily
-            ):
+            if not is_italic and ("italic" in subfamily or "oblique" in subfamily):
                 is_italic = True
             entries.append(
                 _FontEntry(
@@ -140,15 +136,16 @@ def _scan_fonts() -> list[_FontEntry]:
     return entries
 
 
-def _get_font_cache() -> list[_FontEntry]:
+def _get_or_make_font_cache() -> list[_FontEntry]:
     """Return the font cache, populating it on first call.
 
     Returns:
         List of cached font entries.
     """
-    global _font_cache
+    global _font_cache, _query_cache
     if _font_cache is None:
         _font_cache = _scan_fonts()
+        _query_cache = {}
     return _font_cache
 
 
@@ -192,20 +189,27 @@ def find_font(
     Returns:
         Path to the best matching font file, or None if no fonts found.
     """
-    cache = _get_font_cache()
-    if not cache:
+    cache_key = (family, weight, style)
+    cached = _query_cache.get(cache_key)
+    if cached is not None or cache_key in _query_cache:
+        return cached
+    font_cache = _get_or_make_font_cache()
+    if not font_cache:
+        _query_cache[cache_key] = None
         return None
     if isinstance(weight, momapy.drawing.FontWeight):
-        weight_int = _FONT_WEIGHT_MAP[weight]
-    else:
-        weight_int = weight
+        weight = _FONT_WEIGHT_MAP[weight]
     want_italic = style in (
         momapy.drawing.FontStyle.ITALIC,
         momapy.drawing.FontStyle.OBLIQUE,
     )
     family_lower = family.lower()
-    best_entry = min(
-        cache,
-        key=lambda e: _score_font(e, family_lower, weight_int, want_italic),
+    best_font_entry = min(
+        font_cache,
+        key=lambda font_entry: _score_font(
+            font_entry, family_lower, weight, want_italic
+        ),
     )
-    return best_entry.path
+    result = best_font_entry.path
+    _query_cache[cache_key] = result
+    return result
