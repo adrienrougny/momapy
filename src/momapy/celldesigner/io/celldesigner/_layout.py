@@ -142,7 +142,7 @@ def make_species_modification(
             super_layout_element.height * math.sin(angle),
         )
         angle = math.atan2(point.y, point.x)
-    position = super_layout_element.angle(
+    position = super_layout_element.own_angle(
         angle, unit="radians"
     )
     if position is None:
