@@ -2,14 +2,15 @@
 
 import os
 import platform
-import typing
+import dataclasses
 
 import uharfbuzz
 
 import momapy.drawing
 
 
-class _FontEntry(typing.NamedTuple):
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _FontEntry:
     """A cached font entry with metadata."""
 
     path: str
