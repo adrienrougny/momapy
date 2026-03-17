@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/momapy)](https://pypi.org/project/momapy/)
 [![Python](https://img.shields.io/pypi/pyversions/momapy)](https://pypi.org/project/momapy/)
 [![License](https://img.shields.io/github/license/adrienrougny/momapy)](<https://github.com/adrienrougny/momapy/blob/main/COPYING>)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/user_manual/main.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demos/user_manual/main.ipynb)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://adrienrougny.github.io/momapy/)
 
 <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is a library for working with molecular maps.
@@ -81,24 +81,24 @@ from momapy.rendering.core import render_map
 render_map(map_, "my_file.svg")
 ```
 
-## Demo
+## User manual demo
 
 ### Online (no installation required)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/user_manual/main.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demos/user_manual/main.ipynb)
 
 ### Local
 
-To run the demo locally:
+To run the user manual demo locally:
 
 ```bash
 git clone https://github.com/adrienrougny/momapy.git
 cd momapy
 pip install . jupyter
-jupyter notebook demo/demo.ipynb
+jupyter notebook demos/user_manual/main.ipynb
 ```
 
-The demo includes additional files (`utils.py`, example data) in the `demo/` directory that are only available in the repository.
+The user manual demo includes additional files (`utils.py`, example data) in the `demos/` directory that are only available in the repository.
 
 ## Documentation
 
