@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         persist-credentials: false
         ref: main
@@ -35,7 +35,7 @@ jobs:
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         fi
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13"
     - name: Install pypa/build
@@ -47,7 +47,7 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: python3 -m build
     - name: Store the packages
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: python-package-distributions
         path: dist/
@@ -67,7 +67,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: python-package-distributions
         path: dist/
@@ -90,7 +90,7 @@ jobs:
 
     steps:
     - name: Download all the dists
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: python-package-distributions
         path: dist/
@@ -105,7 +105,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -131,7 +131,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload changelog snippet
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: changelog-snippet
         path: CHANGELOG_RELEASE.md
@@ -158,7 +158,7 @@ jobs:
 
     steps:
     - name: Checkout to get tag info
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         ref: main
         fetch-depth: 0
@@ -174,13 +174,13 @@ jobs:
         fi
 
     - name: Download dist artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: python-package-distributions
         path: dist/
 
     - name: Download changelog snippet
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: changelog-snippet
 
