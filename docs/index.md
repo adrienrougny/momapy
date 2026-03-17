@@ -84,7 +84,7 @@ apply_style_sheet(map_.layout, style_sheet)
 
 ## User manual
 
-A user manual showcasing the main feature of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available here: [User manual](demo.ipynb).
+A user manual showcasing the main feature of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available here: [User manual](user_manual/main.ipynb).
 
 ## Documentation
 
