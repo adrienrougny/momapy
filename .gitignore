@@ -3,7 +3,7 @@
 *.pyc
 build/
 __pycache__/
-src/momapy/demo/.ipynb_checkpoints/*
+.ipynb_checkpoints/
 .pdm-python
 dist/
 .tox/
