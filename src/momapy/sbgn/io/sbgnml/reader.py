@@ -1887,10 +1887,24 @@ class _SBGNMLReader(momapy.io.core.Reader):
             else:
                 layout_element = None
             if ctx.model is not None and ctx.layout is not None:
+                source_mapping_key = ctx.layout_model_mapping._singleton_to_key.get(
+                    source_layout_element
+                )
+                if source_mapping_key is not None:
+                    source_layout_elements = source_mapping_key
+                else:
+                    source_layout_elements = frozenset([source_layout_element])
+                target_mapping_key = ctx.layout_model_mapping._singleton_to_key.get(
+                    target_layout_element
+                )
+                if target_mapping_key is not None:
+                    target_layout_elements = target_mapping_key
+                else:
+                    target_layout_elements = frozenset([target_layout_element])
                 ctx.layout_model_mapping.add_mapping(
-                    frozenset(
-                        [layout_element, source_layout_element, target_layout_element]
-                    ),
+                    frozenset([layout_element])
+                    | source_layout_elements
+                    | target_layout_elements,
                     model_element,
                     replace=True,
                     anchor=layout_element,
