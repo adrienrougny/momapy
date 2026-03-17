@@ -14,7 +14,9 @@ import IPython.display
 import momapy.rendering.svg_native
 import momapy.geometry
 import momapy.builder
-import momapy.core
+import momapy.core.map
+import momapy.core.layout
+import momapy.core.builders
 import momapy.drawing
 import momapy.meta.nodes
 import momapy.positioning
@@ -24,7 +26,7 @@ import momapy.coloring
 def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
     if markers is None:
         markers = []
-    if isinstance(obj, momapy.core.Map):
+    if isinstance(obj, momapy.core.map.Map):
         layout_element = obj.layout
     else:
         layout_element = obj
@@ -87,38 +89,6 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
     renderer.end_session()
     svg_string = str(renderer.svg)
     IPython.display.display(IPython.display.SVG(data=svg_string))
-
-    # surface = skia.Surface(
-    #     int(max_x),
-    #     int(max_y),
-    # )
-    # canvas = surface.getCanvas()
-    # renderer = momapy.rendering.skia.SkiaRenderer(canvas=canvas)
-    # renderer.begin_session()
-    # renderer.render_layout_element(layout_element)
-    # image = surface.makeImageSnapshot()
-    # renderer.end_session()
-    # png_bytes = image.encodeToData().bytes()
-    # IPython.display.display(IPython.display.Image(data=png_bytes))
-
-
-def display_at(obj, positions):
-    obj = copy.deepcopy(obj)
-    cp_builder_cls = momapy.builder.get_or_make_builder_cls(
-        momapy.meta.nodes.CrossPoint
-    )
-    if momapy.builder.isinstance_or_builder(positions, momapy.geometry.Point):
-        positions = [positions]
-    for position in positions:
-        cp = cp_builder_cls(
-            width=12.0,
-            height=12.0,
-            stroke_width=1.5,
-            stroke=momapy.coloring.red,
-            position=position,
-        )
-        obj.layout_elements.append(cp)
-    display(obj, width, height)
 
 
 def make_toy_node(
@@ -273,7 +243,7 @@ def show_room(cls, type_="anchor"):
     CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
         momapy.meta.nodes.CrossPoint
     )
-    if momapy.builder.issubclass_or_builder(cls, momapy.core.Node):
+    if momapy.builder.issubclass_or_builder(cls, momapy.core.layout.Node):
         SCALE = 5.0
         if cls in [
             momapy.sbgn.pd.MacromoleculeLayout,
@@ -310,7 +280,7 @@ def show_room(cls, type_="anchor"):
                 position=position,
                 stroke_width=1.5,
                 stroke=momapy.coloring.red,
-                label=momapy.core.TextLayoutBuilder(
+                label=momapy.core.builders.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
@@ -344,15 +314,15 @@ def show_room(cls, type_="anchor"):
             )
             m.layout_elements.append(cross)
 
-    elif momapy.builder.issubclass_or_builder(
-        cls, (momapy.core.SingleHeadedArc, momapy.core.DoubleHeadedArc)
-    ):
+    elif momapy.builder.issubclass_or_builder(cls, momapy.core.layout.Arc):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)
         m = momapy.builder.builder_from_object(m)
         if type_ == "anchor":
-            if momapy.builder.issubclass_or_builder(cls, momapy.core.SingleHeadedArc):
+            if momapy.builder.issubclass_or_builder(
+                cls, momapy.core.layout.SingleHeadedArc
+            ):
                 d = SINGLE_ARC_ANCHORS
                 l = SINGLE_ARC_ANCHORS.keys()
             else:
@@ -373,7 +343,7 @@ def show_room(cls, type_="anchor"):
                 position=position,
                 stroke_width=1.5,
                 stroke=momapy.coloring.red,
-                label=momapy.core.TextLayoutBuilder(
+                label=momapy.core.builders.TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,

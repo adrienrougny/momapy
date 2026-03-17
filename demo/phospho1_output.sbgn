@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='ASCII'?>
 <sbgn xmlns="http://sbgn.org/libsbgn/0.3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqmodel="http://biomodels.net/model-qualifiers/" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-  <map id="5adce621-01b1-498b-ae44-1df5cabfc171" language="process description">
+  <map id="df2dd059-fb8b-4a80-bf46-a1127fd04fe7" language="process description">
     <bbox x="15.0" y="80.0" w="450.0" h="250.0"/>
     <glyph id="glyph2" class="macromolecule">
       <bbox x="31.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
-        <bbox x="80.2109375" y="261.8515625" w="9.578125" h="16.296875"/>
+        <bbox x="81.2344" y="263.60155" w="7.5312" h="12.7969"/>
       </label>
       <glyph id="glyph2a" class="state variable">
         <bbox x="48.0" y="230.0" w="20.0" h="20.0"/>
@@ -15,7 +15,7 @@
     <glyph id="glyph1" class="macromolecule">
       <bbox x="336.0" y="240.0" w="108.0" h="60.0"/>
       <label text="A">
-        <bbox x="385.2109375" y="261.8515625" w="9.578125" h="16.296875"/>
+        <bbox x="386.2344" y="263.60155" w="7.5312" h="12.7969"/>
       </label>
       <glyph id="glyph1a" class="state variable">
         <bbox x="351.0" y="230.0" w="24.0" h="20.0"/>
@@ -25,7 +25,7 @@
     <glyph id="glyph3" class="macromolecule">
       <bbox x="176.0" y="105.0" w="108.0" h="60.0"/>
       <label text="B">
-        <bbox x="225.1953125" y="126.8515625" w="9.609375" h="16.296875"/>
+        <bbox x="226.22655" y="128.60155" w="7.5469" h="12.7969"/>
       </label>
     </glyph>
     <glyph id="glyph4" class="process" orientation="horizontal">
@@ -33,15 +33,15 @@
       <port id="glyph4_left" x="206.0" y="270.0"/>
       <port id="glyph4_right" x="254.0" y="270.0"/>
     </glyph>
-    <arc id="a9a51748-4460-4d71-9529-64c4e71bd1da" class="consumption" source="glyph2" target="glyph4_left">
+    <arc id="739574d5-7d03-465c-824e-00ec82fcd984" class="consumption" source="glyph2" target="glyph4">
       <start x="139.0" y="270.0"/>
       <end x="206.0" y="270.0"/>
     </arc>
-    <arc id="b2443bb9-e98e-4b4d-830e-1860609067bb" class="production" target="glyph1" source="glyph4_right">
+    <arc id="2acd6e6c-6926-4ef8-a602-0acea4c3c8fc" class="production" target="glyph1" source="glyph4">
       <start x="254.0" y="270.0"/>
       <end x="336.0" y="270.0"/>
     </arc>
-    <arc id="1318c196-3c78-45cd-b3ee-a6a9838e90a2" class="catalysis" target="glyph4" source="glyph3">
+    <arc id="caf7a09f-f41a-4e2b-878a-385fe1ccb9dc" class="catalysis" target="glyph4" source="glyph3">
       <start x="230.0" y="165.0"/>
       <end x="230.0" y="258.0"/>
     </arc>
