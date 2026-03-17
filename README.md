@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/momapy)](https://pypi.org/project/momapy/)
 [![Python](https://img.shields.io/pypi/pyversions/momapy)](https://pypi.org/project/momapy/)
 [![License](https://img.shields.io/github/license/adrienrougny/momapy)](<https://github.com/adrienrougny/momapy/blob/main/COPYING>)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/demo.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/user_manual/main.ipynb)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://adrienrougny.github.io/momapy/)
 
 <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is a library for working with molecular maps.
@@ -85,7 +85,7 @@ render_map(map_, "my_file.svg")
 
 ### Online (no installation required)
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/demo.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demo/user_manual/main.ipynb)
 
 ### Local
 
