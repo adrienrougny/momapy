@@ -3,10 +3,12 @@
 Provides abstract base classes for readers and writers, along with
 convenience functions for reading and writing map files.
 
-Example:
-    >>> from momapy.io.core import read, write
-    >>> result = read("map.sbgn")
-    >>> write(result.obj, "output.sbgn", writer="sbgnml")
+Examples:
+    ```python
+    from momapy.io.core import read, write
+    result = read("map.sbgn")
+    write(result.obj, "output.sbgn", writer="sbgnml")
+    ```
 """
 
 import os
@@ -85,10 +87,12 @@ def read(
     Raises:
         ValueError: If no suitable reader is found.
 
-    Example:
-        >>> from momapy.io.core import read
-        >>> result = read("map.sbgn")
-        >>> map_obj = result.obj
+    Examples:
+        ```python
+        from momapy.io.core import read
+        result = read("map.sbgn")
+        map_obj = result.obj
+        ```
     """
     import momapy.io
 
@@ -130,9 +134,11 @@ def write(
     Raises:
         ValueError: If the writer is not found.
 
-    Example:
-        >>> from momapy.io.core import write
-        >>> write(map_obj, "output.sbgn", writer="sbgnml")
+    Examples:
+        ```python
+        from momapy.io.core import write
+        write(map_obj, "output.sbgn", writer="sbgnml")
+        ```
     """
     import momapy.io
 
@@ -148,16 +154,19 @@ class Reader(abc.ABC):
 
     Implementations must override read() and check_file() methods.
 
-    Example:
-        >>> class MyFormatReader(Reader):
-        ...     @classmethod
-        ...     def read(cls, file_path, **options):
-        ...         # Implementation
-        ...         pass
-        ...
-        ...     @classmethod
-        ...     def check_file(cls, file_path):
-        ...         return file_path.endswith(".myfmt")
+    Examples:
+        ```python
+        class MyFormatReader(Reader):
+            @classmethod
+            def read(cls, file_path, **options):
+
+                # Implementation
+                pass
+
+            @classmethod
+            def check_file(cls, file_path):
+                return file_path.endswith(".myfmt")
+        ```
     """
 
     @classmethod
@@ -193,12 +202,15 @@ class Writer(abc.ABC):
 
     Implementations must override the write() method.
 
-    Example:
-        >>> class MyFormatWriter(Writer):
-        ...     @classmethod
-        ...     def write(cls, obj, file_path, **options):
-        ...         # Implementation
-        ...         pass
+    Examples:
+        ```python
+        class MyFormatWriter(Writer):
+            @classmethod
+            def write(cls, obj, file_path, **options):
+
+                # Implementation
+                pass
+        ```
     """
 
     @classmethod

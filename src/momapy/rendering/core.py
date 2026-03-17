@@ -203,14 +203,18 @@ def render_map(
         style_sheet: An optional style sheet to apply before rendering
         to_top_left: Whether to move the map to the top left before rendering
 
-    Example:
-        >>> from momapy.io.core import read
-        >>> from momapy.rendering.core import render_map
-        >>> # Read a map from file
-        >>> result = read("path/to/map.sbgn")
-        >>> sbgn_map = result.obj
-        >>> # Render the map to SVG
-        >>> render_map(sbgn_map, "output.svg")
+    Examples:
+        ```python
+        from momapy.io.core import read
+        from momapy.rendering.core import render_map
+
+        # Read a map from file
+        result = read("path/to/map.sbgn")
+        sbgn_map = result.obj
+
+        # Render the map to SVG
+        render_map(sbgn_map, "output.svg")
+        ```
     """
     render_maps([map_], file_path, format_, renderer, style_sheet, to_top_left)
 
@@ -235,16 +239,20 @@ def render_maps(
         to_top_left: Whether to move the maps to the top left before rendering
         multi_pages: Whether to render each map on a separate page
 
-    Example:
-        >>> from momapy.io.core import read
-        >>> from momapy.rendering.core import render_maps
-        >>> # Read multiple maps from files
-        >>> result1 = read("path/to/map1.sbgn")
-        >>> first_map = result1.obj
-        >>> result2 = read("path/to/map2.sbgn")
-        >>> second_map = result2.obj
-        >>> # Render both maps to a multi-page PDF
-        >>> render_maps([first_map, second_map], "output.pdf", multi_pages=True)
+    Examples:
+        ```python
+        from momapy.io.core import read
+        from momapy.rendering.core import render_maps
+
+        # Read multiple maps from files
+        result1 = read("path/to/map1.sbgn")
+        first_map = result1.obj
+        result2 = read("path/to/map2.sbgn")
+        second_map = result2.obj
+
+        # Render both maps to a multi-page PDF
+        render_maps([first_map, second_map], "output.pdf", multi_pages=True)
+        ```
     """
     layout_elements = [map_.layout for map_ in maps]
     render_layout_elements(

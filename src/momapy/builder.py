@@ -4,19 +4,20 @@ This module provides functionality to automatically generate builder classes
 from dataclasses, allowing for flexible object construction and transformation
 between objects and their builder representations.
 
-Example:
-    >>> from dataclasses import dataclass
-    >>> @dataclass
-    ... class Person:
-    ...     name: str
-    ...     age: int
-    >>>
-    >>> # Create a builder class automatically
-    >>> Builder = get_or_make_builder_cls(Person)
-    >>> builder = Builder(name="John", age=30)
-    >>> person = builder.build()
-    >>> print(person)
-    Person(name='John', age=30)
+Examples:
+    ```python
+    from dataclasses import dataclass
+    @dataclass
+    class Person:
+        name: str
+        age: int
+
+    # Create a builder class automatically
+    Builder = get_or_make_builder_cls(Person)
+    builder = Builder(name="John", age=30)
+    person = builder.build()
+    print(person)
+    ```
 """
 
 import abc
@@ -274,18 +275,19 @@ def object_from_builder(
         The built object, collection of built objects, or the original value
         if not a builder.
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Point:
-        ...     x: float
-        ...     y: float
-        >>>
-        >>> PointBuilder = get_or_make_builder_cls(Point)
-        >>> builder = PointBuilder(x=1.0, y=2.0)
-        >>> point = object_from_builder(builder)
-        >>> print(point)
-        Point(x=1.0, y=2.0)
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Point:
+            x: float
+            y: float
+
+        PointBuilder = get_or_make_builder_cls(Point)
+        builder = PointBuilder(x=1.0, y=2.0)
+        point = object_from_builder(builder)
+        print(point)
+        ```
     """
     if builder_to_object is not None:
         if id(builder) in builder_to_object:
@@ -352,17 +354,18 @@ def builder_from_object(
         The builder object, collection of builders, or the original value
         if no builder class exists.
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Point:
-        ...     x: float
-        ...     y: float
-        >>>
-        >>> point = Point(x=1.0, y=2.0)
-        >>> builder = builder_from_object(point)
-        >>> print(type(builder).__name__)
-        PointBuilder
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Point:
+            x: float
+            y: float
+
+        point = Point(x=1.0, y=2.0)
+        builder = builder_from_object(point)
+        print(type(builder).__name__)
+        ```
     """
     if object_to_builder is not None:
         builder = object_to_builder.get(id(obj))
@@ -433,16 +436,17 @@ def new_builder_object(cls: typing.Type, *args, **kwargs) -> Builder:
     Returns:
         A new builder instance.
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Person:
-        ...     name: str
-        ...     age: int = 0
-        >>>
-        >>> builder = new_builder_object(Person, name="Alice")
-        >>> print(builder.name)
-        Alice
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Person:
+            name: str
+            age: int = 0
+
+        builder = new_builder_object(Person, name="Alice")
+        print(builder.name)
+        ```
     """
     if not issubclass(cls, Builder):
         cls = get_or_make_builder_cls(cls)
@@ -473,16 +477,17 @@ def get_or_make_builder_cls(
         The builder class for the given class, or the original class if
         it's not a dataclass.
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Point:
-        ...     x: float
-        ...     y: float
-        >>>
-        >>> PointBuilder = get_or_make_builder_cls(Point)
-        >>> print(PointBuilder.__name__)
-        PointBuilder
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Point:
+            x: float
+            y: float
+
+        PointBuilder = get_or_make_builder_cls(Point)
+        print(PointBuilder.__name__)
+        ```
     """
     builder_cls = get_builder_cls(cls)
     if builder_cls is None:
@@ -546,17 +551,18 @@ def isinstance_or_builder(
     Returns:
         True if obj is an instance of type_ or its builder class(es).
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Point:
-        ...     x: float
-        ...     y: float
-        >>>
-        >>> PointBuilder = get_or_make_builder_cls(Point)
-        >>> builder = PointBuilder(x=1.0, y=2.0)
-        >>> isinstance_or_builder(builder, Point)
-        True
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Point:
+            x: float
+            y: float
+
+        PointBuilder = get_or_make_builder_cls(Point)
+        builder = PointBuilder(x=1.0, y=2.0)
+        isinstance_or_builder(builder, Point)
+        ```
     """
     if isinstance(type_, type):
         type_ = (type_,)

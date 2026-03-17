@@ -3,11 +3,13 @@
 This module provides dataclasses representing SBML model elements including
 compartments, species, reactions, and annotations using BioModels qualifiers.
 
-Example:
-    >>> from momapy.sbml.core import Compartment, Species, Model
-    >>> compartment = Compartment(name="cytosol")
-    >>> species = Species(name="glucose", compartment=compartment)
-    >>> model = Model(name="glycolysis", compartments={compartment}, species={species})
+Examples:
+    ```python
+    from momapy.sbml.core import Compartment, Species, Model
+    compartment = Compartment(name="cytosol")
+    species = Species(name="glucose", compartment=compartment)
+    model = Model(name="glycolysis", compartments={compartment}, species={species})
+    ```
 """
 
 import dataclasses
@@ -95,12 +97,14 @@ class RDFAnnotation(momapy.core.elements.ModelElement):
         qualifier: The BioModels qualifier describing the relationship.
         resources: Set of resource URIs linked to this annotation.
 
-    Example:
-        >>> from momapy.sbml.core import RDFAnnotation, BQBiol
-        >>> annotation = RDFAnnotation(
-        ...     qualifier=BQBiol.IS,
-        ...     resources={"https://identifiers.org/chebi:4167"}
-        ... )
+    Examples:
+        ```python
+        from momapy.sbml.core import RDFAnnotation, BQBiol
+        annotation = RDFAnnotation(
+            qualifier=BQBiol.IS,
+            resources={"https://identifiers.org/chebi:4167"}
+        )
+        ```
     """
 
     qualifier: BiomodelQualifier
@@ -145,9 +149,11 @@ class Compartment(SBase):
     Attributes:
         outside: Optional outer compartment for hierarchical nesting.
 
-    Example:
-        >>> cytosol = Compartment(name="cytosol")
-        >>> nucleus = Compartment(name="nucleus", outside=cytosol)
+    Examples:
+        ```python
+        cytosol = Compartment(name="cytosol")
+        nucleus = Compartment(name="nucleus", outside=cytosol)
+        ```
     """
 
     outside: typing.Optional[
@@ -165,9 +171,11 @@ class Species(SBase):
     Attributes:
         compartment: The compartment containing this species.
 
-    Example:
-        >>> compartment = Compartment(name="cytosol")
-        >>> glucose = Species(name="glucose", compartment=compartment)
+    Examples:
+        ```python
+        compartment = Compartment(name="cytosol")
+        glucose = Species(name="glucose", compartment=compartment)
+        ```
     """
 
     compartment: Compartment | None = None
@@ -202,9 +210,11 @@ class SpeciesReference(SimpleSpeciesReference):
     Attributes:
         stoichiometry: Optional stoichiometric coefficient.
 
-    Example:
-        >>> species = Species(name="ATP", compartment=compartment)
-        >>> ref = SpeciesReference(referred_species=species, stoichiometry=2)
+    Examples:
+        ```python
+        species = Species(name="ATP", compartment=compartment)
+        ref = SpeciesReference(referred_species=species, stoichiometry=2)
+        ```
     """
 
     stoichiometry: float | None = None
@@ -224,13 +234,15 @@ class Reaction(SBase):
         products: Set of species produced by the reaction.
         modifiers: Set of species that modify the reaction.
 
-    Example:
-        >>> reaction = Reaction(
-        ...     name="hexokinase",
-        ...     reversible=False,
-        ...     reactants={glucose_ref, atp_ref},
-        ...     products={g6p_ref, adp_ref}
-        ... )
+    Examples:
+        ```python
+        reaction = Reaction(
+            name="hexokinase",
+            reversible=False,
+            reactants={glucose_ref, atp_ref},
+            products={g6p_ref, adp_ref}
+        )
+        ```
     """
 
     reversible: bool
@@ -256,13 +268,15 @@ class SBMLModel(SBase, momapy.core.model.Model):
         species: Set of species in the model.
         reactions: Set of reactions in the model.
 
-    Example:
-        >>> model = SBMLModel(
-        ...     name="glycolysis",
-        ...     compartments={cytosol},
-        ...     species={glucose, atp, g6p},
-        ...     reactions={hexokinase}
-        ... )
+    Examples:
+        ```python
+        model = SBMLModel(
+            name="glycolysis",
+            compartments={cytosol},
+            species={glucose, atp, g6p},
+            reactions={hexokinase}
+        )
+        ```
     """
 
     compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
@@ -286,12 +300,14 @@ class SBML(SBase):
         version: SBML version within the level.
         model: The model contained in this SBML document.
 
-    Example:
-        >>> sbml = SBML(
-        ...     model=SBMLModel(name="glycolysis"),
-        ...     level=3,
-        ...     version=2
-        ... )
+    Examples:
+        ```python
+        sbml = SBML(
+            model=SBMLModel(name="glycolysis"),
+            level=3,
+            version=2
+        )
+        ```
     """
 
     xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"

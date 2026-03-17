@@ -4,13 +4,14 @@ This module provides utilities for calculating positions relative to layout elem
 fitting bounding boxes around collections of elements, and setting positions of
 builder objects. Functions support Points, Bboxes, Nodes, and their builder variants.
 
-Example:
-    >>> from momapy.positioning import right_of, fit
-    >>> from momapy.geometry import Point
-    >>> point = Point(0, 0)
-    >>> new_point = right_of(point, 10)
-    >>> print(new_point)
-    Point(x=10, y=0)
+Examples:
+    ```python
+    from momapy.positioning import right_of, fit
+    from momapy.geometry import Point
+    point = Point(0, 0)
+    new_point = right_of(point, 10)
+    print(new_point)
+    ```
 """
 
 import collections.abc
@@ -47,10 +48,11 @@ def right_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(0, 0)
-        >>> right_of(point, 10)
-        Point(x=10, y=0)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(0, 0)
+        right_of(point, 10)
+        ```
     """
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
@@ -85,10 +87,11 @@ def left_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(10, 0)
-        >>> left_of(point, 5)
-        Point(x=5, y=0)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(10, 0)
+        left_of(point, 5)
+        ```
     """
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
@@ -123,10 +126,11 @@ def above_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(0, 10)
-        >>> above_of(point, 5)
-        Point(x=0, y=5)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(0, 10)
+        above_of(point, 5)
+        ```
     """
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
@@ -161,10 +165,11 @@ def below_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(0, 0)
-        >>> below_of(point, 10)
-        Point(x=0, y=10)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(0, 0)
+        below_of(point, 10)
+        ```
     """
     if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
         source_point = obj
@@ -202,10 +207,11 @@ def above_left_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(10, 10)
-        >>> above_left_of(point, 5)
-        Point(x=5, y=5)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(10, 10)
+        above_left_of(point, 5)
+        ```
     """
     if distance2 is None:
         distance2 = distance1
@@ -245,10 +251,11 @@ def above_right_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(0, 10)
-        >>> above_right_of(point, 5, 10)
-        Point(x=10, y=5)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(0, 10)
+        above_right_of(point, 5, 10)
+        ```
     """
     if distance2 is None:
         distance2 = distance1
@@ -288,10 +295,11 @@ def below_left_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(10, 0)
-        >>> below_left_of(point, 5)
-        Point(x=5, y=5)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(10, 0)
+        below_left_of(point, 5)
+        ```
     """
     if distance2 is None:
         distance2 = distance1
@@ -331,10 +339,11 @@ def below_right_of(
     Raises:
         TypeError: If obj is not a supported type.
 
-    Example:
-        >>> point = momapy.geometry.Point(0, 0)
-        >>> below_right_of(point, 5, 10)
-        Point(x=10, y=5)
+    Examples:
+        ```python
+        point = momapy.geometry.Point(0, 0)
+        below_right_of(point, 5, 10)
+        ```
     """
     if distance2 is None:
         distance2 = distance1
@@ -374,11 +383,12 @@ def fit(
         ValueError: If elements is empty.
         TypeError: If an element has an unsupported type.
 
-    Example:
-        >>> points = [momapy.geometry.Point(0, 0), momapy.geometry.Point(10, 10)]
-        >>> bbox = fit(points, xsep=2, ysep=2)
-        >>> print(bbox.position)
-        Point(x=5.0, y=5.0)
+    Examples:
+        ```python
+        points = [momapy.geometry.Point(0, 0), momapy.geometry.Point(10, 10)]
+        bbox = fit(points, xsep=2, ysep=2)
+        print(bbox.position)
+        ```
     """
     if not elements:
         raise ValueError("elements must contain at least one element")
@@ -435,11 +445,12 @@ def mid_of(
     Returns:
         A Point at the midpoint between the two objects.
 
-    Example:
-        >>> p1 = momapy.geometry.Point(0, 0)
-        >>> p2 = momapy.geometry.Point(10, 10)
-        >>> mid_of(p1, p2)
-        Point(x=5.0, y=5.0)
+    Examples:
+        ```python
+        p1 = momapy.geometry.Point(0, 0)
+        p2 = momapy.geometry.Point(10, 10)
+        mid_of(p1, p2)
+        ```
     """
     if momapy.builder.isinstance_or_builder(
         obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
@@ -484,11 +495,12 @@ def cross_vh_of(
     Returns:
         A Point at (obj1.x, obj2.y).
 
-    Example:
-        >>> p1 = momapy.geometry.Point(5, 0)
-        >>> p2 = momapy.geometry.Point(0, 10)
-        >>> cross_vh_of(p1, p2)
-        Point(x=5, y=10)
+    Examples:
+        ```python
+        p1 = momapy.geometry.Point(5, 0)
+        p2 = momapy.geometry.Point(0, 10)
+        cross_vh_of(p1, p2)
+        ```
     """
     if momapy.builder.isinstance_or_builder(
         obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
@@ -534,11 +546,12 @@ def cross_hv_of(
     Returns:
         A Point at (obj2.x, obj1.y).
 
-    Example:
-        >>> p1 = momapy.geometry.Point(0, 5)
-        >>> p2 = momapy.geometry.Point(10, 0)
-        >>> cross_hv_of(p1, p2)
-        Point(x=10, y=5)
+    Examples:
+        ```python
+        p1 = momapy.geometry.Point(0, 5)
+        p2 = momapy.geometry.Point(10, 0)
+        cross_hv_of(p1, p2)
+        ```
     """
     if momapy.builder.isinstance_or_builder(
         obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
@@ -570,9 +583,11 @@ def fraction_of(
             - The Point at the specified fraction along the arc.
             - The angle (in radians) of the tangent at that position.
 
-    Example:
-        >>> arc = some_single_headed_arc
-        >>> pos, angle = fraction_of(arc, 0.5)  # Midpoint of arc
+    Examples:
+        ```python
+        arc = some_single_headed_arc
+        pos, angle = fraction_of(arc, 0.5)  # Midpoint of arc
+        ```
     """
     position, angle = arc_layout_element.fraction(fraction)
     return position, angle
@@ -592,9 +607,11 @@ def set_position(
             If specified, the object is shifted so that its anchor point
             aligns with the given position.
 
-    Example:
-        >>> builder = momapy.builder.get_or_make_builder_cls(MyNode)()
-        >>> set_position(builder, momapy.geometry.Point(100, 100), anchor="center")
+    Examples:
+        ```python
+        builder = momapy.builder.get_or_make_builder_cls(MyNode)()
+        set_position(builder, momapy.geometry.Point(100, 100), anchor="center")
+        ```
     """
     obj.position = position
     if anchor is not None:

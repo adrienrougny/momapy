@@ -23,14 +23,14 @@ class SVGElement(object):
         attributes: Dictionary of attribute names and values
         elements: List of child SVGElement instances
 
-    Example:
-        >>> element = SVGElement(
-        ...     name="rect",
-        ...     attributes={"x": "0", "y": "0", "width": "100", "height": "100"}
-        ... )
-        >>> print(element)
-        <rect x="0" y="0" width="100" height="100">
-        </rect>
+    Examples:
+        ```python
+        element = SVGElement(
+            name="rect",
+            attributes={"x": "0", "y": "0", "width": "100", "height": "100"}
+        )
+        print(element)
+        ```
     """
 
     name: str
@@ -91,20 +91,24 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     Attributes:
         svg: The root SVGElement that will contain all rendered content
 
-    Example:
-        >>> from momapy.meta.nodes import Rectangle
-        >>> import momapy.geometry
-        >>> # Create a layout element to render
-        >>> node = Rectangle(
-        ...     position=momapy.geometry.Point(100, 100),
-        ...     width=200,
-        ...     height=100
-        ... )
-        >>> # Create renderer and render the element
-        >>> renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
-        >>> renderer.begin_session()
-        >>> renderer.render_layout_element(node)
-        >>> renderer.end_session()
+    Examples:
+        ```python
+        from momapy.meta.nodes import Rectangle
+        import momapy.geometry
+
+        # Create a layout element to render
+        node = Rectangle(
+            position=momapy.geometry.Point(100, 100),
+            width=200,
+            height=100
+        )
+
+        # Create renderer and render the element
+        renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
+        renderer.begin_session()
+        renderer.render_layout_element(node)
+        renderer.end_session()
+        ```
     """
 
     supported_formats: typing.ClassVar[list[str]] = ["svg"]
@@ -204,8 +208,10 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         Raises:
             ValueError: If the format is not supported
 
-        Example:
-            >>> renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
+        Examples:
+            ```python
+            renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
+            ```
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
@@ -637,11 +643,13 @@ class SVGNativeCompatRenderer(SVGNativeRenderer):
     This renderer extends SVGNativeRenderer to provide compatibility with
     older SVG viewers by converting filters to a compatible format.
 
-    Example:
-        >>> renderer = SVGNativeCompatRenderer.from_file("output.svg", 800, 600, "svg")
-        >>> renderer.begin_session()
-        >>> renderer.render_layout_element(layout_element)
-        >>> renderer.end_session()
+    Examples:
+        ```python
+        renderer = SVGNativeCompatRenderer.from_file("output.svg", 800, 600, "svg")
+        renderer.begin_session()
+        renderer.render_layout_element(layout_element)
+        renderer.end_session()
+        ```
     """
 
     def _make_filter_element(self, filter_):

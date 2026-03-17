@@ -15,21 +15,25 @@ Available node types:
     - Parallelogram: Parallelogram-shaped nodes
     - Bar: Bar or line-shaped nodes
 
-Example:
-    >>> from momapy.meta.nodes import Rectangle, Ellipse
-    >>> import momapy.geometry
-    >>> # Create a rectangle node at position (100, 100)
-    >>> rectangle_node = Rectangle(
-    ...     position=momapy.geometry.Point(100, 100),
-    ...     width=200,
-    ...     height=100
-    ... )
-    >>> # Create a circular node at position (300, 300)
-    >>> circle_node = Ellipse(
-    ...     position=momapy.geometry.Point(300, 300),
-    ...     width=150,
-    ...     height=150
-    ... )
+Examples:
+    ```python
+    from momapy.meta.nodes import Rectangle, Ellipse
+    import momapy.geometry
+
+    # Create a rectangle node at position (100, 100)
+    rectangle_node = Rectangle(
+        position=momapy.geometry.Point(100, 100),
+        width=200,
+        height=100
+    )
+
+    # Create a circular node at position (300, 300)
+    circle_node = Ellipse(
+        position=momapy.geometry.Point(300, 300),
+        width=150,
+        height=150
+    )
+    ```
 """
 
 import dataclasses

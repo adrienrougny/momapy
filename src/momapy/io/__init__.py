@@ -3,10 +3,12 @@
 Provides functions and registries for reading and writing molecular maps
 in various formats (SBGN-ML, CellDesigner, SBML, etc.).
 
-Example:
-    >>> from momapy.io import get_reader, get_writer
-    >>> reader = get_reader("sbgnml")
-    >>> writer = get_writer("sbgnml")
+Examples:
+    ```python
+    from momapy.io import get_reader, get_writer
+    reader = get_reader("sbgnml")
+    writer = get_writer("sbgnml")
+    ```
 """
 
 from __future__ import annotations
@@ -35,9 +37,11 @@ def get_reader(name: str) -> type[momapy.io.core.Reader]:
     Raises:
         ValueError: If no reader with that name exists.
 
-    Example:
-        >>> from momapy.io import get_reader
-        >>> reader = get_reader("sbgnml")
+    Examples:
+        ```python
+        from momapy.io import get_reader
+        reader = get_reader("sbgnml")
+        ```
     """
     reader = reader_registry.get(name)
     if reader is None:
@@ -54,10 +58,11 @@ def list_readers() -> list[str]:
     Returns:
         Sorted list of available reader names.
 
-    Example:
-        >>> from momapy.io import list_readers
-        >>> list_readers()
-        ['celldesigner', 'sbgnml', ...]
+    Examples:
+        ```python
+        from momapy.io import list_readers
+        list_readers()
+        ```
     """
     return reader_registry.list_available()
 
@@ -69,9 +74,11 @@ def register_reader(name: str, cls: type[momapy.io.core.Reader]) -> None:
         name: Name to register the reader under.
         cls: Reader class (must inherit from Reader).
 
-    Example:
-        >>> from momapy.io import register_reader
-        >>> register_reader("myformat", MyFormatReader)
+    Examples:
+        ```python
+        from momapy.io import register_reader
+        register_reader("myformat", MyFormatReader)
+        ```
     """
     reader_registry.register(name, cls)
 
@@ -83,9 +90,11 @@ def register_lazy_reader(name: str, import_path: str) -> None:
         name: Name to register the reader under.
         import_path: Import path in format "module.path:ClassName".
 
-    Example:
-        >>> from momapy.io import register_lazy_reader
-        >>> register_lazy_reader("myformat", "mymodule.io:MyFormatReader")
+    Examples:
+        ```python
+        from momapy.io import register_lazy_reader
+        register_lazy_reader("myformat", "mymodule.io:MyFormatReader")
+        ```
     """
     reader_registry.register_lazy(name, import_path)
 
@@ -102,9 +111,11 @@ def get_writer(name: str) -> type[momapy.io.core.Writer]:
     Raises:
         ValueError: If no writer with that name exists.
 
-    Example:
-        >>> from momapy.io import get_writer
-        >>> writer = get_writer("sbgnml")
+    Examples:
+        ```python
+        from momapy.io import get_writer
+        writer = get_writer("sbgnml")
+        ```
     """
     writer = writer_registry.get(name)
     if writer is None:
@@ -121,10 +132,11 @@ def list_writers() -> list[str]:
     Returns:
         Sorted list of available writer names.
 
-    Example:
-        >>> from momapy.io import list_writers
-        >>> list_writers()
-        ['sbgnml', 'sbgn-pickle', ...]
+    Examples:
+        ```python
+        from momapy.io import list_writers
+        list_writers()
+        ```
     """
     return writer_registry.list_available()
 
@@ -136,9 +148,11 @@ def register_writer(name: str, cls: type[momapy.io.core.Writer]) -> None:
         name: Name to register the writer under.
         cls: Writer class (must inherit from Writer).
 
-    Example:
-        >>> from momapy.io import register_writer
-        >>> register_writer("myformat", MyFormatWriter)
+    Examples:
+        ```python
+        from momapy.io import register_writer
+        register_writer("myformat", MyFormatWriter)
+        ```
     """
     writer_registry.register(name, cls)
 
@@ -150,9 +164,11 @@ def register_lazy_writer(name: str, import_path: str) -> None:
         name: Name to register the writer under.
         import_path: Import path in format "module.path:ClassName".
 
-    Example:
-        >>> from momapy.io import register_lazy_writer
-        >>> register_lazy_writer("myformat", "mymodule.io:MyFormatWriter")
+    Examples:
+        ```python
+        from momapy.io import register_lazy_writer
+        register_lazy_writer("myformat", "mymodule.io:MyFormatWriter")
+        ```
     """
     writer_registry.register_lazy(name, import_path)
 

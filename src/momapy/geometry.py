@@ -5,20 +5,24 @@ segments, curves, and transformations. It includes support for Bezier curves,
 elliptical arcs, and various geometric operations.
 
 Examples:
-    >>> from momapy.geometry import Point, Line, Segment, Rotation, Translation
-    >>> # Create points
-    >>> p1 = Point(0, 0)
-    >>> p2 = Point(10, 10)
-    >>> # Create a line
-    >>> line = Line(p1, p2)
-    >>> line.slope()
-    1.0
-    >>> # Create a segment
-    >>> segment = Segment(p1, p2)
-    >>> segment.length()
-    14.14...
-    >>> # Apply transformations
-    >>> rotated = p1.transformed(Rotation(math.pi / 2, p2))
+    ```python
+    from momapy.geometry import Point, Line, Segment, Rotation, Translation
+
+    # Create points
+    p1 = Point(0, 0)
+    p2 = Point(10, 10)
+
+    # Create a line
+    line = Line(p1, p2)
+    line.slope()
+
+    # Create a segment
+    segment = Segment(p1, p2)
+    segment.length()
+
+    # Apply transformations
+    rotated = p1.transformed(Rotation(math.pi / 2, p2))
+    ```
 """
 
 import collections.abc
@@ -57,11 +61,11 @@ class Point(GeometryObject):
         y: The y-coordinate.
 
     Examples:
-        >>> p = Point(10, 20)
-        >>> p.x
-        10
-        >>> p + (5, 5)
-        Point(x=15, y=25)
+        ```python
+        p = Point(10, 20)
+        p.x
+        p + (5, 5)
+        ```
     """
 
     x: float
@@ -202,11 +206,11 @@ class Line(GeometryObject):
         p2: Second point on the line.
 
     Examples:
-        >>> line = Line(Point(0, 0), Point(10, 10))
-        >>> line.slope()
-        1.0
-        >>> line.intercept()
-        0.0
+        ```python
+        line = Line(Point(0, 0), Point(10, 10))
+        line.slope()
+        line.intercept()
+        ```
     """
 
     p1: Point
@@ -376,11 +380,11 @@ class Segment(GeometryObject):
         p2: End point.
 
     Examples:
-        >>> seg = Segment(Point(0, 0), Point(10, 10))
-        >>> seg.length()
-        14.14...
-        >>> seg.get_position_at_fraction(0.5)
-        Point(x=5.0, y=5.0)
+        ```python
+        seg = Segment(Point(0, 0), Point(10, 10))
+        seg.length()
+        seg.get_position_at_fraction(0.5)
+        ```
     """
 
     p1: Point
@@ -664,11 +668,13 @@ class QuadraticBezierCurve(GeometryObject):
         control_point: The single control point.
 
     Examples:
-        >>> curve = QuadraticBezierCurve(
-        ...     Point(0, 0),
-        ...     Point(10, 0),
-        ...     Point(5, 5)
-        ... )
+        ```python
+        curve = QuadraticBezierCurve(
+            Point(0, 0),
+            Point(10, 0),
+            Point(5, 5)
+        )
+        ```
     """
 
     p1: Point
@@ -935,12 +941,14 @@ class CubicBezierCurve(GeometryObject):
         control_point2: Second control point.
 
     Examples:
-        >>> curve = CubicBezierCurve(
-        ...     Point(0, 0),
-        ...     Point(10, 0),
-        ...     Point(3, 5),
-        ...     Point(7, 5)
-        ... )
+        ```python
+        curve = CubicBezierCurve(
+            Point(0, 0),
+            Point(10, 0),
+            Point(3, 5),
+            Point(7, 5)
+        )
+        ```
     """
 
     p1: Point
@@ -1254,9 +1262,11 @@ class EllipticalArc(GeometryObject):
         sweep_flag: Sweep flag (0 or 1).
 
     Examples:
-        >>> arc = EllipticalArc(
-        ...     Point(0, 0), Point(10, 0), 5, 5, 0, 0, 1
-        ... )
+        ```python
+        arc = EllipticalArc(
+            Point(0, 0), Point(10, 0), 5, 5, 0, 0, 1
+        )
+        ```
     """
 
     p1: Point
@@ -1647,11 +1657,11 @@ class Bbox(object):
         height: Height of the box.
 
     Examples:
-        >>> bbox = Bbox(Point(5, 5), 10, 10)
-        >>> bbox.north_west()
-        Point(x=0.0, y=0.0)
-        >>> bbox.south_east()
-        Point(x=10.0, y=10.0)
+        ```python
+        bbox = Bbox(Point(5, 5), 10, 10)
+        bbox.north_west()
+        bbox.south_east()
+        ```
     """
 
     position: Point
@@ -1883,7 +1893,9 @@ class Rotation(Transformation):
         point: Optional center of rotation (defaults to origin).
 
     Examples:
-        >>> rot = Rotation(math.pi / 2, Point(5, 5))
+        ```python
+        rot = Rotation(math.pi / 2, Point(5, 5))
+        ```
     """
 
     angle: float
@@ -1929,7 +1941,9 @@ class Translation(Transformation):
         ty: Translation in y direction.
 
     Examples:
-        >>> trans = Translation(10, 20)
+        ```python
+        trans = Translation(10, 20)
+        ```
     """
 
     tx: float
@@ -1962,7 +1976,9 @@ class Scaling(Transformation):
         sy: Scale factor in y direction.
 
     Examples:
-        >>> scale = Scaling(2, 2)  # Double size
+        ```python
+        scale = Scaling(2, 2)  # Double size
+        ```
     """
 
     sx: float

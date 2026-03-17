@@ -18,28 +18,32 @@ Available arc types:
     - Ellipse: Lines with elliptical arrowheads
     - DoubleTriangleBar: Lines with double triangle and bar arrowheads
 
-Example:
-    >>> from momapy.meta.arcs import Triangle, Diamond
-    >>> from momapy.meta.nodes import Rectangle
-    >>> import momapy.geometry
-    >>> # Create nodes with Point positions
-    >>> source_node = Rectangle(
-    ...     position=momapy.geometry.Point(100, 100),
-    ...     width=50,
-    ...     height=30
-    ... )
-    >>> target_node = Rectangle(
-    ...     position=momapy.geometry.Point(300, 100),
-    ...     width=50,
-    ...     height=30
-    ... )
-    >>> # Create arc with segments defining the path
-    >>> segment = momapy.geometry.Segment(
-    ...     momapy.geometry.Point(125, 100),
-    ...     momapy.geometry.Point(275, 100)
-    ... )
-    >>> arc1 = Triangle(segments=(segment,))
-    >>> arc2 = Diamond(segments=(segment,))
+Examples:
+    ```python
+    from momapy.meta.arcs import Triangle, Diamond
+    from momapy.meta.nodes import Rectangle
+    import momapy.geometry
+
+    # Create nodes with Point positions
+    source_node = Rectangle(
+        position=momapy.geometry.Point(100, 100),
+        width=50,
+        height=30
+    )
+    target_node = Rectangle(
+        position=momapy.geometry.Point(300, 100),
+        width=50,
+        height=30
+    )
+
+    # Create arc with segments defining the path
+    segment = momapy.geometry.Segment(
+        momapy.geometry.Point(125, 100),
+        momapy.geometry.Point(275, 100)
+    )
+    arc1 = Triangle(segments=(segment,))
+    arc2 = Diamond(segments=(segment,))
+    ```
 """
 
 from dataclasses import dataclass

@@ -3,13 +3,15 @@
 This module provides tools for creating animations by rendering layout frames
 and compiling them into video files using ffmpeg.
 
-Example:
-    >>> from momapy.animating import Animator
-    >>> from momapy.core import Layout
-    >>> layout = Layout(...)
-    >>> animator = Animator(layout, fps=30)
-    >>> animator.frames(60)  # Hold for 60 frames
-    >>> animator.build("output.mp4")
+Examples:
+    ```python
+    from momapy.animating import Animator
+    from momapy.core import Layout
+    layout = Layout(...)
+    animator = Animator(layout, fps=30)
+    animator.frames(60)  # Hold for 60 frames
+    animator.build("output.mp4")
+    ```
 """
 
 from dataclasses import dataclass
@@ -32,11 +34,13 @@ class Animator(object):
         layout: The layout to animate.
         fps: Frames per second for the output video.
 
-    Example:
-        >>> animator = Animator(my_layout, fps=60)
-        >>> animator.frames(30)  # 0.5 seconds at 60 fps
-        >>> animator.mseconds(1000)  # 1 second
-        >>> animator.build("animation.mp4")
+    Examples:
+        ```python
+        animator = Animator(my_layout, fps=60)
+        animator.frames(30)  # 0.5 seconds at 60 fps
+        animator.mseconds(1000)  # 1 second
+        animator.build("animation.mp4")
+        ```
     """
 
     layout: momapy.core.layout.Layout
@@ -59,8 +63,10 @@ class Animator(object):
         Args:
             n_frames: Number of frames to add.
 
-        Example:
-            >>> animator.frames(60)  # Add 1 second at 60 fps
+        Examples:
+            ```python
+            animator.frames(60)  # Add 1 second at 60 fps
+            ```
         """
         fimage = tempfile.mkstemp()
         self._n_images += 1
@@ -77,9 +83,11 @@ class Animator(object):
         Args:
             n_mseconds: Duration in milliseconds.
 
-        Example:
-            >>> animator.mseconds(1000)  # Add 1 second of animation
-            >>> animator.mseconds(500)   # Add 0.5 seconds of animation
+        Examples:
+            ```python
+            animator.mseconds(1000)  # Add 1 second of animation
+            animator.mseconds(500)   # Add 0.5 seconds of animation
+            ```
         """
         n_frames = round(n_mseconds / 1000 * self.fps)
         self.frames(n_frames)
@@ -93,9 +101,11 @@ class Animator(object):
             output_file: Path to the output video file.
             vcodec: Video codec to use (default: libx264).
 
-        Example:
-            >>> animator.build("output.mp4")
-            >>> animator.build("output.mp4", vcodec="libx265")
+        Examples:
+            ```python
+            animator.build("output.mp4")
+            animator.build("output.mp4", vcodec="libx265")
+            ```
         """
         self._flimages[0].close()
         ffmpeg.input(self._flimages[1], r=str(self.fps), f="concat", safe="0").output(

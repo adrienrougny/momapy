@@ -27,12 +27,14 @@ def run(args):
     Raises:
         ValueError: If the subcommand is not supported.
 
-    Example:
-        >>> import argparse
-        >>> parser = argparse.ArgumentParser()
-        >>> parser.add_argument("subcommand", default="render")
-        >>> args = parser.parse_args(["render"])
-        >>> run(args)  # Executes the render command
+    Examples:
+        ```python
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("subcommand", default="render")
+        args = parser.parse_args(["render"])
+        run(args)  # Executes the render command
+        ```
     """
     if args.subcommand == "render":
         import momapy.io.core
@@ -92,9 +94,11 @@ def main():
     Returns:
         None
 
-    Example:
+    Examples:
+        ```bash
         # From command line:
-        $ python -m momapy.cli render input.sbgn -o output.svg
+        python -m momapy.cli render input.sbgn -o output.svg
+        ```
     """
     parser = argparse.ArgumentParser(
         description="Tool for working with molecular maps. Currently, only the 'render' subcommand is supported.",

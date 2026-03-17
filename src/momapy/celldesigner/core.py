@@ -5,10 +5,12 @@ including model elements (species, reactions, modifications) and layout elements
 (nodes, arcs, compartments). CellDesigner is a tool for visualizing biochemical
 pathways and networks.
 
-Example:
-    >>> from momapy.celldesigner.core import CellDesignerModel, CellDesignerLayout
-    >>> model = CellDesignerModel(name="MAPK_cascade")
-    >>> layout = CellDesignerLayout()
+Examples:
+    ```python
+    from momapy.celldesigner.core import CellDesignerModel, CellDesignerLayout
+    model = CellDesignerModel(name="MAPK_cascade")
+    layout = CellDesignerLayout()
+    ```
 """
 
 import dataclasses

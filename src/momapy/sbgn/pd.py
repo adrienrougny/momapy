@@ -6,14 +6,20 @@ representations. It supports all standard SBGN-PD glyphs such as
 macromolecules, simple chemicals, complexes, and various types of
 interactions and relationships.
 
-Example:
-    >>> from momapy.sbgn.pd import Macromolecule, Process
-    >>> # Create a macromolecule entity pool
-    >>> protein_a = Macromolecule(label="Protein A")
-    >>> # Create a conversion process
-    >>> conversion_process = Process()
-    >>> # Note: To create a complete map, use SBGNPDMap with a properly
-    >>> # constructed SBGNPDModel containing entity_pools and processes
+Examples:
+    ```python
+    from momapy.sbgn.pd import Macromolecule, Process
+
+    # Create a macromolecule entity pool
+    protein_a = Macromolecule(label="Protein A")
+
+    # Create a conversion process
+    conversion_process = Process()
+
+    # Note: To create a complete map, use SBGNPDMap with a properly
+
+    # constructed SBGNPDModel containing entity_pools and processes
+    ```
 """
 
 import dataclasses

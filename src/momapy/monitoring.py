@@ -4,16 +4,17 @@ This module provides a system for registering and triggering events on objects,
 including changes to object attributes and attribute sets. It supports both
 object-level and attribute-level event monitoring.
 
-Example:
-    >>> from momapy.monitoring import Monitored, on_change, trigger_event
-    >>> class MyClass(Monitored):
-    ...     def __init__(self):
-    ...         super().__init__()
-    ...         self.value = 0
-    >>> obj = MyClass()
-    >>> on_change(obj, lambda e: print(f"Changed: {e.attr_name}"))
-    >>> obj.value = 5
-    Changed: value
+Examples:
+    ```python
+    from momapy.monitoring import Monitored, on_change, trigger_event
+    class MyClass(Monitored):
+        def __init__(self):
+            super().__init__()
+            self.value = 0
+    obj = MyClass()
+    on_change(obj, lambda e: print(f"Changed: {e.attr_name}"))
+    obj.value = 5
+    ```
 """
 
 import dataclasses
@@ -68,9 +69,11 @@ def register_event(obj, event_cls, callback, attr_name=None):
         callback: Function to call when the event occurs.
         attr_name: Optional attribute name for attribute-specific monitoring.
 
-    Example:
-        >>> register_event(my_obj, ChangedEvent, my_callback)
-        >>> register_event(my_obj, SetEvent, my_callback, "value")
+    Examples:
+        ```python
+        register_event(my_obj, ChangedEvent, my_callback)
+        register_event(my_obj, SetEvent, my_callback, "value")
+        ```
     """
     if attr_name is None:
         if id(obj) not in _registered_object_callbacks:
@@ -117,9 +120,11 @@ def on_change(obj, callback, attr_name=None):
         callback: Function to call when the object or attribute changes.
         attr_name: Optional attribute name for attribute-specific monitoring.
 
-    Example:
-        >>> on_change(my_obj, lambda e: print("Object changed"))
-        >>> on_change(my_obj, lambda e: print("Value changed"), "value")
+    Examples:
+        ```python
+        on_change(my_obj, lambda e: print("Object changed"))
+        on_change(my_obj, lambda e: print("Value changed"), "value")
+        ```
     """
     register_event(obj, ChangedEvent, callback, attr_name)
 
@@ -132,9 +137,11 @@ def on_set(obj, callback, attr_name=None):
         callback: Function to call when an attribute is set.
         attr_name: Optional attribute name for attribute-specific monitoring.
 
-    Example:
-        >>> on_set(my_obj, lambda e: print("Attribute set"))
-        >>> on_set(my_obj, lambda e: print("Value set"), "value")
+    Examples:
+        ```python
+        on_set(my_obj, lambda e: print("Attribute set"))
+        on_set(my_obj, lambda e: print("Value set"), "value")
+        ```
     """
     register_event(obj, SetEvent, callback, attr_name)
 
@@ -145,8 +152,10 @@ def trigger_event(event):
     Args:
         event: The event instance to trigger.
 
-    Example:
-        >>> trigger_event(ChangedEvent(my_obj, "value"))
+    Examples:
+        ```python
+        trigger_event(ChangedEvent(my_obj, "value"))
+        ```
     """
     if event.attr_name is None:
         if (
@@ -179,15 +188,16 @@ class Monitored:
     Inherit from this class to enable automatic SetEvent triggering when
     attributes are modified.
 
-    Example:
-        >>> class MyClass(Monitored):
-        ...     def __init__(self):
-        ...         super().__init__()
-        ...         self.value = 0
-        >>> obj = MyClass()
-        >>> on_set(obj, lambda e: print(f"Set: {e.attr_name}"))
-        >>> obj.value = 5
-        Set: value
+    Examples:
+        ```python
+        class MyClass(Monitored):
+            def __init__(self):
+                super().__init__()
+                self.value = 0
+        obj = MyClass()
+        on_set(obj, lambda e: print(f"Set: {e.attr_name}"))
+        obj.value = 5
+        ```
     """
 
     def __setattr__(self, name, value):

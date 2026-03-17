@@ -24,13 +24,13 @@ class SurjectionDict(dict):
     Note:
         Code adapted from https://stackoverflow.com/a/21894086 by Basj.
 
-    Example:
-        >>> d = SurjectionDict({'a': 1, 'b': 1, 'c': 2})
-        >>> d.inverse
-        frozendict.frozendict({1: ['a', 'b'], 2: ['c']})
-        >>> d['d'] = 1
-        >>> d.inverse
-        frozendict.frozendict({1: ['a', 'b', 'd'], 2: ['c']})
+    Examples:
+        ```python
+        d = SurjectionDict({'a': 1, 'b': 1, 'c': 2})
+        d.inverse
+        d['d'] = 1
+        d.inverse
+        ```
     """
 
     def __init__(self, *args, **kwargs):
@@ -69,10 +69,11 @@ class FrozenSurjectionDict(frozendict.frozendict):
     A frozen dictionary that maintains an inverse mapping from values to keys.
     The inverse is computed once at initialization and cannot be modified.
 
-    Example:
-        >>> d = FrozenSurjectionDict({'a': 1, 'b': 1, 'c': 2})
-        >>> d.inverse
-        frozendict.frozendict({1: ['a', 'b'], 2: ['c']})
+    Examples:
+        ```python
+        d = FrozenSurjectionDict({'a': 1, 'b': 1, 'c': 2})
+        d.inverse
+        ```
     """
 
     def __init__(self, *args, **kwargs):
@@ -104,18 +105,17 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
         _depth: Internal parameter for tracking current depth.
         _indent: Internal parameter for tracking current indentation.
 
-    Example:
-        >>> from dataclasses import dataclass
-        >>> @dataclass
-        ... class Point:
-        ...     x: float
-        ...     y: float
-        >>>
-        >>> p = Point(x=1.0, y=2.0)
-        >>> pretty_print(p)
-        <Point: Point(x=1.0, y=2.0)>
-          * x: <class 'float'> = 1.0
-          * y: <class 'float'> = 2.0
+    Examples:
+        ```python
+        from dataclasses import dataclass
+        @dataclass
+        class Point:
+            x: float
+            y: float
+
+        p = Point(x=1.0, y=2.0)
+        pretty_print(p)
+        ```
     """
 
     def _print_with_indent(s, indent):
@@ -184,12 +184,12 @@ def get_element_from_collection(element, collection):
     Returns:
         The existing element from the collection if found, None otherwise.
 
-    Example:
-        >>> items = [1, 2, 3]
-        >>> get_element_from_collection(2, items)
-        2
-        >>> get_element_from_collection(4, items) is None
-        True
+    Examples:
+        ```python
+        items = [1, 2, 3]
+        get_element_from_collection(2, items)
+        get_element_from_collection(4, items) is None
+        ```
     """
     for e in collection:
         if e == element:
@@ -208,12 +208,12 @@ def get_or_return_element_from_collection(element, collection):
         The existing element from the collection if found, otherwise
         the input element.
 
-    Example:
-        >>> items = [1, 2, 3]
-        >>> get_or_return_element_from_collection(2, items)
-        2
-        >>> get_or_return_element_from_collection(4, items)
-        4
+    Examples:
+        ```python
+        items = [1, 2, 3]
+        get_or_return_element_from_collection(2, items)
+        get_or_return_element_from_collection(4, items)
+        ```
     """
     existing_element = get_element_from_collection(element, collection)
     if existing_element is not None:
@@ -240,16 +240,15 @@ def add_or_replace_element_in_set(element, set_, func=None, cache=None):
     Returns:
         The element that is now in the set (either the existing or new one).
 
-    Example:
-        >>> s = {1, 2, 3}
-        >>> add_or_replace_element_in_set(4, s)
-        4
-        >>> 4 in s
-        True
-        >>>
-        >>> # Replace only if new value is greater
-        >>> add_or_replace_element_in_set(2, s, lambda new, old: new > old)
-        2  # Not replaced since 2 is not > 2
+    Examples:
+        ```python
+        s = {1, 2, 3}
+        add_or_replace_element_in_set(4, s)
+        4 in s
+
+        # Replace only if new value is greater
+        add_or_replace_element_in_set(2, s, lambda new, old: new > old)
+        ```
     """
     if cache is not None:
         existing_element = cache.get(element)
@@ -277,11 +276,11 @@ def make_uuid4_as_str():
     Returns:
         A string representation of a random UUID (version 4).
 
-    Example:
-        >>> uuid_str = make_uuid4_as_str()
-        >>> isinstance(uuid_str, str)
-        True
-        >>> len(uuid_str)  # Standard UUID string length
-        36
+    Examples:
+        ```python
+        uuid_str = make_uuid4_as_str()
+        isinstance(uuid_str, str)
+        len(uuid_str)  # Standard UUID string length
+        ```
     """
     return str(uuid.uuid4())

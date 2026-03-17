@@ -31,20 +31,24 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
     Attributes:
         canvas: The Skia canvas used for rendering
 
-    Example:
-        >>> from momapy.meta.nodes import Rectangle
-        >>> import momapy.geometry
-        >>> # Create a layout element to render
-        >>> node = Rectangle(
-        ...     position=momapy.geometry.Point(100, 100),
-        ...     width=200,
-        ...     height=100
-        ... )
-        >>> # Create renderer and render the element
-        >>> renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
-        >>> renderer.begin_session()
-        >>> renderer.render_layout_element(node)
-        >>> renderer.end_session()
+    Examples:
+        ```python
+        from momapy.meta.nodes import Rectangle
+        import momapy.geometry
+
+        # Create a layout element to render
+        node = Rectangle(
+            position=momapy.geometry.Point(100, 100),
+            width=200,
+            height=100
+        )
+
+        # Create renderer and render the element
+        renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
+        renderer.begin_session()
+        renderer.render_layout_element(node)
+        renderer.end_session()
+        ```
     """
 
     supported_formats: typing.ClassVar[list[str]] = [
@@ -128,8 +132,10 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         Raises:
             ValueError: If the format is not supported
 
-        Example:
-            >>> renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
+        Examples:
+            ```python
+            renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
+            ```
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")

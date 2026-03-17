@@ -5,20 +5,25 @@ along with a comprehensive set of predefined named colors. Colors can be created
 from various formats (RGB, RGBA, HEX, HEXA) and converted between formats.
 
 Examples:
-    >>> from momapy.coloring import Color, red, blue
-    >>> # Using predefined colors
-    >>> color = red
-    >>> # Creating from hex
-    >>> color = Color.from_hex("#FF5733")
-    >>> # Creating from RGB
-    >>> color = Color.from_rgb(255, 87, 51)
-    >>> # With alpha transparency
-    >>> color = Color.from_rgba(255, 87, 51, 0.5)
-    >>> # Convert to different formats
-    >>> color.to_hex()
-    '#ff5733'
-    >>> color.to_rgba()
-    (255, 87, 51, 0.5)
+    ```python
+    from momapy.coloring import Color, red, blue
+
+    # Using predefined colors
+    color = red
+
+    # Creating from hex
+    color = Color.from_hex("#FF5733")
+
+    # Creating from RGB
+    color = Color.from_rgb(255, 87, 51)
+
+    # With alpha transparency
+    color = Color.from_rgba(255, 87, 51, 0.5)
+
+    # Convert to different formats
+    color.to_hex()
+    color.to_rgba()
+    ```
 """
 
 import dataclasses
@@ -37,10 +42,11 @@ class Color(object):
         alpha: Alpha component (0.0-1.0), defaults to 1.0 (fully opaque).
 
     Examples:
-        >>> color = Color(255, 87, 51)
-        >>> color.red
-        255
-        >>> color_with_alpha = Color(255, 87, 51, 0.5)
+        ```python
+        color = Color(255, 87, 51)
+        color.red
+        color_with_alpha = Color(255, 87, 51, 0.5)
+        ```
     """
 
     red: int = dataclasses.field(
@@ -90,11 +96,11 @@ class Color(object):
             Tuple of (red, green, blue, alpha).
 
         Examples:
-            >>> color = Color(255, 128, 0)
-            >>> color.to_rgba()
-            (255, 128, 0, 1.0)
-            >>> color.to_rgba(rgb_range=(0, 1))
-            (1, 0, 0, 1.0)
+            ```python
+            color = Color(255, 128, 0)
+            color.to_rgba()
+            color.to_rgba(rgb_range=(0, 1))
+            ```
         """
         if rgba_range is not None:
             rgb_range = rgba_range
@@ -123,9 +129,10 @@ class Color(object):
             Tuple of (red, green, blue).
 
         Examples:
-            >>> color = Color(255, 128, 0)
-            >>> color.to_rgb()
-            (255, 128, 0)
+            ```python
+            color = Color(255, 128, 0)
+            color.to_rgb()
+            ```
         """
         width = int(rgb_range[1] - rgb_range[0])
         red = rgb_range[0] + (self.red / 255) * width
@@ -144,9 +151,10 @@ class Color(object):
             Hex color string (e.g., "#ff5733").
 
         Examples:
-            >>> color = Color(255, 87, 51)
-            >>> color.to_hex()
-            '#ff5733'
+            ```python
+            color = Color(255, 87, 51)
+            color.to_hex()
+            ```
         """
         color_str = f"#{format(self.red, '02x')}{format(self.green, '02x')}{format(self.blue, '02x')}"
         return color_str
@@ -158,9 +166,10 @@ class Color(object):
             Hex color string with alpha (e.g., "#ff5733ff").
 
         Examples:
-            >>> color = Color(255, 87, 51, 0.5)
-            >>> color.to_hexa()
-            '#ff573380'
+            ```python
+            color = Color(255, 87, 51, 0.5)
+            color.to_hexa()
+            ```
         """
         color_str = f"{self.to_hex()}{format(int(self.alpha * 255), '02x')}"
         return color_str
@@ -196,8 +205,9 @@ class Color(object):
             A new Color instance.
 
         Examples:
-            >>> Color.from_rgba(255, 87, 51, 0.5)
-            Color(red=255, green=87, blue=51, alpha=0.5)
+            ```python
+            Color.from_rgba(255, 87, 51, 0.5)
+            ```
         """
         return cls(red, green, blue, alpha)
 
@@ -214,8 +224,9 @@ class Color(object):
             A new Color instance with alpha=1.0.
 
         Examples:
-            >>> Color.from_rgb(255, 87, 51)
-            Color(red=255, green=87, blue=51, alpha=1.0)
+            ```python
+            Color.from_rgb(255, 87, 51)
+            ```
         """
         return cls(red, green, blue)
 
@@ -233,8 +244,9 @@ class Color(object):
             ValueError: If the hex string is invalid.
 
         Examples:
-            >>> Color.from_hex("#FF5733")
-            Color(red=255, green=87, blue=51, alpha=1.0)
+            ```python
+            Color.from_hex("#FF5733")
+            ```
         """
         color_str = color_str.lstrip("#")
         if len(color_str) != 6:
@@ -258,8 +270,9 @@ class Color(object):
             ValueError: If the hex string is invalid.
 
         Examples:
-            >>> Color.from_hexa("#FF573380")
-            Color(red=255, green=87, blue=51, alpha=0.5)
+            ```python
+            Color.from_hexa("#FF573380")
+            ```
         """
         color_str = color_str.lstrip("#")
         if len(color_str) != 8:
@@ -278,9 +291,10 @@ def list_colors():
         List of tuples (color_name, Color) for all predefined colors.
 
     Examples:
-        >>> colors = list_colors()
-        >>> len(colors) > 0
-        True
+        ```python
+        colors = list_colors()
+        len(colors) > 0
+        ```
     """
     return [
         (color_name, color)
@@ -295,7 +309,9 @@ def print_colors():
     Displays color names in their actual color in the terminal.
 
     Examples:
-        >>> print_colors()  # Prints all colors
+        ```python
+        print_colors()  # Prints all colors
+        ```
     """
     for color_name, color in list_colors():
         print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
@@ -311,10 +327,10 @@ def has_color(color_name):
         True if the color exists, False otherwise.
 
     Examples:
-        >>> has_color("red")
-        True
-        >>> has_color("not_a_color")
-        False
+        ```python
+        has_color("red")
+        has_color("not_a_color")
+        ```
     """
     for color_name2, color in globals().items():
         if isinstance(color, Color) and color_name2 == color_name:

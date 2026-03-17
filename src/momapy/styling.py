@@ -6,12 +6,16 @@ This module provides a CSS-like styling system for layout elements, supporting:
 - CSS parsing from files or strings
 - Style application to layout elements
 
-Example:
-    >>> from momapy.styling import StyleSheet
-    >>> # Load a CSS file
-    >>> stylesheet = StyleSheet.from_file("styles.css")
-    >>> # Apply to a layout element
-    >>> styled_element = apply_style_sheet(element, stylesheet)
+Examples:
+    ```python
+    from momapy.styling import StyleSheet
+
+    # Load a CSS file
+    stylesheet = StyleSheet.from_file("styles.css")
+
+    # Apply to a layout element
+    styled_element = apply_style_sheet(element, stylesheet)
+    ```
 """
 
 import abc
@@ -36,10 +40,11 @@ class StyleCollection(dict):
     declaration block. It is used within StyleSheets to store styles for
     specific selectors.
 
-    Example:
-        >>> styles = StyleCollection({"fill": "red", "stroke_width": 2})
-        >>> styles["fill"]
-        'red'
+    Examples:
+        ```python
+        styles = StyleCollection({"fill": "red", "stroke_width": 2})
+        styles["fill"]
+        ```
     """
 
     pass
@@ -51,11 +56,14 @@ class StyleSheet(dict):
     StyleSheet extends dict to map Selector objects to StyleCollection objects.
     Supports merging stylesheets using the | operator.
 
-    Example:
-        >>> from momapy.styling import StyleSheet, TypeSelector
-        >>> ss = StyleSheet({TypeSelector("Rectangle"): StyleCollection({"fill": "blue"})})
-        >>> # Merge stylesheets
-        >>> combined = ss | another_stylesheet
+    Examples:
+        ```python
+        from momapy.styling import StyleSheet, TypeSelector
+        ss = StyleSheet({TypeSelector("Rectangle"): StyleCollection({"fill": "blue"})})
+
+        # Merge stylesheets
+        combined = ss | another_stylesheet
+        ```
     """
 
     def __or__(self, other):
@@ -99,9 +107,11 @@ class StyleSheet(dict):
         Raises:
             pyparsing.ParseException: If the CSS string is malformed.
 
-        Example:
-            >>> css = "Rectangle { fill: red; }"
-            >>> ss = StyleSheet.from_string(css)
+        Examples:
+            ```python
+            css = "Rectangle { fill: red; }"
+            ss = StyleSheet.from_string(css)
+            ```
         """
         style_sheet = _css_document.parse_string(s, parse_all=True)[0]
         return style_sheet
@@ -278,9 +288,11 @@ class TypeSelector(Selector):
     Attributes:
         class_name: The exact class name to match (e.g., "Rectangle").
 
-    Example:
-        >>> selector = TypeSelector("Rectangle")
-        >>> selector.match(some_rectangle)  # True if type is Rectangle
+    Examples:
+        ```python
+        selector = TypeSelector("Rectangle")
+        selector.match(some_rectangle)  # True if type is Rectangle
+        ```
     """
 
     class_name: str = dataclasses.field(
@@ -317,9 +329,11 @@ class ClassSelector(Selector):
     Attributes:
         class_name: The class name to match (matches subclasses too).
 
-    Example:
-        >>> selector = ClassSelector("Shape")
-        >>> selector.match(some_rectangle)  # True if Rectangle is a Shape subclass
+    Examples:
+        ```python
+        selector = ClassSelector("Shape")
+        selector.match(some_rectangle)  # True if Rectangle is a Shape subclass
+        ```
     """
 
     class_name: str = dataclasses.field(
@@ -356,9 +370,11 @@ class IdSelector(Selector):
     Attributes:
         id_: The identifier to match.
 
-    Example:
-        >>> selector = IdSelector("main_node")
-        >>> selector.match(element)  # True if element.id_ == "main_node"
+    Examples:
+        ```python
+        selector = IdSelector("main_node")
+        selector.match(element)  # True if element.id_ == "main_node"
+        ```
     """
 
     id_: str = dataclasses.field(metadata={"description": "The id"})
@@ -390,9 +406,11 @@ class ChildSelector(Selector):
         parent_selector: The selector for the parent element.
         child_selector: The selector for the child element.
 
-    Example:
-        >>> selector = ChildSelector(TypeSelector("Group"), TypeSelector("Rectangle"))
-        >>> selector.match(rect, [group])  # True if rect is direct child of group
+    Examples:
+        ```python
+        selector = ChildSelector(TypeSelector("Group"), TypeSelector("Rectangle"))
+        selector.match(rect, [group])  # True if rect is direct child of group
+        ```
     """
 
     parent_selector: Selector = dataclasses.field(
@@ -434,9 +452,11 @@ class DescendantSelector(Selector):
         ancestor_selector: The selector for any ancestor element.
         descendant_selector: The selector for the descendant element.
 
-    Example:
-        >>> selector = DescendantSelector(TypeSelector("Group"), TypeSelector("Text"))
-        >>> selector.match(text, [subgroup, group])  # True if text is somewhere inside group
+    Examples:
+        ```python
+        selector = DescendantSelector(TypeSelector("Group"), TypeSelector("Text"))
+        selector.match(text, [subgroup, group])  # True if text is somewhere inside group
+        ```
     """
 
     ancestor_selector: Selector = dataclasses.field(
@@ -480,9 +500,11 @@ class OrSelector(Selector):
     Attributes:
         selectors: Tuple of selectors, any of which can match.
 
-    Example:
-        >>> selector = OrSelector((TypeSelector("Rectangle"), TypeSelector("Circle")))
-        >>> selector.match(some_shape)  # True if shape is Rectangle OR Circle
+    Examples:
+        ```python
+        selector = OrSelector((TypeSelector("Rectangle"), TypeSelector("Circle")))
+        selector.match(some_shape)  # True if shape is Rectangle OR Circle
+        ```
     """
 
     selectors: tuple[Selector, ...] = dataclasses.field(
@@ -515,9 +537,11 @@ class CompoundSelector(Selector):
     Attributes:
         selectors: Tuple of selectors, all of which must match.
 
-    Example:
-        >>> selector = CompoundSelector((TypeSelector("Rectangle"), ClassSelector("Colored")))
-        >>> selector.match(element)  # True if element is Rectangle AND Colored
+    Examples:
+        ```python
+        selector = CompoundSelector((TypeSelector("Rectangle"), ClassSelector("Colored")))
+        selector.match(element)  # True if element is Rectangle AND Colored
+        ```
     """
 
     selectors: tuple[Selector, ...] = dataclasses.field(
@@ -550,9 +574,11 @@ class NotSelector(Selector):
     Attributes:
         selectors: Tuple of selectors, none of which should match.
 
-    Example:
-        >>> selector = NotSelector((TypeSelector("Hidden"),))
-        >>> selector.match(element)  # True if element is NOT of type Hidden
+    Examples:
+        ```python
+        selector = NotSelector((TypeSelector("Hidden"),))
+        selector.match(element)  # True if element is NOT of type Hidden
+        ```
     """
 
     selectors: tuple[Selector, ...] = dataclasses.field(

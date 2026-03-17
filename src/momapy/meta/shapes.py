@@ -27,21 +27,25 @@ Available shapes:
     - DefaultShape: Default rectangular shape
     - Line: Simple line shapes
 
-Example:
-    >>> from momapy.meta.shapes import Rectangle, Ellipse
-    >>> import momapy.geometry
-    >>> # Create a rectangle shape at origin
-    >>> rectangle_shape = Rectangle(
-    ...     position=momapy.geometry.Point(0, 0),
-    ...     width=100,
-    ...     height=50
-    ... )
-    >>> # Create an ellipse shape at position (200, 200)
-    >>> ellipse_shape = Ellipse(
-    ...     position=momapy.geometry.Point(200, 200),
-    ...     width=100,
-    ...     height=80
-    ... )
+Examples:
+    ```python
+    from momapy.meta.shapes import Rectangle, Ellipse
+    import momapy.geometry
+
+    # Create a rectangle shape at origin
+    rectangle_shape = Rectangle(
+        position=momapy.geometry.Point(0, 0),
+        width=100,
+        height=50
+    )
+
+    # Create an ellipse shape at position (200, 200)
+    ellipse_shape = Ellipse(
+        position=momapy.geometry.Point(200, 200),
+        width=100,
+        height=80
+    )
+    ```
 """
 
 import math

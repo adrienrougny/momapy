@@ -4,11 +4,13 @@ This module provides base classes for SBGN diagram elements including models,
 nodes, arcs, layouts, and maps. SBGN is a standardized visual language for
 representing biological processes and networks.
 
-Example:
-    >>> from momapy.sbgn.core import SBGNModel, SBGNLayout, SBGNMap
-    >>> model = SBGNModel()
-    >>> layout = SBGNLayout()
-    >>> map_ = SBGNMap(model=model, layout=layout)
+Examples:
+    ```python
+    from momapy.sbgn.core import SBGNModel, SBGNLayout, SBGNMap
+    model = SBGNModel()
+    layout = SBGNLayout()
+    map_ = SBGNMap(model=model, layout=layout)
+    ```
 """
 
 import abc
@@ -64,8 +66,10 @@ class SBGNModel(momapy.core.model.Model):
     SBGN models contain the semantic information represented in
     SBGN diagrams, including entities and their relationships.
 
-    Example:
-        >>> model = SBGNModel()
+    Examples:
+        ```python
+        model = SBGNModel()
+        ```
     """
 
     pass
@@ -81,8 +85,10 @@ class SBGNLayout(momapy.core.layout.Layout):
     Attributes:
         fill: Background fill color for the layout.
 
-    Example:
-        >>> layout = SBGNLayout()
+    Examples:
+        ```python
+        layout = SBGNLayout()
+        ```
     """
 
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
@@ -101,10 +107,12 @@ class SBGNMap(momapy.core.map.Map):
         model: The SBGN model containing semantic information.
         layout: The SBGN layout defining the visual representation.
 
-    Example:
-        >>> model = SBGNModel()
-        >>> layout = SBGNLayout()
-        >>> map_ = SBGNMap(model=model, layout=layout)
+    Examples:
+        ```python
+        model = SBGNModel()
+        layout = SBGNLayout()
+        map_ = SBGNMap(model=model, layout=layout)
+        ```
     """
 
     model: SBGNModel
@@ -123,8 +131,10 @@ class SBGNNode(momapy.core.layout.Node):
         stroke: Stroke color for the node border.
         stroke_width: Width of the node border.
 
-    Example:
-        >>> node = SBGNNode(position=momapy.geometry.Point(100, 100))
+    Examples:
+        ```python
+        node = SBGNNode(position=momapy.geometry.Point(100, 100))
+        ```
     """
 
     fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (

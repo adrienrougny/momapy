@@ -5,14 +5,21 @@ This module provides a generic plugin registry that supports:
 - Lazy loading of plugins (import on first access)
 - Discovery via entry points for third-party plugins
 
-Example:
-    >>> from momapy.plugins import PluginRegistry
-    >>> # Create a registry for plugins
-    >>> registry = PluginRegistry()
-    >>> # Register a plugin class (MyPluginClass must be defined/imported)
-    >>> # registry.register("my_plugin", MyPluginClass)
-    >>> # Retrieve a registered plugin
-    >>> # plugin = registry.get("my_plugin")
+Examples:
+    ```python
+    from momapy.plugins import PluginRegistry
+
+    # Create a registry for plugins
+    registry = PluginRegistry()
+
+    # Register a plugin class (MyPluginClass must be defined/imported)
+
+    # registry.register("my_plugin", MyPluginClass)
+
+    # Retrieve a registered plugin
+
+    # plugin = registry.get("my_plugin")
+    ```
 """
 
 import importlib
@@ -26,11 +33,13 @@ class PluginRegistry(typing.Generic[T]):
 
     Supports direct registration, lazy loading, and entry point discovery.
 
-    Example:
-        >>> registry = PluginRegistry(entry_point_group="myapp.plugins")
-        >>> registry.register("plugin1", PluginClass)
-        >>> registry.register_lazy("plugin2", "module.submodule:PluginClass")
-        >>> plugin = registry.get("plugin1")  # Returns PluginClass
+    Examples:
+        ```python
+        registry = PluginRegistry(entry_point_group="myapp.plugins")
+        registry.register("plugin1", PluginClass)
+        registry.register_lazy("plugin2", "module.submodule:PluginClass")
+        plugin = registry.get("plugin1")  # Returns PluginClass
+        ```
     """
 
     def __init__(self, entry_point_group: str | None = None):
@@ -55,8 +64,10 @@ class PluginRegistry(typing.Generic[T]):
             name: Name to register the plugin under.
             plugin: The plugin class.
 
-        Example:
-            >>> registry.register("my_plugin", MyPlugin)
+        Examples:
+            ```python
+            registry.register("my_plugin", MyPlugin)
+            ```
         """
         self._loaded_plugins[name] = plugin
 
@@ -72,8 +83,10 @@ class PluginRegistry(typing.Generic[T]):
         Raises:
             ValueError: If import_path format is invalid.
 
-        Example:
-            >>> registry.register_lazy("plugin", "mymodule.plugins:PluginClass")
+        Examples:
+            ```python
+            registry.register_lazy("plugin", "mymodule.plugins:PluginClass")
+            ```
         """
         if ":" not in import_path:
             raise ValueError(
@@ -94,10 +107,11 @@ class PluginRegistry(typing.Generic[T]):
         Raises:
             ImportError: If the plugin module cannot be imported.
 
-        Example:
-            >>> plugin = registry.get("my_plugin")
-            >>> plugin is None
-            True
+        Examples:
+            ```python
+            plugin = registry.get("my_plugin")
+            plugin is None
+            ```
         """
         if name in self._loaded_plugins:
             return self._loaded_plugins[name]
@@ -117,9 +131,10 @@ class PluginRegistry(typing.Generic[T]):
         Returns:
             True if the plugin is registered (lazy or loaded).
 
-        Example:
-            >>> registry.is_available("my_plugin")
-            False
+        Examples:
+            ```python
+            registry.is_available("my_plugin")
+            ```
         """
         if not self._entry_points_loaded:
             self._load_entry_points()
@@ -131,9 +146,10 @@ class PluginRegistry(typing.Generic[T]):
         Returns:
             Sorted list of all registered plugin names.
 
-        Example:
-            >>> registry.list_available()
-            ['plugin1', 'plugin2']
+        Examples:
+            ```python
+            registry.list_available()
+            ```
         """
         if not self._entry_points_loaded:
             self._load_entry_points()
@@ -147,9 +163,10 @@ class PluginRegistry(typing.Generic[T]):
         Returns:
             Sorted list of loaded plugin names.
 
-        Example:
-            >>> registry.list_loaded()
-            ['plugin1']
+        Examples:
+            ```python
+            registry.list_loaded()
+            ```
         """
         return sorted(self._loaded_plugins.keys())
 

@@ -5,32 +5,37 @@ elements including paths, shapes, text, filters, and groups. It supports
 transformations, styling attributes, and conversion to geometry primitives.
 
 Examples:
-    >>> from momapy.drawing import Path, MoveTo, LineTo, Rectangle, Text
-    >>> from momapy.geometry import Point
-    >>> from momapy.coloring import red, blue
-    >>> # Create a simple path
-    >>> path = Path(
-    ...     actions=(
-    ...         MoveTo(Point(0, 0)),
-    ...         LineTo(Point(10, 10)),
-    ...     ),
-    ...     stroke=red,
-    ...     stroke_width=2.0
-    ... )
-    >>> # Create a rectangle
-    >>> rect = Rectangle(
-    ...     point=Point(5, 5),
-    ...     width=10,
-    ...     height=10,
-    ...     fill=blue,
-    ...     stroke=red
-    ... )
-    >>> # Create text
-    >>> text = Text(
-    ...     text="Hello",
-    ...     point=Point(10, 10),
-    ...     font_size=14.0
-    ... )
+    ```python
+    from momapy.drawing import Path, MoveTo, LineTo, Rectangle, Text
+    from momapy.geometry import Point
+    from momapy.coloring import red, blue
+
+    # Create a simple path
+    path = Path(
+        actions=(
+            MoveTo(Point(0, 0)),
+            LineTo(Point(10, 10)),
+        ),
+        stroke=red,
+        stroke_width=2.0
+    )
+
+    # Create a rectangle
+    rect = Rectangle(
+        point=Point(5, 5),
+        width=10,
+        height=10,
+        fill=blue,
+        stroke=red
+    )
+
+    # Create text
+    text = Text(
+        text="Hello",
+        point=Point(10, 10),
+        font_size=14.0
+    )
+    ```
 """
 
 import abc
