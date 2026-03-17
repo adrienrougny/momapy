@@ -38,6 +38,26 @@ _LAYOUT_TO_ACTIVE_LAYOUT = {
 }
 
 
+def _are_collinear(p1, p2, p3, epsilon=1e-6):
+    """Check if three points are collinear (Minerva compatibility).
+
+    Args:
+        p1: First point (maps to Minerva's pointA).
+        p2: Second point (maps to Minerva's pointB).
+        p3: Third point / origin (maps to Minerva's pointC).
+        epsilon: Tolerance for the cross product test.
+
+    Returns:
+        True if the three points are collinear.
+    """
+    dx1 = p1.x - p3.x
+    dy1 = p1.y - p3.y
+    dx2 = p2.x - p3.x
+    dy2 = p2.y - p3.y
+    cross = dx1 * dy2 - dy1 * dx2
+    return abs(cross) < epsilon
+
+
 def make_empty_layout(cd_element):
     layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
     return layout
@@ -332,6 +352,8 @@ def make_segments_left_t_shape(cd_reaction, cd_id_to_layout_element):
     origin = reactant_layout_element_0.center()
     unit_x = reactant_layout_element_1.center()
     unit_y = product_layout_element.center()
+    if _are_collinear(unit_x, unit_y, origin):
+        origin = momapy.geometry.Point(origin.x + 1, origin.y + 1)
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
     )
@@ -390,6 +412,8 @@ def make_segments_right_t_shape(cd_reaction, cd_id_to_layout_element):
     origin = reactant_layout_element.center()
     unit_x = product_layout_element_0.center()
     unit_y = product_layout_element_1.center()
+    if _are_collinear(unit_x, unit_y, origin):
+        origin = momapy.geometry.Point(origin.x + 1, origin.y + 1)
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
     )
@@ -664,7 +688,6 @@ def make_product_from_link(
     intermediate_points = [
         edit_point.transformed(transformation) for edit_point in edit_points
     ]
-    intermediate_points.reverse()
     start_point = origin
     if product_anchor_name == "center":
         if intermediate_points:
