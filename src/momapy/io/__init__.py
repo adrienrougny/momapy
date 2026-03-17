@@ -162,7 +162,7 @@ for name, import_path in [
     ("sbgnml-0.2", "momapy.sbgn.io.sbgnml.reader:SBGNML0_2Reader"),
     ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
     ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleReader"),
-    ("celldesigner", "momapy.celldesigner.io.celldesigner:CellDesignerReader"),
+    ("celldesigner", "momapy.celldesigner.io.celldesigner.reader:CellDesignerReader"),
     ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleReader"),
     ("sbml", "momapy.sbml.io.sbml:SBMLReader"),
 ]:
