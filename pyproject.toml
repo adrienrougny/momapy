@@ -37,16 +37,17 @@ all = ["momapy[cairo, skia]"]
 
 [dependency-groups]
 dev = [
-  "griffe-fieldz>=0.1.2",
-  "mkdocstrings-python>=1.16.12",
-  "mkdocs-material>=9.6.16",
-  "griffe-inherited-docstrings>=1.1.1",
-  "mkdocs-jupyter>=0.25.1",
-  "mkdocs-pygments>=0.0.2",
-  "ruff>=0.12.8",
-  "pre-commit>=4.5.1",
-  "git-cliff>=2.12.0",
-  { include-group = "test" },
+    "griffe-fieldz>=0.1.2",
+    "mkdocstrings-python>=1.16.12",
+    "mkdocs-material>=9.6.16",
+    "griffe-inherited-docstrings>=1.1.1",
+    "mkdocs-jupyter>=0.25.1",
+    "mkdocs-pygments>=0.0.2",
+    "ruff>=0.12.8",
+    "pre-commit>=4.5.1",
+    "git-cliff>=2.12.0",
+    { include-group = "test" },
+    "jupyterlab>=4.5.6",
 ]
 test = ["pytest>=9.0.2", "pytest-cov>=6.0.0"]
 
