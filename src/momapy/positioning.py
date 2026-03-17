@@ -389,7 +389,9 @@ def fit(
         elif momapy.builder.isinstance_or_builder(element, momapy.geometry.Bbox):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif momapy.builder.isinstance_or_builder(element, momapy.core.elements.LayoutElement):
+        elif momapy.builder.isinstance_or_builder(
+            element, momapy.core.elements.LayoutElement
+        ):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
@@ -552,7 +554,9 @@ def cross_hv_of(
 
 
 def fraction_of(
-    arc_layout_element: (momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc),
+    arc_layout_element: (
+        momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc
+    ),
     fraction: float,
 ) -> tuple[momapy.geometry.Point, float]:
     """Return the position and angle at a given fraction along an arc.
@@ -837,7 +841,9 @@ def set_fit(
 
 def set_fraction_of(
     obj: momapy.core.builders.NodeBuilder,
-    arc_layout_element: (momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc),
+    arc_layout_element: (
+        momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc
+    ),
     fraction: float,
     anchor: str | None = None,
 ):

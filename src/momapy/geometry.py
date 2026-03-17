@@ -1329,8 +1329,7 @@ class EllipticalArc(GeometryObject):
                         for existing in result:
                             if (
                                 abs(existing.x - point.x) < ROUNDING_TOLERANCE
-                                and abs(existing.y - point.y)
-                                < ROUNDING_TOLERANCE
+                                and abs(existing.y - point.y) < ROUNDING_TOLERANCE
                             ):
                                 is_dup = True
                                 break
@@ -1431,12 +1430,8 @@ class EllipticalArc(GeometryObject):
         sin_sigma = math.sin(sigma)
         cos_theta = math.cos(theta)
         sin_theta = math.sin(theta)
-        dx = delta_theta * (
-            -rx * sin_theta * cos_sigma - ry * cos_theta * sin_sigma
-        )
-        dy = delta_theta * (
-            -rx * sin_theta * sin_sigma + ry * cos_theta * cos_sigma
-        )
+        dx = delta_theta * (-rx * sin_theta * cos_sigma - ry * cos_theta * sin_sigma)
+        dy = delta_theta * (-rx * sin_theta * sin_sigma + ry * cos_theta * cos_sigma)
         return (dx, dy)
 
     def get_position_at_fraction(self, fraction: float) -> Point:
@@ -1498,9 +1493,7 @@ class EllipticalArc(GeometryObject):
         elif fraction >= 1:
             t = 1.0
         else:
-            t = _find_t_at_arc_length_fraction(
-                self.derivative, total, fraction
-            )
+            t = _find_t_at_arc_length_fraction(self.derivative, total, fraction)
         pos = self.evaluate(t)
         dx, dy = self.derivative(t)
         angle = math.atan2(dy, dx)
@@ -1550,7 +1543,11 @@ class EllipticalArc(GeometryObject):
                     2 * math.pi,
                 ):
                     theta_c = normalized + offset
-                    if theta_min - ZERO_TOLERANCE <= theta_c <= theta_max + ZERO_TOLERANCE:
+                    if (
+                        theta_min - ZERO_TOLERANCE
+                        <= theta_c
+                        <= theta_max + ZERO_TOLERANCE
+                    ):
                         t = (theta_c - theta1) / delta_theta
                         if -ZERO_TOLERANCE <= t <= 1 + ZERO_TOLERANCE:
                             points.append(self.evaluate(max(0, min(1, t))))
@@ -1724,7 +1721,7 @@ class Bbox(object):
 
     def east_south_east(self) -> Point:
         """Get the east-south-east point."""
-        return Point(self.x + self.width / 2, self.y + self.width / 4)
+        return Point(self.x + self.width / 2, self.y + self.height / 4)
 
     def south_east(self) -> Point:
         """Get the south-east corner."""
