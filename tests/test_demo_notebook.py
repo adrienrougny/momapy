@@ -32,7 +32,7 @@ def test_demo_notebook(tmp_path):
     """Run all demo notebook code in a temporary directory."""
     # Get the project root directory
     project_root = pathlib.Path(__file__).parent.parent
-    demo_dir = project_root / "demo" / "user_manual" / "data"
+    demo_dir = project_root / "demos" / "user_manual" / "data"
 
     # Change to temp directory for file operations
     original_dir = os.getcwd()
