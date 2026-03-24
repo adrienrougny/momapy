@@ -386,6 +386,9 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
         else:
             layout = None
+        map_element_to_annotations = collections.defaultdict(set)
+        map_element_to_notes = collections.defaultdict(set)
+        id_to_map_element = momapy.utils.SurjectionDict()
         if model is not None or layout is not None:
             cd_id_to_cd_element = (
                 momapy.celldesigner.io.celldesigner._parsing.make_id_to_element_mapping(
@@ -397,9 +400,6 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
             cd_id_to_model_element = {}
             cd_id_to_layout_element = {}
-            map_element_to_annotations = collections.defaultdict(set)
-            id_to_map_element = momapy.utils.SurjectionDict()
-            map_element_to_notes = collections.defaultdict(set)
             if model is not None and layout is not None:
                 layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
             else:
