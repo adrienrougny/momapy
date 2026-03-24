@@ -30,7 +30,9 @@ def make_annotations(cd_rdf):
                 for bag in bags:
                     lis = momapy.sbml.io.sbml._parsing.get_list_items(bag)
                     resources = [
-                        li.get(f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource")
+                        li.get(
+                            f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource"
+                        )
                         for li in lis
                     ]
                     annotation = momapy.sbml.core.RDFAnnotation(
@@ -75,7 +77,9 @@ def make_empty_model(cd_element):
 
 def make_empty_map(cd_element):
     map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
-    map_.id_ = cd_element.get("id")
+    cd_map_id = cd_element.get("id")
+    if cd_map_id is not None:
+        map_.id_ = cd_map_id
     return map_
 
 
@@ -99,9 +103,7 @@ def make_species_template(cd_species_template, model, model_element_cls):
 
 
 def make_modification_residue(cd_modification_residue, model, super_cd_element, order):
-    model_element = model.new_element(
-        momapy.celldesigner.core.ModificationResidue
-    )
+    model_element = model.new_element(momapy.celldesigner.core.ModificationResidue)
     cd_modification_residue_id = (
         f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
     )
@@ -146,20 +148,22 @@ def make_species(
     if cd_compartment_id is not None:
         compartment_model_element = cd_id_to_model_element[cd_compartment_id]
         model_element.compartment = compartment_model_element
-    cd_species_template = momapy.celldesigner.io.celldesigner._parsing.get_template_from_species(
-        cd_species, cd_id_to_cd_element
+    cd_species_template = (
+        momapy.celldesigner.io.celldesigner._parsing.get_template_from_species(
+            cd_species, cd_id_to_cd_element
+        )
     )
     if cd_species_template is not None:
-        model_element.template = cd_id_to_model_element[
-            cd_species_template.get("id")
-        ]
+        model_element.template = cd_id_to_model_element[cd_species_template.get("id")]
     model_element.homomultimer = homomultimer
     model_element.hypothetical = hypothetical
     model_element.active = active
     return model_element
 
 
-def make_species_modification(model, modification_state, cd_id_to_model_element, cd_modification_residue_id):
+def make_species_modification(
+    model, modification_state, cd_id_to_model_element, cd_modification_residue_id
+):
     model_element = model.new_element(momapy.celldesigner.core.Modification)
     modification_residue_model_element = cd_id_to_model_element[
         cd_modification_residue_id
@@ -182,7 +186,9 @@ def make_reaction(cd_reaction, model, model_element_cls):
     return model_element
 
 
-def make_reactant_from_base(cd_base_reactant, cd_reaction, model, cd_id_to_model_element):
+def make_reactant_from_base(
+    cd_base_reactant, cd_reaction, model, cd_id_to_model_element
+):
     model_element = model.new_element(momapy.celldesigner.core.Reactant)
     cd_species_id = cd_base_reactant.get("species")
     for cd_reactant in momapy.celldesigner.io.celldesigner._parsing.get_reactants(
@@ -196,14 +202,14 @@ def make_reactant_from_base(cd_base_reactant, cd_reaction, model, cd_id_to_model
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[
-        cd_base_reactant.get("alias")
-    ]
+    species_model_element = cd_id_to_model_element[cd_base_reactant.get("alias")]
     model_element.referred_species = species_model_element
     return model_element
 
 
-def make_reactant_from_link(cd_reactant_link, cd_reaction, model, cd_id_to_model_element):
+def make_reactant_from_link(
+    cd_reactant_link, cd_reaction, model, cd_id_to_model_element
+):
     model_element = model.new_element(momapy.celldesigner.core.Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
     for cd_reactant in momapy.celldesigner.io.celldesigner._parsing.get_reactants(
@@ -217,9 +223,7 @@ def make_reactant_from_link(cd_reactant_link, cd_reaction, model, cd_id_to_model
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[
-        cd_reactant_link.get("alias")
-    ]
+    species_model_element = cd_id_to_model_element[cd_reactant_link.get("alias")]
     model_element.referred_species = species_model_element
     return model_element
 
@@ -238,9 +242,7 @@ def make_product_from_base(cd_base_product, cd_reaction, model, cd_id_to_model_e
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[
-        cd_base_product.get("alias")
-    ]
+    species_model_element = cd_id_to_model_element[cd_base_product.get("alias")]
     model_element.referred_species = species_model_element
     return model_element
 
@@ -259,9 +261,7 @@ def make_product_from_link(cd_product_link, cd_reaction, model, cd_id_to_model_e
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[
-        cd_product_link.get("alias")
-    ]
+    species_model_element = cd_id_to_model_element[cd_product_link.get("alias")]
     model_element.referred_species = species_model_element
     return model_element
 
@@ -275,15 +275,16 @@ def make_modifier(model, model_element_cls, source_model_element):
 def make_logic_gate(model, model_element_cls, cd_input_ids, cd_id_to_model_element):
     model_element = model.new_element(model_element_cls)
     model_input_elements = [
-        cd_id_to_model_element[cd_input_id]
-        for cd_input_id in cd_input_ids
+        cd_id_to_model_element[cd_input_id] for cd_input_id in cd_input_ids
     ]
     for model_input_element in model_input_elements:
         model_element.inputs.add(model_input_element)
     return model_element
 
 
-def make_modulation(cd_reaction, model, model_element_cls, source_model_element, target_model_element):
+def make_modulation(
+    cd_reaction, model, model_element_cls, source_model_element, target_model_element
+):
     model_element = model.new_element(model_element_cls)
     model_element.id_ = cd_reaction.get("id")
     model_element.source = source_model_element
