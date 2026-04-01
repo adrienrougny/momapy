@@ -1210,8 +1210,17 @@ class CellDesignerReader(momapy.io.core.Reader):
                 ctx.id_to_map_element[layout_element.id_] = layout_element
                 layout_elements_for_mapping.append(layout_element)
             if ctx.model is not None and ctx.layout is not None:
+                expanded = set()
+                for elem in layout_elements_for_mapping:
+                    existing_key = ctx.layout_model_mapping._singleton_to_key.get(
+                        elem
+                    )
+                    if existing_key is not None:
+                        expanded |= existing_key
+                    else:
+                        expanded.add(elem)
                 ctx.layout_model_mapping.add_mapping(
-                    frozenset(layout_elements_for_mapping),
+                    frozenset(expanded),
                     model_element,
                     replace=True,
                     anchor=layout_element,
@@ -1603,10 +1612,24 @@ class CellDesignerReader(momapy.io.core.Reader):
             else:
                 layout_element = None
             if ctx.model is not None and ctx.layout is not None:
+                source_mapping_key = ctx.layout_model_mapping._singleton_to_key.get(
+                    source_layout_element
+                )
+                if source_mapping_key is not None:
+                    source_layout_elements = source_mapping_key
+                else:
+                    source_layout_elements = frozenset([source_layout_element])
+                target_mapping_key = ctx.layout_model_mapping._singleton_to_key.get(
+                    target_layout_element
+                )
+                if target_mapping_key is not None:
+                    target_layout_elements = target_mapping_key
+                else:
+                    target_layout_elements = frozenset([target_layout_element])
                 ctx.layout_model_mapping.add_mapping(
-                    frozenset(
-                        [layout_element, source_layout_element, target_layout_element]
-                    ),
+                    frozenset([layout_element])
+                    | source_layout_elements
+                    | target_layout_elements,
                     model_element,
                     replace=True,
                     anchor=layout_element,
