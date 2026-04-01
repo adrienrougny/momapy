@@ -6,6 +6,7 @@ adjusting arc endpoints, and applying various layout optimizations.
 """
 
 import collections
+import collections.abc
 
 import momapy.positioning
 import momapy.builder
@@ -14,20 +15,25 @@ import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.core.layout
 
-
-def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
+def set_compartments_to_fit_content(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    xsep: float = 0,
+    ysep: float = 0,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Resize compartments to fit their content.
 
     Adjusts compartment dimensions to tightly enclose their contained
     entity pools or activities.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -62,18 +68,24 @@ def set_compartments_to_fit_content(map_, xsep=0, ysep=0):
     return map_builder
 
 
-def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
+def set_complexes_to_fit_content(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    xsep: float = 0,
+    ysep: float = 0,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Resize complexes to fit their subunits.
 
     Adjusts complex dimensions to tightly enclose their contained subunits.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -100,18 +112,24 @@ def set_complexes_to_fit_content(map_, xsep=0, ysep=0):
     return map_builder
 
 
-def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
+def set_submaps_to_fit_content(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    xsep: float = 0,
+    ysep: float = 0,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Resize submaps to fit their terminals.
 
     Adjusts submap dimensions to tightly enclose their terminal elements.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -144,20 +162,21 @@ def set_submaps_to_fit_content(map_, xsep=0, ysep=0):
 
 
 def set_nodes_to_fit_labels(
-    map_,
-    xsep=0,
-    ysep=0,
-    omit_width=False,
-    omit_height=False,
-    restrict_to=None,
-    exclude=None,
-):
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    xsep: float = 0,
+    ysep: float = 0,
+    omit_width: bool = False,
+    omit_height: bool = False,
+    restrict_to: collections.abc.Sequence[type] | None = None,
+    exclude: collections.abc.Sequence[type] | None = None,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Resize nodes to fit their labels.
 
     Adjusts node dimensions to accommodate label text.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
         omit_width: If True, do not adjust width. Defaults to False.
@@ -166,7 +185,8 @@ def set_nodes_to_fit_labels(
         exclude: Node types to exclude. Defaults to none.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -204,17 +224,19 @@ def set_nodes_to_fit_labels(
     return map_builder
 
 
-def set_arcs_to_borders(map_):
+def set_arcs_to_borders(map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Adjust arc endpoints to node borders.
 
     Updates arc start and end points to connect at the borders of
     their source and target nodes rather than centers.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
 
     def _set_arc_to_borders(
@@ -407,17 +429,21 @@ def set_arcs_to_borders(map_):
     return map_builder
 
 
-def set_auxiliary_units_to_borders(map_):
+def set_auxiliary_units_to_borders(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Position auxiliary units at node borders.
 
     Moves state variables and units of information to the borders
     of their parent nodes.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
 
     def _rec_set_auxiliary_units_to_borders(layout_element):
@@ -451,15 +477,20 @@ def set_auxiliary_units_to_borders(map_):
     return map_builder
 
 
-def set_auxiliary_units_label_font_size(map_, font_size: float):
+def set_auxiliary_units_label_font_size(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    font_size: float,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Set font size for auxiliary unit labels.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         font_size: The font size to apply.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
 
     def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
@@ -491,18 +522,24 @@ def set_auxiliary_units_label_font_size(map_, font_size: float):
     return map_builder
 
 
-def set_layout_to_fit_content(map_, xsep=0, ysep=0):
+def set_layout_to_fit_content(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    xsep: float = 0,
+    ysep: float = 0,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Resize layout to fit all elements.
 
     Adjusts the layout dimensions to contain all layout elements.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
 
     Returns:
-        The modified map or map builder.
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -517,20 +554,20 @@ def set_layout_to_fit_content(map_, xsep=0, ysep=0):
 
 
 def tidy(
-    map_,
-    auxiliary_units_omit_width=False,
-    auxiliary_units_omit_height=False,
-    nodes_xsep=0,
-    nodes_ysep=0,
-    auxiliary_units_xsep=0,
-    auxiliary_units_ysep=0,
-    complexes_xsep=0,
-    complexes_ysep=0,
-    compartments_xsep=0,
-    compartments_ysep=0,
-    layout_xsep=0,
-    layout_ysep=0,
-):
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+    auxiliary_units_omit_width: bool = False,
+    auxiliary_units_omit_height: bool = False,
+    nodes_xsep: float = 0,
+    nodes_ysep: float = 0,
+    auxiliary_units_xsep: float = 0,
+    auxiliary_units_ysep: float = 0,
+    complexes_xsep: float = 0,
+    complexes_ysep: float = 0,
+    compartments_xsep: float = 0,
+    compartments_ysep: float = 0,
+    layout_xsep: float = 0,
+    layout_ysep: float = 0,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Apply comprehensive layout tidying to an SBGN map.
 
     Performs multiple layout optimization steps including fitting nodes to
@@ -538,7 +575,8 @@ def tidy(
     and adjusting arc endpoints.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
         auxiliary_units_omit_width: Do not adjust auxiliary unit widths.
         auxiliary_units_omit_height: Do not adjust auxiliary unit heights.
         nodes_xsep: Horizontal padding for node sizing.
@@ -553,7 +591,8 @@ def tidy(
         layout_ysep: Vertical padding for overall layout.
 
     Returns:
-        The tidied map or map builder.
+        The tidied map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         map_builder = momapy.builder.builder_from_object(map_)
@@ -594,16 +633,20 @@ def tidy(
     return map_builder
 
 
-def sbgned_tidy(map_):
+def sbgned_tidy(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Apply SBGN-ED style tidying to an SBGN map.
 
     Uses preset parameters matching the SBGN-ED tool layout.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
 
     Returns:
-        The tidied map or map builder.
+        The tidied map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     return tidy(
         map_,
@@ -622,16 +665,20 @@ def sbgned_tidy(map_):
     )
 
 
-def newt_tidy(map_):
+def newt_tidy(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Apply Newt style tidying to an SBGN map.
 
     Uses preset parameters matching the Newt tool layout.
 
     Args:
-        map_: An SBGN map or map builder.
+        map_: An SBGN map or map builder. If a builder is given,
+            it is modified in place.
 
     Returns:
-        The tidied map or map builder.
+        The tidied map or map builder. If a frozen map was given,
+            a new map is returned.
     """
     return tidy(
         map_,
