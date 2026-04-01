@@ -12,6 +12,8 @@ htmlcov/
 site/
 plans/
 debates/
+TODO.txt
+demos/reactome_analysis/data/
 
 # Claude Code sandbox artifacts
 .bash_profile
@@ -31,5 +33,3 @@ debates/
 /hooks
 /objects
 /refs
-TODO.txt
-demos/reactome_analysis/data/
