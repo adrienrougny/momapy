@@ -497,6 +497,14 @@ def make_reaction(
     for segment in segments:
         layout_element.segments.append(segment)
     layout_element.reaction_node_segment = reaction_node_segment
+    if len(cd_base_reactants) == 1:
+        layout_element.source = cd_id_to_layout_element[
+            cd_base_reactants[0].get("alias")
+        ]
+    if len(cd_base_products) == 1:
+        layout_element.target = cd_id_to_layout_element[
+            cd_base_products[0].get("alias")
+        ]
     return layout_element, make_base_reactant_layouts, make_base_product_layouts
 
 
@@ -557,6 +565,8 @@ def make_reactant_from_base(
     segments = make_segments(points)
     for segment in segments:
         layout_element.segments.append(segment)
+    layout_element.source = super_layout_element
+    layout_element.target = species_layout_element
     return layout_element
 
 
@@ -599,6 +609,8 @@ def make_reactant_from_link(
     segments = make_segments(points)
     for segment in segments:
         layout_element.segments.append(segment)
+    layout_element.source = super_layout_element
+    layout_element.target = species_layout_element
     return layout_element
 
 
@@ -659,6 +671,8 @@ def make_product_from_base(
     segments = make_segments(points)
     for segment in segments:
         layout_element.segments.append(segment)
+    layout_element.source = super_layout_element
+    layout_element.target = product_layout_element
     return layout_element
 
 
@@ -701,6 +715,8 @@ def make_product_from_link(
     segments = make_segments(points)
     for segment in segments:
         layout_element.segments.append(segment)
+    layout_element.source = super_layout_element
+    layout_element.target = species_layout_element
     return layout_element
 
 
@@ -760,6 +776,7 @@ def make_modifier(
     for segment in segments:
         layout_element.segments.append(segment)
     layout_element.source = source_layout_element
+    layout_element.target = super_layout_element
     return layout_element
 
 
@@ -773,15 +790,18 @@ def make_logic_gate(cd_element, layout, layout_element_cls, cd_id_to_layout_elem
     layout_input_elements = [
         cd_id_to_layout_element[cd_input_id] for cd_input_id in cd_modifiers.split(",")
     ]
-    for layout_input_element in layout_input_elements:
-        layout_logic_arc = layout.new_element(momapy.celldesigner.core.LogicArcLayout)
-        start_point = layout_input_element.own_border(position)
-        end_point = layout_element.own_border(start_point)
-        segment = momapy.geometry.Segment(start_point, end_point)
-        layout_logic_arc.segments.append(segment)
-        layout_logic_arc.target = layout_input_element
-        layout_logic_arc = momapy.builder.object_from_builder(layout_logic_arc)
-        layout_element.layout_elements.append(layout_logic_arc)
+    return layout_element
+
+
+def make_logic_arc(layout, gate_layout_element, input_layout_element):
+    """Create a logic arc from a gate to an input species."""
+    layout_element = layout.new_element(momapy.celldesigner.core.LogicArcLayout)
+    start_point = input_layout_element.own_border(gate_layout_element.position)
+    end_point = gate_layout_element.own_border(start_point)
+    segment = momapy.geometry.Segment(start_point, end_point)
+    layout_element.segments.append(segment)
+    layout_element.source = gate_layout_element
+    layout_element.target = input_layout_element
     return layout_element
 
 

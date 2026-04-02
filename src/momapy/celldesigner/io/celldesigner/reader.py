@@ -425,14 +425,18 @@ class CellDesignerReader(momapy.io.core.Reader):
                 ctx.cd_model, ctx.cd_id_to_cd_element
             )
             for cd_compartment_alias in cd_compartment_aliases:
-                model_element, layout_element = cls._make_and_add_compartment_from_alias(
-                    ctx,
-                    cd_compartment_alias=cd_compartment_alias,
+                model_element, layout_element = (
+                    cls._make_and_add_compartment_from_alias(
+                        ctx,
+                        cd_compartment_alias=cd_compartment_alias,
+                    )
                 )
             # we also make the compartments from the list of compartments that do not have
             # an alias (e.g., the "default" compartment)
             # since these have no alias, we only produce a model element
-            for cd_compartment in momapy.celldesigner.io.celldesigner._parsing.get_compartments(
+            for (
+                cd_compartment
+            ) in momapy.celldesigner.io.celldesigner._parsing.get_compartments(
                 ctx.cd_model
             ):
                 if cd_compartment.get("id") not in ctx.cd_id_to_model_element:
@@ -441,7 +445,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_compartment=cd_compartment,
                     )
             # we make and add the species templates
-            for cd_species_template in momapy.celldesigner.io.celldesigner._parsing.get_species_templates(
+            for (
+                cd_species_template
+            ) in momapy.celldesigner.io.celldesigner._parsing.get_species_templates(
                 ctx.cd_model
             ):
                 model_element, layout_element = cls._make_and_add_species_template(
@@ -471,16 +477,18 @@ class CellDesignerReader(momapy.io.core.Reader):
             # we make and add the reactions and modulations from celldesigner
             # reactions: a celldesigner reaction is either a true reaction
             # or a false reaction encoding a modulation
-            for cd_reaction in momapy.celldesigner.io.celldesigner._parsing.get_reactions(
+            for (
+                cd_reaction
+            ) in momapy.celldesigner.io.celldesigner._parsing.get_reactions(
                 ctx.cd_model
             ):
-                key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction(
-                    cd_reaction
+                key = (
+                    momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction(
+                        cd_reaction
+                    )
                 )
                 model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
-                if issubclass(
-                    model_element_cls, momapy.celldesigner.core.Reaction
-                ):
+                if issubclass(model_element_cls, momapy.celldesigner.core.Reaction):
                     model_element, layout_element = cls._make_and_add_reaction(
                         ctx,
                         cd_reaction=cd_reaction,
@@ -1077,6 +1085,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element = None
                 make_base_reactant_layouts = False
                 make_base_product_layouts = False
+            if ctx.layout is not None:
+                layout_element = momapy.builder.object_from_builder(layout_element)
             participant_map_elements = []
             layout_elements_for_mapping = []
             for n_cd_base_reactant, cd_base_reactant in enumerate(cd_base_reactants):
@@ -1204,21 +1214,20 @@ class CellDesignerReader(momapy.io.core.Reader):
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
             if ctx.layout is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
                 ctx.layout.layout_elements.append(layout_element)
                 ctx.cd_id_to_layout_element[layout_element.id_] = layout_element
                 ctx.id_to_map_element[layout_element.id_] = layout_element
                 layout_elements_for_mapping.append(layout_element)
             if ctx.model is not None and ctx.layout is not None:
                 expanded = set()
-                for elem in layout_elements_for_mapping:
+                for layout_element_for_mapping in layout_elements_for_mapping:
                     existing_key = ctx.layout_model_mapping._singleton_to_key.get(
-                        elem
+                        layout_element_for_mapping
                     )
                     if existing_key is not None:
                         expanded |= existing_key
                     else:
-                        expanded.add(elem)
+                        expanded.add(layout_element_for_mapping)
                 ctx.layout_model_mapping.add_mapping(
                     frozenset(expanded),
                     model_element,
@@ -1273,7 +1282,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
+            ctx.layout.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -1311,7 +1320,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
+            ctx.layout.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -1353,7 +1362,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
+            ctx.layout.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -1391,7 +1400,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
-            super_layout_element.layout_elements.append(layout_element)
+            ctx.layout.layout_elements.append(layout_element)
         else:
             layout_element = None
         return model_element, layout_element
@@ -1450,7 +1459,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
                 )
                 layout_element = momapy.builder.object_from_builder(layout_element)
-                super_layout_element.layout_elements.append(layout_element)
+                ctx.layout.layout_elements.append(layout_element)
             else:
                 layout_element = None
         return model_element, layout_element
@@ -1495,8 +1504,28 @@ class CellDesignerReader(momapy.io.core.Reader):
                         ctx.cd_id_to_layout_element,
                     )
                 )
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = momapy.builder.object_from_builder(
+                    layout_element
+                )
                 ctx.layout.layout_elements.append(layout_element)
+                cd_modifiers = (
+                    cd_reaction_modification_or_cd_gate_member.get("aliases")
+                )
+                for cd_input_id in cd_modifiers.split(","):
+                    input_layout_element = ctx.cd_id_to_layout_element[
+                        cd_input_id
+                    ]
+                    logic_arc = (
+                        momapy.celldesigner.io.celldesigner._layout.make_logic_arc(
+                            ctx.layout,
+                            layout_element,
+                            input_layout_element,
+                        )
+                    )
+                    logic_arc = momapy.builder.object_from_builder(
+                        logic_arc
+                    )
+                    ctx.layout.layout_elements.append(logic_arc)
             else:
                 layout_element = None
         return model_element, layout_element
