@@ -190,6 +190,7 @@ def make_reactant_from_base(
     cd_base_reactant, cd_reaction, model, cd_id_to_model_element
 ):
     model_element = model.new_element(momapy.celldesigner.core.Reactant)
+    model_element.base = True
     cd_species_id = cd_base_reactant.get("species")
     for cd_reactant in momapy.celldesigner.io.celldesigner._parsing.get_reactants(
         cd_reaction
@@ -230,6 +231,7 @@ def make_reactant_from_link(
 
 def make_product_from_base(cd_base_product, cd_reaction, model, cd_id_to_model_element):
     model_element = model.new_element(momapy.celldesigner.core.Product)
+    model_element.base = True
     cd_species_id = cd_base_product.get("species")
     for cd_product in momapy.celldesigner.io.celldesigner._parsing.get_products(
         cd_reaction
