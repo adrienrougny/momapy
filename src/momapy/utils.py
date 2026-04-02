@@ -119,7 +119,10 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     """
 
     def _print_with_indent(s, indent):
-        print(f"{'  ' * indent}{s}")
+        dark = f"{colorama.Style.DIM}│{colorama.Style.RESET_ALL} "
+        light = f"{colorama.Fore.WHITE}│{colorama.Style.RESET_ALL} "
+        guides = "".join(dark if i % 2 == 0 else light for i in range(indent))
+        print(f"{guides}{s}")
 
     def _get_value_string(attr_value, max_len=30):
         s = str(attr_value)
