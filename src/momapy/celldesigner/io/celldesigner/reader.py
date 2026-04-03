@@ -1580,6 +1580,10 @@ class CellDesignerReader(momapy.io.core.Reader):
                     ctx.layout.layout_elements.append(logic_arc)
             else:
                 layout_element = None
+            if ctx.model is not None and ctx.layout is not None:
+                ctx.layout_model_mapping.add_mapping(
+                    layout_element, model_element, replace=True
+                )
         return model_element, layout_element
 
     @classmethod
