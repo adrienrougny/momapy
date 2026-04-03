@@ -915,7 +915,11 @@ class CellDesignerReader(momapy.io.core.Reader):
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
                 else:  # included species case
-                    super_model_element.subunits.add(model_element)
+                    model_element = momapy.utils.add_or_replace_element_in_set(
+                        model_element,
+                        super_model_element.subunits,
+                        func=lambda element, existing_element: element.id_ < existing_element.id_,
+                    )
                     if ctx.with_annotations:
                         cd_notes = (
                             momapy.celldesigner.io.celldesigner._parsing.get_notes(
