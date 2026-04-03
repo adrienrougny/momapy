@@ -323,6 +323,21 @@ class CellDesignerReader(momapy.io.core.Reader):
         return model_element
 
     @classmethod
+    def _build_subunit_remap(cls, old_complex, new_complex, old_to_new):
+        """Recursively build a mapping from old subunits to new subunits."""
+        for old_sub in old_complex.subunits:
+            for new_sub in new_complex.subunits:
+                if old_sub == new_sub:
+                    old_to_new[old_sub] = new_sub
+                    if isinstance(
+                        old_sub, momapy.celldesigner.core.Complex
+                    ):
+                        cls._build_subunit_remap(
+                            old_sub, new_sub, old_to_new
+                        )
+                    break
+
+    @classmethod
     def check_file(cls, file_path: str | os.PathLike):
         """Return `true` if the file is a CellDesigner file, `false` otherwise"""
         try:
@@ -764,6 +779,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_cd_element=None,
         super_model_element=None,
         super_layout_element=None,
+        pending_mappings=None,
     ):
         if ctx.model is not None or ctx.layout is not None:
             cd_species = ctx.cd_id_to_cd_element[cd_species_alias.get("species")]
@@ -881,6 +897,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     cd_species_alias.get("id")
                 ]
             ]
+            local_mappings = []
             for cd_subunit in cd_subunits:
                 subunit_model_element, subunit_layout_element = (
                     cls._make_and_add_species(
@@ -889,13 +906,15 @@ class CellDesignerReader(momapy.io.core.Reader):
                         super_cd_element=cd_species_alias,
                         super_model_element=model_element,
                         super_layout_element=layout_element,
+                        pending_mappings=local_mappings,
                     )
                 )
             if ctx.model is not None:
                 model_element = momapy.builder.object_from_builder(model_element)
+                new_model_element = model_element
                 if super_model_element is None:  # species case
                     model_element = cls._register_model_element(
-                        model_element,
+                        new_model_element,
                         ctx.model.species,
                         cd_species.get("id"),
                         ctx.cd_id_to_model_element,
@@ -938,6 +957,30 @@ class CellDesignerReader(momapy.io.core.Reader):
                             cd_species
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
+                # Remap subunit layouts if the species was deduplicated
+                if (
+                    model_element is not new_model_element
+                    and isinstance(
+                        model_element, momapy.celldesigner.core.Complex
+                    )
+                ):
+                    old_to_new = {}
+                    cls._build_subunit_remap(
+                        new_model_element, model_element, old_to_new
+                    )
+                    local_mappings = [
+                        (le, old_to_new.get(me, me), sup)
+                        for le, me, sup in local_mappings
+                    ]
+                # Apply deferred subunit mappings
+                target = pending_mappings if pending_mappings is not None else None
+                for le, me, sup in local_mappings:
+                    if target is not None:
+                        target.append((le, me, sup))
+                    else:
+                        ctx.layout_model_mapping.add_mapping(
+                            le, (me, sup), replace=True
+                        )
                 ctx.cd_id_to_model_element[cd_species.get("id")] = model_element
                 ctx.cd_id_to_model_element[cd_species_alias.get("id")] = model_element
                 ctx.id_to_map_element[cd_species.get("id")] = model_element
@@ -955,11 +998,16 @@ class CellDesignerReader(momapy.io.core.Reader):
                         layout_element, model_element, replace=True
                     )
                 else:  # included species case
-                    ctx.layout_model_mapping.add_mapping(
-                        layout_element,
-                        (model_element, super_model_element),
-                        replace=True,
-                    )
+                    if pending_mappings is not None:
+                        pending_mappings.append(
+                            (layout_element, model_element, super_model_element)
+                        )
+                    else:
+                        ctx.layout_model_mapping.add_mapping(
+                            layout_element,
+                            (model_element, super_model_element),
+                            replace=True,
+                        )
         return model_element, layout_element
 
     @classmethod
