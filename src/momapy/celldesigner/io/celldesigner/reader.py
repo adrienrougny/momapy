@@ -1625,12 +1625,13 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             if ctx.model is not None:
                 if has_boolean_input:
-                    source_model_element, source_layout_element = (
-                        cls._make_and_add_logic_gate(
-                            ctx,
-                            cd_reaction_modification_or_cd_gate_member=cd_gate_member,
-                        )
+                    # Ensure source is the surviving gate in the set
+                    surviving = momapy.utils.get_element_from_collection(
+                        source_model_element,
+                        ctx.model.boolean_logic_gates,
                     )
+                    if surviving is not None:
+                        source_model_element = surviving
                 else:
                     source_model_element = ctx.cd_id_to_model_element[
                         cd_base_reactant.get("alias")
