@@ -16,9 +16,9 @@ import momapy.celldesigner.core
 import momapy.sbml.core
 import momapy.utils
 
-import momapy.celldesigner.io.celldesigner._parsing
-import momapy.celldesigner.io.celldesigner._model
-import momapy.celldesigner.io.celldesigner._layout
+import momapy.celldesigner.io.celldesigner._reading_parsing
+import momapy.celldesigner.io.celldesigner._reading_model
+import momapy.celldesigner.io.celldesigner._reading_layout
 
 
 @dataclasses.dataclass
@@ -390,13 +390,13 @@ class CellDesignerReader(momapy.io.core.Reader):
         with_notes=True,
     ):
         if return_type == "model" or return_type == "map" and with_model:
-            model = momapy.celldesigner.io.celldesigner._model.make_empty_model(
+            model = momapy.celldesigner.io.celldesigner._reading_model.make_empty_model(
                 cd_model
             )
         else:
             model = None
         if return_type == "layout" or return_type == "map" and with_layout:
-            layout = momapy.celldesigner.io.celldesigner._layout.make_empty_layout(
+            layout = momapy.celldesigner.io.celldesigner._reading_layout.make_empty_layout(
                 cd_model
             )
         else:
@@ -406,11 +406,11 @@ class CellDesignerReader(momapy.io.core.Reader):
         id_to_map_element = momapy.utils.SurjectionDict()
         if model is not None or layout is not None:
             cd_id_to_cd_element = (
-                momapy.celldesigner.io.celldesigner._parsing.make_id_to_element_mapping(
+                momapy.celldesigner.io.celldesigner._reading_parsing.make_id_to_element_mapping(
                     cd_model
                 )
             )
-            cd_complex_alias_id_to_cd_included_species_ids = momapy.celldesigner.io.celldesigner._parsing.make_complex_alias_to_included_ids_mapping(
+            cd_complex_alias_id_to_cd_included_species_ids = momapy.celldesigner.io.celldesigner._reading_parsing.make_complex_alias_to_included_ids_mapping(
                 cd_model
             )
             cd_id_to_model_element = {}
@@ -436,7 +436,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
             # we make and add the  model and layout elements from the cd elements
             # we start with the compartment aliases
-            cd_compartment_aliases = momapy.celldesigner.io.celldesigner._parsing.get_ordered_compartment_aliases(
+            cd_compartment_aliases = momapy.celldesigner.io.celldesigner._reading_parsing.get_ordered_compartment_aliases(
                 ctx.cd_model, ctx.cd_id_to_cd_element
             )
             for cd_compartment_alias in cd_compartment_aliases:
@@ -451,7 +451,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             # since these have no alias, we only produce a model element
             for (
                 cd_compartment
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_compartments(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_compartments(
                 ctx.cd_model
             ):
                 if cd_compartment.get("id") not in ctx.cd_id_to_model_element:
@@ -462,7 +462,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             # we make and add the species templates
             for (
                 cd_species_template
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_species_templates(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_species_templates(
                 ctx.cd_model
             ):
                 model_element, layout_element = cls._make_and_add_species_template(
@@ -478,10 +478,10 @@ class CellDesignerReader(momapy.io.core.Reader):
             # species that are included, they are made when we make their
             # containing complex, but we make complexes
             for cd_species_alias in (
-                momapy.celldesigner.io.celldesigner._parsing.get_species_aliases(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_species_aliases(
                     ctx.cd_model
                 )
-                + momapy.celldesigner.io.celldesigner._parsing.get_complex_species_aliases(
+                + momapy.celldesigner.io.celldesigner._reading_parsing.get_complex_species_aliases(
                     ctx.cd_model
                 )
             ):
@@ -494,11 +494,11 @@ class CellDesignerReader(momapy.io.core.Reader):
             # or a false reaction encoding a modulation
             for (
                 cd_reaction
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_reactions(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactions(
                 ctx.cd_model
             ):
                 key = (
-                    momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction(
+                    momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_reaction(
                         cd_reaction
                     )
                 )
@@ -514,34 +514,34 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_reaction=cd_reaction,
                     )
             if layout is not None:
-                momapy.celldesigner.io.celldesigner._layout.set_layout_size_and_position(
+                momapy.celldesigner.io.celldesigner._reading_layout.set_layout_size_and_position(
                     cd_model, layout
                 )
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
             if with_annotations:
-                annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                     cd_model
                 )
                 map_element_to_annotations[obj].update(annotations)
             if with_notes:
-                notes = momapy.celldesigner.io.celldesigner._model.make_notes(cd_model)
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
                 map_element_to_notes[obj].update(notes)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
-            map_ = momapy.celldesigner.io.celldesigner._model.make_empty_map(cd_model)
+            map_ = momapy.celldesigner.io.celldesigner._reading_model.make_empty_map(cd_model)
             map_.model = model
             map_.layout = layout
             map_.layout_model_mapping = layout_model_mapping
             obj = momapy.builder.object_from_builder(map_)
             if with_annotations:
-                annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                     cd_model
                 )
                 map_element_to_annotations[obj].update(annotations)
             if with_notes:
-                notes = momapy.celldesigner.io.celldesigner._model.make_notes(cd_model)
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
                 map_element_to_notes[obj].update(notes)
         annotations = frozendict.frozendict(
             {key: frozenset(val) for key, val in map_element_to_annotations.items()}
@@ -575,7 +575,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             else:
                 model_element = None
             if ctx.layout is not None:
-                layout_element = momapy.celldesigner.io.celldesigner._layout.make_compartment_from_alias(
+                layout_element = momapy.celldesigner.io.celldesigner._reading_layout.make_compartment_from_alias(
                     cd_compartment, cd_compartment_alias, ctx.layout
                 )
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -599,7 +599,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         cd_compartment,
     ):
         if ctx.model is not None:
-            model_element = momapy.celldesigner.io.celldesigner._model.make_compartment(
+            model_element = momapy.celldesigner.io.celldesigner._reading_model.make_compartment(
                 cd_compartment, ctx.model
             )
             if cd_compartment.get("outside") is not None:
@@ -624,13 +624,13 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
             ctx.id_to_map_element[cd_compartment.get("id")] = model_element
             if ctx.with_annotations:
-                annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                     cd_compartment
                 )
                 if annotations:
                     ctx.map_element_to_annotations[model_element].update(annotations)
             if ctx.with_notes:
-                notes = momapy.celldesigner.io.celldesigner._model.make_notes(
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                     cd_compartment
                 )
                 ctx.map_element_to_notes[model_element].update(notes)
@@ -646,18 +646,18 @@ class CellDesignerReader(momapy.io.core.Reader):
         cd_species_template,
     ):
         if ctx.model is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_species_template(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_species_template(
                 cd_species_template
             )
             model_element_cls = cls._KEY_TO_CLASS[key]
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_species_template(
+                momapy.celldesigner.io.celldesigner._reading_model.make_species_template(
                     cd_species_template, ctx.model, model_element_cls
                 )
             )
             n_undefined_modification_residue_names = 0
             cd_modification_residues = (
-                momapy.celldesigner.io.celldesigner._parsing.get_modification_residues(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_modification_residues(
                     cd_species_template
                 )
             )
@@ -666,7 +666,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
             for (
                 cd_modification_residue
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_modification_residues(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_modification_residues(
                 cd_species_template
             ):
                 if cd_modification_residue.get("name") is None:
@@ -684,7 +684,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
                 )
             n_undefined_region_names = 0
-            cd_regions = momapy.celldesigner.io.celldesigner._parsing.get_regions(
+            cd_regions = momapy.celldesigner.io.celldesigner._reading_parsing.get_regions(
                 cd_species_template
             )
             cd_regions.sort(key=lambda cd_region: cd_region.get("pos"))
@@ -726,7 +726,7 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None:
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_modification_residue(
+                momapy.celldesigner.io.celldesigner._reading_model.make_modification_residue(
                     cd_modification_residue, ctx.model, super_cd_element, order
                 )
             )
@@ -752,11 +752,11 @@ class CellDesignerReader(momapy.io.core.Reader):
         order,
     ):
         if ctx.model is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_region(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_region(
                 cd_region
             )
             model_element_cls = cls._KEY_TO_CLASS[key]
-            model_element = momapy.celldesigner.io.celldesigner._model.make_region(
+            model_element = momapy.celldesigner.io.celldesigner._reading_model.make_region(
                 cd_region, ctx.model, model_element_cls, super_cd_element, order
             )
             cd_region_id = model_element.id_
@@ -783,22 +783,22 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None or ctx.layout is not None:
             cd_species = ctx.cd_id_to_cd_element[cd_species_alias.get("species")]
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_species(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_species(
                 cd_species, ctx.cd_id_to_cd_element
             )
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
-            name = momapy.celldesigner.io.celldesigner._parsing.make_name(
+            name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
                 cd_species.get("name")
             )
             cd_species_homodimer = (
-                momapy.celldesigner.io.celldesigner._parsing.get_homodimer(cd_species)
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_homodimer(cd_species)
             )
             if cd_species_homodimer is not None:
                 homomultimer = int(cd_species_homodimer)
             else:
                 homomultimer = 1
             cd_species_hypothetical = (
-                momapy.celldesigner.io.celldesigner._parsing.get_hypothetical(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_hypothetical(
                     cd_species
                 )
             )
@@ -807,7 +807,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             else:
                 hypothetical = False
             cd_species_activity = (
-                momapy.celldesigner.io.celldesigner._parsing.get_activity(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_activity(
                     cd_species_alias
                 )
             )
@@ -816,7 +816,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 if active:
                     cd_species.attrib["id"] = f"{cd_species.get('id')}_active"
             if ctx.model is not None:
-                model_element = momapy.celldesigner.io.celldesigner._model.make_species(
+                model_element = momapy.celldesigner.io.celldesigner._reading_model.make_species(
                     cd_species,
                     ctx.model,
                     model_element_cls,
@@ -831,7 +831,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 model_element = None
             if ctx.layout is not None:
                 layout_element = (
-                    momapy.celldesigner.io.celldesigner._layout.make_species(
+                    momapy.celldesigner.io.celldesigner._reading_layout.make_species(
                         cd_species_alias,
                         ctx.layout,
                         layout_element_cls,
@@ -845,7 +845,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             covered_cd_residue_ids = set()
             for (
                 cd_species_modification
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_species_modifications(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_species_modifications(
                 cd_species
             ):
                 covered_cd_residue_ids.add(cd_species_modification.get("residue"))
@@ -858,12 +858,12 @@ class CellDesignerReader(momapy.io.core.Reader):
                         super_layout_element=layout_element,
                     )
                 )
-            cd_species_template = momapy.celldesigner.io.celldesigner._parsing.get_template_from_species_alias(
+            cd_species_template = momapy.celldesigner.io.celldesigner._reading_parsing.get_template_from_species_alias(
                 cd_species_alias, ctx.cd_id_to_cd_element
             )
             for (
                 cd_modification_residue
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_modification_residues(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_modification_residues(
                 cd_species_template
             ):
                 residue_xml_id = cd_modification_residue.get("id")
@@ -878,7 +878,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         super_model_element=model_element,
                         super_layout_element=layout_element,
                     )
-            for cd_species_structural_state in momapy.celldesigner.io.celldesigner._parsing.get_species_structural_states(
+            for cd_species_structural_state in momapy.celldesigner.io.celldesigner._reading_parsing.get_species_structural_states(
                 cd_species
             ):
                 (
@@ -921,7 +921,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cache=ctx.model_element_cache,
                     )
                     if ctx.with_annotations:
-                        annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                        annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                             cd_species
                         )
                         if annotations:
@@ -929,7 +929,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                                 annotations
                             )
                     if ctx.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_species
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
@@ -941,11 +941,11 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
                     if ctx.with_annotations:
                         cd_notes = (
-                            momapy.celldesigner.io.celldesigner._parsing.get_notes(
+                            momapy.celldesigner.io.celldesigner._reading_parsing.get_notes(
                                 cd_species
                             )
                         )
-                        annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_notes(
+                        annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_notes(
                             cd_notes
                         )
                         if annotations:
@@ -953,7 +953,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                                 annotations
                             )
                     if ctx.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_species
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
@@ -1029,13 +1029,13 @@ class CellDesignerReader(momapy.io.core.Reader):
                     .replace(" ", "_")  # for DON'T CARE
                     .replace("'", "_")
                 ]
-            cd_species_template = momapy.celldesigner.io.celldesigner._parsing.get_template_from_species_alias(
+            cd_species_template = momapy.celldesigner.io.celldesigner._reading_parsing.get_template_from_species_alias(
                 super_cd_element,
                 ctx.cd_id_to_cd_element,
             )
             cd_modification_residue_id = f"{cd_species_template.get('id')}_{cd_species_modification.get('residue')}"
             if ctx.model is not None:
-                model_element = momapy.celldesigner.io.celldesigner._model.make_species_modification(
+                model_element = momapy.celldesigner.io.celldesigner._reading_model.make_species_modification(
                     ctx.model,
                     modification_state,
                     ctx.cd_id_to_model_element,
@@ -1050,7 +1050,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 cd_modification_residue = ctx.cd_id_to_cd_element[
                     cd_modification_residue_id
                 ]  # can also be of type ModificationSite for Genes, RNAs, etc.
-                layout_element = momapy.celldesigner.io.celldesigner._layout.make_species_modification(
+                layout_element = momapy.celldesigner.io.celldesigner._reading_layout.make_species_modification(
                     cd_modification_residue,
                     ctx.layout,
                     modification_state,
@@ -1074,7 +1074,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_layout_element,
     ):
         if ctx.model is not None:
-            model_element = momapy.celldesigner.io.celldesigner._model.make_species_structural_state(
+            model_element = momapy.celldesigner.io.celldesigner._reading_model.make_species_structural_state(
                 cd_species_structural_state, ctx.model
             )
             model_element = momapy.builder.object_from_builder(model_element)
@@ -1082,7 +1082,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         else:
             model_element = None
         if ctx.layout is not None:
-            layout_element = momapy.celldesigner.io.celldesigner._layout.make_species_structural_state(
+            layout_element = momapy.celldesigner.io.celldesigner._reading_layout.make_species_structural_state(
                 cd_species_structural_state, ctx.layout, super_layout_element
             )
             layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1098,23 +1098,23 @@ class CellDesignerReader(momapy.io.core.Reader):
         cd_reaction,
     ):
         if ctx.model is not None or ctx.layout is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_reaction(
                 cd_reaction
             )
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             cd_base_reactants = (
-                momapy.celldesigner.io.celldesigner._parsing.get_base_reactants(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
                     cd_reaction
                 )
             )
             cd_base_products = (
-                momapy.celldesigner.io.celldesigner._parsing.get_base_products(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
                     cd_reaction
                 )
             )
             if ctx.model is not None:
                 model_element = (
-                    momapy.celldesigner.io.celldesigner._model.make_reaction(
+                    momapy.celldesigner.io.celldesigner._reading_model.make_reaction(
                         cd_reaction, ctx.model, model_element_cls
                     )
                 )
@@ -1125,7 +1125,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     layout_element,
                     make_base_reactant_layouts,
                     make_base_product_layouts,
-                ) = momapy.celldesigner.io.celldesigner._layout.make_reaction(
+                ) = momapy.celldesigner.io.celldesigner._reading_layout.make_reaction(
                     cd_reaction,
                     ctx.layout,
                     layout_element_cls,
@@ -1163,7 +1163,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
             for (
                 cd_reactant_link
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_reactant_links(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactant_links(
                 cd_reaction
             ):
                 reactant_model_element, reactant_layout_element = (
@@ -1204,7 +1204,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
             for (
                 cd_product_link
-            ) in momapy.celldesigner.io.celldesigner._parsing.get_product_links(
+            ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_product_links(
                 cd_reaction
             ):
                 product_model_element, product_layout_element = (
@@ -1224,7 +1224,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         ctx.cd_id_to_layout_element[cd_product_link.get("alias")]
                     )
             for cd_reaction_modification in (
-                momapy.celldesigner.io.celldesigner._parsing.get_reaction_modifications(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_reaction_modifications(
                     cd_reaction
                 )
             ):
@@ -1253,7 +1253,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 ctx.id_to_map_element[cd_reaction.get("id")] = model_element
                 if ctx.with_annotations:
-                    annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                    annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                         cd_reaction
                     )
                     if annotations:
@@ -1261,7 +1261,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             annotations
                         )
                     if ctx.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_reaction
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
@@ -1310,7 +1310,7 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None:
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_reactant_from_base(
+                momapy.celldesigner.io.celldesigner._reading_model.make_reactant_from_base(
                     cd_base_reactant,
                     super_cd_element,
                     ctx.model,
@@ -1324,7 +1324,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             model_element = None
         if ctx.layout is not None and make_layout:
             layout_element = (
-                momapy.celldesigner.io.celldesigner._layout.make_reactant_from_base(
+                momapy.celldesigner.io.celldesigner._reading_layout.make_reactant_from_base(
                     cd_base_reactant,
                     n_cd_base_reactant,
                     super_cd_element,
@@ -1350,7 +1350,7 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None:
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_reactant_from_link(
+                momapy.celldesigner.io.celldesigner._reading_model.make_reactant_from_link(
                     cd_reactant_link,
                     super_cd_element,
                     ctx.model,
@@ -1364,7 +1364,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             model_element = None
         if ctx.layout is not None:
             layout_element = (
-                momapy.celldesigner.io.celldesigner._layout.make_reactant_from_link(
+                momapy.celldesigner.io.celldesigner._reading_layout.make_reactant_from_link(
                     cd_reactant_link,
                     ctx.layout,
                     ctx.cd_id_to_layout_element,
@@ -1390,7 +1390,7 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None:
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_product_from_base(
+                momapy.celldesigner.io.celldesigner._reading_model.make_product_from_base(
                     cd_base_product,
                     super_cd_element,
                     ctx.model,
@@ -1404,7 +1404,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             model_element = None
         if ctx.layout is not None and make_layout:
             layout_element = (
-                momapy.celldesigner.io.celldesigner._layout.make_product_from_base(
+                momapy.celldesigner.io.celldesigner._reading_layout.make_product_from_base(
                     cd_base_product,
                     n_cd_base_product,
                     super_cd_element,
@@ -1430,7 +1430,7 @@ class CellDesignerReader(momapy.io.core.Reader):
     ):
         if ctx.model is not None:
             model_element = (
-                momapy.celldesigner.io.celldesigner._model.make_product_from_link(
+                momapy.celldesigner.io.celldesigner._reading_model.make_product_from_link(
                     cd_product_link,
                     super_cd_element,
                     ctx.model,
@@ -1444,7 +1444,7 @@ class CellDesignerReader(momapy.io.core.Reader):
             model_element = None
         if ctx.layout is not None:
             layout_element = (
-                momapy.celldesigner.io.celldesigner._layout.make_product_from_link(
+                momapy.celldesigner.io.celldesigner._reading_layout.make_product_from_link(
                     cd_product_link,
                     ctx.layout,
                     ctx.cd_id_to_layout_element,
@@ -1467,11 +1467,11 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_layout_element,
     ):
         if ctx.model is not None or ctx.layout is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction_modification(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_reaction_modification(
                 cd_reaction_modification
             )
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
-            has_boolean_input = momapy.celldesigner.io.celldesigner._parsing.has_boolean_input_from_modification(
+            has_boolean_input = momapy.celldesigner.io.celldesigner._reading_parsing.has_boolean_input_from_modification(
                 cd_reaction_modification
             )
             if has_boolean_input:
@@ -1487,7 +1487,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_reaction_modification.get("aliases")
                     ]
                 model_element = (
-                    momapy.celldesigner.io.celldesigner._model.make_modifier(
+                    momapy.celldesigner.io.celldesigner._reading_model.make_modifier(
                         ctx.model, model_element_cls, source_model_element
                     )
                 )
@@ -1501,7 +1501,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_reaction_modification.get("aliases")
                     ]
                 layout_element = (
-                    momapy.celldesigner.io.celldesigner._layout.make_modifier(
+                    momapy.celldesigner.io.celldesigner._reading_layout.make_modifier(
                         cd_reaction_modification,
                         ctx.layout,
                         layout_element_cls,
@@ -1523,14 +1523,14 @@ class CellDesignerReader(momapy.io.core.Reader):
         cd_reaction_modification_or_cd_gate_member,
     ):
         if ctx.model is not None or ctx.layout is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_gate_member(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_gate_member(
                 cd_reaction_modification_or_cd_gate_member
             )
             cd_modifiers = cd_reaction_modification_or_cd_gate_member.get("aliases")
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             if ctx.model is not None:
                 model_element = (
-                    momapy.celldesigner.io.celldesigner._model.make_logic_gate(
+                    momapy.celldesigner.io.celldesigner._reading_model.make_logic_gate(
                         ctx.model,
                         model_element_cls,
                         cd_modifiers.split(","),
@@ -1549,7 +1549,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 model_element = None
             if ctx.layout is not None:
                 layout_element = (
-                    momapy.celldesigner.io.celldesigner._layout.make_logic_gate(
+                    momapy.celldesigner.io.celldesigner._reading_layout.make_logic_gate(
                         cd_reaction_modification_or_cd_gate_member,
                         ctx.layout,
                         layout_element_cls,
@@ -1568,7 +1568,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_input_id
                     ]
                     logic_arc = (
-                        momapy.celldesigner.io.celldesigner._layout.make_logic_arc(
+                        momapy.celldesigner.io.celldesigner._reading_layout.make_logic_arc(
                             ctx.layout,
                             layout_element,
                             input_layout_element,
@@ -1593,26 +1593,26 @@ class CellDesignerReader(momapy.io.core.Reader):
         cd_reaction,
     ):
         if ctx.model is not None or ctx.layout is not None:
-            key = momapy.celldesigner.io.celldesigner._parsing.get_key_from_reaction(
+            key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_reaction(
                 cd_reaction
             )
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
-            has_boolean_input = momapy.celldesigner.io.celldesigner._parsing.has_boolean_input_from_reaction(
+            has_boolean_input = momapy.celldesigner.io.celldesigner._reading_parsing.has_boolean_input_from_reaction(
                 cd_reaction
             )
             cd_base_reactant = (
-                momapy.celldesigner.io.celldesigner._parsing.get_base_reactants(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
                     cd_reaction
                 )[0]
             )
             cd_base_product = (
-                momapy.celldesigner.io.celldesigner._parsing.get_base_products(
+                momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
                     cd_reaction
                 )[0]
             )
             if has_boolean_input:
                 cd_gate_members = (
-                    momapy.celldesigner.io.celldesigner._parsing.get_gate_members(
+                    momapy.celldesigner.io.celldesigner._reading_parsing.get_gate_members(
                         cd_reaction
                     )
                 )
@@ -1640,7 +1640,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     cd_base_product.get("alias")
                 ]
                 model_element = (
-                    momapy.celldesigner.io.celldesigner._model.make_modulation(
+                    momapy.celldesigner.io.celldesigner._reading_model.make_modulation(
                         cd_reaction,
                         ctx.model,
                         model_element_cls,
@@ -1658,7 +1658,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 ctx.id_to_map_element[cd_reaction.get("id")] = model_element
                 if ctx.with_annotations:
-                    annotations = momapy.celldesigner.io.celldesigner._model.make_annotations_from_element(
+                    annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                         cd_reaction
                     )
                     if annotations:
@@ -1666,7 +1666,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             annotations
                         )
                     if ctx.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_reaction
                         )
                         ctx.map_element_to_notes[model_element].update(notes)
@@ -1681,7 +1681,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     cd_base_product.get("alias")
                 ]
                 layout_element = (
-                    momapy.celldesigner.io.celldesigner._layout.make_modulation(
+                    momapy.celldesigner.io.celldesigner._reading_layout.make_modulation(
                         cd_reaction,
                         ctx.layout,
                         layout_element_cls,
