@@ -11,7 +11,8 @@ import lxml.etree
 
 import momapy.coloring
 import momapy.geometry
-import momapy.celldesigner.io.celldesigner._parsing
+import momapy.celldesigner.core
+import momapy.celldesigner.io.celldesigner._reading_parsing
 
 
 def _are_collinear(p1, p2, p3, epsilon=1e-6):
@@ -38,12 +39,12 @@ _SBML_SID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_]")
 _XML_ID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_\-\.:]")
 _XML_ID_INVALID_START_RE = re.compile(r"^[^a-zA-Z_:]")
 
-_CD_NAMESPACE = momapy.celldesigner.io.celldesigner._parsing._CD_NAMESPACE
+_CD_NAMESPACE = momapy.celldesigner.io.celldesigner._reading_parsing._CD_NAMESPACE
 
 # Reverse of _parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME
 _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION = {
     v: k
-    for k, v in momapy.celldesigner.io.celldesigner._parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
+    for k, v in momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
 }
 
 # Reverse of _parsing._TEXT_TO_CHARACTER (pick first occurrence as canonical)
@@ -51,9 +52,66 @@ _CHARACTER_TO_TEXT = {}
 for (
     _text,
     _char,
-) in momapy.celldesigner.io.celldesigner._parsing._TEXT_TO_CHARACTER.items():
+) in momapy.celldesigner.io.celldesigner._reading_parsing._TEXT_TO_CHARACTER.items():
     if _char not in _CHARACTER_TO_TEXT:
         _CHARACTER_TO_TEXT[_char] = _text
+
+
+_CLASS_TO_CD_STRING = {
+    momapy.celldesigner.core.GenericProtein: "PROTEIN",
+    momapy.celldesigner.core.TruncatedProtein: "PROTEIN",
+    momapy.celldesigner.core.Receptor: "PROTEIN",
+    momapy.celldesigner.core.IonChannel: "PROTEIN",
+    momapy.celldesigner.core.Gene: "GENE",
+    momapy.celldesigner.core.RNA: "RNA",
+    momapy.celldesigner.core.AntisenseRNA: "ANTISENSE_RNA",
+    momapy.celldesigner.core.SimpleMolecule: "SIMPLE_MOLECULE",
+    momapy.celldesigner.core.Ion: "ION",
+    momapy.celldesigner.core.Drug: "DRUG",
+    momapy.celldesigner.core.Phenotype: "PHENOTYPE",
+    momapy.celldesigner.core.Unknown: "UNKNOWN",
+    momapy.celldesigner.core.Degraded: "DEGRADED",
+    momapy.celldesigner.core.Complex: "COMPLEX",
+}
+
+_CLASS_TO_REACTION_TYPE = {
+    momapy.celldesigner.core.StateTransition: "STATE_TRANSITION",
+    momapy.celldesigner.core.KnownTransitionOmitted: "KNOWN_TRANSITION_OMITTED",
+    momapy.celldesigner.core.UnknownTransition: "UNKNOWN_TRANSITION",
+    momapy.celldesigner.core.Transcription: "TRANSCRIPTION",
+    momapy.celldesigner.core.Translation: "TRANSLATION",
+    momapy.celldesigner.core.Transport: "TRANSPORT",
+    momapy.celldesigner.core.HeterodimerAssociation: "HETERODIMER_ASSOCIATION",
+    momapy.celldesigner.core.Dissociation: "DISSOCIATION",
+    momapy.celldesigner.core.Truncation: "TRUNCATION",
+}
+
+_CLASS_TO_MODIFIER_TYPE = {
+    momapy.celldesigner.core.Catalyzer: "CATALYSIS",
+    momapy.celldesigner.core.UnknownCatalyzer: "UNKNOWN_CATALYSIS",
+    momapy.celldesigner.core.Inhibitor: "INHIBITION",
+    momapy.celldesigner.core.UnknownInhibitor: "UNKNOWN_INHIBITION",
+    momapy.celldesigner.core.PhysicalStimulator: "PHYSICAL_STIMULATION",
+    momapy.celldesigner.core.Modulator: "MODULATION",
+    momapy.celldesigner.core.Trigger: "TRIGGER",
+}
+
+_MODIFICATION_STATE_TO_CD = {
+    "PHOSPHORYLATED": "phosphorylated",
+    "UBIQUITINATED": "ubiquitinated",
+    "ACETYLATED": "acetylated",
+    "METHYLATED": "methylated",
+    "HYDROXYLATED": "hydroxylated",
+    "GLYCOSYLATED": "glycosylated",
+    "MYRISTOYLATED": "myristoylated",
+    "PALMITOYLATED": "palmitoylated",
+    "PRENYLATED": "prenylated",
+    "PROTONATED": "protonated",
+    "SUMOYLATED": "sumoylated",
+    "DON_T_CARE": "don't care",
+    "UNKNOWN": "unknown",
+    "none": "empty",
+}
 
 
 def get_cd_species_id(species):
@@ -145,7 +203,7 @@ def color_to_cd_hex(color):
     Returns:
         CellDesigner AARRGGBB hex string (e.g. "FFCC0000").
     """
-    hexa = color.to_hexa().lstrip("#").upper()
+    hexa = color.to_hexa().lstrip("#").lower()
     # hexa is RRGGBBAA, CellDesigner expects AARRGGBB
     return hexa[-2:] + hexa[:-2]
 
@@ -180,7 +238,7 @@ def points_to_edit_points_text(points):
 
 
 _ALL_ANCHOR_NAMES = list(
-    momapy.celldesigner.io.celldesigner._parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values()
+    momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values()
 )
 
 

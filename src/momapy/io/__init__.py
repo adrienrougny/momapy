@@ -189,5 +189,6 @@ for name, import_path in [
     ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.writer:SBGNML0_3Writer"),
     ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleWriter"),
     ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleWriter"),
+    ("celldesigner", "momapy.celldesigner.io.celldesigner.writer:CellDesignerWriter"),
 ]:
     register_lazy_writer(name, import_path)
