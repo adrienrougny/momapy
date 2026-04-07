@@ -858,4 +858,6 @@ def make_modulation(
     segments = make_segments(points)
     for segment in segments:
         layout_element.segments.append(segment)
+    layout_element.source = source_layout_element
+    layout_element.target = target_layout_element
     return layout_element
