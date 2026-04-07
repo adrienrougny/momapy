@@ -276,16 +276,16 @@ def compute_cd_angle(modification_position, species_layout):
         The CellDesigner angle as a float (radians).
     """
     center = species_layout.center()
-    dx = modification_position.x - center.x
-    dy = modification_position.y - center.y
-    if abs(dx) < 1e-10 and abs(dy) < 1e-10:
+    delta_x = modification_position.x - center.x
+    delta_y = modification_position.y - center.y
+    if abs(delta_x) < 1e-10 and abs(delta_y) < 1e-10:
         return 0.0
-    intermediate_angle = math.atan2(dy, dx)
-    w = species_layout.width
-    h = species_layout.height
+    intermediate_angle = math.atan2(delta_y, delta_x)
+    width = species_layout.width
+    height = species_layout.height
     cd_angle = math.atan2(
-        w * math.sin(intermediate_angle),
-        h * math.cos(intermediate_angle),
+        width * math.sin(intermediate_angle),
+        height * math.cos(intermediate_angle),
     )
     return cd_angle
 

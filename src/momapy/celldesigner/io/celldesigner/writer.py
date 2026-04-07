@@ -91,7 +91,7 @@ class WritingContext:
 # ---------------------------------------------------------------------------
 
 
-def _el(tag, ns=None, attrs=None, text=None, nsmap=None):
+def _make_lxml_element(tag, ns=None, attrs=None, text=None, nsmap=None):
     """Create an lxml element."""
     lxml_tag = f"{{{ns}}}{tag}" if ns is not None else tag
     if nsmap is None:
@@ -104,14 +104,14 @@ def _el(tag, ns=None, attrs=None, text=None, nsmap=None):
     return elem
 
 
-def _cd(tag, attrs=None, text=None):
+def _make_celldesigner_element(tag, attrs=None, text=None):
     """Shortcut for CellDesigner-namespaced element."""
-    return _el(tag, ns=_CD_NS, attrs=attrs, text=text)
+    return _make_lxml_element(tag, ns=_CD_NS, attrs=attrs, text=text)
 
 
-def _sbml(tag, attrs=None, text=None, nsmap=None):
+def _make_sbml_element(tag, attrs=None, text=None, nsmap=None):
     """Shortcut for SBML-namespaced element."""
-    return _el(tag, ns=_SBML_NS, attrs=attrs, text=text, nsmap=nsmap)
+    return _make_lxml_element(tag, ns=_SBML_NS, attrs=attrs, text=text, nsmap=nsmap)
 
 
 _encode_name = _writing.encode_name
@@ -184,9 +184,9 @@ def _get_layouts(ctx, model_element):
     return [result]
 
 
-def _find_layout_for_species_in_frozenset(ctx, species, fset):
+def _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping):
     """Find the layout element for a species within a reaction frozenset."""
-    for elem in fset:
+    for elem in frozenset_mapping:
         model = _mapping(ctx).get_mapping(elem)
         if model is species:
             return elem
@@ -195,9 +195,9 @@ def _find_layout_for_species_in_frozenset(ctx, species, fset):
     return None
 
 
-def _get_reaction_layout(fset):
+def _get_reaction_layout(frozenset_mapping):
     """Extract the ReactionLayout from a frozenset."""
-    for elem in fset:
+    for elem in frozenset_mapping:
         if isinstance(elem, momapy.celldesigner.core.ReactionLayout):
             return elem
     return None
@@ -252,17 +252,17 @@ def _compute_target_line_index(reaction_layout, modifier_arc):
     RECT_HALF = 5.0
     mid = reaction_layout._get_reaction_node_position()
     # Reaction line angle from the center segment
-    pts = reaction_layout.points()
+    points = reaction_layout.points()
     n_segments = len(reaction_layout.segments)
     seg_idx = reaction_layout.reaction_node_segment
     if seg_idx < n_segments:
-        seg = reaction_layout.segments[seg_idx]
-        dx = seg.p2.x - seg.p1.x
-        dy = seg.p2.y - seg.p1.y
+        segment = reaction_layout.segments[seg_idx]
+        delta_x = segment.p2.x - segment.p1.x
+        delta_y = segment.p2.y - segment.p1.y
     else:
-        dx = pts[-1].x - pts[0].x
-        dy = pts[-1].y - pts[0].y
-    angle = math.atan2(dy, dx)
+        delta_x = points[-1].x - points[0].x
+        delta_y = points[-1].y - points[0].y
+    angle = math.atan2(delta_y, delta_x)
     cos_a = math.cos(angle)
     sin_a = math.sin(angle)
     # Build the 6 anchor points (offsets rotated by angle)
@@ -279,10 +279,10 @@ def _compute_target_line_index(reaction_layout, modifier_arc):
     end_point = arc_pts[-1]
     best_id = "2"
     best_dist = float("inf")
-    for anchor_id, (ox, oy) in offsets.items():
-        rx = mid.x + ox * cos_a - oy * sin_a
-        ry = mid.y + ox * sin_a + oy * cos_a
-        dist = (rx - end_point.x) ** 2 + (ry - end_point.y) ** 2
+    for anchor_id, (offset_x, offset_y) in offsets.items():
+        rotated_x = mid.x + offset_x * cos_a - offset_y * sin_a
+        rotated_y = mid.y + offset_x * sin_a + offset_y * cos_a
+        dist = (rotated_x - end_point.x) ** 2 + (rotated_y - end_point.y) ** 2
         if dist < best_dist:
             best_dist = dist
             best_id = anchor_id
@@ -351,9 +351,9 @@ class CellDesignerWriter(momapy.io.core.Writer):
         species_to_id = {}
         if obj.model is not None:
             def _collect(species):
-                sid = _strip_active(species)
+                species_id = _strip_active(species)
                 if id(species) not in species_to_id:
-                    species_to_id[id(species)] = sid
+                    species_to_id[id(species)] = species_id
                 if isinstance(species, momapy.celldesigner.core.Complex):
                     for sub in species.subunits:
                         subunit_to_complex[sub] = species
@@ -372,7 +372,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
             species_to_id=species_to_id,
         )
 
-        sbml = cls._build_sbml(ctx)
+        sbml = cls._build_make_sbml_element(ctx)
         tree = lxml.etree.ElementTree(sbml)
         tree.write(
             file_path,
@@ -385,23 +385,23 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Top-level structure ---
 
     @classmethod
-    def _build_sbml(cls, ctx):
-        sbml = _el(
+    def _build_make_sbml_element(cls, ctx):
+        sbml = _make_lxml_element(
             "sbml",
             attrs={"level": "2", "version": "4"},
             nsmap=_NSMAP,
         )
-        sbml.append(cls._build_model(ctx))
+        sbml.append(cls._make_celldesigner_model(ctx))
         return sbml
 
     @classmethod
-    def _build_model(cls, ctx):
+    def _make_celldesigner_model(cls, ctx):
         model_id = ctx.map_.id_ or "untitled"
-        model = _el("model", attrs={"metaid": model_id, "id": model_id})
+        model = _make_lxml_element("model", attrs={"metaid": model_id, "id": model_id})
         # notes
         model_notes = ctx.notes.get(ctx.map_, set())
         if model_notes:
-            notes_elem = _el("notes")
+            notes_elem = _make_lxml_element("notes")
             for note in model_notes:
                 try:
                     parsed = lxml.etree.fromstring(note)
@@ -410,41 +410,41 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     pass
             model.append(notes_elem)
         # annotation
-        annotation = _el("annotation")
-        annotation.append(cls._build_extension(ctx))
+        annotation = _make_lxml_element("annotation")
+        annotation.append(cls._make_celldesigner_extension(ctx))
         model.append(annotation)
-        model.append(cls._build_list_of_compartments(ctx))
-        model.append(cls._build_list_of_species(ctx))
-        model.append(cls._build_list_of_reactions(ctx))
+        model.append(cls._make_celldesigner_list_of_compartments(ctx))
+        model.append(cls._make_celldesigner_list_of_species(ctx))
+        model.append(cls._make_celldesigner_list_of_reactions(ctx))
         return model
 
     # --- Extension (CD annotation) ---
 
     @classmethod
-    def _build_extension(cls, ctx):
-        ext = _cd("extension")
-        ext.append(_cd("modelVersion", text="4.0"))
+    def _make_celldesigner_extension(cls, ctx):
+        extension = _make_celldesigner_element("extension")
+        extension.append(_make_celldesigner_element("modelVersion", text="4.0"))
         display_attrs = {
             "sizeX": str(int(ctx.map_.layout.width)),
             "sizeY": str(int(ctx.map_.layout.height)),
         }
-        ext.append(_cd("modelDisplay", attrs=display_attrs))
-        ext.append(cls._build_list_of_included_species(ctx))
-        ext.append(cls._build_list_of_compartment_aliases(ctx))
-        ext.append(cls._build_list_of_complex_species_aliases(ctx))
-        ext.append(cls._build_list_of_species_aliases(ctx))
-        ext.append(cls._build_list_of_proteins(ctx))
-        ext.append(cls._build_list_of_genes(ctx))
-        ext.append(cls._build_list_of_rnas(ctx))
-        ext.append(cls._build_list_of_antisense_rnas(ctx))
-        ext.append(_cd("listOfLayers"))
-        return ext
+        extension.append(_make_celldesigner_element("modelDisplay", attrs=display_attrs))
+        extension.append(cls._make_celldesigner_list_of_included_species(ctx))
+        extension.append(cls._make_celldesigner_list_of_compartment_aliases(ctx))
+        extension.append(cls._make_celldesigner_list_of_complex_species_aliases(ctx))
+        extension.append(cls._make_celldesigner_list_of_species_aliases(ctx))
+        extension.append(cls._make_celldesigner_list_of_proteins(ctx))
+        extension.append(cls._make_celldesigner_list_of_genes(ctx))
+        extension.append(cls._make_celldesigner_list_of_rnas(ctx))
+        extension.append(cls._make_celldesigner_list_of_antisense_rnas(ctx))
+        extension.append(_make_celldesigner_element("listOfLayers"))
+        return extension
 
     # --- Compartment aliases ---
 
     @classmethod
-    def _build_list_of_compartment_aliases(cls, ctx):
-        list_elem = _cd("listOfCompartmentAliases")
+    def _make_celldesigner_list_of_compartment_aliases(cls, ctx):
+        list_elem = _make_celldesigner_element("listOfCompartmentAliases")
         for comp in sorted(ctx.map_.model.compartments, key=lambda c: c.id_):
             for layout_key in _get_layouts(ctx, comp):
                 if isinstance(layout_key, frozenset):
@@ -456,7 +456,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                         momapy.celldesigner.core.OvalCompartmentLayout,
                     ),
                 ):
-                    alias = _cd(
+                    alias = _make_celldesigner_element(
                         "compartmentAlias",
                         attrs={
                             "id": layout_key.id_,
@@ -472,14 +472,14 @@ class CellDesignerWriter(momapy.io.core.Writer):
                         else "SQUARE"
                     )
                     alias.append(
-                        _cd("class", text=class_name)
+                        _make_celldesigner_element("class", text=class_name)
                     )
-                    alias.append(_cd("bounds", attrs=_bounds_attrs(layout_key)))
+                    alias.append(_make_celldesigner_element("bounds", attrs=_bounds_attrs(layout_key)))
                     # namePoint (label position)
                     label = getattr(layout_key, "label", None)
                     if label is not None:
                         alias.append(
-                            _cd(
+                            _make_celldesigner_element(
                                 "namePoint",
                                 attrs={
                                     "x": str(label.position.x),
@@ -489,15 +489,15 @@ class CellDesignerWriter(momapy.io.core.Writer):
                         )
                     # doubleLine
                     sep = getattr(layout_key, "sep", None)
-                    sw = getattr(layout_key, "stroke_width", None)
-                    isw = getattr(layout_key, "inner_stroke_width", None)
+                    stroke_width = getattr(layout_key, "stroke_width", None)
+                    inner_stroke_width = getattr(layout_key, "inner_stroke_width", None)
                     alias.append(
-                        _cd(
+                        _make_celldesigner_element(
                             "doubleLine",
                             attrs={
                                 "thickness": str(sep) if sep else "12.0",
-                                "outerWidth": str(sw) if sw else "2.0",
-                                "innerWidth": str(isw) if isw else "1.0",
+                                "outerWidth": str(stroke_width) if stroke_width else "2.0",
+                                "innerWidth": str(inner_stroke_width) if inner_stroke_width else "1.0",
                             },
                         )
                     )
@@ -509,10 +509,10 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     else:
                         paint_color = "ffcccccc"
                     alias.append(
-                        _cd("paint", attrs={"color": paint_color, "scheme": "Color"})
+                        _make_celldesigner_element("paint", attrs={"color": paint_color, "scheme": "Color"})
                     )
                     alias.append(
-                        _cd("info", attrs={"state": "empty", "angle": "-1.5707963267948966"})
+                        _make_celldesigner_element("info", attrs={"state": "empty", "angle": "-1.5707963267948966"})
                     )
                     list_elem.append(alias)
         return list_elem
@@ -520,8 +520,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Included species (complex subunits) ---
 
     @classmethod
-    def _build_list_of_included_species(cls, ctx):
-        list_elem = _cd("listOfIncludedSpecies")
+    def _make_celldesigner_list_of_included_species(cls, ctx):
+        list_elem = _make_celldesigner_element("listOfIncludedSpecies")
         seen_ids = set()
         for species in sorted(ctx.map_.model.species, key=lambda s: s.id_):
             if isinstance(species, momapy.celldesigner.core.Complex):
@@ -540,7 +540,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
             if sub_id not in seen_ids:
                 seen_ids.add(sub_id)
                 list_elem.append(
-                    cls._build_included_species(ctx, sub, complex_)
+                    cls._make_celldesigner_included_species(ctx, sub, complex_)
                 )
             if isinstance(sub, momapy.celldesigner.core.Complex):
                 cls._collect_included_species(
@@ -548,8 +548,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 )
 
     @classmethod
-    def _build_included_species(cls, ctx, species, parent_complex):
-        sp = _cd(
+    def _make_celldesigner_included_species(cls, ctx, species, parent_complex):
+        species_element = _make_celldesigner_element(
             "species",
             attrs={
                 "id": _get_species_id(species, ctx),
@@ -557,7 +557,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
             },
         )
         # notes (CellDesigner expects exactly one <html> child)
-        notes = _cd("notes")
+        notes = _make_celldesigner_element("notes")
         species_notes = ctx.notes.get(species, set())
         parsed_one = False
         if species_notes:
@@ -574,22 +574,22 @@ class CellDesignerWriter(momapy.io.core.Writer):
             head = lxml.etree.SubElement(html, f"{{{_XHTML_NS}}}head")
             lxml.etree.SubElement(head, f"{{{_XHTML_NS}}}title")
             lxml.etree.SubElement(html, f"{{{_XHTML_NS}}}body")
-        sp.append(notes)
+        species_element.append(notes)
         # annotation
-        ann = _cd("annotation")
-        ann.append(
-            _cd("complexSpecies", text=_get_species_id(parent_complex, ctx))
+        annotation = _make_celldesigner_element("annotation")
+        annotation.append(
+            _make_celldesigner_element("complexSpecies", text=_get_species_id(parent_complex, ctx))
         )
-        ann.append(cls._build_species_identity(ctx, species))
-        sp.append(ann)
-        return sp
+        annotation.append(cls._make_celldesigner_species_identity(ctx, species))
+        species_element.append(annotation)
+        return species_element
 
     # --- Species identity ---
 
     @classmethod
-    def _build_species_identity(cls, ctx, species):
-        identity = _cd("speciesIdentity")
-        identity.append(_cd("class", text=_species_class_string(species)))
+    def _make_celldesigner_species_identity(cls, ctx, species):
+        identity = _make_celldesigner_element("speciesIdentity")
+        identity.append(_make_celldesigner_element("class", text=_species_class_string(species)))
         template = getattr(species, "template", None)
         if template is not None:
             tag = _template_ref_tag(template)
@@ -603,15 +603,15 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 ref_id = "ar_" + _get_species_id(species, ctx)
             else:
                 ref_id = template.id_
-            identity.append(_cd(tag, text=ref_id))
-        identity.append(_cd("name", text=_encode_name(species.name) or ""))
-        state = cls._build_species_state(ctx, species)
+            identity.append(_make_celldesigner_element(tag, text=ref_id))
+        identity.append(_make_celldesigner_element("name", text=_encode_name(species.name) or ""))
+        state = cls._make_celldesigner_species_state(ctx, species)
         if state is not None:
             identity.append(state)
         return identity
 
     @classmethod
-    def _build_species_state(cls, ctx, species):
+    def _make_celldesigner_species_state(cls, ctx, species):
         has_mods = hasattr(species, "modifications") and species.modifications
         has_homo = hasattr(species, "homomultimer") and species.homomultimer > 1
         has_struct = (
@@ -620,15 +620,15 @@ class CellDesignerWriter(momapy.io.core.Writer):
         )
         if not has_mods and not has_homo and not has_struct:
             return None
-        state = _cd("state")
+        state = _make_celldesigner_element("state")
         if has_homo:
-            state.append(_cd("homodimer", text=str(species.homomultimer)))
+            state.append(_make_celldesigner_element("homodimer", text=str(species.homomultimer)))
         if has_struct:
-            ss_list = _cd("listOfStructuralStates")
+            ss_list = _make_celldesigner_element("listOfStructuralStates")
             for ss in species.structural_states:
                 if ss.value is not None:
                     ss_list.append(
-                        _cd(
+                        _make_celldesigner_element(
                             "structuralState",
                             attrs={"structuralState": ss.value},
                             text=ss.value,
@@ -636,25 +636,25 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     )
             state.append(ss_list)
         if has_mods:
-            mod_list = _cd("listOfModifications")
-            for mod in sorted(
+            mod_list = _make_celldesigner_element("listOfModifications")
+            for modification in sorted(
                 species.modifications,
                 key=lambda m: m.residue.id_ if m.residue else "",
             ):
                 mod_attrs = {}
-                if mod.residue is not None:
-                    parts = mod.residue.id_.split("_", 1)
-                    mod_attrs["residue"] = parts[1] if len(parts) > 1 else mod.residue.id_
-                mod_attrs["state"] = _modification_state_string(mod.state)
-                mod_list.append(_cd("modification", attrs=mod_attrs))
+                if modification.residue is not None:
+                    parts = modification.residue.id_.split("_", 1)
+                    mod_attrs["residue"] = parts[1] if len(parts) > 1 else modification.residue.id_
+                mod_attrs["state"] = _modification_state_string(modification.state)
+                mod_list.append(_make_celldesigner_element("modification", attrs=mod_attrs))
             state.append(mod_list)
         return state
 
     # --- Complex species aliases ---
 
     @classmethod
-    def _build_list_of_complex_species_aliases(cls, ctx):
-        list_elem = _cd("listOfComplexSpeciesAliases")
+    def _make_celldesigner_list_of_complex_species_aliases(cls, ctx):
+        list_elem = _make_celldesigner_element("listOfComplexSpeciesAliases")
         # Top-level complexes
         for species in sorted(ctx.map_.model.species, key=lambda s: s.id_):
             if not isinstance(species, momapy.celldesigner.core.Complex):
@@ -670,7 +670,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 continue
             if isinstance(layout_key, momapy.celldesigner.core.ComplexLayout):
                 list_elem.append(
-                    cls._build_alias(
+                    cls._make_celldesigner_alias(
                         ctx, layout_key, complex_, "complexSpeciesAlias"
                     )
                 )
@@ -690,7 +690,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 continue
             model_elem = model_info[0] if isinstance(model_info, tuple) else model_info
             list_elem.append(
-                cls._build_alias(ctx, child, model_elem, "complexSpeciesAlias")
+                cls._make_celldesigner_alias(ctx, child, model_elem, "complexSpeciesAlias")
             )
             # Recurse deeper
             cls._collect_nested_complex_aliases(ctx, child, list_elem)
@@ -698,8 +698,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Species aliases ---
 
     @classmethod
-    def _build_list_of_species_aliases(cls, ctx):
-        list_elem = _cd("listOfSpeciesAliases")
+    def _make_celldesigner_list_of_species_aliases(cls, ctx):
+        list_elem = _make_celldesigner_element("listOfSpeciesAliases")
         # Top-level species (non-complex, non-subunit)
         for species in sorted(ctx.map_.model.species, key=lambda s: s.id_):
             if isinstance(species, momapy.celldesigner.core.Complex):
@@ -713,7 +713,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     layout_key, momapy.celldesigner.core.CellDesignerNode
                 ):
                     list_elem.append(
-                        cls._build_alias(
+                        cls._make_celldesigner_alias(
                             ctx, layout_key, species, "speciesAlias"
                         )
                     )
@@ -767,7 +767,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 continue
             model_elem = model_info[0] if isinstance(model_info, tuple) else model_info
             list_elem.append(
-                cls._build_alias(
+                cls._make_celldesigner_alias(
                     ctx,
                     child,
                     model_elem,
@@ -796,10 +796,10 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     ),
                 ):
                     bbox = layout_key.bbox()
-                    nw = bbox.north_west()
-                    se = bbox.south_east()
-                    if (nw.x <= species_center.x <= se.x
-                            and nw.y <= species_center.y <= se.y):
+                    north_west = bbox.north_west()
+                    south_east = bbox.south_east()
+                    if (north_west.x <= species_center.x <= south_east.x
+                            and north_west.y <= species_center.y <= south_east.y):
                         area = bbox.width * bbox.height
                         if area < best_area:
                             best_area = area
@@ -807,7 +807,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
         return best_id
 
     @classmethod
-    def _build_alias(cls, ctx, layout, model, tag, complex_alias_id=None):
+    def _make_celldesigner_alias(cls, ctx, layout, model, tag, complex_alias_id=None):
         attrs = {
             "id": layout.id_,
             "species": _get_species_id(model, ctx),
@@ -818,19 +818,19 @@ class CellDesignerWriter(momapy.io.core.Writer):
             comp_alias = cls._find_compartment_alias_id(ctx, layout)
             if comp_alias is not None:
                 attrs["compartmentAlias"] = comp_alias
-        alias = _cd(tag, attrs=attrs)
-        alias.append(_cd("activity", text="inactive"))
-        alias.append(_cd("bounds", attrs=_bounds_attrs(layout)))
-        alias.append(_cd("font", attrs={"size": "12"}))
-        alias.append(_cd("view", attrs={"state": "usual"}))
+        alias = _make_celldesigner_element(tag, attrs=attrs)
+        alias.append(_make_celldesigner_element("activity", text="inactive"))
+        alias.append(_make_celldesigner_element("bounds", attrs=_bounds_attrs(layout)))
+        alias.append(_make_celldesigner_element("font", attrs={"size": "12"}))
+        alias.append(_make_celldesigner_element("view", attrs={"state": "usual"}))
         if tag == "complexSpeciesAlias":
-            alias.append(_cd("backupSize", attrs={"w": "0.0", "h": "0.0"}))
-            alias.append(_cd("backupView", attrs={"state": "none"}))
+            alias.append(_make_celldesigner_element("backupSize", attrs={"w": "0.0", "h": "0.0"}))
+            alias.append(_make_celldesigner_element("backupView", attrs={"state": "none"}))
         # usualView
-        usual = _cd("usualView")
-        usual.append(_cd("innerPosition", attrs={"x": "0.0", "y": "0.0"}))
+        usual = _make_celldesigner_element("usualView")
+        usual.append(_make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"}))
         usual.append(
-            _cd(
+            _make_celldesigner_element(
                 "boxSize",
                 attrs={
                     "width": str(layout.width),
@@ -839,21 +839,21 @@ class CellDesignerWriter(momapy.io.core.Writer):
             )
         )
         line_width = "2.0" if tag == "complexSpeciesAlias" else "1.0"
-        usual.append(_cd("singleLine", attrs={"width": line_width}))
+        usual.append(_make_celldesigner_element("singleLine", attrs={"width": line_width}))
         fill = getattr(layout, "fill", None)
         if fill is not None and fill is not momapy.drawing.NoneValue:
             paint_color = _color_hex(fill)
         else:
             paint_color = "fff7f7f7" if tag == "complexSpeciesAlias" else "ffccffcc"
         usual.append(
-            _cd("paint", attrs={"color": paint_color, "scheme": "Color"})
+            _make_celldesigner_element("paint", attrs={"color": paint_color, "scheme": "Color"})
         )
         alias.append(usual)
         # briefView (same as usualView)
-        brief = _cd("briefView")
-        brief.append(_cd("innerPosition", attrs={"x": "0.0", "y": "0.0"}))
+        brief = _make_celldesigner_element("briefView")
+        brief.append(_make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"}))
         brief.append(
-            _cd(
+            _make_celldesigner_element(
                 "boxSize",
                 attrs={
                     "width": str(layout.width),
@@ -861,13 +861,13 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 },
             )
         )
-        brief.append(_cd("singleLine", attrs={"width": line_width}))
+        brief.append(_make_celldesigner_element("singleLine", attrs={"width": line_width}))
         brief.append(
-            _cd("paint", attrs={"color": paint_color, "scheme": "Color"})
+            _make_celldesigner_element("paint", attrs={"color": paint_color, "scheme": "Color"})
         )
         alias.append(brief)
         alias.append(
-            _cd(
+            _make_celldesigner_element(
                 "info",
                 attrs={
                     "state": "empty",
@@ -880,8 +880,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Proteins (templates) ---
 
     @classmethod
-    def _build_list_of_proteins(cls, ctx):
-        list_elem = _cd("listOfProteins")
+    def _make_celldesigner_list_of_proteins(cls, ctx):
+        list_elem = _make_celldesigner_element("listOfProteins")
         for tmpl in sorted(ctx.map_.model.species_templates, key=lambda t: t.id_):
             if not isinstance(tmpl, momapy.celldesigner.core.ProteinTemplate):
                 continue
@@ -897,9 +897,9 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 "name": _encode_name(tmpl.name) or "",
                 "type": protein_type,
             }
-            protein = _cd("protein", attrs=attrs)
+            protein = _make_celldesigner_element("protein", attrs=attrs)
             if tmpl.modification_residues:
-                mr_list = _cd("listOfModificationResidues")
+                mr_list = _make_celldesigner_element("listOfModificationResidues")
                 for residue in sorted(
                     tmpl.modification_residues, key=lambda r: r.id_
                 ):
@@ -911,7 +911,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     # Compute angle from layout if available
                     mr_attrs["angle"] = cls._find_residue_angle(ctx, tmpl, residue)
                     mr_attrs["side"] = "none"
-                    mr_list.append(_cd("modificationResidue", attrs=mr_attrs))
+                    mr_list.append(_make_celldesigner_element("modificationResidue", attrs=mr_attrs))
                 protein.append(mr_list)
             list_elem.append(protein)
         return list_elem
@@ -940,8 +940,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     ):
                         child_model = _mapping(ctx).get_mapping(child)
                         if child_model is not None:
-                            mod = child_model[0] if isinstance(child_model, tuple) else child_model
-                            if hasattr(mod, "residue") and mod.residue is residue:
+                            modification = child_model[0] if isinstance(child_model, tuple) else child_model
+                            if hasattr(modification, "residue") and modification.residue is residue:
                                 # Compute angle from positions
                                 species_center = layout_key.center()
                                 mod_pos = child.position
@@ -956,9 +956,9 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Genes, RNAs, AntisenseRNAs (templates) ---
 
     @classmethod
-    def _build_list_of_genes(cls, ctx):
+    def _make_celldesigner_list_of_genes(cls, ctx):
         """Build listOfGenes — one entry per Gene species, not per template."""
-        list_elem = _cd("listOfGenes")
+        list_elem = _make_celldesigner_element("listOfGenes")
         for species in cls._all_species_recursive(ctx):
             if not isinstance(species, momapy.celldesigner.core.Gene):
                 continue
@@ -966,14 +966,14 @@ class CellDesignerWriter(momapy.io.core.Writer):
             gene_id = "g_" + _get_species_id(species, ctx)
             name = _encode_name(tmpl.name if tmpl else species.name) or ""
             list_elem.append(
-                _cd("gene", attrs={"type": "GENE", "id": gene_id, "name": name})
+                _make_celldesigner_element("gene", attrs={"type": "GENE", "id": gene_id, "name": name})
             )
         return list_elem
 
     @classmethod
-    def _build_list_of_rnas(cls, ctx):
+    def _make_celldesigner_list_of_rnas(cls, ctx):
         """Build listOfRNAs — one entry per RNA species."""
-        list_elem = _cd("listOfRNAs")
+        list_elem = _make_celldesigner_element("listOfRNAs")
         for species in cls._all_species_recursive(ctx):
             if not isinstance(species, momapy.celldesigner.core.RNA):
                 continue
@@ -981,14 +981,14 @@ class CellDesignerWriter(momapy.io.core.Writer):
             rna_id = "rna_" + _get_species_id(species, ctx)
             name = _encode_name(tmpl.name if tmpl else species.name) or ""
             list_elem.append(
-                _cd("RNA", attrs={"type": "RNA", "id": rna_id, "name": name})
+                _make_celldesigner_element("RNA", attrs={"type": "RNA", "id": rna_id, "name": name})
             )
         return list_elem
 
     @classmethod
-    def _build_list_of_antisense_rnas(cls, ctx):
+    def _make_celldesigner_list_of_antisense_rnas(cls, ctx):
         """Build listOfAntisenseRNAs — one entry per AntisenseRNA species."""
-        list_elem = _cd("listOfAntisenseRNAs")
+        list_elem = _make_celldesigner_element("listOfAntisenseRNAs")
         for species in cls._all_species_recursive(ctx):
             if not isinstance(species, momapy.celldesigner.core.AntisenseRNA):
                 continue
@@ -996,7 +996,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
             arna_id = "ar_" + _get_species_id(species, ctx)
             name = _encode_name(tmpl.name if tmpl else species.name) or ""
             list_elem.append(
-                _cd("antisenseRNA", attrs={"type": "ANTISENSE_RNA", "id": arna_id, "name": name})
+                _make_celldesigner_element("antisenseRNA", attrs={"type": "ANTISENSE_RNA", "id": arna_id, "name": name})
             )
         return list_elem
 
@@ -1016,8 +1016,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Compartments ---
 
     @classmethod
-    def _build_list_of_compartments(cls, ctx):
-        list_elem = _el("listOfCompartments")
+    def _make_celldesigner_list_of_compartments(cls, ctx):
+        list_elem = _make_lxml_element("listOfCompartments")
         for comp in sorted(ctx.map_.model.compartments, key=lambda c: c.id_):
             attrs = {
                 "id": comp.id_,
@@ -1029,14 +1029,14 @@ class CellDesignerWriter(momapy.io.core.Writer):
             outside = getattr(comp, "outside", None)
             if outside is not None:
                 attrs["outside"] = outside.id_
-            list_elem.append(_el("compartment", attrs=attrs))
+            list_elem.append(_make_lxml_element("compartment", attrs=attrs))
         return list_elem
 
     # --- SBML species ---
 
     @classmethod
-    def _build_list_of_species(cls, ctx):
-        list_elem = _el("listOfSpecies")
+    def _make_celldesigner_list_of_species(cls, ctx):
+        list_elem = _make_lxml_element("listOfSpecies")
         seen_ids = set()
         for species in sorted(ctx.map_.model.species, key=lambda s: s.id_):
             # Skip subunits — they are only in listOfIncludedSpecies
@@ -1046,11 +1046,11 @@ class CellDesignerWriter(momapy.io.core.Writer):
             if species_id in seen_ids:
                 continue
             seen_ids.add(species_id)
-            list_elem.append(cls._build_sbml_species(ctx, species))
+            list_elem.append(cls._make_sbml_document_species(ctx, species))
         return list_elem
 
     @classmethod
-    def _build_sbml_species(cls, ctx, species):
+    def _make_sbml_document_species(cls, ctx, species):
         species_id = _get_species_id(species, ctx)
         comp = getattr(species, "compartment", None)
         comp_id = comp.id_ if comp is not None else "default"
@@ -1064,22 +1064,22 @@ class CellDesignerWriter(momapy.io.core.Writer):
             "constant": "false",
             "boundaryCondition": "false",
         }
-        sp = _el("species", attrs=attrs)
+        species_element = _make_lxml_element("species", attrs=attrs)
         # annotation with CD extension
-        ann = _el("annotation")
-        ext = _cd("extension")
-        ext.append(_cd("positionToCompartment", text="inside"))
-        ext.append(cls._build_species_identity(ctx, species))
+        annotation = _make_lxml_element("annotation")
+        extension = _make_celldesigner_element("extension")
+        extension.append(_make_celldesigner_element("positionToCompartment", text="inside"))
+        extension.append(cls._make_celldesigner_species_identity(ctx, species))
         # listOfCatalyzedReactions
         catalyzed = cls._find_catalyzed_reactions(ctx, species)
         if catalyzed:
-            cat_list = _cd("listOfCatalyzedReactions")
+            cat_list = _make_celldesigner_element("listOfCatalyzedReactions")
             for rxn_id in catalyzed:
-                cat_list.append(_cd("catalyzed", attrs={"reaction": rxn_id}))
-            ext.append(cat_list)
-        ann.append(ext)
-        sp.append(ann)
-        return sp
+                cat_list.append(_make_celldesigner_element("catalyzed", attrs={"reaction": rxn_id}))
+            extension.append(cat_list)
+        annotation.append(extension)
+        species_element.append(annotation)
+        return species_element
 
     @classmethod
     def _find_catalyzed_reactions(cls, ctx, species):
@@ -1097,41 +1097,41 @@ class CellDesignerWriter(momapy.io.core.Writer):
     # --- Reactions ---
 
     @classmethod
-    def _build_list_of_reactions(cls, ctx):
-        list_elem = _el("listOfReactions")
+    def _make_celldesigner_list_of_reactions(cls, ctx):
+        list_elem = _make_lxml_element("listOfReactions")
         for reaction in sorted(ctx.map_.model.reactions, key=lambda r: r.id_):
-            list_elem.append(cls._build_reaction(ctx, reaction))
+            list_elem.append(cls._make_celldesigner_reaction(ctx, reaction))
         for modulation in sorted(ctx.map_.model.modulations, key=lambda m: m.id_):
-            mod_rxn = cls._build_modulation_as_reaction(ctx, modulation)
+            mod_rxn = cls._make_celldesigner_modulation_reaction(ctx, modulation)
             if mod_rxn is not None:
                 list_elem.append(mod_rxn)
         return list_elem
 
     @classmethod
-    def _build_reaction(cls, ctx, reaction):
+    def _make_celldesigner_reaction(cls, ctx, reaction):
         attrs = {
             "metaid": reaction.id_,
             "id": reaction.id_,
             "reversible": "false",
         }
-        rxn = _el("reaction", attrs=attrs)
+        reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
         # Find the frozenset for this reaction
-        fset = None
+        frozenset_mapping = None
         reaction_layout = None
         for layout_key in _get_layouts(ctx, reaction):
             if isinstance(layout_key, frozenset):
-                fset = layout_key
+                frozenset_mapping = layout_key
                 reaction_layout = _get_reaction_layout(layout_key)
                 break
 
         # CD extension
-        ann = _el("annotation")
-        ext = _cd("extension")
+        annotation = _make_lxml_element("annotation")
+        extension = _make_celldesigner_element("extension")
         reaction_type = _CLASS_TO_REACTION_TYPE.get(
             type(reaction), "STATE_TRANSITION"
         )
-        ext.append(_cd("reactionType", text=reaction_type))
+        extension.append(_make_celldesigner_element("reactionType", text=reaction_type))
 
         # Split reactants/products into base + links using the base flag.
         all_reactants = sorted(reaction.reactants, key=lambda r: r.id_)
@@ -1155,195 +1155,195 @@ class CellDesignerWriter(momapy.io.core.Writer):
 
         # baseReactants — for left-T with 1 model reactant but 2 visual
         # copies (stoichiometry), use consumption arcs to find all aliases.
-        br_elem = _cd("baseReactants")
+        base_reactants_element = _make_celldesigner_element("baseReactants")
         if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
             base_species = base_reactants[0].referred_species
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    isinstance(le, momapy.celldesigner.core.ConsumptionLayout)
-                    and le.source is reaction_layout
+                    isinstance(layout_element_item, momapy.celldesigner.core.ConsumptionLayout)
+                    and layout_element_item.source is reaction_layout
                 ):
                     # Only base arcs: target must map to the base species
-                    target_model = _mapping(ctx).get_mapping(le.target)
+                    target_model = _mapping(ctx).get_mapping(layout_element_item.target)
                     if target_model is not None:
-                        tm = target_model[0] if isinstance(target_model, tuple) else target_model
-                        if tm is not base_species:
+                        target_model_element = target_model[0] if isinstance(target_model, tuple) else target_model
+                        if target_model_element is not base_species:
                             continue
-                    alias_layout = le.target
-                    br_elem.append(
-                        cls._build_base_participant_from_layout(
+                    alias_layout = layout_element_item.target
+                    base_reactants_element.append(
+                        cls._make_celldesigner_base_participant_from_layout(
                             ctx, base_species, alias_layout,
                             "baseReactant", reaction_layout, is_start=True,
                         )
                     )
         else:
             for reactant in base_reactants:
-                br_elem.append(
-                    cls._build_base_participant(
-                        ctx, reactant, "baseReactant", fset,
+                base_reactants_element.append(
+                    cls._make_celldesigner_base_participant(
+                        ctx, reactant, "baseReactant", frozenset_mapping,
                         reaction_layout, is_start=True,
                     )
                 )
-        ext.append(br_elem)
+        extension.append(base_reactants_element)
 
         # baseProducts — same for right-T with 1 model product but 2 aliases.
-        bp_elem = _cd("baseProducts")
+        base_products_element = _make_celldesigner_element("baseProducts")
         if is_right_t and len(base_products) == 1 and reaction_layout is not None:
             base_species = base_products[0].referred_species
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    isinstance(le, momapy.celldesigner.core.ProductionLayout)
-                    and le.source is reaction_layout
+                    isinstance(layout_element_item, momapy.celldesigner.core.ProductionLayout)
+                    and layout_element_item.source is reaction_layout
                 ):
-                    target_model = _mapping(ctx).get_mapping(le.target)
+                    target_model = _mapping(ctx).get_mapping(layout_element_item.target)
                     if target_model is not None:
-                        tm = target_model[0] if isinstance(target_model, tuple) else target_model
-                        if tm is not base_species:
+                        target_model_element = target_model[0] if isinstance(target_model, tuple) else target_model
+                        if target_model_element is not base_species:
                             continue
-                    alias_layout = le.target
-                    bp_elem.append(
-                        cls._build_base_participant_from_layout(
+                    alias_layout = layout_element_item.target
+                    base_products_element.append(
+                        cls._make_celldesigner_base_participant_from_layout(
                             ctx, base_species, alias_layout,
                             "baseProduct", reaction_layout, is_start=False,
                         )
                     )
         else:
             for product in base_products:
-                bp_elem.append(
-                    cls._build_base_participant(
-                        ctx, product, "baseProduct", fset,
+                base_products_element.append(
+                    cls._make_celldesigner_base_participant(
+                        ctx, product, "baseProduct", frozenset_mapping,
                         reaction_layout, is_start=False,
                     )
                 )
-        ext.append(bp_elem)
+        extension.append(base_products_element)
 
         # listOfReactantLinks
-        rl_elem = _cd("listOfReactantLinks")
+        reactant_links_element = _make_celldesigner_element("listOfReactantLinks")
         for reactant in link_reactants:
-            rl_elem.append(
-                cls._build_participant_link(
-                    ctx, reactant, "reactantLink", "reactant", fset,
+            reactant_links_element.append(
+                cls._make_celldesigner_participant_link(
+                    ctx, reactant, "reactantLink", "reactant", frozenset_mapping,
                     reaction_layout=reaction_layout,
                 )
             )
-        ext.append(rl_elem)
+        extension.append(reactant_links_element)
 
         # listOfProductLinks
-        pl_elem = _cd("listOfProductLinks")
+        product_links_element = _make_celldesigner_element("listOfProductLinks")
         for product in link_products:
-            pl_elem.append(
-                cls._build_participant_link(
-                    ctx, product, "productLink", "product", fset,
+            product_links_element.append(
+                cls._make_celldesigner_participant_link(
+                    ctx, product, "productLink", "product", frozenset_mapping,
                     reaction_layout=reaction_layout,
                 )
             )
-        ext.append(pl_elem)
+        extension.append(product_links_element)
 
         # connectScheme + editPoints
-        cls._build_reaction_connect_scheme(
-            ctx, ext, reaction, reaction_layout, fset,
+        cls._make_celldesigner_connect_scheme(
+            ctx, extension, reaction, reaction_layout, frozenset_mapping,
             base_reactants, base_products,
             is_left_t, is_right_t,
         )
 
         # listOfModification
-        mod_list = _cd("listOfModification")
+        mod_list = _make_celldesigner_element("listOfModification")
         modifiers = sorted(reaction.modifiers, key=lambda m: m.id_)
         for modifier in modifiers:
             species = modifier.referred_species
             if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
                 # Write gate entry + per-input entries
-                gate_mods = cls._build_boolean_gate_modifications(
-                    ctx, modifier, species, reaction_layout, fset
+                gate_mods = cls._make_celldesigner_gate_modifications(
+                    ctx, modifier, species, reaction_layout, frozenset_mapping
                 )
                 for gm in gate_mods:
                     mod_list.append(gm)
             else:
-                mod_elem = cls._build_reaction_modification(
-                    ctx, modifier, reaction_layout, fset
+                modification_element = cls._make_celldesigner_modification(
+                    ctx, modifier, reaction_layout, frozenset_mapping
                 )
-                if mod_elem is not None:
-                    mod_list.append(mod_elem)
-        ext.append(mod_list)
+                if modification_element is not None:
+                    mod_list.append(modification_element)
+        extension.append(mod_list)
 
         # line
-        ext.append(_cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+        extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
 
-        ann.append(ext)
-        rxn.append(ann)
+        annotation.append(extension)
+        reaction_element.append(annotation)
 
         # SBML listOfReactants — base first, then links.
         # For left-T with stoichiometry, duplicate from arcs.
-        lor = _el("listOfReactants")
+        list_of_reactants = _make_lxml_element("listOfReactants")
         if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
             base_species = base_reactants[0].referred_species
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    isinstance(le, momapy.celldesigner.core.ConsumptionLayout)
-                    and le.source is reaction_layout
+                    isinstance(layout_element_item, momapy.celldesigner.core.ConsumptionLayout)
+                    and layout_element_item.source is reaction_layout
                 ):
-                    target_model = _mapping(ctx).get_mapping(le.target)
+                    target_model = _mapping(ctx).get_mapping(layout_element_item.target)
                     if target_model is not None:
-                        tm = target_model[0] if isinstance(target_model, tuple) else target_model
-                        if tm is not base_species:
+                        target_model_element = target_model[0] if isinstance(target_model, tuple) else target_model
+                        if target_model_element is not base_species:
                             continue
                     sbml_species = ctx.subunit_to_complex.get(base_species, base_species)
-                    alias_id = le.target.id_ if le.target else ""
-                    sr = _el("speciesReference", attrs={"species": _get_species_id(sbml_species, ctx)})
-                    sr_ann = _el("annotation")
-                    sr_ext = _cd("extension")
-                    sr_ext.append(_cd("alias", text=alias_id))
-                    sr_ann.append(sr_ext)
-                    sr.append(sr_ann)
-                    lor.append(sr)
+                    alias_id = layout_element_item.target.id_ if layout_element_item.target else ""
+                    species_reference = _make_lxml_element("speciesReference", attrs={"species": _get_species_id(sbml_species, ctx)})
+                    species_reference_annotation = _make_lxml_element("annotation")
+                    species_reference_extension = _make_celldesigner_element("extension")
+                    species_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+                    species_reference_annotation.append(species_reference_extension)
+                    species_reference.append(species_reference_annotation)
+                    list_of_reactants.append(species_reference)
         else:
             for reactant in base_reactants:
-                lor.append(
-                    cls._build_sbml_species_reference(ctx, reactant, fset)
+                list_of_reactants.append(
+                    cls._make_sbml_document_species_reference(ctx, reactant, frozenset_mapping)
                 )
         for reactant in link_reactants:
-            lor.append(
-                cls._build_sbml_species_reference(ctx, reactant, fset)
+            list_of_reactants.append(
+                cls._make_sbml_document_species_reference(ctx, reactant, frozenset_mapping)
             )
-        rxn.append(lor)
+        reaction_element.append(list_of_reactants)
 
         # SBML listOfProducts — same for right-T.
-        lop = _el("listOfProducts")
+        list_of_products = _make_lxml_element("listOfProducts")
         if is_right_t and len(base_products) == 1 and reaction_layout is not None:
             base_species = base_products[0].referred_species
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    isinstance(le, momapy.celldesigner.core.ProductionLayout)
-                    and le.source is reaction_layout
+                    isinstance(layout_element_item, momapy.celldesigner.core.ProductionLayout)
+                    and layout_element_item.source is reaction_layout
                 ):
-                    target_model = _mapping(ctx).get_mapping(le.target)
+                    target_model = _mapping(ctx).get_mapping(layout_element_item.target)
                     if target_model is not None:
-                        tm = target_model[0] if isinstance(target_model, tuple) else target_model
-                        if tm is not base_species:
+                        target_model_element = target_model[0] if isinstance(target_model, tuple) else target_model
+                        if target_model_element is not base_species:
                             continue
                     sbml_species = ctx.subunit_to_complex.get(base_species, base_species)
-                    alias_id = le.target.id_ if le.target else ""
-                    sr = _el("speciesReference", attrs={"species": _get_species_id(sbml_species, ctx)})
-                    sr_ann = _el("annotation")
-                    sr_ext = _cd("extension")
-                    sr_ext.append(_cd("alias", text=alias_id))
-                    sr_ann.append(sr_ext)
-                    sr.append(sr_ann)
-                    lop.append(sr)
+                    alias_id = layout_element_item.target.id_ if layout_element_item.target else ""
+                    species_reference = _make_lxml_element("speciesReference", attrs={"species": _get_species_id(sbml_species, ctx)})
+                    species_reference_annotation = _make_lxml_element("annotation")
+                    species_reference_extension = _make_celldesigner_element("extension")
+                    species_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+                    species_reference_annotation.append(species_reference_extension)
+                    species_reference.append(species_reference_annotation)
+                    list_of_products.append(species_reference)
         else:
             for product in base_products:
-                lop.append(
-                    cls._build_sbml_species_reference(ctx, product, fset)
+                list_of_products.append(
+                    cls._make_sbml_document_species_reference(ctx, product, frozenset_mapping)
                 )
         for product in link_products:
-            lop.append(
-                cls._build_sbml_species_reference(ctx, product, fset)
+            list_of_products.append(
+                cls._make_sbml_document_species_reference(ctx, product, frozenset_mapping)
             )
-        rxn.append(lop)
+        reaction_element.append(list_of_products)
 
         # SBML listOfModifiers
         if modifiers:
-            lom = _el("listOfModifiers")
+            list_of_modifiers = _make_lxml_element("listOfModifiers")
             for modifier in modifiers:
                 species = modifier.referred_species
                 if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
@@ -1351,45 +1351,45 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     for inp in sorted(species.inputs, key=lambda s: s.id_):
                         sbml_inp = ctx.subunit_to_complex.get(inp, inp)
                         alias_layout = (
-                            _find_layout_for_species_in_frozenset(ctx, inp, fset)
-                            if fset else None
+                            _find_layout_for_species_in_frozenset(ctx, inp, frozenset_mapping)
+                            if frozenset_mapping else None
                         )
                         if alias_layout is None:
-                            for lk in _get_layouts(ctx, inp):
-                                if isinstance(lk, frozenset):
+                            for layout_key in _get_layouts(ctx, inp):
+                                if isinstance(layout_key, frozenset):
                                     continue
-                                if isinstance(lk, momapy.celldesigner.core.CellDesignerNode):
-                                    alias_layout = lk
+                                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                                    alias_layout = layout_key
                                     break
                         alias_id = alias_layout.id_ if alias_layout else ""
-                        msr = _el("modifierSpeciesReference", attrs={"species": _get_species_id(sbml_inp, ctx)})
-                        msr_ann = _el("annotation")
-                        msr_ext = _cd("extension")
-                        msr_ext.append(_cd("alias", text=alias_id))
-                        msr_ann.append(msr_ext)
-                        msr.append(msr_ann)
-                        lom.append(msr)
+                        modifier_species_reference = _make_lxml_element("modifierSpeciesReference", attrs={"species": _get_species_id(sbml_inp, ctx)})
+                        modifier_reference_annotation = _make_lxml_element("annotation")
+                        modifier_reference_extension = _make_celldesigner_element("extension")
+                        modifier_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+                        modifier_reference_annotation.append(modifier_reference_extension)
+                        modifier_species_reference.append(modifier_reference_annotation)
+                        list_of_modifiers.append(modifier_species_reference)
                     continue
                 sbml_species = ctx.subunit_to_complex.get(species, species)
                 alias_layout = (
-                    _find_layout_for_species_in_frozenset(ctx, species, fset)
-                    if fset
+                    _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping)
+                    if frozenset_mapping
                     else None
                 )
                 alias_id = alias_layout.id_ if alias_layout else ""
-                msr_attrs = {"species": _get_species_id(sbml_species, ctx)}
+                modifier_reference_attributes = {"species": _get_species_id(sbml_species, ctx)}
                 if modifier.id_:
-                    msr_attrs["metaid"] = _unique_metaid(ctx, modifier.id_)
-                msr = _el("modifierSpeciesReference", attrs=msr_attrs)
-                msr_ann = _el("annotation")
-                msr_ext = _cd("extension")
-                msr_ext.append(_cd("alias", text=alias_id))
-                msr_ann.append(msr_ext)
-                msr.append(msr_ann)
-                lom.append(msr)
-            rxn.append(lom)
+                    modifier_reference_attributes["metaid"] = _unique_metaid(ctx, modifier.id_)
+                modifier_species_reference = _make_lxml_element("modifierSpeciesReference", attrs=modifier_reference_attributes)
+                modifier_reference_annotation = _make_lxml_element("annotation")
+                modifier_reference_extension = _make_celldesigner_element("extension")
+                modifier_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+                modifier_reference_annotation.append(modifier_reference_extension)
+                modifier_species_reference.append(modifier_reference_annotation)
+                list_of_modifiers.append(modifier_species_reference)
+            reaction_element.append(list_of_modifiers)
 
-        return rxn
+        return reaction_element
 
     @classmethod
     def _split_base_and_links(cls, participants):
@@ -1399,33 +1399,33 @@ class CellDesignerWriter(momapy.io.core.Writer):
         return base, link
 
     @classmethod
-    def _build_sbml_species_reference(cls, ctx, participant, fset):
+    def _make_sbml_document_species_reference(cls, ctx, participant, frozenset_mapping):
         """Build an SBML speciesReference element."""
         species = participant.referred_species
         sbml_species = ctx.subunit_to_complex.get(species, species)
         alias_layout = (
-            _find_layout_for_species_in_frozenset(ctx, species, fset)
-            if fset else None
+            _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping)
+            if frozenset_mapping else None
         )
         alias_id = alias_layout.id_ if alias_layout else ""
         sr_attrs = {"species": _get_species_id(sbml_species, ctx)}
         if participant.metaid:
             sr_attrs["metaid"] = _unique_metaid(ctx, participant.metaid)
-        sr = _el("speciesReference", attrs=sr_attrs)
-        sr_ann = _el("annotation")
-        sr_ext = _cd("extension")
-        sr_ext.append(_cd("alias", text=alias_id))
-        sr_ann.append(sr_ext)
-        sr.append(sr_ann)
-        return sr
+        species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
+        species_reference_annotation = _make_lxml_element("annotation")
+        species_reference_extension = _make_celldesigner_element("extension")
+        species_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+        species_reference_annotation.append(species_reference_extension)
+        species_reference.append(species_reference_annotation)
+        return species_reference
 
     @classmethod
-    def _build_base_participant_from_layout(
+    def _make_celldesigner_base_participant_from_layout(
         cls, ctx, species, alias_layout, tag, reaction_layout, is_start
     ):
         """Build a baseReactant/baseProduct from a known alias layout."""
         alias_id = alias_layout.id_ if alias_layout else ""
-        elem = _cd(
+        elem = _make_celldesigner_element(
             tag,
             attrs={
                 "species": _get_species_id(species, ctx),
@@ -1439,21 +1439,21 @@ class CellDesignerWriter(momapy.io.core.Writer):
             if ref_point is not None:
                 anchor = _infer_anchor_position(alias_layout, ref_point)
                 if anchor is not None:
-                    elem.append(_cd("linkAnchor", attrs={"position": anchor}))
+                    elem.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor}))
         return elem
 
     @classmethod
-    def _build_base_participant(
-        cls, ctx, participant, tag, fset, reaction_layout, is_start
+    def _make_celldesigner_base_participant(
+        cls, ctx, participant, tag, frozenset_mapping, reaction_layout, is_start
     ):
         """Build a baseReactant or baseProduct element."""
         species = participant.referred_species
         alias_layout = (
-            _find_layout_for_species_in_frozenset(ctx, species, fset)
-            if fset else None
+            _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping)
+            if frozenset_mapping else None
         )
         alias_id = alias_layout.id_ if alias_layout else ""
-        elem = _cd(
+        elem = _make_celldesigner_element(
             tag,
             attrs={
                 "species": _get_species_id(species, ctx),
@@ -1467,7 +1467,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
             if ref_point is not None:
                 anchor = _infer_anchor_position(alias_layout, ref_point)
                 if anchor is not None:
-                    elem.append(_cd("linkAnchor", attrs={"position": anchor}))
+                    elem.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor}))
         return elem
 
     @classmethod
@@ -1483,59 +1483,59 @@ class CellDesignerWriter(momapy.io.core.Writer):
             else momapy.celldesigner.core.ProductionLayout
         )
         # source is always the reaction, target is always the species
-        for le in ctx.map_.layout.layout_elements:
-            if not isinstance(le, arc_cls):
+        for layout_element_item in ctx.map_.layout.layout_elements:
+            if not isinstance(layout_element_item, arc_cls):
                 continue
-            if le.source is reaction_layout and le.target is species_layout:
-                return le.points()[0] if is_start else le.points()[-1]
+            if layout_element_item.source is reaction_layout and layout_element_item.target is species_layout:
+                return layout_element_item.points()[0] if is_start else layout_element_item.points()[-1]
         # Fallback to reaction path start/end
-        pts = reaction_layout.points()
-        return pts[0] if is_start else pts[-1]
+        points = reaction_layout.points()
+        return points[0] if is_start else points[-1]
 
     @classmethod
-    def _build_reaction_connect_scheme(
-        cls, ctx, ext, reaction, reaction_layout, fset,
+    def _make_celldesigner_connect_scheme(
+        cls, ctx, extension, reaction, reaction_layout, frozenset_mapping,
         base_reactants, base_products, is_left_t, is_right_t,
     ):
         """Build connectScheme and editPoints for a reaction."""
         writing = _writing
         if reaction_layout is None:
             # No layout — write minimal fallback
-            cs = _cd("connectScheme", attrs={
+            connect_scheme = _make_celldesigner_element("connectScheme", attrs={
                 "connectPolicy": "direct", "rectangleIndex": "0",
             })
-            lld = _cd("listOfLineDirection")
-            lld.append(_cd("lineDirection", attrs={
+            line_direction_list = _make_celldesigner_element("listOfLineDirection")
+            line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                 "index": "0", "value": "unknown",
             }))
-            cs.append(lld)
-            ext.append(cs)
+            connect_scheme.append(line_direction_list)
+            extension.append(connect_scheme)
             return
         if is_left_t:
             # Find base reactant layouts and their consumption arcs
             reactant_layouts = []
             consumption_layouts = []
             base_species_set = {r.referred_species for r in base_reactants}
-            for br in base_reactants:
+            for base_reactant in base_reactants:
                 br_layout = _find_layout_for_species_in_frozenset(
-                    ctx, br.referred_species, fset
-                ) if fset else None
+                    ctx, base_reactant.referred_species, frozenset_mapping
+                ) if frozenset_mapping else None
                 if br_layout is None:
                     continue
-                for le in ctx.map_.layout.layout_elements:
+                for layout_element_item in ctx.map_.layout.layout_elements:
                     if (
-                        isinstance(le, momapy.celldesigner.core.ConsumptionLayout)
-                        and le.source is reaction_layout
-                        and le.target is br_layout
+                        isinstance(layout_element_item, momapy.celldesigner.core.ConsumptionLayout)
+                        and layout_element_item.source is reaction_layout
+                        and layout_element_item.target is br_layout
                     ):
                         reactant_layouts.append(br_layout)
-                        consumption_layouts.append(le)
+                        consumption_layouts.append(layout_element_item)
                         break
             product_layout = None
             if base_products:
                 product_layout = _find_layout_for_species_in_frozenset(
-                    ctx, base_products[0].referred_species, fset
-                ) if fset else None
+                    ctx, base_products[0].referred_species, frozenset_mapping
+                ) if frozenset_mapping else None
             computed = False
             if len(reactant_layouts) >= 2 and product_layout is not None:
                 # Try both reactant orderings; pick the one whose
@@ -1574,23 +1574,23 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     all_edit_points, num0, num1, num2, t_shape_index,
                     product_anchor_name, reactant_anchor_names,
                 ) = best_result
-                cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-                lld = _cd("listOfLineDirection")
+                connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+                line_direction_list = _make_celldesigner_element("listOfLineDirection")
                 for arm_idx, arm_count in enumerate([num0, num1, num2]):
                     for i in range(arm_count + 1):
-                        lld.append(_cd("lineDirection", attrs={
+                        line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                             "arm": str(arm_idx), "index": str(i),
                             "value": "unknown",
                         }))
-                cs.append(lld)
-                ext.append(cs)
-                ep_attrs = {
+                connect_scheme.append(line_direction_list)
+                extension.append(connect_scheme)
+                edit_points_attributes = {
                     "num0": str(num0), "num1": str(num1),
                     "num2": str(num2),
                     "tShapeIndex": str(t_shape_index),
                 }
-                ext.append(_cd(
-                    "editPoints", attrs=ep_attrs,
+                extension.append(_make_celldesigner_element(
+                    "editPoints", attrs=edit_points_attributes,
                     text=writing.points_to_edit_points_text(
                         all_edit_points
                     ),
@@ -1598,15 +1598,15 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 computed = True
             if not computed:
                 # Fallback
-                cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-                lld = _cd("listOfLineDirection")
+                connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+                line_direction_list = _make_celldesigner_element("listOfLineDirection")
                 for arm in range(3):
-                    lld.append(_cd("lineDirection", attrs={
+                    line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                         "arm": str(arm), "index": "0", "value": "unknown",
                     }))
-                cs.append(lld)
-                ext.append(cs)
-                ext.append(_cd("editPoints", attrs={
+                connect_scheme.append(line_direction_list)
+                extension.append(connect_scheme)
+                extension.append(_make_celldesigner_element("editPoints", attrs={
                     "num0": "0", "num1": "0", "num2": "0",
                     "tShapeIndex": "0",
                 }, text="0.5,0.5"))
@@ -1614,26 +1614,26 @@ class CellDesignerWriter(momapy.io.core.Writer):
             reactant_layout = None
             if base_reactants:
                 reactant_layout = _find_layout_for_species_in_frozenset(
-                    ctx, base_reactants[0].referred_species, fset
-                ) if fset else None
+                    ctx, base_reactants[0].referred_species, frozenset_mapping
+                ) if frozenset_mapping else None
             product_layouts = []
             production_layouts = []
-            for bp in base_products:
-                bp_species = bp.referred_species
+            for base_product in base_products:
+                bp_species = base_product.referred_species
                 bp_layout = _find_layout_for_species_in_frozenset(
-                    ctx, bp_species, fset
-                ) if fset else None
+                    ctx, bp_species, frozenset_mapping
+                ) if frozenset_mapping else None
                 if bp_layout is None:
                     continue
                 # Find the production arc for this product
-                for le in ctx.map_.layout.layout_elements:
+                for layout_element_item in ctx.map_.layout.layout_elements:
                     if (
-                        isinstance(le, momapy.celldesigner.core.ProductionLayout)
-                        and le.source is reaction_layout
-                        and le.target is bp_layout
+                        isinstance(layout_element_item, momapy.celldesigner.core.ProductionLayout)
+                        and layout_element_item.source is reaction_layout
+                        and layout_element_item.target is bp_layout
                     ):
                         product_layouts.append(bp_layout)
-                        production_layouts.append(le)
+                        production_layouts.append(layout_element_item)
                         break
             computed = False
             if reactant_layout is not None and len(product_layouts) >= 2:
@@ -1674,38 +1674,38 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     all_edit_points, num0, num1, num2, t_shape_index,
                     reactant_anchor_name, product_anchor_names,
                 ) = best_result
-                cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-                lld = _cd("listOfLineDirection")
+                connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+                line_direction_list = _make_celldesigner_element("listOfLineDirection")
                 for arm_idx, arm_count in enumerate([num0, num1, num2]):
                     for i in range(arm_count + 1):
-                        lld.append(_cd("lineDirection", attrs={
+                        line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                             "arm": str(arm_idx), "index": str(i),
                             "value": "unknown",
                         }))
-                cs.append(lld)
-                ext.append(cs)
-                ep_attrs = {
+                connect_scheme.append(line_direction_list)
+                extension.append(connect_scheme)
+                edit_points_attributes = {
                     "num0": str(num0), "num1": str(num1),
                     "num2": str(num2),
                     "tShapeIndex": str(t_shape_index),
                 }
-                ext.append(_cd(
-                    "editPoints", attrs=ep_attrs,
+                extension.append(_make_celldesigner_element(
+                    "editPoints", attrs=edit_points_attributes,
                     text=writing.points_to_edit_points_text(
                         all_edit_points
                     ),
                 ))
                 computed = True
             if not computed:
-                cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-                lld = _cd("listOfLineDirection")
+                connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+                line_direction_list = _make_celldesigner_element("listOfLineDirection")
                 for arm in range(3):
-                    lld.append(_cd("lineDirection", attrs={
+                    line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                         "arm": str(arm), "index": "0", "value": "unknown",
                     }))
-                cs.append(lld)
-                ext.append(cs)
-                ext.append(_cd("editPoints", attrs={
+                connect_scheme.append(line_direction_list)
+                extension.append(connect_scheme)
+                extension.append(_make_celldesigner_element("editPoints", attrs={
                     "num0": "0", "num1": "0", "num2": "0",
                     "tShapeIndex": "0",
                 }, text="0.5,0.5"))
@@ -1718,29 +1718,29 @@ class CellDesignerWriter(momapy.io.core.Writer):
             production_layout = None
             if base_reactants:
                 reactant_layout = _find_layout_for_species_in_frozenset(
-                    ctx, base_reactants[0].referred_species, fset
-                ) if fset else None
+                    ctx, base_reactants[0].referred_species, frozenset_mapping
+                ) if frozenset_mapping else None
             if base_products:
                 product_layout = _find_layout_for_species_in_frozenset(
-                    ctx, base_products[0].referred_species, fset
-                ) if fset else None
+                    ctx, base_products[0].referred_species, frozenset_mapping
+                ) if frozenset_mapping else None
             if reactant_layout is not None:
-                for le in ctx.map_.layout.layout_elements:
+                for layout_element_item in ctx.map_.layout.layout_elements:
                     if (
-                        isinstance(le, momapy.celldesigner.core.ConsumptionLayout)
-                        and le.source is reaction_layout
-                        and le.target is reactant_layout
+                        isinstance(layout_element_item, momapy.celldesigner.core.ConsumptionLayout)
+                        and layout_element_item.source is reaction_layout
+                        and layout_element_item.target is reactant_layout
                     ):
-                        consumption_layout = le
+                        consumption_layout = layout_element_item
                         break
             if product_layout is not None:
-                for le in ctx.map_.layout.layout_elements:
+                for layout_element_item in ctx.map_.layout.layout_elements:
                     if (
-                        isinstance(le, momapy.celldesigner.core.ProductionLayout)
-                        and le.source is reaction_layout
-                        and le.target is product_layout
+                        isinstance(layout_element_item, momapy.celldesigner.core.ProductionLayout)
+                        and layout_element_item.source is reaction_layout
+                        and layout_element_item.target is product_layout
                     ):
-                        production_layout = le
+                        production_layout = layout_element_item
                         break
             computed = False
             if reactant_layout is not None and product_layout is not None:
@@ -1758,19 +1758,19 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     )
                     # lineDirection count: n_edit_points + 3
                     n_line_dirs = len(edit_points) + 3
-                    cs = _cd("connectScheme", attrs={
+                    connect_scheme = _make_celldesigner_element("connectScheme", attrs={
                         "connectPolicy": "direct",
                         "rectangleIndex": str(rectangle_index),
                     })
-                    lld = _cd("listOfLineDirection")
+                    line_direction_list = _make_celldesigner_element("listOfLineDirection")
                     for i in range(n_line_dirs):
-                        lld.append(_cd("lineDirection", attrs={
+                        line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                             "index": str(i), "value": "unknown",
                         }))
-                    cs.append(lld)
-                    ext.append(cs)
+                    connect_scheme.append(line_direction_list)
+                    extension.append(connect_scheme)
                     if edit_points:
-                        ext.append(_cd(
+                        extension.append(_make_celldesigner_element(
                             "editPoints",
                             text=writing.points_to_edit_points_text(
                                 edit_points
@@ -1778,29 +1778,29 @@ class CellDesignerWriter(momapy.io.core.Writer):
                         ))
                     computed = True
             if not computed:
-                cs = _cd("connectScheme", attrs={
+                connect_scheme = _make_celldesigner_element("connectScheme", attrs={
                     "connectPolicy": "direct", "rectangleIndex": "0",
                 })
-                lld = _cd("listOfLineDirection")
-                lld.append(_cd("lineDirection", attrs={
+                line_direction_list = _make_celldesigner_element("listOfLineDirection")
+                line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                     "index": "0", "value": "unknown",
                 }))
-                cs.append(lld)
-                ext.append(cs)
+                connect_scheme.append(line_direction_list)
+                extension.append(connect_scheme)
 
     @classmethod
-    def _build_participant_link(
-        cls, ctx, participant, tag, attr_name, fset, reaction_layout=None,
+    def _make_celldesigner_participant_link(
+        cls, ctx, participant, tag, attr_name, frozenset_mapping, reaction_layout=None,
     ):
         """Build a reactantLink or productLink element."""
         writing = _writing
         species = participant.referred_species
         alias_layout = (
-            _find_layout_for_species_in_frozenset(ctx, species, fset)
-            if fset else None
+            _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping)
+            if frozenset_mapping else None
         )
         alias_id = alias_layout.id_ if alias_layout else ""
-        link = _cd(
+        link = _make_celldesigner_element(
             tag,
             attrs={
                 attr_name: _get_species_id(species, ctx),
@@ -1817,76 +1817,76 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 if is_reactant
                 else momapy.celldesigner.core.ProductionLayout
             )
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    isinstance(le, arc_cls)
-                    and le.source is reaction_layout
-                    and le.target is alias_layout
+                    isinstance(layout_element_item, arc_cls)
+                    and layout_element_item.source is reaction_layout
+                    and layout_element_item.target is alias_layout
                 ):
                     if is_reactant:
                         edit_points, anchor_name = (
                             writing.inverse_edit_points_reactant_link(
-                                le, alias_layout, reaction_layout,
+                                layout_element_item, alias_layout, reaction_layout,
                             )
                         )
                     else:
                         edit_points, anchor_name = (
                             writing.inverse_edit_points_product_link(
-                                le, alias_layout, reaction_layout,
+                                layout_element_item, alias_layout, reaction_layout,
                             )
                         )
                     break
         if anchor_name is not None:
             anchor_pos = _anchor_name_to_position(anchor_name)
             if anchor_pos is not None:
-                link.append(_cd("linkAnchor", attrs={
+                link.append(_make_celldesigner_element("linkAnchor", attrs={
                     "position": anchor_pos,
                 }))
-        cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-        lld = _cd("listOfLineDirection")
+        connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+        line_direction_list = _make_celldesigner_element("listOfLineDirection")
         for i in range(len(edit_points) + 1):
-            lld.append(
-                _cd("lineDirection", attrs={"index": str(i), "value": "unknown"})
+            line_direction_list.append(
+                _make_celldesigner_element("lineDirection", attrs={"index": str(i), "value": "unknown"})
             )
-        cs.append(lld)
-        link.append(cs)
+        connect_scheme.append(line_direction_list)
+        link.append(connect_scheme)
         if edit_points:
-            link.append(_cd(
+            link.append(_make_celldesigner_element(
                 "editPoints",
                 text=writing.points_to_edit_points_text(edit_points),
             ))
-        link.append(_cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+        link.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
         return link
 
     @classmethod
-    def _build_reaction_modification(cls, ctx, modifier, reaction_layout, fset):
+    def _make_celldesigner_modification(cls, ctx, modifier, reaction_layout, frozenset_mapping):
         """Build a CD modification element for a reaction modifier."""
         writing = _writing
         species = modifier.referred_species
         if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
             return None
         alias_layout = (
-            _find_layout_for_species_in_frozenset(ctx, species, fset)
-            if fset
+            _find_layout_for_species_in_frozenset(ctx, species, frozenset_mapping)
+            if frozenset_mapping
             else None
         )
         alias_id = alias_layout.id_ if alias_layout else ""
-        mod_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
+        modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
         # Find modifier arc layout and compute edit points
         edit_points = []
         source_anchor_name = None
         modifier_arc = None
         if reaction_layout is not None and alias_layout is not None:
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    hasattr(le, "source") and hasattr(le, "target")
-                    and le.source is alias_layout
-                    and le.target is reaction_layout
+                    hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
+                    and layout_element_item.source is alias_layout
+                    and layout_element_item.target is reaction_layout
                 ):
-                    modifier_arc = le
+                    modifier_arc = layout_element_item
                     edit_points, source_anchor_name = (
                         writing.inverse_edit_points_modifier(
-                            le, alias_layout, reaction_layout,
+                            layout_element_item, alias_layout, reaction_layout,
                             has_boolean_input=False,
                         )
                     )
@@ -1897,7 +1897,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 reaction_layout, modifier_arc
             )
         attrs = {
-            "type": mod_type,
+            "type": modifier_type,
             "modifiers": _get_species_id(species, ctx),
             "aliases": alias_id,
             "targetLineIndex": target_line_index,
@@ -1906,42 +1906,42 @@ class CellDesignerWriter(momapy.io.core.Writer):
             attrs["editPoints"] = writing.points_to_edit_points_text(
                 edit_points
             )
-        mod_elem = _cd("modification", attrs=attrs)
+        modification_element = _make_celldesigner_element("modification", attrs=attrs)
         # connectScheme
-        cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-        lld = _cd("listOfLineDirection")
+        connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+        line_direction_list = _make_celldesigner_element("listOfLineDirection")
         for i in range(len(edit_points) + 1):
-            lld.append(
-                _cd("lineDirection", attrs={"index": str(i), "value": "unknown"})
+            line_direction_list.append(
+                _make_celldesigner_element("lineDirection", attrs={"index": str(i), "value": "unknown"})
             )
-        cs.append(lld)
-        mod_elem.append(cs)
+        connect_scheme.append(line_direction_list)
+        modification_element.append(connect_scheme)
         # linkTarget
-        lt_attrs = {
+        link_target_attributes = {
             "species": _get_species_id(species, ctx),
             "alias": alias_id,
         }
-        lt = _cd("linkTarget", attrs=lt_attrs)
+        link_target = _make_celldesigner_element("linkTarget", attrs=link_target_attributes)
         if source_anchor_name is not None:
             anchor_pos = _anchor_name_to_position(source_anchor_name)
             if anchor_pos is not None:
-                lt.append(_cd("linkAnchor", attrs={"position": anchor_pos}))
-        mod_elem.append(lt)
+                link_target.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos}))
+        modification_element.append(link_target)
         # line
-        mod_elem.append(
-            _cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+        modification_element.append(
+            _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
         )
-        return mod_elem
+        return modification_element
 
     @classmethod
-    def _build_boolean_gate_modifications(cls, ctx, modifier, gate, reaction_layout, fset):
+    def _make_celldesigner_gate_modifications(cls, ctx, modifier, gate, reaction_layout, frozenset_mapping):
         """Build CD modification entries for a boolean logic gate modifier.
 
         Returns a list of modification elements: first the gate entry,
         then one per input species.
         """
         result = []
-        mod_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
+        modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
         gate_type_map = {
             momapy.celldesigner.core.AndGate: "BOOLEAN_LOGIC_GATE_AND",
             momapy.celldesigner.core.OrGate: "BOOLEAN_LOGIC_GATE_OR",
@@ -1959,23 +1959,23 @@ class CellDesignerWriter(momapy.io.core.Writer):
             input_species_ids.append(_get_species_id(sbml_inp, ctx))
             # Try frozenset first, then global
             alias_layout = (
-                _find_layout_for_species_in_frozenset(ctx, inp, fset)
-                if fset else None
+                _find_layout_for_species_in_frozenset(ctx, inp, frozenset_mapping)
+                if frozenset_mapping else None
             )
             if alias_layout is None:
-                for lk in _get_layouts(ctx, inp):
-                    if isinstance(lk, frozenset):
+                for layout_key in _get_layouts(ctx, inp):
+                    if isinstance(layout_key, frozenset):
                         continue
-                    if isinstance(lk, momapy.celldesigner.core.CellDesignerNode):
-                        alias_layout = lk
+                    if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                        alias_layout = layout_key
                         break
             input_alias_ids.append(alias_layout.id_ if alias_layout else "")
 
         # Gate entry — editPoints is the gate layout position.
         # The gate layout is in the reaction's frozenset, not directly mapped.
         gate_layout = None
-        if fset is not None:
-            for elem in fset:
+        if frozenset_mapping is not None:
+            for elem in frozenset_mapping:
                 if isinstance(
                     elem,
                     (
@@ -1993,23 +1993,23 @@ class CellDesignerWriter(momapy.io.core.Writer):
             gate_edit_points = f"{pos.x},{pos.y}"
         gate_attrs = {
             "type": gate_type,
-            "modificationType": mod_type,
+            "modificationType": modifier_type,
             "modifiers": ",".join(input_species_ids),
             "aliases": ",".join(input_alias_ids),
             "targetLineIndex": "-1,2",
         }
         if gate_edit_points:
             gate_attrs["editPoints"] = gate_edit_points
-        gate_mod = _cd("modification", attrs=gate_attrs)
-        gate_cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-        gate_lld = _cd("listOfLineDirection")
+        gate_mod = _make_celldesigner_element("modification", attrs=gate_attrs)
+        gate_cs = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+        gate_lld = _make_celldesigner_element("listOfLineDirection")
         gate_lld.append(
-            _cd("lineDirection", attrs={"index": "0", "value": "unknown"})
+            _make_celldesigner_element("lineDirection", attrs={"index": "0", "value": "unknown"})
         )
         gate_cs.append(gate_lld)
         gate_mod.append(gate_cs)
         gate_mod.append(
-            _cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+            _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
         )
         result.append(gate_mod)
 
@@ -2017,59 +2017,59 @@ class CellDesignerWriter(momapy.io.core.Writer):
         for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_)):
             sbml_inp = ctx.subunit_to_complex.get(inp, inp)
             inp_attrs = {
-                "type": mod_type,
+                "type": modifier_type,
                 "modifiers": _get_species_id(sbml_inp, ctx),
                 "aliases": input_alias_ids[i],
                 "targetLineIndex": "-1,2",
             }
-            inp_mod = _cd("modification", attrs=inp_attrs)
-            cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-            lld = _cd("listOfLineDirection")
-            lld.append(
-                _cd("lineDirection", attrs={"index": "0", "value": "unknown"})
+            inp_mod = _make_celldesigner_element("modification", attrs=inp_attrs)
+            connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+            line_direction_list = _make_celldesigner_element("listOfLineDirection")
+            line_direction_list.append(
+                _make_celldesigner_element("lineDirection", attrs={"index": "0", "value": "unknown"})
             )
-            cs.append(lld)
-            inp_mod.append(cs)
+            connect_scheme.append(line_direction_list)
+            inp_mod.append(connect_scheme)
             # linkTarget
-            lt = _cd(
+            link_target = _make_celldesigner_element(
                 "linkTarget",
                 attrs={
                     "species": _get_species_id(sbml_inp, ctx),
                     "alias": input_alias_ids[i],
                 },
             )
-            inp_mod.append(lt)
+            inp_mod.append(link_target)
             inp_mod.append(
-                _cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+                _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
             )
             result.append(inp_mod)
 
         return result
 
     @classmethod
-    def _build_modulation_as_reaction(cls, ctx, modulation):
+    def _make_celldesigner_modulation_reaction(cls, ctx, modulation):
         """Build a modulation as a fake SBML reaction."""
         source = modulation.source
         target = modulation.target
 
         if isinstance(source, momapy.celldesigner.core.BooleanLogicGate):
-            return cls._build_gate_modulation_as_reaction(ctx, modulation)
+            return cls._make_celldesigner_gate_modulation_reaction(ctx, modulation)
 
         attrs = {
             "metaid": modulation.id_,
             "id": modulation.id_,
             "reversible": "false",
         }
-        rxn = _el("reaction", attrs=attrs)
+        reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
         # Find layout via mapping — modulation layout may be in a frozenset
         modulation_layout = None
         source_layout = None
         target_layout = None
-        fset = None
+        frozenset_mapping = None
         for layout_key in _get_layouts(ctx, modulation):
             if isinstance(layout_key, frozenset):
-                fset = layout_key
+                frozenset_mapping = layout_key
                 for elem in layout_key:
                     model = _mapping(ctx).get_mapping(elem)
                     if model is modulation:
@@ -2108,10 +2108,10 @@ class CellDesignerWriter(momapy.io.core.Writer):
         target_id = _get_species_id(target, ctx) if target else ""
 
         # CD extension
-        ann = _el("annotation")
-        ext = _cd("extension")
+        annotation = _make_lxml_element("annotation")
+        extension = _make_celldesigner_element("extension")
         reaction_type = _modulation_reaction_type(modulation)
-        ext.append(_cd("reactionType", text=reaction_type))
+        extension.append(_make_celldesigner_element("reactionType", text=reaction_type))
 
         # Compute edit points for the modulation
         writing = _writing
@@ -2127,83 +2127,83 @@ class CellDesignerWriter(momapy.io.core.Writer):
             )
 
         # baseReactants (source)
-        br_elem = _cd("baseReactants")
-        br = _cd("baseReactant", attrs={"species": source_id, "alias": source_alias})
+        base_reactants_element = _make_celldesigner_element("baseReactants")
+        base_reactant = _make_celldesigner_element("baseReactant", attrs={"species": source_id, "alias": source_alias})
         if source_anchor_name is not None:
             anchor_pos = _anchor_name_to_position(source_anchor_name)
             if anchor_pos is not None:
-                br.append(_cd("linkAnchor", attrs={"position": anchor_pos}))
-        br_elem.append(br)
-        ext.append(br_elem)
+                base_reactant.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos}))
+        base_reactants_element.append(base_reactant)
+        extension.append(base_reactants_element)
 
         # baseProducts (target)
-        bp_elem = _cd("baseProducts")
-        bp = _cd("baseProduct", attrs={"species": target_id, "alias": target_alias})
+        base_products_element = _make_celldesigner_element("baseProducts")
+        base_product = _make_celldesigner_element("baseProduct", attrs={"species": target_id, "alias": target_alias})
         if target_anchor_name is not None:
             anchor_pos = _anchor_name_to_position(target_anchor_name)
             if anchor_pos is not None:
-                bp.append(_cd("linkAnchor", attrs={"position": anchor_pos}))
-        bp_elem.append(bp)
-        ext.append(bp_elem)
+                base_product.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos}))
+        base_products_element.append(base_product)
+        extension.append(base_products_element)
 
-        ext.append(_cd("listOfReactantLinks"))
-        ext.append(_cd("listOfProductLinks"))
+        extension.append(_make_celldesigner_element("listOfReactantLinks"))
+        extension.append(_make_celldesigner_element("listOfProductLinks"))
 
         # connectScheme — for modulations-as-reactions:
         # ld = n_edit_points + 3, rectangleIndex = n_edit_points
-        n_ep = len(edit_points)
-        cs = _cd("connectScheme", attrs={
+        num_edit_points = len(edit_points)
+        connect_scheme = _make_celldesigner_element("connectScheme", attrs={
             "connectPolicy": "direct",
-            "rectangleIndex": str(n_ep),
+            "rectangleIndex": str(num_edit_points),
         })
-        lld = _cd("listOfLineDirection")
-        for i in range(n_ep + 3):
-            lld.append(_cd("lineDirection", attrs={
+        line_direction_list = _make_celldesigner_element("listOfLineDirection")
+        for i in range(num_edit_points + 3):
+            line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                 "index": str(i), "value": "unknown",
             }))
-        cs.append(lld)
-        ext.append(cs)
+        connect_scheme.append(line_direction_list)
+        extension.append(connect_scheme)
 
         if edit_points:
-            ext.append(_cd(
+            extension.append(_make_celldesigner_element(
                 "editPoints",
                 text=writing.points_to_edit_points_text(edit_points),
             ))
 
-        ext.append(_cd("listOfModification"))
-        ext.append(_cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+        extension.append(_make_celldesigner_element("listOfModification"))
+        extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
 
-        ann.append(ext)
-        rxn.append(ann)
+        annotation.append(extension)
+        reaction_element.append(annotation)
 
         # SBML listOfReactants (use complex ID for subunits)
         sbml_source = ctx.subunit_to_complex.get(source, source) if source else source
-        lor = _el("listOfReactants")
-        sr = _el("speciesReference", attrs={"species": _get_species_id(sbml_source, ctx) if sbml_source else ""})
-        sr_ann = _el("annotation")
-        sr_ext = _cd("extension")
-        sr_ext.append(_cd("alias", text=source_alias))
-        sr_ann.append(sr_ext)
-        sr.append(sr_ann)
-        lor.append(sr)
-        rxn.append(lor)
+        list_of_reactants = _make_lxml_element("listOfReactants")
+        species_reference = _make_lxml_element("speciesReference", attrs={"species": _get_species_id(sbml_source, ctx) if sbml_source else ""})
+        species_reference_annotation = _make_lxml_element("annotation")
+        species_reference_extension = _make_celldesigner_element("extension")
+        species_reference_extension.append(_make_celldesigner_element("alias", text=source_alias))
+        species_reference_annotation.append(species_reference_extension)
+        species_reference.append(species_reference_annotation)
+        list_of_reactants.append(species_reference)
+        reaction_element.append(list_of_reactants)
 
         # SBML listOfProducts (use complex ID for subunits)
         sbml_target = ctx.subunit_to_complex.get(target, target) if target else target
-        lop = _el("listOfProducts")
-        pr = _el("speciesReference", attrs={"species": _get_species_id(sbml_target, ctx) if sbml_target else ""})
-        pr_ann = _el("annotation")
-        pr_ext = _cd("extension")
-        pr_ext.append(_cd("alias", text=target_alias))
-        pr_ann.append(pr_ext)
-        pr.append(pr_ann)
-        lop.append(pr)
-        rxn.append(lop)
+        list_of_products = _make_lxml_element("listOfProducts")
+        pr = _make_lxml_element("speciesReference", attrs={"species": _get_species_id(sbml_target, ctx) if sbml_target else ""})
+        product_reference_annotation = _make_lxml_element("annotation")
+        product_reference_extension = _make_celldesigner_element("extension")
+        product_reference_extension.append(_make_celldesigner_element("alias", text=target_alias))
+        product_reference_annotation.append(product_reference_extension)
+        pr.append(product_reference_annotation)
+        list_of_products.append(pr)
+        reaction_element.append(list_of_products)
 
-        return rxn
+        return reaction_element
 
     @classmethod
-    def _build_gate_modulation_as_reaction(cls, ctx, modulation):
+    def _make_celldesigner_gate_modulation_reaction(cls, ctx, modulation):
         """Build a boolean gate modulation as a fake SBML reaction.
 
         Structure: reactionType=BOOLEAN_LOGIC_GATE, baseReactants=gate inputs,
@@ -2221,38 +2221,38 @@ class CellDesignerWriter(momapy.io.core.Writer):
         gate_type = gate_type_map.get(type(gate), "BOOLEAN_LOGIC_GATE_AND")
 
         # Determine the modification type from the modulation type
-        mod_type = _modulation_reaction_type(modulation)
+        modifier_type = _modulation_reaction_type(modulation)
 
         attrs = {
             "metaid": modulation.id_,
             "id": modulation.id_,
             "reversible": "false",
         }
-        rxn = _el("reaction", attrs=attrs)
+        reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
         # Find the gate layout
         gate_layout = None
-        for le in ctx.map_.layout.layout_elements:
-            if isinstance(le, (
+        for layout_element_item in ctx.map_.layout.layout_elements:
+            if isinstance(layout_element_item, (
                 momapy.celldesigner.core.AndGateLayout,
                 momapy.celldesigner.core.OrGateLayout,
                 momapy.celldesigner.core.NotGateLayout,
                 momapy.celldesigner.core.UnknownGateLayout,
             )):
-                gate_model = _mapping(ctx).get_mapping(le)
+                gate_model = _mapping(ctx).get_mapping(layout_element_item)
                 if gate_model is gate:
-                    gate_layout = le
+                    gate_layout = layout_element_item
                     break
 
         # Find inputs via logic arcs (preserves duplicates unlike gate.inputs)
         input_layouts = []
         if gate_layout is not None:
-            for le in ctx.map_.layout.layout_elements:
+            for layout_element_item in ctx.map_.layout.layout_elements:
                 if (
-                    hasattr(le, "source") and hasattr(le, "target")
-                    and le.source is gate_layout
+                    hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
+                    and layout_element_item.source is gate_layout
                 ):
-                    inp_layout = le.target
+                    inp_layout = layout_element_item.target
                     model_info = _mapping(ctx).get_mapping(inp_layout)
                     inp_model = (
                         model_info[0]
@@ -2265,21 +2265,21 @@ class CellDesignerWriter(momapy.io.core.Writer):
             # Fallback to gate.inputs if no logic arcs found
             for inp in sorted(gate.inputs, key=lambda s: s.id_):
                 inp_layout = None
-                for lk in _get_layouts(ctx, inp):
-                    if isinstance(lk, frozenset):
+                for layout_key in _get_layouts(ctx, inp):
+                    if isinstance(layout_key, frozenset):
                         continue
-                    if isinstance(lk, momapy.celldesigner.core.CellDesignerNode):
-                        inp_layout = lk
+                    if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                        inp_layout = layout_key
                         break
                 input_layouts.append((inp, inp_layout))
 
         target_layout = None
         if target is not None:
-            for lk in _get_layouts(ctx, target):
-                if isinstance(lk, frozenset):
+            for layout_key in _get_layouts(ctx, target):
+                if isinstance(layout_key, frozenset):
                     continue
-                if isinstance(lk, momapy.celldesigner.core.CellDesignerNode):
-                    target_layout = lk
+                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                    target_layout = layout_key
                     break
 
         gate_edit_points = ""
@@ -2290,60 +2290,60 @@ class CellDesignerWriter(momapy.io.core.Writer):
         target_id = _get_species_id(target, ctx) if target else ""
 
         # CD extension
-        ann = _el("annotation")
-        ext = _cd("extension")
-        ext.append(_cd("reactionType", text="BOOLEAN_LOGIC_GATE"))
+        annotation = _make_lxml_element("annotation")
+        extension = _make_celldesigner_element("extension")
+        extension.append(_make_celldesigner_element("reactionType", text="BOOLEAN_LOGIC_GATE"))
 
         # baseReactants (gate inputs)
-        br_elem = _cd("baseReactants")
+        base_reactants_element = _make_celldesigner_element("baseReactants")
         for inp, inp_layout in input_layouts:
             sbml_inp = ctx.subunit_to_complex.get(inp, inp)
             alias_id = inp_layout.id_ if inp_layout else ""
-            br = _cd("baseReactant", attrs={
+            base_reactant = _make_celldesigner_element("baseReactant", attrs={
                 "species": _get_species_id(sbml_inp, ctx),
                 "alias": alias_id,
             })
             # Try to find linkAnchor from logic arcs
             if gate_layout is not None and inp_layout is not None:
-                for le in ctx.map_.layout.layout_elements:
-                    if (hasattr(le, "source") and hasattr(le, "target")
-                            and le.source is gate_layout
-                            and le.target is inp_layout):
-                        endpoint = le.points()[-1]
+                for layout_element_item in ctx.map_.layout.layout_elements:
+                    if (hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
+                            and layout_element_item.source is gate_layout
+                            and layout_element_item.target is inp_layout):
+                        endpoint = layout_element_item.points()[-1]
                         anchor = _infer_anchor_position(inp_layout, endpoint)
                         if anchor is not None:
-                            br.append(_cd("linkAnchor", attrs={"position": anchor}))
+                            base_reactant.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor}))
                         break
-            br_elem.append(br)
-        ext.append(br_elem)
+            base_reactants_element.append(base_reactant)
+        extension.append(base_reactants_element)
 
         # baseProducts (target)
-        bp_elem = _cd("baseProducts")
+        base_products_element = _make_celldesigner_element("baseProducts")
         sbml_target = ctx.subunit_to_complex.get(target, target) if target else target
-        bp = _cd("baseProduct", attrs={
+        base_product = _make_celldesigner_element("baseProduct", attrs={
             "species": _get_species_id(sbml_target, ctx) if sbml_target else "",
             "alias": target_alias,
         })
-        bp_elem.append(bp)
-        ext.append(bp_elem)
+        base_products_element.append(base_product)
+        extension.append(base_products_element)
 
-        ext.append(_cd("listOfReactantLinks"))
-        ext.append(_cd("listOfProductLinks"))
+        extension.append(_make_celldesigner_element("listOfReactantLinks"))
+        extension.append(_make_celldesigner_element("listOfProductLinks"))
 
         # Compute editPoints: intermediate points from modulation layout + gate position
         writing = _writing
         modulation_layout = None
-        for lk in _get_layouts(ctx, modulation):
-            if isinstance(lk, frozenset):
-                for elem in lk:
+        for layout_key in _get_layouts(ctx, modulation):
+            if isinstance(layout_key, frozenset):
+                for elem in layout_key:
                     model = _mapping(ctx).get_mapping(elem)
                     if model is modulation:
                         modulation_layout = elem
                         break
-            elif not isinstance(lk, frozenset):
-                modulation_layout = lk
+            elif not isinstance(layout_key, frozenset):
+                modulation_layout = layout_key
 
-        ep_parts = []
+        edit_points_parts = []
         if gate_layout is not None and modulation_layout is not None and target_layout is not None:
             mod_edit_points, _, _ = writing.inverse_edit_points_modulation(
                 modulation_layout,
@@ -2351,127 +2351,127 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 target_layout,
                 has_boolean_input=True,
             )
-            ep_parts.extend(
+            edit_points_parts.extend(
                 f"{p.x},{p.y}" for p in mod_edit_points
             )
         if gate_edit_points:
-            ep_parts.append(gate_edit_points)
-        ep_text = " ".join(ep_parts)
-        n_ep = len(ep_parts)
+            edit_points_parts.append(gate_edit_points)
+        edit_points_text = " ".join(edit_points_parts)
+        num_edit_points = len(edit_points_parts)
 
         # connectScheme — gate modulations use rectangleIndex=1
         # and lineDirection count = len(inputs) + 3
-        n_ld = len(input_layouts) + 3
-        cs = _cd("connectScheme", attrs={
+        num_line_directions = len(input_layouts) + 3
+        connect_scheme = _make_celldesigner_element("connectScheme", attrs={
             "connectPolicy": "direct",
             "rectangleIndex": "1",
         })
-        lld = _cd("listOfLineDirection")
-        for i in range(n_ld):
-            lld.append(_cd("lineDirection", attrs={
+        line_direction_list = _make_celldesigner_element("listOfLineDirection")
+        for i in range(num_line_directions):
+            line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
                 "index": str(i), "value": "unknown",
             }))
-        cs.append(lld)
-        ext.append(cs)
+        connect_scheme.append(line_direction_list)
+        extension.append(connect_scheme)
 
         # editPoints
-        if ep_text:
-            ext.append(_cd("editPoints", text=ep_text))
+        if edit_points_text:
+            extension.append(_make_celldesigner_element("editPoints", text=edit_points_text))
 
-        ext.append(_cd("listOfModification"))
+        extension.append(_make_celldesigner_element("listOfModification"))
 
         # listOfGateMember
-        gm_list = _cd("listOfGateMember")
+        gate_member_list = _make_celldesigner_element("listOfGateMember")
         input_alias_ids = [il.id_ if il else "" for _, il in input_layouts]
         # Gate entry
         gate_attrs = {
             "type": gate_type,
             "aliases": ",".join(input_alias_ids),
-            "modificationType": mod_type,
+            "modificationType": modifier_type,
         }
         if gate_edit_points:
             gate_attrs["editPoints"] = gate_edit_points
-        gate_member = _cd("GateMember", attrs=gate_attrs)
-        gm_cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-        gm_lld = _cd("listOfLineDirection")
-        gm_lld.append(_cd("lineDirection", attrs={
+        gate_member = _make_celldesigner_element("GateMember", attrs=gate_attrs)
+        gate_member_connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+        gate_member_line_direction_list = _make_celldesigner_element("listOfLineDirection")
+        gate_member_line_direction_list.append(_make_celldesigner_element("lineDirection", attrs={
             "index": "0", "value": "unknown",
         }))
-        gm_cs.append(gm_lld)
-        gate_member.append(gm_cs)
-        gate_member.append(_cd("line", attrs={
+        gate_member_connect_scheme.append(gate_member_line_direction_list)
+        gate_member.append(gate_member_connect_scheme)
+        gate_member.append(_make_celldesigner_element("line", attrs={
             "width": "1.0", "color": "FF000000", "type": "Straight",
         }))
-        gm_list.append(gate_member)
+        gate_member_list.append(gate_member)
 
         # Per-input entries
         for inp, inp_layout in input_layouts:
             sbml_inp = ctx.subunit_to_complex.get(inp, inp)
             alias_id = inp_layout.id_ if inp_layout else ""
-            inp_member = _cd("GateMember", attrs={
-                "type": mod_type,
+            inp_member = _make_celldesigner_element("GateMember", attrs={
+                "type": modifier_type,
                 "aliases": alias_id,
             })
-            inp_cs = _cd("connectScheme", attrs={"connectPolicy": "direct"})
-            inp_lld = _cd("listOfLineDirection")
-            inp_lld.append(_cd("lineDirection", attrs={
+            inp_cs = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
+            inp_lld = _make_celldesigner_element("listOfLineDirection")
+            inp_lld.append(_make_celldesigner_element("lineDirection", attrs={
                 "index": "0", "value": "unknown",
             }))
             inp_cs.append(inp_lld)
             inp_member.append(inp_cs)
-            lt = _cd("linkTarget", attrs={
+            link_target = _make_celldesigner_element("linkTarget", attrs={
                 "species": _get_species_id(sbml_inp, ctx),
                 "alias": alias_id,
             })
             if gate_layout is not None and inp_layout is not None:
-                for le in ctx.map_.layout.layout_elements:
-                    if (hasattr(le, "source") and hasattr(le, "target")
-                            and le.source is gate_layout
-                            and le.target is inp_layout):
-                        endpoint = le.points()[-1]
+                for layout_element_item in ctx.map_.layout.layout_elements:
+                    if (hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
+                            and layout_element_item.source is gate_layout
+                            and layout_element_item.target is inp_layout):
+                        endpoint = layout_element_item.points()[-1]
                         anchor = _infer_anchor_position(inp_layout, endpoint)
                         if anchor is not None:
-                            lt.append(_cd("linkAnchor", attrs={"position": anchor}))
+                            link_target.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor}))
                         break
-            inp_member.append(lt)
-            inp_member.append(_cd("line", attrs={
+            inp_member.append(link_target)
+            inp_member.append(_make_celldesigner_element("line", attrs={
                 "width": "1.0", "color": "FF000000", "type": "Straight",
             }))
-            gm_list.append(inp_member)
+            gate_member_list.append(inp_member)
 
-        ext.append(gm_list)
-        ext.append(_cd("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+        extension.append(gate_member_list)
+        extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
 
-        ann.append(ext)
-        rxn.append(ann)
+        annotation.append(extension)
+        reaction_element.append(annotation)
 
         # SBML listOfReactants (gate inputs)
-        lor = _el("listOfReactants")
+        list_of_reactants = _make_lxml_element("listOfReactants")
         for inp, inp_layout in input_layouts:
             sbml_inp = ctx.subunit_to_complex.get(inp, inp)
             alias_id = inp_layout.id_ if inp_layout else ""
-            sr = _el("speciesReference", attrs={
+            species_reference = _make_lxml_element("speciesReference", attrs={
                 "species": _get_species_id(sbml_inp, ctx),
             })
-            sr_ann = _el("annotation")
-            sr_ext = _cd("extension")
-            sr_ext.append(_cd("alias", text=alias_id))
-            sr_ann.append(sr_ext)
-            sr.append(sr_ann)
-            lor.append(sr)
-        rxn.append(lor)
+            species_reference_annotation = _make_lxml_element("annotation")
+            species_reference_extension = _make_celldesigner_element("extension")
+            species_reference_extension.append(_make_celldesigner_element("alias", text=alias_id))
+            species_reference_annotation.append(species_reference_extension)
+            species_reference.append(species_reference_annotation)
+            list_of_reactants.append(species_reference)
+        reaction_element.append(list_of_reactants)
 
         # SBML listOfProducts (target)
-        lop = _el("listOfProducts")
-        pr = _el("speciesReference", attrs={
+        list_of_products = _make_lxml_element("listOfProducts")
+        pr = _make_lxml_element("speciesReference", attrs={
             "species": _get_species_id(sbml_target, ctx) if sbml_target else "",
         })
-        pr_ann = _el("annotation")
-        pr_ext = _cd("extension")
-        pr_ext.append(_cd("alias", text=target_alias))
-        pr_ann.append(pr_ext)
-        pr.append(pr_ann)
-        lop.append(pr)
-        rxn.append(lop)
+        product_reference_annotation = _make_lxml_element("annotation")
+        product_reference_extension = _make_celldesigner_element("extension")
+        product_reference_extension.append(_make_celldesigner_element("alias", text=target_alias))
+        product_reference_annotation.append(product_reference_extension)
+        pr.append(product_reference_annotation)
+        list_of_products.append(pr)
+        reaction_element.append(list_of_products)
 
-        return rxn
+        return reaction_element
