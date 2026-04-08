@@ -704,6 +704,43 @@ def make_product_from_link(
     return layout_element
 
 
+_TARGET_LINE_INDEX_TO_ANCHOR_NAME = {
+    "2": "north",
+    "3": "south",
+    "4": "north_west",
+    "5": "north_east",
+    "6": "south_west",
+    "7": "south_east",
+}
+
+
+def _get_anchor_point_from_target_line_index(reaction_layout, target_line_index):
+    """Compute the anchor point on the reaction node from targetLineIndex.
+
+    The targetLineIndex format is "segmentIndex,anchorId" where anchorId
+    identifies an anchor on the reaction node rectangle. The anchor
+    point is computed from the node's own anchor methods, then rotated
+    by the reaction line angle.
+
+    Args:
+        reaction_layout: The reaction layout element.
+        target_line_index: The targetLineIndex string (e.g. "0,2").
+
+    Returns:
+        The anchor point, or None if parsing fails.
+    """
+    if target_line_index is None or "," not in target_line_index:
+        return None
+    anchor_id = target_line_index.split(",")[1]
+    anchor_name = _TARGET_LINE_INDEX_TO_ANCHOR_NAME.get(anchor_id)
+    if anchor_name is None:
+        return None
+    reaction_node = reaction_layout._make_reaction_node()
+    anchor_point = reaction_node.anchor_point(anchor_name)
+    rotation = reaction_layout._make_reaction_node_rotation()
+    return anchor_point.transformed(rotation)
+
+
 def make_modifier(
     cd_reaction_modification,
     layout,
@@ -750,11 +787,16 @@ def make_modifier(
         start_point = source_layout_element.own_border(reference_point)
     else:
         start_point = origin
-    if intermediate_points:
-        reference_point = intermediate_points[-1]
-    else:
-        reference_point = start_point
-    end_point = super_layout_element.reaction_node_border(reference_point)
+    cd_target_line_index = cd_reaction_modification.get("targetLineIndex")
+    end_point = _get_anchor_point_from_target_line_index(
+        super_layout_element, cd_target_line_index
+    )
+    if end_point is None:
+        if intermediate_points:
+            reference_point = intermediate_points[-1]
+        else:
+            reference_point = start_point
+        end_point = super_layout_element.reaction_node_border(reference_point)
     points = [start_point] + intermediate_points + [end_point]
     segments = make_segments(points)
     for segment in segments:
