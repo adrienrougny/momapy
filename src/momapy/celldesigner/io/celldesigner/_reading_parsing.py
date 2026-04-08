@@ -411,7 +411,9 @@ def get_bounds(cd_element):
 def get_anchor_name_for_frame(cd_element):
     if getattr(cd_element, "linkAnchor", None) is not None:
         cd_element_anchor = cd_element.linkAnchor.get("position")
-        anchor_name = _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME[cd_element_anchor]
+        anchor_name = _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.get(
+            cd_element_anchor, "center"
+        )
     else:
         anchor_name = "center"
     return anchor_name
