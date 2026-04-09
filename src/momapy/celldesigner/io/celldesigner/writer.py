@@ -359,7 +359,13 @@ class CellDesignerWriter(momapy.io.core.Writer):
                     species_to_id[id(species)] = species_id
                 if isinstance(species, momapy.celldesigner.core.Complex):
                     for sub in species.subunits:
-                        subunit_to_complex[sub] = species
+                        # Map to top-level ancestor, not immediate parent.
+                        # If the parent is itself a subunit, its entry
+                        # was already set (parent before children).
+                        ancestor = species
+                        while ancestor in subunit_to_complex:
+                            ancestor = subunit_to_complex[ancestor]
+                        subunit_to_complex[sub] = ancestor
                         _collect(sub)
             for species in obj.model.species:
                 _collect(species)
