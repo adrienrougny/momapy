@@ -467,25 +467,25 @@ def set_arcs_to_borders(
     ):
         points = arc_layout_element.points()
         if source_type == "connector":
-            start_point = source.border(target.center())
+            start_point = source.own_border(target.center())
         elif source_type == "border":
             if len(arc_layout_element.segments) > 1:
                 start_reference_point = points[1]
             else:
                 start_reference_point = target.center()
-            start_point = source.border(start_reference_point)
+            start_point = source.own_border(start_reference_point)
             if start_point is None:
                 start_point = source.center()
         else:
             start_point = points[0]
         if target_type == "connector":
-            end_point = target.border(source.center())
+            end_point = target.own_border(source.center())
         elif target_type == "border":
             if len(arc_layout_element.segments) > 1:
                 end_reference_point = points[-2]
             else:
                 end_reference_point = source.center()
-            end_point = target.border(end_reference_point)
+            end_point = target.own_border(end_reference_point)
             if end_point is None:
                 end_point = target.center()
         else:
@@ -497,88 +497,152 @@ def set_arcs_to_borders(
             momapy.builder.builder_from_object(end_point)
         )
 
+    _MODIFIER_TYPES = (
+        momapy.celldesigner.core.CatalysisLayout,
+        momapy.celldesigner.core.UnknownCatalysisLayout,
+        momapy.celldesigner.core.InhibitionLayout,
+        momapy.celldesigner.core.UnknownInhibitionLayout,
+        momapy.celldesigner.core.PhysicalStimulationLayout,
+        momapy.celldesigner.core.UnknownPhysicalStimulationLayout,
+        momapy.celldesigner.core.ModulationLayout,
+        momapy.celldesigner.core.UnknownModulationLayout,
+        momapy.celldesigner.core.TriggeringLayout,
+        momapy.celldesigner.core.UnknownTriggeringLayout,
+        momapy.celldesigner.core.PositiveInfluenceLayout,
+        momapy.celldesigner.core.UnknownPositiveInfluenceLayout,
+    )
+
+    _T_SHAPE_TYPES = (
+        momapy.celldesigner.core.HeterodimerAssociationLayout,
+        momapy.celldesigner.core.DissociationLayout,
+        momapy.celldesigner.core.TruncationLayout,
+    )
+
+    def _snap_start_to_border(layout_element, node):
+        """Snap segments[0].p1 to node.own_border()."""
+        points = layout_element.points()
+        reference = points[1] if len(points) > 2 else points[-1]
+        border_point = node.own_border(reference)
+        if border_point is not None:
+            layout_element.segments[0].p1 = (
+                momapy.builder.builder_from_object(border_point)
+            )
+
+    def _snap_end_to_border(layout_element, node):
+        """Snap segments[-1].p2 to node.own_border()."""
+        points = layout_element.points()
+        reference = points[-2] if len(points) > 2 else points[0]
+        border_point = node.own_border(reference)
+        if border_point is not None:
+            layout_element.segments[-1].p2 = (
+                momapy.builder.builder_from_object(border_point)
+            )
+
+    def _snap_end_to_reaction_node(layout_element, reaction_layout):
+        """Snap segments[-1].p2 to reaction node border."""
+        points = layout_element.points()
+        reference = points[-2] if len(points) > 2 else points[0]
+        border_point = reaction_layout.reaction_node_border(reference)
+        if border_point is not None:
+            layout_element.segments[-1].p2 = (
+                momapy.builder.builder_from_object(border_point)
+            )
+
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         map_builder = momapy.builder.builder_from_object(map_)
     else:
         map_builder = map_
-    for layout_element in map_builder.layout.layout_elements:
-        # Consumption arcs (reaction → species)
-        if momapy.builder.isinstance_or_builder(
-            layout_element, momapy.celldesigner.core.ConsumptionLayout
-        ):
+
+    # Run two iterations to converge: the first pass fixes reaction
+    # endpoints which shifts reaction node positions, requiring a
+    # second pass to re-snap dependent arcs.
+    for _ in range(2):
+        # Reaction layouts — snap source/target species endpoints.
+        # This fixes the reaction node position (midpoint of segment).
+        for layout_element in map_builder.layout.layout_elements:
+            if not momapy.builder.isinstance_or_builder(
+                layout_element, momapy.celldesigner.core.ReactionLayout
+            ):
+                continue
             source = layout_element.source
-            if hasattr(source, "left_connector_tip"):
-                start_point = source.left_connector_tip()
-                layout_element.segments[0].p1 = (
-                    momapy.builder.builder_from_object(start_point)
+            target = layout_element.target
+            if source is not None and hasattr(source, "own_border"):
+                _snap_start_to_border(layout_element, source)
+            if target is not None and hasattr(target, "own_border"):
+                _snap_end_to_border(layout_element, target)
+
+        # Modifier and modulation arcs — snap to source species
+        # border and target reaction node border (or target species
+        # border for species-to-species modulations).
+        for layout_element in map_builder.layout.layout_elements:
+            if not momapy.builder.isinstance_or_builder(
+                layout_element, _MODIFIER_TYPES
+            ):
+                continue
+            source = layout_element.source
+            target = layout_element.target
+            if source is not None and hasattr(source, "own_border"):
+                _snap_start_to_border(layout_element, source)
+            if target is not None:
+                if hasattr(target, "reaction_node_border"):
+                    _snap_end_to_reaction_node(layout_element, target)
+                elif hasattr(target, "own_border"):
+                    _snap_end_to_border(layout_element, target)
+
+        # Consumption and production arcs — snap to species borders
+        # and reaction connector tips.
+        for layout_element in map_builder.layout.layout_elements:
+            if momapy.builder.isinstance_or_builder(
+                layout_element, momapy.celldesigner.core.ConsumptionLayout
+            ):
+                reaction_layout = layout_element.source
+                species_layout = layout_element.target
+                if species_layout is not None and hasattr(
+                    species_layout, "own_border"
+                ):
+                    _snap_start_to_border(layout_element, species_layout)
+                is_t_shape = momapy.builder.isinstance_or_builder(
+                    reaction_layout, _T_SHAPE_TYPES
                 )
-            target = layout_element.target
-            if hasattr(target, "border"):
-                points = layout_element.points()
-                reference = points[-2] if len(points) > 2 else points[0]
-                end_point = target.border(reference)
-                if end_point is not None:
+                if not is_t_shape and hasattr(
+                    reaction_layout, "left_connector_tip"
+                ):
                     layout_element.segments[-1].p2 = (
-                        momapy.builder.builder_from_object(end_point)
+                        momapy.builder.builder_from_object(
+                            reaction_layout.left_connector_tip()
+                        )
                     )
-        # Production arcs (reaction → species)
-        elif momapy.builder.isinstance_or_builder(
-            layout_element, momapy.celldesigner.core.ProductionLayout
-        ):
-            source = layout_element.source
-            if hasattr(source, "right_connector_tip"):
-                start_point = source.right_connector_tip()
-                layout_element.segments[0].p1 = (
-                    momapy.builder.builder_from_object(start_point)
+            elif momapy.builder.isinstance_or_builder(
+                layout_element, momapy.celldesigner.core.ProductionLayout
+            ):
+                reaction_layout = layout_element.source
+                species_layout = layout_element.target
+                is_t_shape = momapy.builder.isinstance_or_builder(
+                    reaction_layout, _T_SHAPE_TYPES
                 )
-            target = layout_element.target
-            if hasattr(target, "border"):
-                points = layout_element.points()
-                reference = points[-2] if len(points) > 2 else points[0]
-                end_point = target.border(reference)
-                if end_point is not None:
-                    layout_element.segments[-1].p2 = (
-                        momapy.builder.builder_from_object(end_point)
-                    )
-        # Logic arcs (gate → species)
-        elif momapy.builder.isinstance_or_builder(
-            layout_element, momapy.celldesigner.core.LogicArcLayout
-        ):
-            _set_arc_to_borders(
-                layout_element,
-                layout_element.source,
-                "border",
-                layout_element.target,
-                "border",
-            )
-        # Modifier arcs (species → reaction)
-        elif momapy.builder.isinstance_or_builder(
-            layout_element,
-            (
-                momapy.celldesigner.core.CatalysisLayout,
-                momapy.celldesigner.core.UnknownCatalysisLayout,
-                momapy.celldesigner.core.InhibitionLayout,
-                momapy.celldesigner.core.UnknownInhibitionLayout,
-                momapy.celldesigner.core.PhysicalStimulationLayout,
-                momapy.celldesigner.core.UnknownPhysicalStimulationLayout,
-                momapy.celldesigner.core.ModulationLayout,
-                momapy.celldesigner.core.UnknownModulationLayout,
-                momapy.celldesigner.core.TriggeringLayout,
-                momapy.celldesigner.core.UnknownTriggeringLayout,
-                momapy.celldesigner.core.PositiveInfluenceLayout,
-                momapy.celldesigner.core.UnknownPositiveInfluenceLayout,
-            ),
-        ):
-            source = layout_element.source
-            target = layout_element.target
-            if hasattr(source, "border") and hasattr(target, "_get_reaction_node_position"):
-                points = layout_element.points()
-                reference = points[1] if len(points) > 2 else target._get_reaction_node_position()
-                start_point = source.border(reference)
-                if start_point is not None:
+                if not is_t_shape and hasattr(
+                    reaction_layout, "right_connector_tip"
+                ):
                     layout_element.segments[0].p1 = (
-                        momapy.builder.builder_from_object(start_point)
+                        momapy.builder.builder_from_object(
+                            reaction_layout.right_connector_tip()
+                        )
                     )
+                if species_layout is not None and hasattr(
+                    species_layout, "own_border"
+                ):
+                    _snap_end_to_border(layout_element, species_layout)
+            elif momapy.builder.isinstance_or_builder(
+                layout_element, momapy.celldesigner.core.LogicArcLayout
+            ):
+                _set_arc_to_borders(
+                    layout_element,
+                    layout_element.source,
+                    "border",
+                    layout_element.target,
+                    "border",
+                )
+
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -592,10 +656,10 @@ def tidy(
     nodes_ysep: float = 0,
     modifications_xsep: float = 0,
     modifications_ysep: float = 0,
-    complexes_xsep: float = 0,
-    complexes_ysep: float = 0,
-    compartments_xsep: float = 0,
-    compartments_ysep: float = 0,
+    complexes_xsep: float = 10,
+    complexes_ysep: float = 10,
+    compartments_xsep: float = 10,
+    compartments_ysep: float = 10,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
 ) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
@@ -614,10 +678,10 @@ def tidy(
         nodes_ysep: Vertical padding for node sizing.
         modifications_xsep: Horizontal padding for modifications.
         modifications_ysep: Vertical padding for modifications.
-        complexes_xsep: Horizontal padding for complexes.
-        complexes_ysep: Vertical padding for complexes.
-        compartments_xsep: Horizontal padding for compartments.
-        compartments_ysep: Vertical padding for compartments.
+        complexes_xsep: Horizontal padding for complexes. Defaults to 10.
+        complexes_ysep: Vertical padding for complexes. Defaults to 10.
+        compartments_xsep: Horizontal padding for compartments. Defaults to 10.
+        compartments_ysep: Vertical padding for compartments. Defaults to 10.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
 
