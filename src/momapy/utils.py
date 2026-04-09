@@ -63,6 +63,67 @@ class SurjectionDict(dict):
         return frozendict.frozendict(self._inverse)
 
 
+class IdentitySurjectionDict(dict):
+    """A dictionary with an identity-based inverse mapping.
+
+    Like SurjectionDict, but the inverse uses object identity (id())
+    instead of equality.  This allows O(1) lookup of all keys whose
+    value is a specific object, even when multiple distinct objects
+    compare equal.
+
+    The forward dict uses normal equality for key lookup.  The inverse
+    is safe from id() address reuse because the forward dict holds a
+    reference to each value, keeping it alive.
+
+    Examples:
+        ```python
+        d = IdentitySurjectionDict()
+        a, b = object(), object()
+        d['x'] = a
+        d['y'] = a
+        d['z'] = b
+        d.inverse[id(a)]  # {'x', 'y'}
+        d.inverse[id(b)]  # {'z'}
+        ```
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._identity_inverse: dict[int, set] = {}
+        for key, value in self.items():
+            self._identity_inverse.setdefault(id(value), set()).add(key)
+
+    def __setitem__(self, key, value):
+        if key in self:
+            old_value = self[key]
+            old_identity = id(old_value)
+            if old_identity in self._identity_inverse:
+                self._identity_inverse[old_identity].discard(key)
+                if not self._identity_inverse[old_identity]:
+                    del self._identity_inverse[old_identity]
+        super().__setitem__(key, value)
+        self._identity_inverse.setdefault(id(value), set()).add(key)
+
+    def __delitem__(self, key):
+        value = self[key]
+        value_identity = id(value)
+        super().__delitem__(key)
+        if value_identity in self._identity_inverse:
+            self._identity_inverse[value_identity].discard(key)
+            if not self._identity_inverse[value_identity]:
+                del self._identity_inverse[value_identity]
+
+    @property
+    def inverse(self) -> dict[int, set]:
+        """Get the identity-based inverse mapping.
+
+        Returns:
+            A dict mapping id(value) to the set of keys that point
+            to that value by identity.
+        """
+        return self._identity_inverse
+
+
 class FrozenSurjectionDict(frozendict.frozendict):
     """An immutable version of SurjectionDict.
 
