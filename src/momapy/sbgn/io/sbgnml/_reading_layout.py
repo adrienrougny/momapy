@@ -7,7 +7,7 @@ import momapy.builder
 import momapy.coloring
 import momapy.drawing
 import momapy.sbgn.pd
-import momapy.sbgn.io.sbgnml._parsing
+import momapy.sbgn.io.sbgnml._reading_parsing
 
 _DEFAULT_FONT_FAMILY = momapy.drawing.DEFAULT_FONT_FAMILY
 _DEFAULT_FONT_SIZE = 11.0
@@ -47,7 +47,7 @@ def make_segments(points):
 
 
 def make_arc_segments(sbgnml_arc, reverse=False):
-    sbgnml_points = momapy.sbgn.io.sbgnml._parsing.get_sbgnml_points(sbgnml_arc)
+    sbgnml_points = momapy.sbgn.io.sbgnml._reading_parsing.get_sbgnml_points(sbgnml_arc)
     if reverse:
         sbgnml_points.reverse()
     points = make_points(sbgnml_points)
@@ -70,7 +70,7 @@ def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element):
 
 def set_connector_lengths(layout_element, sbgnml_element):
     left_connector_length, right_connector_length = (
-        momapy.sbgn.io.sbgnml._parsing.get_connectors_length(sbgnml_element)
+        momapy.sbgn.io.sbgnml._reading_parsing.get_connectors_length(sbgnml_element)
     )
     if left_connector_length is not None:
         layout_element.left_connector_length = left_connector_length
@@ -184,7 +184,7 @@ def make_terminal_or_tag(sbgnml_terminal_or_tag, layout, is_terminal):
     layout_element = layout.new_element(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_terminal_or_tag)
-    layout_element.direction = momapy.sbgn.io.sbgnml._parsing.get_direction(
+    layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_direction(
         sbgnml_terminal_or_tag
     )
     if sbgnml_label is not None:
@@ -221,11 +221,11 @@ def make_stoichiometric_process(
     layout_element = layout.new_element(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_process)
-    layout_element.direction = momapy.sbgn.io.sbgnml._parsing.get_process_direction(
+    layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
     layout_element.left_to_right = (
-        momapy.sbgn.io.sbgnml._parsing.is_process_left_to_right(
+        momapy.sbgn.io.sbgnml._reading_parsing.is_process_left_to_right(
             sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
         )
     )
@@ -237,7 +237,7 @@ def make_reactant(
     sbgnml_consumption_arc, layout, sbgnml_id_to_layout_element, super_layout_element
 ):
     sbgnml_source_id = sbgnml_consumption_arc.get("source")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
     layout_element = layout.new_element(momapy.sbgn.pd.ConsumptionLayout)
@@ -258,7 +258,7 @@ def make_product(
     sbgnml_production_arc, layout, sbgnml_id_to_layout_element, super_layout_element
 ):
     sbgnml_target_id = sbgnml_production_arc.get("target")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_production_arc
     )
     layout_element = layout.new_element(momapy.sbgn.pd.ProductionLayout)
@@ -283,11 +283,11 @@ def make_logical_operator(
     layout_element = layout.new_element(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_logical_operator)
-    layout_element.direction = momapy.sbgn.io.sbgnml._parsing.get_process_direction(
+    layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
         sbgnml_logical_operator, sbgnml_glyph_id_to_sbgnml_arcs
     )
     layout_element.left_to_right = (
-        momapy.sbgn.io.sbgnml._parsing.is_operator_left_to_right(
+        momapy.sbgn.io.sbgnml._reading_parsing.is_operator_left_to_right(
             sbgnml_operator=sbgnml_logical_operator,
             sbgnml_id_to_sbgnml_element=sbgnml_id_to_sbgnml_element,
             sbgnml_glyph_id_to_sbgnml_arcs=sbgnml_glyph_id_to_sbgnml_arcs,

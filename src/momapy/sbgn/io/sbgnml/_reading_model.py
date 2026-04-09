@@ -6,14 +6,14 @@ import momapy.builder
 import momapy.core.elements
 import momapy.sbgn.pd
 import momapy.sbml.core
-import momapy.sbgn.io.sbgnml._parsing
+import momapy.sbgn.io.sbgnml._reading_parsing
 import momapy.sbml.io.sbml._parsing
 import momapy.sbml.io.sbml._qualifiers
 
 
 def make_annotations(sbgnml_element):
     annotations = []
-    sbgnml_rdf = momapy.sbgn.io.sbgnml._parsing.get_rdf(sbgnml_element)
+    sbgnml_rdf = momapy.sbgn.io.sbgnml._reading_parsing.get_rdf(sbgnml_element)
     if sbgnml_rdf is not None:
         description = momapy.sbml.io.sbml._parsing.get_description(sbgnml_rdf)
         if description is not None:
@@ -39,7 +39,7 @@ def make_annotations(sbgnml_element):
 
 
 def make_notes(sbgnml_element):
-    sbgnml_notes = momapy.sbgn.io.sbgnml._parsing.get_notes(sbgnml_element)
+    sbgnml_notes = momapy.sbgn.io.sbgnml._reading_parsing.get_notes(sbgnml_element)
     if sbgnml_notes is not None:
         for child_element in sbgnml_notes.iterchildren():
             break
@@ -188,7 +188,7 @@ def make_stoichiometric_process(
     sbgnml_id = sbgnml_process.get("id")
     model_element = model.new_element(model_element_cls)
     model_element.id_ = sbgnml_id
-    model_element.reversible = momapy.sbgn.io.sbgnml._parsing.is_process_reversible(
+    model_element.reversible = momapy.sbgn.io.sbgnml._reading_parsing.is_process_reversible(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
     return model_element
@@ -196,7 +196,7 @@ def make_stoichiometric_process(
 
 def make_reactant(sbgnml_consumption_arc, model, sbgnml_id_to_model_element):
     sbgnml_source_id = sbgnml_consumption_arc.get("source")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
     model_element = model.new_element(momapy.sbgn.pd.Reactant)
@@ -217,7 +217,7 @@ def make_product(
     process_direction,
 ):
     sbgnml_target_id = sbgnml_production_arc.get("target")
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._parsing.get_stoichiometry(
+    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_production_arc
     )
     if super_model_element.reversible:
