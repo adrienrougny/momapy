@@ -1479,9 +1479,30 @@ class CellDesignerReader(momapy.io.core.Reader):
                     source_model_element = ctx.xml_id_to_model_element[
                         cd_reaction_modification.get("aliases")
                     ]
+                # Find the SBML modifierSpeciesReference metaid by
+                # matching the species id to the source model element.
+                modifier_metaid = None
+                for modifier_species_reference in (
+                    momapy.celldesigner.io.celldesigner._reading_parsing.get_modifier_species_references(
+                        super_cd_element
+                    )
+                ):
+                    species_id = modifier_species_reference.get("species")
+                    if (
+                        species_id is not None
+                        and ctx.xml_id_to_model_element.get(species_id)
+                        is source_model_element
+                    ):
+                        modifier_metaid = modifier_species_reference.get(
+                            "metaid"
+                        )
+                        break
                 model_element = (
                     momapy.celldesigner.io.celldesigner._reading_model.make_modifier(
-                        ctx.model, model_element_cls, source_model_element
+                        ctx.model,
+                        model_element_cls,
+                        source_model_element,
+                        metaid=modifier_metaid,
                     )
                 )
                 model_element = momapy.builder.object_from_builder(model_element)

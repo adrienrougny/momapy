@@ -151,7 +151,10 @@ _color_hex = _writing.color_to_cd_hex
 
 
 def _unique_metaid(ctx, candidate):
-    """Return a unique metaid string."""
+    """Return a unique metaid string that is a valid XML ID."""
+    # XML ID must start with a letter or underscore
+    if candidate and not candidate[0].isalpha() and candidate[0] != "_":
+        candidate = f"_{candidate}"
     result = candidate
     counter = 1
     while result in ctx.used_metaids:
@@ -1378,8 +1381,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 )
                 alias_id = alias_layout.id_ if alias_layout else ""
                 modifier_reference_attributes = {"species": _get_species_id(sbml_species, ctx)}
-                if modifier.id_:
-                    modifier_reference_attributes["metaid"] = _unique_metaid(ctx, modifier.id_)
+                if modifier.metaid is not None:
+                    modifier_reference_attributes["metaid"] = _unique_metaid(ctx, modifier.metaid)
                 modifier_species_reference = _make_lxml_element("modifierSpeciesReference", attrs=modifier_reference_attributes)
                 modifier_reference_annotation = _make_lxml_element("annotation")
                 modifier_reference_extension = _make_celldesigner_element("extension")

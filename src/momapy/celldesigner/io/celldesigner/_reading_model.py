@@ -268,9 +268,11 @@ def make_product_from_link(cd_product_link, cd_reaction, model, cd_id_to_model_e
     return model_element
 
 
-def make_modifier(model, model_element_cls, source_model_element):
+def make_modifier(model, model_element_cls, source_model_element, metaid=None):
     model_element = model.new_element(model_element_cls)
     model_element.referred_species = source_model_element
+    if metaid is not None:
+        model_element.metaid = metaid
     return model_element
 
 

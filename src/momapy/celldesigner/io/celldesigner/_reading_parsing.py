@@ -487,6 +487,23 @@ def has_boolean_input_from_reaction(cd_reaction):
     )
 
 
+def get_modifier_species_references(cd_reaction):
+    """Return the list of SBML modifierSpeciesReference elements.
+
+    Args:
+        cd_reaction: The SBML reaction XML element.
+
+    Returns:
+        A list of modifierSpeciesReference XML elements.
+    """
+    list_of_modifiers = getattr(cd_reaction, "listOfModifiers", None)
+    if list_of_modifiers is None:
+        return []
+    return list(
+        getattr(list_of_modifiers, "modifierSpeciesReference", [])
+    )
+
+
 def get_reaction_modifications(cd_reaction):
     extension = get_extension(cd_reaction)
     list_of_modification = getattr(extension, "listOfModification", None)
