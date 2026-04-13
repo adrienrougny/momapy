@@ -1,0 +1,99 @@
+"""Classification mappings for the SBGN-ML writer.
+
+Maps momapy model/layout classes to SBGN-ML XML class attribute strings
+and direction/orientation values.
+"""
+
+import momapy.core.elements
+import momapy.sbgn.pd
+import momapy.sbgn.af
+
+CLASS_TO_SBGNML_CLASS = {
+    momapy.sbgn.pd.SBGNPDMap: "process description",
+    momapy.sbgn.pd.SBGNPDModel: "process description",
+    momapy.sbgn.pd.SBGNPDLayout: "process description",
+    momapy.sbgn.pd.StateVariableLayout: "state variable",
+    momapy.sbgn.pd.UnitOfInformationLayout: "unit of information",
+    momapy.sbgn.pd.TerminalLayout: "terminal",
+    momapy.sbgn.pd.MacromoleculeSubunitLayout: "macromolecule",
+    momapy.sbgn.pd.SimpleChemicalSubunitLayout: "simple chemical",
+    momapy.sbgn.pd.NucleicAcidFeatureSubunitLayout: "nucleic acid feature",
+    momapy.sbgn.pd.ComplexSubunitLayout: "complex",
+    momapy.sbgn.pd.MacromoleculeMultimerSubunitLayout: "macromolecule multimer",
+    momapy.sbgn.pd.SimpleChemicalMultimerSubunitLayout: "simple chemical multimer",
+    momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunitLayout: "nucleic acid feature multimer",
+    momapy.sbgn.pd.ComplexMultimerSubunitLayout: "complex multimer",
+    momapy.sbgn.pd.CompartmentLayout: "compartment",
+    momapy.sbgn.pd.SubmapLayout: "submap",
+    momapy.sbgn.pd.UnspecifiedEntityLayout: "unspecified entity",
+    momapy.sbgn.pd.MacromoleculeLayout: "macromolecule",
+    momapy.sbgn.pd.SimpleChemicalLayout: "simple chemical",
+    momapy.sbgn.pd.NucleicAcidFeatureLayout: "nucleic acid feature",
+    momapy.sbgn.pd.ComplexLayout: "complex",
+    momapy.sbgn.pd.MacromoleculeMultimerLayout: "macromolecule multimer",
+    momapy.sbgn.pd.SimpleChemicalMultimerLayout: "simple chemical multimer",
+    momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout: "nucleic acid feature multimer",
+    momapy.sbgn.pd.ComplexMultimerLayout: "complex multimer",
+    momapy.sbgn.pd.PerturbingAgentLayout: "perturbing agent",
+    momapy.sbgn.pd.EmptySetLayout: "empty set",
+    momapy.sbgn.pd.TagLayout: "tag",
+    momapy.sbgn.pd.GenericProcessLayout: "process",
+    momapy.sbgn.pd.UncertainProcessLayout: "uncertain process",
+    momapy.sbgn.pd.OmittedProcessLayout: "omitted process",
+    momapy.sbgn.pd.AssociationLayout: "association",
+    momapy.sbgn.pd.DissociationLayout: "dissociation",
+    momapy.sbgn.pd.PhenotypeLayout: "phenotype",
+    momapy.sbgn.pd.AndOperatorLayout: "and",
+    momapy.sbgn.pd.OrOperatorLayout: "or",
+    momapy.sbgn.pd.NotOperatorLayout: "not",
+    momapy.sbgn.pd.EquivalenceOperatorLayout: "equivalence",
+    momapy.sbgn.pd.ConsumptionLayout: "consumption",
+    momapy.sbgn.pd.ProductionLayout: "production",
+    momapy.sbgn.pd.ModulationLayout: "modulation",
+    momapy.sbgn.pd.StimulationLayout: "stimulation",
+    momapy.sbgn.pd.CatalysisLayout: "catalysis",
+    momapy.sbgn.pd.NecessaryStimulationLayout: "necessary stimulation",
+    momapy.sbgn.pd.InhibitionLayout: "inhibition",
+    momapy.sbgn.pd.LogicArcLayout: "logic arc",
+    momapy.sbgn.pd.EquivalenceArcLayout: "equivalence arc",
+    momapy.sbgn.af.CompartmentLayout: "compartment",
+    momapy.sbgn.af.SubmapLayout: "submap",
+    momapy.sbgn.af.BiologicalActivityLayout: "biological activity",
+    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unspecified entity",
+    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "macromolecule",
+    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "simple chemical",
+    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "nucleic acid feature",
+    momapy.sbgn.af.ComplexUnitOfInformationLayout: "complex",
+    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "perturbation",
+    momapy.sbgn.af.PhenotypeLayout: "phenotype",
+    momapy.sbgn.af.AndOperatorLayout: "and",
+    momapy.sbgn.af.OrOperatorLayout: "or",
+    momapy.sbgn.af.NotOperatorLayout: "not",
+    momapy.sbgn.af.DelayOperatorLayout: "delay",
+    momapy.sbgn.af.UnknownInfluenceLayout: "unknown influence",
+    momapy.sbgn.af.PositiveInfluenceLayout: "positive influence",
+    momapy.sbgn.af.NecessaryStimulationLayout: "necessary stimulation",
+    momapy.sbgn.af.NegativeInfluenceLayout: "negative influence",
+    momapy.sbgn.af.TerminalLayout: "terminal",
+    momapy.sbgn.af.TagLayout: "tag",
+    momapy.sbgn.af.LogicArcLayout: "logic arc",
+    momapy.sbgn.af.EquivalenceArcLayout: "equivalence arc",
+}
+
+DIRECTION_TO_SBGNML_ORIENTATION = {
+    momapy.core.elements.Direction.HORIZONTAL: "horizontal",
+    momapy.core.elements.Direction.VERTICAL: "vertical",
+    momapy.core.elements.Direction.RIGHT: "right",
+    momapy.core.elements.Direction.LEFT: "left",
+    momapy.core.elements.Direction.DOWN: "down",
+    momapy.core.elements.Direction.UP: "up",
+}
+
+# Arc types whose direction is reversed in momapy compared to SBGN-ML.
+REVERSED_ARC_TYPES = (
+    momapy.sbgn.pd.ConsumptionLayout,
+    momapy.sbgn.pd.LogicArcLayout,
+    momapy.sbgn.af.LogicArcLayout,
+    momapy.sbgn.pd.EquivalenceArcLayout,
+    momapy.sbgn.af.EquivalenceArcLayout,
+)

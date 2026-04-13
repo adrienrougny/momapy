@@ -23,6 +23,7 @@ class ReadingContext:
     """
 
     xml_root: typing.Any = None
+    map_key: str | None = None
     model: typing.Any = None
     layout: typing.Any = None
     xml_id_to_model_element: momapy.utils.IdentitySurjectionDict = dataclasses.field(
