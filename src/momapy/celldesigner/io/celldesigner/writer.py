@@ -217,7 +217,9 @@ def _find_layout_for_participant(
         The alias layout element, or None.
     """
     if participant.base and reaction_layout is not None:
-        return reaction_layout.source if is_start else reaction_layout.target
+        result = reaction_layout.source if is_start else reaction_layout.target
+        if result is not None:
+            return result
     arc_layouts = _mapping(writing_context).get_mapping(
         (participant, reaction)
     )
@@ -1220,8 +1222,11 @@ def _make_celldesigner_reaction(writing_context, reaction):
 
     # listOfReactantLinks — derive from layout arcs to handle
     # multiple visual copies of the same model element.
+    # Skip for left-T reactions: all reactant arcs are base (no links).
     reactant_links_element = _make_celldesigner_element("listOfReactantLinks")
-    if reaction_layout is not None:
+    if is_left_t:
+        pass  # left-T has no link reactants
+    elif reaction_layout is not None:
         base_reactant_alias = reaction_layout.source
         link_consumption_arcs = _collect_arcs_for_reaction(
             writing_context, reaction_layout,
@@ -1246,8 +1251,11 @@ def _make_celldesigner_reaction(writing_context, reaction):
     extension.append(reactant_links_element)
 
     # listOfProductLinks — same arc-driven approach.
+    # Skip for right-T reactions: all product arcs are base (no links).
     product_links_element = _make_celldesigner_element("listOfProductLinks")
-    if reaction_layout is not None:
+    if is_right_t:
+        pass  # right-T has no link products
+    elif reaction_layout is not None:
         base_product_alias = reaction_layout.target
         link_production_arcs = _collect_arcs_for_reaction(
             writing_context, reaction_layout,
@@ -1336,7 +1344,9 @@ def _make_celldesigner_reaction(writing_context, reaction):
                     reaction=reaction, reaction_layout=reaction_layout, is_start=True,
                 )
             )
-    if reaction_layout is not None:
+    if is_left_t:
+        pass  # left-T: all reactants already written as base above
+    elif reaction_layout is not None:
         base_reactant_alias = reaction_layout.source
         for arc_layout in _collect_arcs_for_reaction(
             writing_context, reaction_layout,
@@ -1389,7 +1399,9 @@ def _make_celldesigner_reaction(writing_context, reaction):
                     reaction=reaction, reaction_layout=reaction_layout, is_start=False,
                 )
             )
-    if reaction_layout is not None:
+    if is_right_t:
+        pass  # right-T: all products already written as base above
+    elif reaction_layout is not None:
         base_product_alias = reaction_layout.target
         for arc_layout in _collect_arcs_for_reaction(
             writing_context, reaction_layout,
