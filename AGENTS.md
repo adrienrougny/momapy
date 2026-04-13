@@ -49,8 +49,10 @@ src/momapy/
 │   ├── pd.py         # SBGN Process Description glyphs (largest module)
 │   ├── af.py         # SBGN Activity Flow glyphs
 │   ├── utils.py      # SBGN utilities (tidying, fitting)
-│   └── io/sbgnml.py  # SBGN-ML I/O
-├── celldesigner/     # CellDesigner format support
+│   └── io/sbgnml/    # SBGN-ML I/O (see I/O Architecture below)
+│       ├── reader.py, _reading_model.py, _reading_layout.py, ...
+│       └── writer.py, _writing.py, _writing_classification.py
+├── celldesigner/     # CellDesigner format support (same I/O module structure)
 ├── sbml/             # SBML support
 ├── rendering/        # Backends: svg_native, skia, cairo
 ├── io/core.py        # Reader/Writer base classes, ReaderResult, WriterResult
@@ -170,6 +172,59 @@ Every `LayoutElement` (frozen dataclass) must implement:
 - `drawing_elements()` → visual primitives
 - `children()` → child elements
 - `childless()` → copy without children
+
+## I/O Architecture
+
+Readers and writers for each format (SBGN-ML, CellDesigner) follow a shared architecture.
+
+### Module structure
+
+Each format lives in its own subpackage (e.g. `sbgn/io/sbgnml/`, `celldesigner/io/celldesigner/`) with:
+
+- `reader.py` — main reader class (only the `read()` classmethod) + module-level `make_*` functions
+- `_reading_model.py` — model-building `make_*` functions
+- `_reading_layout.py` — layout-building `make_*` functions
+- `_reading_classification.py` — maps XML keys to model/layout classes (reader-specific)
+- `_reading_parsing.py` — XML traversal utilities
+- `writer.py` — main writer class (only the `write()` classmethod) + module-level `make_*` functions
+- `_writing.py` — XML construction helpers
+- `_writing_classification.py` — maps model/layout classes to XML strings (writer-specific)
+
+### Context objects
+
+Both readers and writers use a **context dataclass** passed as the first argument to every function:
+
+- **`ReadingContext`** (extends `momapy.io.utils.ReadingContext`): holds `model`, `layout`, `layout_model_mapping`, element ID lookups, classified XML element lists, annotations/notes state. Format-specific subclasses add fields (e.g. `sbgnml_glyph_id_to_sbgnml_arcs`).
+- **`WritingContext`**: holds `map_`, `annotations`, `notes`, `ids`, flags.
+
+There is no separate "parsed map" dataclass — classified element lists live directly in the context.
+
+### Function conventions
+
+- **Plain module-level functions**, not classmethods. The reader/writer class only keeps the `read()`/`write()` entry point.
+- **`reading_context` / `writing_context`** as first parameter name (never `ctx`).
+- **`make_*` naming** for both reading and writing functions. Reader functions create momapy objects; writer functions create XML elements. Both return the created object — the caller appends/registers.
+- **None-early-return**: reader `make_*` functions check `reading_context.model is None` or `reading_context.layout is None` and return `None` early.
+- **No staticmethod aliases** (e.g. no `_register_model_element = staticmethod(...)`). Call the function directly.
+- **No module-level constant aliases** (e.g. no `_FOO = _writing._FOO`). Reference through the module.
+
+### Reader traversal
+
+Readers use an **interleaved** approach: for each XML element, create both the model element and layout element together, then wire up `layout_model_mapping`. This keeps natural pairing of model/layout children.
+
+Processing order matters — compartments first (background), then entity pools, processes, modulations, etc.
+
+### Writer traversal
+
+Writers use a **model-first** approach: iterate model collections in dependency order (compartments → entity pools → processes → modulations), look up layout elements via `layout_model_mapping.get_mapping()`, and build XML from both model and layout data.
+
+### layout_model_mapping
+
+- Simple elements (compartments, entity pools): singleton layout key → model element
+- Child elements (state variables, subunits): singleton layout key → `(child_model, parent_model)` tuple
+- Processes/reactions: **frozenset** key (process layout + participant arcs + participant targets) → process model. Each participant arc is also separately mapped as arc → `(participant_model, process_model)`.
+- Modulations: **frozenset** key (modulation arc + source frozenset + target frozenset) → modulation model. Uses `_singleton_to_key` to resolve source/target frozensets.
+- Each frozenset has exactly one **anchor** registered in `_singleton_to_key`.
 
 ## Testing Patterns
 
