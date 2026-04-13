@@ -46,6 +46,10 @@ _are_collinear = momapy.celldesigner.io.celldesigner._writing._are_collinear
 def _apply_line_attributes(layout_element, cd_line_element):
     """Apply width and color from a ``<cd:line>`` XML element to a layout.
 
+    Sets ``path_stroke_width`` and ``path_stroke`` on the layout, and
+    propagates to arrowhead attributes when present (CellDesigner uses
+    a single ``<cd:line>`` for the entire arc including arrowheads).
+
     Args:
         layout_element: The layout builder element to modify.
         cd_line_element: The lxml objectified ``<cd:line>`` element,
@@ -55,11 +59,25 @@ def _apply_line_attributes(layout_element, cd_line_element):
         return
     width = cd_line_element.get("width")
     if width is not None:
-        layout_element.path_stroke_width = float(width)
+        width_value = float(width)
+        layout_element.path_stroke_width = width_value
+        if hasattr(layout_element, "arrowhead_stroke_width"):
+            layout_element.arrowhead_stroke_width = width_value
+        if hasattr(layout_element, "end_arrowhead_stroke_width"):
+            layout_element.end_arrowhead_stroke_width = width_value
+        if hasattr(layout_element, "start_arrowhead_stroke_width"):
+            layout_element.start_arrowhead_stroke_width = width_value
     color = cd_line_element.get("color")
     if color is not None:
         rgba_hex = color[2:] + color[:2]
-        layout_element.path_stroke = momapy.coloring.Color.from_hexa(rgba_hex)
+        color_value = momapy.coloring.Color.from_hexa(rgba_hex)
+        layout_element.path_stroke = color_value
+        if hasattr(layout_element, "arrowhead_stroke"):
+            layout_element.arrowhead_stroke = color_value
+        if hasattr(layout_element, "end_arrowhead_stroke"):
+            layout_element.end_arrowhead_stroke = color_value
+        if hasattr(layout_element, "start_arrowhead_stroke"):
+            layout_element.start_arrowhead_stroke = color_value
 
 
 def make_empty_layout(cd_element):
