@@ -7,11 +7,13 @@ to their content, adjusting arc endpoints, and highlighting layout elements.
 
 import collections
 import collections.abc
+import math
 
 import momapy.builder
 import momapy.celldesigner.core
 import momapy.core.elements
 import momapy.core.layout
+import momapy.geometry
 import momapy.positioning
 import momapy.styling
 import momapy.coloring
@@ -648,6 +650,140 @@ def set_arcs_to_borders(
     return map_builder
 
 
+def set_arcs_to_orthogonal(
+    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    angle_tolerance: float = 5.0,
+) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+    """Snap near-orthogonal arc bends to exact right angles.
+
+    CellDesigner stores arc edit points in a local coordinate frame.
+    The coordinate transform can introduce small angular deviations
+    from 90 degrees at bend points. This function detects bends that
+    are within ``angle_tolerance`` of 90 degrees and adjusts the
+    shared bend point to produce an exact right angle.
+
+    For each bend, the longer adjacent segment's direction is
+    preserved and the bend point is projected perpendicularly onto
+    that direction.
+
+    Args:
+        map_: A CellDesigner map or map builder. If a builder is given,
+            it is modified in place.
+        angle_tolerance: Maximum deviation from 90 degrees (in degrees)
+            for a bend to be snapped. Defaults to 5.0.
+
+    Returns:
+        The modified map or map builder. If a frozen map was given,
+            a new map is returned.
+    """
+    min_segment_length = 1.0
+    max_iterations = 3
+
+    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+        map_builder = momapy.builder.builder_from_object(map_)
+    else:
+        map_builder = map_
+    # Iterate to handle consecutive bends on the same arc: snapping
+    # one bend changes the shared segment direction, which can
+    # un-snap an adjacent bend that was already processed.
+    for _ in range(max_iterations):
+        snapped_any = False
+        for layout_element in map_builder.layout.layout_elements:
+            if not momapy.builder.isinstance_or_builder(
+                layout_element, momapy.core.layout.Arc
+            ):
+                continue
+            if len(layout_element.segments) < 2:
+                continue
+            for index in range(len(layout_element.segments) - 1):
+                segment_before = layout_element.segments[index]
+                segment_after = layout_element.segments[index + 1]
+                delta_x_before = segment_before.p2.x - segment_before.p1.x
+                delta_y_before = segment_before.p2.y - segment_before.p1.y
+                delta_x_after = segment_after.p2.x - segment_after.p1.x
+                delta_y_after = segment_after.p2.y - segment_after.p1.y
+                length_before = math.sqrt(
+                    delta_x_before * delta_x_before
+                    + delta_y_before * delta_y_before
+                )
+                length_after = math.sqrt(
+                    delta_x_after * delta_x_after
+                    + delta_y_after * delta_y_after
+                )
+                if (
+                    length_before < min_segment_length
+                    or length_after < min_segment_length
+                ):
+                    continue
+                dot_product = (
+                    delta_x_before * delta_x_after
+                    + delta_y_before * delta_y_after
+                )
+                cos_angle = dot_product / (length_before * length_after)
+                cos_angle = max(-1.0, min(1.0, cos_angle))
+                angle = math.degrees(math.acos(abs(cos_angle)))
+                deviation = abs(90.0 - angle)
+                if deviation > angle_tolerance or deviation < 1e-3:
+                    continue
+                # Snap: preserve the longer segment's direction and
+                # project the bend point perpendicularly.
+                if length_before >= length_after:
+                    # Preserve segment_before direction; new bend
+                    # point is the foot of perpendicular from
+                    # segment_after.p2 onto the line through
+                    # segment_before.
+                    direction_x = delta_x_before / length_before
+                    direction_y = delta_y_before / length_before
+                    vector_x = (
+                        segment_after.p2.x - segment_before.p1.x
+                    )
+                    vector_y = (
+                        segment_after.p2.y - segment_before.p1.y
+                    )
+                    projection = (
+                        vector_x * direction_x + vector_y * direction_y
+                    )
+                    new_x = (
+                        segment_before.p1.x + projection * direction_x
+                    )
+                    new_y = (
+                        segment_before.p1.y + projection * direction_y
+                    )
+                else:
+                    # Preserve segment_after direction; new bend
+                    # point is the foot of perpendicular from
+                    # segment_before.p1 onto the line through
+                    # segment_after.
+                    direction_x = delta_x_after / length_after
+                    direction_y = delta_y_after / length_after
+                    vector_x = (
+                        segment_before.p1.x - segment_after.p2.x
+                    )
+                    vector_y = (
+                        segment_before.p1.y - segment_after.p2.y
+                    )
+                    projection = (
+                        vector_x * direction_x + vector_y * direction_y
+                    )
+                    new_x = (
+                        segment_after.p2.x + projection * direction_x
+                    )
+                    new_y = (
+                        segment_after.p2.y + projection * direction_y
+                    )
+                new_point = momapy.builder.builder_from_object(
+                    momapy.geometry.Point(new_x, new_y)
+                )
+                segment_before.p2 = new_point
+                segment_after.p1 = new_point
+                snapped_any = True
+        if not snapped_any:
+            break
+    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+        return momapy.builder.object_from_builder(map_builder)
+    return map_builder
+
+
 def tidy(
     map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
     modifications_omit_width: bool = False,
@@ -662,6 +798,8 @@ def tidy(
     compartments_ysep: float = 10,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
+    set_arcs_to_orthogonal_: bool = False,
+    arcs_angle_tolerance: float = 5.0,
 ) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
     """Apply comprehensive layout tidying to a CellDesigner map.
 
@@ -684,6 +822,11 @@ def tidy(
         compartments_ysep: Vertical padding for compartments. Defaults to 10.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
+        set_arcs_to_orthogonal_: If True, snap near-orthogonal arc bends
+            to exact right angles. Defaults to False.
+        arcs_angle_tolerance: Maximum deviation from 90 degrees for
+            snapping. Only used when ``set_arcs_to_orthogonal_`` is True.
+            Defaults to 5.0.
 
     Returns:
         The tidied map or map builder. If a frozen map was given,
@@ -722,6 +865,8 @@ def tidy(
         map_builder, compartments_xsep, compartments_ysep
     )
     set_arcs_to_borders(map_builder)
+    if set_arcs_to_orthogonal_:
+        set_arcs_to_orthogonal(map_builder, arcs_angle_tolerance)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
