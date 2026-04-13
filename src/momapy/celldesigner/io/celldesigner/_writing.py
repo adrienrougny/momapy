@@ -536,6 +536,12 @@ def inverse_edit_points_modifier(
 ):
     """Compute frame-space edit points for a modifier arc.
 
+    Uses the arc's endpoint on the reaction side as the coordinate
+    frame basis (unit_x), matching the reader's use of the target
+    anchor point.  Falls back to the reaction node center when the
+    endpoint equals the reaction node position (no targetLineIndex
+    offset).
+
     Args:
         modifier_layout: The modifier layout element with segments.
         source_layout: The source species or gate layout.
@@ -552,7 +558,8 @@ def inverse_edit_points_modifier(
     else:
         source_anchor_name = infer_anchor_name(source_layout, points[0])
     origin = source_layout.anchor_point(source_anchor_name)
-    unit_x = reaction_layout._get_reaction_node_position()
+    target_point = points[-1]
+    unit_x = target_point
     unit_y = _perp_point(origin, unit_x)
     inverse = _build_frame_and_inverse(origin, unit_x, unit_y)
     edit_points = [p.transformed(inverse) for p in intermediate_points]
@@ -574,7 +581,10 @@ def inverse_edit_points_reactant_link(
     """
     points = reactant_link_layout.points()
     anchor_name = infer_anchor_name(species_layout, points[0])
-    origin = species_layout.center()
+    if anchor_name == "center":
+        origin = species_layout.center()
+    else:
+        origin = species_layout.anchor_point(anchor_name)
     unit_x = reaction_layout.left_connector_tip()
     unit_y = _perp_point(origin, unit_x)
     inverse = _build_frame_and_inverse(origin, unit_x, unit_y)
@@ -599,7 +609,10 @@ def inverse_edit_points_product_link(
     points = product_link_layout.points()
     anchor_name = infer_anchor_name(species_layout, points[-1])
     origin = reaction_layout.right_connector_tip()
-    unit_x = species_layout.center()
+    if anchor_name == "center":
+        unit_x = species_layout.center()
+    else:
+        unit_x = species_layout.anchor_point(anchor_name)
     unit_y = _perp_point(origin, unit_x)
     inverse = _build_frame_and_inverse(origin, unit_x, unit_y)
     intermediate_points = points[1:-1]
