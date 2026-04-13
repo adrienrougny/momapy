@@ -801,7 +801,14 @@ def make_modifier(
         source_anchor_name = "center"
         edit_points = edit_points[1:-1]  # first point is origin marker (0,0), last point is the position of the logic gate
     origin = source_layout_element.anchor_point(source_anchor_name)
-    unit_x = super_layout_element._get_reaction_node_position()
+    cd_target_line_index = cd_reaction_modification.get("targetLineIndex")
+    target_anchor_point = _get_anchor_point_from_target_line_index(
+        super_layout_element, cd_target_line_index
+    )
+    if target_anchor_point is not None:
+        unit_x = target_anchor_point
+    else:
+        unit_x = super_layout_element._get_reaction_node_position()
     unit_y = unit_x.transformed(momapy.geometry.Rotation(math.radians(90), origin))
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
@@ -817,11 +824,9 @@ def make_modifier(
         start_point = source_layout_element.own_border(reference_point)
     else:
         start_point = origin
-    cd_target_line_index = cd_reaction_modification.get("targetLineIndex")
-    end_point = _get_anchor_point_from_target_line_index(
-        super_layout_element, cd_target_line_index
-    )
-    if end_point is None:
+    if target_anchor_point is not None:
+        end_point = target_anchor_point
+    else:
         if intermediate_points:
             reference_point = intermediate_points[-1]
         else:
