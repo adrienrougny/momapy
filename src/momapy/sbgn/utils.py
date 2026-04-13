@@ -557,14 +557,14 @@ def tidy(
     map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
     auxiliary_units_omit_width: bool = False,
     auxiliary_units_omit_height: bool = False,
-    nodes_xsep: float = 0,
-    nodes_ysep: float = 0,
-    auxiliary_units_xsep: float = 0,
-    auxiliary_units_ysep: float = 0,
-    complexes_xsep: float = 0,
-    complexes_ysep: float = 0,
-    compartments_xsep: float = 0,
-    compartments_ysep: float = 0,
+    nodes_xsep: float = 4,
+    nodes_ysep: float = 4,
+    auxiliary_units_xsep: float = 2,
+    auxiliary_units_ysep: float = 2,
+    complexes_xsep: float = 10,
+    complexes_ysep: float = 10,
+    compartments_xsep: float = 10,
+    compartments_ysep: float = 10,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
 ) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
@@ -579,14 +579,18 @@ def tidy(
             it is modified in place.
         auxiliary_units_omit_width: Do not adjust auxiliary unit widths.
         auxiliary_units_omit_height: Do not adjust auxiliary unit heights.
-        nodes_xsep: Horizontal padding for node sizing.
-        nodes_ysep: Vertical padding for node sizing.
+        nodes_xsep: Horizontal padding for node sizing. Defaults to 4.
+        nodes_ysep: Vertical padding for node sizing. Defaults to 4.
         auxiliary_units_xsep: Horizontal padding for auxiliary units.
+            Defaults to 2.
         auxiliary_units_ysep: Vertical padding for auxiliary units.
-        complexes_xsep: Horizontal padding for complexes.
-        complexes_ysep: Vertical padding for complexes.
+            Defaults to 2.
+        complexes_xsep: Horizontal padding for complexes. Defaults to 10.
+        complexes_ysep: Vertical padding for complexes. Defaults to 10.
         compartments_xsep: Horizontal padding for compartments.
+            Defaults to 10.
         compartments_ysep: Vertical padding for compartments.
+            Defaults to 10.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
 
