@@ -2807,8 +2807,8 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
     _font_stroke: typing.ClassVar[
         momapy.coloring.Color | momapy.drawing.NoneValueType
     ] = momapy.drawing.NoneValue
-    left_connector_fraction: float = 0.4
-    right_connector_fraction: float = 0.6
+    left_connector_fraction: float = 0.375
+    right_connector_fraction: float = 0.625
     reaction_node_height: float = 10.0
     reaction_node_width: float = 10.0
     reaction_node_segment: int = 1
