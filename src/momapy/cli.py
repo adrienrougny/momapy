@@ -1,7 +1,8 @@
 """Command-line interface for momapy.
 
 This module provides a CLI for working with molecular maps, including commands
-for rendering maps to various image formats.
+for rendering maps to various image formats and exporting maps to their
+original format (useful for roundtrip testing).
 
 Example:
     # Render an SBGN-ML file to SVG
@@ -12,6 +13,12 @@ Example:
 
     # Apply a style sheet
     $ momapy render map.sbgn -o output.svg -s custom_style.css
+
+    # Export a CellDesigner map (roundtrip)
+    $ momapy export map.xml -o output.xml
+
+    # Export with tidy and style sheet
+    $ momapy export map.sbgn -o output.sbgn -c -s style.css
 """
 
 import argparse
@@ -19,6 +26,28 @@ import momapy.celldesigner.core
 import momapy.celldesigner.utils
 import momapy.sbgn.core
 import momapy.sbgn.utils
+
+
+def _infer_writer(map_):
+    """Infer the writer name from the map type.
+
+    Args:
+        map_: The map object to infer the writer for.
+
+    Returns:
+        The name of the writer to use.
+
+    Raises:
+        ValueError: If the map type is not supported for export.
+    """
+    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+        return "celldesigner"
+    elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+        return "sbgnml"
+    else:
+        raise ValueError(
+            f"could not infer writer for map type {type(map_).__name__}"
+        )
 
 
 def run(args):
@@ -77,6 +106,32 @@ def run(args):
             to_top_left=args.to_top_left,
             multi_pages=args.multi_pages,
         )
+    elif args.subcommand == "export":
+        import momapy.builder
+        import momapy.io.core
+        import momapy.styling
+
+        reader_result = momapy.io.core.read(args.input_file_path)
+        map_ = reader_result.obj
+        if args.tidy:
+            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+                map_ = momapy.celldesigner.utils.tidy(map_)
+            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+                map_ = momapy.sbgn.utils.tidy(map_)
+        if args.style_sheet_file_path:
+            style_sheets = [
+                momapy.styling.StyleSheet.from_file(style_sheet_file_path)
+                for style_sheet_file_path in args.style_sheet_file_path
+            ]
+            if len(style_sheets) > 1:
+                style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+            else:
+                style_sheet = style_sheets[0]
+            map_builder = momapy.builder.builder_from_object(map_)
+            momapy.styling.apply_style_sheet(map_builder, style_sheet)
+            map_ = map_builder.build()
+        writer = _infer_writer(map_)
+        momapy.io.core.write(map_, args.output_file_path, writer=writer)
     else:
         raise ValueError(f"subcommand {args.subcommand} not supported")
 
@@ -97,7 +152,7 @@ def main():
         ```
     """
     parser = argparse.ArgumentParser(
-        description="Tool for working with molecular maps. Currently, only the 'render' subcommand is supported.",
+        description="Tool for working with molecular maps.",
     )
     subparsers = parser.add_subparsers(dest="subcommand")
     render_parser = subparsers.add_parser(
@@ -142,6 +197,28 @@ def main():
         help="tidy the map (reroute arcs, fit labels, etc.)",
     )
     render_parser.add_argument(
+        "-s",
+        "--style-sheet-file-path",
+        action="append",
+        default=[],
+        help="style sheet file path",
+    )
+    export_parser = subparsers.add_parser(
+        "export",
+        description="Export a map (SBGN-ML or CellDesigner) to a file in the same format. Useful for roundtrip testing.",
+    )
+    export_parser.add_argument("input_file_path", help="input file path")
+    export_parser.add_argument(
+        "-o", "--output-file-path", required=True, help="output file path"
+    )
+    export_parser.add_argument(
+        "-c",
+        "--tidy",
+        action="store_true",
+        default=False,
+        help="tidy the map (reroute arcs, fit labels, etc.)",
+    )
+    export_parser.add_argument(
         "-s",
         "--style-sheet-file-path",
         action="append",
