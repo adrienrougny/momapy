@@ -43,6 +43,25 @@ _LAYOUT_TO_ACTIVE_LAYOUT = {
 _are_collinear = momapy.celldesigner.io.celldesigner._writing._are_collinear
 
 
+def _apply_line_attributes(layout_element, cd_line_element):
+    """Apply width and color from a ``<cd:line>`` XML element to a layout.
+
+    Args:
+        layout_element: The layout builder element to modify.
+        cd_line_element: The lxml objectified ``<cd:line>`` element,
+            or ``None`` (in which case nothing is changed).
+    """
+    if cd_line_element is None:
+        return
+    width = cd_line_element.get("width")
+    if width is not None:
+        layout_element.path_stroke_width = float(width)
+    color = cd_line_element.get("color")
+    if color is not None:
+        rgba_hex = color[2:] + color[:2]
+        layout_element.path_stroke = momapy.coloring.Color.from_hexa(rgba_hex)
+
+
 def make_empty_layout(cd_element):
     layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
     return layout
@@ -507,6 +526,11 @@ def make_reaction(
         layout_element.target = cd_id_to_layout_element[
             cd_base_products[0].get("alias")
         ]
+    cd_extension = momapy.celldesigner.io.celldesigner._reading_parsing.get_extension(
+        cd_reaction
+    )
+    cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element, make_base_reactant_layouts, make_base_product_layouts
 
 
@@ -571,6 +595,11 @@ def make_reactant_from_base(
         layout_element.segments.append(segment)
     layout_element.source = super_layout_element
     layout_element.target = species_layout_element
+    cd_extension = momapy.celldesigner.io.celldesigner._reading_parsing.get_extension(
+        cd_reaction
+    )
+    cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -621,6 +650,8 @@ def make_reactant_from_link(
         layout_element.segments.append(segment)
     layout_element.source = super_layout_element
     layout_element.target = species_layout_element
+    cd_line = getattr(cd_reactant_link, "line", None)
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -685,6 +716,11 @@ def make_product_from_base(
         layout_element.segments.append(segment)
     layout_element.source = super_layout_element
     layout_element.target = product_layout_element
+    cd_extension = momapy.celldesigner.io.celldesigner._reading_parsing.get_extension(
+        cd_reaction
+    )
+    cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -735,6 +771,8 @@ def make_product_from_link(
         layout_element.segments.append(segment)
     layout_element.source = super_layout_element
     layout_element.target = species_layout_element
+    cd_line = getattr(cd_product_link, "line", None)
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -844,6 +882,8 @@ def make_modifier(
         layout_element.segments.append(segment)
     layout_element.source = source_layout_element
     layout_element.target = super_layout_element
+    cd_line = getattr(cd_reaction_modification, "line", None)
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -949,4 +989,9 @@ def make_modulation(
         layout_element.segments.append(segment)
     layout_element.source = source_layout_element
     layout_element.target = target_layout_element
+    cd_extension = momapy.celldesigner.io.celldesigner._reading_parsing.get_extension(
+        cd_reaction
+    )
+    cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
+    _apply_line_attributes(layout_element, cd_line)
     return layout_element
