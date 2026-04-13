@@ -587,7 +587,10 @@ def make_reactant_from_link(
             cd_reactant_link
         )
     )
-    origin = species_layout_element.center()
+    if reactant_anchor_name == "center":
+        origin = species_layout_element.center()
+    else:
+        origin = species_layout_element.anchor_point(reactant_anchor_name)
     unit_x = super_layout_element.left_connector_tip()
     unit_y = unit_x.transformed(momapy.geometry.Rotation(math.radians(90), origin))
     transformation = momapy.geometry.get_transformation_for_frame(
@@ -699,7 +702,10 @@ def make_product_from_link(
         )
     )
     origin = super_layout_element.right_connector_tip()
-    unit_x = species_layout_element.center()
+    if product_anchor_name == "center":
+        unit_x = species_layout_element.center()
+    else:
+        unit_x = species_layout_element.anchor_point(product_anchor_name)
     unit_y = unit_x.transformed(momapy.geometry.Rotation(math.radians(90), origin))
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
