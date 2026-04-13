@@ -15,6 +15,9 @@ Example:
 """
 
 import argparse
+import momapy.celldesigner.core
+import momapy.celldesigner.utils
+import momapy.sbgn.core
 import momapy.sbgn.utils
 
 
@@ -59,17 +62,20 @@ def run(args):
         for input_file_path in args.input_file_path:
             map_ = momapy.io.core.read(input_file_path).obj
             if args.tidy:
-                map_ = momapy.sbgn.utils.tidy(
-                    map_,
-                    nodes_xsep=4.0,
-                    nodes_ysep=4.0,
-                    auxiliary_units_xsep=2.0,
-                    auxiliary_units_ysep=2.0,
-                    complexes_xsep=10.0,
-                    complexes_ysep=10.0,
-                    compartments_xsep=10.0,
-                    compartments_ysep=10.0,
-                )
+                if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+                    map_ = momapy.celldesigner.utils.tidy(map_)
+                elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+                    map_ = momapy.sbgn.utils.tidy(
+                        map_,
+                        nodes_xsep=4.0,
+                        nodes_ysep=4.0,
+                        auxiliary_units_xsep=2.0,
+                        auxiliary_units_ysep=2.0,
+                        complexes_xsep=10.0,
+                        complexes_ysep=10.0,
+                        compartments_xsep=10.0,
+                        compartments_ysep=10.0,
+                    )
             layout = map_.layout
             layouts.append(layout)
         momapy.rendering.core.render_layout_elements(
