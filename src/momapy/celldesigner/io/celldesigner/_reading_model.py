@@ -1,6 +1,8 @@
 """CellDesigner model-building functions.
 
-Functions for constructing momapy model objects from CellDesigner XML data.
+Each ``make_*`` function takes a ``reading_context`` as its first
+argument, checks whether ``reading_context.model`` is ``None``, and
+returns ``None`` early when no model is being built.
 """
 
 import frozendict
@@ -70,6 +72,22 @@ def make_annotations_from_notes(cd_notes):
     return annotations
 
 
+def make_and_add_annotations(reading_context, cd_element, model_element):
+    """Add annotations from an XML element to the reading context.
+
+    Args:
+        reading_context: The reading context.
+        cd_element: The CellDesigner XML element.
+        model_element: The frozen model element to associate with.
+    """
+    if reading_context.with_annotations:
+        annotations = make_annotations_from_element(cd_element)
+        if annotations:
+            reading_context.map_element_to_annotations[model_element].update(
+                annotations
+            )
+
+
 def make_empty_model(cd_element):
     model = momapy.celldesigner.core.CellDesignerModelBuilder()
     return model
@@ -83,8 +101,10 @@ def make_empty_map(cd_element):
     return map_
 
 
-def make_compartment(cd_compartment, model):
-    model_element = model.new_element(momapy.celldesigner.core.Compartment)
+def make_compartment(reading_context, cd_compartment):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Compartment)
     model_element.id_ = cd_compartment.get("id")
     model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
         cd_compartment.get("name")
@@ -93,8 +113,10 @@ def make_compartment(cd_compartment, model):
     return model_element
 
 
-def make_species_template(cd_species_template, model, model_element_cls):
-    model_element = model.new_element(model_element_cls)
+def make_species_template(reading_context, cd_species_template, model_element_cls):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = cd_species_template.get("id")
     model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
         cd_species_template.get("name")
@@ -102,8 +124,14 @@ def make_species_template(cd_species_template, model, model_element_cls):
     return model_element
 
 
-def make_modification_residue(cd_modification_residue, model, super_cd_element, order):
-    model_element = model.new_element(momapy.celldesigner.core.ModificationResidue)
+def make_modification_residue(
+    reading_context, cd_modification_residue, super_cd_element, order
+):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(
+        momapy.celldesigner.core.ModificationResidue
+    )
     cd_modification_residue_id = (
         f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
     )
@@ -115,8 +143,10 @@ def make_modification_residue(cd_modification_residue, model, super_cd_element, 
     return model_element
 
 
-def make_region(cd_region, model, model_element_cls, super_cd_element, order):
-    model_element = model.new_element(model_element_cls)
+def make_region(reading_context, cd_region, model_element_cls, super_cd_element, order):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     cd_region_id = f"{super_cd_element.get('id')}_{cd_region.get('id')}"
     model_element.id_ = cd_region_id
     model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
@@ -130,31 +160,35 @@ def make_region(cd_region, model, model_element_cls, super_cd_element, order):
 
 
 def make_species(
+    reading_context,
     cd_species,
-    model,
     model_element_cls,
     name,
     homomultimer,
     hypothetical,
     active,
-    cd_id_to_model_element,
-    cd_id_to_cd_element,
 ):
-    model_element = model.new_element(model_element_cls)
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = cd_species.get("id")
     model_element.name = name
     model_element.metaid = cd_species.get("metaid")
     cd_compartment_id = cd_species.get("compartment")
     if cd_compartment_id is not None:
-        compartment_model_element = cd_id_to_model_element[cd_compartment_id]
+        compartment_model_element = reading_context.xml_id_to_model_element[
+            cd_compartment_id
+        ]
         model_element.compartment = compartment_model_element
     cd_species_template = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_template_from_species(
-            cd_species, cd_id_to_cd_element
+            cd_species, reading_context.xml_id_to_xml_element
         )
     )
     if cd_species_template is not None:
-        model_element.template = cd_id_to_model_element[cd_species_template.get("id")]
+        model_element.template = reading_context.xml_id_to_model_element[
+            cd_species_template.get("id")
+        ]
     model_element.homomultimer = homomultimer
     model_element.hypothetical = hypothetical
     model_element.active = active
@@ -162,10 +196,12 @@ def make_species(
 
 
 def make_species_modification(
-    model, modification_state, cd_id_to_model_element, cd_modification_residue_id
+    reading_context, modification_state, cd_modification_residue_id
 ):
-    model_element = model.new_element(momapy.celldesigner.core.Modification)
-    modification_residue_model_element = cd_id_to_model_element[
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Modification)
+    modification_residue_model_element = reading_context.xml_id_to_model_element[
         cd_modification_residue_id
     ]
     model_element.residue = modification_residue_model_element
@@ -173,23 +209,27 @@ def make_species_modification(
     return model_element
 
 
-def make_species_structural_state(cd_species_structural_state, model):
-    model_element = model.new_element(momapy.celldesigner.core.StructuralState)
+def make_species_structural_state(reading_context, cd_species_structural_state):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.StructuralState)
     model_element.value = cd_species_structural_state.get("structuralState")
     return model_element
 
 
-def make_reaction(cd_reaction, model, model_element_cls):
-    model_element = model.new_element(model_element_cls)
+def make_reaction(reading_context, cd_reaction, model_element_cls):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = cd_reaction.get("id")
     model_element.reversible = cd_reaction.get("reversible") == "true"
     return model_element
 
 
-def make_reactant_from_base(
-    cd_base_reactant, cd_reaction, model, cd_id_to_model_element
-):
-    model_element = model.new_element(momapy.celldesigner.core.Reactant)
+def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
     model_element.base = True
     cd_species_id = cd_base_reactant.get("species")
     for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
@@ -203,15 +243,17 @@ def make_reactant_from_base(
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[cd_base_reactant.get("alias")]
+    species_model_element = reading_context.xml_id_to_model_element[
+        cd_base_reactant.get("alias")
+    ]
     model_element.referred_species = species_model_element
     return model_element
 
 
-def make_reactant_from_link(
-    cd_reactant_link, cd_reaction, model, cd_id_to_model_element
-):
-    model_element = model.new_element(momapy.celldesigner.core.Reactant)
+def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
     for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
         cd_reaction
@@ -224,13 +266,17 @@ def make_reactant_from_link(
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[cd_reactant_link.get("alias")]
+    species_model_element = reading_context.xml_id_to_model_element[
+        cd_reactant_link.get("alias")
+    ]
     model_element.referred_species = species_model_element
     return model_element
 
 
-def make_product_from_base(cd_base_product, cd_reaction, model, cd_id_to_model_element):
-    model_element = model.new_element(momapy.celldesigner.core.Product)
+def make_product_from_base(reading_context, cd_base_product, cd_reaction):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Product)
     model_element.base = True
     cd_species_id = cd_base_product.get("species")
     for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
@@ -244,13 +290,17 @@ def make_product_from_base(cd_base_product, cd_reaction, model, cd_id_to_model_e
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[cd_base_product.get("alias")]
+    species_model_element = reading_context.xml_id_to_model_element[
+        cd_base_product.get("alias")
+    ]
     model_element.referred_species = species_model_element
     return model_element
 
 
-def make_product_from_link(cd_product_link, cd_reaction, model, cd_id_to_model_element):
-    model_element = model.new_element(momapy.celldesigner.core.Product)
+def make_product_from_link(reading_context, cd_product_link, cd_reaction):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(momapy.celldesigner.core.Product)
     cd_species_id = cd_product_link.get("product")
     for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
         cd_reaction
@@ -263,23 +313,30 @@ def make_product_from_link(cd_product_link, cd_reaction, model, cd_id_to_model_e
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = cd_id_to_model_element[cd_product_link.get("alias")]
+    species_model_element = reading_context.xml_id_to_model_element[
+        cd_product_link.get("alias")
+    ]
     model_element.referred_species = species_model_element
     return model_element
 
 
-def make_modifier(model, model_element_cls, source_model_element, metaid=None):
-    model_element = model.new_element(model_element_cls)
+def make_modifier(reading_context, model_element_cls, source_model_element, metaid=None):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_element.referred_species = source_model_element
     if metaid is not None:
         model_element.metaid = metaid
     return model_element
 
 
-def make_logic_gate(model, model_element_cls, cd_input_ids, cd_id_to_model_element):
-    model_element = model.new_element(model_element_cls)
+def make_logic_gate(reading_context, model_element_cls, cd_input_ids):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_input_elements = [
-        cd_id_to_model_element[cd_input_id] for cd_input_id in cd_input_ids
+        reading_context.xml_id_to_model_element[cd_input_id]
+        for cd_input_id in cd_input_ids
     ]
     for model_input_element in model_input_elements:
         model_element.inputs.add(model_input_element)
@@ -287,9 +344,11 @@ def make_logic_gate(model, model_element_cls, cd_input_ids, cd_id_to_model_eleme
 
 
 def make_modulation(
-    cd_reaction, model, model_element_cls, source_model_element, target_model_element
+    reading_context, cd_reaction, model_element_cls, source_model_element, target_model_element
 ):
-    model_element = model.new_element(model_element_cls)
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = cd_reaction.get("id")
     model_element.source = source_model_element
     model_element.target = target_model_element

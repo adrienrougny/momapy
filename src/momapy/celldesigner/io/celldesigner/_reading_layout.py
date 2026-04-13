@@ -1,7 +1,8 @@
 """CellDesigner layout-building helpers and constants.
 
-Functions and constants for constructing momapy layout objects from
-CellDesigner XML data.
+Each ``make_*`` function takes a ``reading_context`` as its first
+argument, checks whether ``reading_context.layout`` is ``None``, and
+returns ``None`` early when no layout is being built.
 """
 
 import math
@@ -47,14 +48,18 @@ def make_empty_layout(cd_element):
     return layout
 
 
-def set_layout_size_and_position(cd_model, layout):
-    layout.width = float(
+def set_layout_size_and_position(reading_context, cd_model):
+    if reading_context.layout is None:
+        return
+    reading_context.layout.width = float(
         momapy.celldesigner.io.celldesigner._reading_parsing.get_width(cd_model)
     )
-    layout.height = float(
+    reading_context.layout.height = float(
         momapy.celldesigner.io.celldesigner._reading_parsing.get_height(cd_model)
     )
-    layout.position = momapy.geometry.Point(layout.width / 2, layout.height / 2)
+    reading_context.layout.position = momapy.geometry.Point(
+        reading_context.layout.width / 2, reading_context.layout.height / 2
+    )
 
 
 def make_segments(points):
@@ -79,9 +84,11 @@ def make_points(cd_edit_points):
 
 
 def make_species(
-    cd_species_alias, layout, layout_element_cls, name, homomultimer, active
+    reading_context, cd_species_alias, layout_element_cls, name, homomultimer, active
 ):
-    layout_element = layout.new_element(layout_element_cls)
+    if reading_context.layout is None:
+        return None
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = cd_species_alias.get("id")
     cd_x, cd_y, cd_w, cd_h = momapy.celldesigner.io.celldesigner._reading_parsing.get_bounds(
         cd_species_alias
@@ -113,7 +120,7 @@ def make_species(
     layout_element.n = homomultimer
     if active:
         active_cls = _LAYOUT_TO_ACTIVE_LAYOUT[layout_element_cls]
-        active_element = layout.new_element(active_cls)
+        active_element = reading_context.layout.new_element(active_cls)
         active_element.position = layout_element.position
         active_element.width = (
             layout_element.width + momapy.celldesigner.core._ACTIVE_XSEP * 2
@@ -128,12 +135,14 @@ def make_species(
 
 
 def make_species_modification(
+    reading_context,
     cd_modification_residue,
-    layout,
     modification_state,
     super_layout_element,
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.ModificationLayout)
+    if reading_context.layout is None:
+        return None
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ModificationLayout)
     angle = cd_modification_residue.get("angle")
     if angle is None:
         fraction = float(cd_modification_residue.get("pos"))
@@ -167,7 +176,7 @@ def make_species_modification(
     layout_element.label = text_layout
     cd_modification_residue_name = cd_modification_residue.get("name")
     if cd_modification_residue_name is not None:
-        residue_text_layout = layout.new_element(momapy.core.layout.TextLayout)
+        residue_text_layout = reading_context.layout.new_element(momapy.core.layout.TextLayout)
         residue_text_layout.text = cd_modification_residue_name
         residue_text_layout.font_size = _DEFAULT_MODIFICATION_FONT_SIZE
         residue_text_layout.font_family = _DEFAULT_FONT_FAMILY
@@ -186,9 +195,11 @@ def make_species_modification(
 
 
 def make_species_structural_state(
-    cd_species_structural_state, layout, super_layout_element
+    reading_context, cd_species_structural_state, super_layout_element
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.StructuralStateLayout)
+    if reading_context.layout is None:
+        return None
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.StructuralStateLayout)
     layout_element.position = super_layout_element.own_angle(90)
     text = cd_species_structural_state.get("structuralState")
     text_layout = momapy.core.layout.TextLayout(
@@ -206,12 +217,14 @@ def make_species_structural_state(
     return layout_element
 
 
-def make_compartment_from_alias(cd_compartment, cd_compartment_alias, layout):
+def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_alias):
+    if reading_context.layout is None:
+        return None
     if getattr(cd_compartment_alias, "class").text == "OVAL":
         layout_element_cls = momapy.celldesigner.core.OvalCompartmentLayout
     else:
         layout_element_cls = momapy.celldesigner.core.RectangleCompartmentLayout
-    layout_element = layout.new_element(layout_element_cls)
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = cd_compartment_alias.get("id")
     cd_x = float(cd_compartment_alias.bounds.get("x"))
     cd_y = float(cd_compartment_alias.bounds.get("y"))
@@ -255,7 +268,8 @@ def make_compartment_from_alias(cd_compartment, cd_compartment_alias, layout):
     return layout_element
 
 
-def make_segments_non_t_shape(cd_reaction, cd_id_to_layout_element):
+def make_segments_non_t_shape(reading_context, cd_reaction):
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
     )
@@ -315,7 +329,8 @@ def make_segments_non_t_shape(cd_reaction, cd_id_to_layout_element):
     return make_segments(points)
 
 
-def make_segments_left_t_shape(cd_reaction, cd_id_to_layout_element):
+def make_segments_left_t_shape(reading_context, cd_reaction):
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
     )
@@ -375,7 +390,8 @@ def make_segments_left_t_shape(cd_reaction, cd_id_to_layout_element):
     return make_segments(points)
 
 
-def make_segments_right_t_shape(cd_reaction, cd_id_to_layout_element):
+def make_segments_right_t_shape(reading_context, cd_reaction):
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
     )
@@ -437,20 +453,22 @@ def make_segments_right_t_shape(cd_reaction, cd_id_to_layout_element):
 
 
 def make_reaction(
+    reading_context,
     cd_reaction,
-    layout,
     layout_element_cls,
     cd_base_reactants,
     cd_base_products,
-    cd_id_to_layout_element,
 ):
-    layout_element = layout.new_element(layout_element_cls)
+    if reading_context.layout is None:
+        return None, False, False
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = cd_reaction.get("id")
     layout_element.reversible = cd_reaction.get("reversible") == "true"
     if not layout_element.reversible:
         layout_element.start_shorten = 0.0
     if len(cd_base_reactants) == 1 and len(cd_base_products) == 1:
-        segments = make_segments_non_t_shape(cd_reaction, cd_id_to_layout_element)
+        segments = make_segments_non_t_shape(reading_context, cd_reaction)
         reaction_node_segment = int(
             momapy.celldesigner.io.celldesigner._reading_parsing.get_rectangle_index(
                 cd_reaction
@@ -459,14 +477,14 @@ def make_reaction(
         make_base_reactant_layouts = False
         make_base_product_layouts = False
     elif len(cd_base_reactants) > 1 and len(cd_base_products) == 1:
-        segments = make_segments_left_t_shape(cd_reaction, cd_id_to_layout_element)
+        segments = make_segments_left_t_shape(reading_context, cd_reaction)
         reaction_node_segment = int(
             momapy.celldesigner.io.celldesigner._reading_parsing.get_t_shape_index(cd_reaction)
         )
         make_base_reactant_layouts = True
         make_base_product_layouts = False
     elif len(cd_base_reactants) == 1 and len(cd_base_products) > 1:
-        segments = make_segments_right_t_shape(cd_reaction, cd_id_to_layout_element)
+        segments = make_segments_right_t_shape(reading_context, cd_reaction)
         reaction_node_segment = (
             len(segments)
             - 1
@@ -493,14 +511,16 @@ def make_reaction(
 
 
 def make_reactant_from_base(
+    reading_context,
     cd_base_reactant,
     n_cd_base_reactant,
     cd_reaction,
-    layout,
-    cd_id_to_layout_element,
     super_layout_element,
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
+    if reading_context.layout is None:
+        return None
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
     cd_edit_points = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
             cd_reaction
@@ -555,9 +575,12 @@ def make_reactant_from_base(
 
 
 def make_reactant_from_link(
-    cd_reactant_link, layout, cd_id_to_layout_element, super_layout_element
+    reading_context, cd_reactant_link, super_layout_element
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
+    if reading_context.layout is None:
+        return None
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
     species_layout_element = cd_id_to_layout_element[cd_reactant_link.get("alias")]
     reactant_anchor_name = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
@@ -599,14 +622,16 @@ def make_reactant_from_link(
 
 
 def make_product_from_base(
+    reading_context,
     cd_base_product,
     n_cd_base_product,
     cd_reaction,
-    layout,
-    cd_id_to_layout_element,
     super_layout_element,
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.ProductionLayout)
+    if reading_context.layout is None:
+        return None
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ProductionLayout)
     cd_edit_points = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
             cd_reaction
@@ -661,9 +686,12 @@ def make_product_from_base(
 
 
 def make_product_from_link(
-    cd_product_link, layout, cd_id_to_layout_element, super_layout_element
+    reading_context, cd_product_link, super_layout_element
 ):
-    layout_element = layout.new_element(momapy.celldesigner.core.ProductionLayout)
+    if reading_context.layout is None:
+        return None
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ProductionLayout)
     species_layout_element = cd_id_to_layout_element[cd_product_link.get("alias")]
     product_anchor_name = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
@@ -742,14 +770,16 @@ def _get_anchor_point_from_target_line_index(reaction_layout, target_line_index)
 
 
 def make_modifier(
+    reading_context,
     cd_reaction_modification,
-    layout,
     layout_element_cls,
     source_layout_element,
     super_layout_element,
     has_boolean_input,
 ):
-    layout_element = layout.new_element(layout_element_cls)
+    if reading_context.layout is None:
+        return None
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     cd_edit_points = cd_reaction_modification.get("editPoints")
     if cd_edit_points is not None:
         edit_points = make_points(cd_edit_points)
@@ -806,8 +836,11 @@ def make_modifier(
     return layout_element
 
 
-def make_logic_gate(cd_element, layout, layout_element_cls, cd_id_to_layout_element):
-    layout_element = layout.new_element(layout_element_cls)
+def make_logic_gate(reading_context, cd_element, layout_element_cls):
+    if reading_context.layout is None:
+        return None
+    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     cd_edit_points = cd_element.get("editPoints")
     edit_points = make_points(cd_edit_points)
     position = edit_points[-1]
@@ -819,9 +852,10 @@ def make_logic_gate(cd_element, layout, layout_element_cls, cd_id_to_layout_elem
     return layout_element
 
 
-def make_logic_arc(layout, gate_layout_element, input_layout_element):
-    """Create a logic arc from a gate to an input species."""
-    layout_element = layout.new_element(momapy.celldesigner.core.LogicArcLayout)
+def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
+    if reading_context.layout is None:
+        return None
+    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.LogicArcLayout)
     start_point = input_layout_element.own_border(gate_layout_element.position)
     end_point = gate_layout_element.own_border(start_point)
     segment = momapy.geometry.Segment(start_point, end_point)
@@ -832,8 +866,8 @@ def make_logic_arc(layout, gate_layout_element, input_layout_element):
 
 
 def make_modulation(
+    reading_context,
     cd_reaction,
-    layout,
     layout_element_cls,
     source_layout_element,
     target_layout_element,
@@ -841,6 +875,8 @@ def make_modulation(
     cd_base_reactant,
     cd_base_product,
 ):
+    if reading_context.layout is None:
+        return None
     cd_edit_points = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
             cd_reaction
@@ -862,7 +898,7 @@ def make_modulation(
             )
         else:
             source_anchor_name = "center"
-    layout_element = layout.new_element(layout_element_cls)
+    layout_element = reading_context.layout.new_element(layout_element_cls)
     if hasattr(cd_base_product, "linkAnchor"):
         target_anchor_name = (
             momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
