@@ -144,6 +144,33 @@ def _get_species_id(species, writing_context=None):
 _color_hex = _writing.color_to_cd_hex
 
 
+def _get_line_attributes(layout, include_type=False):
+    """Build attributes dict for a ``<cd:line>`` element from a layout.
+
+    Reads ``path_stroke_width`` and ``path_stroke`` from the layout,
+    falling back to sensible defaults.
+
+    Args:
+        layout: A layout element with path_stroke / path_stroke_width.
+        include_type: Whether to include ``type="Straight"``.
+
+    Returns:
+        A dict of XML attributes.
+    """
+    width = "1.0"
+    color = "ff000000"
+    if layout is not None:
+        if getattr(layout, "path_stroke_width", None) is not None:
+            width = str(layout.path_stroke_width)
+        stroke = getattr(layout, "path_stroke", None)
+        if stroke is not None and not isinstance(stroke, momapy.drawing.NoneValueType):
+            color = _color_hex(stroke)
+    attrs = {"width": width, "color": color}
+    if include_type:
+        attrs["type"] = "Straight"
+    return attrs
+
+
 def _unique_metaid(writing_context, candidate):
     """Return a unique metaid string that is a valid XML ID."""
     # XML ID must start with a letter or underscore
@@ -819,7 +846,10 @@ def _make_celldesigner_alias(writing_context, layout, model, tag, complex_alias_
     alias = _make_celldesigner_element(tag, attrs=attrs)
     alias.append(_make_celldesigner_element("activity", text="inactive"))
     alias.append(_make_celldesigner_element("bounds", attrs=_bounds_attrs(layout)))
-    alias.append(_make_celldesigner_element("font", attrs={"size": "12"}))
+    font_size = "12"
+    if layout.label is not None and layout.label.font_size is not None:
+        font_size = str(int(layout.label.font_size))
+    alias.append(_make_celldesigner_element("font", attrs={"size": font_size}))
     alias.append(_make_celldesigner_element("view", attrs={"state": "usual"}))
     if tag == "complexSpeciesAlias":
         alias.append(_make_celldesigner_element("backupSize", attrs={"w": "0.0", "h": "0.0"}))
@@ -1307,7 +1337,7 @@ def _make_celldesigner_reaction(writing_context, reaction):
     extension.append(mod_list)
 
     # line
-    extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+    extension.append(_make_celldesigner_element("line", attrs=_get_line_attributes(reaction_layout, include_type=True)))
 
     annotation.append(extension)
     reaction_element.append(annotation)
@@ -1947,6 +1977,7 @@ def _make_celldesigner_participant_link(
     # Compute edit points from arc layout
     edit_points = []
     anchor_name = None
+    arc_layout = None
     if reaction_layout is not None and alias_layout is not None:
         is_reactant = tag == "reactantLink"
         arc_cls = (
@@ -1960,6 +1991,7 @@ def _make_celldesigner_participant_link(
                 and layout_element_item.source is reaction_layout
                 and layout_element_item.target is alias_layout
             ):
+                arc_layout = layout_element_item
                 if is_reactant:
                     edit_points, anchor_name = (
                         writing.inverse_edit_points_reactant_link(
@@ -1992,7 +2024,7 @@ def _make_celldesigner_participant_link(
             "editPoints",
             text=writing.points_to_edit_points_text(edit_points),
         ))
-    link.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+    link.append(_make_celldesigner_element("line", attrs=_get_line_attributes(arc_layout, include_type=True)))
     return link
 
 
@@ -2059,7 +2091,7 @@ def _make_celldesigner_participant_link_from_layout(
             "editPoints",
             text=writing.points_to_edit_points_text(edit_points),
         ))
-    link.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+    link.append(_make_celldesigner_element("line", attrs=_get_line_attributes(arc_layout, include_type=True)))
     return link
 
 
@@ -2133,7 +2165,7 @@ def _make_celldesigner_modification(writing_context, modifier, reaction_layout, 
     modification_element.append(link_target)
     # line
     modification_element.append(
-        _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+        _make_celldesigner_element("line", attrs=_get_line_attributes(modifier_arc, include_type=True))
     )
     return modification_element
 
@@ -2212,8 +2244,20 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     )
     gate_cs.append(gate_lld)
     gate_mod.append(gate_cs)
+    # Find the gate-to-reaction arc for line attributes
+    gate_to_reaction_arc = None
+    if gate_layout is not None and reaction_layout is not None:
+        for layout_element_item in writing_context.map_.layout.layout_elements:
+            if (
+                hasattr(layout_element_item, "source")
+                and hasattr(layout_element_item, "target")
+                and layout_element_item.source is gate_layout
+                and layout_element_item.target is reaction_layout
+            ):
+                gate_to_reaction_arc = layout_element_item
+                break
     gate_mod.append(
-        _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+        _make_celldesigner_element("line", attrs=_get_line_attributes(gate_to_reaction_arc, include_type=True))
     )
     result.append(gate_mod)
 
@@ -2234,7 +2278,18 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
         )
         connect_scheme.append(line_direction_list)
         inp_mod.append(connect_scheme)
-        # linkTarget
+        # linkTarget — find the input-to-gate arc for line attributes
+        input_to_gate_arc = None
+        if input_alias_ids[i]:
+            for layout_element_item in writing_context.map_.layout.layout_elements:
+                if (
+                    hasattr(layout_element_item, "source")
+                    and hasattr(layout_element_item, "target")
+                    and layout_element_item.target is gate_layout
+                    and getattr(layout_element_item.source, "id_", None) == input_alias_ids[i]
+                ):
+                    input_to_gate_arc = layout_element_item
+                    break
         link_target = _make_celldesigner_element(
             "linkTarget",
             attrs={
@@ -2244,7 +2299,7 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
         )
         inp_mod.append(link_target)
         inp_mod.append(
-            _make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"})
+            _make_celldesigner_element("line", attrs=_get_line_attributes(input_to_gate_arc, include_type=True))
         )
         result.append(inp_mod)
 
@@ -2375,7 +2430,7 @@ def _make_celldesigner_modulation_reaction(writing_context, modulation):
         ))
 
     extension.append(_make_celldesigner_element("listOfModification"))
-    extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+    extension.append(_make_celldesigner_element("line", attrs=_get_line_attributes(modulation_layout, include_type=True)))
 
     annotation.append(extension)
     reaction_element.append(annotation)
@@ -2603,9 +2658,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     }))
     gate_member_connect_scheme.append(gate_member_line_direction_list)
     gate_member.append(gate_member_connect_scheme)
-    gate_member.append(_make_celldesigner_element("line", attrs={
-        "width": "1.0", "color": "FF000000", "type": "Straight",
-    }))
+    gate_member.append(_make_celldesigner_element("line", attrs=_get_line_attributes(modulation_layout, include_type=True)))
     gate_member_list.append(gate_member)
 
     # Per-input entries
@@ -2627,24 +2680,24 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
             "species": _get_species_id(sbml_inp, writing_context),
             "alias": alias_id,
         })
+        input_arc_layout = None
         if gate_layout is not None and inp_layout is not None:
             for layout_element_item in writing_context.map_.layout.layout_elements:
                 if (hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
                         and layout_element_item.source is gate_layout
                         and layout_element_item.target is inp_layout):
+                    input_arc_layout = layout_element_item
                     endpoint = layout_element_item.points()[-1]
                     anchor = _infer_anchor_position(inp_layout, endpoint)
                     if anchor is not None:
                         link_target.append(_make_celldesigner_element("linkAnchor", attrs={"position": anchor}))
                     break
         inp_member.append(link_target)
-        inp_member.append(_make_celldesigner_element("line", attrs={
-            "width": "1.0", "color": "FF000000", "type": "Straight",
-        }))
+        inp_member.append(_make_celldesigner_element("line", attrs=_get_line_attributes(input_arc_layout, include_type=True)))
         gate_member_list.append(inp_member)
 
     extension.append(gate_member_list)
-    extension.append(_make_celldesigner_element("line", attrs={"width": "1.0", "color": "ff000000", "type": "Straight"}))
+    extension.append(_make_celldesigner_element("line", attrs=_get_line_attributes(modulation_layout, include_type=True)))
 
     annotation.append(extension)
     reaction_element.append(annotation)
