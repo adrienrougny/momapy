@@ -33,4 +33,5 @@ demos/reactome_analysis/data/
 /hooks
 /objects
 /refs
+.venv-sandbox/
 poubelle/
