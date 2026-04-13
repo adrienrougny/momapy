@@ -844,3 +844,82 @@ def _resolve_css_style_sheet(results):
 def _resolve_css_document(results):
     style_sheets = [style_sheet for style_sheet in results if style_sheet is not None]
     return combine_style_sheets(style_sheets)
+
+
+_PRESENTATION_ATTRIBUTE_PREFIXES: tuple[str, ...] = (
+    "group_",
+    "path_",
+    "arrowhead_",
+)
+
+
+def _is_presentation_attribute(field_name: str) -> bool:
+    """Check whether a field name corresponds to a presentation attribute.
+
+    A field is considered a presentation attribute if its name — or its
+    name with a known prefix stripped — appears in
+    ``momapy.drawing.PRESENTATION_ATTRIBUTES``.
+
+    Args:
+        field_name: The Python field name to check.
+
+    Returns:
+        True if the field is a presentation attribute.
+    """
+    if field_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+        return True
+    for prefix in _PRESENTATION_ATTRIBUTE_PREFIXES:
+        if field_name.startswith(prefix):
+            base_name = field_name[len(prefix):]
+            if base_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+                return True
+    return False
+
+
+def get_stylable_attributes(
+    layout_element_or_class: momapy.core.elements.LayoutElement | type,
+    presentation_only: bool = False,
+) -> list[str]:
+    """Return the CSS-style names of stylable attributes of a layout element.
+
+    Returns the names of all dataclass fields that can be set via a
+    stylesheet (i.e., via ``apply_style_collection``), formatted as
+    CSS property names (with hyphens instead of underscores).
+
+    Args:
+        layout_element_or_class: A layout element instance or class to
+            inspect.
+        presentation_only: If True, only return presentation attributes
+            (fill, stroke, font, transform, etc.). Defaults to False.
+
+    Returns:
+        A sorted list of CSS-style attribute names.
+
+    Raises:
+        TypeError: If the argument is not a LayoutElement class or
+            instance.
+    """
+    if isinstance(layout_element_or_class, type):
+        layout_element_class = layout_element_or_class
+    else:
+        layout_element_class = type(layout_element_or_class)
+    if not (
+        dataclasses.is_dataclass(layout_element_class)
+        and issubclass(
+            layout_element_class, momapy.core.elements.LayoutElement
+        )
+    ):
+        raise TypeError(
+            f"Expected a LayoutElement class or instance, "
+            f"got {layout_element_class}"
+        )
+    stylable_attributes = []
+    for field in dataclasses.fields(layout_element_class):
+        if field.name.startswith("_"):
+            continue
+        if presentation_only and not _is_presentation_attribute(field.name):
+            continue
+        css_name = field.name.rstrip("_").replace("_", "-")
+        stylable_attributes.append(css_name)
+    stylable_attributes.sort()
+    return stylable_attributes
