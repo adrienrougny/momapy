@@ -96,6 +96,7 @@ modified = builder.build()
 - Private attributes: `_name` prefix
 - Classes: `PascalCase`; functions/variables: `snake_case`
 - Enum members: `UPPER_CASE`
+- Always use full words for variable names (e.g., `direction_x` not `dx`, `length` not `len`)
 
 ### Type Hints
 
