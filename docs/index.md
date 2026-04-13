@@ -69,6 +69,7 @@ render_map(map_, "my_file.svg")
 
 ```bash
 momapy render my_map.sbgn -o output.pdf
+momapy export my_map.sbgn -o output.sbgn
 ```
 
 See [CLI reference](cli.md) for details.

@@ -23,6 +23,8 @@ pytest --cov=momapy --cov-report=html tests/
 momapy render map.sbgn -o output.svg
 momapy render map.sbgn -o output.pdf -r cairo
 momapy render map.sbgn -o output.svg -s style.css
+momapy export map.sbgn -o output.sbgn
+momapy export map.xml -o output.xml -c -s style.css
 
 # Docs
 mkdocs serve
@@ -41,7 +43,7 @@ src/momapy/
 ├── styling.py        # CSS-like stylesheet parsing and application
 ├── coloring.py       # Color definitions and management
 ├── positioning.py    # Layout positioning algorithms
-├── cli.py            # CLI entry point (render subcommand)
+├── cli.py            # CLI entry point (render, export subcommands)
 ├── utils.py          # SurjectionDict, pretty_print, helpers
 ├── meta/             # Generic shapes (Rectangle, Ellipse, Polygon, arcs)
 ├── sbgn/

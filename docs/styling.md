@@ -235,6 +235,12 @@ Apply a stylesheet when rendering:
 momapy render map.sbgn -o output.svg -s my_style.css
 ```
 
+Apply a stylesheet when exporting:
+
+```bash
+momapy export map.sbgn -o output.sbgn -s my_style.css
+```
+
 Apply multiple stylesheets (applied in order):
 
 ```bash

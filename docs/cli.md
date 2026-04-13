@@ -2,12 +2,18 @@
 
 ## Overview
 
-The `momapy` command-line interface (CLI) allows you to render molecular maps directly from the command line without writing Python code. It supports SBGN-ML and CellDesigner map formats and can output to various image formats (SVG, PDF, PNG, JPEG, WebP).
+The `momapy` command-line interface (CLI) allows you to work with molecular maps directly from the command line without writing Python code. It supports SBGN-ML and CellDesigner map formats.
+
+Available subcommands:
+
+- **`render`** — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)
+- **`export`** — Export maps back to their original format (useful for roundtrip testing)
 
 ## Synopsis
 
 ```bash
 momapy render <input_file_path>... -o <output_file_path> [options]
+momapy export <input_file_path> -o <output_file_path> [options]
 ```
 
 ## Subcommand: `render`
@@ -110,6 +116,59 @@ pip install momapy[cairo]  # For cairo renderer
 pip install momapy[all]    # For all renderers
 ```
 
+## Subcommand: `export`
+
+Reads a map and writes it back in the same format. This is useful for roundtrip testing (read with the reader, write with the writer) and for applying transformations like tidying or styling before re-exporting.
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--output-file-path` | `-o` | Output file path (required) |
+| `--tidy` | `-c` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
+
+The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer.
+
+### Examples
+
+#### Basic roundtrip
+
+Export an SBGN-ML file:
+
+```bash
+momapy export my_map.sbgn -o output.sbgn
+```
+
+Export a CellDesigner file:
+
+```bash
+momapy export my_map.xml -o output.xml
+```
+
+#### Export with tidy
+
+Tidy the map before exporting (reroute arcs, fit labels, etc.):
+
+```bash
+momapy export my_map.sbgn -o output.sbgn -c
+```
+
+#### Apply style sheets
+
+Apply a stylesheet before exporting:
+
+```bash
+momapy export my_map.sbgn -o output.sbgn -s custom_styles.css
+momapy export my_map.sbgn -o output.sbgn -s base.css -s overrides.css
+```
+
 ## Getting Help
 
 Display help information:
@@ -117,4 +176,5 @@ Display help information:
 ```bash
 momapy --help
 momapy render --help
+momapy export --help
 ```
