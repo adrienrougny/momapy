@@ -32,6 +32,8 @@ Example:
 
 import argparse
 import json
+import sys
+import tempfile
 
 import momapy.celldesigner.core
 import momapy.celldesigner.utils
@@ -142,7 +144,17 @@ def run(args):
             momapy.styling.apply_style_sheet(map_builder, style_sheet)
             map_ = map_builder.build()
         writer = _infer_writer(map_)
-        momapy.io.core.write(map_, args.output_file_path, writer=writer)
+        if args.output_file_path:
+            momapy.io.core.write(map_, args.output_file_path, writer=writer)
+        else:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".xml", delete=True
+            ) as temporary_file:
+                momapy.io.core.write(
+                    map_, temporary_file.name, writer=writer
+                )
+                with open(temporary_file.name, "r") as file_handle:
+                    sys.stdout.write(file_handle.read())
     elif args.subcommand == "info":
         import momapy.io.core
 
@@ -158,22 +170,29 @@ def run(args):
             )
         info["file"] = str(args.input_file_path)
         if args.format == "json":
-            print(json.dumps(info, indent=2))
+            output = json.dumps(info, indent=2)
         else:
-            print(f"File:      {info['file']}")
-            print(f"Map type:  {info['map_type']}")
-            print()
-            print("Model:")
+            lines = []
+            lines.append(f"File:      {info['file']}")
+            lines.append(f"Map type:  {info['map_type']}")
+            lines.append("")
+            lines.append("Model:")
             for key, value in info["model"].items():
                 label = key.replace("_", " ")
-                print(f"  {label + ':':<26s}{value}")
-            print()
-            print("Layout:")
-            print(
+                lines.append(f"  {label + ':':<26s}{value}")
+            lines.append("")
+            lines.append("Layout:")
+            lines.append(
                 f"  {'dimensions:':<26s}"
                 f"{info['layout']['width']} x {info['layout']['height']}"
             )
-            print(f"  {'elements:':<26s}{info['layout']['elements']}")
+            lines.append(f"  {'elements:':<26s}{info['layout']['elements']}")
+            output = "\n".join(lines)
+        if args.output_file_path:
+            with open(args.output_file_path, "w") as file_handle:
+                file_handle.write(output + "\n")
+        else:
+            print(output)
     elif args.subcommand == "list":
         import momapy.io
         import momapy.rendering
@@ -277,7 +296,10 @@ def main():
     )
     export_parser.add_argument("input_file_path", help="input file path")
     export_parser.add_argument(
-        "-o", "--output-file-path", required=True, help="output file path"
+        "-o",
+        "--output-file-path",
+        default=None,
+        help="output file path (default: stdout)",
     )
     export_parser.add_argument(
         "-c",
@@ -298,6 +320,12 @@ def main():
         description="Print a summary of a map file's contents (map type, model element counts, layout dimensions).",
     )
     info_parser.add_argument("input_file_path", help="input file path")
+    info_parser.add_argument(
+        "-o",
+        "--output-file-path",
+        default=None,
+        help="output file path (default: stdout)",
+    )
     info_parser.add_argument(
         "-f",
         "--format",

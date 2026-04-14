@@ -116,6 +116,52 @@ class TestCLIInfoCommand:
         assert "entity_pools" in data["model"]
         assert "width" in data["layout"]
 
+    def test_info_output_to_file(self, tmp_path):
+        """Test info command writes to file when -o is given."""
+        output_file = tmp_path / "info.txt"
+        with mock.patch(
+            "sys.argv",
+            ["momapy", "info", self.SBGN_MAP_PATH, "-o", str(output_file)],
+        ):
+            momapy.cli.main()
+        content = output_file.read_text()
+        assert "SBGN Process Description" in content
+        assert "entity pools:" in content
+
+
+class TestCLIExportCommand:
+    """Tests for CLI export command."""
+
+    SBGN_MAP_PATH = os.path.join(
+        os.path.dirname(__file__),
+        "sbgn",
+        "maps",
+        "pd",
+        "glycolysis.sbgn",
+    )
+
+    def test_export_to_stdout(self, capsys):
+        """Test export command outputs to stdout when no -o is given."""
+        with mock.patch(
+            "sys.argv", ["momapy", "export", self.SBGN_MAP_PATH]
+        ):
+            momapy.cli.main()
+        captured = capsys.readouterr()
+        assert "<?xml" in captured.out
+        assert "<sbgn" in captured.out
+
+    def test_export_to_file(self, tmp_path):
+        """Test export command writes to file when -o is given."""
+        output_file = tmp_path / "output.sbgn"
+        with mock.patch(
+            "sys.argv",
+            ["momapy", "export", self.SBGN_MAP_PATH, "-o", str(output_file)],
+        ):
+            momapy.cli.main()
+        content = output_file.read_text()
+        assert "<?xml" in content
+        assert "<sbgn" in content
+
 
 class TestCLIListCommand:
     """Tests for CLI list command."""

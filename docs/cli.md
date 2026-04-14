@@ -134,13 +134,21 @@ Reads a map and writes it back in the same format. This is useful for roundtrip 
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--output-file-path` | `-o` | Output file path (required) |
+| `--output-file-path` | `-o` | Output file path (default: stdout) |
 | `--tidy` | `-c` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
 
 The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer.
 
+If no output file is specified, the result is written to standard output.
+
 ### Examples
+
+#### Export to stdout
+
+```bash
+momapy export my_map.sbgn
+```
 
 #### Basic roundtrip
 
@@ -187,6 +195,7 @@ Prints a summary of a map file's contents, including the map type, model element
 
 | Option | Short | Description |
 |--------|-------|-------------|
+| `--output-file-path` | `-o` | Output file path (default: stdout) |
 | `--format` | `-f` | Output format: `text` (default) or `json` |
 
 ### Examples
