@@ -268,16 +268,20 @@ def compute_cd_angle(modification_position, species_layout):
     Reverses the forward transform in _layout.make_species_modification:
     cd_angle -> Point(W*cos, H*sin) -> atan2 -> own_angle -> position.
 
+    The y-axis is negated because screen coordinates (y-down) differ from
+    the math convention (y-up) used in own_angle. The result is normalized
+    to [0, 2*pi) to match CellDesigner's angle convention.
+
     Args:
         modification_position: The position of the modification layout.
         species_layout: The parent species layout element.
 
     Returns:
-        The CellDesigner angle as a float (radians).
+        The CellDesigner angle as a float (radians), in [0, 2*pi).
     """
     center = species_layout.center()
     delta_x = modification_position.x - center.x
-    delta_y = modification_position.y - center.y
+    delta_y = -(modification_position.y - center.y)
     if abs(delta_x) < 1e-10 and abs(delta_y) < 1e-10:
         return 0.0
     intermediate_angle = math.atan2(delta_y, delta_x)
@@ -287,7 +291,9 @@ def compute_cd_angle(modification_position, species_layout):
         width * math.sin(intermediate_angle),
         height * math.cos(intermediate_angle),
     )
-    return cd_angle
+    if cd_angle < 0.0:
+        cd_angle += 2 * math.pi
+    return cd_angle + 0.0  # normalize -0.0 to 0.0
 
 
 def _build_frame_and_inverse(origin, unit_x, unit_y):
