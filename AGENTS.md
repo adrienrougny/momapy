@@ -25,6 +25,8 @@ momapy render map.sbgn -o output.pdf -r cairo
 momapy render map.sbgn -o output.svg -s style.css
 momapy export map.sbgn -o output.sbgn
 momapy export map.xml -o output.xml -c -s style.css
+momapy visualize map.sbgn
+momapy visualize map.xml -c -s style.css
 
 # Docs
 mkdocs serve

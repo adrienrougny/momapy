@@ -10,6 +10,7 @@ Available subcommands:
 - **`export`** — Export maps back to their original format (useful for roundtrip testing)
 - **`info`** — Print a summary of a map file's contents
 - **`list`** — List available readers, writers, or renderers
+- **`visualize`** — Open an interactive viewer in the default web browser
 
 ## Synopsis
 
@@ -18,6 +19,7 @@ momapy render <input_file_path>... -o <output_file_path> [options]
 momapy export <input_file_path> -o <output_file_path> [options]
 momapy info <input_file_path> [options]
 momapy list {readers,writers,renderers}
+momapy visualize <input_file_path> [options]
 ```
 
 ## Subcommand: `render`
@@ -325,6 +327,43 @@ svg-native-compat (formats: svg)
 ```
 
 If a renderer's dependencies are not installed, it shows `(not installed)` instead of formats.
+
+## Subcommand: `visualize`
+
+Opens an interactive viewer for a molecular map in the default web browser. The viewer is a self-contained HTML page with the map rendered as inline SVG, featuring:
+
+- **Pan and zoom** — click and drag to pan, scroll to zoom, double-click to reset
+- **Hover tooltips** — hover over any element to see its type, layout ID, model ID, and label
+- **Click to inspect** — click an element to pin its info in a bottom panel with selectable/copyable text
+- **Search** — search by label or ID; matching elements and their descendants stay visible while everything else is dimmed. Press Enter to pan to the first match, Escape to clear.
+- **Keyboard shortcuts** — Ctrl+F / Cmd+F to focus the search bar
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--tidy` | `-c` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
+
+### Examples
+
+#### Basic visualization
+
+```bash
+momapy visualize my_map.sbgn
+```
+
+#### Visualize with tidy and style sheet
+
+```bash
+momapy visualize my_map.xml -c -s custom_styles.css
+```
 
 ## Getting Help
 
