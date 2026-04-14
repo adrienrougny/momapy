@@ -1461,6 +1461,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_model_element.modifiers,
                     func=lambda new, old: new.id_ < old.id_,
                 )
+                reading_context.xml_id_to_model_element[model_element.id_] = (
+                    model_element
+                )
             else:
                 model_element = None
             if reading_context.layout is not None:
@@ -1482,6 +1485,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                     layout_element.id_ = f"{modifier_metaid}_layout"
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
+                reading_context.xml_id_to_layout_element[layout_element.id_] = (
+                    layout_element
+                )
             else:
                 layout_element = None
         return model_element, layout_element
