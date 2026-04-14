@@ -454,28 +454,44 @@ class Segment(GeometryObject):
     def get_intersection_with_line(self, line: Line) -> list[Point] | list["Segment"]:
         """Get intersection with a line.
 
+        Computes the parametric t of the intersection along the segment
+        directly from the line equations, avoiding intermediate coordinate
+        products for numerical stability.
+
         Args:
             line: The line to intersect with.
 
         Returns:
             List of intersection points or segment if coincident.
         """
-        line2 = Line(self.p1, self.p2)
-        line_intersection = line.get_intersection_with_line(line2)
-        result: list[Point] | list[Segment] = []
-        if len(line_intersection) > 0 and isinstance(line_intersection[0], Point):
-            sorted_xs = sorted([self.p1.x, self.p2.x])
-            sorted_ys = sorted([self.p1.y, self.p2.y])
-            if (
-                line_intersection[0].x >= sorted_xs[0]
-                and line_intersection[0].x <= sorted_xs[-1]
-                and line_intersection[0].y >= sorted_ys[0]
-                and line_intersection[0].y <= sorted_ys[-1]
-            ):
-                result = [line_intersection[0]]
-        elif len(line_intersection) > 0:
-            result = [self]
-        return result
+        segment_direction_x = self.p2.x - self.p1.x
+        segment_direction_y = self.p2.y - self.p1.y
+        line_direction_x = line.p2.x - line.p1.x
+        line_direction_y = line.p2.y - line.p1.y
+        denominator = (
+            segment_direction_y * line_direction_x
+            - segment_direction_x * line_direction_y
+        )
+        if abs(denominator) < ZERO_TOLERANCE:
+            # Parallel or coincident
+            line2 = Line(self.p1, self.p2)
+            if line.is_coincident_to_line(line2):
+                return [self]
+            return []
+        origin_offset_x = line.p1.x - self.p1.x
+        origin_offset_y = line.p1.y - self.p1.y
+        t = (
+            origin_offset_y * line_direction_x
+            - origin_offset_x * line_direction_y
+        ) / denominator
+        if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+            t = max(0.0, min(1.0, t))
+            point = Point(
+                self.p1.x + t * segment_direction_x,
+                self.p1.y + t * segment_direction_y,
+            )
+            return [point]
+        return []
 
     def get_position_at_fraction(self, fraction: float) -> Point:
         """Get point at a fraction along the segment.
@@ -1318,33 +1334,26 @@ class EllipticalArc(GeometryObject):
         phi = math.atan2(B, A)
         acos_val = math.acos(ratio)
         candidates = [phi + acos_val, phi - acos_val]
-        if delta_theta > 0:
-            theta_min = theta1
-            theta_max = theta1 + delta_theta
-        else:
-            theta_min = theta1 + delta_theta
-            theta_max = theta1
         result = []
         for theta_candidate in candidates:
             # Normalize into range by trying multiple periods
             for k in range(-3, 4):
                 theta_c = theta_candidate + k * 2 * math.pi
-                if theta_min - ZERO_TOLERANCE <= theta_c <= theta_max + ZERO_TOLERANCE:
-                    t = (theta_c - theta1) / delta_theta
-                    if -ZERO_TOLERANCE <= t <= 1 + ZERO_TOLERANCE:
-                        t = max(0.0, min(1.0, t))
-                        point = self.evaluate(t)
-                        # Avoid duplicates
-                        is_dup = False
-                        for existing in result:
-                            if (
-                                abs(existing.x - point.x) < ROUNDING_TOLERANCE
-                                and abs(existing.y - point.y) < ROUNDING_TOLERANCE
-                            ):
-                                is_dup = True
-                                break
-                        if not is_dup:
-                            result.append(point)
+                t = (theta_c - theta1) / delta_theta
+                if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+                    t = max(0.0, min(1.0, t))
+                    point = self.evaluate(t)
+                    # Avoid duplicates
+                    is_dup = False
+                    for existing in result:
+                        if (
+                            abs(existing.x - point.x) < ROUNDING_TOLERANCE
+                            and abs(existing.y - point.y) < ROUNDING_TOLERANCE
+                        ):
+                            is_dup = True
+                            break
+                    if not is_dup:
+                        result.append(point)
         return result
 
     def get_center_parameterization(
@@ -1530,21 +1539,15 @@ class EllipticalArc(GeometryObject):
         theta_y = math.atan2(ry * cos_sigma, rx * sin_sigma)
         # Collect candidate points: endpoints + extrema within arc range
         points = [self.p1, self.p2]
-        if delta_theta > 0:
-            theta_min = theta1
-            theta_max = theta1 + delta_theta
-        else:
-            theta_min = theta1 + delta_theta
-            theta_max = theta1
         for theta_base in (theta_x, theta_y):
             # Check both solutions (theta_base and theta_base + pi)
             for candidate in (theta_base, theta_base + math.pi):
                 # Normalize candidate into [theta_min - 2pi, theta_max + 2pi]
                 # and check if it falls within range
                 normalized = candidate
-                while normalized < theta_min - 2 * math.pi:
+                while normalized < theta1 - 2 * math.pi:
                     normalized += 2 * math.pi
-                while normalized > theta_max + 2 * math.pi:
+                while normalized > theta1 + delta_theta + 2 * math.pi:
                     normalized -= 2 * math.pi
                 # Try multiple periods
                 for offset in (
@@ -1553,14 +1556,9 @@ class EllipticalArc(GeometryObject):
                     2 * math.pi,
                 ):
                     theta_c = normalized + offset
-                    if (
-                        theta_min - ZERO_TOLERANCE
-                        <= theta_c
-                        <= theta_max + ZERO_TOLERANCE
-                    ):
-                        t = (theta_c - theta1) / delta_theta
-                        if -ZERO_TOLERANCE <= t <= 1 + ZERO_TOLERANCE:
-                            points.append(self.evaluate(max(0, min(1, t))))
+                    t = (theta_c - theta1) / delta_theta
+                    if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+                        points.append(self.evaluate(max(0, min(1, t))))
         return Bbox.around_points(points)
 
     def shortened(
