@@ -32,6 +32,7 @@ Example:
 
 import argparse
 import json
+import os
 import sys
 import tempfile
 
@@ -147,14 +148,19 @@ def run(args):
         if args.output_file_path:
             momapy.io.core.write(map_, args.output_file_path, writer=writer)
         else:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".xml", delete=True
-            ) as temporary_file:
+            temporary_file = tempfile.NamedTemporaryFile(
+                mode="w", suffix=".xml", delete=False
+            )
+            temporary_file_path = temporary_file.name
+            temporary_file.close()
+            try:
                 momapy.io.core.write(
-                    map_, temporary_file.name, writer=writer
+                    map_, temporary_file_path, writer=writer
                 )
-                with open(temporary_file.name, "r") as file_handle:
+                with open(temporary_file_path, "r") as file_handle:
                     sys.stdout.write(file_handle.read())
+            finally:
+                os.remove(temporary_file_path)
     elif args.subcommand == "info":
         import momapy.io.core
 
