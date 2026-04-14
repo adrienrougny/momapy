@@ -295,8 +295,8 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 | Species | `species_id` | sbml:`species/@id` | `alias_id` | cd:`speciesAlias/@id` | yes | Dual model reg. under both IDs |
 | ModificationResidue | `f"{template_id}_{residue_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
 | Region | `f"{template_id}_{region_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
-| Modification | auto (UUID) | auto | auto (UUID) | auto | yes | Species modification state |
-| StructuralState | auto (UUID) | auto | no layout | — | no | |
+| Modification | `f"{species_id}_{residue_id}"` | composite | `f"{species_id}_{residue_id}_layout"` | composite | no | Deterministic from species + residue |
+| StructuralState | `f"{species_id}_{value}"` | composite | `f"{species_id}_{value}_layout"` | composite | no | Deterministic from species + value |
 | Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
 | Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
 | Modulator | `metaid` or auto (UUID) | sbml:`modifierSpeciesReference/@metaid` or auto | `f"{metaid}_layout"` or auto (UUID) | derived from metaid or auto | yes | metaid preferred |
