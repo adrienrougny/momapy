@@ -251,6 +251,58 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 - **Release** (`.github/workflows/release.yml`): triggered by `v*.*.*` tags → test → build → publish to PyPI → generate changelog → GitHub release
 - **Docs** (`.github/workflows/docs.yml`): deploy to GitHub Pages after release
 
+## ID Assignment Patterns
+
+### SBGN-ML
+
+All elements follow a consistent pattern: model `id_` = `f"{xml_id}_model"`, layout `id_` = `xml_id`.
+Both `xml_id_to_model_element` and `xml_id_to_layout_element` are keyed by the raw `xml_id`.
+
+| Element Type | Model `id_` | Layout `id_` | Registered | Notes |
+|---|---|---|---|---|
+| Compartment | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| EntityPool / Subunit | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| Activity | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| StateVariable | `f"{glyph_id}_model"` | `glyph_id` | yes | Frozen child |
+| UnitOfInformation | `f"{glyph_id}_model"` | `glyph_id` | yes | Frozen child |
+| Submap | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| Terminal / Tag | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| TerminalRef / TagRef | `f"{arc_id}_model"` | `arc_id` | yes | Frozen child |
+| StoichiometricProcess | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| Reactant | `f"{arc_id}_model"` | `arc_id` | yes | Frozen child |
+| Product | `f"{arc_id}_model"` | `arc_id` | yes | Frozen child |
+| LogicalOperator | `f"{glyph_id}_model"` | `glyph_id` | yes | |
+| LogicalOperatorInput | `f"{arc_id}_model"` | `arc_id` | yes | Frozen child |
+| Modulation | `f"{arc_id}_model"` | `arc_id` | yes | |
+| Phenotype | `f"{glyph_id}_model"` | `glyph_id` | yes | In model.processes |
+
+Map/model/layout IDs from `<map id="...">`: `map_.id_` = map_id, `model.id_` = `f"{map_id}_model"`, `layout.id_` = `f"{map_id}_layout"`. Only set for SBGN-ML 0.3 (0.2 has no map id → UUID defaults).
+
+### CellDesigner
+
+More complex: model and layout use different XML ID namespaces. Some elements use composite or synthetic IDs.
+
+| Element Type | Model `id_` | Layout `id_` | Model reg. key(s) | Layout reg. key | Notes |
+|---|---|---|---|---|---|
+| Compartment | `compartment_id` | `compartment_alias_id` | `compartment_id` | `compartment_alias_id` | `metaid` stored |
+| Species Template | `template_id` | no layout | `template_id` | N/A | |
+| Species | `species_id` | `species_alias_id` | `species_id` + `species_alias_id` | `species_alias_id` | **Dual model reg.**; `metaid` stored |
+| ModificationResidue | `f"{parent_id}_{residue_id}"` | no layout | composite id | N/A | **Composite ID** |
+| Region | `f"{parent_id}_{region_id}"` | no layout | composite id | N/A | **Composite ID** |
+| Modification | auto (UUID) | auto (UUID) | auto id | auto id | |
+| Reactant (base/link) | **metaid** or `f"{reaction_id}_{species_id}"` | no layout | model `id_` | N/A | **metaid preferred** |
+| Product (base/link) | **metaid** or `f"{reaction_id}_{species_id}"` | no layout | model `id_` | N/A | **metaid preferred** |
+| Modulator | auto (UUID) | auto (UUID) | not registered | not registered | `metaid` stored |
+| BooleanGate | auto (UUID) | auto (UUID) | auto id | not registered | |
+| Reaction | `reaction_id` | `reaction_id` | `reaction_id` | `reaction_id` | Same XML ID for both |
+| Modulation | `reaction_id` | auto (UUID) | `reaction_id` | not registered | Model uses reaction ID |
+
+**Special patterns**:
+- **Dual registration**: Species model element is registered under both `species_id` AND `species_alias_id` (CellDesigner reactions reference species by alias ID)
+- **Composite IDs**: ModificationResidue and Region use `f"{parent_id}_{child_id}"` for global uniqueness
+- **metaid as ID**: Reactants/Products prefer SBML `metaid`; fallback to `f"{reaction_id}_{species_id}"`
+- **Auto-generated (UUID)**: Modifications, Modulators, BooleanGates get UUIDs from the builder
+
 ## Plans
 
 Write implementation plans to `./plans/` as markdown files. Use descriptive filenames (e.g., `active_border_child_nodes.md`). Also write design debates to `./debates/`.
