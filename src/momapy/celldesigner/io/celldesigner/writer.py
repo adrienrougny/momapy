@@ -628,6 +628,8 @@ def _make_celldesigner_species_identity(writing_context, species):
             ref_id = template.id_
         identity.append(_make_celldesigner_element(tag, text=ref_id))
     identity.append(_make_celldesigner_element("name", text=_encode_name(species.name) or ""))
+    if species.hypothetical:
+        identity.append(_make_celldesigner_element("hypothetical", text="true"))
     state = _make_celldesigner_species_state(writing_context, species)
     if state is not None:
         identity.append(state)
@@ -666,8 +668,7 @@ def _make_celldesigner_species_state(writing_context, species):
         ):
             mod_attrs = {}
             if modification.residue is not None:
-                parts = modification.residue.id_.split("_", 1)
-                mod_attrs["residue"] = parts[1] if len(parts) > 1 else modification.residue.id_
+                mod_attrs["residue"] = modification.residue.id_
             mod_attrs["state"] = _modification_state_string(modification.state)
             mod_list.append(_make_celldesigner_element("modification", attrs=mod_attrs))
         state.append(mod_list)
@@ -844,7 +845,8 @@ def _make_celldesigner_alias(writing_context, layout, model, tag, complex_alias_
         if comp_alias is not None:
             attrs["compartmentAlias"] = comp_alias
     alias = _make_celldesigner_element(tag, attrs=attrs)
-    alias.append(_make_celldesigner_element("activity", text="inactive"))
+    activity_text = "active" if model.active else "inactive"
+    alias.append(_make_celldesigner_element("activity", text=activity_text))
     alias.append(_make_celldesigner_element("bounds", attrs=_bounds_attrs(layout)))
     font_size = "12"
     if layout.label is not None and layout.label.font_size is not None:
@@ -932,14 +934,11 @@ def _make_celldesigner_list_of_proteins(writing_context):
             for residue in sorted(
                 tmpl.modification_residues, key=lambda r: r.id_
             ):
-                parts = residue.id_.split("_", 1)
-                res_id = parts[1] if len(parts) > 1 else residue.id_
-                mr_attrs = {"id": res_id}
+                mr_attrs = {"id": residue.id_}
                 if residue.name is not None:
                     mr_attrs["name"] = residue.name
                 # Compute angle from layout if available
                 mr_attrs["angle"] = _find_residue_angle(writing_context, tmpl, residue)
-                mr_attrs["side"] = "none"
                 mr_list.append(_make_celldesigner_element("modificationResidue", attrs=mr_attrs))
             protein.append(mr_list)
         list_elem.append(protein)
@@ -947,9 +946,27 @@ def _make_celldesigner_list_of_proteins(writing_context):
 
 
 def _find_residue_angle(writing_context, template, residue):
-    """Find the angle for a modification residue from layout data."""
-    # Search species that use this template for a ModificationLayout
+    """Find the CellDesigner angle for a modification residue from layout data.
+
+    Matches ModificationLayout children to residues by comparing the
+    layout text label with the residue name. When the residue has no
+    name, matches against unnamed ModificationLayouts. Searches both
+    top-level species and subunits of complexes.
+
+    Args:
+        writing_context: The writing context.
+        template: The protein template.
+        residue: The modification residue to find the angle for.
+
+    Returns:
+        The CellDesigner angle as a string.
+    """
+    all_species = list(writing_context.map_.model.species)
     for species in writing_context.map_.model.species:
+        subunits = getattr(species, "subunits", None)
+        if subunits:
+            all_species.extend(_collect_subunits(species))
+    for species in all_species:
         tmpl = getattr(species, "template", None)
         if tmpl is not template:
             continue
@@ -964,23 +981,42 @@ def _find_residue_angle(writing_context, template, residue):
             if not children:
                 continue
             for child in children:
-                if isinstance(
+                if not isinstance(
                     child, momapy.celldesigner.core.ModificationLayout
                 ):
-                    child_model = _mapping(writing_context).get_mapping(child)
-                    if child_model is not None:
-                        modification = child_model[0] if isinstance(child_model, tuple) else child_model
-                        if hasattr(modification, "residue") and modification.residue is residue:
-                            # Compute angle from positions
-                            species_center = layout_key.center()
-                            mod_pos = child.position
-                            import math
-                            angle = math.atan2(
-                                mod_pos.y - species_center.y,
-                                mod_pos.x - species_center.x,
-                            )
-                            return str(angle)
+                    continue
+                # Extract text label from ModificationLayout children
+                layout_name = None
+                for sub_child in getattr(child, "layout_elements", []):
+                    if hasattr(sub_child, "text") and sub_child.text:
+                        layout_name = sub_child.text
+                        break
+                # Match by name: both None or both equal
+                if residue.name == layout_name:
+                    return str(
+                        momapy.celldesigner.io.celldesigner._writing.compute_cd_angle(
+                            child.position, layout_key
+                        )
+                    )
     return "0.0"
+
+
+def _collect_subunits(species):
+    """Recursively collect all subunits of a species.
+
+    Args:
+        species: The parent species.
+
+    Returns:
+        A list of all nested subunit species.
+    """
+    result = []
+    subunits = getattr(species, "subunits", None)
+    if subunits:
+        for subunit in subunits:
+            result.append(subunit)
+            result.extend(_collect_subunits(subunit))
+    return result
 
 
 # --- Genes, RNAs, AntisenseRNAs (templates) ---
