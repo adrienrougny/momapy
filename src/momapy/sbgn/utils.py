@@ -699,3 +699,58 @@ def newt_tidy(
         layout_xsep=0,
         layout_ysep=0,
     )
+
+
+def get_info(map_: momapy.sbgn.core.SBGNMap) -> dict:
+    """Get a summary of the contents of an SBGN map.
+
+    Returns a dictionary with the map type, model element counts,
+    and layout dimensions.
+
+    Args:
+        map_: An SBGN map.
+
+    Returns:
+        A dictionary with keys ``map_type``, ``model``, and ``layout``.
+
+    Raises:
+        ValueError: If the model type is not recognized.
+    """
+    model = map_.model
+    layout = map_.layout
+    if isinstance(model, momapy.sbgn.pd.SBGNPDModel):
+        map_type = "SBGN Process Description"
+        model_info = {
+            "compartments": len(model.compartments),
+            "entity_pools": len(model.entity_pools),
+            "processes": len(model.processes),
+            "modulations": len(model.modulations),
+            "logical_operators": len(model.logical_operators),
+            "equivalence_operators": len(model.equivalence_operators),
+            "submaps": len(model.submaps),
+            "tags": len(model.tags),
+        }
+    elif isinstance(model, momapy.sbgn.af.SBGNAFModel):
+        map_type = "SBGN Activity Flow"
+        model_info = {
+            "compartments": len(model.compartments),
+            "activities": len(model.activities),
+            "influences": len(model.influences),
+            "logical_operators": len(model.logical_operators),
+            "submaps": len(model.submaps),
+            "tags": len(model.tags),
+        }
+    else:
+        raise ValueError(
+            f"unknown SBGN model type: {type(model).__name__}"
+        )
+    layout_info = {
+        "width": layout.width,
+        "height": layout.height,
+        "elements": len(layout.descendants()),
+    }
+    return {
+        "map_type": map_type,
+        "model": model_info,
+        "layout": layout_info,
+    }
