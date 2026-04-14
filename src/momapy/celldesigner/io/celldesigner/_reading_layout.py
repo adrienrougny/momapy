@@ -121,7 +121,7 @@ def make_points(cd_edit_points):
 
 
 def make_species(
-    reading_context, cd_species_alias, layout_element_cls, name, homomultimer, active
+    reading_context, cd_species_alias, layout_element_cls, name, homomultimer, hypothetical, active
 ):
     if reading_context.layout is None:
         return None
@@ -155,6 +155,8 @@ def make_species(
     )
     layout_element.fill = momapy.coloring.Color.from_hexa(cd_species_alias_fill_color)
     layout_element.n = homomultimer
+    if hypothetical:
+        layout_element.stroke_dasharray = (4, 2)
     if active:
         active_cls = _LAYOUT_TO_ACTIVE_LAYOUT[layout_element_cls]
         active_element = reading_context.layout.new_element(active_cls)

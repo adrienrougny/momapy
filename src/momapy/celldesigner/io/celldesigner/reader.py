@@ -799,6 +799,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         layout_element_cls,
                         name,
                         homomultimer,
+                        hypothetical,
                         active,
                     )
                 )
