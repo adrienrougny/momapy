@@ -292,13 +292,13 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 |---|---|---|---|---|---|---|
 | Compartment | `compartment_id` | sbml:`compartment/@id` | `alias_id` | cd:`compartmentAlias/@id` | yes | `metaid` also stored |
 | Species Template | `template_id` | cd:`proteinReference/@id` etc. | no layout | — | yes | |
-| Species | `species_id` | sbml:`species/@id` | `alias_id` | cd:`speciesAlias/@id` | yes | Dual model reg. under both IDs |
+| Species | `species_id` or `f"{species_id}_active"` | sbml:`species/@id` | `alias_id` | cd:`speciesAlias/@id` | yes | Dual model reg.; active species get `_active` suffix |
 | ModificationResidue | `f"{template_id}_{residue_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
 | Region | `f"{template_id}_{region_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
 | Modification | `f"{species_id}_{residue_id}"` | composite | `f"{species_id}_{residue_id}_layout"` | composite | no | Deterministic from species + residue |
 | StructuralState | `f"{species_id}_{value}"` | composite | `f"{species_id}_{value}_layout"` | composite | no | Deterministic from species + value |
-| Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
-| Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
+| Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{model_id}_layout"` | derived from model id | yes | metaid preferred; layout only for link reactants and some base |
+| Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{model_id}_layout"` | derived from model id | yes | metaid preferred; layout only for link products and some base |
 | Modulator | `metaid` | sbml:`modifierSpeciesReference/@metaid` | `f"{metaid}_layout"` | derived from metaid | yes | metaid always present |
 | BooleanGate | `f"{reaction_id}_gate_{sorted_aliases}"` | composite | `f"{...}_layout"` | composite | model only | Deterministic from reaction + sorted aliases |
 | LogicArc | no model | — | `f"{gate_id}_arc_{input_alias}"` | composite | no | Deterministic from gate + input |
