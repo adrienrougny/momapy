@@ -1433,6 +1433,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     cls._make_and_add_logic_gate(
                         reading_context,
                         cd_reaction_modification_or_cd_gate_member=cd_reaction_modification,
+                        cd_reaction_id=super_cd_element.get("id"),
                     )
                 )
             # Find the SBML modifierSpeciesReference metaid by
@@ -1505,12 +1506,15 @@ class CellDesignerReader(momapy.io.core.Reader):
         cls,
         reading_context,
         cd_reaction_modification_or_cd_gate_member,
+        cd_reaction_id,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
             key = momapy.celldesigner.io.celldesigner._reading_parsing.get_key_from_gate_member(
                 cd_reaction_modification_or_cd_gate_member
             )
             cd_modifiers = cd_reaction_modification_or_cd_gate_member.get("aliases")
+            sorted_aliases = "_".join(sorted(cd_modifiers.split(",")))
+            cd_gate_id = f"{cd_reaction_id}_gate_{sorted_aliases}"
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             if reading_context.model is not None:
                 model_element = (
@@ -1520,12 +1524,13 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_modifiers.split(","),
                     )
                 )
+                model_element.id_ = cd_gate_id
                 model_element = momapy.builder.object_from_builder(model_element)
                 model_element = momapy.io.utils.register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.boolean_logic_gates,
-                    model_element.id_,
+                    cd_gate_id,
                 )
             else:
                 model_element = None
@@ -1537,6 +1542,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         layout_element_cls,
                     )
                 )
+                layout_element.id_ = f"{cd_gate_id}_layout"
                 layout_element = momapy.builder.object_from_builder(
                     layout_element
                 )
@@ -1555,6 +1561,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                             input_layout_element,
                         )
                     )
+                    logic_arc.id_ = f"{cd_gate_id}_arc_{cd_input_id}"
                     logic_arc = momapy.builder.object_from_builder(
                         logic_arc
                     )
@@ -1602,6 +1609,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     cls._make_and_add_logic_gate(
                         reading_context,
                         cd_reaction_modification_or_cd_gate_member=cd_gate_member,
+                        cd_reaction_id=cd_reaction.get("id"),
                     )
                 )
             if reading_context.model is not None:
