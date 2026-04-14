@@ -1,4 +1,27 @@
-"""SBGN-ML reader classes."""
+"""SBGN-ML reader classes.
+
+ID Assignment
+-------------
+
+Each SBGN-ML element produces a model element and a layout element with
+distinct IDs derived from the same XML ID:
+
+- **Model elements** get ``f"{xml_id}_model"`` as their ``id_``.
+- **Layout elements** keep the raw ``xml_id`` as their ``id_``.
+
+Both are registered in the reading context's ``xml_id_to_model_element``
+and ``xml_id_to_layout_element`` dicts under the raw ``xml_id``.
+
+When the ``<map>`` element has an ``id`` attribute (SBGN-ML 0.3 only):
+
+- ``map_.id_`` = map id
+- ``model.id_`` = ``f"{map_id}_model"``
+- ``layout.id_`` = ``f"{map_id}_layout"``
+
+All elements follow this pattern consistently, including frozen child
+elements (state variables, units of information, reactants, products,
+logic inputs, terminal/tag references).
+"""
 
 import os
 import abc

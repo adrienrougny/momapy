@@ -1,4 +1,49 @@
-"""CellDesigner reader class."""
+"""CellDesigner reader class.
+
+ID Assignment
+-------------
+
+CellDesigner uses different XML ID namespaces for model and layout
+elements. The general rules are:
+
+- When an element has a natural XML ID (``compartment/@id``,
+  ``species/@id``, ``reaction/@id``), the model element uses it
+  directly.
+- When a separate alias element exists (``speciesAlias/@id``,
+  ``compartmentAlias/@id``), the layout element uses the alias ID.
+- When model and layout share the same XML ID source (reactions,
+  modulations), the layout element gets a ``_layout`` suffix:
+  ``f"{reaction_id}_layout"``.
+
+Element-specific patterns:
+
+- **Compartment**: model ``id_`` = ``compartment/@id``,
+  layout ``id_`` = ``compartmentAlias/@id``.
+- **Species**: model ``id_`` = ``species/@id``,
+  layout ``id_`` = ``speciesAlias/@id``.
+  Model is registered under both IDs for cross-ref resolution.
+- **Species Template**: model ``id_`` = ``proteinReference/@id`` (etc.),
+  no layout.
+- **ModificationResidue / Region**: composite
+  ``f"{template_id}_{child_id}"`` for global uniqueness, no layout.
+- **Modification** (species modification state): composite
+  ``f"{species_id}_{residue_id}"``,
+  layout ``f"{species_id}_{residue_id}_layout"``.
+- **StructuralState**: composite ``f"{species_id}_{value}"``,
+  layout ``f"{species_id}_{value}_layout"``.
+- **Reactant / Product**: ``speciesReference/@metaid`` preferred,
+  fallback to ``f"{reaction_id}_{species_id}"``, no layout.
+- **Modulator**: ``modifierSpeciesReference/@metaid``,
+  layout ``f"{metaid}_layout"``.
+- **Reaction**: model ``id_`` = ``reaction/@id``,
+  layout ``id_`` = ``f"{reaction_id}_layout"``.
+- **Modulation** (encoded as fake reactions): same as Reaction.
+- **BooleanGate**: composite
+  ``f"{reaction_id}_gate_{sorted_aliases}"``,
+  layout ``f"{...}_layout"``.
+- **LogicArc**: layout only,
+  ``f"{gate_id}_arc_{input_alias}"``.
+"""
 
 import os
 import collections
