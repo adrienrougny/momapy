@@ -159,7 +159,7 @@ class TestSBGNAnnotationsContent:
 
     def test_erk_annotations(self, result):
         """Test annotations on glyph1 (ERK macromolecule)."""
-        annots = self._get_annotations_by_id(result, "glyph1")
+        annots = self._get_annotations_by_id(result, "glyph1_model")
         assert len(annots) == 2
         qualifiers = {a.qualifier for a in annots}
         assert qualifiers == {
@@ -172,7 +172,7 @@ class TestSBGNAnnotationsContent:
 
     def test_mek_annotation(self, result):
         """Test annotation on glyph2 (MEK macromolecule)."""
-        annots = self._get_annotations_by_id(result, "glyph2")
+        annots = self._get_annotations_by_id(result, "glyph2_model")
         assert len(annots) == 1
         annotation = next(iter(annots))
         assert annotation.qualifier == momapy.sbml.core.BQBiol.IS
@@ -229,7 +229,7 @@ class TestSBGNNotesContent:
     def test_erk_notes_content(self, result):
         """Test that glyph1 (ERK) has notes with expected content."""
         for elem, notes in result.notes.items():
-            if getattr(elem, "id_", None) == "glyph1" and notes:
+            if getattr(elem, "id_", None) == "glyph1_model" and notes:
                 assert len(notes) == 1
                 note = next(iter(notes))
                 assert "ERK is a MAP kinase" in note
@@ -240,7 +240,7 @@ class TestSBGNNotesContent:
     def test_mek_has_no_notes(self, result):
         """Test that glyph2 (MEK) has no notes."""
         for elem, notes in result.notes.items():
-            if getattr(elem, "id_", None) == "glyph2":
+            if getattr(elem, "id_", None) == "glyph2_model":
                 assert len(notes) == 0
                 return
 

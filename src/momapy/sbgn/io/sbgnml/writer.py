@@ -139,10 +139,14 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
     ):
         compartment = model_element.compartment
         if compartment is not None:
-            compartment_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-                compartment, writing_context.ids
+            compartment_layout_elements = _get_layout_elements(
+                writing_context, compartment
             )
-            attributes["compartmentRef"] = compartment_id
+            if compartment_layout_elements:
+                compartment_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
+                    compartment_layout_elements[0], writing_context.ids
+                )
+                attributes["compartmentRef"] = compartment_id
     sbgnml_glyph = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
         "glyph", attributes=attributes
     )

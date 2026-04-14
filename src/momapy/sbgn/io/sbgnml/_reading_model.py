@@ -117,7 +117,7 @@ def make_compartment(reading_context, sbgnml_compartment):
         reading_context.model
     )
     model_element = reading_context.model.new_element(module.Compartment)
-    model_element.id_ = sbgnml_compartment.get("id")
+    model_element.id_ = f"{sbgnml_compartment.get('id')}_model"
     set_label(model_element, sbgnml_compartment)
     return model_element
 
@@ -138,7 +138,7 @@ def make_entity_pool_or_subunit(
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_entity_pool_or_subunit.get("id")
+    model_element.id_ = f"{sbgnml_entity_pool_or_subunit.get('id')}_model"
     set_compartment(
         model_element,
         sbgnml_entity_pool_or_subunit,
@@ -162,7 +162,7 @@ def make_activity(reading_context, sbgnml_activity, model_element_cls):
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_activity.get("id")
+    model_element.id_ = f"{sbgnml_activity.get('id')}_model"
     set_compartment(
         model_element,
         sbgnml_activity,
@@ -199,7 +199,7 @@ def make_state_variable(reading_context, sbgnml_state_variable, order=None):
         sbgnml_variable = sbgnml_state.get("variable")
         variable = sbgnml_variable
     model_element = reading_context.model.new_element(momapy.sbgn.pd.StateVariable)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     model_element.value = value
     model_element.variable = variable
     model_element.order = order
@@ -225,7 +225,7 @@ def make_unit_of_information(
     sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
     sbgnml_id = sbgnml_unit_of_information.get("id")
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     if sbgnml_label is not None:
         split_label = sbgnml_label.get("text").split(":")
         model_element.value = split_label[-1]
@@ -250,7 +250,7 @@ def make_submap(reading_context, sbgnml_submap, model_element_cls):
         return None
     sbgnml_id = sbgnml_submap.get("id")
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     set_label(model_element, sbgnml_submap)
     return model_element
 
@@ -274,7 +274,7 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
     else:
         model_element_cls = momapy.sbgn.pd.Tag
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     set_label(model_element, sbgnml_terminal_or_tag)
     return model_element
 
@@ -302,7 +302,7 @@ def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
     else:
         model_element_cls = momapy.sbgn.pd.TagReference
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     target_model_element = reading_context.xml_id_to_model_element[sbgnml_target_id]
     model_element.element = target_model_element
     model_element = momapy.builder.object_from_builder(model_element)
@@ -326,7 +326,7 @@ def make_stoichiometric_process(
         return None
     sbgnml_id = sbgnml_process.get("id")
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     model_element.reversible = momapy.sbgn.io.sbgnml._reading_parsing.is_process_reversible(
         sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
     )
@@ -350,7 +350,7 @@ def make_reactant(reading_context, sbgnml_consumption_arc):
         sbgnml_consumption_arc
     )
     model_element = reading_context.model.new_element(momapy.sbgn.pd.Reactant)
-    model_element.id_ = sbgnml_consumption_arc.get("id")
+    model_element.id_ = f"{sbgnml_consumption_arc.get('id')}_model"
     source_model_element = reading_context.xml_id_to_model_element[sbgnml_source_id]
     model_element.element = source_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
@@ -401,7 +401,7 @@ def make_product(
     else:
         model_element_cls = momapy.sbgn.pd.Product
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_production_arc.get("id")
+    model_element.id_ = f"{sbgnml_production_arc.get('id')}_model"
     target_model_element = reading_context.xml_id_to_model_element[sbgnml_target_id]
     model_element.element = target_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
@@ -424,7 +424,7 @@ def make_logical_operator(reading_context, sbgnml_logical_operator, model_elemen
         return None
     sbgnml_id = sbgnml_logical_operator.get("id")
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_id
+    model_element.id_ = f"{sbgnml_id}_model"
     return model_element
 
 
@@ -444,7 +444,7 @@ def make_logical_operator_input(
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(momapy.sbgn.pd.LogicalOperatorInput)
-    model_element.id_ = sbgnml_logic_arc.get("id")
+    model_element.id_ = f"{sbgnml_logic_arc.get('id')}_model"
     model_element.element = source_model_element
     model_element = momapy.builder.object_from_builder(model_element)
     return model_element
@@ -472,7 +472,7 @@ def make_modulation(
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(model_element_cls)
-    model_element.id_ = sbgnml_modulation.get("id")
+    model_element.id_ = f"{sbgnml_modulation.get('id')}_model"
     model_element.source = source_model_element
     model_element.target = target_model_element
     model_element = momapy.builder.object_from_builder(model_element)

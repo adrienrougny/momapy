@@ -132,7 +132,7 @@ def add_annotations_and_notes(writing_context, sbgnml_element, model_element):
         if element_annotations:
             sbgnml_annot = make_sbgnml_annotation(
                 element_annotations,
-                sbgnml_id=get_sbgnml_id(model_element, writing_context.ids),
+                sbgnml_id=sbgnml_element.get("id"),
             )
             sbgnml_extension = make_lxml_element("extension")
             sbgnml_extension.append(sbgnml_annot)
