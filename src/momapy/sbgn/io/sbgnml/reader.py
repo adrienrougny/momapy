@@ -292,6 +292,12 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     momapy.positioning.set_fit(
                         layout, layout.layout_elements, xsep=xsep, ysep=ysep
                     )
+        sbgnml_map_id = sbgnml_map.get("id")
+        if sbgnml_map_id is not None:
+            if model is not None:
+                model.id_ = f"{sbgnml_map_id}_model"
+            if layout is not None:
+                layout.id_ = f"{sbgnml_map_id}_layout"
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
             # we add the annotations and notes from the map to the model
@@ -304,6 +310,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
             map_ = cls._make_empty_map(sbgnml_map)
+            if sbgnml_map_id is not None:
+                map_.id_ = sbgnml_map_id
             map_.model = model
             map_.layout = layout
             map_.layout_model_mapping = reading_context.layout_model_mapping
