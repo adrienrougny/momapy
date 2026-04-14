@@ -499,10 +499,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         order=order,
                     )
                 )
+                sbgnml_state_variable_id = sbgnml_state_variable.get("id")
                 if model_element is not None:
                     model_element.state_variables.add(state_variable_model_element)
+                    reading_context.xml_id_to_model_element[sbgnml_state_variable_id] = (
+                        state_variable_model_element
+                    )
                 if layout_element is not None:
                     layout_element.layout_elements.append(state_variable_layout_element)
+                    reading_context.xml_id_to_layout_element[sbgnml_state_variable_id] = (
+                        state_variable_layout_element
+                    )
                 if model_element is not None and layout_element is not None:
                     auxiliary_units_map_elements.append(
                         (
@@ -524,12 +531,19 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                 )
+                sbgnml_unit_of_information_id = sbgnml_unit_of_information.get("id")
                 if model_element is not None:
                     model_element.units_of_information.add(
                         unit_of_information_model_element
                     )
+                    reading_context.xml_id_to_model_element[sbgnml_unit_of_information_id] = (
+                        unit_of_information_model_element
+                    )
                 if layout_element is not None:
                     layout_element.layout_elements.append(
+                        unit_of_information_layout_element
+                    )
+                    reading_context.xml_id_to_layout_element[sbgnml_unit_of_information_id] = (
                         unit_of_information_layout_element
                     )
                 if model_element is not None and layout_element is not None:
@@ -626,12 +640,19 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                 )
+                sbgnml_unit_of_information_id = sbgnml_unit_of_information.get("id")
                 if model_element is not None:
                     model_element.units_of_information.add(
                         unit_of_information_model_element
                     )
+                    reading_context.xml_id_to_model_element[sbgnml_unit_of_information_id] = (
+                        unit_of_information_model_element
+                    )
                 if layout_element is not None:
                     layout_element.layout_elements.append(
+                        unit_of_information_layout_element
+                    )
+                    reading_context.xml_id_to_layout_element[sbgnml_unit_of_information_id] = (
                         unit_of_information_layout_element
                     )
                 if model_element is not None and layout_element is not None:
@@ -787,10 +808,18 @@ class _SBGNMLReader(momapy.io.core.Reader):
                             reading_context, sbgnml_equivalence_arc, terminal_layout
                         )
                     )
+                    sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
                     if terminal_model is not None:
                         terminal_model.reference = reference_model
+                    if reference_model is not None:
+                        reading_context.xml_id_to_model_element[sbgnml_equivalence_arc_id] = (
+                            reference_model
+                        )
                     if reference_layout is not None:
                         reading_context.layout.layout_elements.append(reference_layout)
+                        reading_context.xml_id_to_layout_element[sbgnml_equivalence_arc_id] = (
+                            reference_layout
+                        )
                     if reference_model is not None and reference_layout is not None:
                         reference_map_elements.append(
                             (
@@ -799,13 +828,20 @@ class _SBGNMLReader(momapy.io.core.Reader):
                                 sbgnml_terminal.get("id"),
                             )
                         )
+                sbgnml_terminal_id = sbgnml_terminal.get("id")
                 if terminal_model is not None:
                     terminal_model = momapy.builder.object_from_builder(
                         terminal_model
                     )
                     model_element.terminals.add(terminal_model)
+                    reading_context.xml_id_to_model_element[sbgnml_terminal_id] = (
+                        terminal_model
+                    )
                 if terminal_layout is not None:
                     layout_element.layout_elements.append(terminal_layout)
+                    reading_context.xml_id_to_layout_element[sbgnml_terminal_id] = (
+                        terminal_layout
+                    )
                 if terminal_model is not None and terminal_layout is not None:
                     terminal_map_elements.append(
                         (
@@ -905,10 +941,18 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         reading_context, sbgnml_equivalence_arc, tag_layout
                     )
                 )
+                sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
                 if tag_model is not None:
                     tag_model.reference = reference_model
+                if reference_model is not None:
+                    reading_context.xml_id_to_model_element[sbgnml_equivalence_arc_id] = (
+                        reference_model
+                    )
                 if reference_layout is not None:
                     reading_context.layout.layout_elements.append(reference_layout)
+                    reading_context.xml_id_to_layout_element[sbgnml_equivalence_arc_id] = (
+                        reference_layout
+                    )
                 if reference_model is not None and reference_layout is not None:
                     reference_map_elements.append(
                         (reference_model, reference_layout)
@@ -1098,10 +1142,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
             layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_reactant(
                 reading_context, sbgnml_consumption_arc, super_layout_element
             )
+            sbgnml_consumption_arc_id = sbgnml_consumption_arc.get("id")
             if model_element is not None:
                 super_model_element.reactants.add(model_element)
+                reading_context.xml_id_to_model_element[sbgnml_consumption_arc_id] = (
+                    model_element
+                )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
+                reading_context.xml_id_to_layout_element[sbgnml_consumption_arc_id] = (
+                    layout_element
+                )
         else:
             model_element = None
             layout_element = None
@@ -1130,10 +1181,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
             layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_product(
                 reading_context, sbgnml_production_arc, super_layout_element
             )
+            sbgnml_production_arc_id = sbgnml_production_arc.get("id")
             if model_element is not None:
                 super_model_element.products.add(model_element)
+                reading_context.xml_id_to_model_element[sbgnml_production_arc_id] = (
+                    model_element
+                )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
+                reading_context.xml_id_to_layout_element[sbgnml_production_arc_id] = (
+                    layout_element
+                )
         else:
             model_element = None
             layout_element = None
@@ -1253,10 +1311,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context, sbgnml_logic_arc, source_layout_element, super_layout_element
                 )
             )
+            sbgnml_logic_arc_id = sbgnml_logic_arc.get("id")
             if model_element is not None:
                 super_model_element.inputs.add(model_element)
+                reading_context.xml_id_to_model_element[sbgnml_logic_arc_id] = (
+                    model_element
+                )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
+                reading_context.xml_id_to_layout_element[sbgnml_logic_arc_id] = (
+                    layout_element
+                )
         else:
             model_element = None
             layout_element = None
