@@ -299,7 +299,7 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 | StructuralState | `f"{species_id}_{value}"` | composite | `f"{species_id}_{value}_layout"` | composite | no | Deterministic from species + value |
 | Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
 | Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
-| Modulator | `metaid` or auto (UUID) | sbml:`modifierSpeciesReference/@metaid` or auto | `f"{metaid}_layout"` or auto (UUID) | derived from metaid or auto | yes | metaid preferred |
+| Modulator | `metaid` | sbml:`modifierSpeciesReference/@metaid` | `f"{metaid}_layout"` | derived from metaid | yes | metaid always present |
 | BooleanGate | `f"{reaction_id}_gate_{sorted_aliases}"` | composite | `f"{...}_layout"` | composite | model only | Deterministic from reaction + sorted aliases |
 | LogicArc | no model | — | `f"{gate_id}_arc_{input_alias}"` | composite | no | Deterministic from gate + input |
 | Reaction | `reaction_id` | sbml:`reaction/@id` | `f"{reaction_id}_layout"` | derived from sbml | yes | No reaction alias in CD |
