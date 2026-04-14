@@ -1490,8 +1490,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         has_boolean_input,
                     )
                 )
-                if modifier_metaid is not None:
-                    layout_element.id_ = f"{modifier_metaid}_layout"
+                layout_element.id_ = f"{modifier_metaid}_layout"
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[layout_element.id_] = (

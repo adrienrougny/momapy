@@ -320,14 +320,13 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
     return model_element
 
 
-def make_modifier(reading_context, model_element_cls, source_model_element, metaid=None):
+def make_modifier(reading_context, model_element_cls, source_model_element, metaid):
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(model_element_cls)
     model_element.referred_species = source_model_element
-    if metaid is not None:
-        model_element.id_ = metaid
-        model_element.metaid = metaid
+    model_element.id_ = metaid
+    model_element.metaid = metaid
     return model_element
 
 
