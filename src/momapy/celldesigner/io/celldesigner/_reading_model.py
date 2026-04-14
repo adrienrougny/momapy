@@ -326,6 +326,7 @@ def make_modifier(reading_context, model_element_cls, source_model_element, meta
     model_element = reading_context.model.new_element(model_element_cls)
     model_element.referred_species = source_model_element
     if metaid is not None:
+        model_element.id_ = metaid
         model_element.metaid = metaid
     return model_element
 

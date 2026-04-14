@@ -1427,29 +1427,26 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_reaction_modification_or_cd_gate_member=cd_reaction_modification,
                     )
                 )
-            if reading_context.model is not None:
-                if not has_boolean_input:
-                    source_model_element = reading_context.xml_id_to_model_element[
-                        cd_reaction_modification.get("aliases")
-                    ]
-                # Find the SBML modifierSpeciesReference metaid by
-                # matching the species id to the source model element.
-                modifier_metaid = None
+            # Find the SBML modifierSpeciesReference metaid by
+            # matching the species id from the modification element.
+            modifier_metaid = None
+            cd_modifier_species_id = cd_reaction_modification.get("modifiers")
+            if cd_modifier_species_id is not None:
                 for modifier_species_reference in (
                     momapy.celldesigner.io.celldesigner._reading_parsing.get_modifier_species_references(
                         super_cd_element
                     )
                 ):
-                    species_id = modifier_species_reference.get("species")
-                    if (
-                        species_id is not None
-                        and reading_context.xml_id_to_model_element.get(species_id)
-                        is source_model_element
-                    ):
+                    if modifier_species_reference.get("species") == cd_modifier_species_id:
                         modifier_metaid = modifier_species_reference.get(
                             "metaid"
                         )
                         break
+            if reading_context.model is not None:
+                if not has_boolean_input:
+                    source_model_element = reading_context.xml_id_to_model_element[
+                        cd_reaction_modification.get("aliases")
+                    ]
                 model_element = (
                     momapy.celldesigner.io.celldesigner._reading_model.make_modifier(
                         reading_context,
@@ -1481,6 +1478,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                         has_boolean_input,
                     )
                 )
+                if modifier_metaid is not None:
+                    layout_element.id_ = f"{modifier_metaid}_layout"
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
             else:
@@ -1649,6 +1648,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 layout_element = momapy.builder.object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
+                reading_context.xml_id_to_layout_element[layout_element.id_] = layout_element
             else:
                 layout_element = None
             if reading_context.model is not None and reading_context.layout is not None:

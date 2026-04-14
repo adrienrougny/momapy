@@ -502,7 +502,7 @@ def make_reaction(
         return None, False, False
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     layout_element = reading_context.layout.new_element(layout_element_cls)
-    layout_element.id_ = cd_reaction.get("id")
+    layout_element.id_ = f"{cd_reaction.get('id')}_layout"
     layout_element.reversible = cd_reaction.get("reversible") == "true"
     if not layout_element.reversible:
         layout_element.start_shorten = 0.0
@@ -970,6 +970,7 @@ def make_modulation(
         else:
             source_anchor_name = "center"
     layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element.id_ = f"{cd_reaction.get('id')}_layout"
     if hasattr(cd_base_product, "linkAnchor"):
         target_anchor_name = (
             momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
