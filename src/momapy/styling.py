@@ -640,7 +640,7 @@ _css_simple_value = (
     | _css_int_value
 )
 _css_list_value = pyparsing.Group(
-    pyparsing.delimited_list(_css_simple_value, ",", min=2)
+    pyparsing.DelimitedList(_css_simple_value, ",", min=2)
 )
 _css_attribute_value = _css_list_value | _css_simple_value
 _css_attribute_name = pyparsing.Word(
@@ -675,7 +675,7 @@ _css_descendant_selector = (
     + _css_elementary_selector
 )
 _css_or_selector = pyparsing.Group(
-    pyparsing.delimited_list(_css_elementary_selector, ",", min=2)
+    pyparsing.DelimitedList(_css_elementary_selector, ",", min=2)
 )
 _css_selector = (
     _css_child_selector
