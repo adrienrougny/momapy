@@ -8,12 +8,14 @@ Available subcommands:
 
 - **`render`** — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)
 - **`export`** — Export maps back to their original format (useful for roundtrip testing)
+- **`list`** — List available readers, writers, or renderers
 
 ## Synopsis
 
 ```bash
 momapy render <input_file_path>... -o <output_file_path> [options]
 momapy export <input_file_path> -o <output_file_path> [options]
+momapy list {readers,writers,renderers}
 ```
 
 ## Subcommand: `render`
@@ -169,6 +171,69 @@ momapy export my_map.sbgn -o output.sbgn -s custom_styles.css
 momapy export my_map.sbgn -o output.sbgn -s base.css -s overrides.css
 ```
 
+## Subcommand: `list`
+
+Lists available readers, writers, or renderers registered in momapy. For renderers, also shows supported output formats and whether the required dependencies are installed.
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `plugin_type` | Type of plugin to list: `readers`, `writers`, or `renderers` |
+
+### Examples
+
+#### List available readers
+
+```bash
+momapy list readers
+```
+
+Output:
+
+```
+celldesigner
+celldesigner-pickle
+sbgn-pickle
+sbgnml
+sbgnml-0.2
+sbgnml-0.3
+sbml
+```
+
+#### List available writers
+
+```bash
+momapy list writers
+```
+
+Output:
+
+```
+celldesigner
+celldesigner-pickle
+sbgn-pickle
+sbgnml
+sbgnml-0.3
+```
+
+#### List available renderers
+
+```bash
+momapy list renderers
+```
+
+Output:
+
+```
+cairo (formats: pdf, svg, png, ps)
+skia (formats: pdf, svg, png, jpeg, webp)
+svg-native (formats: svg)
+svg-native-compat (formats: svg)
+```
+
+If a renderer's dependencies are not installed, it shows `(not installed)` instead of formats.
+
 ## Getting Help
 
 Display help information:
@@ -177,4 +242,5 @@ Display help information:
 momapy --help
 momapy render --help
 momapy export --help
+momapy list --help
 ```

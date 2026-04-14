@@ -1,8 +1,8 @@
 """Command-line interface for momapy.
 
 This module provides a CLI for working with molecular maps, including commands
-for rendering maps to various image formats and exporting maps to their
-original format (useful for roundtrip testing).
+for rendering maps to various image formats, exporting maps to their
+original format (useful for roundtrip testing), and listing available plugins.
 
 Example:
     # Render an SBGN-ML file to SVG
@@ -19,6 +19,11 @@ Example:
 
     # Export with tidy and style sheet
     $ momapy export map.sbgn -o output.sbgn -c -s style.css
+
+    # List available readers, writers, or renderers
+    $ momapy list readers
+    $ momapy list writers
+    $ momapy list renderers
 """
 
 import argparse
@@ -132,6 +137,32 @@ def run(args):
             map_ = map_builder.build()
         writer = _infer_writer(map_)
         momapy.io.core.write(map_, args.output_file_path, writer=writer)
+    elif args.subcommand == "list":
+        import momapy.io
+        import momapy.rendering
+
+        plugin_type = args.plugin_type
+        if plugin_type == "readers":
+            names = momapy.io.list_readers()
+        elif plugin_type == "writers":
+            names = momapy.io.list_writers()
+        elif plugin_type == "renderers":
+            names = momapy.rendering.list_renderers()
+        else:
+            raise ValueError(f"plugin type {plugin_type} not supported")
+        if not names:
+            print(f"No {plugin_type} available.")
+            return
+        for name in names:
+            line = name
+            if plugin_type == "renderers":
+                try:
+                    renderer_cls = momapy.rendering.get_renderer(name)
+                    formats = ", ".join(renderer_cls.supported_formats)
+                    line = f"{name} (formats: {formats})"
+                except (ImportError, ModuleNotFoundError):
+                    line = f"{name} (not installed)"
+            print(line)
     else:
         raise ValueError(f"subcommand {args.subcommand} not supported")
 
@@ -224,6 +255,15 @@ def main():
         action="append",
         default=[],
         help="style sheet file path",
+    )
+    list_parser = subparsers.add_parser(
+        "list",
+        description="List available readers, writers, or renderers.",
+    )
+    list_parser.add_argument(
+        "plugin_type",
+        choices=["readers", "writers", "renderers"],
+        help="type of plugin to list",
     )
     args = parser.parse_args()
     run(args)
