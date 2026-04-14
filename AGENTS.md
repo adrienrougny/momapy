@@ -280,28 +280,36 @@ Map/model/layout IDs from `<map id="...">`: `map_.id_` = map_id, `model.id_` = `
 
 ### CellDesigner
 
-More complex: model and layout use different XML ID namespaces. Some elements use composite or synthetic IDs.
+More complex than SBGN: model and layout often use different XML ID sources (e.g., `<species id>` vs `<speciesAlias id>`). Some elements have no XML ID and use SBML `metaid`, composite IDs, or auto-generated UUIDs.
 
-| Element Type | Model `id_` | Layout `id_` | Model reg. key(s) | Layout reg. key | Notes |
-|---|---|---|---|---|---|
-| Compartment | `compartment_id` | `compartment_alias_id` | `compartment_id` | `compartment_alias_id` | `metaid` stored |
-| Species Template | `template_id` | no layout | `template_id` | N/A | |
-| Species | `species_id` | `species_alias_id` | `species_id` + `species_alias_id` | `species_alias_id` | **Dual model reg.**; `metaid` stored |
-| ModificationResidue | `f"{parent_id}_{residue_id}"` | no layout | composite id | N/A | **Composite ID** |
-| Region | `f"{parent_id}_{region_id}"` | no layout | composite id | N/A | **Composite ID** |
-| Modification | auto (UUID) | auto (UUID) | auto id | auto id | |
-| Reactant (base/link) | **metaid** or `f"{reaction_id}_{species_id}"` | no layout | model `id_` | N/A | **metaid preferred** |
-| Product (base/link) | **metaid** or `f"{reaction_id}_{species_id}"` | no layout | model `id_` | N/A | **metaid preferred** |
-| Modulator | auto (UUID) | auto (UUID) | not registered | not registered | `metaid` stored |
-| BooleanGate | auto (UUID) | auto (UUID) | auto id | not registered | |
-| Reaction | `reaction_id` | `reaction_id` | `reaction_id` | `reaction_id` | Same XML ID for both |
-| Modulation | `reaction_id` | auto (UUID) | `reaction_id` | not registered | Model uses reaction ID |
+**ID provenance key**:
+- `sbml:X` — from an SBML element attribute (e.g., `<species id="s1">`, `<modifierSpeciesReference metaid="MSR0">`)
+- `cd:X` — from a CellDesigner extension element attribute (e.g., `<speciesAlias id="sa1">`)
+- `composite` — synthetic ID built from parent + child XML IDs
+- `auto` — auto-generated UUID from the builder
 
-**Special patterns**:
-- **Dual registration**: Species model element is registered under both `species_id` AND `species_alias_id` (CellDesigner reactions reference species by alias ID)
-- **Composite IDs**: ModificationResidue and Region use `f"{parent_id}_{child_id}"` for global uniqueness
-- **metaid as ID**: Reactants/Products prefer SBML `metaid`; fallback to `f"{reaction_id}_{species_id}"`
-- **Auto-generated (UUID)**: Modifications, Modulators, BooleanGates get UUIDs from the builder
+| Element Type | Model `id_` | Source | Layout `id_` | Source | Registered | Notes |
+|---|---|---|---|---|---|---|
+| Compartment | `compartment_id` | sbml:`compartment/@id` | `alias_id` | cd:`compartmentAlias/@id` | yes | `metaid` also stored |
+| Species Template | `template_id` | cd:`proteinReference/@id` etc. | no layout | — | yes | |
+| Species | `species_id` | sbml:`species/@id` | `alias_id` | cd:`speciesAlias/@id` | yes | Dual model reg. under both IDs |
+| ModificationResidue | `f"{template_id}_{residue_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
+| Region | `f"{template_id}_{region_id}"` | composite | no layout | — | yes | Global uniqueness via parent |
+| Modification | auto (UUID) | auto | auto (UUID) | auto | yes | Species modification state |
+| StructuralState | auto (UUID) | auto | no layout | — | no | |
+| Reactant (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
+| Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | no layout | — | yes | metaid preferred |
+| Modulator | `metaid` or auto (UUID) | sbml:`modifierSpeciesReference/@metaid` or auto | `f"{metaid}_layout"` or auto (UUID) | derived from metaid or auto | no | metaid preferred |
+| BooleanGate | auto (UUID) | auto | auto (UUID) | auto | model only | Layout not registered |
+| LogicArc | no model | — | auto (UUID) | auto | no | |
+| Reaction | `reaction_id` | sbml:`reaction/@id` | `f"{reaction_id}_layout"` | derived from sbml | yes | No reaction alias in CD |
+| Modulation | `reaction_id` | sbml:`reaction/@id` | `f"{reaction_id}_layout"` | derived from sbml | yes | Encoded as fake reactions |
+
+**Notes**:
+- **Dual registration**: Species model is registered in `xml_id_to_model_element` under both `species_id` AND `species_alias_id` (CellDesigner reactions reference species by alias ID for cross-ref resolution)
+- **`_layout` suffix**: Used when model and layout share the same XML ID source (reactions, modulations, modulators with metaid). No suffix needed when they come from different XML elements (species vs alias, compartment vs alias)
+- **metaid**: SBML `metaid` attribute is preferred for Reactants, Products, and Modulators. Falls back to composite ID or UUID when absent
+- **Composite IDs**: `f"{parent_id}_{child_id}"` for ModificationResidue and Region (child IDs are only unique within a parent template)
 
 ## Plans
 
