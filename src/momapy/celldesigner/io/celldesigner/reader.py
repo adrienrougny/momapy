@@ -19,30 +19,36 @@ Element-specific patterns:
 
 - **Compartment**: model ``id_`` = ``compartment/@id``,
   layout ``id_`` = ``compartmentAlias/@id``.
-- **Species**: model ``id_`` = ``species/@id``,
+- **Species**: model ``id_`` = ``species/@id`` (or
+  ``f"{species_id}_active"`` for active species),
   layout ``id_`` = ``speciesAlias/@id``.
-  Model is registered under both IDs for cross-ref resolution.
-- **Species Template**: model ``id_`` = ``proteinReference/@id`` (etc.),
-  no layout.
-- **ModificationResidue / Region**: composite
-  ``f"{template_id}_{child_id}"`` for global uniqueness, no layout.
-- **Modification** (species modification state): composite
+- **Species Template**: model ``id_`` = ``proteinReference/@id``
+  (etc.), no layout.
+- **ModificationResidue / Region**: model ``id_`` =
+  ``f"{template_id}_{child_id}"``, no layout.
+- **Modification**: model ``id_`` =
   ``f"{species_id}_{residue_id}"``,
-  layout ``f"{species_id}_{residue_id}_layout"``.
-- **StructuralState**: composite ``f"{species_id}_{value}"``,
-  layout ``f"{species_id}_{value}_layout"``.
-- **Reactant / Product**: ``speciesReference/@metaid`` preferred,
-  fallback to ``f"{reaction_id}_{species_id}"``, no layout.
-- **Modulator**: ``modifierSpeciesReference/@metaid``,
-  layout ``f"{metaid}_layout"``.
+  layout ``id_`` = ``f"{species_id}_{residue_id}_layout"``.
+- **StructuralState**: model ``id_`` =
+  ``f"{species_id}_{value}"``,
+  layout ``id_`` = ``f"{species_id}_{value}_layout"``.
+- **Reactant / Product**: model ``id_`` =
+  ``speciesReference/@metaid`` (or
+  ``f"{reaction_id}_{species_id}"`` fallback),
+  layout ``id_`` = ``f"{model_id}_layout"`` (when present).
+- **Modulator**: model ``id_`` =
+  ``modifierSpeciesReference/@metaid``,
+  layout ``id_`` = ``f"{metaid}_layout"``.
 - **Reaction**: model ``id_`` = ``reaction/@id``,
   layout ``id_`` = ``f"{reaction_id}_layout"``.
-- **Modulation** (encoded as fake reactions): same as Reaction.
-- **BooleanGate**: composite
+- **Modulation**: model ``id_`` = ``reaction/@id``,
+  layout ``id_`` = ``f"{reaction_id}_layout"``.
+- **BooleanGate**: model ``id_`` =
   ``f"{reaction_id}_gate_{sorted_aliases}"``,
-  layout ``f"{...}_layout"``.
-- **LogicArc**: layout only,
-  ``f"{gate_id}_arc_{input_alias}"``.
+  layout ``id_`` =
+  ``f"{reaction_id}_gate_{sorted_aliases}_layout"``.
+- **LogicArc**: no model,
+  layout ``id_`` = ``f"{gate_id}_arc_{input_alias}"``.
 """
 
 import os
@@ -65,6 +71,88 @@ import momapy.utils
 import momapy.celldesigner.io.celldesigner._reading_parsing
 import momapy.celldesigner.io.celldesigner._reading_model
 import momapy.celldesigner.io.celldesigner._reading_layout
+
+
+def _get_reactant_id(cd_base_reactant_or_link, cd_reaction):
+    """Compute a deterministic ID for a reactant from XML data.
+
+    Uses the SBML speciesReference metaid if available, otherwise
+    falls back to ``f"{reaction_id}_{species_id}"``.
+
+    Args:
+        cd_base_reactant_or_link: The base reactant or reactant link element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        A deterministic ID string.
+    """
+    cd_species_id = (
+        cd_base_reactant_or_link.get("species")
+        or cd_base_reactant_or_link.get("reactant")
+    )
+    for cd_reactant in (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
+            cd_reaction
+        )
+    ):
+        if cd_reactant.get("species") == cd_species_id:
+            metaid = cd_reactant.get("metaid")
+            if metaid is not None:
+                return metaid
+            break
+    return f"{cd_reaction.get('id')}_{cd_species_id}"
+
+
+def _get_product_id(cd_base_product_or_link, cd_reaction):
+    """Compute a deterministic ID for a product from XML data.
+
+    Uses the SBML speciesReference metaid if available, otherwise
+    falls back to ``f"{reaction_id}_{species_id}"``.
+
+    Args:
+        cd_base_product_or_link: The base product or product link element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        A deterministic ID string.
+    """
+    cd_species_id = (
+        cd_base_product_or_link.get("species")
+        or cd_base_product_or_link.get("product")
+    )
+    for cd_product in (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
+            cd_reaction
+        )
+    ):
+        if cd_product.get("species") == cd_species_id:
+            metaid = cd_product.get("metaid")
+            if metaid is not None:
+                return metaid
+            break
+    return f"{cd_reaction.get('id')}_{cd_species_id}"
+
+
+def _get_modifier_metaid(cd_reaction_modification, cd_reaction):
+    """Resolve the SBML modifierSpeciesReference metaid for a modifier.
+
+    Args:
+        cd_reaction_modification: The modification element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        The metaid string, or None if not found.
+    """
+    cd_modifier_species_id = cd_reaction_modification.get("modifiers")
+    if cd_modifier_species_id is not None:
+        for modifier_species_reference in (
+            momapy.celldesigner.io.celldesigner._reading_parsing.get_modifier_species_references(
+                cd_reaction
+            )
+        ):
+            if modifier_species_reference.get("species") == cd_modifier_species_id:
+                return modifier_species_reference.get("metaid")
+    return None
 
 
 @dataclasses.dataclass
@@ -1299,6 +1387,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_model_element,
         super_layout_element,
     ):
+        cd_reactant_id = _get_reactant_id(cd_base_reactant, super_cd_element)
         if reading_context.model is not None:
             model_element = (
                 momapy.celldesigner.io.celldesigner._reading_model.make_reactant_from_base(
@@ -1326,6 +1415,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element,
                 )
             )
+            layout_element.id_ = f"{cd_reactant_id}_layout"
             layout_element = momapy.builder.object_from_builder(layout_element)
             reading_context.layout.layout_elements.append(layout_element)
         else:
@@ -1341,6 +1431,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_model_element,
         super_layout_element,
     ):
+        cd_reactant_id = _get_reactant_id(cd_reactant_link, super_cd_element)
         if reading_context.model is not None:
             model_element = (
                 momapy.celldesigner.io.celldesigner._reading_model.make_reactant_from_link(
@@ -1366,6 +1457,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element,
                 )
             )
+            layout_element.id_ = f"{cd_reactant_id}_layout"
             layout_element = momapy.builder.object_from_builder(layout_element)
             reading_context.layout.layout_elements.append(layout_element)
         else:
@@ -1383,6 +1475,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_model_element,
         super_layout_element,
     ):
+        cd_product_id = _get_product_id(cd_base_product, super_cd_element)
         if reading_context.model is not None:
             model_element = (
                 momapy.celldesigner.io.celldesigner._reading_model.make_product_from_base(
@@ -1410,6 +1503,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element,
                 )
             )
+            layout_element.id_ = f"{cd_product_id}_layout"
             layout_element = momapy.builder.object_from_builder(layout_element)
             reading_context.layout.layout_elements.append(layout_element)
         else:
@@ -1425,6 +1519,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_model_element,
         super_layout_element,
     ):
+        cd_product_id = _get_product_id(cd_product_link, super_cd_element)
         if reading_context.model is not None:
             model_element = (
                 momapy.celldesigner.io.celldesigner._reading_model.make_product_from_link(
@@ -1450,6 +1545,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element,
                 )
             )
+            layout_element.id_ = f"{cd_product_id}_layout"
             layout_element = momapy.builder.object_from_builder(layout_element)
             reading_context.layout.layout_elements.append(layout_element)
         else:
@@ -1481,21 +1577,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                         cd_reaction_id=super_cd_element.get("id"),
                     )
                 )
-            # Find the SBML modifierSpeciesReference metaid by
-            # matching the species id from the modification element.
-            modifier_metaid = None
-            cd_modifier_species_id = cd_reaction_modification.get("modifiers")
-            if cd_modifier_species_id is not None:
-                for modifier_species_reference in (
-                    momapy.celldesigner.io.celldesigner._reading_parsing.get_modifier_species_references(
-                        super_cd_element
-                    )
-                ):
-                    if modifier_species_reference.get("species") == cd_modifier_species_id:
-                        modifier_metaid = modifier_species_reference.get(
-                            "metaid"
-                        )
-                        break
+            modifier_metaid = _get_modifier_metaid(
+                cd_reaction_modification, super_cd_element
+            )
             if reading_context.model is not None:
                 if not has_boolean_input:
                     source_model_element = reading_context.xml_id_to_model_element[
