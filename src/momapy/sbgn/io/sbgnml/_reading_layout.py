@@ -369,6 +369,7 @@ def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element)
         sbgnml_consumption_arc
     )
     layout_element = reading_context.layout.new_element(momapy.sbgn.pd.ConsumptionLayout)
+    layout_element.id_ = sbgnml_consumption_arc.get("id")
     # The source becomes the target: in momapy flux arcs go from the process
     # to the entity pool node; this way reversible consumptions can be
     # represented with production layouts.
@@ -400,6 +401,7 @@ def make_product(reading_context, sbgnml_production_arc, super_layout_element):
         sbgnml_production_arc
     )
     layout_element = reading_context.layout.new_element(momapy.sbgn.pd.ProductionLayout)
+    layout_element.id_ = sbgnml_production_arc.get("id")
     layout_element.source = super_layout_element
     for segment in make_arc_segments(sbgnml_production_arc):
         layout_element.segments.append(segment)
@@ -462,6 +464,7 @@ def make_logical_operator_input(
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(momapy.sbgn.pd.LogicArcLayout)
+    layout_element.id_ = sbgnml_logic_arc.get("id")
     # The source becomes the target: in momapy logic arcs go from
     # the operator to the input node.
     layout_element.source = super_layout_element
@@ -494,6 +497,7 @@ def make_modulation(
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element.id_ = sbgnml_modulation.get("id")
     for segment in make_arc_segments(sbgnml_modulation):
         layout_element.segments.append(segment)
     layout_element.source = source_layout_element
