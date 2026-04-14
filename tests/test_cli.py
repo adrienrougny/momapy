@@ -1,5 +1,6 @@
 """Tests for momapy CLI module."""
 
+import json
 import os
 import pathlib
 import tempfile
@@ -69,6 +70,51 @@ class TestCLIRenderCommand:
             # Should raise an error for unsupported format
             with pytest.raises((SystemExit, ValueError, Exception)):
                 momapy.cli.main()
+
+
+class TestCLIInfoCommand:
+    """Tests for CLI info command."""
+
+    SBGN_MAP_PATH = os.path.join(
+        os.path.dirname(__file__),
+        "sbgn",
+        "maps",
+        "pd",
+        "glycolysis.sbgn",
+    )
+
+    def test_info_subcommand_help(self):
+        """Test info subcommand shows help."""
+        with mock.patch("sys.argv", ["momapy", "info", "--help"]):
+            with pytest.raises(SystemExit) as exc_info:
+                momapy.cli.main()
+            assert exc_info.value.code == 0
+
+    def test_info_text_output(self, capsys):
+        """Test info command text output."""
+        with mock.patch(
+            "sys.argv", ["momapy", "info", self.SBGN_MAP_PATH]
+        ):
+            momapy.cli.main()
+        captured = capsys.readouterr()
+        assert "SBGN Process Description" in captured.out
+        assert "entity pools:" in captured.out
+        assert "dimensions:" in captured.out
+
+    def test_info_json_output(self, capsys):
+        """Test info command JSON output."""
+        with mock.patch(
+            "sys.argv",
+            ["momapy", "info", self.SBGN_MAP_PATH, "--format", "json"],
+        ):
+            momapy.cli.main()
+        captured = capsys.readouterr()
+        data = json.loads(captured.out)
+        assert data["map_type"] == "SBGN Process Description"
+        assert "model" in data
+        assert "layout" in data
+        assert "entity_pools" in data["model"]
+        assert "width" in data["layout"]
 
 
 class TestCLIListCommand:

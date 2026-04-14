@@ -24,9 +24,15 @@ Example:
     $ momapy list readers
     $ momapy list writers
     $ momapy list renderers
+
+    # Inspect a map file
+    $ momapy info map.sbgn
+    $ momapy info map.xml --format json
 """
 
 import argparse
+import json
+
 import momapy.celldesigner.core
 import momapy.celldesigner.utils
 import momapy.sbgn.core
@@ -137,6 +143,37 @@ def run(args):
             map_ = map_builder.build()
         writer = _infer_writer(map_)
         momapy.io.core.write(map_, args.output_file_path, writer=writer)
+    elif args.subcommand == "info":
+        import momapy.io.core
+
+        reader_result = momapy.io.core.read(args.input_file_path)
+        map_ = reader_result.obj
+        if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+            info = momapy.celldesigner.utils.get_info(map_)
+        elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+            info = momapy.sbgn.utils.get_info(map_)
+        else:
+            raise ValueError(
+                f"unsupported map type: {type(map_).__name__}"
+            )
+        info["file"] = str(args.input_file_path)
+        if args.format == "json":
+            print(json.dumps(info, indent=2))
+        else:
+            print(f"File:      {info['file']}")
+            print(f"Map type:  {info['map_type']}")
+            print()
+            print("Model:")
+            for key, value in info["model"].items():
+                label = key.replace("_", " ")
+                print(f"  {label + ':':<26s}{value}")
+            print()
+            print("Layout:")
+            print(
+                f"  {'dimensions:':<26s}"
+                f"{info['layout']['width']} x {info['layout']['height']}"
+            )
+            print(f"  {'elements:':<26s}{info['layout']['elements']}")
     elif args.subcommand == "list":
         import momapy.io
         import momapy.rendering
@@ -255,6 +292,18 @@ def main():
         action="append",
         default=[],
         help="style sheet file path",
+    )
+    info_parser = subparsers.add_parser(
+        "info",
+        description="Print a summary of a map file's contents (map type, model element counts, layout dimensions).",
+    )
+    info_parser.add_argument("input_file_path", help="input file path")
+    info_parser.add_argument(
+        "-f",
+        "--format",
+        default="text",
+        choices=["text", "json"],
+        help="output format (default: text)",
     )
     list_parser = subparsers.add_parser(
         "list",

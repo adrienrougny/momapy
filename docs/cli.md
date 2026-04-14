@@ -8,6 +8,7 @@ Available subcommands:
 
 - **`render`** — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)
 - **`export`** — Export maps back to their original format (useful for roundtrip testing)
+- **`info`** — Print a summary of a map file's contents
 - **`list`** — List available readers, writers, or renderers
 
 ## Synopsis
@@ -15,6 +16,7 @@ Available subcommands:
 ```bash
 momapy render <input_file_path>... -o <output_file_path> [options]
 momapy export <input_file_path> -o <output_file_path> [options]
+momapy info <input_file_path> [options]
 momapy list {readers,writers,renderers}
 ```
 
@@ -169,6 +171,87 @@ Apply a stylesheet before exporting:
 ```bash
 momapy export my_map.sbgn -o output.sbgn -s custom_styles.css
 momapy export my_map.sbgn -o output.sbgn -s base.css -s overrides.css
+```
+
+## Subcommand: `info`
+
+Prints a summary of a map file's contents, including the map type, model element counts, and layout dimensions.
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `input_file_path` | Input file path (SBGN-ML or CellDesigner format) |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--format` | `-f` | Output format: `text` (default) or `json` |
+
+### Examples
+
+#### Inspect an SBGN-ML file
+
+```bash
+momapy info my_map.sbgn
+```
+
+Output:
+
+```
+File:      my_map.sbgn
+Map type:  SBGN Process Description
+
+Model:
+  compartments:             0
+  entity pools:             28
+  processes:                10
+  modulations:              10
+  logical operators:        0
+  equivalence operators:    0
+  submaps:                  0
+  tags:                     0
+
+Layout:
+  dimensions:               1170.0 x 560.0
+  elements:                 122
+```
+
+#### JSON output
+
+```bash
+momapy info my_map.sbgn --format json
+```
+
+Output:
+
+```json
+{
+  "map_type": "SBGN Process Description",
+  "model": {
+    "compartments": 0,
+    "entity_pools": 28,
+    "processes": 10,
+    "modulations": 10,
+    "logical_operators": 0,
+    "equivalence_operators": 0,
+    "submaps": 0,
+    "tags": 0
+  },
+  "layout": {
+    "width": 1170.0,
+    "height": 560.0,
+    "elements": 122
+  },
+  "file": "my_map.sbgn"
+}
+```
+
+#### Inspect a CellDesigner file
+
+```bash
+momapy info my_map.xml
 ```
 
 ## Subcommand: `list`
