@@ -192,6 +192,101 @@ def _mapping(writing_context):
     return writing_context.map_.layout_model_mapping
 
 
+def _build_layout_order_index(layout):
+    """Build a mapping from layout element id to position index.
+
+    Walks the layout tree recursively so that both top-level and
+    nested (complex children) elements get an index reflecting
+    their original ordering.
+    """
+    index = {}
+    counter = [0]
+
+    def _walk(elements):
+        for element in elements:
+            index[element.id_] = counter[0]
+            counter[0] += 1
+            if hasattr(element, "layout_elements"):
+                _walk(element.layout_elements)
+
+    _walk(layout.layout_elements)
+    return index
+
+
+def _sort_aliases_by_layout_order(list_elem, layout_order_index):
+    """Sort alias XML children of list_elem by layout element order."""
+    _sort_xml_children_by_key(
+        list_elem,
+        key_func=lambda alias: layout_order_index.get(
+            alias.get("id"), float("inf")
+        ),
+    )
+
+
+def _sort_xml_children_by_key(list_elem, key_func):
+    """Sort XML children of list_elem using the given key function."""
+    children = list(list_elem)
+    if len(children) <= 1:
+        return
+    for child in children:
+        list_elem.remove(child)
+    children.sort(key=key_func)
+    for child in children:
+        list_elem.append(child)
+
+
+def _participant_layout_position(
+    writing_context, participant, reaction, frozenset_mapping,
+    reaction_layout, is_start, arc_order,
+):
+    """Get the layout position for a reaction participant.
+
+    Uses the arc alias order mapping to determine position.
+    Falls back to infinity for participants without a layout arc.
+    """
+    alias_layout = _find_layout_for_participant(
+        writing_context, participant, reaction, frozenset_mapping,
+        reaction_layout, is_start,
+    )
+    if alias_layout is not None:
+        return arc_order.get(alias_layout.id_, float("inf"))
+    return float("inf")
+
+
+def _build_arc_alias_order(writing_context, reaction_layout, arc_cls):
+    """Build a mapping from alias id to layout position for arcs of a reaction.
+
+    For each arc of the given class connected to the reaction layout,
+    maps the arc's target alias id to its position in the layout.
+    """
+    order = {}
+    for i, element in enumerate(
+        writing_context.map_.layout.layout_elements
+    ):
+        if (
+            isinstance(element, arc_cls)
+            and element.source is reaction_layout
+            and element.target is not None
+        ):
+            order[element.target.id_] = i
+    return order
+
+
+def _sort_reactions_by_layout_order(list_elem, layout_order_index):
+    """Sort reaction XML children of list_elem by layout element order.
+
+    Each reaction's layout element id follows the pattern
+    ``f"{reaction_id}_layout"``, so we derive the sort key from
+    the reaction's ``id`` attribute.
+    """
+    _sort_xml_children_by_key(
+        list_elem,
+        key_func=lambda reaction: layout_order_index.get(
+            f"{reaction.get('id')}_layout", float("inf")
+        ),
+    )
+
+
 def _get_layouts(writing_context, model_element):
     """Get layout elements for a model element.
 
@@ -683,10 +778,14 @@ def _make_celldesigner_species_state(writing_context, species):
 def _make_celldesigner_list_of_complex_species_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfComplexSpeciesAliases")
     # Top-level complexes
-    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_):
+    for species in writing_context.map_.model.species:
         if not isinstance(species, momapy.celldesigner.core.Complex):
             continue
         _collect_complex_aliases(writing_context, species, list_elem)
+    layout_order_index = _build_layout_order_index(
+        writing_context.map_.layout
+    )
+    _sort_aliases_by_layout_order(list_elem, layout_order_index)
     return list_elem
 
 
@@ -707,9 +806,7 @@ def _collect_complex_aliases(writing_context, complex_, list_elem):
 
 def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
     """Walk layout children and emit complexSpeciesAliases for nested complexes."""
-    for child in sorted(
-        parent_layout.layout_elements, key=lambda e: e.id_
-    ):
+    for child in parent_layout.layout_elements:
         if not isinstance(child, momapy.celldesigner.core.ComplexLayout):
             continue
         model_info = _mapping(writing_context).get_mapping(child)
@@ -729,7 +826,7 @@ def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
 def _make_celldesigner_list_of_species_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfSpeciesAliases")
     # Top-level species (non-complex, non-subunit)
-    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_):
+    for species in writing_context.map_.model.species:
         if isinstance(species, momapy.celldesigner.core.Complex):
             continue
         if species in writing_context.subunit_to_complex:
@@ -746,10 +843,14 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
                     )
                 )
     # Subunit species (inside complexes), recursively
-    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_):
+    for species in writing_context.map_.model.species:
         if not isinstance(species, momapy.celldesigner.core.Complex):
             continue
         _collect_subunit_aliases(writing_context, species, list_elem)
+    layout_order_index = _build_layout_order_index(
+        writing_context.map_.layout
+    )
+    _sort_aliases_by_layout_order(list_elem, layout_order_index)
     return list_elem
 
 
@@ -776,9 +877,7 @@ def _collect_aliases_from_layout_children(
     writing_context, parent_layout, complex_alias_id, list_elem
 ):
     """Walk layout children and emit speciesAliases for non-complex nodes."""
-    for child in sorted(
-        parent_layout.layout_elements, key=lambda e: e.id_
-    ):
+    for child in parent_layout.layout_elements:
         if isinstance(child, momapy.celldesigner.core.ComplexLayout):
             # Recurse into nested complex layouts
             _collect_aliases_from_layout_children(
@@ -787,6 +886,15 @@ def _collect_aliases_from_layout_children(
             continue
         if not isinstance(
             child, momapy.celldesigner.core.CellDesignerNode
+        ):
+            continue
+        # Skip non-species child layouts (structural states, modifications)
+        if isinstance(
+            child,
+            (
+                momapy.celldesigner.core.StructuralStateLayout,
+                momapy.celldesigner.core.ModificationLayout,
+            ),
         ):
             continue
         # Get the model element for this layout
@@ -1170,12 +1278,16 @@ def _find_catalyzed_reactions(writing_context, species):
 
 def _make_celldesigner_list_of_reactions(writing_context):
     list_elem = _make_lxml_element("listOfReactions")
-    for reaction in sorted(writing_context.map_.model.reactions, key=lambda r: r.id_):
+    for reaction in writing_context.map_.model.reactions:
         list_elem.append(_make_celldesigner_reaction(writing_context, reaction))
-    for modulation in sorted(writing_context.map_.model.modulations, key=lambda m: m.id_):
+    for modulation in writing_context.map_.model.modulations:
         mod_rxn = _make_celldesigner_modulation_reaction(writing_context, modulation)
         if mod_rxn is not None:
             list_elem.append(mod_rxn)
+    layout_order_index = _build_layout_order_index(
+        writing_context.map_.layout
+    )
+    _sort_reactions_by_layout_order(list_elem, layout_order_index)
     return list_elem
 
 
@@ -1205,8 +1317,33 @@ def _make_celldesigner_reaction(writing_context, reaction):
     extension.append(_make_celldesigner_element("reactionType", text=reaction_type))
 
     # Split reactants/products into base + links using the base flag.
-    all_reactants = sorted(reaction.reactants, key=lambda r: r.id_)
-    all_products = sorted(reaction.products, key=lambda p: p.id_)
+    # Sort by layout arc order since reaction.reactants/products are
+    # frozensets with no guaranteed iteration order.
+    all_reactants = list(reaction.reactants)
+    all_products = list(reaction.products)
+    if reaction_layout is not None:
+        reactant_arc_order = _build_arc_alias_order(
+            writing_context,
+            reaction_layout,
+            momapy.celldesigner.core.ConsumptionLayout,
+        )
+        product_arc_order = _build_arc_alias_order(
+            writing_context,
+            reaction_layout,
+            momapy.celldesigner.core.ProductionLayout,
+        )
+        all_reactants.sort(
+            key=lambda r: _participant_layout_position(
+                writing_context, r, reaction, frozenset_mapping,
+                reaction_layout, True, reactant_arc_order,
+            )
+        )
+        all_products.sort(
+            key=lambda p: _participant_layout_position(
+                writing_context, p, reaction, frozenset_mapping,
+                reaction_layout, False, product_arc_order,
+            )
+        )
     base_reactants, link_reactants = _split_base_and_links(
         all_reactants
     )
