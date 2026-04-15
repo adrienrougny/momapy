@@ -252,7 +252,9 @@ def set_compartments_to_fit_content(
     """Resize compartments to fit their content.
 
     Adjusts compartment dimensions to tightly enclose their contained
-    species.
+    species and child compartments (via the ``outside`` attribute).
+    Compartments are processed inside-out so that inner compartments
+    are sized before their parents.
 
     Args:
         map_: A CellDesigner map or map builder. If a builder is given,
@@ -273,7 +275,15 @@ def set_compartments_to_fit_content(
         compartment = getattr(species, "compartment", None)
         if compartment is not None:
             compartment_species_mapping[compartment].append(species)
-    for compartment in compartment_species_mapping:
+    compartment_children_mapping = collections.defaultdict(list)
+    for compartment in map_builder.model.compartments:
+        outside = getattr(compartment, "outside", None)
+        if outside is not None:
+            compartment_children_mapping[outside].append(compartment)
+    sorted_compartments = _sort_compartments_inside_out(
+        map_builder.model.compartments, compartment_children_mapping
+    )
+    for compartment in sorted_compartments:
         compartment_layouts = map_builder.get_mapping(compartment)
         if compartment_layouts is None:
             continue
@@ -283,7 +293,9 @@ def set_compartments_to_fit_content(
             if isinstance(compartment_layout, frozenset):
                 continue
             elements = []
-            for species in compartment_species_mapping[compartment]:
+            for species in compartment_species_mapping.get(
+                compartment, []
+            ):
                 species_layouts = map_builder.get_mapping(species)
                 if species_layouts is None:
                     continue
@@ -293,6 +305,20 @@ def set_compartments_to_fit_content(
                     if isinstance(species_layout, frozenset):
                         continue
                     elements.append(species_layout)
+            for child_compartment in compartment_children_mapping.get(
+                compartment, []
+            ):
+                child_layouts = map_builder.get_mapping(
+                    child_compartment
+                )
+                if child_layouts is None:
+                    continue
+                if not isinstance(child_layouts, list):
+                    child_layouts = [child_layouts]
+                for child_layout in child_layouts:
+                    if isinstance(child_layout, frozenset):
+                        continue
+                    elements.append(child_layout)
             if elements:
                 momapy.positioning.set_fit(
                     compartment_layout, elements, xsep, ysep
@@ -305,6 +331,40 @@ def set_compartments_to_fit_content(
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
+
+
+def _sort_compartments_inside_out(
+    compartments: collections.abc.Iterable,
+    compartment_children_mapping: dict,
+) -> list:
+    """Sort compartments so that inner compartments come before outer ones.
+
+    Performs a post-order traversal of the compartment hierarchy so that
+    leaf (innermost) compartments are processed before their parents.
+
+    Args:
+        compartments: All compartments in the model.
+        compartment_children_mapping: Mapping from parent compartment
+            to its list of child compartments.
+
+    Returns:
+        Compartments sorted from innermost to outermost.
+    """
+    visited = set()
+    result = []
+
+    def visit(compartment):
+        compartment_id = id(compartment)
+        if compartment_id in visited:
+            return
+        visited.add(compartment_id)
+        for child in compartment_children_mapping.get(compartment, []):
+            visit(child)
+        result.append(compartment)
+
+    for compartment in compartments:
+        visit(compartment)
+    return result
 
 
 def set_complexes_to_fit_content(
