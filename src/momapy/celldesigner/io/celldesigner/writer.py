@@ -1312,6 +1312,16 @@ def _make_celldesigner_list_of_antisense_rnas(writing_context):
     return list_elem
 
 
+_REGION_CLASS_TO_CD_TYPE = {
+    momapy.celldesigner.core.ModificationSite: "Modification Site",
+    momapy.celldesigner.core.RegulatoryRegion: "RegulatoryRegion",
+    momapy.celldesigner.core.TranscriptionStartingSiteL: "transcriptionStartingSiteL",
+    momapy.celldesigner.core.TranscriptionStartingSiteR: "transcriptionStartingSiteR",
+    momapy.celldesigner.core.CodingRegion: "CodingRegion",
+    momapy.celldesigner.core.ProteinBindingDomain: "proteinBindingDomain",
+}
+
+
 def _append_template_regions(elem, tmpl):
     """Append listOfRegions to a gene/RNA/antisenseRNA element if regions exist."""
     regions = getattr(tmpl, "regions", None)
@@ -1319,12 +1329,15 @@ def _append_template_regions(elem, tmpl):
         return
     region_list = _make_celldesigner_element("listOfRegions")
     for region in sorted(regions, key=lambda r: r.id_ or ""):
+        region_type = _REGION_CLASS_TO_CD_TYPE.get(
+            type(region), "proteinBindingDomain"
+        )
         region_attrs = {
             "id": _strip_template_prefix(region, tmpl),
             "name": region.name or "",
             "size": "0.1",
             "pos": "0.5",
-            "type": "proteinBindingDomain",
+            "type": region_type,
         }
         region_list.append(
             _make_celldesigner_element("region", attrs=region_attrs)
@@ -1488,7 +1501,7 @@ def _make_celldesigner_reaction(
     attrs = {
         "metaid": xml_id,
         "id": xml_id,
-        "reversible": "false",
+        "reversible": "true" if reaction.reversible else "false",
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
@@ -2988,13 +3001,13 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
         # Fallback to gate.inputs if no logic arcs found
         for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
             inp_layout = None
-            for layout_key in _get_layouts(writing_context, inp):
+            for layout_key in _get_layouts(writing_context, inp.element):
                 if isinstance(layout_key, frozenset):
                     continue
                 if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
                     inp_layout = layout_key
                     break
-            input_layouts.append((inp, inp_layout))
+            input_layouts.append((inp.element, inp_layout))
 
     target_layout = None
     if target is not None:
@@ -3097,9 +3110,8 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     connect_scheme.append(line_direction_list)
     extension.append(connect_scheme)
 
-    # editPoints
-    if edit_points_text:
-        extension.append(_make_celldesigner_element("editPoints", text=edit_points_text))
+    # editPoints — always write, even if empty, to avoid reader crash
+    extension.append(_make_celldesigner_element("editPoints", text=edit_points_text or "0.0,0.0"))
 
     extension.append(_make_celldesigner_element("listOfModification"))
 
@@ -3112,8 +3124,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
         "aliases": ",".join(input_alias_ids),
         "modificationType": modifier_type,
     }
-    if gate_edit_points:
-        gate_attrs["editPoints"] = gate_edit_points
+    gate_attrs["editPoints"] = gate_edit_points or "0.0,0.0"
     gate_member = _make_celldesigner_element("GateMember", attrs=gate_attrs)
     gate_member_connect_scheme = _make_celldesigner_element("connectScheme", attrs={"connectPolicy": "direct"})
     gate_member_line_direction_list = _make_celldesigner_element("listOfLineDirection")
