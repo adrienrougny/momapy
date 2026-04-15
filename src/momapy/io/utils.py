@@ -33,8 +33,8 @@ class ReadingContext:
         dataclasses.field(default_factory=dict)
     )
     xml_id_to_xml_element: dict = dataclasses.field(default_factory=dict)
-    map_element_to_annotations: dict = dataclasses.field(default_factory=dict)
-    map_element_to_notes: dict = dataclasses.field(default_factory=dict)
+    element_to_annotations: dict = dataclasses.field(default_factory=dict)
+    element_to_notes: dict = dataclasses.field(default_factory=dict)
     layout_model_mapping: typing.Any = None
     with_annotations: bool = True
     with_notes: bool = True

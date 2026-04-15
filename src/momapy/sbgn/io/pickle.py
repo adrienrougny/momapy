@@ -51,15 +51,15 @@ class SBGNPickleReader(momapy.io.core.Reader):
         with open(file_path, "rb") as f:
             reader_result = pickle.load(f)
         if not with_annotations:
-            reader_result.annotations = None
+            reader_result.element_to_annotations = None
         if not with_notes:
-            reader_result.notes = None
+            reader_result.element_to_notes = None
         obj = reader_result.obj
         if return_type == "model":
             obj = obj.model
             for mapping in [
-                reader_result.annotations,
-                reader_result.notes,
+                reader_result.element_to_annotations,
+                reader_result.element_to_notes,
                 reader_result.ids,
             ]:
                 if mapping is not None:
@@ -69,8 +69,8 @@ class SBGNPickleReader(momapy.io.core.Reader):
         elif return_type == "layout":
             obj = obj.layout
             for mapping in [
-                reader_result.annotations,
-                reader_result.notes,
+                reader_result.element_to_annotations,
+                reader_result.element_to_notes,
                 reader_result.ids,
             ]:
                 if mapping is not None:
@@ -83,8 +83,8 @@ class SBGNPickleReader(momapy.io.core.Reader):
                 if not with_model:
                     map_builder.model = None
                     for mapping in [
-                        reader_result.annotations,
-                        reader_result.notes,
+                        reader_result.element_to_annotations,
+                        reader_result.element_to_notes,
                         reader_result.ids,
                     ]:
                         if mapping is not None:
@@ -98,8 +98,8 @@ class SBGNPickleReader(momapy.io.core.Reader):
                 if not with_layout:
                     map_builder.layout = None
                     for mapping in [
-                        reader_result.annotations,
-                        reader_result.notes,
+                        reader_result.element_to_annotations,
+                        reader_result.element_to_notes,
                         reader_result.ids,
                     ]:
                         if mapping is not None:
@@ -121,14 +121,14 @@ class SBGNPickleWriter(momapy.io.core.Writer):
         cls,
         obj: momapy.sbgn.core.SBGNMap,
         file_path: str | os.PathLike,
-        annotations=None,
-        notes=None,
+        element_to_annotations=None,
+        element_to_notes=None,
         ids=None,
     ) -> momapy.io.core.WriterResult:
         reader_result = momapy.io.core.ReaderResult(
             obj=obj,
-            annotations=annotations,
-            notes=notes,
+            element_to_annotations=element_to_annotations,
+            element_to_notes=element_to_notes,
             ids=ids,
             file_path=file_path,
         )

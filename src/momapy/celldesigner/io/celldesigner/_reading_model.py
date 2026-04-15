@@ -83,7 +83,7 @@ def make_and_add_annotations(reading_context, cd_element, model_element):
     if reading_context.with_annotations:
         annotations = make_annotations_from_element(cd_element)
         if annotations:
-            reading_context.map_element_to_annotations[model_element].update(
+            reading_context.element_to_annotations[model_element].update(
                 annotations
             )
 

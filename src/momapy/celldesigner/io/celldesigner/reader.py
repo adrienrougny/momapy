@@ -538,8 +538,8 @@ class CellDesignerReader(momapy.io.core.Reader):
         )
         result = momapy.io.core.ReaderResult(
             obj=obj,
-            notes=notes,
-            annotations=annotations,
+            element_to_notes=notes,
+            element_to_annotations=annotations,
             file_path=file_path,
             ids=ids,
         )
@@ -567,8 +567,8 @@ class CellDesignerReader(momapy.io.core.Reader):
             )
         else:
             layout = None
-        map_element_to_annotations = collections.defaultdict(set)
-        map_element_to_notes = collections.defaultdict(set)
+        element_to_annotations = collections.defaultdict(set)
+        element_to_notes = collections.defaultdict(set)
         if model is not None or layout is not None:
             if model is not None and layout is not None:
                 layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
@@ -579,8 +579,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                 model=model,
                 layout=layout,
                 xml_id_to_model_element=momapy.utils.IdentitySurjectionDict(),
-                map_element_to_annotations=map_element_to_annotations,
-                map_element_to_notes=map_element_to_notes,
+                element_to_annotations=element_to_annotations,
+                element_to_notes=element_to_notes,
                 layout_model_mapping=layout_model_mapping,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
@@ -637,10 +637,10 @@ class CellDesignerReader(momapy.io.core.Reader):
                 annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                     cd_model
                 )
-                map_element_to_annotations[obj].update(annotations)
+                element_to_annotations[obj].update(annotations)
             if with_notes:
                 notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
-                map_element_to_notes[obj].update(notes)
+                element_to_notes[obj].update(notes)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
         elif return_type == "map":
@@ -653,15 +653,15 @@ class CellDesignerReader(momapy.io.core.Reader):
                 annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_element(
                     cd_model
                 )
-                map_element_to_annotations[obj].update(annotations)
+                element_to_annotations[obj].update(annotations)
             if with_notes:
                 notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
-                map_element_to_notes[obj].update(notes)
+                element_to_notes[obj].update(notes)
         annotations = frozendict.frozendict(
-            {key: frozenset(val) for key, val in map_element_to_annotations.items()}
+            {key: frozenset(val) for key, val in element_to_annotations.items()}
         )
         notes = frozendict.frozendict(
-            {key: frozenset(val) for key, val in map_element_to_notes.items()}
+            {key: frozenset(val) for key, val in element_to_notes.items()}
         )
         # Build id_to_map_element from the two id-to-element dicts.
         # Layout entries take precedence over model entries for the
@@ -749,7 +749,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                     cd_compartment
                 )
-                reading_context.map_element_to_notes[model_element].update(notes)
+                reading_context.element_to_notes[model_element].update(notes)
         else:
             model_element = None
         layout_element = None
@@ -1051,7 +1051,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_species
                         )
-                        reading_context.map_element_to_notes[model_element].update(notes)
+                        reading_context.element_to_notes[model_element].update(notes)
                 else:  # included species case
                     model_element = momapy.utils.add_or_replace_element_in_set(
                         model_element,
@@ -1068,14 +1068,14 @@ class CellDesignerReader(momapy.io.core.Reader):
                             cd_notes
                         )
                         if annotations:
-                            reading_context.map_element_to_annotations[model_element].update(
+                            reading_context.element_to_annotations[model_element].update(
                                 annotations
                             )
                     if reading_context.with_notes:
                         notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_species
                         )
-                        reading_context.map_element_to_notes[model_element].update(notes)
+                        reading_context.element_to_notes[model_element].update(notes)
                 # Apply deferred subunit mappings.  Use model_element
                 # (the registered frozen parent) instead of the
                 # super_model_element captured during subunit creation
@@ -1383,7 +1383,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                         cd_reaction
                     )
-                    reading_context.map_element_to_notes[model_element].update(notes)
+                    reading_context.element_to_notes[model_element].update(notes)
             if reading_context.layout is not None:
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[layout_element.id_] = layout_element
@@ -1832,7 +1832,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                         cd_reaction
                     )
-                    reading_context.map_element_to_notes[model_element].update(notes)
+                    reading_context.element_to_notes[model_element].update(notes)
             else:
                 model_element = None
             if reading_context.layout is not None:

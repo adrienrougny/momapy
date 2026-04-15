@@ -24,8 +24,8 @@ class WritingContext:
     """Bundles the shared state passed across all writer methods."""
 
     map_: typing.Any
-    annotations: dict
-    notes: dict
+    element_to_annotations: dict
+    element_to_notes: dict
     ids: dict
     with_annotations: bool
     with_notes: bool
@@ -585,8 +585,8 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         cls,
         obj: momapy.sbgn.core.SBGNMap,
         file_path,
-        annotations=None,
-        notes=None,
+        element_to_annotations=None,
+        element_to_notes=None,
         ids=None,
         with_render_information=True,
         with_annotations=True,
@@ -597,23 +597,23 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         Args:
             obj: The SBGN map to serialize.
             file_path: Destination file path.
-            annotations: Optional per-element annotation dict.
-            notes: Optional per-element notes dict.
+            element_to_annotations: Optional per-element annotation dict.
+            element_to_notes: Optional per-element notes dict.
             ids: Optional per-element id overrides dict.
             with_render_information: Ignored (kept for API compat).
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
         """
-        if annotations is None:
-            annotations = {}
-        if notes is None:
-            notes = {}
+        if element_to_annotations is None:
+            element_to_annotations = {}
+        if element_to_notes is None:
+            element_to_notes = {}
         if ids is None:
             ids = {}
         writing_context = WritingContext(
             map_=obj,
-            annotations=annotations,
-            notes=notes,
+            element_to_annotations=element_to_annotations,
+            element_to_notes=element_to_notes,
             ids=ids,
             with_annotations=with_annotations,
             with_notes=with_notes,

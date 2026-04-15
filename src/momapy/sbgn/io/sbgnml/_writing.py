@@ -127,8 +127,8 @@ def make_sbgnml_annotation(annotations, sbgnml_id):
 
 def add_annotations_and_notes(writing_context, sbgnml_element, model_element):
     """Append annotation and notes XML to an SBGN-ML element if present."""
-    if writing_context.with_annotations and writing_context.annotations:
-        element_annotations = writing_context.annotations.get(model_element)
+    if writing_context.with_annotations and writing_context.element_to_annotations:
+        element_annotations = writing_context.element_to_annotations.get(model_element)
         if element_annotations:
             sbgnml_annot = make_sbgnml_annotation(
                 element_annotations,
@@ -137,8 +137,8 @@ def add_annotations_and_notes(writing_context, sbgnml_element, model_element):
             sbgnml_extension = make_lxml_element("extension")
             sbgnml_extension.append(sbgnml_annot)
             sbgnml_element.append(sbgnml_extension)
-    if writing_context.with_notes and writing_context.notes:
-        element_notes = writing_context.notes.get(model_element)
+    if writing_context.with_notes and writing_context.element_to_notes:
+        element_notes = writing_context.element_to_notes.get(model_element)
         if element_notes:
             for note in element_notes:
                 sbgnml_notes = make_lxml_element(tag="notes")

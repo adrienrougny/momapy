@@ -70,8 +70,8 @@ class WritingContext:
     """Shared state for the writer."""
 
     map_: typing.Any
-    annotations: dict
-    notes: dict
+    element_to_annotations: dict
+    element_to_notes: dict
     ids: dict
     with_annotations: bool
     with_notes: bool
@@ -418,7 +418,7 @@ def _make_celldesigner_model(writing_context):
     model_id = writing_context.map_.id_ or "untitled"
     model = _make_lxml_element("model", attrs={"metaid": model_id, "id": model_id})
     # notes
-    model_notes = writing_context.notes.get(writing_context.map_, set())
+    model_notes = writing_context.element_to_notes.get(writing_context.map_, set())
     if model_notes:
         notes_elem = _make_lxml_element("notes")
         for note in model_notes:
@@ -580,7 +580,7 @@ def _make_celldesigner_included_species(writing_context, species, parent_complex
     )
     # notes (CellDesigner expects exactly one <html> child)
     notes = _make_celldesigner_element("notes")
-    species_notes = writing_context.notes.get(species, set())
+    species_notes = writing_context.element_to_notes.get(species, set())
     parsed_one = False
     if species_notes:
         for note in species_notes:
@@ -2786,8 +2786,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
         cls,
         obj,
         file_path,
-        annotations=None,
-        notes=None,
+        element_to_annotations=None,
+        element_to_notes=None,
         ids=None,
         with_annotations=True,
         with_notes=True,
@@ -2798,8 +2798,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
         Args:
             obj: A CellDesignerMap instance.
             file_path: Output file path.
-            annotations: Annotations dict from reader result.
-            notes: Notes dict from reader result.
+            element_to_annotations: Annotations dict from reader result.
+            element_to_notes: Notes dict from reader result.
             ids: IDs mapping from reader result.
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
@@ -2807,10 +2807,10 @@ class CellDesignerWriter(momapy.io.core.Writer):
         Returns:
             WriterResult.
         """
-        if annotations is None:
-            annotations = {}
-        if notes is None:
-            notes = {}
+        if element_to_annotations is None:
+            element_to_annotations = {}
+        if element_to_notes is None:
+            element_to_notes = {}
         if ids is None:
             ids = {}
 
@@ -2836,8 +2836,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
 
         writing_context = WritingContext(
             map_=obj,
-            annotations=annotations,
-            notes=notes,
+            element_to_annotations=element_to_annotations,
+            element_to_notes=element_to_notes,
             ids=ids,
             with_annotations=with_annotations,
             with_notes=with_notes,

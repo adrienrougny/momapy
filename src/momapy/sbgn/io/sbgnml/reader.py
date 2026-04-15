@@ -104,8 +104,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
         )
         result = momapy.io.core.ReaderResult(
             obj=obj,
-            notes=notes,
-            annotations=annotations,
+            element_to_notes=notes,
+            element_to_annotations=annotations,
             file_path=file_path,
         )
         return result
@@ -240,8 +240,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 layout=layout,
                 xml_id_to_model_element=momapy.utils.IdentitySurjectionDict(),
                 xml_id_to_layout_element={},
-                map_element_to_annotations=collections.defaultdict(set),
-                map_element_to_notes=collections.defaultdict(set),
+                element_to_annotations=collections.defaultdict(set),
+                element_to_notes=collections.defaultdict(set),
                 layout_model_mapping=layout_model_mapping,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
@@ -341,16 +341,16 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 sbgnml_map,
                 obj,
             )
-        map_element_to_annotations = frozendict.frozendict(
+        element_to_annotations = frozendict.frozendict(
             {
                 key: frozenset(value)
-                for key, value in reading_context.map_element_to_annotations.items()
+                for key, value in reading_context.element_to_annotations.items()
             }
         )
-        map_element_to_notes = frozendict.frozendict(
-            {key: frozenset(value) for key, value in reading_context.map_element_to_notes.items()}
+        element_to_notes = frozendict.frozendict(
+            {key: frozenset(value) for key, value in reading_context.element_to_notes.items()}
         )
-        return obj, map_element_to_annotations, map_element_to_notes
+        return obj, element_to_annotations, element_to_notes
 
     @classmethod
     def _make_and_add_compartment(

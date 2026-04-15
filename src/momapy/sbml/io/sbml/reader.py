@@ -22,8 +22,8 @@ class ReadingContext:
     model: typing.Any
     sbml_id_to_model_element: dict
     sbml_id_to_sbml_element: dict
-    map_element_to_annotations: dict
-    map_element_to_notes: dict
+    element_to_annotations: dict
+    element_to_notes: dict
     map_element_to_ids: dict
     with_annotations: bool
     with_notes: bool
@@ -73,8 +73,8 @@ class SBMLReader(momapy.io.core.Reader):
         )
         result = momapy.io.core.ReaderResult(
             obj=obj,
-            notes=notes,
-            annotations=annotations,
+            element_to_notes=notes,
+            element_to_annotations=annotations,
             file_path=file_path,
             ids=ids,
         )
@@ -89,9 +89,9 @@ class SBMLReader(momapy.io.core.Reader):
     ):
         model = momapy.sbml.io.sbml._model.make_empty_model(sbml_model)
         sbml_id_to_model_element = {}
-        map_element_to_annotations = collections.defaultdict(set)
+        element_to_annotations = collections.defaultdict(set)
         map_element_to_ids = collections.defaultdict(set)
-        map_element_to_notes = collections.defaultdict(set)
+        element_to_notes = collections.defaultdict(set)
         sbml_id_to_sbml_element = momapy.sbml.io.sbml._parsing.make_id_to_element_mapping(
             sbml_model
         )
@@ -100,8 +100,8 @@ class SBMLReader(momapy.io.core.Reader):
             model=model,
             sbml_id_to_model_element=sbml_id_to_model_element,
             sbml_id_to_sbml_element=sbml_id_to_sbml_element,
-            map_element_to_annotations=map_element_to_annotations,
-            map_element_to_notes=map_element_to_notes,
+            element_to_annotations=element_to_annotations,
+            element_to_notes=element_to_notes,
             map_element_to_ids=map_element_to_ids,
             with_annotations=with_annotations,
             with_notes=with_notes,
@@ -115,23 +115,23 @@ class SBMLReader(momapy.io.core.Reader):
         obj = momapy.builder.object_from_builder(model)
         if with_annotations:
             annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_model)
-            map_element_to_annotations[obj].update(annotations)
+            element_to_annotations[obj].update(annotations)
         if with_notes:
             notes = momapy.sbml.io.sbml._model.make_notes(sbml_model)
-            map_element_to_notes[obj].update(notes)
-        map_element_to_annotations = frozendict.frozendict(
-            {key: frozenset(value) for key, value in map_element_to_annotations.items()}
+            element_to_notes[obj].update(notes)
+        element_to_annotations = frozendict.frozendict(
+            {key: frozenset(value) for key, value in element_to_annotations.items()}
         )
-        map_element_to_notes = frozendict.frozendict(
-            {key: frozenset(value) for key, value in map_element_to_notes.items()}
+        element_to_notes = frozendict.frozendict(
+            {key: frozenset(value) for key, value in element_to_notes.items()}
         )
         map_element_to_ids = frozendict.frozendict(
             {key: frozenset(value) for key, value in map_element_to_ids.items()}
         )
         return (
             obj,
-            map_element_to_annotations,
-            map_element_to_notes,
+            element_to_annotations,
+            element_to_notes,
             map_element_to_ids,
         )
 
@@ -149,10 +149,10 @@ class SBMLReader(momapy.io.core.Reader):
         if ctx.with_annotations:
             annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_compartment)
             if annotations:
-                ctx.map_element_to_annotations[model_element].update(annotations)
+                ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
             notes = momapy.sbml.io.sbml._model.make_notes(sbml_compartment)
-            ctx.map_element_to_notes[model_element].update(notes)
+            ctx.element_to_notes[model_element].update(notes)
         return model_element
 
     @classmethod
@@ -168,10 +168,10 @@ class SBMLReader(momapy.io.core.Reader):
         if ctx.with_annotations:
             annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_species)
             if annotations:
-                ctx.map_element_to_annotations[model_element].update(annotations)
+                ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
             notes = momapy.sbml.io.sbml._model.make_notes(sbml_species)
-            ctx.map_element_to_notes[model_element].update(notes)
+            ctx.element_to_notes[model_element].update(notes)
         return model_element
 
     @classmethod
@@ -194,10 +194,10 @@ class SBMLReader(momapy.io.core.Reader):
         if ctx.with_annotations:
             annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_reaction)
             if annotations:
-                ctx.map_element_to_annotations[model_element].update(annotations)
+                ctx.element_to_annotations[model_element].update(annotations)
             if ctx.with_notes:
                 notes = momapy.sbml.io.sbml._model.make_notes(sbml_reaction)
-                ctx.map_element_to_notes[model_element].update(notes)
+                ctx.element_to_notes[model_element].update(notes)
         return model_element
 
     @classmethod

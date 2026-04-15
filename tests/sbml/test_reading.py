@@ -57,28 +57,28 @@ class TestSBMLReadOptionalParameters:
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(
             test_file, with_annotations=True
         )
-        assert isinstance(result.annotations, frozendict.frozendict)
+        assert isinstance(result.element_to_annotations, frozendict.frozendict)
 
     def test_with_annotations_false(self, test_file):
         """Test with_annotations=False excludes annotations from result."""
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(
             test_file, with_annotations=False
         )
-        assert result.annotations == frozendict.frozendict()
+        assert result.element_to_annotations == frozendict.frozendict()
 
     def test_with_notes_true(self, test_file):
         """Test with_notes=True includes notes in result."""
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(
             test_file, with_notes=True
         )
-        assert isinstance(result.notes, frozendict.frozendict)
+        assert isinstance(result.element_to_notes, frozendict.frozendict)
 
     def test_with_notes_false(self, test_file):
         """Test with_notes=False excludes notes from result."""
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(
             test_file, with_notes=False
         )
-        assert result.notes == frozendict.frozendict()
+        assert result.element_to_notes == frozendict.frozendict()
 
 
 class TestSBMLAnnotationsContent:
@@ -100,7 +100,7 @@ class TestSBMLAnnotationsContent:
 
     def _get_element_by_id(self, result, id_):
         """Find an annotated element by its id_."""
-        for elem in result.annotations:
+        for elem in result.element_to_annotations:
             if getattr(elem, "id_", None) == id_:
                 return elem
         return None
@@ -109,21 +109,21 @@ class TestSBMLAnnotationsContent:
         """Get the frozenset of annotations for an element by its id_."""
         elem = self._get_element_by_id(result, id_)
         if elem is not None:
-            return result.annotations.get(elem, frozenset())
+            return result.element_to_annotations.get(elem, frozenset())
         return frozenset()
 
     def test_annotations_are_non_empty(self, result):
         """Test that the file produces a non-empty annotations dict."""
         non_empty = {
             elem: annots
-            for elem, annots in result.annotations.items()
+            for elem, annots in result.element_to_annotations.items()
             if annots
         }
         assert len(non_empty) > 0
 
     def test_annotation_values_are_frozensets_of_rdf_annotations(self, result):
         """Test that each value is a frozenset of RDFAnnotation objects."""
-        for elem, annots in result.annotations.items():
+        for elem, annots in result.element_to_annotations.items():
             assert isinstance(annots, frozenset)
             for a in annots:
                 assert isinstance(a, momapy.sbml.core.RDFAnnotation)
@@ -145,7 +145,7 @@ class TestSBMLAnnotationsContent:
 
     def test_model_level_annotations(self, result):
         """Test that the model object itself has annotations."""
-        model_annots = result.annotations.get(result.obj)
+        model_annots = result.element_to_annotations.get(result.obj)
         assert model_annots is not None
         assert len(model_annots) > 0
 
@@ -153,7 +153,7 @@ class TestSBMLAnnotationsContent:
         """Test that annotations cover compartments, species, reactions, and the model."""
         types_with_annotations = {
             type(elem).__name__
-            for elem, annots in result.annotations.items()
+            for elem, annots in result.element_to_annotations.items()
             if annots
         }
         assert "Compartment" in types_with_annotations
@@ -182,28 +182,28 @@ class TestSBMLNotesContent:
         """Test that the file produces a non-empty notes dict."""
         non_empty = {
             elem: notes
-            for elem, notes in result.notes.items()
+            for elem, notes in result.element_to_notes.items()
             if notes
         }
         assert len(non_empty) > 0
 
     def test_notes_values_are_frozensets_of_strings(self, result):
         """Test that each value is a frozenset of str."""
-        for elem, notes in result.notes.items():
+        for elem, notes in result.element_to_notes.items():
             assert isinstance(notes, frozenset)
             for n in notes:
                 assert isinstance(n, str)
 
     def test_notes_contain_xml(self, result):
         """Test that note strings are valid XML fragments."""
-        for elem, notes in result.notes.items():
+        for elem, notes in result.element_to_notes.items():
             for n in notes:
                 assert n.startswith("<")
                 return
 
     def test_model_level_notes(self, result):
         """Test that the model object has notes."""
-        model_notes = result.notes.get(result.obj)
+        model_notes = result.element_to_notes.get(result.obj)
         assert model_notes is not None
         assert len(model_notes) == 1
         note = next(iter(model_notes))
@@ -214,7 +214,7 @@ class TestSBMLNotesContent:
         """Test that at least one reaction has notes."""
         reaction_notes = {
             elem: notes
-            for elem, notes in result.notes.items()
+            for elem, notes in result.element_to_notes.items()
             if type(elem).__name__ == "Reaction" and notes
         }
         assert len(reaction_notes) > 0
@@ -223,7 +223,7 @@ class TestSBMLNotesContent:
         """Test that notes cover reactions and the model."""
         types_with_notes = {
             type(elem).__name__
-            for elem, notes in result.notes.items()
+            for elem, notes in result.element_to_notes.items()
             if notes
         }
         assert "Reaction" in types_with_notes

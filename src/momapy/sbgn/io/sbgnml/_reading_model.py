@@ -67,13 +67,13 @@ def make_and_add_annotations_and_notes(
     if reading_context.with_annotations:
         annotations = make_annotations(sbgnml_element)
         if annotations:
-            reading_context.map_element_to_annotations[model_element].update(
+            reading_context.element_to_annotations[model_element].update(
                 annotations
             )
     if reading_context.with_notes:
         notes = make_notes(sbgnml_element)
         if notes:
-            reading_context.map_element_to_notes[model_element].update(notes)
+            reading_context.element_to_notes[model_element].update(notes)
 
 
 def set_label(model_element, sbgnml_element):

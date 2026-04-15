@@ -38,15 +38,16 @@ class ReaderResult(IOResult):
 
     Attributes:
         obj: The read map object (MapElement or None).
-        annotations: Annotations associated with the read.
-        notes: Notes associated with the read.
+        element_to_annotations: Mapping from map elements to their
+            annotations.
+        element_to_notes: Mapping from map elements to their notes.
         ids: Mapping of IDs between file and loaded objects.
         file_path: Path of the file that was read.
     """
 
     obj: typing.Any | None = None
-    annotations: frozendict.frozendict | None = None
-    notes: frozendict.frozendict | None = None
+    element_to_annotations: frozendict.frozendict | None = None
+    element_to_notes: frozendict.frozendict | None = None
     ids: momapy.utils.FrozenSurjectionDict | None = None
     file_path: str | os.PathLike | None = None
 
