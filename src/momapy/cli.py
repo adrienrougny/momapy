@@ -45,14 +45,21 @@ Example:
     $ momapy tidy snap-arcs map.xml -o output.xml
     $ momapy tidy orthogonalize map.xml -o output.xml --tolerance 5
     $ momapy tidy fit-complexes map.sbgn -o output.sbgn --xsep 10 --ysep 10
+
+    # Piping between commands
+    $ momapy export map.xml | momapy render -o output.svg
+    $ momapy export map.xml | momapy tidy fit-nodes | momapy render -o output.svg
+    $ cat map.sbgn | momapy render -o output.svg
 """
 
 import argparse
 import collections.abc
+import dataclasses
 import importlib
 import json
 import os
 import pathlib
+import pickle
 import string
 import sys
 import tempfile
@@ -110,8 +117,21 @@ def _run_tidy_operation(map_, args):
         raise ValueError(
             f"unsupported map type for tidy: {type(map_).__name__}"
         )
-    xsep = getattr(args, "xsep", 0)
-    ysep = getattr(args, "ysep", 0)
+    _default_sep = {
+        "all": (4, 4),
+        "fit-species": (4, 4),
+        "fit-epns": (4, 4),
+        "fit-auxiliary": (2, 2),
+        "fit-complexes": (10, 10),
+        "fit-compartments": (25, 25),
+        "fit-submaps": (0, 0),
+        "fit-layout": (0, 0),
+    }
+    default_xsep, default_ysep = _default_sep.get(operation, (0, 0))
+    xsep_raw = getattr(args, "xsep", None)
+    ysep_raw = getattr(args, "ysep", None)
+    xsep = xsep_raw if xsep_raw is not None else default_xsep
+    ysep = ysep_raw if ysep_raw is not None else default_ysep
     if operation == "all":
         if is_celldesigner:
             return momapy.celldesigner.utils.tidy(
@@ -244,6 +264,95 @@ def _run_tidy_operation(map_, args):
             )
     else:
         raise ValueError(f"unknown tidy operation: {operation}")
+
+
+def _read_input(input_file_path):
+    """Read a map from a file path, or from stdin if path is None.
+
+    When ``input_file_path`` is ``None``, reads binary data from stdin,
+    buffers it to a temporary file, and uses the standard
+    ``momapy.io.core.read()`` auto-detection (content-based
+    ``check_file()``) to identify the format.
+
+    Args:
+        input_file_path: Path to the input file, or ``None`` to read
+            from stdin.
+
+    Returns:
+        A ``ReaderResult`` containing the parsed map and metadata.
+    """
+    import momapy.io.core
+
+    if input_file_path is not None:
+        return momapy.io.core.read(input_file_path)
+    if sys.stdin.isatty():
+        print(
+            "error: no input file and stdin is not a pipe",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    temporary_file = tempfile.NamedTemporaryFile(delete=False)
+    try:
+        data = sys.stdin.buffer.read()
+        if not data:
+            print("error: no input received on stdin", file=sys.stderr)
+            sys.exit(1)
+        temporary_file.write(data)
+        temporary_file.close()
+        return momapy.io.core.read(temporary_file.name)
+    finally:
+        os.remove(temporary_file.name)
+
+
+def _write_xml_to_stdout(map_, writer):
+    """Write a map as XML to stdout using a temporary file.
+
+    Args:
+        map_: The map object to write.
+        writer: The writer name to use (e.g. ``"sbgnml"``,
+            ``"celldesigner"``).
+    """
+    import momapy.io.core
+
+    temporary_file = tempfile.NamedTemporaryFile(
+        mode="w", suffix=".xml", delete=False
+    )
+    temporary_file_path = temporary_file.name
+    temporary_file.close()
+    try:
+        momapy.io.core.write(map_, temporary_file_path, writer=writer)
+        with open(temporary_file_path, "r") as file_handle:
+            sys.stdout.write(file_handle.read())
+    finally:
+        os.remove(temporary_file_path)
+
+
+def _write_output(map_, reader_result, output_file_path):
+    """Write a map to a file or to stdout.
+
+    When ``output_file_path`` is given, writes to that file. Otherwise,
+    if stdout is a pipe, pickles the ``ReaderResult`` (for downstream
+    momapy commands). If stdout is a TTY, writes human-readable XML.
+
+    Args:
+        map_: The (possibly modified) map object to write.
+        reader_result: The original ``ReaderResult`` whose metadata
+            (annotations, notes, ID mappings) is preserved in the
+            pickled output.
+        output_file_path: Path to the output file, or ``None`` for
+            stdout.
+    """
+    import momapy.io.core
+
+    writer = _infer_writer(map_)
+    if output_file_path:
+        momapy.io.core.write(map_, output_file_path, writer=writer)
+        return
+    if not sys.stdout.isatty():
+        updated_result = dataclasses.replace(reader_result, obj=map_)
+        pickle.dump(updated_result, sys.stdout.buffer)
+        return
+    _write_xml_to_stdout(map_, writer)
 
 
 def _build_layout_to_model_id_mapping(layout_model_mapping):
@@ -966,8 +1075,9 @@ def run(args):
         else:
             style_sheet = None
         layouts = []
-        for input_file_path in args.input_file_path:
-            map_ = momapy.io.core.read(input_file_path).obj
+        input_file_paths = args.input_file_path if args.input_file_path else [None]
+        for input_file_path in input_file_paths:
+            map_ = _read_input(input_file_path).obj
             if style_sheet is not None:
                 map_builder = momapy.builder.builder_from_object(map_)
                 momapy.styling.apply_style_sheet(
@@ -994,7 +1104,7 @@ def run(args):
         import momapy.io.core
         import momapy.styling
 
-        reader_result = momapy.io.core.read(args.input_file_path)
+        reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         if args.style_sheet_file_path:
             style_sheets = [
@@ -1013,27 +1123,11 @@ def run(args):
                 map_ = momapy.celldesigner.utils.tidy(map_)
             elif isinstance(map_, momapy.sbgn.core.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)
-        writer = _infer_writer(map_)
-        if args.output_file_path:
-            momapy.io.core.write(map_, args.output_file_path, writer=writer)
-        else:
-            temporary_file = tempfile.NamedTemporaryFile(
-                mode="w", suffix=".xml", delete=False
-            )
-            temporary_file_path = temporary_file.name
-            temporary_file.close()
-            try:
-                momapy.io.core.write(
-                    map_, temporary_file_path, writer=writer
-                )
-                with open(temporary_file_path, "r") as file_handle:
-                    sys.stdout.write(file_handle.read())
-            finally:
-                os.remove(temporary_file_path)
+        _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "info":
         import momapy.io.core
 
-        reader_result = momapy.io.core.read(args.input_file_path)
+        reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
             info = momapy.celldesigner.utils.get_info(map_)
@@ -1043,7 +1137,7 @@ def run(args):
             raise ValueError(
                 f"unsupported map type: {type(map_).__name__}"
             )
-        info["file"] = str(args.input_file_path)
+        info["file"] = str(args.input_file_path) if args.input_file_path else "<stdin>"
         if args.format == "json":
             output = json.dumps(info, indent=2)
         else:
@@ -1109,34 +1203,16 @@ def run(args):
             for attribute in attributes:
                 print(attribute)
     elif args.subcommand == "tidy":
-        import momapy.builder
         import momapy.io.core
 
-        reader_result = momapy.io.core.read(args.input_file_path)
+        reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         map_ = _run_tidy_operation(map_, args)
-        writer = _infer_writer(map_)
-        if args.output_file_path:
-            momapy.io.core.write(map_, args.output_file_path, writer=writer)
-        else:
-            temporary_file = tempfile.NamedTemporaryFile(
-                mode="w", suffix=".xml", delete=False
-            )
-            temporary_file_path = temporary_file.name
-            temporary_file.close()
-            try:
-                momapy.io.core.write(
-                    map_, temporary_file_path, writer=writer
-                )
-                with open(temporary_file_path, "r") as file_handle:
-                    sys.stdout.write(file_handle.read())
-            finally:
-                os.remove(temporary_file_path)
+        _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "visualize":
-        import momapy.io.core
         import momapy.styling
 
-        reader_result = momapy.io.core.read(args.input_file_path)
+        reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         style_sheet = None
         if args.style_sheet_file_path:
@@ -1160,7 +1236,7 @@ def run(args):
                 map_ = momapy.sbgn.utils.tidy(map_)
         _visualize_map(
             map_=map_,
-            input_file_path=args.input_file_path,
+            input_file_path=args.input_file_path or "<stdin>",
         )
     else:
         raise ValueError(f"subcommand {args.subcommand} not supported")
@@ -1189,7 +1265,7 @@ def main():
         "render",
         description="Render a map (SBGN-ML or CellDesigner) to an output image file. If no format is specified, will base the format on the extension of the output file path. If no renderer is specified, will take the most appropriate renderer.",
     )
-    render_parser.add_argument("input_file_path", nargs="+", help="input file path")
+    render_parser.add_argument("input_file_path", nargs="*", help="input file path (reads from stdin if omitted)")
     render_parser.add_argument(
         "-o", "--output-file-path", required=True, help="output file path"
     )
@@ -1237,7 +1313,7 @@ def main():
         "export",
         description="Export a map (SBGN-ML or CellDesigner) to a file in the same format. Useful for roundtrip testing.",
     )
-    export_parser.add_argument("input_file_path", help="input file path")
+    export_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
     export_parser.add_argument(
         "-o",
         "--output-file-path",
@@ -1262,7 +1338,7 @@ def main():
         "info",
         description="Print a summary of a map file's contents (map type, model element counts, layout dimensions).",
     )
-    info_parser.add_argument("input_file_path", help="input file path")
+    info_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
     info_parser.add_argument(
         "-o",
         "--output-file-path",
@@ -1336,7 +1412,7 @@ def main():
             description=operation_description,
         )
         operation_parser.add_argument(
-            "input_file_path", help="input file path"
+            "input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)"
         )
         operation_parser.add_argument(
             "-o",
@@ -1357,14 +1433,14 @@ def main():
             operation_parser.add_argument(
                 "--xsep",
                 type=float,
-                default=0,
-                help="horizontal padding (default: 0)",
+                default=None,
+                help="horizontal padding (default: depends on operation and map type)",
             )
             operation_parser.add_argument(
                 "--ysep",
                 type=float,
-                default=0,
-                help="vertical padding (default: 0)",
+                default=None,
+                help="vertical padding (default: depends on operation and map type)",
             )
         if operation_name in ("all", "orthogonalize"):
             operation_parser.add_argument(
@@ -1384,7 +1460,7 @@ def main():
         "visualize",
         description="Open an interactive viewer for a molecular map in the default web browser.",
     )
-    visualize_parser.add_argument("input_file_path", help="input file path")
+    visualize_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
     visualize_parser.add_argument(
         "-c",
         "--tidy",
@@ -1400,7 +1476,12 @@ def main():
         help="style sheet file path",
     )
     args = parser.parse_args()
-    run(args)
+    try:
+        run(args)
+    except BrokenPipeError:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+        sys.exit(141)
 
 
 if __name__ == "__main__":

@@ -141,10 +141,10 @@ class TestCLIExportCommand:
     )
 
     def test_export_to_stdout(self, capsys):
-        """Test export command outputs to stdout when no -o is given."""
+        """Test export command outputs XML to stdout when stdout is a TTY."""
         with mock.patch(
             "sys.argv", ["momapy", "export", self.SBGN_MAP_PATH]
-        ):
+        ), mock.patch("sys.stdout.isatty", return_value=True):
             momapy.cli.main()
         captured = capsys.readouterr()
         assert "<?xml" in captured.out
