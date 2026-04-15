@@ -15,43 +15,48 @@ elements. The general rules are:
   modulations), the layout element gets a ``_layout`` suffix:
   ``f"{reaction_id}_layout"``.
 
+The map, model and layout IDs are derived from the SBML ``model/@id``:
+``map_.id_`` = ``model/@id``, ``model.id_`` = ``f"{model/@id}_model"``,
+``layout.id_`` = ``f"{model/@id}_layout"``.
+
 Element-specific patterns:
 
 - **Compartment**: model ``id_`` = ``compartment/@id``,
   layout ``id_`` = ``compartmentAlias/@id``.
 - **Species**: model ``id_`` = ``species/@id`` (or
-  ``f"{species_id}_active"`` for active species),
+  ``f"{species/@id}_active"`` for active species),
   layout ``id_`` = ``speciesAlias/@id``.
 - **Species Template**: model ``id_`` = ``proteinReference/@id``
   (etc.), no layout.
 - **ModificationResidue / Region**: model ``id_`` =
-  ``f"{template_id}_{child_id}"``, no layout.
+  ``f"{template/@id}_{child/@id}"``, no layout.
 - **Modification**: model ``id_`` =
-  ``f"{species_id}_{residue_id}"``,
-  layout ``id_`` = ``f"{species_id}_{residue_id}_layout"``.
+  ``f"{species/@id}_{modification/@residue}"``,
+  layout ``id_`` =
+  ``f"{species/@id}_{modification/@residue}_layout"``.
 - **StructuralState**: model ``id_`` =
-  ``f"{species_id}_{value}"``,
-  layout ``id_`` = ``f"{species_id}_{value}_layout"``.
+  ``f"{species/@id}_{structuralState/@structuralState}"``,
+  layout ``id_`` =
+  ``f"{species/@id}_{structuralState/@structuralState}_layout"``.
 - **Reactant / Product**: model ``id_`` =
   ``speciesReference/@metaid`` (or
-  ``f"{reaction_id}_{species_id}"`` fallback),
+  ``f"{reaction/@id}_{speciesReference/@species}"`` fallback),
   layout ``id_`` = ``f"{model_id}_layout"`` (when present).
 - **Modulator**: model ``id_`` =
   ``modifierSpeciesReference/@metaid``,
-  layout ``id_`` = ``f"{metaid}_layout"``.
-- **Reaction**: model ``id_`` = ``reaction/@id``,
-  layout ``id_`` = ``f"{reaction_id}_layout"``.
-- **Modulation**: model ``id_`` = ``reaction/@id``,
-  layout ``id_`` = ``f"{reaction_id}_layout"``.
-- **BooleanGate**: model ``id_`` =
-  ``f"{reaction_id}_gate_{sorted_aliases}"``,
   layout ``id_`` =
-  ``f"{reaction_id}_gate_{sorted_aliases}_layout"``.
-- **BooleanGateInput**: model ``id_`` =
-  ``f"{gate_id}_input_{input_alias}"``, no layout.
-  Paired with ``LogicArc`` layout element.
-- **LogicArc**: no model,
-  layout ``id_`` = ``f"{gate_id}_arc_{input_alias}"``.
+  ``f"{modifierSpeciesReference/@metaid}_layout"``.
+- **Reaction**: model ``id_`` = ``reaction/@id``,
+  layout ``id_`` = ``f"{reaction/@id}_layout"``.
+- **Modulation**: model ``id_`` = ``reaction/@id``,
+  layout ``id_`` = ``f"{reaction/@id}_layout"``.
+- **BooleanGate**: model ``id_`` =
+  ``f"{reaction/@id}_gate_{sorted_aliases}"``,
+  layout ``id_`` =
+  ``f"{reaction/@id}_gate_{sorted_aliases}_layout"``.
+- **BooleanGateInput / LogicArcLayout**: model ``id_`` =
+  ``f"{gate_id}_input_{speciesAlias/@id}"``,
+  layout ``id_`` = ``f"{gate_id}_arc_{speciesAlias/@id}"``.
 """
 
 import os
@@ -619,6 +624,12 @@ class CellDesignerReader(momapy.io.core.Reader):
                 momapy.celldesigner.io.celldesigner._reading_layout.set_layout_size_and_position(
                     reading_context, cd_model
                 )
+        cd_model_id = cd_model.get("id")
+        if cd_model_id is not None:
+            if model is not None:
+                model.id_ = f"{cd_model_id}_model"
+            if layout is not None:
+                layout.id_ = f"{cd_model_id}_layout"
         if return_type == "model":
             obj = momapy.builder.object_from_builder(model)
             if with_annotations:
