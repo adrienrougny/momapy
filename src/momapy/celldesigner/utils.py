@@ -854,8 +854,8 @@ def tidy(
     modifications_ysep: float = 0,
     complexes_xsep: float = 10,
     complexes_ysep: float = 10,
-    compartments_xsep: float = 10,
-    compartments_ysep: float = 10,
+    compartments_xsep: float = 25,
+    compartments_ysep: float = 25,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
     set_arcs_to_orthogonal_: bool = False,
@@ -878,8 +878,8 @@ def tidy(
         modifications_ysep: Vertical padding for modifications.
         complexes_xsep: Horizontal padding for complexes. Defaults to 10.
         complexes_ysep: Vertical padding for complexes. Defaults to 10.
-        compartments_xsep: Horizontal padding for compartments. Defaults to 10.
-        compartments_ysep: Vertical padding for compartments. Defaults to 10.
+        compartments_xsep: Horizontal padding for compartments. Defaults to 25.
+        compartments_ysep: Vertical padding for compartments. Defaults to 25.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
         set_arcs_to_orthogonal_: If True, snap near-orthogonal arc bends
