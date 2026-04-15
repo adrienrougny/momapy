@@ -38,6 +38,7 @@ Element-specific patterns:
   ``f"{species/@id}_{structuralState/@structuralState}"``,
   layout ``id_`` =
   ``f"{species/@id}_{structuralState/@structuralState}_layout"``.
+  Spaces in the value are replaced with ``_``.
 - **Reactant / Product**: model ``id_`` =
   ``speciesReference/@metaid`` (or
   ``f"{reaction/@id}_{speciesReference/@species}"`` fallback),
