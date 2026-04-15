@@ -952,6 +952,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
             else:
                 layout_element = None
+            auxiliary_map_elements = []
             covered_cd_residue_ids = set()
             for (
                 cd_species_modification
@@ -968,6 +969,10 @@ class CellDesignerReader(momapy.io.core.Reader):
                         super_layout_element=layout_element,
                     )
                 )
+                if modification_model_element is not None and modification_layout_element is not None:
+                    auxiliary_map_elements.append(
+                        (modification_model_element, modification_layout_element)
+                    )
             cd_species_template = momapy.celldesigner.io.celldesigner._reading_parsing.get_template_from_species_alias(
                 cd_species_alias, reading_context.xml_id_to_xml_element
             )
@@ -978,16 +983,22 @@ class CellDesignerReader(momapy.io.core.Reader):
             ):
                 residue_xml_id = cd_modification_residue.get("id")
                 if residue_xml_id not in covered_cd_residue_ids:
-                    cls._make_and_add_species_modification(
-                        reading_context,
-                        cd_species_modification={
-                            "state": "empty",
-                            "residue": residue_xml_id,
-                        },
-                        super_cd_element=cd_species_alias,
-                        super_model_element=model_element,
-                        super_layout_element=layout_element,
+                    empty_modification_model_element, empty_modification_layout_element = (
+                        cls._make_and_add_species_modification(
+                            reading_context,
+                            cd_species_modification={
+                                "state": "empty",
+                                "residue": residue_xml_id,
+                            },
+                            super_cd_element=cd_species_alias,
+                            super_model_element=model_element,
+                            super_layout_element=layout_element,
+                        )
                     )
+                    if empty_modification_model_element is not None and empty_modification_layout_element is not None:
+                        auxiliary_map_elements.append(
+                            (empty_modification_model_element, empty_modification_layout_element)
+                        )
             for cd_species_structural_state in momapy.celldesigner.io.celldesigner._reading_parsing.get_species_structural_states(
                 cd_species
             ):
@@ -1001,6 +1012,10 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                 )
+                if structural_state_model_element is not None and structural_state_layout_element is not None:
+                    auxiliary_map_elements.append(
+                        (structural_state_model_element, structural_state_layout_element)
+                    )
             cd_subunits = [
                 reading_context.xml_id_to_xml_element[cd_subunit_id]
                 for cd_subunit_id in reading_context.cd_complex_alias_id_to_cd_included_species_ids[
@@ -1089,6 +1104,15 @@ class CellDesignerReader(momapy.io.core.Reader):
                     super_layout_element.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[cd_species_alias.get("id")] = layout_element
             if reading_context.model is not None and reading_context.layout is not None:
+                for (
+                    auxiliary_model_element,
+                    auxiliary_layout_element,
+                ) in auxiliary_map_elements:
+                    reading_context.layout_model_mapping.add_mapping(
+                        auxiliary_layout_element,
+                        (auxiliary_model_element, model_element),
+                        replace=True,
+                    )
                 if super_layout_element is None:  # species case
                     reading_context.layout_model_mapping.add_mapping(
                         layout_element, model_element, replace=True
@@ -1171,7 +1195,7 @@ class CellDesignerReader(momapy.io.core.Reader):
         super_layout_element,
     ):
         cd_species_id = super_cd_element.get("species")
-        cd_structural_state_value = cd_species_structural_state.get("structuralState")
+        cd_structural_state_value = cd_species_structural_state.get("structuralState").replace(" ", "_")
         cd_structural_state_id = f"{cd_species_id}_{cd_structural_state_value}"
         if reading_context.model is not None:
             model_element = momapy.celldesigner.io.celldesigner._reading_model.make_species_structural_state(
