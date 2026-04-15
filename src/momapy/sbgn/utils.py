@@ -563,8 +563,8 @@ def tidy(
     auxiliary_units_ysep: float = 2,
     complexes_xsep: float = 10,
     complexes_ysep: float = 10,
-    compartments_xsep: float = 10,
-    compartments_ysep: float = 10,
+    compartments_xsep: float = 25,
+    compartments_ysep: float = 25,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
 ) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
@@ -588,9 +588,9 @@ def tidy(
         complexes_xsep: Horizontal padding for complexes. Defaults to 10.
         complexes_ysep: Vertical padding for complexes. Defaults to 10.
         compartments_xsep: Horizontal padding for compartments.
-            Defaults to 10.
+            Defaults to 25.
         compartments_ysep: Vertical padding for compartments.
-            Defaults to 10.
+            Defaults to 25.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
 

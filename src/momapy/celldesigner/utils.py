@@ -886,10 +886,10 @@ def tidy(
     map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
     modifications_omit_width: bool = False,
     modifications_omit_height: bool = False,
-    nodes_xsep: float = 0,
-    nodes_ysep: float = 0,
-    modifications_xsep: float = 0,
-    modifications_ysep: float = 0,
+    nodes_xsep: float = 4,
+    nodes_ysep: float = 4,
+    modifications_xsep: float = 2,
+    modifications_ysep: float = 2,
     complexes_xsep: float = 10,
     complexes_ysep: float = 10,
     compartments_xsep: float = 25,
@@ -910,10 +910,12 @@ def tidy(
             it is modified in place.
         modifications_omit_width: Do not adjust modification widths.
         modifications_omit_height: Do not adjust modification heights.
-        nodes_xsep: Horizontal padding for node sizing.
-        nodes_ysep: Vertical padding for node sizing.
+        nodes_xsep: Horizontal padding for node sizing. Defaults to 4.
+        nodes_ysep: Vertical padding for node sizing. Defaults to 4.
         modifications_xsep: Horizontal padding for modifications.
+            Defaults to 2.
         modifications_ysep: Vertical padding for modifications.
+            Defaults to 2.
         complexes_xsep: Horizontal padding for complexes. Defaults to 10.
         complexes_ysep: Vertical padding for complexes. Defaults to 10.
         compartments_xsep: Horizontal padding for compartments. Defaults to 25.
