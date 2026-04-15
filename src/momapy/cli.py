@@ -778,6 +778,7 @@ def run(args):
         ```
     """
     if args.subcommand == "render":
+        import momapy.builder
         import momapy.io.core
         import momapy.rendering
         import momapy.rendering.core
@@ -799,6 +800,12 @@ def run(args):
         layouts = []
         for input_file_path in args.input_file_path:
             map_ = momapy.io.core.read(input_file_path).obj
+            if style_sheet is not None:
+                map_builder = momapy.builder.builder_from_object(map_)
+                momapy.styling.apply_style_sheet(
+                    map_builder.layout, style_sheet
+                )
+                map_ = momapy.builder.object_from_builder(map_builder)
             if args.tidy:
                 if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
                     map_ = momapy.celldesigner.utils.tidy(map_)
@@ -811,7 +818,6 @@ def run(args):
             file_path=args.output_file_path,
             format_=format_,
             renderer=renderer,
-            style_sheet=style_sheet,
             to_top_left=args.to_top_left,
             multi_pages=args.multi_pages,
         )
@@ -822,11 +828,6 @@ def run(args):
 
         reader_result = momapy.io.core.read(args.input_file_path)
         map_ = reader_result.obj
-        if args.tidy:
-            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-                map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
-                map_ = momapy.sbgn.utils.tidy(map_)
         if args.style_sheet_file_path:
             style_sheets = [
                 momapy.styling.StyleSheet.from_file(style_sheet_file_path)
@@ -839,6 +840,11 @@ def run(args):
             map_builder = momapy.builder.builder_from_object(map_)
             momapy.styling.apply_style_sheet(map_builder, style_sheet)
             map_ = map_builder.build()
+        if args.tidy:
+            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+                map_ = momapy.celldesigner.utils.tidy(map_)
+            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+                map_ = momapy.sbgn.utils.tidy(map_)
         writer = _infer_writer(map_)
         if args.output_file_path:
             momapy.io.core.write(map_, args.output_file_path, writer=writer)
@@ -940,11 +946,6 @@ def run(args):
 
         reader_result = momapy.io.core.read(args.input_file_path)
         map_ = reader_result.obj
-        if args.tidy:
-            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-                map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
-                map_ = momapy.sbgn.utils.tidy(map_)
         style_sheet = None
         if args.style_sheet_file_path:
             style_sheets = [
@@ -955,9 +956,18 @@ def run(args):
                 style_sheet = momapy.styling.combine_style_sheets(style_sheets)
             else:
                 style_sheet = style_sheets[0]
+            map_builder = momapy.builder.builder_from_object(map_)
+            momapy.styling.apply_style_sheet(
+                map_builder.layout, style_sheet
+            )
+            map_ = momapy.builder.object_from_builder(map_builder)
+        if args.tidy:
+            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+                map_ = momapy.celldesigner.utils.tidy(map_)
+            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+                map_ = momapy.sbgn.utils.tidy(map_)
         _visualize_map(
             map_=map_,
-            style_sheet=style_sheet,
             input_file_path=args.input_file_path,
         )
     else:
