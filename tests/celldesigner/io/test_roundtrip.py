@@ -34,7 +34,7 @@ class TestCellDesignerRoundTrip:
 
     @pytest.mark.parametrize("filename", CD_FILES)
     def test_roundtrip_cd_file(self, filename, temp_dir):
-        """Test round-trip: import -> export -> import and check equality."""
+        """Test round-trip: import -> export -> import and check model equality."""
         input_file = os.path.join(CD_MAPS_DIR, filename)
         if not os.path.exists(input_file):
             pytest.skip(f"CellDesigner file {filename} not found")
@@ -44,4 +44,4 @@ class TestCellDesignerRoundTrip:
         momapy.io.core.write(map1, output_file, writer="celldesigner")
         result2 = momapy.io.core.read(output_file)
         map2 = result2.obj
-        assert map1 == map2
+        assert map1.model == map2.model

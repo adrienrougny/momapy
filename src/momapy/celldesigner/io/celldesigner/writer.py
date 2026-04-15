@@ -192,6 +192,119 @@ def _mapping(writing_context):
     return writing_context.map_.layout_model_mapping
 
 
+def _sort_modifications_by_layout(writing_context, species):
+    """Sort a species' modifications by their layout child order.
+
+    The modification layout children of the species' alias layout
+    preserve the original XML order.  We use that to sort the
+    frozenset of model modifications.
+    """
+    modifications = list(species.modifications)
+    # Find any alias layout for this species — search both top-level
+    # and complex children.
+    alias_layout = _find_any_alias_layout(writing_context, species)
+    if alias_layout is None:
+        return modifications
+    # Build residue_id -> position from layout children.
+    # The layout id = f"{alias_species_id}_{xml_residue_id}_layout"
+    # where alias_species_id may differ from the model species id
+    # for subunit aliases.
+    residue_order = {}
+    suffix = "_layout"
+    for i, child in enumerate(alias_layout.layout_elements):
+        if isinstance(child, momapy.celldesigner.core.ModificationLayout):
+            layout_id = child.id_
+            if layout_id.endswith(suffix):
+                # Strip the suffix and the species prefix to get residue id
+                # The prefix is everything up to the first residue id part
+                core = layout_id[:-len(suffix)]
+                # Match against known residue ids from the template
+                for mod in modifications:
+                    if mod.residue is not None:
+                        xml_residue_id = _strip_template_prefix(
+                            mod.residue, species
+                        )
+                        if core.endswith(f"_{xml_residue_id}"):
+                            residue_order[xml_residue_id] = i
+                            break
+    # Sort by layout order
+    modifications.sort(
+        key=lambda m: residue_order.get(
+            _strip_template_prefix(m.residue, species) if m.residue else "",
+            float("inf"),
+        )
+    )
+    return modifications
+
+
+def _find_any_alias_layout(writing_context, species):
+    """Find any alias layout for a species, including inside complexes."""
+    # Try direct lookup first
+    for layout_key in _get_layouts(writing_context, species):
+        if isinstance(layout_key, frozenset):
+            continue
+        if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            return layout_key
+    # Search in layout_model_mapping for this species
+    mapping = _mapping(writing_context)
+    for layout_element in writing_context.map_.layout.layout_elements:
+        if not isinstance(
+            layout_element, momapy.celldesigner.core.CellDesignerNode
+        ):
+            continue
+        if not hasattr(layout_element, "layout_elements"):
+            continue
+        # Search children of complexes
+        for child in layout_element.layout_elements:
+            if not isinstance(
+                child, momapy.celldesigner.core.CellDesignerNode
+            ):
+                continue
+            model_info = mapping.get_mapping(child)
+            if model_info is not None:
+                model_elem = (
+                    model_info[0]
+                    if isinstance(model_info, tuple)
+                    else model_info
+                )
+                if model_elem is species:
+                    return child
+            # Check deeper nesting
+            if hasattr(child, "layout_elements"):
+                for grandchild in child.layout_elements:
+                    if not isinstance(
+                        grandchild,
+                        momapy.celldesigner.core.CellDesignerNode,
+                    ):
+                        continue
+                    model_info2 = mapping.get_mapping(grandchild)
+                    if model_info2 is not None:
+                        model_elem2 = (
+                            model_info2[0]
+                            if isinstance(model_info2, tuple)
+                            else model_info2
+                        )
+                        if model_elem2 is species:
+                            return grandchild
+    return None
+
+
+def _strip_template_prefix(residue_or_region, owner):
+    """Strip the template id prefix from a residue or region id.
+
+    Model ids for ModificationResidue and Region are composite:
+    ``f"{template_id}_{local_id}"``.  CellDesigner XML expects just
+    the local id.  *owner* can be a species (with a `template`
+    attribute) or the template itself.
+    """
+    template = getattr(owner, "template", owner)
+    if template is not None and hasattr(template, "id_"):
+        prefix = f"{template.id_}_"
+        if residue_or_region.id_.startswith(prefix):
+            return residue_or_region.id_[len(prefix):]
+    return residue_or_region.id_
+
+
 def _build_layout_order_index(layout):
     """Build a mapping from layout element id to position index.
 
@@ -352,6 +465,9 @@ def _find_layout_for_participant(
             arc_layouts = [arc_layouts]
         for arc_layout in arc_layouts:
             if hasattr(arc_layout, "target"):
+                # For multi-copy reactions, only use arcs from this frozenset
+                if frozenset_mapping is not None and arc_layout not in frozenset_mapping:
+                    continue
                 return arc_layout.target
     species = participant.referred_species
     if frozenset_mapping is not None:
@@ -479,7 +595,7 @@ def _compute_target_line_index(reaction_layout, modifier_arc):
     return f"0,{best_id}"
 
 
-def _infer_anchor_position(species_layout, point, tol=5.0):
+def _infer_anchor_position(species_layout, point, tol=0.5):
     """Find the CellDesigner linkAnchor position for a point on a species."""
     import math
     for cd_position, anchor_name in (
@@ -563,7 +679,7 @@ def _make_celldesigner_extension(writing_context):
 
 def _make_celldesigner_list_of_compartment_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfCompartmentAliases")
-    for comp in sorted(writing_context.map_.model.compartments, key=lambda c: c.id_):
+    for comp in sorted(writing_context.map_.model.compartments, key=lambda c: c.id_ or ""):
         for layout_key in _get_layouts(writing_context, comp):
             if isinstance(layout_key, frozenset):
                 continue
@@ -619,11 +735,12 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
                         },
                     )
                 )
-                # paint — reader sets alpha=0.5 for rendering,
-                # but CellDesigner expects full opacity
-                fill = getattr(layout_key, "fill", None)
-                if fill is not None and fill is not momapy.drawing.NoneValue:
-                    paint_color = _color_hex(fill.with_alpha(1.0))
+                # paint — the reader derives fill as stroke.with_alpha(0.5),
+                # so we write back the stroke color directly to preserve
+                # the original alpha.
+                stroke = getattr(layout_key, "stroke", None)
+                if stroke is not None and stroke is not momapy.drawing.NoneValue:
+                    paint_color = _color_hex(stroke)
                 else:
                     paint_color = "ffcccccc"
                 alias.append(
@@ -642,7 +759,7 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
 def _make_celldesigner_list_of_included_species(writing_context):
     list_elem = _make_celldesigner_element("listOfIncludedSpecies")
     seen_ids = set()
-    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_):
+    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_ or ""):
         if isinstance(species, momapy.celldesigner.core.Complex):
             _collect_included_species(
                 writing_context, species, species, list_elem, seen_ids
@@ -654,7 +771,7 @@ def _collect_included_species(
     writing_context, complex_, root_complex, list_elem, seen_ids
 ):
     """Recursively collect included species from a complex."""
-    for sub in sorted(complex_.subunits, key=lambda s: s.id_):
+    for sub in sorted(complex_.subunits, key=lambda s: s.id_ or ""):
         sub_id = _get_species_id(sub, writing_context)
         if sub_id not in seen_ids:
             seen_ids.add(sub_id)
@@ -713,16 +830,7 @@ def _make_celldesigner_species_identity(writing_context, species):
     template = getattr(species, "template", None)
     if template is not None:
         tag = _template_ref_tag(template)
-        # For genes/RNAs/antisenseRNAs, the reference ID is per-species
-        # (not the shared template ID), matching the listOfGenes entries.
-        if isinstance(species, momapy.celldesigner.core.Gene):
-            ref_id = "g_" + _get_species_id(species, writing_context)
-        elif isinstance(species, momapy.celldesigner.core.RNA):
-            ref_id = "rna_" + _get_species_id(species, writing_context)
-        elif isinstance(species, momapy.celldesigner.core.AntisenseRNA):
-            ref_id = "ar_" + _get_species_id(species, writing_context)
-        else:
-            ref_id = template.id_
+        ref_id = template.id_
         identity.append(_make_celldesigner_element(tag, text=ref_id))
     identity.append(_make_celldesigner_element("name", text=_encode_name(species.name) or ""))
     if species.hypothetical:
@@ -759,13 +867,17 @@ def _make_celldesigner_species_state(writing_context, species):
         state.append(ss_list)
     if has_mods:
         mod_list = _make_celldesigner_element("listOfModifications")
-        for modification in sorted(
-            species.modifications,
-            key=lambda m: m.residue.id_ if m.residue else "",
-        ):
+        # Sort modifications by their layout child order to preserve
+        # the original XML order (modifications is a frozenset).
+        sorted_mods = _sort_modifications_by_layout(
+            writing_context, species
+        )
+        for modification in sorted_mods:
             mod_attrs = {}
             if modification.residue is not None:
-                mod_attrs["residue"] = modification.residue.id_
+                mod_attrs["residue"] = _strip_template_prefix(
+                    modification.residue, species
+                )
             mod_attrs["state"] = _modification_state_string(modification.state)
             mod_list.append(_make_celldesigner_element("modification", attrs=mod_attrs))
         state.append(mod_list)
@@ -814,7 +926,11 @@ def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
             continue
         model_elem = model_info[0] if isinstance(model_info, tuple) else model_info
         list_elem.append(
-            _make_celldesigner_alias(writing_context, child, model_elem, "complexSpeciesAlias")
+            _make_celldesigner_alias(
+                writing_context, child, model_elem,
+                "complexSpeciesAlias",
+                complex_alias_id=parent_layout.id_,
+            )
         )
         # Recurse deeper
         _collect_nested_complex_aliases(writing_context, child, list_elem)
@@ -1023,7 +1139,7 @@ def _make_celldesigner_alias(writing_context, layout, model, tag, complex_alias_
 
 def _make_celldesigner_list_of_proteins(writing_context):
     list_elem = _make_celldesigner_element("listOfProteins")
-    for tmpl in sorted(writing_context.map_.model.species_templates, key=lambda t: t.id_):
+    for tmpl in sorted(writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""):
         if not isinstance(tmpl, momapy.celldesigner.core.ProteinTemplate):
             continue
         protein_type = "GENERIC"
@@ -1044,7 +1160,7 @@ def _make_celldesigner_list_of_proteins(writing_context):
             for residue in sorted(
                 tmpl.modification_residues, key=lambda r: r.id_
             ):
-                mr_attrs = {"id": residue.id_}
+                mr_attrs = {"id": _strip_template_prefix(residue, tmpl)}
                 if residue.name is not None:
                     mr_attrs["name"] = residue.name
                 # Compute angle from layout if available
@@ -1090,24 +1206,31 @@ def _find_residue_angle(writing_context, template, residue):
             children = getattr(layout_key, "layout_elements", None)
             if not children:
                 continue
+            # Build a mapping from XML residue id to layout child
+            species_id = _get_species_id(species, writing_context)
             for child in children:
                 if not isinstance(
                     child, momapy.celldesigner.core.ModificationLayout
                 ):
                     continue
-                # Extract text label from ModificationLayout children
-                layout_name = None
-                for sub_child in getattr(child, "layout_elements", []):
-                    if hasattr(sub_child, "text") and sub_child.text:
-                        layout_name = sub_child.text
-                        break
-                # Match by name: both None or both equal
-                if residue.name == layout_name:
-                    return str(
-                        momapy.celldesigner.io.celldesigner._writing.compute_cd_angle(
-                            child.position, layout_key
-                        )
+                # Match by residue id encoded in the layout id:
+                # layout id = f"{species_id}_{xml_residue_id}_layout"
+                prefix = f"{species_id}_"
+                suffix = "_layout"
+                if (
+                    child.id_.startswith(prefix)
+                    and child.id_.endswith(suffix)
+                ):
+                    layout_residue_id = child.id_[len(prefix):-len(suffix)]
+                    xml_residue_id = _strip_template_prefix(
+                        residue, template
                     )
+                    if layout_residue_id == xml_residue_id:
+                        return str(
+                            momapy.celldesigner.io.celldesigner._writing.compute_cd_angle(
+                                child.position, layout_key
+                            )
+                        )
     return "0.0"
 
 
@@ -1133,48 +1256,80 @@ def _collect_subunits(species):
 
 
 def _make_celldesigner_list_of_genes(writing_context):
-    """Build listOfGenes — one entry per Gene species, not per template."""
+    """Build listOfGenes — one entry per GeneTemplate."""
     list_elem = _make_celldesigner_element("listOfGenes")
-    for species in _all_species_recursive(writing_context):
-        if not isinstance(species, momapy.celldesigner.core.Gene):
+    for tmpl in sorted(writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""):
+        if not isinstance(tmpl, momapy.celldesigner.core.GeneTemplate):
             continue
-        tmpl = getattr(species, "template", None)
-        gene_id = "g_" + _get_species_id(species, writing_context)
-        name = _encode_name(tmpl.name if tmpl else species.name) or ""
-        list_elem.append(
-            _make_celldesigner_element("gene", attrs={"type": "GENE", "id": gene_id, "name": name})
+        gene_elem = _make_celldesigner_element(
+            "gene",
+            attrs={
+                "type": "GENE",
+                "id": tmpl.id_,
+                "name": _encode_name(tmpl.name) or "",
+            },
         )
+        _append_template_regions(gene_elem, tmpl)
+        list_elem.append(gene_elem)
     return list_elem
 
 
 def _make_celldesigner_list_of_rnas(writing_context):
-    """Build listOfRNAs — one entry per RNA species."""
+    """Build listOfRNAs — one entry per RNATemplate."""
     list_elem = _make_celldesigner_element("listOfRNAs")
-    for species in _all_species_recursive(writing_context):
-        if not isinstance(species, momapy.celldesigner.core.RNA):
+    for tmpl in sorted(writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""):
+        if not isinstance(tmpl, momapy.celldesigner.core.RNATemplate):
             continue
-        tmpl = getattr(species, "template", None)
-        rna_id = "rna_" + _get_species_id(species, writing_context)
-        name = _encode_name(tmpl.name if tmpl else species.name) or ""
-        list_elem.append(
-            _make_celldesigner_element("RNA", attrs={"type": "RNA", "id": rna_id, "name": name})
+        rna_elem = _make_celldesigner_element(
+            "RNA",
+            attrs={
+                "type": "RNA",
+                "id": tmpl.id_,
+                "name": _encode_name(tmpl.name) or "",
+            },
         )
+        _append_template_regions(rna_elem, tmpl)
+        list_elem.append(rna_elem)
     return list_elem
 
 
 def _make_celldesigner_list_of_antisense_rnas(writing_context):
-    """Build listOfAntisenseRNAs — one entry per AntisenseRNA species."""
+    """Build listOfAntisenseRNAs — one entry per AntisenseRNATemplate."""
     list_elem = _make_celldesigner_element("listOfAntisenseRNAs")
-    for species in _all_species_recursive(writing_context):
-        if not isinstance(species, momapy.celldesigner.core.AntisenseRNA):
+    for tmpl in sorted(writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""):
+        if not isinstance(tmpl, momapy.celldesigner.core.AntisenseRNATemplate):
             continue
-        tmpl = getattr(species, "template", None)
-        arna_id = "ar_" + _get_species_id(species, writing_context)
-        name = _encode_name(tmpl.name if tmpl else species.name) or ""
-        list_elem.append(
-            _make_celldesigner_element("antisenseRNA", attrs={"type": "ANTISENSE_RNA", "id": arna_id, "name": name})
+        arna_elem = _make_celldesigner_element(
+            "antisenseRNA",
+            attrs={
+                "type": "ANTISENSE_RNA",
+                "id": tmpl.id_,
+                "name": _encode_name(tmpl.name) or "",
+            },
         )
+        _append_template_regions(arna_elem, tmpl)
+        list_elem.append(arna_elem)
     return list_elem
+
+
+def _append_template_regions(elem, tmpl):
+    """Append listOfRegions to a gene/RNA/antisenseRNA element if regions exist."""
+    regions = getattr(tmpl, "regions", None)
+    if not regions:
+        return
+    region_list = _make_celldesigner_element("listOfRegions")
+    for region in sorted(regions, key=lambda r: r.id_ or ""):
+        region_attrs = {
+            "id": _strip_template_prefix(region, tmpl),
+            "name": region.name or "",
+            "size": "0.1",
+            "pos": "0.5",
+            "type": "proteinBindingDomain",
+        }
+        region_list.append(
+            _make_celldesigner_element("region", attrs=region_attrs)
+        )
+    elem.append(region_list)
 
 
 def _all_species_recursive(writing_context):
@@ -1187,7 +1342,7 @@ def _all_species_recursive(writing_context):
                 _collect(sub)
     for species in writing_context.map_.model.species:
         _collect(species)
-    return sorted(result, key=lambda s: s.id_)
+    return sorted(result, key=lambda s: s.id_ or "")
 
 
 # --- Compartments ---
@@ -1195,14 +1350,16 @@ def _all_species_recursive(writing_context):
 
 def _make_celldesigner_list_of_compartments(writing_context):
     list_elem = _make_lxml_element("listOfCompartments")
-    for comp in sorted(writing_context.map_.model.compartments, key=lambda c: c.id_):
+    for comp in sorted(writing_context.map_.model.compartments, key=lambda c: c.id_ or ""):
+        comp_name = _encode_name(comp.name)
         attrs = {
             "id": comp.id_,
             "metaid": comp.id_,
-            "name": _encode_name(comp.name) or "",
             "size": "1",
             "units": "volume",
         }
+        if comp_name is not None:
+            attrs["name"] = comp_name
         outside = getattr(comp, "outside", None)
         if outside is not None:
             attrs["outside"] = outside.id_
@@ -1216,7 +1373,7 @@ def _make_celldesigner_list_of_compartments(writing_context):
 def _make_celldesigner_list_of_species(writing_context):
     list_elem = _make_lxml_element("listOfSpecies")
     seen_ids = set()
-    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_):
+    for species in sorted(writing_context.map_.model.species, key=lambda s: s.id_ or ""):
         # Skip subunits — they are only in listOfIncludedSpecies
         if species in writing_context.subunit_to_complex:
             continue
@@ -1279,11 +1436,39 @@ def _find_catalyzed_reactions(writing_context, species):
 def _make_celldesigner_list_of_reactions(writing_context):
     list_elem = _make_lxml_element("listOfReactions")
     for reaction in writing_context.map_.model.reactions:
-        list_elem.append(_make_celldesigner_reaction(writing_context, reaction))
+        layout_keys = _get_layouts(writing_context, reaction)
+        frozensets = [lk for lk in layout_keys if isinstance(lk, frozenset)]
+        if not frozensets:
+            list_elem.append(
+                _make_celldesigner_reaction(
+                    writing_context, reaction, None, None
+                )
+            )
+        else:
+            for frozenset_mapping in frozensets:
+                reaction_layout = _get_reaction_layout(frozenset_mapping)
+                list_elem.append(
+                    _make_celldesigner_reaction(
+                        writing_context, reaction,
+                        frozenset_mapping, reaction_layout,
+                    )
+                )
     for modulation in writing_context.map_.model.modulations:
-        mod_rxn = _make_celldesigner_modulation_reaction(writing_context, modulation)
-        if mod_rxn is not None:
-            list_elem.append(mod_rxn)
+        layout_keys = _get_layouts(writing_context, modulation)
+        frozensets = [lk for lk in layout_keys if isinstance(lk, frozenset)]
+        if not frozensets:
+            mod_rxn = _make_celldesigner_modulation_reaction(
+                writing_context, modulation, None
+            )
+            if mod_rxn is not None:
+                list_elem.append(mod_rxn)
+        else:
+            for frozenset_mapping in frozensets:
+                mod_rxn = _make_celldesigner_modulation_reaction(
+                    writing_context, modulation, frozenset_mapping
+                )
+                if mod_rxn is not None:
+                    list_elem.append(mod_rxn)
     layout_order_index = _build_layout_order_index(
         writing_context.map_.layout
     )
@@ -1291,22 +1476,21 @@ def _make_celldesigner_list_of_reactions(writing_context):
     return list_elem
 
 
-def _make_celldesigner_reaction(writing_context, reaction):
+def _make_celldesigner_reaction(
+    writing_context, reaction, frozenset_mapping, reaction_layout
+):
+    # Derive the XML id from the layout when available (supports
+    # multiple visual copies of the same reaction).
+    if reaction_layout is not None:
+        xml_id = reaction_layout.id_.removesuffix("_layout")
+    else:
+        xml_id = reaction.id_
     attrs = {
-        "metaid": reaction.id_,
-        "id": reaction.id_,
+        "metaid": xml_id,
+        "id": xml_id,
         "reversible": "false",
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
-
-    # Find the frozenset for this reaction
-    frozenset_mapping = None
-    reaction_layout = None
-    for layout_key in _get_layouts(writing_context, reaction):
-        if isinstance(layout_key, frozenset):
-            frozenset_mapping = layout_key
-            reaction_layout = _get_reaction_layout(layout_key)
-            break
 
     # CD extension
     annotation = _make_lxml_element("annotation")
@@ -1425,19 +1609,49 @@ def _make_celldesigner_reaction(writing_context, reaction):
             )
     extension.append(base_products_element)
 
+    # For left-T reactions, compute base reactant aliases to distinguish
+    # base arcs from link arcs (both are ConsumptionLayout).
+    base_reactant_aliases = set()
+    if is_left_t and reaction_layout is not None:
+        base_species_set = {r.referred_species for r in base_reactants}
+        for arc in writing_context.map_.layout.layout_elements:
+            if (
+                isinstance(arc, momapy.celldesigner.core.ConsumptionLayout)
+                and arc.source is reaction_layout
+                and arc.target is not None
+            ):
+                target_model = _mapping(writing_context).get_mapping(
+                    arc.target
+                )
+                if target_model is not None:
+                    target_elem = (
+                        target_model[0]
+                        if isinstance(target_model, tuple)
+                        else target_model
+                    )
+                    if target_elem in base_species_set:
+                        base_reactant_aliases.add(arc.target)
+
     # listOfReactantLinks — derive from layout arcs to handle
     # multiple visual copies of the same model element.
-    # Skip for left-T reactions: all reactant arcs are base (no links).
     reactant_links_element = _make_celldesigner_element("listOfReactantLinks")
-    if is_left_t:
-        pass  # left-T has no link reactants
-    elif reaction_layout is not None:
-        base_reactant_alias = reaction_layout.source
-        link_consumption_arcs = _collect_arcs_for_reaction(
-            writing_context, reaction_layout,
-            momapy.celldesigner.core.ConsumptionLayout,
-            exclude_alias=base_reactant_alias,
-        )
+    if reaction_layout is not None:
+        if is_left_t:
+            link_consumption_arcs = [
+                arc
+                for arc in _collect_arcs_for_reaction(
+                    writing_context, reaction_layout,
+                    momapy.celldesigner.core.ConsumptionLayout,
+                )
+                if arc.target not in base_reactant_aliases
+            ]
+        else:
+            base_reactant_alias = reaction_layout.source
+            link_consumption_arcs = _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ConsumptionLayout,
+                exclude_alias=base_reactant_alias,
+            )
         for arc_layout in link_consumption_arcs:
             reactant_links_element.append(
                 _make_celldesigner_participant_link_from_layout(
@@ -1456,17 +1670,48 @@ def _make_celldesigner_reaction(writing_context, reaction):
     extension.append(reactant_links_element)
 
     # listOfProductLinks — same arc-driven approach.
-    # Skip for right-T reactions: all product arcs are base (no links).
     product_links_element = _make_celldesigner_element("listOfProductLinks")
-    if is_right_t:
-        pass  # right-T has no link products
-    elif reaction_layout is not None:
-        base_product_alias = reaction_layout.target
-        link_production_arcs = _collect_arcs_for_reaction(
-            writing_context, reaction_layout,
-            momapy.celldesigner.core.ProductionLayout,
-            exclude_alias=base_product_alias,
-        )
+    if reaction_layout is not None:
+        if is_right_t:
+            # Right-T: exclude all base product arcs by their target alias
+            base_product_aliases = set()
+            base_product_species_set = {
+                p.referred_species for p in base_products
+            }
+            for arc in writing_context.map_.layout.layout_elements:
+                if (
+                    isinstance(
+                        arc, momapy.celldesigner.core.ProductionLayout
+                    )
+                    and arc.source is reaction_layout
+                    and arc.target is not None
+                ):
+                    target_model = _mapping(writing_context).get_mapping(
+                        arc.target
+                    )
+                    if target_model is not None:
+                        target_elem = (
+                            target_model[0]
+                            if isinstance(target_model, tuple)
+                            else target_model
+                        )
+                        if target_elem in base_product_species_set:
+                            base_product_aliases.add(arc.target)
+            link_production_arcs = [
+                arc
+                for arc in _collect_arcs_for_reaction(
+                    writing_context, reaction_layout,
+                    momapy.celldesigner.core.ProductionLayout,
+                )
+                if arc.target not in base_product_aliases
+            ]
+        else:
+            base_product_alias = reaction_layout.target
+            link_production_arcs = _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ProductionLayout,
+                exclude_alias=base_product_alias,
+            )
         for arc_layout in link_production_arcs:
             product_links_element.append(
                 _make_celldesigner_participant_link_from_layout(
@@ -1493,7 +1738,7 @@ def _make_celldesigner_reaction(writing_context, reaction):
 
     # listOfModification
     mod_list = _make_celldesigner_element("listOfModification")
-    modifiers = sorted(reaction.modifiers, key=lambda m: m.id_)
+    modifiers = sorted(reaction.modifiers, key=lambda m: m.id_ or "")
     for modifier in modifiers:
         species = modifier.referred_species
         if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
@@ -1549,20 +1794,31 @@ def _make_celldesigner_reaction(writing_context, reaction):
                     reaction=reaction, reaction_layout=reaction_layout, is_start=True,
                 )
             )
-    if is_left_t:
-        pass  # left-T: all reactants already written as base above
-    elif reaction_layout is not None:
-        base_reactant_alias = reaction_layout.source
-        for arc_layout in _collect_arcs_for_reaction(
-            writing_context, reaction_layout,
-            momapy.celldesigner.core.ConsumptionLayout,
-            exclude_alias=base_reactant_alias,
-        ):
-            list_of_reactants.append(
-                _make_sbml_document_species_reference_from_layout(
-                    writing_context, arc_layout,
+    if reaction_layout is not None:
+        if is_left_t:
+            # Reuse already-computed base reactant aliases to exclude
+            for arc_layout in _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ConsumptionLayout,
+            ):
+                if arc_layout.target not in base_reactant_aliases:
+                    list_of_reactants.append(
+                        _make_sbml_document_species_reference_from_layout(
+                            writing_context, arc_layout,
+                        )
+                    )
+        else:
+            base_reactant_alias = reaction_layout.source
+            for arc_layout in _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ConsumptionLayout,
+                exclude_alias=base_reactant_alias,
+            ):
+                list_of_reactants.append(
+                    _make_sbml_document_species_reference_from_layout(
+                        writing_context, arc_layout,
+                    )
                 )
-            )
     else:
         for reactant in link_reactants:
             list_of_reactants.append(
@@ -1604,20 +1860,31 @@ def _make_celldesigner_reaction(writing_context, reaction):
                     reaction=reaction, reaction_layout=reaction_layout, is_start=False,
                 )
             )
-    if is_right_t:
-        pass  # right-T: all products already written as base above
-    elif reaction_layout is not None:
-        base_product_alias = reaction_layout.target
-        for arc_layout in _collect_arcs_for_reaction(
-            writing_context, reaction_layout,
-            momapy.celldesigner.core.ProductionLayout,
-            exclude_alias=base_product_alias,
-        ):
-            list_of_products.append(
-                _make_sbml_document_species_reference_from_layout(
-                    writing_context, arc_layout,
+    if reaction_layout is not None:
+        if is_right_t:
+            # Reuse already-computed base product aliases to exclude
+            for arc_layout in _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ProductionLayout,
+            ):
+                if arc_layout.target not in base_product_aliases:
+                    list_of_products.append(
+                        _make_sbml_document_species_reference_from_layout(
+                            writing_context, arc_layout,
+                        )
+                    )
+        else:
+            base_product_alias = reaction_layout.target
+            for arc_layout in _collect_arcs_for_reaction(
+                writing_context, reaction_layout,
+                momapy.celldesigner.core.ProductionLayout,
+                exclude_alias=base_product_alias,
+            ):
+                list_of_products.append(
+                    _make_sbml_document_species_reference_from_layout(
+                        writing_context, arc_layout,
+                    )
                 )
-            )
     else:
         for product in link_products:
             list_of_products.append(
@@ -1635,7 +1902,7 @@ def _make_celldesigner_reaction(writing_context, reaction):
             species = modifier.referred_species
             if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
                 # Write each input species as a separate modifier
-                for inp in sorted(species.inputs, key=lambda s: s.id_):
+                for inp in sorted(species.inputs, key=lambda s: s.id_ or ""):
                     input_species = inp.element
                     sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
                     alias_layout = (
@@ -1706,8 +1973,13 @@ def _make_sbml_document_species_reference(
         )
     alias_id = alias_layout.id_ if alias_layout else ""
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
-    if participant.metaid:
-        sr_attrs["metaid"] = _unique_metaid(writing_context, participant.metaid)
+    # Write the participant id_ as metaid so the reader can recover it.
+    # The reader prefers metaid over composite ids for reactant/product ids.
+    participant_metaid = participant.metaid or participant.id_
+    if participant_metaid:
+        sr_attrs["metaid"] = _unique_metaid(writing_context, participant_metaid)
+    if participant.stoichiometry is not None:
+        sr_attrs["stoichiometry"] = str(int(participant.stoichiometry))
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
     species_reference_annotation = _make_lxml_element("annotation")
     species_reference_extension = _make_celldesigner_element("extension")
@@ -1739,6 +2011,14 @@ def _make_sbml_document_species_reference_from_layout(writing_context, arc_layou
         species = model
     sbml_species = writing_context.subunit_to_complex.get(species, species)
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
+    # Try to recover participant metaid from the arc mapping
+    arc_model = _mapping(writing_context).get_mapping(arc_layout)
+    if isinstance(arc_model, tuple) and hasattr(arc_model[0], "id_"):
+        participant_metaid = arc_model[0].metaid or arc_model[0].id_
+        if participant_metaid:
+            sr_attrs["metaid"] = _unique_metaid(
+                writing_context, participant_metaid
+            )
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
     species_reference_annotation = _make_lxml_element("annotation")
     species_reference_extension = _make_celldesigner_element("extension")
@@ -2366,7 +2646,7 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     # frozenset, so look them up globally via the mapping.
     input_species_ids = []
     input_alias_ids = []
-    for inp in sorted(gate.inputs, key=lambda s: s.id_):
+    for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
         input_species = inp.element
         sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
         input_species_ids.append(_get_species_id(sbml_inp, writing_context))
@@ -2439,7 +2719,7 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     result.append(gate_mod)
 
     # Per-input entries
-    for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_)):
+    for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_ or "")):
         input_species = inp.element
         sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
         inp_attrs = {
@@ -2484,7 +2764,9 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     return result
 
 
-def _make_celldesigner_modulation_reaction(writing_context, modulation):
+def _make_celldesigner_modulation_reaction(
+    writing_context, modulation, frozenset_mapping
+):
     """Build a modulation as a fake SBML reaction."""
     source = modulation.source
     target = modulation.target
@@ -2492,36 +2774,40 @@ def _make_celldesigner_modulation_reaction(writing_context, modulation):
     if isinstance(source, momapy.celldesigner.core.BooleanLogicGate):
         return _make_celldesigner_gate_modulation_reaction(writing_context, modulation)
 
-    attrs = {
-        "metaid": modulation.id_,
-        "id": modulation.id_,
-        "reversible": "false",
-    }
-    reaction_element = _make_lxml_element("reaction", attrs=attrs)
-
-    # Find layout via mapping — modulation layout may be in a frozenset
+    # Resolve layouts from the given frozenset
     modulation_layout = None
     source_layout = None
     target_layout = None
-    frozenset_mapping = None
-    for layout_key in _get_layouts(writing_context, modulation):
-        if isinstance(layout_key, frozenset):
-            frozenset_mapping = layout_key
-            for elem in layout_key:
-                model = _mapping(writing_context).get_mapping(elem)
-                if model is modulation:
-                    modulation_layout = elem
-                elif model is source:
+    if frozenset_mapping is not None:
+        for elem in frozenset_mapping:
+            model = _mapping(writing_context).get_mapping(elem)
+            if model is modulation:
+                modulation_layout = elem
+            elif model is source:
+                source_layout = elem
+            elif model is target:
+                target_layout = elem
+            elif isinstance(model, tuple):
+                if model[0] is source:
                     source_layout = elem
-                elif model is target:
+                elif model[0] is target:
                     target_layout = elem
-                elif isinstance(model, tuple):
-                    if model[0] is source:
-                        source_layout = elem
-                    elif model[0] is target:
-                        target_layout = elem
-        else:
-            modulation_layout = layout_key
+    else:
+        for layout_key in _get_layouts(writing_context, modulation):
+            if not isinstance(layout_key, frozenset):
+                modulation_layout = layout_key
+
+    # Derive XML id from layout when available
+    if modulation_layout is not None:
+        xml_id = modulation_layout.id_.removesuffix("_layout")
+    else:
+        xml_id = modulation.id_
+    attrs = {
+        "metaid": xml_id,
+        "id": xml_id,
+        "reversible": "false",
+    }
+    reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
     if source_layout is None and source is not None:
         for layout_key in _get_layouts(writing_context, source):
@@ -2686,7 +2972,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     if gate_layout is not None:
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                hasattr(layout_element_item, "source") and hasattr(layout_element_item, "target")
+                isinstance(layout_element_item, momapy.celldesigner.core.LogicArcLayout)
                 and layout_element_item.source is gate_layout
             ):
                 inp_layout = layout_element_item.target
@@ -2700,7 +2986,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
                     input_layouts.append((inp_model, inp_layout))
     if not input_layouts:
         # Fallback to gate.inputs if no logic arcs found
-        for inp in sorted(gate.inputs, key=lambda s: s.id_):
+        for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
             inp_layout = None
             for layout_key in _get_layouts(writing_context, inp):
                 if isinstance(layout_key, frozenset):
