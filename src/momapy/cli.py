@@ -37,6 +37,14 @@ Example:
     # Open an interactive viewer in the browser
     $ momapy visualize map.sbgn
     $ momapy visualize map.xml -c -s style.css
+
+    # Tidy operations
+    $ momapy tidy all map.xml -o output.xml
+    $ momapy tidy fit-species map.xml -o output.xml --xsep 4 --ysep 4
+    $ momapy tidy fit-epns map.sbgn -o output.sbgn --xsep 4 --ysep 4
+    $ momapy tidy snap-arcs map.xml -o output.xml
+    $ momapy tidy orthogonalize map.xml -o output.xml --tolerance 5
+    $ momapy tidy fit-complexes map.sbgn -o output.sbgn --xsep 10 --ysep 10
 """
 
 import argparse
@@ -52,7 +60,9 @@ import webbrowser
 
 import momapy.celldesigner.core
 import momapy.celldesigner.utils
+import momapy.sbgn.af
 import momapy.sbgn.core
+import momapy.sbgn.pd
 import momapy.sbgn.utils
 
 
@@ -76,6 +86,164 @@ def _infer_writer(map_):
         raise ValueError(
             f"could not infer writer for map type {type(map_).__name__}"
         )
+
+
+def _run_tidy_operation(map_, args):
+    """Run a specific tidy operation on a map.
+
+    Args:
+        map_: The map object.
+        args: Parsed CLI arguments with tidy_operation and parameters.
+
+    Returns:
+        The tidied map.
+
+    Raises:
+        ValueError: If the operation is not supported for the map type.
+    """
+    operation = args.tidy_operation
+    is_celldesigner = isinstance(
+        map_, momapy.celldesigner.core.CellDesignerMap
+    )
+    is_sbgn = isinstance(map_, momapy.sbgn.core.SBGNMap)
+    if not is_celldesigner and not is_sbgn:
+        raise ValueError(
+            f"unsupported map type for tidy: {type(map_).__name__}"
+        )
+    xsep = getattr(args, "xsep", 0)
+    ysep = getattr(args, "ysep", 0)
+    if operation == "all":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.tidy(
+                map_,
+                nodes_xsep=xsep,
+                nodes_ysep=ysep,
+                set_arcs_to_orthogonal_=getattr(
+                    args, "orthogonalize", False
+                ),
+                arcs_angle_tolerance=getattr(args, "tolerance", 5.0),
+            )
+        else:
+            return momapy.sbgn.utils.tidy(
+                map_, nodes_xsep=xsep, nodes_ysep=ysep
+            )
+    elif operation == "fit-species":
+        if not is_celldesigner:
+            raise ValueError(
+                "fit-species is only supported for CellDesigner maps; "
+                "use fit-epns for SBGN maps"
+            )
+        return momapy.celldesigner.utils.set_nodes_to_fit_labels(
+            map_,
+            xsep=xsep,
+            ysep=ysep,
+            exclude=[
+                momapy.celldesigner.core.ModificationLayout,
+                momapy.celldesigner.core.StructuralStateLayout,
+                momapy.celldesigner.core.ComplexLayout,
+                momapy.celldesigner.core.ComplexActiveLayout,
+                momapy.celldesigner.core.OvalCompartmentLayout,
+                momapy.celldesigner.core.RectangleCompartmentLayout,
+            ],
+        )
+    elif operation == "fit-epns":
+        if not is_sbgn:
+            raise ValueError(
+                "fit-epns is only supported for SBGN maps; "
+                "use fit-species for CellDesigner maps"
+            )
+        return momapy.sbgn.utils.set_nodes_to_fit_labels(
+            map_,
+            xsep=xsep,
+            ysep=ysep,
+            exclude=[
+                momapy.sbgn.pd.StateVariableLayout,
+                momapy.sbgn.pd.UnitOfInformationLayout,
+                momapy.sbgn.pd.ComplexLayout,
+                momapy.sbgn.pd.CompartmentLayout,
+                momapy.sbgn.af.UnitOfInformationLayout,
+                momapy.sbgn.af.CompartmentLayout,
+            ],
+        )
+    elif operation == "fit-auxiliary":
+        if is_celldesigner:
+            map_ = momapy.celldesigner.utils.set_modifications_to_borders(
+                map_
+            )
+            return momapy.celldesigner.utils.set_nodes_to_fit_labels(
+                map_,
+                xsep=xsep,
+                ysep=ysep,
+                restrict_to=[
+                    momapy.celldesigner.core.ModificationLayout,
+                    momapy.celldesigner.core.StructuralStateLayout,
+                ],
+            )
+        else:
+            map_ = momapy.sbgn.utils.set_auxiliary_units_to_borders(map_)
+            return momapy.sbgn.utils.set_nodes_to_fit_labels(
+                map_,
+                xsep=xsep,
+                ysep=ysep,
+                restrict_to=[
+                    momapy.sbgn.pd.StateVariableLayout,
+                    momapy.sbgn.pd.UnitOfInformationLayout,
+                    momapy.sbgn.af.UnitOfInformationLayout,
+                ],
+            )
+    elif operation == "fit-complexes":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.set_complexes_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+        else:
+            return momapy.sbgn.utils.set_complexes_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+    elif operation == "fit-compartments":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.set_compartments_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+        else:
+            return momapy.sbgn.utils.set_compartments_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+    elif operation == "fit-submaps":
+        if is_sbgn:
+            return momapy.sbgn.utils.set_submaps_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+        else:
+            raise ValueError(
+                "fit-submaps is only supported for SBGN maps"
+            )
+    elif operation == "fit-layout":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.set_layout_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+        else:
+            return momapy.sbgn.utils.set_layout_to_fit_content(
+                map_, xsep=xsep, ysep=ysep
+            )
+    elif operation == "snap-arcs":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.set_arcs_to_borders(map_)
+        else:
+            return momapy.sbgn.utils.set_arcs_to_borders(map_)
+    elif operation == "orthogonalize":
+        if is_celldesigner:
+            return momapy.celldesigner.utils.set_arcs_to_orthogonal(
+                map_,
+                angle_tolerance=getattr(args, "tolerance", 5.0),
+            )
+        else:
+            raise ValueError(
+                "orthogonalize is only supported for CellDesigner maps"
+            )
+    else:
+        raise ValueError(f"unknown tidy operation: {operation}")
 
 
 def _build_layout_to_model_id_mapping(layout_model_mapping):
@@ -940,6 +1108,30 @@ def run(args):
                 sys.exit(1)
             for attribute in attributes:
                 print(attribute)
+    elif args.subcommand == "tidy":
+        import momapy.builder
+        import momapy.io.core
+
+        reader_result = momapy.io.core.read(args.input_file_path)
+        map_ = reader_result.obj
+        map_ = _run_tidy_operation(map_, args)
+        writer = _infer_writer(map_)
+        if args.output_file_path:
+            momapy.io.core.write(map_, args.output_file_path, writer=writer)
+        else:
+            temporary_file = tempfile.NamedTemporaryFile(
+                mode="w", suffix=".xml", delete=False
+            )
+            temporary_file_path = temporary_file.name
+            temporary_file.close()
+            try:
+                momapy.io.core.write(
+                    map_, temporary_file_path, writer=writer
+                )
+                with open(temporary_file_path, "r") as file_handle:
+                    sys.stdout.write(file_handle.read())
+            finally:
+                os.remove(temporary_file_path)
     elif args.subcommand == "visualize":
         import momapy.io.core
         import momapy.styling
@@ -1119,6 +1311,75 @@ def main():
         default=False,
         help="only list presentation attributes (fill, stroke, font, etc.)",
     )
+    tidy_parser = subparsers.add_parser(
+        "tidy",
+        description="Apply layout tidying operations to a map. Use sub-commands to apply specific operations, or 'all' for the full pipeline.",
+    )
+    tidy_subparsers = tidy_parser.add_subparsers(
+        dest="tidy_operation",
+    )
+    _tidy_operations = {
+        "all": "Apply all tidying operations (fit nodes, decorations, complexes, compartments, arcs, layout).",
+        "fit-species": "Resize species nodes to fit their labels (CellDesigner only).",
+        "fit-epns": "Resize entity pool nodes to fit their labels (SBGN only).",
+        "fit-auxiliary": "Position and resize auxiliary elements (modifications/structural states for CellDesigner, state variables/units of information for SBGN).",
+        "fit-complexes": "Resize complexes to fit their subunits.",
+        "fit-compartments": "Resize compartments to fit their content.",
+        "fit-submaps": "Resize submaps to fit their terminals (SBGN only).",
+        "fit-layout": "Resize the overall layout to fit all elements.",
+        "snap-arcs": "Snap arc endpoints to node borders.",
+        "orthogonalize": "Snap near-orthogonal arc bends to exact right angles (CellDesigner only).",
+    }
+    for operation_name, operation_description in _tidy_operations.items():
+        operation_parser = tidy_subparsers.add_parser(
+            operation_name,
+            description=operation_description,
+        )
+        operation_parser.add_argument(
+            "input_file_path", help="input file path"
+        )
+        operation_parser.add_argument(
+            "-o",
+            "--output-file-path",
+            default=None,
+            help="output file path (default: stdout)",
+        )
+        if operation_name in (
+            "all",
+            "fit-species",
+            "fit-epns",
+            "fit-auxiliary",
+            "fit-complexes",
+            "fit-compartments",
+            "fit-submaps",
+            "fit-layout",
+        ):
+            operation_parser.add_argument(
+                "--xsep",
+                type=float,
+                default=0,
+                help="horizontal padding (default: 0)",
+            )
+            operation_parser.add_argument(
+                "--ysep",
+                type=float,
+                default=0,
+                help="vertical padding (default: 0)",
+            )
+        if operation_name in ("all", "orthogonalize"):
+            operation_parser.add_argument(
+                "--tolerance",
+                type=float,
+                default=5.0,
+                help="angle tolerance in degrees for orthogonalization (default: 5.0)",
+            )
+        if operation_name == "all":
+            operation_parser.add_argument(
+                "--orthogonalize",
+                action="store_true",
+                default=False,
+                help="also snap near-orthogonal arcs (CellDesigner only)",
+            )
     visualize_parser = subparsers.add_parser(
         "visualize",
         description="Open an interactive viewer for a molecular map in the default web browser.",
