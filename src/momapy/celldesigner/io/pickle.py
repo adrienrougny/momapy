@@ -17,7 +17,7 @@ class CellDesignerPickleReader(momapy.io.core.Reader):
         with open(file_path, "rb") as f:
             try:
                 pickle.load(f)
-            except pickle.UnpicklingError:
+            except Exception:
                 return False
             else:
                 return True
