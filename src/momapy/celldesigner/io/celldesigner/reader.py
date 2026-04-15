@@ -13,7 +13,7 @@ elements. The general rules are:
   ``compartmentAlias/@id``), the layout element uses the alias ID.
 - When model and layout share the same XML ID source (reactions,
   modulations), the layout element gets a ``_layout`` suffix:
-  ``f"{reaction_id}_layout"``.
+  ``f"{reaction/@id}_layout"``.
 
 The map, model and layout IDs are derived from the SBML ``model/@id``:
 ``map_.id_`` = ``model/@id``, ``model.id_`` = ``f"{model/@id}_model"``,
