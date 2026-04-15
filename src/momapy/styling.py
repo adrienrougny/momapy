@@ -846,19 +846,14 @@ def _resolve_css_document(results):
     return combine_style_sheets(style_sheets)
 
 
-_PRESENTATION_ATTRIBUTE_PREFIXES: tuple[str, ...] = (
-    "group_",
-    "path_",
-    "arrowhead_",
-)
-
-
 def _is_presentation_attribute(field_name: str) -> bool:
     """Check whether a field name corresponds to a presentation attribute.
 
     A field is considered a presentation attribute if its name — or its
-    name with a known prefix stripped — appears in
-    ``momapy.drawing.PRESENTATION_ATTRIBUTES``.
+    name after stripping an arbitrary prefix — matches an entry in
+    ``momapy.drawing.PRESENTATION_ATTRIBUTES``.  This handles prefixed
+    variants such as ``group_fill``, ``reaction_node_stroke``, or
+    ``end_arrowhead_width`` without requiring an explicit prefix list.
 
     Args:
         field_name: The Python field name to check.
@@ -866,13 +861,12 @@ def _is_presentation_attribute(field_name: str) -> bool:
     Returns:
         True if the field is a presentation attribute.
     """
-    if field_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
-        return True
-    for prefix in _PRESENTATION_ATTRIBUTE_PREFIXES:
-        if field_name.startswith(prefix):
-            base_name = field_name[len(prefix):]
-            if base_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
-                return True
+    for attribute_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+        if (
+            field_name == attribute_name
+            or field_name.endswith(f"_{attribute_name}")
+        ):
+            return True
     return False
 
 
