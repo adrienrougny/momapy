@@ -26,6 +26,10 @@ Example:
     $ momapy list writers
     $ momapy list renderers
 
+    # List stylable attributes of a layout element class
+    $ momapy list attributes momapy.sbgn.pd:MacromoleculeLayout
+    $ momapy list attributes momapy.sbgn.pd.MacromoleculeLayout -p
+
     # Inspect a map file
     $ momapy info map.sbgn
     $ momapy info map.xml --format json
@@ -37,6 +41,7 @@ Example:
 
 import argparse
 import collections.abc
+import importlib
 import json
 import os
 import pathlib
@@ -714,6 +719,46 @@ def _visualize_map(map_, style_sheet=None, input_file_path=None):
     webbrowser.open(f"file://{html_file_path}")
 
 
+def _resolve_class(class_path):
+    """Resolve a class from a string path.
+
+    Accepts both colon notation (``module:Class``) and dotted notation
+    (``module.Class``).
+
+    Args:
+        class_path: A string in the form ``module:Class`` or
+            ``module.Class``.
+
+    Returns:
+        The resolved class object.
+
+    Raises:
+        argparse.ArgumentTypeError: If the module or class cannot be found.
+    """
+    if ":" in class_path:
+        module_path, class_name = class_path.rsplit(":", 1)
+    else:
+        module_path, _, class_name = class_path.rpartition(".")
+    if not module_path or not class_name:
+        raise argparse.ArgumentTypeError(
+            f"invalid class path: {class_path!r} "
+            f"(expected 'module:Class' or 'module.Class')"
+        )
+    try:
+        module = importlib.import_module(module_path)
+    except ModuleNotFoundError:
+        raise argparse.ArgumentTypeError(
+            f"module not found: {module_path!r}"
+        )
+    try:
+        cls = getattr(module, class_name)
+    except AttributeError:
+        raise argparse.ArgumentTypeError(
+            f"class {class_name!r} not found in module {module_path!r}"
+        )
+    return cls
+
+
 def run(args):
     """Execute the CLI command based on parsed arguments.
 
@@ -850,31 +895,45 @@ def run(args):
         else:
             print(output)
     elif args.subcommand == "list":
-        import momapy.io
-        import momapy.rendering
+        list_subcommand = args.list_subcommand
+        if list_subcommand in ("readers", "writers", "renderers"):
+            import momapy.io
+            import momapy.rendering
 
-        plugin_type = args.plugin_type
-        if plugin_type == "readers":
-            names = momapy.io.list_readers()
-        elif plugin_type == "writers":
-            names = momapy.io.list_writers()
-        elif plugin_type == "renderers":
-            names = momapy.rendering.list_renderers()
-        else:
-            raise ValueError(f"plugin type {plugin_type} not supported")
-        if not names:
-            print(f"No {plugin_type} available.")
-            return
-        for name in names:
-            line = name
-            if plugin_type == "renderers":
-                try:
-                    renderer_cls = momapy.rendering.get_renderer(name)
-                    formats = ", ".join(renderer_cls.supported_formats)
-                    line = f"{name} (formats: {formats})"
-                except (ImportError, ModuleNotFoundError):
-                    line = f"{name} (not installed)"
-            print(line)
+            if list_subcommand == "readers":
+                names = momapy.io.list_readers()
+            elif list_subcommand == "writers":
+                names = momapy.io.list_writers()
+            else:
+                names = momapy.rendering.list_renderers()
+            if not names:
+                print(f"No {list_subcommand} available.")
+                return
+            for name in names:
+                line = name
+                if list_subcommand == "renderers":
+                    try:
+                        renderer_cls = momapy.rendering.get_renderer(name)
+                        formats = ", ".join(
+                            renderer_cls.supported_formats
+                        )
+                        line = f"{name} (formats: {formats})"
+                    except (ImportError, ModuleNotFoundError):
+                        line = f"{name} (not installed)"
+                print(line)
+        elif list_subcommand == "attributes":
+            import momapy.styling
+
+            try:
+                attributes = momapy.styling.get_stylable_attributes(
+                    args.class_path,
+                    presentation_only=args.presentation_only,
+                )
+            except TypeError as exception:
+                print(f"error: {exception}", file=sys.stderr)
+                sys.exit(1)
+            for attribute in attributes:
+                print(attribute)
     elif args.subcommand == "visualize":
         import momapy.io.core
         import momapy.styling
@@ -1017,12 +1076,38 @@ def main():
     )
     list_parser = subparsers.add_parser(
         "list",
-        description="List available readers, writers, or renderers.",
+        description="List available plugins or stylable attributes.",
     )
-    list_parser.add_argument(
-        "plugin_type",
-        choices=["readers", "writers", "renderers"],
-        help="type of plugin to list",
+    list_subparsers = list_parser.add_subparsers(
+        dest="list_subcommand",
+    )
+    list_subparsers.add_parser(
+        "readers",
+        description="List available readers.",
+    )
+    list_subparsers.add_parser(
+        "writers",
+        description="List available writers.",
+    )
+    list_subparsers.add_parser(
+        "renderers",
+        description="List available renderers.",
+    )
+    list_attributes_parser = list_subparsers.add_parser(
+        "attributes",
+        description="List stylable attributes of a layout element class.",
+    )
+    list_attributes_parser.add_argument(
+        "class_path",
+        type=_resolve_class,
+        help="layout element class (e.g. momapy.sbgn.pd:MacromoleculeLayout)",
+    )
+    list_attributes_parser.add_argument(
+        "-p",
+        "--presentation-only",
+        action="store_true",
+        default=False,
+        help="only list presentation attributes (fill, stroke, font, etc.)",
     )
     visualize_parser = subparsers.add_parser(
         "visualize",
