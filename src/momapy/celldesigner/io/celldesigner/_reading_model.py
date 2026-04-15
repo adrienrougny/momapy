@@ -330,16 +330,20 @@ def make_modifier(reading_context, model_element_cls, source_model_element, meta
     return model_element
 
 
-def make_logic_gate(reading_context, model_element_cls, cd_input_ids):
+def make_logic_gate(reading_context, model_element_cls):
     if reading_context.model is None:
         return None
     model_element = reading_context.model.new_element(model_element_cls)
-    model_input_elements = [
-        reading_context.xml_id_to_model_element[cd_input_id]
-        for cd_input_id in cd_input_ids
-    ]
-    for model_input_element in model_input_elements:
-        model_element.inputs.add(model_input_element)
+    return model_element
+
+
+def make_logic_gate_input(reading_context, input_model_element):
+    if reading_context.model is None:
+        return None
+    model_element = reading_context.model.new_element(
+        momapy.celldesigner.core.BooleanLogicGateInput
+    )
+    model_element.element = input_model_element
     return model_element
 
 

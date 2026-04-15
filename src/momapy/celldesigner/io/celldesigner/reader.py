@@ -47,6 +47,9 @@ Element-specific patterns:
   ``f"{reaction_id}_gate_{sorted_aliases}"``,
   layout ``id_`` =
   ``f"{reaction_id}_gate_{sorted_aliases}_layout"``.
+- **BooleanGateInput**: model ``id_`` =
+  ``f"{gate_id}_input_{input_alias}"``, no layout.
+  Paired with ``LogicArc`` layout element.
 - **LogicArc**: no model,
   layout ``id_`` = ``f"{gate_id}_arc_{input_alias}"``.
 """
@@ -1641,7 +1644,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                 cd_reaction_modification_or_cd_gate_member
             )
             cd_modifiers = cd_reaction_modification_or_cd_gate_member.get("aliases")
-            sorted_aliases = "_".join(sorted(cd_modifiers.split(",")))
+            cd_input_ids = cd_modifiers.split(",")
+            sorted_aliases = "_".join(sorted(cd_input_ids))
             cd_gate_id = f"{cd_reaction_id}_gate_{sorted_aliases}"
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
             if reading_context.model is not None:
@@ -1649,17 +1653,9 @@ class CellDesignerReader(momapy.io.core.Reader):
                     momapy.celldesigner.io.celldesigner._reading_model.make_logic_gate(
                         reading_context,
                         model_element_cls,
-                        cd_modifiers.split(","),
                     )
                 )
                 model_element.id_ = cd_gate_id
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
-                    reading_context,
-                    model_element,
-                    reading_context.model.boolean_logic_gates,
-                    cd_gate_id,
-                )
             else:
                 model_element = None
             if reading_context.layout is not None:
@@ -1675,10 +1671,25 @@ class CellDesignerReader(momapy.io.core.Reader):
                     layout_element
                 )
                 reading_context.layout.layout_elements.append(layout_element)
-                cd_modifiers = (
-                    cd_reaction_modification_or_cd_gate_member.get("aliases")
-                )
-                for cd_input_id in cd_modifiers.split(","):
+            else:
+                layout_element = None
+            for cd_input_id in cd_input_ids:
+                input_model_element = None
+                if reading_context.model is not None:
+                    source_model_element = reading_context.xml_id_to_model_element[
+                        cd_input_id
+                    ]
+                    input_model_element = (
+                        momapy.celldesigner.io.celldesigner._reading_model.make_logic_gate_input(
+                            reading_context, source_model_element
+                        )
+                    )
+                    input_model_element.id_ = f"{cd_gate_id}_input_{cd_input_id}"
+                    input_model_element = momapy.builder.object_from_builder(
+                        input_model_element
+                    )
+                    model_element.inputs.add(input_model_element)
+                if reading_context.layout is not None:
                     input_layout_element = reading_context.xml_id_to_layout_element[
                         cd_input_id
                     ]
@@ -1694,9 +1705,21 @@ class CellDesignerReader(momapy.io.core.Reader):
                         logic_arc
                     )
                     reading_context.layout.layout_elements.append(logic_arc)
-            else:
-                layout_element = None
-            if reading_context.model is not None and reading_context.layout is not None:
+                if input_model_element is not None and logic_arc is not None:
+                    reading_context.layout_model_mapping.add_mapping(
+                        logic_arc,
+                        (input_model_element, model_element),
+                        replace=True,
+                    )
+            if model_element is not None:
+                model_element = momapy.builder.object_from_builder(model_element)
+                model_element = momapy.io.utils.register_model_element(
+                    reading_context,
+                    model_element,
+                    reading_context.model.boolean_logic_gates,
+                    cd_gate_id,
+                )
+            if model_element is not None and layout_element is not None:
                 reading_context.layout_model_mapping.add_mapping(
                     layout_element, model_element, replace=True
                 )

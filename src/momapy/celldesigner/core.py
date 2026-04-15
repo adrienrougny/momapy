@@ -434,12 +434,21 @@ class Product(momapy.sbml.core.SpeciesReference, CellDesignerModelElement):
     )  # TODO: no default?
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class BooleanLogicGateInput(CellDesignerModelElement):
+    """Class for boolean logic gate inputs"""
+
+    element: Species = dataclasses.field(
+        metadata={"description": "The species providing the input"},
+    )
+
+
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class BooleanLogicGate(CellDesignerModelElement):
     """Base class for Boolean logic gates"""
 
-    inputs: frozenset[Species] = dataclasses.field(
+    inputs: frozenset[BooleanLogicGateInput] = dataclasses.field(
         default_factory=frozenset,
         metadata={"description": "The inputs of the Boolean logic gate"},
     )

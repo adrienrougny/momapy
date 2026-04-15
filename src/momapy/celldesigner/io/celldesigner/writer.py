@@ -1497,13 +1497,14 @@ def _make_celldesigner_reaction(writing_context, reaction):
             if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
                 # Write each input species as a separate modifier
                 for inp in sorted(species.inputs, key=lambda s: s.id_):
-                    sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+                    input_species = inp.element
+                    sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
                     alias_layout = (
-                        _find_layout_for_species_in_frozenset(writing_context, inp, frozenset_mapping)
+                        _find_layout_for_species_in_frozenset(writing_context, input_species, frozenset_mapping)
                         if frozenset_mapping else None
                     )
                     if alias_layout is None:
-                        for layout_key in _get_layouts(writing_context, inp):
+                        for layout_key in _get_layouts(writing_context, input_species):
                             if isinstance(layout_key, frozenset):
                                 continue
                             if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
@@ -2227,15 +2228,16 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     input_species_ids = []
     input_alias_ids = []
     for inp in sorted(gate.inputs, key=lambda s: s.id_):
-        sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+        input_species = inp.element
+        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
         input_species_ids.append(_get_species_id(sbml_inp, writing_context))
         # Try frozenset first, then global
         alias_layout = (
-            _find_layout_for_species_in_frozenset(writing_context, inp, frozenset_mapping)
+            _find_layout_for_species_in_frozenset(writing_context, input_species, frozenset_mapping)
             if frozenset_mapping else None
         )
         if alias_layout is None:
-            for layout_key in _get_layouts(writing_context, inp):
+            for layout_key in _get_layouts(writing_context, input_species):
                 if isinstance(layout_key, frozenset):
                     continue
                 if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
@@ -2299,7 +2301,8 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
 
     # Per-input entries
     for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_)):
-        sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+        input_species = inp.element
+        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
         inp_attrs = {
             "type": modifier_type,
             "modifiers": _get_species_id(sbml_inp, writing_context),
