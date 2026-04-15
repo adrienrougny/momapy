@@ -2655,30 +2655,7 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
     }
     gate_type = gate_type_map.get(type(gate), "BOOLEAN_LOGIC_GATE_AND")
 
-    # Collect input aliases — gate inputs are NOT in the reaction
-    # frozenset, so look them up globally via the mapping.
-    input_species_ids = []
-    input_alias_ids = []
-    for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
-        input_species = inp.element
-        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
-        input_species_ids.append(_get_species_id(sbml_inp, writing_context))
-        # Try frozenset first, then global
-        alias_layout = (
-            _find_layout_for_species_in_frozenset(writing_context, input_species, frozenset_mapping)
-            if frozenset_mapping else None
-        )
-        if alias_layout is None:
-            for layout_key in _get_layouts(writing_context, input_species):
-                if isinstance(layout_key, frozenset):
-                    continue
-                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
-                    alias_layout = layout_key
-                    break
-        input_alias_ids.append(alias_layout.id_ if alias_layout else "")
-
-    # Gate entry — editPoints is the gate layout position.
-    # The gate layout is in the reaction's frozenset, not directly mapped.
+    # Find the gate layout in the reaction's frozenset.
     gate_layout = None
     if frozenset_mapping is not None:
         for elem in frozenset_mapping:
@@ -2693,6 +2670,55 @@ def _make_celldesigner_gate_modifications(writing_context, modifier, gate, react
             ):
                 gate_layout = elem
                 break
+
+    # Build list of (model_element, alias_layout) from LogicArcLayouts
+    # to resolve the correct alias for each gate input.
+    logic_arc_inputs = []
+    if gate_layout is not None:
+        for layout_element_item in writing_context.map_.layout.layout_elements:
+            if (
+                isinstance(layout_element_item, momapy.celldesigner.core.LogicArcLayout)
+                and layout_element_item.source is gate_layout
+            ):
+                input_alias_layout = layout_element_item.target
+                model_info = _mapping(writing_context).get_mapping(input_alias_layout)
+                input_model = (
+                    model_info[0]
+                    if isinstance(model_info, tuple)
+                    else model_info
+                ) if model_info is not None else None
+                if input_model is not None:
+                    logic_arc_inputs.append((input_model, input_alias_layout))
+
+    # Collect input aliases using LogicArcLayout when available,
+    # falling back to frozenset/global lookup.
+    input_species_ids = []
+    input_alias_ids = []
+    for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
+        input_species = inp.element
+        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
+        input_species_ids.append(_get_species_id(sbml_inp, writing_context))
+        # Try LogicArcLayout first (correct alias for multi-alias species)
+        alias_layout = None
+        for arc_model, arc_layout in logic_arc_inputs:
+            if arc_model is input_species:
+                alias_layout = arc_layout
+                logic_arc_inputs.remove((arc_model, arc_layout))
+                break
+        # Fallback: try frozenset, then global
+        if alias_layout is None:
+            alias_layout = (
+                _find_layout_for_species_in_frozenset(writing_context, input_species, frozenset_mapping)
+                if frozenset_mapping else None
+            )
+        if alias_layout is None:
+            for layout_key in _get_layouts(writing_context, input_species):
+                if isinstance(layout_key, frozenset):
+                    continue
+                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                    alias_layout = layout_key
+                    break
+        input_alias_ids.append(alias_layout.id_ if alias_layout else "")
     gate_edit_points = ""
     if gate_layout is not None:
         pos = gate_layout.position
