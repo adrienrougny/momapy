@@ -301,6 +301,7 @@ More complex than SBGN: model and layout often use different XML ID sources (e.g
 | Product (base/link) | `metaid` or `f"{reaction_id}_{species_id}"` | sbml:`speciesReference/@metaid` or composite | `f"{model_id}_layout"` | derived from model id | yes | metaid preferred; layout only for link products and some base |
 | Modulator | `metaid` | sbml:`modifierSpeciesReference/@metaid` | `f"{metaid}_layout"` | derived from metaid | yes | metaid always present |
 | BooleanGate | `f"{reaction_id}_gate_{sorted_aliases}"` | composite | `f"{...}_layout"` | composite | model only | Deterministic from reaction + sorted aliases |
+| BooleanGateInput | `f"{gate_id}_input_{input_alias}"` | composite | no layout | — | no | Frozen child; paired with LogicArc layout |
 | LogicArc | no model | — | `f"{gate_id}_arc_{input_alias}"` | composite | no | Deterministic from gate + input |
 | Reaction | `reaction_id` | sbml:`reaction/@id` | `f"{reaction_id}_layout"` | derived from sbml | yes | No reaction alias in CD |
 | Modulation | `reaction_id` | sbml:`reaction/@id` | `f"{reaction_id}_layout"` | derived from sbml | yes | Encoded as fake reactions |
