@@ -9,6 +9,7 @@ import momapy.coloring
 import momapy.drawing
 import momapy.geometry
 import momapy.io.core
+import momapy.utils
 import momapy.celldesigner.core
 import momapy.celldesigner.io.celldesigner._reading_parsing
 import momapy.celldesigner.io.celldesigner._writing
@@ -72,7 +73,8 @@ class WritingContext:
     map_: typing.Any
     element_to_annotations: dict
     element_to_notes: dict
-    ids: dict
+    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
+    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
     with_annotations: bool
     with_notes: bool
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
@@ -2788,7 +2790,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
         file_path,
         element_to_annotations=None,
         element_to_notes=None,
-        ids=None,
+        source_id_to_model_element=None,
+        source_id_to_layout_element=None,
         with_annotations=True,
         with_notes=True,
         **options,
@@ -2800,7 +2803,10 @@ class CellDesignerWriter(momapy.io.core.Writer):
             file_path: Output file path.
             element_to_annotations: Annotations dict from reader result.
             element_to_notes: Notes dict from reader result.
-            ids: IDs mapping from reader result.
+            source_id_to_model_element: Optional source ID to model
+                element mapping from ReaderResult.
+            source_id_to_layout_element: Optional source ID to layout
+                element mapping from ReaderResult.
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
 
@@ -2811,8 +2817,6 @@ class CellDesignerWriter(momapy.io.core.Writer):
             element_to_annotations = {}
         if element_to_notes is None:
             element_to_notes = {}
-        if ids is None:
-            ids = {}
 
         subunit_to_complex = {}
         species_to_id = {}
@@ -2838,7 +2842,8 @@ class CellDesignerWriter(momapy.io.core.Writer):
             map_=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,
-            ids=ids,
+            source_id_to_model_element=source_id_to_model_element,
+            source_id_to_layout_element=source_id_to_layout_element,
             with_annotations=with_annotations,
             with_notes=with_notes,
             subunit_to_complex=subunit_to_complex,

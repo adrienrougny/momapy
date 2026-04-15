@@ -66,7 +66,7 @@ class SBMLReader(momapy.io.core.Reader):
     ) -> momapy.io.core.ReaderResult:
         sbml_document = lxml.objectify.parse(file_path)
         sbml = sbml_document.getroot()
-        obj, annotations, notes, ids = cls._make_main_obj(
+        obj, annotations, notes = cls._make_main_obj(
             sbml_model=sbml.model,
             with_annotations=with_annotations,
             with_notes=with_notes,
@@ -76,7 +76,6 @@ class SBMLReader(momapy.io.core.Reader):
             element_to_notes=notes,
             element_to_annotations=annotations,
             file_path=file_path,
-            ids=ids,
         )
         return result
 
@@ -125,14 +124,10 @@ class SBMLReader(momapy.io.core.Reader):
         element_to_notes = frozendict.frozendict(
             {key: frozenset(value) for key, value in element_to_notes.items()}
         )
-        map_element_to_ids = frozendict.frozendict(
-            {key: frozenset(value) for key, value in map_element_to_ids.items()}
-        )
         return (
             obj,
             element_to_annotations,
             element_to_notes,
-            map_element_to_ids,
         )
 
     @classmethod

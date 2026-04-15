@@ -177,6 +177,7 @@ class ReadingContext(momapy.io.utils.ReadingContext):
     cd_species_aliases: list = dataclasses.field(default_factory=list)
     cd_reactions: list = dataclasses.field(default_factory=list)
     cd_modulations: list = dataclasses.field(default_factory=list)
+    real_source_ids: set = dataclasses.field(default_factory=set)
 
 
 class CellDesignerReader(momapy.io.core.Reader):
@@ -502,6 +503,55 @@ class CellDesignerReader(momapy.io.core.Reader):
                 reading_context.cd_reactions.append(cd_reaction)
             else:
                 reading_context.cd_modulations.append(cd_reaction)
+        # Collect all real source IDs (XML attributes that exist verbatim
+        # in the file).  Composite/synthetic IDs are excluded.
+        real_ids = reading_context.real_source_ids
+        for cd_compartment in reading_context.cd_compartments:
+            real_ids.add(cd_compartment.get("id"))
+        for cd_compartment_alias in reading_context.cd_compartment_aliases:
+            real_ids.add(cd_compartment_alias.get("id"))
+        for cd_species_template in reading_context.cd_species_templates:
+            real_ids.add(cd_species_template.get("id"))
+        for cd_species in momapy.celldesigner.io.celldesigner._reading_parsing.get_species(
+            cd_model
+        ):
+            real_ids.add(cd_species.get("id"))
+        for cd_included_species in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_species(
+            cd_model
+        ):
+            real_ids.add(cd_included_species.get("id"))
+        for cd_species_alias in reading_context.cd_species_aliases:
+            real_ids.add(cd_species_alias.get("id"))
+        for cd_included_alias in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_species_aliases(
+            cd_model
+        ):
+            real_ids.add(cd_included_alias.get("id"))
+        for cd_included_complex_alias in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_complex_species_aliases(
+            cd_model
+        ):
+            real_ids.add(cd_included_complex_alias.get("id"))
+        for cd_reaction in reading_context.cd_reactions + reading_context.cd_modulations:
+            real_ids.add(cd_reaction.get("id"))
+            # Collect metaids from speciesReferences and
+            # modifierSpeciesReferences (real XML attributes).
+            for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
+                cd_reaction
+            ):
+                metaid = cd_reactant.get("metaid")
+                if metaid is not None:
+                    real_ids.add(metaid)
+            for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
+                cd_reaction
+            ):
+                metaid = cd_product.get("metaid")
+                if metaid is not None:
+                    real_ids.add(metaid)
+            for cd_modifier in momapy.celldesigner.io.celldesigner._reading_parsing.get_reaction_modifications(
+                cd_reaction
+            ):
+                metaid = _get_modifier_metaid(cd_modifier, cd_reaction)
+                if metaid is not None:
+                    real_ids.add(metaid)
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
@@ -528,7 +578,14 @@ class CellDesignerReader(momapy.io.core.Reader):
         """Read a CellDesigner file and return a reader result object"""
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
-        obj, annotations, notes, ids = cls._make_main_obj(
+        (
+            obj,
+            annotations,
+            notes,
+            id_to_element,
+            source_id_to_model_element,
+            source_id_to_layout_element,
+        ) = cls._make_main_obj(
             cd_model=cd_sbml.model,
             return_type=return_type,
             with_model=with_model,
@@ -540,8 +597,10 @@ class CellDesignerReader(momapy.io.core.Reader):
             obj=obj,
             element_to_notes=notes,
             element_to_annotations=annotations,
+            id_to_element=id_to_element,
+            source_id_to_model_element=source_id_to_model_element,
+            source_id_to_layout_element=source_id_to_layout_element,
             file_path=file_path,
-            ids=ids,
         )
         return result
 
@@ -663,16 +722,35 @@ class CellDesignerReader(momapy.io.core.Reader):
         notes = frozendict.frozendict(
             {key: frozenset(val) for key, val in element_to_notes.items()}
         )
-        # Build id_to_map_element from the two id-to-element dicts.
-        # Layout entries take precedence over model entries for the
-        # same key (e.g., a species alias id maps to the layout element).
+        # Build ID mappings, filtering out synthetic/composite keys.
         if model is not None or layout is not None:
-            id_to_map_element = dict(reading_context.xml_id_to_model_element)
-            id_to_map_element.update(reading_context.xml_id_to_layout_element)
+            frozen_model = obj.model if return_type == "map" else (
+                obj if return_type == "model" else None
+            )
+            frozen_layout = obj.layout if return_type == "map" else (
+                obj if return_type == "layout" else None
+            )
+            id_to_element, source_id_to_model_element, source_id_to_layout_element = (
+                momapy.io.utils.build_id_mappings(
+                    reading_context=reading_context,
+                    frozen_obj=obj,
+                    frozen_model=frozen_model,
+                    frozen_layout=frozen_layout,
+                    real_source_ids=reading_context.real_source_ids,
+                )
+            )
         else:
-            id_to_map_element = {}
-        ids = momapy.utils.FrozenSurjectionDict(id_to_map_element)
-        return obj, annotations, notes, ids
+            id_to_element = None
+            source_id_to_model_element = None
+            source_id_to_layout_element = None
+        return (
+            obj,
+            annotations,
+            notes,
+            id_to_element,
+            source_id_to_model_element,
+            source_id_to_layout_element,
+        )
 
     @classmethod
     def _make_and_add_compartment_from_alias(

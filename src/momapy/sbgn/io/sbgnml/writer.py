@@ -12,6 +12,7 @@ import lxml.etree
 import momapy.core.elements
 import momapy.core.layout
 import momapy.io.core
+import momapy.utils
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
@@ -26,7 +27,8 @@ class WritingContext:
     map_: typing.Any
     element_to_annotations: dict
     element_to_notes: dict
-    ids: dict
+    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
+    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
     with_annotations: bool
     with_notes: bool
 
@@ -117,7 +119,7 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
         The lxml ``<glyph>`` element.
     """
     sbgnml_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        layout_element, writing_context.ids
+        layout_element, writing_context.source_id_to_layout_element
     )
     sbgnml_class = (
         momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
@@ -144,7 +146,7 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
             )
             if compartment_layout_elements:
                 compartment_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-                    compartment_layout_elements[0], writing_context.ids
+                    compartment_layout_elements[0], writing_context.source_id_to_layout_element
                 )
                 attributes["compartmentRef"] = compartment_id
     sbgnml_glyph = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
@@ -192,7 +194,7 @@ def _make_sbgnml_arc_element(writing_context, arc_layout):
         The lxml ``<arc>`` element.
     """
     sbgnml_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout, writing_context.ids
+        arc_layout, writing_context.source_id_to_layout_element
     )
     sbgnml_class = (
         momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
@@ -202,10 +204,10 @@ def _make_sbgnml_arc_element(writing_context, arc_layout):
     attributes = {"id": sbgnml_id, "class": sbgnml_class}
     points = arc_layout.points()
     sbgnml_source_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout.source, writing_context.ids
+        arc_layout.source, writing_context.source_id_to_layout_element
     )
     sbgnml_target_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout.target, writing_context.ids
+        arc_layout.target, writing_context.source_id_to_layout_element
     )
     if isinstance(
         arc_layout,
@@ -541,11 +543,7 @@ def make_sbgnml_map(writing_context):
             type(map_)
         ]
     )
-    id_ = writing_context.ids.get(map_)
-    if id_ is None:
-        id_ = map_.id_
-    else:
-        id_ = id_[0]
+    id_ = map_.id_
     attributes = {"id": id_, "language": language}
     sbgnml_map = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
         "map", attributes=attributes
@@ -587,7 +585,8 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         file_path,
         element_to_annotations=None,
         element_to_notes=None,
-        ids=None,
+        source_id_to_model_element=None,
+        source_id_to_layout_element=None,
         with_render_information=True,
         with_annotations=True,
         with_notes=True,
@@ -599,7 +598,10 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             file_path: Destination file path.
             element_to_annotations: Optional per-element annotation dict.
             element_to_notes: Optional per-element notes dict.
-            ids: Optional per-element id overrides dict.
+            source_id_to_model_element: Optional source ID to model
+                element mapping from ReaderResult.
+            source_id_to_layout_element: Optional source ID to layout
+                element mapping from ReaderResult.
             with_render_information: Ignored (kept for API compat).
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
@@ -608,13 +610,12 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             element_to_annotations = {}
         if element_to_notes is None:
             element_to_notes = {}
-        if ids is None:
-            ids = {}
         writing_context = WritingContext(
             map_=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,
-            ids=ids,
+            source_id_to_model_element=source_id_to_model_element,
+            source_id_to_layout_element=source_id_to_layout_element,
             with_annotations=with_annotations,
             with_notes=with_notes,
         )

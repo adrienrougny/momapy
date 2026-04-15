@@ -60,7 +60,6 @@ class CellDesignerPickleReader(momapy.io.core.Reader):
             for mapping in [
                 reader_result.element_to_annotations,
                 reader_result.element_to_notes,
-                reader_result.ids,
             ]:
                 if mapping is not None:
                     _del_key_from_mapping_by_classes(
@@ -71,7 +70,6 @@ class CellDesignerPickleReader(momapy.io.core.Reader):
             for mapping in [
                 reader_result.element_to_annotations,
                 reader_result.element_to_notes,
-                reader_result.ids,
             ]:
                 if mapping is not None:
                     _del_key_from_mapping_by_classes(
@@ -85,7 +83,6 @@ class CellDesignerPickleReader(momapy.io.core.Reader):
                     for mapping in [
                         reader_result.element_to_annotations,
                         reader_result.element_to_notes,
-                        reader_result.ids,
                     ]:
                         if mapping is not None:
                             _del_key_from_mapping_by_classes(
@@ -100,7 +97,6 @@ class CellDesignerPickleReader(momapy.io.core.Reader):
                     for mapping in [
                         reader_result.element_to_annotations,
                         reader_result.element_to_notes,
-                        reader_result.ids,
                     ]:
                         if mapping is not None:
                             _del_key_from_mapping_by_classes(
@@ -123,13 +119,17 @@ class CellDesignerPickleWriter(momapy.io.core.Writer):
         file_path: str | os.PathLike,
         element_to_annotations=None,
         element_to_notes=None,
-        ids=None,
+        id_to_element=None,
+        source_id_to_model_element=None,
+        source_id_to_layout_element=None,
     ) -> momapy.io.core.WriterResult:
         reader_result = momapy.io.core.ReaderResult(
             obj=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,
-            ids=ids,
+            id_to_element=id_to_element,
+            source_id_to_model_element=source_id_to_model_element,
+            source_id_to_layout_element=source_id_to_layout_element,
             file_path=file_path,
         )
         with open(file_path, "wb") as f:

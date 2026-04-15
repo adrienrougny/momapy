@@ -54,6 +54,105 @@ class ReadingContext:
     alive to prevent Python from reusing their memory address."""
 
 
+def collect_model_elements(
+    model_element: momapy.core.elements.ModelElement,
+) -> dict[str, momapy.core.elements.ModelElement]:
+    """Recursively collect all model elements reachable via frozenset fields.
+
+    Traverses the model element and its children (stored in frozenset
+    and tuple fields) to build a mapping from momapy ``id_`` to element.
+
+    Args:
+        model_element: The root model element (typically the model itself).
+
+    Returns:
+        A dict mapping ``element.id_`` to element for all reachable
+        model elements.
+    """
+    result: dict[str, momapy.core.elements.ModelElement] = {}
+
+    def _collect(element):
+        if not isinstance(element, momapy.core.elements.ModelElement):
+            return
+        if element.id_ in result:
+            return
+        result[element.id_] = element
+        if not dataclasses.is_dataclass(element):
+            return
+        for field in dataclasses.fields(type(element)):
+            value = getattr(element, field.name)
+            if isinstance(value, (frozenset, tuple)):
+                for child in value:
+                    _collect(child)
+
+    _collect(model_element)
+    return result
+
+
+def build_id_mappings(
+    reading_context: "ReadingContext",
+    frozen_obj: momapy.core.elements.MapElement,
+    frozen_model: momapy.core.elements.ModelElement | None,
+    frozen_layout: momapy.core.elements.LayoutElement | None,
+    real_source_ids: set[str] | None = None,
+) -> tuple[
+    frozendict.frozendict,
+    momapy.utils.FrozenSurjectionDict,
+    momapy.utils.FrozenSurjectionDict,
+]:
+    """Build the three ID mapping dicts for a ReaderResult.
+
+    Args:
+        reading_context: The reading context with ``xml_id_to_model_element``
+            and ``xml_id_to_layout_element`` (containing builder objects).
+        frozen_obj: The frozen map/model/layout object.
+        frozen_model: The frozen model, or None.
+        frozen_layout: The frozen layout, or None.
+        real_source_ids: If given, only source IDs in this set are
+            included in the ``source_id_to_*`` dicts.  When None, all
+            IDs from the reading context are treated as real.
+
+    Returns:
+        A tuple of ``(id_to_element, source_id_to_model_element,
+        source_id_to_layout_element)``.
+    """
+    # 1. Build id_ → frozen element for all elements.
+    id_to_element: dict[str, momapy.core.elements.MapElement] = {}
+    if frozen_model is not None:
+        id_to_element.update(collect_model_elements(frozen_model))
+    if frozen_layout is not None:
+        id_to_element[frozen_layout.id_] = frozen_layout
+        for layout_element in frozen_layout.descendants():
+            id_to_element[layout_element.id_] = layout_element
+    # Include the top-level object itself (the map).
+    if hasattr(frozen_obj, "id_"):
+        id_to_element[frozen_obj.id_] = frozen_obj
+
+    # 2. Build source_id → frozen model element.
+    source_id_to_model: dict[str, momapy.core.elements.ModelElement] = {}
+    for source_id, builder_element in reading_context.xml_id_to_model_element.items():
+        if real_source_ids is not None and source_id not in real_source_ids:
+            continue
+        frozen_element = id_to_element.get(builder_element.id_)
+        if frozen_element is not None:
+            source_id_to_model[source_id] = frozen_element
+
+    # 3. Build source_id → frozen layout element.
+    source_id_to_layout: dict[str, momapy.core.elements.LayoutElement] = {}
+    for source_id, builder_element in reading_context.xml_id_to_layout_element.items():
+        if real_source_ids is not None and source_id not in real_source_ids:
+            continue
+        frozen_element = id_to_element.get(builder_element.id_)
+        if frozen_element is not None:
+            source_id_to_layout[source_id] = frozen_element
+
+    return (
+        frozendict.frozendict(id_to_element),
+        momapy.utils.FrozenSurjectionDict(source_id_to_model),
+        momapy.utils.FrozenSurjectionDict(source_id_to_layout),
+    )
+
+
 def remap_model_element(
     reading_context: ReadingContext,
     evicted_element: momapy.core.elements.ModelElement,

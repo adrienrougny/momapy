@@ -27,11 +27,25 @@ def make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=Non
     return lxml_element
 
 
-def get_sbgnml_id(map_element, ids):
-    sbgnml_ids = ids.get(map_element)
-    if sbgnml_ids is None:
-        return map_element.id_
-    return sbgnml_ids[0]
+def get_sbgnml_id(map_element, source_id_to_layout_element):
+    """Get the SBGN-ML ID for a layout element.
+
+    Uses the inverse of source_id_to_layout_element to recover the
+    original XML ID.  Falls back to the element's momapy ``id_``.
+
+    Args:
+        map_element: The layout element to look up.
+        source_id_to_layout_element: A FrozenSurjectionDict mapping
+            source IDs to layout elements, or None.
+
+    Returns:
+        The source XML ID, or the element's ``id_`` as fallback.
+    """
+    if source_id_to_layout_element is not None:
+        sbgnml_ids = source_id_to_layout_element.inverse.get(map_element)
+        if sbgnml_ids is not None:
+            return sbgnml_ids[0]
+    return map_element.id_
 
 
 def make_sbgnml_bbox_from_node(node):

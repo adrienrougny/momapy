@@ -41,14 +41,26 @@ class ReaderResult(IOResult):
         element_to_annotations: Mapping from map elements to their
             annotations.
         element_to_notes: Mapping from map elements to their notes.
-        ids: Mapping of IDs between file and loaded objects.
+        id_to_element: Mapping from momapy element IDs to elements.
+            Contains all model and layout elements regardless of
+            source ID provenance.
+        source_id_to_model_element: Mapping from source file IDs
+            (e.g. XML attributes) to model elements.  Only contains
+            IDs that exist verbatim in the source file.  Writers can
+            use the ``.inverse`` property to recover original source
+            IDs for roundtrip fidelity.
+        source_id_to_layout_element: Mapping from source file IDs
+            (e.g. XML attributes) to layout elements.  Same
+            constraints as ``source_id_to_model_element``.
         file_path: Path of the file that was read.
     """
 
     obj: typing.Any | None = None
     element_to_annotations: frozendict.frozendict | None = None
     element_to_notes: frozendict.frozendict | None = None
-    ids: momapy.utils.FrozenSurjectionDict | None = None
+    id_to_element: frozendict.frozendict | None = None
+    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None = None
+    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None = None
     file_path: str | os.PathLike | None = None
 
 

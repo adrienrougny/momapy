@@ -92,7 +92,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
 
         sbgnml_document = lxml.objectify.parse(file_path)
         sbgnml_sbgn = sbgnml_document.getroot()
-        obj, annotations, notes = cls._make_main_obj(
+        (
+            obj,
+            annotations,
+            notes,
+            id_to_element,
+            source_id_to_model_element,
+            source_id_to_layout_element,
+        ) = cls._make_main_obj(
             sbgnml_map=sbgnml_sbgn.map,
             return_type=return_type,
             with_model=with_model,
@@ -106,6 +113,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
             obj=obj,
             element_to_notes=notes,
             element_to_annotations=annotations,
+            id_to_element=id_to_element,
+            source_id_to_model_element=source_id_to_model_element,
+            source_id_to_layout_element=source_id_to_layout_element,
             file_path=file_path,
         )
         return result
@@ -350,7 +360,35 @@ class _SBGNMLReader(momapy.io.core.Reader):
         element_to_notes = frozendict.frozendict(
             {key: frozenset(value) for key, value in reading_context.element_to_notes.items()}
         )
-        return obj, element_to_annotations, element_to_notes
+        # Build ID mappings.  For SBGN all registered IDs are real
+        # XML IDs, so no filtering is needed.
+        if model is not None or layout is not None:
+            frozen_model = obj.model if return_type == "map" else (
+                obj if return_type == "model" else None
+            )
+            frozen_layout = obj.layout if return_type == "map" else (
+                obj if return_type == "layout" else None
+            )
+            id_to_element, source_id_to_model_element, source_id_to_layout_element = (
+                momapy.io.utils.build_id_mappings(
+                    reading_context=reading_context,
+                    frozen_obj=obj,
+                    frozen_model=frozen_model,
+                    frozen_layout=frozen_layout,
+                )
+            )
+        else:
+            id_to_element = None
+            source_id_to_model_element = None
+            source_id_to_layout_element = None
+        return (
+            obj,
+            element_to_annotations,
+            element_to_notes,
+            id_to_element,
+            source_id_to_model_element,
+            source_id_to_layout_element,
+        )
 
     @classmethod
     def _make_and_add_compartment(
