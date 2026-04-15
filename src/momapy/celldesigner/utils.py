@@ -177,6 +177,36 @@ def set_layout_to_fit_content(
     return map_builder
 
 
+def _update_active_layout(layout_element):
+    """Update the active layout child to match the parent's size.
+
+    If ``layout_element`` has a child whose class name ends with
+    ``ActiveLayout``, that child's width, height, and position are
+    updated to wrap the parent with the standard active border offset.
+
+    Args:
+        layout_element: The layout element whose active child should
+            be updated.
+    """
+    if not hasattr(layout_element, "layout_elements"):
+        return
+    for child in layout_element.layout_elements:
+        if type(child).__name__.endswith("ActiveLayout") or (
+            hasattr(child, "_cls_to_build")
+            and child._cls_to_build.__name__.endswith("ActiveLayout")
+        ):
+            child.width = (
+                layout_element.width
+                + 2 * momapy.celldesigner.core._ACTIVE_XSEP
+            )
+            child.height = (
+                layout_element.height
+                + 2 * momapy.celldesigner.core._ACTIVE_YSEP
+            )
+            child.position = layout_element.position
+            break
+
+
 def set_nodes_to_fit_labels(
     map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
     xsep: float = 0,
@@ -239,6 +269,7 @@ def set_nodes_to_fit_labels(
             momapy.positioning.set_position(
                 layout_element, bbox.position, anchor="label_center"
             )
+            _update_active_layout(layout_element)
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -427,6 +458,7 @@ def set_complexes_to_fit_content(
                 )
                 if complex_layout.label is not None:
                     complex_layout.label.position = complex_layout.position
+                _update_active_layout(complex_layout)
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
