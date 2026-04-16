@@ -51,6 +51,9 @@ Example:
     $ momapy style map.sbgn -s custom.css -o styled.sbgn
     $ momapy style map.sbgn -p cs_default -s tweaks.css -p fs_shadows -o styled.sbgn
 
+    # List available named colors
+    $ momapy list colors
+
     # List available style presets
     $ momapy list styles
 
@@ -1245,6 +1248,10 @@ def run(args):
                     except (ImportError, ModuleNotFoundError):
                         line = f"{name} (not installed)"
                 print(line)
+        elif list_subcommand == "colors":
+            import momapy.coloring
+
+            momapy.coloring.print_colors()
         elif list_subcommand == "styles":
             for name in sorted(_BUILTIN_PRESETS):
                 description = _BUILTIN_PRESETS[name][0]
@@ -1469,6 +1476,10 @@ def main():
     list_subparsers.add_parser(
         "renderers",
         description="List available renderers.",
+    )
+    list_subparsers.add_parser(
+        "colors",
+        description="List available named colors.",
     )
     list_subparsers.add_parser(
         "styles",
