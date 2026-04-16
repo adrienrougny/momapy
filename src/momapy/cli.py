@@ -19,7 +19,7 @@ Example:
     $ momapy export map.xml -o output.xml
 
     # Export with tidy and style sheet
-    $ momapy export map.sbgn -o output.sbgn -c -s style.css
+    $ momapy export map.sbgn -o output.sbgn -t -s style.css
 
     # List available readers, writers, or renderers
     $ momapy list readers
@@ -36,7 +36,7 @@ Example:
 
     # Open an interactive viewer in the browser
     $ momapy visualize map.sbgn
-    $ momapy visualize map.xml -c -s style.css
+    $ momapy visualize map.xml -t -s style.css
 
     # Tidy operations
     $ momapy tidy all map.xml -o output.xml
@@ -130,6 +130,73 @@ class _AppendStyleSource(argparse.Action):
         ):
             namespace.style_sources = []
         namespace.style_sources.append((self.const, values))
+
+
+def _translate_layout_element(layout_element, translation_x, translation_y):
+    """Recursively translate all positions in a layout element builder.
+
+    Walks the layout element tree and shifts all positional attributes
+    (node positions, text positions, arc segment points) by the given
+    translation amounts. Operates on builders in place.
+
+    Args:
+        layout_element: A layout element builder to translate.
+        translation_x: The horizontal translation amount.
+        translation_y: The vertical translation amount.
+    """
+    import momapy.core.layout
+    import momapy.geometry
+
+    if hasattr(layout_element, "position"):
+        layout_element.position = momapy.geometry.Point(
+            layout_element.position.x + translation_x,
+            layout_element.position.y + translation_y,
+        )
+    if hasattr(layout_element, "label") and layout_element.label is not None:
+        layout_element.label.position = momapy.geometry.Point(
+            layout_element.label.position.x + translation_x,
+            layout_element.label.position.y + translation_y,
+        )
+    if hasattr(layout_element, "segments"):
+        new_segments = []
+        for segment in layout_element.segments:
+            new_point_attributes = {}
+            for attribute_name in ["p1", "p2", "control_point", "control_point1", "control_point2"]:
+                if hasattr(segment, attribute_name):
+                    point = getattr(segment, attribute_name)
+                    new_point_attributes[attribute_name] = momapy.geometry.Point(
+                        point.x + translation_x,
+                        point.y + translation_y,
+                    )
+            new_segments.append(dataclasses.replace(segment, **new_point_attributes))
+        layout_element.segments = new_segments
+    for child in layout_element.children():
+        if child is not None:
+            _translate_layout_element(child, translation_x, translation_y)
+
+
+def _move_map_to_top_left(map_):
+    """Translate all layout element positions so the layout starts at (0, 0).
+
+    Computes the layout bounding box, then translates all positions by
+    the negative of the top-left corner coordinates.
+
+    Args:
+        map_: The map object to translate.
+
+    Returns:
+        A new map with all layout positions translated to the top left.
+    """
+    import momapy.builder
+
+    bbox = map_.layout.bbox()
+    min_x = bbox.x - bbox.width / 2
+    min_y = bbox.y - bbox.height / 2
+    if min_x == 0 and min_y == 0:
+        return map_
+    map_builder = momapy.builder.builder_from_object(map_)
+    _translate_layout_element(map_builder.layout, -min_x, -min_y)
+    return momapy.builder.object_from_builder(map_builder)
 
 
 def _infer_writer(map_):
@@ -511,7 +578,7 @@ def _extract_element_metadata(
     return metadata
 
 
-def _render_svg_string(layout_element, style_sheet=None):
+def _render_svg_string(layout_element, style_sheet=None, to_top_left=False):
     """Render a layout element to an SVG string.
 
     Uses the native SVG renderer directly without writing to a file.
@@ -521,43 +588,59 @@ def _render_svg_string(layout_element, style_sheet=None):
     Args:
         layout_element: The layout element to render.
         style_sheet: An optional style sheet to apply before rendering.
+        to_top_left: Whether to move the layout element to the top left
+            before rendering. Defaults to ``False``.
 
     Returns:
         The SVG markup as a string.
     """
     import momapy.builder
+    import momapy.geometry
     import momapy.rendering.svg_native
     import momapy.styling
 
     bbox = layout_element.bbox()
     maximum_x = bbox.x + bbox.width / 2
     maximum_y = bbox.y + bbox.height / 2
-    if style_sheet is not None:
+    if style_sheet is not None or to_top_left:
         layout_element = momapy.builder.builder_from_object(layout_element)
-        if (
-            not isinstance(style_sheet, collections.abc.Collection)
-            or isinstance(style_sheet, str)
-            or isinstance(style_sheet, momapy.styling.StyleSheet)
-        ):
-            style_sheets = [style_sheet]
-        else:
-            style_sheets = list(style_sheet)
-        style_sheets = [
-            (
-                momapy.styling.StyleSheet.from_file(single_style_sheet)
-                if not isinstance(
-                    single_style_sheet, momapy.styling.StyleSheet
+        if style_sheet is not None:
+            if (
+                not isinstance(style_sheet, collections.abc.Collection)
+                or isinstance(style_sheet, str)
+                or isinstance(style_sheet, momapy.styling.StyleSheet)
+            ):
+                style_sheets = [style_sheet]
+            else:
+                style_sheets = list(style_sheet)
+            style_sheets = [
+                (
+                    momapy.styling.StyleSheet.from_file(single_style_sheet)
+                    if not isinstance(
+                        single_style_sheet, momapy.styling.StyleSheet
+                    )
+                    else single_style_sheet
                 )
-                else single_style_sheet
+                for single_style_sheet in style_sheets
+            ]
+            combined_style_sheet = momapy.styling.combine_style_sheets(
+                style_sheets
             )
-            for single_style_sheet in style_sheets
-        ]
-        combined_style_sheet = momapy.styling.combine_style_sheets(
-            style_sheets
-        )
-        momapy.styling.apply_style_sheet(
-            layout_element, combined_style_sheet
-        )
+            momapy.styling.apply_style_sheet(
+                layout_element, combined_style_sheet
+            )
+        if to_top_left:
+            min_x = bbox.x - bbox.width / 2
+            min_y = bbox.y - bbox.height / 2
+            maximum_x -= min_x
+            maximum_y -= min_y
+            translation = momapy.geometry.Translation(-min_x, -min_y)
+            for attribute_name in ["group_transform", "transform"]:
+                if hasattr(layout_element, attribute_name):
+                    if getattr(layout_element, attribute_name) is None:
+                        setattr(layout_element, attribute_name, [])
+                    getattr(layout_element, attribute_name).append(translation)
+                    break
     svg_element = momapy.rendering.svg_native.SVGElement(
         name="svg",
         attributes={
@@ -1008,7 +1091,9 @@ $svg_content
 """)
 
 
-def _visualize_map(map_, style_sheet=None, input_file_path=None):
+def _visualize_map(
+    map_, style_sheet=None, input_file_path=None, to_top_left=False
+):
     """Render a map as an interactive HTML page and open it in the browser.
 
     Generates a self-contained HTML file with the map rendered as inline SVG,
@@ -1020,8 +1105,12 @@ def _visualize_map(map_, style_sheet=None, input_file_path=None):
         style_sheet: An optional style sheet to apply before rendering.
         input_file_path: The original input file path, used for the page
             title. If ``None``, a generic title is used.
+        to_top_left: Whether to move the layout to the top left before
+            rendering. Defaults to ``False``.
     """
-    svg_string = _render_svg_string(map_.layout, style_sheet=style_sheet)
+    svg_string = _render_svg_string(
+        map_.layout, style_sheet=style_sheet, to_top_left=to_top_left
+    )
     layout_id_to_model_id = _build_layout_to_model_id_mapping(
         map_.layout_model_mapping
     )
@@ -1179,6 +1268,8 @@ def run(args):
                 map_ = momapy.celldesigner.utils.tidy(map_)
             elif isinstance(map_, momapy.sbgn.core.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)
+        if args.to_top_left:
+            map_ = _move_map_to_top_left(map_)
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "info":
         import momapy.io.core
@@ -1340,6 +1431,7 @@ def run(args):
         _visualize_map(
             map_=map_,
             input_file_path=args.input_file_path or "<stdin>",
+            to_top_left=args.to_top_left,
         )
     else:
         raise ValueError(f"subcommand {args.subcommand} not supported")
@@ -1392,14 +1484,14 @@ def main():
         help="render one map per page",
     )
     render_parser.add_argument(
-        "-t",
+        "-l",
         "--to-top-left",
         action="store_true",
         default=False,
         help="move the elements to the top left of the page",
     )
     render_parser.add_argument(
-        "-c",
+        "-t",
         "--tidy",
         action="store_true",
         default=False,
@@ -1424,11 +1516,18 @@ def main():
         help="output file path (default: stdout)",
     )
     export_parser.add_argument(
-        "-c",
+        "-t",
         "--tidy",
         action="store_true",
         default=False,
         help="tidy the map (reroute arcs, fit labels, etc.)",
+    )
+    export_parser.add_argument(
+        "-l",
+        "--to-top-left",
+        action="store_true",
+        default=False,
+        help="move the elements to the top left of the page",
     )
     export_parser.add_argument(
         "-s",
@@ -1605,11 +1704,18 @@ def main():
     )
     visualize_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
     visualize_parser.add_argument(
-        "-c",
+        "-t",
         "--tidy",
         action="store_true",
         default=False,
         help="tidy the map (reroute arcs, fit labels, etc.)",
+    )
+    visualize_parser.add_argument(
+        "-l",
+        "--to-top-left",
+        action="store_true",
+        default=False,
+        help="move the elements to the top left of the page",
     )
     visualize_parser.add_argument(
         "-s",
