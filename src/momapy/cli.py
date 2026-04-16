@@ -43,7 +43,7 @@ Example:
     $ momapy tidy fit-species map.xml -o output.xml --xsep 4 --ysep 4
     $ momapy tidy fit-epns map.sbgn -o output.sbgn --xsep 4 --ysep 4
     $ momapy tidy snap-arcs map.xml -o output.xml
-    $ momapy tidy orthogonalize map.xml -o output.xml --tolerance 5
+    $ momapy tidy straighten-arcs map.xml -o output.xml --angle-tolerance 5
     $ momapy tidy fit-complexes map.sbgn -o output.sbgn --xsep 10 --ysep 10
 
     # Apply styling
@@ -197,7 +197,7 @@ def _run_tidy_operation(map_, args):
                 map_,
                 nodes_xsep=xsep,
                 nodes_ysep=ysep,
-                arcs_angle_tolerance=getattr(args, "tolerance", 5.0),
+                arcs_angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
         else:
             return momapy.sbgn.utils.tidy(
@@ -308,15 +308,15 @@ def _run_tidy_operation(map_, args):
             return momapy.celldesigner.utils.set_arcs_to_borders(map_)
         else:
             return momapy.sbgn.utils.set_arcs_to_borders(map_)
-    elif operation == "orthogonalize":
+    elif operation == "straighten-arcs":
         if is_celldesigner:
-            return momapy.celldesigner.utils.set_arcs_to_orthogonal(
+            return momapy.celldesigner.utils.straighten_arcs(
                 map_,
-                angle_tolerance=getattr(args, "tolerance", 5.0),
+                angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
         else:
             raise ValueError(
-                "orthogonalize is only supported for CellDesigner maps"
+                "straighten-arcs is only supported for CellDesigner maps"
             )
     else:
         raise ValueError(f"unknown tidy operation: {operation}")
@@ -1515,7 +1515,7 @@ def main():
         "fit-submaps": "Resize submaps to fit their terminals (SBGN only).",
         "fit-layout": "Resize the overall layout to fit all elements.",
         "snap-arcs": "Snap arc endpoints to node borders.",
-        "orthogonalize": "Snap near-orthogonal arc bends to exact right angles (CellDesigner only).",
+        "straighten-arcs": "Straighten near-horizontal and near-vertical arc segments (CellDesigner only).",
     }
     for operation_name, operation_description in _tidy_operations.items():
         operation_parser = tidy_subparsers.add_parser(
@@ -1553,12 +1553,12 @@ def main():
                 default=None,
                 help="vertical padding (default: depends on operation and map type)",
             )
-        if operation_name in ("all", "orthogonalize"):
+        if operation_name in ("all", "straighten-arcs"):
             operation_parser.add_argument(
-                "--tolerance",
+                "--angle-tolerance",
                 type=float,
                 default=5.0,
-                help="angle tolerance in degrees for orthogonalization (default: 5.0)",
+                help="angle tolerance in degrees for straightening (default: 5.0)",
             )
     style_parser = subparsers.add_parser(
         "style",
