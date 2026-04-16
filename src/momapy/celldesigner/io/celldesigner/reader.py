@@ -1790,6 +1790,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 layout_element = None
             for cd_input_id in cd_input_ids:
                 input_model_element = None
+                logic_arc = None
                 if reading_context.model is not None:
                     source_model_element = reading_context.xml_id_to_model_element[
                         cd_input_id

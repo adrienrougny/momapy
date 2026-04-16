@@ -24,6 +24,21 @@ def get_sbgn_files():
 SBGN_FILES = get_sbgn_files()
 
 
+class TestSBGNReading:
+    """Tests for reading SBGN files."""
+
+    @pytest.mark.parametrize("filename", SBGN_FILES)
+    @pytest.mark.parametrize("return_type", ["map", "model", "layout"])
+    def test_read_sbgn_file(self, filename, return_type):
+        """Test reading SBGN files with all return types."""
+        input_file = os.path.join(SBGN_MAPS_DIR, filename)
+        if not os.path.exists(input_file):
+            pytest.skip(f"SBGN file {filename} not found")
+        result = momapy.io.core.read(input_file, return_type=return_type)
+        assert result is not None
+        assert result.obj is not None
+
+
 class TestSBGNReadOptionalParameters:
     """Tests for SBGN read function optional parameters."""
 

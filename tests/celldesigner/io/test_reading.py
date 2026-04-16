@@ -27,16 +27,15 @@ class TestCellDesignerReading:
     """Tests for reading CellDesigner files."""
 
     @pytest.mark.parametrize("filename", CELLDESIGNER_FILES)
-    def test_read_celldesigner_file(self, filename):
-        """Test reading CellDesigner XML files."""
+    @pytest.mark.parametrize("return_type", ["map", "model", "layout"])
+    def test_read_celldesigner_file(self, filename, return_type):
+        """Test reading CellDesigner XML files with all return types."""
         input_file = os.path.join(CELLDESIGNER_MAPS_DIR, filename)
         if not os.path.exists(input_file):
             pytest.skip(f"CellDesigner file {filename} not found")
-        result = momapy.io.core.read(input_file)
+        result = momapy.io.core.read(input_file, return_type=return_type)
         assert result is not None
         assert result.obj is not None
-        # Verify we got a map object
-        assert hasattr(result.obj, 'layout')
 
 
 class TestCellDesignerReadOptionalParameters:
