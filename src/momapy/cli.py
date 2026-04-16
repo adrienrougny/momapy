@@ -197,9 +197,6 @@ def _run_tidy_operation(map_, args):
                 map_,
                 nodes_xsep=xsep,
                 nodes_ysep=ysep,
-                set_arcs_to_orthogonal_=getattr(
-                    args, "orthogonalize", False
-                ),
                 arcs_angle_tolerance=getattr(args, "tolerance", 5.0),
             )
         else:
@@ -1562,13 +1559,6 @@ def main():
                 type=float,
                 default=5.0,
                 help="angle tolerance in degrees for orthogonalization (default: 5.0)",
-            )
-        if operation_name == "all":
-            operation_parser.add_argument(
-                "--orthogonalize",
-                action="store_true",
-                default=False,
-                help="also snap near-orthogonal arcs (CellDesigner only)",
             )
     style_parser = subparsers.add_parser(
         "style",

@@ -920,7 +920,6 @@ def tidy(
     compartments_ysep: float = 25,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
-    set_arcs_to_orthogonal_: bool = False,
     arcs_angle_tolerance: float = 5.0,
 ) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
     """Apply comprehensive layout tidying to a CellDesigner map.
@@ -946,11 +945,8 @@ def tidy(
         compartments_ysep: Vertical padding for compartments. Defaults to 25.
         layout_xsep: Horizontal padding for overall layout.
         layout_ysep: Vertical padding for overall layout.
-        set_arcs_to_orthogonal_: If True, snap near-orthogonal arc bends
-            to exact right angles. Defaults to False.
         arcs_angle_tolerance: Maximum deviation from 90 degrees for
-            snapping. Only used when ``set_arcs_to_orthogonal_`` is True.
-            Defaults to 5.0.
+            orthogonal snapping. Defaults to 5.0.
 
     Returns:
         The tidied map or map builder. If a frozen map was given,
@@ -989,8 +985,7 @@ def tidy(
         map_builder, compartments_xsep, compartments_ysep
     )
     set_arcs_to_borders(map_builder)
-    if set_arcs_to_orthogonal_:
-        set_arcs_to_orthogonal(map_builder, arcs_angle_tolerance)
+    set_arcs_to_orthogonal(map_builder, arcs_angle_tolerance)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
