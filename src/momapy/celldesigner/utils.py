@@ -11,6 +11,7 @@ import math
 
 import momapy.builder
 import momapy.celldesigner.core
+import momapy.celldesigner.io.celldesigner._reading_parsing
 import momapy.core.elements
 import momapy.core.layout
 import momapy.geometry
@@ -18,6 +19,45 @@ import momapy.positioning
 import momapy.styling
 import momapy.coloring
 import momapy.drawing
+
+
+_ALL_ANCHOR_NAMES = list(
+    momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values()
+)
+
+
+def _closest_anchor_point(
+    node: momapy.core.elements.LayoutElement | momapy.builder.Builder,
+    point: momapy.geometry.Point,
+) -> momapy.geometry.Point:
+    """Find the named anchor point on a node closest to a given point.
+
+    Iterates over the 16 compass anchor positions and returns the one
+    with the smallest Euclidean distance to ``point``.
+
+    Args:
+        node: The layout element whose anchors are considered.
+        point: The reference point to find the closest anchor to.
+
+    Returns:
+        The anchor point closest to ``point``.
+    """
+    if isinstance(node, momapy.builder.Builder):
+        frozen_node = momapy.builder.object_from_builder(node)
+    else:
+        frozen_node = node
+    best_point = None
+    best_distance_squared = float("inf")
+    for anchor_name in _ALL_ANCHOR_NAMES:
+        anchor_point = frozen_node.anchor_point(anchor_name)
+        distance_squared = (
+            (anchor_point.x - point.x) ** 2
+            + (anchor_point.y - point.y) ** 2
+        )
+        if distance_squared < best_distance_squared:
+            best_distance_squared = distance_squared
+            best_point = anchor_point
+    return best_point
 
 
 def highlight_layout_elements(
@@ -569,25 +609,13 @@ def set_arcs_to_borders(
         if source_type == "connector":
             start_point = source.own_border(target.center())
         elif source_type == "border":
-            if len(arc_layout_element.segments) > 1:
-                start_reference_point = points[1]
-            else:
-                start_reference_point = target.center()
-            start_point = source.own_border(start_reference_point)
-            if start_point is None:
-                start_point = source.center()
+            start_point = _closest_anchor_point(source, points[0])
         else:
             start_point = points[0]
         if target_type == "connector":
             end_point = target.own_border(source.center())
         elif target_type == "border":
-            if len(arc_layout_element.segments) > 1:
-                end_reference_point = points[-2]
-            else:
-                end_reference_point = source.center()
-            end_point = target.own_border(end_reference_point)
-            if end_point is None:
-                end_point = target.center()
+            end_point = _closest_anchor_point(target, points[-1])
         else:
             end_point = points[-1]
         arc_layout_element.segments[0].p1 = (
@@ -619,24 +647,20 @@ def set_arcs_to_borders(
     )
 
     def _snap_start_to_border(layout_element, node):
-        """Snap segments[0].p1 to node.own_border()."""
+        """Snap segments[0].p1 to the closest anchor on node."""
         points = layout_element.points()
-        reference = points[1] if len(points) > 2 else points[-1]
-        border_point = node.own_border(reference)
-        if border_point is not None:
-            layout_element.segments[0].p1 = (
-                momapy.builder.builder_from_object(border_point)
-            )
+        anchor_point = _closest_anchor_point(node, points[0])
+        layout_element.segments[0].p1 = (
+            momapy.builder.builder_from_object(anchor_point)
+        )
 
     def _snap_end_to_border(layout_element, node):
-        """Snap segments[-1].p2 to node.own_border()."""
+        """Snap segments[-1].p2 to the closest anchor on node."""
         points = layout_element.points()
-        reference = points[-2] if len(points) > 2 else points[0]
-        border_point = node.own_border(reference)
-        if border_point is not None:
-            layout_element.segments[-1].p2 = (
-                momapy.builder.builder_from_object(border_point)
-            )
+        anchor_point = _closest_anchor_point(node, points[-1])
+        layout_element.segments[-1].p2 = (
+            momapy.builder.builder_from_object(anchor_point)
+        )
 
     def _snap_end_to_reaction_node(layout_element, reaction_layout):
         """Snap segments[-1].p2 to reaction node border."""
