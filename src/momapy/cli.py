@@ -46,9 +46,19 @@ Example:
     $ momapy tidy orthogonalize map.xml -o output.xml --tolerance 5
     $ momapy tidy fit-complexes map.sbgn -o output.sbgn --xsep 10 --ysep 10
 
+    # Apply styling
+    $ momapy style map.sbgn -p sbgned -o styled.sbgn
+    $ momapy style map.sbgn -s custom.css -o styled.sbgn
+    $ momapy style map.sbgn -p cs_default -s tweaks.css -p fs_shadows -o styled.sbgn
+
+    # List available style presets
+    $ momapy list styles
+
     # Piping between commands
     $ momapy export map.xml | momapy render -o output.svg
     $ momapy export map.xml | momapy tidy fit-nodes | momapy render -o output.svg
+    $ momapy style map.sbgn -p newt | momapy render -o output.svg
+    $ momapy export map.xml | momapy style -p cs_default | momapy render -o output.svg
     $ cat map.sbgn | momapy render -o output.svg
 """
 
@@ -71,6 +81,52 @@ import momapy.sbgn.af
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.utils
+
+
+_BUILTIN_PRESETS = {
+    "cs_default": (
+        "Default colorscheme",
+        "momapy.sbgn.styling",
+        "cs_default",
+    ),
+    "cs_black_and_white": (
+        "Black and white colorscheme",
+        "momapy.sbgn.styling",
+        "cs_black_and_white",
+    ),
+    "sbgned": (
+        "SBGN-ED style",
+        "momapy.sbgn.styling",
+        "sbgned",
+    ),
+    "newt": (
+        "Newt style",
+        "momapy.sbgn.styling",
+        "newt",
+    ),
+    "fs_shadows": (
+        "Drop shadows",
+        "momapy.sbgn.styling",
+        "fs_shadows",
+    ),
+}
+
+
+class _AppendStyleSource(argparse.Action):
+    """Custom action to append style sources preserving CLI order.
+
+    Both ``-s`` and ``-p`` flags append ``(source_type, value)`` tuples
+    to a shared ``style_sources`` list on the namespace, so the
+    interleaved order is preserved for merging.
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if (
+            not hasattr(namespace, "style_sources")
+            or namespace.style_sources is None
+        ):
+            namespace.style_sources = []
+        namespace.style_sources.append((self.const, values))
 
 
 def _infer_writer(map_):
@@ -1189,6 +1245,10 @@ def run(args):
                     except (ImportError, ModuleNotFoundError):
                         line = f"{name} (not installed)"
                 print(line)
+        elif list_subcommand == "styles":
+            for name in sorted(_BUILTIN_PRESETS):
+                description = _BUILTIN_PRESETS[name][0]
+                print(f"{name:<25s}{description}")
         elif list_subcommand == "attributes":
             import momapy.styling
 
@@ -1208,6 +1268,45 @@ def run(args):
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         map_ = _run_tidy_operation(map_, args)
+        _write_output(map_, reader_result, args.output_file_path)
+    elif args.subcommand == "style":
+        import momapy.builder
+        import momapy.io.core
+        import momapy.styling
+
+        style_sources = getattr(args, "style_sources", None) or []
+        if not style_sources:
+            print(
+                "error: at least one of -s or -p is required",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        style_sheets = []
+        for source_type, value in style_sources:
+            if source_type == "preset":
+                if value not in _BUILTIN_PRESETS:
+                    print(
+                        f"error: unknown preset '{value}'; "
+                        f"use 'momapy list styles' to see available presets",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+                _, module_name, attribute_name = _BUILTIN_PRESETS[value]
+                module = importlib.import_module(module_name)
+                style_sheets.append(getattr(module, attribute_name))
+            else:
+                style_sheets.append(
+                    momapy.styling.StyleSheet.from_file(value)
+                )
+        if len(style_sheets) > 1:
+            style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+        else:
+            style_sheet = style_sheets[0]
+        reader_result = _read_input(args.input_file_path)
+        map_ = reader_result.obj
+        map_builder = momapy.builder.builder_from_object(map_)
+        momapy.styling.apply_style_sheet(map_builder, style_sheet)
+        map_ = map_builder.build()
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "visualize":
         import momapy.styling
@@ -1371,6 +1470,10 @@ def main():
         "renderers",
         description="List available renderers.",
     )
+    list_subparsers.add_parser(
+        "styles",
+        description="List available built-in style presets.",
+    )
     list_attributes_parser = list_subparsers.add_parser(
         "attributes",
         description="List stylable attributes of a layout element class.",
@@ -1456,6 +1559,45 @@ def main():
                 default=False,
                 help="also snap near-orthogonal arcs (CellDesigner only)",
             )
+    style_parser = subparsers.add_parser(
+        "style",
+        description=(
+            "Apply CSS stylesheets to a map and output the styled map. "
+            "Styles are baked into the map data (layout element attributes). "
+            "Use -s for custom CSS files and -p for built-in presets. "
+            "Multiple -s and -p flags can be interleaved; stylesheets are "
+            "merged left-to-right (later overrides earlier)."
+        ),
+    )
+    style_parser.add_argument(
+        "input_file_path",
+        nargs="?",
+        default=None,
+        help="input file path (reads from stdin if omitted)",
+    )
+    style_parser.add_argument(
+        "-o",
+        "--output-file-path",
+        default=None,
+        help="output file path (default: stdout)",
+    )
+    style_parser.add_argument(
+        "-s",
+        "--style-sheet-file-path",
+        action=_AppendStyleSource,
+        const="file",
+        help="custom CSS style sheet file path (repeatable)",
+    )
+    style_parser.add_argument(
+        "-p",
+        "--preset",
+        action=_AppendStyleSource,
+        const="preset",
+        help=(
+            "built-in preset name (repeatable); "
+            "use 'momapy list styles' to see available presets"
+        ),
+    )
     visualize_parser = subparsers.add_parser(
         "visualize",
         description="Open an interactive viewer for a molecular map in the default web browser.",
