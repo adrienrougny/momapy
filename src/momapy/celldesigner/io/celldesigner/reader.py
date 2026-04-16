@@ -1142,13 +1142,14 @@ class CellDesignerReader(momapy.io.core.Reader):
                                 cd_species
                             )
                         )
-                        annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_notes(
-                            cd_notes
-                        )
-                        if annotations:
-                            reading_context.element_to_annotations[model_element].update(
-                                annotations
+                        if cd_notes is not None:
+                            annotations = momapy.celldesigner.io.celldesigner._reading_model.make_annotations_from_notes(
+                                cd_notes
                             )
+                            if annotations:
+                                reading_context.element_to_annotations[model_element].update(
+                                    annotations
+                                )
                     if reading_context.with_notes:
                         notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
                             cd_species
