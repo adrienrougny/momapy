@@ -97,8 +97,8 @@ def build_id_mappings(
     real_source_ids: set[str] | None = None,
 ) -> tuple[
     frozendict.frozendict,
-    momapy.utils.FrozenSurjectionDict,
-    momapy.utils.FrozenSurjectionDict,
+    momapy.utils.FrozenSurjectionDict | None,
+    momapy.utils.FrozenSurjectionDict | None,
 ]:
     """Build the three ID mapping dicts for a ReaderResult.
 
@@ -129,27 +129,39 @@ def build_id_mappings(
         id_to_element[frozen_obj.id_] = frozen_obj
 
     # 2. Build source_id → frozen model element.
-    source_id_to_model: dict[str, momapy.core.elements.ModelElement] = {}
-    for source_id, builder_element in reading_context.xml_id_to_model_element.items():
-        if real_source_ids is not None and source_id not in real_source_ids:
-            continue
-        frozen_element = id_to_element.get(builder_element.id_)
-        if frozen_element is not None:
-            source_id_to_model[source_id] = frozen_element
+    if frozen_model is not None:
+        source_id_to_model: dict[str, momapy.core.elements.ModelElement] = {}
+        for source_id, builder_element in reading_context.xml_id_to_model_element.items():
+            if real_source_ids is not None and source_id not in real_source_ids:
+                continue
+            frozen_element = id_to_element.get(builder_element.id_)
+            if frozen_element is not None:
+                source_id_to_model[source_id] = frozen_element
+        frozen_source_id_to_model = momapy.utils.FrozenSurjectionDict(
+            source_id_to_model
+        )
+    else:
+        frozen_source_id_to_model = None
 
     # 3. Build source_id → frozen layout element.
-    source_id_to_layout: dict[str, momapy.core.elements.LayoutElement] = {}
-    for source_id, builder_element in reading_context.xml_id_to_layout_element.items():
-        if real_source_ids is not None and source_id not in real_source_ids:
-            continue
-        frozen_element = id_to_element.get(builder_element.id_)
-        if frozen_element is not None:
-            source_id_to_layout[source_id] = frozen_element
+    if frozen_layout is not None:
+        source_id_to_layout: dict[str, momapy.core.elements.LayoutElement] = {}
+        for source_id, builder_element in reading_context.xml_id_to_layout_element.items():
+            if real_source_ids is not None and source_id not in real_source_ids:
+                continue
+            frozen_element = id_to_element.get(builder_element.id_)
+            if frozen_element is not None:
+                source_id_to_layout[source_id] = frozen_element
+        frozen_source_id_to_layout = momapy.utils.FrozenSurjectionDict(
+            source_id_to_layout
+        )
+    else:
+        frozen_source_id_to_layout = None
 
     return (
         frozendict.frozendict(id_to_element),
-        momapy.utils.FrozenSurjectionDict(source_id_to_model),
-        momapy.utils.FrozenSurjectionDict(source_id_to_layout),
+        frozen_source_id_to_model,
+        frozen_source_id_to_layout,
     )
 
 
