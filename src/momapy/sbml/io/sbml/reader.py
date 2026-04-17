@@ -116,7 +116,7 @@ class SBMLReader(momapy.io.core.Reader):
             annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_model)
             element_to_annotations[obj].update(annotations)
         if with_notes:
-            notes = momapy.sbml.io.sbml._model.make_notes(sbml_model)
+            notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_model)
             element_to_notes[obj].update(notes)
         element_to_annotations = frozendict.frozendict(
             {key: frozenset(value) for key, value in element_to_annotations.items()}
@@ -146,7 +146,7 @@ class SBMLReader(momapy.io.core.Reader):
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
-            notes = momapy.sbml.io.sbml._model.make_notes(sbml_compartment)
+            notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_compartment)
             ctx.element_to_notes[model_element].update(notes)
         return model_element
 
@@ -165,7 +165,7 @@ class SBMLReader(momapy.io.core.Reader):
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
-            notes = momapy.sbml.io.sbml._model.make_notes(sbml_species)
+            notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_species)
             ctx.element_to_notes[model_element].update(notes)
         return model_element
 
@@ -191,7 +191,7 @@ class SBMLReader(momapy.io.core.Reader):
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
             if ctx.with_notes:
-                notes = momapy.sbml.io.sbml._model.make_notes(sbml_reaction)
+                notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_reaction)
                 ctx.element_to_notes[model_element].update(notes)
         return model_element
 

@@ -698,7 +698,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 element_to_annotations[obj].update(annotations)
             if with_notes:
-                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(cd_model)
                 element_to_notes[obj].update(notes)
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
@@ -714,7 +714,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 )
                 element_to_annotations[obj].update(annotations)
             if with_notes:
-                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(cd_model)
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(cd_model)
                 element_to_notes[obj].update(notes)
         annotations = frozendict.frozendict(
             {key: frozenset(val) for key, val in element_to_annotations.items()}
@@ -824,7 +824,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                 reading_context, cd_compartment, model_element
             )
             if reading_context.with_notes:
-                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
+                notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(
                     cd_compartment
                 )
                 reading_context.element_to_notes[model_element].update(notes)
@@ -1126,7 +1126,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                         reading_context, cd_species, model_element
                     )
                     if reading_context.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(
                             cd_species
                         )
                         reading_context.element_to_notes[model_element].update(notes)
@@ -1151,7 +1151,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                                     annotations
                                 )
                     if reading_context.with_notes:
-                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
+                        notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(
                             cd_species
                         )
                         reading_context.element_to_notes[model_element].update(notes)
@@ -1459,7 +1459,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     reading_context, cd_reaction, model_element
                 )
                 if reading_context.with_notes:
-                    notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
+                    notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(
                         cd_reaction
                     )
                     reading_context.element_to_notes[model_element].update(notes)
@@ -1909,7 +1909,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     reading_context, cd_reaction, model_element
                 )
                 if reading_context.with_notes:
-                    notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes(
+                    notes = momapy.celldesigner.io.celldesigner._reading_model.make_notes_from_element(
                         cd_reaction
                     )
                     reading_context.element_to_notes[model_element].update(notes)

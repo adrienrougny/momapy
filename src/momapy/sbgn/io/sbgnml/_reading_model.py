@@ -5,8 +5,6 @@ argument, checks whether ``reading_context.model`` is ``None``, and
 returns ``None`` early when no model is being built.
 """
 
-import lxml.etree
-
 import momapy.builder
 import momapy.core.elements
 import momapy.io.utils
@@ -14,45 +12,21 @@ import momapy.sbgn.pd
 import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._reading_classification
 import momapy.sbgn.io.sbgnml._reading_parsing
+import momapy.sbml.io.sbml._model
 import momapy.sbml.io.sbml._parsing
 import momapy.sbml.io.sbml._qualifiers
 
 
-def make_annotations(sbgnml_element):
-    annotations = []
+def make_annotations_from_element(sbgnml_element):
     sbgnml_rdf = momapy.sbgn.io.sbgnml._reading_parsing.get_rdf(sbgnml_element)
-    if sbgnml_rdf is not None:
-        description = momapy.sbml.io.sbml._parsing.get_description(sbgnml_rdf)
-        if description is not None:
-            for bq_element in description:
-                key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
-                qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
-                if qualifier is not None:
-                    bags = momapy.sbml.io.sbml._parsing.get_bags(bq_element)
-                    for bag in bags:
-                        lis = momapy.sbml.io.sbml._parsing.get_list_items(bag)
-                        resources = [
-                            li.get(
-                                f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource"
-                            )
-                            for li in lis
-                        ]
-                        annotation = momapy.sbml.core.RDFAnnotation(
-                            qualifier=qualifier,
-                            resources=frozenset(resources),
-                        )
-                        annotations.append(annotation)
-    return annotations
+    if sbgnml_rdf is None:
+        return []
+    return momapy.sbml.io.sbml._model.make_annotations(sbgnml_rdf)
 
 
-def make_notes(sbgnml_element):
+def make_notes_from_element(sbgnml_element):
     sbgnml_notes = momapy.sbgn.io.sbgnml._reading_parsing.get_notes(sbgnml_element)
-    if sbgnml_notes is None:
-        return []
-    first_child = next(iter(sbgnml_notes), None)
-    if first_child is None:
-        return []
-    return [lxml.etree.tostring(first_child, encoding="unicode")]
+    return momapy.sbml.io.sbml._model.make_notes(sbgnml_notes)
 
 
 def make_and_add_annotations_and_notes(
@@ -66,13 +40,13 @@ def make_and_add_annotations_and_notes(
         model_element: The frozen model element to associate with.
     """
     if reading_context.with_annotations:
-        annotations = make_annotations(sbgnml_element)
+        annotations = make_annotations_from_element(sbgnml_element)
         if annotations:
             reading_context.element_to_annotations[model_element].update(
                 annotations
             )
     if reading_context.with_notes:
-        notes = make_notes(sbgnml_element)
+        notes = make_notes_from_element(sbgnml_element)
         if notes:
             reading_context.element_to_notes[model_element].update(notes)
 

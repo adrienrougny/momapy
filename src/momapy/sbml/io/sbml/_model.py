@@ -12,11 +12,21 @@ import momapy.sbml.io.sbml._parsing
 import momapy.sbml.io.sbml._qualifiers
 
 
-def make_annotations(sbml_rdf):
+def make_annotations(rdf):
+    """Build RDF annotations from an ``rdf:RDF`` element.
+
+    Shared across SBML, CellDesigner and SBGN-ML readers.
+
+    Args:
+        rdf: The ``rdf:RDF`` lxml.objectify element.
+
+    Returns:
+        A list of ``momapy.sbml.core.RDFAnnotation`` objects.
+    """
     annotations = []
-    description = momapy.sbml.io.sbml._parsing.get_description(sbml_rdf)
+    description = momapy.sbml.io.sbml._parsing.get_description(rdf)
     if description is not None:
-        for bq_element in description:
+        for bq_element in description.iterchildren():
             key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
             qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
             if qualifier is not None:
@@ -35,11 +45,20 @@ def make_annotations(sbml_rdf):
     return annotations
 
 
-def make_notes(sbml_element):
-    sbml_notes = momapy.sbml.io.sbml._parsing.get_notes(sbml_element)
-    if sbml_notes is None:
+def make_notes(notes_element):
+    """Serialize the first XML child of a ``notes`` element.
+
+    Shared across SBML, CellDesigner and SBGN-ML readers.
+
+    Args:
+        notes_element: The ``notes`` lxml.objectify element, or ``None``.
+
+    Returns:
+        A list containing the serialized first child, or an empty list.
+    """
+    if notes_element is None:
         return []
-    first_child = next(iter(sbml_notes), None)
+    first_child = next(notes_element.iterchildren(), None)
     if first_child is None:
         return []
     return [lxml.etree.tostring(first_child, encoding="unicode")]
@@ -52,6 +71,11 @@ def make_annotations_from_element(sbml_element):
     else:
         annotations = []
     return annotations
+
+
+def make_notes_from_element(sbml_element):
+    sbml_notes = momapy.sbml.io.sbml._parsing.get_notes(sbml_element)
+    return make_notes(sbml_notes)
 
 
 def make_empty_model(sbml_element):
