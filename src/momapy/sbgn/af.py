@@ -331,7 +331,7 @@ class SBGNAFModel(momapy.sbgn.core.SBGNModel):
             and self.compartments.issubset(other.compartments)
             and self.influences.issubset(other.influences)
             and self.logical_operators.issubset(other.logical_operators)
-            and self.submaps(other.submaps)
+            and self.submaps.issubset(other.submaps)
             and self.tags.issubset(other.tags)
         )
 

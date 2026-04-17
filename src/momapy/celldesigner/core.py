@@ -769,8 +769,23 @@ class CellDesignerModel(momapy.sbml.core.SBMLModel):
         metadata={"description": "The modulations of the CellDesigner model"},
     )
 
-    def is_submodel(self, other):
-        pass
+    def is_submodel(self, other: "CellDesignerModel") -> bool:
+        """Check if another model is a submodel of this model.
+
+        Args:
+            other: Another CellDesigner model to compare against.
+
+        Returns:
+            True if other is a submodel of this model, False otherwise.
+        """
+        return (
+            self.compartments.issubset(other.compartments)
+            and self.species.issubset(other.species)
+            and self.reactions.issubset(other.reactions)
+            and self.species_templates.issubset(other.species_templates)
+            and self.boolean_logic_gates.issubset(other.boolean_logic_gates)
+            and self.modulations.issubset(other.modulations)
+        )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
