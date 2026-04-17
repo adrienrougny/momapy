@@ -358,7 +358,7 @@ class FluxRole(momapy.sbgn.core.SBGNRole):
     element: EntityPool = dataclasses.field(
         metadata={"description": "The entity pool of the flux role"}
     )
-    stoichiometry: int | None = dataclasses.field(
+    stoichiometry: float | None = dataclasses.field(
         default=None, metadata={"description": "The stoichiometry of the flux role"}
     )
 

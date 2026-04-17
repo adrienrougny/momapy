@@ -92,13 +92,15 @@ def set_stoichiometry(model_element, sbgnml_stoichiometry):
     if sbgnml_stoichiometry is None:
         return
     sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
-    if sbgnml_label is not None:
-        sbgnml_stoichiometry_text = sbgnml_label.get("text")
-        try:
-            stoichiometry = float(sbgnml_stoichiometry_text)
-        except ValueError:
-            stoichiometry = sbgnml_stoichiometry_text
-        model_element.stoichiometry = float(stoichiometry)
+    if sbgnml_label is None:
+        return
+    sbgnml_stoichiometry_text = sbgnml_label.get("text")
+    if sbgnml_stoichiometry_text is None:
+        return
+    try:
+        model_element.stoichiometry = float(sbgnml_stoichiometry_text)
+    except ValueError:
+        pass
 
 
 def make_compartment(reading_context, sbgnml_compartment):

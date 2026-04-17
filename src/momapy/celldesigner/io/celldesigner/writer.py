@@ -1992,7 +1992,7 @@ def _make_sbml_document_species_reference(
     if participant_metaid:
         sr_attrs["metaid"] = _unique_metaid(writing_context, participant_metaid)
     if participant.stoichiometry is not None:
-        sr_attrs["stoichiometry"] = str(int(participant.stoichiometry))
+        sr_attrs["stoichiometry"] = str(participant.stoichiometry)
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
     species_reference_annotation = _make_lxml_element("annotation")
     species_reference_extension = _make_celldesigner_element("extension")
