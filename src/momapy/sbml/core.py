@@ -124,10 +124,10 @@ class SBOTerm(momapy.core.elements.ModelElement):
 
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBase(momapy.core.elements.ModelElement):
+class SBMLModelElement(momapy.core.elements.ModelElement):
     """Abstract base class for all SBML elements.
 
-    SBase provides common attributes shared by all SBML components.
+    SBMLModelElement provides common attributes shared by all SBML components.
 
     Attributes:
         name: Human-readable name of the element.
@@ -141,7 +141,7 @@ class SBase(momapy.core.elements.ModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Compartment(SBase):
+class Compartment(SBMLModelElement):
     """SBML compartment representing a bounded region.
 
     A compartment defines a container where species are located.
@@ -162,7 +162,7 @@ class Compartment(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Species(SBase):
+class Species(SBMLModelElement):
     """SBML species representing a pool of entities.
 
     A species represents a population of chemically identical entities
@@ -182,7 +182,7 @@ class Species(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleSpeciesReference(SBase):
+class SimpleSpeciesReference(SBMLModelElement):
     """Base class for species references in reactions.
 
     Attributes:
@@ -221,7 +221,7 @@ class SpeciesReference(SimpleSpeciesReference):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Reaction(SBase):
+class Reaction(SBMLModelElement):
     """SBML reaction representing a biochemical transformation.
 
     Reactions describe the conversion of reactants into products,
@@ -257,13 +257,16 @@ class Reaction(SBase):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBMLModel(SBase, momapy.core.model.Model):
+class SBMLModel(momapy.core.model.Model):
     """SBML model container.
 
     Models aggregate compartments, species, and reactions into a
     complete biological system description.
 
     Attributes:
+        name: Human-readable name of the model.
+        sbo_term: Optional SBO term for semantic annotation.
+        metaid: Optional metadata identifier for RDF annotations.
         compartments: Set of compartments in the model.
         species: Set of species in the model.
         reactions: Set of reactions in the model.
@@ -279,6 +282,9 @@ class SBMLModel(SBase, momapy.core.model.Model):
         ```
     """
 
+    name: str | None = None
+    sbo_term: SBOTerm | None = None
+    metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
     compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)
     reactions: frozenset[Reaction] = dataclasses.field(default_factory=frozenset)
@@ -288,7 +294,7 @@ class SBMLModel(SBase, momapy.core.model.Model):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBML(SBase):
+class SBML(SBMLModelElement):
     """Root container for SBML documents.
 
     Represents the top-level SBML element containing model metadata
