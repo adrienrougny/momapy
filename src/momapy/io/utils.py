@@ -94,7 +94,8 @@ def build_id_mappings(
     frozen_obj: momapy.core.elements.MapElement,
     frozen_model: momapy.core.elements.ModelElement | None,
     frozen_layout: momapy.core.elements.LayoutElement | None,
-    real_source_ids: set[str] | None = None,
+    real_model_source_ids: set[str] | None = None,
+    real_layout_source_ids: set[str] | None = None,
 ) -> tuple[
     frozendict.frozendict,
     momapy.utils.FrozenSurjectionDict | None,
@@ -108,9 +109,14 @@ def build_id_mappings(
         frozen_obj: The frozen map/model/layout object.
         frozen_model: The frozen model, or None.
         frozen_layout: The frozen layout, or None.
-        real_source_ids: If given, only source IDs in this set are
-            included in the ``source_id_to_*`` dicts.  When None, all
-            IDs from the reading context are treated as real.
+        real_model_source_ids: If given, only source IDs in this set are
+            included in ``source_id_to_model_element``.  Lets readers
+            exclude synthetic or layout-only keys (e.g. CellDesigner
+            alias ids) that were registered in the internal model dict
+            for cross-ref resolution but do not name a model entity in
+            the source file.  When None, all IDs from the reading
+            context's model dict are treated as real.
+        real_layout_source_ids: Same, for ``source_id_to_layout_element``.
 
     Returns:
         A tuple of ``(id_to_element, source_id_to_model_element,
@@ -132,7 +138,7 @@ def build_id_mappings(
     if frozen_model is not None:
         source_id_to_model: dict[str, momapy.core.elements.ModelElement] = {}
         for source_id, builder_element in reading_context.xml_id_to_model_element.items():
-            if real_source_ids is not None and source_id not in real_source_ids:
+            if real_model_source_ids is not None and source_id not in real_model_source_ids:
                 continue
             frozen_element = id_to_element.get(builder_element.id_)
             if frozen_element is not None:
@@ -147,7 +153,7 @@ def build_id_mappings(
     if frozen_layout is not None:
         source_id_to_layout: dict[str, momapy.core.elements.LayoutElement] = {}
         for source_id, builder_element in reading_context.xml_id_to_layout_element.items():
-            if real_source_ids is not None and source_id not in real_source_ids:
+            if real_layout_source_ids is not None and source_id not in real_layout_source_ids:
                 continue
             frozen_element = id_to_element.get(builder_element.id_)
             if frozen_element is not None:

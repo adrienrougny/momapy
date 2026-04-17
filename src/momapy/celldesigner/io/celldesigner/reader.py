@@ -177,7 +177,8 @@ class ReadingContext(momapy.io.utils.ReadingContext):
     cd_species_aliases: list = dataclasses.field(default_factory=list)
     cd_reactions: list = dataclasses.field(default_factory=list)
     cd_modulations: list = dataclasses.field(default_factory=list)
-    real_source_ids: set = dataclasses.field(default_factory=set)
+    real_model_source_ids: set = dataclasses.field(default_factory=set)
+    real_layout_source_ids: set = dataclasses.field(default_factory=set)
 
 
 class CellDesignerReader(momapy.io.core.Reader):
@@ -503,55 +504,63 @@ class CellDesignerReader(momapy.io.core.Reader):
                 reading_context.cd_reactions.append(cd_reaction)
             else:
                 reading_context.cd_modulations.append(cd_reaction)
-        # Collect all real source IDs (XML attributes that exist verbatim
-        # in the file).  Composite/synthetic IDs are excluded.
-        real_ids = reading_context.real_source_ids
+        # Collect real source IDs (XML attributes that exist verbatim in
+        # the file), split by which side they name.  SBML-level ids
+        # (species, compartments, templates, reactions, metaids) name
+        # model entities; CellDesigner alias ids name layout entities.
+        # Reaction ids name both a model reaction and its sole layout
+        # arc.  Composite/synthetic IDs are excluded.
+        real_model_ids = reading_context.real_model_source_ids
+        real_layout_ids = reading_context.real_layout_source_ids
         for cd_compartment in reading_context.cd_compartments:
-            real_ids.add(cd_compartment.get("id"))
+            real_model_ids.add(cd_compartment.get("id"))
         for cd_compartment_alias in reading_context.cd_compartment_aliases:
-            real_ids.add(cd_compartment_alias.get("id"))
+            real_layout_ids.add(cd_compartment_alias.get("id"))
         for cd_species_template in reading_context.cd_species_templates:
-            real_ids.add(cd_species_template.get("id"))
+            real_model_ids.add(cd_species_template.get("id"))
         for cd_species in momapy.celldesigner.io.celldesigner._reading_parsing.get_species(
             cd_model
         ):
-            real_ids.add(cd_species.get("id"))
+            real_model_ids.add(cd_species.get("id"))
         for cd_included_species in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_species(
             cd_model
         ):
-            real_ids.add(cd_included_species.get("id"))
+            real_model_ids.add(cd_included_species.get("id"))
         for cd_species_alias in reading_context.cd_species_aliases:
-            real_ids.add(cd_species_alias.get("id"))
+            real_layout_ids.add(cd_species_alias.get("id"))
         for cd_included_alias in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_species_aliases(
             cd_model
         ):
-            real_ids.add(cd_included_alias.get("id"))
+            real_layout_ids.add(cd_included_alias.get("id"))
         for cd_included_complex_alias in momapy.celldesigner.io.celldesigner._reading_parsing.get_included_complex_species_aliases(
             cd_model
         ):
-            real_ids.add(cd_included_complex_alias.get("id"))
+            real_layout_ids.add(cd_included_complex_alias.get("id"))
         for cd_reaction in reading_context.cd_reactions + reading_context.cd_modulations:
-            real_ids.add(cd_reaction.get("id"))
-            # Collect metaids from speciesReferences and
-            # modifierSpeciesReferences (real XML attributes).
+            reaction_id = cd_reaction.get("id")
+            real_model_ids.add(reaction_id)
+            real_layout_ids.add(reaction_id)
+            # Metaids on speciesReferences and modifierSpeciesReferences
+            # name SBML-level model entities; the matching layout ids
+            # are synthetic (metaid + "_layout") and excluded.
             for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
                 cd_reaction
             ):
                 metaid = cd_reactant.get("metaid")
                 if metaid is not None:
-                    real_ids.add(metaid)
+                    real_model_ids.add(metaid)
             for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
                 cd_reaction
             ):
                 metaid = cd_product.get("metaid")
                 if metaid is not None:
-                    real_ids.add(metaid)
+                    real_model_ids.add(metaid)
             for cd_modifier in momapy.celldesigner.io.celldesigner._reading_parsing.get_reaction_modifications(
                 cd_reaction
             ):
                 metaid = _get_modifier_metaid(cd_modifier, cd_reaction)
                 if metaid is not None:
-                    real_ids.add(metaid)
+                    real_model_ids.add(metaid)
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike):
@@ -736,7 +745,8 @@ class CellDesignerReader(momapy.io.core.Reader):
                     frozen_obj=obj,
                     frozen_model=frozen_model,
                     frozen_layout=frozen_layout,
-                    real_source_ids=reading_context.real_source_ids,
+                    real_model_source_ids=reading_context.real_model_source_ids,
+                    real_layout_source_ids=reading_context.real_layout_source_ids,
                 )
             )
         else:
