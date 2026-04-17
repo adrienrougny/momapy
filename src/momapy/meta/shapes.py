@@ -523,7 +523,7 @@ class CrossPoint(momapy.core.layout.Shape):
         ]
         horizontal_path = momapy.drawing.Path(actions=actions)
         actions = [
-            momapy.drawing.MoveTo(self.position - (0, self.height / 2, 0)),
+            momapy.drawing.MoveTo(self.position - (0, self.height / 2)),
             momapy.drawing.LineTo(self.position + (0, self.height / 2)),
         ]
         vertical_path = momapy.drawing.Path(actions=actions)
