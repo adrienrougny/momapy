@@ -627,13 +627,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         return f"scale({scaling.sx} {scaling.sy})"
 
     def _make_matrix_transformation_value(self, matrix_transformation):
-        matrix_values = [
-            matrix_transformation.m[i][j]
-            for j in range(len(matrix_transformation.m[0]))
-            for i in range(len(matrix_transformation.m) - 1)
-        ]
-        value = f"matrix({' '.join(matrix_values)})"
-        return value
+        m = matrix_transformation.m
+        a, b = m[0][0], m[1][0]
+        c, d = m[0][1], m[1][1]
+        e, f = m[0][2], m[1][2]
+        return f"matrix({a} {b} {c} {d} {e} {f})"
 
 
 @dataclasses.dataclass
