@@ -24,7 +24,7 @@ def make_annotations(cd_rdf):
     annotations = []
     description = momapy.sbml.io.sbml._parsing.get_description(cd_rdf)
     if description is not None:
-        for bq_element in description.getchildren():
+        for bq_element in description:
             key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
             qualifier = QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
             if qualifier is not None:
@@ -47,11 +47,12 @@ def make_annotations(cd_rdf):
 
 def make_notes(cd_element):
     cd_notes = momapy.celldesigner.io.celldesigner._reading_parsing.get_notes(cd_element)
-    if cd_notes is not None:
-        for child_element in cd_notes.iterchildren():
-            break
-        return [lxml.etree.tostring(child_element, encoding="unicode")]
-    return []
+    if cd_notes is None:
+        return []
+    first_child = next(iter(cd_notes), None)
+    if first_child is None:
+        return []
+    return [lxml.etree.tostring(first_child, encoding="unicode")]
 
 
 def make_annotations_from_element(cd_element):

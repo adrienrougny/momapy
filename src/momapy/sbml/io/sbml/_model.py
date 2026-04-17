@@ -16,7 +16,7 @@ def make_annotations(sbml_rdf):
     annotations = []
     description = momapy.sbml.io.sbml._parsing.get_description(sbml_rdf)
     if description is not None:
-        for bq_element in description.getchildren():
+        for bq_element in description:
             key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
             qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
             if qualifier is not None:
@@ -37,11 +37,12 @@ def make_annotations(sbml_rdf):
 
 def make_notes(sbml_element):
     sbml_notes = momapy.sbml.io.sbml._parsing.get_notes(sbml_element)
-    if sbml_notes is not None:
-        for child_element in sbml_notes.iterchildren():
-            break
-        return [lxml.etree.tostring(child_element, encoding="unicode")]
-    return []
+    if sbml_notes is None:
+        return []
+    first_child = next(iter(sbml_notes), None)
+    if first_child is None:
+        return []
+    return [lxml.etree.tostring(first_child, encoding="unicode")]
 
 
 def make_annotations_from_element(sbml_element):
