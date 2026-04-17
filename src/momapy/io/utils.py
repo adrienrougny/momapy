@@ -10,6 +10,7 @@ import typing
 import frozendict
 
 import momapy.core.elements
+import momapy.core.model
 import momapy.utils
 
 
@@ -55,19 +56,21 @@ class ReadingContext:
 
 
 def collect_model_elements(
-    model_element: momapy.core.elements.ModelElement,
+    model: momapy.core.model.Model,
 ) -> dict[str, momapy.core.elements.ModelElement]:
-    """Recursively collect all model elements reachable via frozenset fields.
+    """Recursively collect all model elements contained in a model.
 
-    Traverses the model element and its children (stored in frozenset
-    and tuple fields) to build a mapping from momapy ``id_`` to element.
+    Walks the model's dataclass frozenset/tuple fields and their
+    ``ModelElement`` descendants to build a mapping from momapy ``id_``
+    to element.  The model itself is not included in the result (a
+    ``Model`` is a container of elements, not an element of itself).
 
     Args:
-        model_element: The root model element (typically the model itself).
+        model: The model whose elements should be collected.
 
     Returns:
-        A dict mapping ``element.id_`` to element for all reachable
-        model elements.
+        A dict mapping ``element.id_`` to element for every
+        ``ModelElement`` reachable from the model.
     """
     result: dict[str, momapy.core.elements.ModelElement] = {}
 
@@ -85,7 +88,11 @@ def collect_model_elements(
                 for child in value:
                     _collect(child)
 
-    _collect(model_element)
+    for field in dataclasses.fields(type(model)):
+        value = getattr(model, field.name)
+        if isinstance(value, (frozenset, tuple)):
+            for child in value:
+                _collect(child)
     return result
 
 
