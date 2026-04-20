@@ -1,24 +1,19 @@
 """Generic plugin registry with lazy loading and entry point support.
 
 This module provides a generic plugin registry that supports:
+
 - Direct registration of plugin classes
-- Lazy loading of plugins (import on first access)
+- Lazy loading of plugins (imported on first access)
 - Discovery via entry points for third-party plugins
 
 Examples:
     ```python
-    from momapy.plugins import PluginRegistry
+    import momapy.plugins.core
 
-    # Create a registry for plugins
-    registry = PluginRegistry()
-
-    # Register a plugin class (MyPluginClass must be defined/imported)
-
-    # registry.register("my_plugin", MyPluginClass)
-
-    # Retrieve a registered plugin
-
-    # plugin = registry.get("my_plugin")
+    registry = momapy.plugins.core.PluginRegistry()
+    registry.register("my_plugin", MyPluginClass)
+    registry.register_lazy("other", "my_package.plugins:OtherPlugin")
+    plugin_cls = registry.get("my_plugin")
     ```
 """
 
