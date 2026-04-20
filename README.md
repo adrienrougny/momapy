@@ -14,7 +14,7 @@ This definition is borrowed from [SBML](https://www.sbml.org) and its extensions
 
 Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> include the following:
 
-* support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read only, with annotations)
+* support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read/write, with annotations and notes)
 * decomposition of a map object into:
   * a model object;
   * a layout object;
