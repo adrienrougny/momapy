@@ -200,25 +200,26 @@ def set_nodes_to_fit_labels(
         exclude = []
     exclude = tuple(exclude)
     restrict_to = tuple(restrict_to)
-    if omit_width and omit_height:
-        return
-    for layout_element in map_builder.layout.descendants():
-        if (
-            momapy.builder.isinstance_or_builder(layout_element, restrict_to)
-            and not momapy.builder.isinstance_or_builder(layout_element, exclude)
-            and hasattr(layout_element, "label")
-            and layout_element.label is not None
-        ):
-            bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
-            if not omit_width:
-                if bbox.width > layout_element.width:
-                    layout_element.width = bbox.width
-            if not omit_height:
-                if bbox.height > layout_element.height:
-                    layout_element.height = bbox.height
-            momapy.positioning.set_position(
-                layout_element, bbox.position, anchor="label_center"
-            )
+    if not (omit_width and omit_height):
+        for layout_element in map_builder.layout.descendants():
+            if (
+                momapy.builder.isinstance_or_builder(layout_element, restrict_to)
+                and not momapy.builder.isinstance_or_builder(layout_element, exclude)
+                and hasattr(layout_element, "label")
+                and layout_element.label is not None
+            ):
+                bbox = momapy.positioning.fit(
+                    [layout_element.label.bbox()], xsep, ysep
+                )
+                if not omit_width:
+                    if bbox.width > layout_element.width:
+                        layout_element.width = bbox.width
+                if not omit_height:
+                    if bbox.height > layout_element.height:
+                        layout_element.height = bbox.height
+                momapy.positioning.set_position(
+                    layout_element, bbox.position, anchor="label_center"
+                )
     if isinstance(map_, momapy.sbgn.core.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
