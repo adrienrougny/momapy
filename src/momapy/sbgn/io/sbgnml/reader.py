@@ -188,34 +188,34 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context.xml_id_to_xml_element[sbgnml_subglyph.get("id")] = sbgnml_subglyph
 
     @classmethod
-    def _make_empty_map(cls, sbgnml_map):
+    def _get_map_classes(cls, sbgnml_map):
         key = cls._get_map_key(sbgnml_map)
-        map_cls, _, _ = momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-        if map_cls is not None:
-            builder_cls = momapy.builder.get_or_make_builder_cls(map_cls)
-            return builder_cls()
-        raise TypeError("entity relationship maps are not yet supported")
+        classes = momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS.get(key)
+        if classes is None:
+            if key == "ENTITY_RELATIONSHIP":
+                raise NotImplementedError(
+                    "entity relationship maps are not yet supported"
+                )
+            raise ValueError(f"unrecognized SBGN map type {key!r}")
+        return classes
 
     @classmethod
-    def _make_empty_model(
-        cls,
-        sbgnml_map,
-    ):
-        key = cls._get_map_key(sbgnml_map)
-        _, model_cls, _ = momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-        if model_cls is not None:
-            builder_cls = momapy.builder.get_or_make_builder_cls(model_cls)
-            return builder_cls()
-        raise TypeError("entity relationship maps are not yet supported")
+    def _make_empty_map(cls, sbgnml_map):
+        map_cls, _, _ = cls._get_map_classes(sbgnml_map)
+        builder_cls = momapy.builder.get_or_make_builder_cls(map_cls)
+        return builder_cls()
+
+    @classmethod
+    def _make_empty_model(cls, sbgnml_map):
+        _, model_cls, _ = cls._get_map_classes(sbgnml_map)
+        builder_cls = momapy.builder.get_or_make_builder_cls(model_cls)
+        return builder_cls()
 
     @classmethod
     def _make_empty_layout(cls, sbgnml_map):
-        key = cls._get_map_key(sbgnml_map)
-        _, _, layout_cls = momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-        if layout_cls is not None:
-            builder_cls = momapy.builder.get_or_make_builder_cls(layout_cls)
-            return builder_cls()
-        raise TypeError("entity relationship maps are not yet supported")
+        _, _, layout_cls = cls._get_map_classes(sbgnml_map)
+        builder_cls = momapy.builder.get_or_make_builder_cls(layout_cls)
+        return builder_cls()
 
     @classmethod
     def _make_main_obj(
