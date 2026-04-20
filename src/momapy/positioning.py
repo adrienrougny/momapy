@@ -59,7 +59,7 @@ def right_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.east()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point + (distance, 0)
 
 
@@ -98,7 +98,7 @@ def left_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.west()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point - (distance, 0)
 
 
@@ -137,7 +137,7 @@ def above_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.north()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point - (0, distance)
 
 
@@ -176,7 +176,7 @@ def below_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.south()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point + (0, distance)
 
 
@@ -220,7 +220,7 @@ def above_left_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.north_west()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point - (distance2, distance1)
 
 
@@ -264,7 +264,7 @@ def above_right_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.north_east()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point + (distance2, -distance1)
 
 
@@ -308,7 +308,7 @@ def below_left_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.south_west()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point + (-distance2, distance1)
 
 
@@ -352,7 +352,7 @@ def below_right_of(
     elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
         source_point = obj.south_east()
     else:
-        raise TypeError
+        raise TypeError(f"{type(obj).__name__} not supported")
     return source_point + (distance2, distance1)
 
 
