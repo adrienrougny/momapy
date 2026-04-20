@@ -51,7 +51,53 @@ class MapElement:
 class ModelElement(MapElement):
     """Base class for model elements"""
 
-    pass
+    def descendants(self) -> list["ModelElement"]:
+        """Return every `ModelElement` reachable from `self`, excluding `self`.
+
+        Walks scalar `ModelElement` fields and `frozenset`/`tuple`
+        containers, deduplicating by object identity.
+
+        Returns:
+            The list of reachable `ModelElement` instances in visit
+            order, without `self`.
+        """
+        seen: set[int] = {id(self)}
+        result: list[ModelElement] = []
+        if dataclasses.is_dataclass(self):
+            for field in dataclasses.fields(type(self)):
+                _walk_model_graph(getattr(self, field.name), seen, result)
+        return result
+
+
+def _walk_model_graph(
+    value: object,
+    seen: set[int],
+    result: list[ModelElement],
+) -> None:
+    """Traverse a model-graph value, appending `ModelElement`s to `result`.
+
+    Dedup is by object identity (`id()`).  Walks scalar `ModelElement`
+    fields and `frozenset`/`tuple` containers.  Non-`ModelElement`
+    scalars and other field types are ignored.
+
+    Args:
+        value: The value to traverse.  May be a `ModelElement`, a
+            `frozenset`/`tuple` of values, or anything else (ignored).
+        seen: Set of object ids already visited, updated in place.
+        result: List of visited `ModelElement`s, appended in place.
+    """
+    if isinstance(value, ModelElement):
+        if id(value) in seen:
+            return
+        seen.add(id(value))
+        result.append(value)
+        if not dataclasses.is_dataclass(value):
+            return
+        for field in dataclasses.fields(type(value)):
+            _walk_model_graph(getattr(value, field.name), seen, result)
+    elif isinstance(value, (frozenset, tuple)):
+        for item in value:
+            _walk_model_graph(item, seen, result)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
