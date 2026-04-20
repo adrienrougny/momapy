@@ -287,8 +287,7 @@ Output:
 
 ```
 celldesigner
-celldesigner-pickle
-sbgn-pickle
+pickle
 sbgnml
 sbgnml-0.2
 sbgnml-0.3
@@ -305,8 +304,7 @@ Output:
 
 ```
 celldesigner
-celldesigner-pickle
-sbgn-pickle
+pickle
 sbgnml
 sbgnml-0.3
 ```

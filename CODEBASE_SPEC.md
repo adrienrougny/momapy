@@ -159,6 +159,12 @@ Purpose: reader-side helpers.
 - `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenSurjectionDict|None, FrozenSurjectionDict|None)` — builds the three `ReaderResult` dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
 - `register_model_element(reading_context, element, collection, source_id=None)` and related remap helpers.
 
+### `src/momapy/io/pickle.py`
+Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
+
+- `PickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
+- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None)`.
+
 ### `src/momapy/plugins/core.py`
 - `PluginRegistry(Generic[T])` — `register(name, plugin)`, `register_lazy(name, import_path)`, `get(name) -> T|None`, `is_available(name) -> bool`, `list_available() -> list[str]`.
 
@@ -255,10 +261,6 @@ Functions (all accept `SBGNMap | Builder`, return same):
 
 ### `src/momapy/sbgn/styling/__init__.py`
 Module-level `StyleSheet` constants: `cs_default`, `cs_black_and_white`, `sbgned`, `newt`, `fs_shadows`.
-
-### `src/momapy/sbgn/io/pickle.py`
-- `SBGNPickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
-- `SBGNPickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None)`.
 
 ### `src/momapy/sbgn/io/sbgnml/reader.py`
 - `ReadingContext(momapy.io.utils.ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
@@ -358,10 +360,6 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `straighten_arcs(map_, angle_tolerance=5.0)`
 - `tidy(map_, modifications_omit_width=False, modifications_omit_height=False, nodes_xsep=4, nodes_ysep=4, modifications_xsep=2, modifications_ysep=2, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0, arcs_angle_tolerance=5.0)`
 - `get_info(map_) -> dict`
-
-### `src/momapy/celldesigner/io/pickle.py`
-- `CellDesignerPickleReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
-- `CellDesignerPickleWriter(Writer)` — same writer signature family as SBGN.
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
 - `ReadingContext(ReadingContext)` — model/layout/map state, classified lists (cd_compartments, cd_compartment_aliases, cd_species_templates, cd_species_aliases, cd_reactions, cd_modulations), ID caches, `real_model_source_ids` + `real_layout_source_ids` (split for `ReaderResult.source_id_to_model_element` vs `_layout_element`).

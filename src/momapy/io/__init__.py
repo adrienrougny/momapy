@@ -103,7 +103,7 @@ def get_writer(name: str) -> type[momapy.io.core.Writer]:
     """Get a writer class by name.
 
     Args:
-        name: Writer name (e.g., "sbgnml", "celldesigner-pickle").
+        name: Writer name (e.g., "sbgnml", "pickle").
 
     Returns:
         Writer class for the specified format.
@@ -177,18 +177,16 @@ for name, import_path in [
     ("sbgnml", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
     ("sbgnml-0.2", "momapy.sbgn.io.sbgnml.reader:SBGNML0_2Reader"),
     ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
-    ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleReader"),
     ("celldesigner", "momapy.celldesigner.io.celldesigner.reader:CellDesignerReader"),
-    ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleReader"),
     ("sbml", "momapy.sbml.io.sbml:SBMLReader"),
+    ("pickle", "momapy.io.pickle:PickleReader"),
 ]:
     register_lazy_reader(name, import_path)
 
 for name, import_path in [
     ("sbgnml", "momapy.sbgn.io.sbgnml.writer:SBGNML0_3Writer"),
     ("sbgnml-0.3", "momapy.sbgn.io.sbgnml.writer:SBGNML0_3Writer"),
-    ("sbgn-pickle", "momapy.sbgn.io.pickle:SBGNPickleWriter"),
-    ("celldesigner-pickle", "momapy.celldesigner.io.pickle:CellDesignerPickleWriter"),
     ("celldesigner", "momapy.celldesigner.io.celldesigner.writer:CellDesignerWriter"),
+    ("pickle", "momapy.io.pickle:PickleWriter"),
 ]:
     register_lazy_writer(name, import_path)
