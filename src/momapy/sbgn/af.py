@@ -6,6 +6,7 @@ visual representations.
 """
 
 import dataclasses
+import sys
 import typing
 
 import momapy.drawing
@@ -26,7 +27,7 @@ class UnitOfInformation(momapy.sbgn.core.SBGNModelElement):
         label: The label of the unit of information.
     """
 
-    label: typing.Optional[str] = None
+    label: str | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -39,7 +40,7 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
         label: The label of the compartment.
     """
 
-    label: typing.Optional[str] = None
+    label: str | None = None
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
@@ -98,8 +99,8 @@ class Activity(momapy.sbgn.core.SBGNModelElement):
         compartment: The compartment containing this activity.
     """
 
-    label: typing.Optional[str] = None
-    compartment: typing.Optional[Compartment] = None
+    label: str | None = None
+    compartment: Compartment | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -137,7 +138,10 @@ class LogicalOperatorInput(momapy.sbgn.core.SBGNRole):
         element: The biological activity or logical operator providing the input.
     """
 
-    element: typing.Union[BiologicalActivity, "LogicalOperator"]
+    element: typing.Union[
+        BiologicalActivity,
+        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
+    ]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -234,7 +238,7 @@ class TerminalReference(momapy.sbgn.core.SBGNRole):
         element: The activity or compartment being referenced.
     """
 
-    element: typing.Union[Activity, Compartment]
+    element: Activity | Compartment
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -245,7 +249,7 @@ class TagReference(momapy.sbgn.core.SBGNRole):
         element: The activity or compartment being referenced.
     """
 
-    element: typing.Union[Activity, Compartment]
+    element: Activity | Compartment
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -259,8 +263,8 @@ class Terminal(momapy.sbgn.core.SBGNModelElement):
         refers_to: Reference to the terminal target.
     """
 
-    label: typing.Optional[str] = None
-    refers_to: typing.Optional[TerminalReference] = None
+    label: str | None = None
+    refers_to: TerminalReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -274,8 +278,8 @@ class Tag(momapy.sbgn.core.SBGNModelElement):
         refers_to: Reference to the tagged element.
     """
 
-    label: typing.Optional[str] = None
-    refers_to: typing.Optional[TagReference] = None
+    label: str | None = None
+    refers_to: TagReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -289,7 +293,7 @@ class Submap(momapy.sbgn.core.SBGNModelElement):
         terminals: Terminal connection points of the submap.
     """
 
-    label: typing.Optional[str] = None
+    label: str | None = None
     terminals: frozenset[Terminal] = dataclasses.field(default_factory=frozenset)
 
 
@@ -723,8 +727,8 @@ class SBGNAFMap(momapy.sbgn.core.SBGNMap):
         layout: The visual layout of the map.
     """
 
-    model: typing.Optional[SBGNAFModel] = None
-    layout: typing.Optional[SBGNAFLayout] = None
+    model: SBGNAFModel | None = None
+    layout: SBGNAFLayout | None = None
 
 
 SBGNAFModelBuilder = momapy.builder.get_or_make_builder_cls(SBGNAFModel)
