@@ -10,6 +10,8 @@ import typing
 import frozendict
 
 import momapy.core.elements
+import momapy.core.layout
+import momapy.core.map
 import momapy.core.model
 import momapy.utils
 
@@ -55,52 +57,9 @@ class ReadingContext:
     alive to prevent Python from reusing their memory address."""
 
 
-def collect_model_elements(
-    model: momapy.core.model.Model,
-) -> dict[str, momapy.core.elements.ModelElement]:
-    """Recursively collect all model elements contained in a model.
-
-    Walks the model's dataclass frozenset/tuple fields and their
-    ``ModelElement`` descendants to build a mapping from momapy ``id_``
-    to element.  The model itself is not included in the result (a
-    ``Model`` is a container of elements, not an element of itself).
-
-    Args:
-        model: The model whose elements should be collected.
-
-    Returns:
-        A dict mapping ``element.id_`` to element for every
-        ``ModelElement`` reachable from the model.
-    """
-    result: dict[str, momapy.core.elements.ModelElement] = {}
-
-    def _collect(element):
-        if not isinstance(element, momapy.core.elements.ModelElement):
-            return
-        if element.id_ in result:
-            return
-        result[element.id_] = element
-        if not dataclasses.is_dataclass(element):
-            return
-        for field in dataclasses.fields(type(element)):
-            value = getattr(element, field.name)
-            if isinstance(value, (frozenset, tuple)):
-                for child in value:
-                    _collect(child)
-
-    for field in dataclasses.fields(type(model)):
-        value = getattr(model, field.name)
-        if isinstance(value, (frozenset, tuple)):
-            for child in value:
-                _collect(child)
-    return result
-
-
 def build_id_mappings(
     reading_context: "ReadingContext",
-    frozen_obj: momapy.core.elements.MapElement,
-    frozen_model: momapy.core.elements.ModelElement | None,
-    frozen_layout: momapy.core.elements.LayoutElement | None,
+    obj: momapy.core.elements.MapElement,
     real_model_source_ids: set[str] | None = None,
     real_layout_source_ids: set[str] | None = None,
 ) -> tuple[
@@ -111,70 +70,82 @@ def build_id_mappings(
     """Build the three ID mapping dicts for a ReaderResult.
 
     Args:
-        reading_context: The reading context with ``xml_id_to_model_element``
-            and ``xml_id_to_layout_element`` (containing builder objects).
-        frozen_obj: The frozen map/model/layout object.
-        frozen_model: The frozen model, or None.
-        frozen_layout: The frozen layout, or None.
-        real_model_source_ids: If given, only source IDs in this set are
-            included in ``source_id_to_model_element``.  Lets readers
-            exclude synthetic or layout-only keys (e.g. CellDesigner
-            alias ids) that were registered in the internal model dict
-            for cross-ref resolution but do not name a model entity in
-            the source file.  When None, all IDs from the reading
-            context's model dict are treated as real.
-        real_layout_source_ids: Same, for ``source_id_to_layout_element``.
+        reading_context: The reading context holding
+            ``xml_id_to_model_element`` and ``xml_id_to_layout_element``.
+        obj: The top-level frozen object returned by the reader — a
+            `Map`, `Model`, or `Layout`. When it is a `Map`, its
+            ``model`` and ``layout`` are used; otherwise `obj` is
+            treated as the model or layout itself.
+        real_model_source_ids: If given, only source IDs in this set
+            are included in ``source_id_to_model_element``. Lets
+            readers exclude synthetic or layout-only keys (e.g.
+            CellDesigner alias ids) that were registered in the
+            internal model dict for cross-ref resolution but do not
+            name a model entity in the source file. When None, all
+            IDs from the reading context's model dict are treated as
+            real.
+        real_layout_source_ids: Same, for
+            ``source_id_to_layout_element``.
 
     Returns:
         A tuple of ``(id_to_element, source_id_to_model_element,
         source_id_to_layout_element)``.
     """
-    # 1. Build id_ → frozen element for all elements.
-    id_to_element: dict[str, momapy.core.elements.MapElement] = {}
-    if frozen_model is not None:
-        id_to_element.update(collect_model_elements(frozen_model))
-    if frozen_layout is not None:
-        id_to_element[frozen_layout.id_] = frozen_layout
-        for layout_element in frozen_layout.descendants():
-            id_to_element[layout_element.id_] = layout_element
-    # Include the top-level object itself (the map).
-    if hasattr(frozen_obj, "id_"):
-        id_to_element[frozen_obj.id_] = frozen_obj
+    if isinstance(obj, momapy.core.map.Map):
+        model = obj.model
+        layout = obj.layout
+    elif isinstance(obj, momapy.core.model.Model):
+        model = obj
+        layout = None
+    elif isinstance(obj, momapy.core.layout.Layout):
+        model = None
+        layout = obj
+    else:
+        model = None
+        layout = None
 
-    # 2. Build source_id → frozen model element.
-    if frozen_model is not None:
-        source_id_to_model: dict[str, momapy.core.elements.ModelElement] = {}
-        for source_id, builder_element in reading_context.xml_id_to_model_element.items():
+    id_to_element: dict[str, momapy.core.elements.MapElement] = {}
+    if model is not None:
+        for element in model.descendants():
+            id_to_element[element.id_] = element
+    if layout is not None:
+        id_to_element[layout.id_] = layout
+        for layout_element in layout.descendants():
+            id_to_element[layout_element.id_] = layout_element
+    id_to_element[obj.id_] = obj
+
+    if model is not None:
+        source_id_to_model_element: dict[str, momapy.core.elements.ModelElement] = {}
+        for source_id, registered_element in reading_context.xml_id_to_model_element.items():
             if real_model_source_ids is not None and source_id not in real_model_source_ids:
                 continue
-            frozen_element = id_to_element.get(builder_element.id_)
+            frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:
-                source_id_to_model[source_id] = frozen_element
-        frozen_source_id_to_model = momapy.utils.FrozenSurjectionDict(
-            source_id_to_model
+                source_id_to_model_element[source_id] = frozen_element
+        source_id_to_model_element = momapy.utils.FrozenSurjectionDict(
+            source_id_to_model_element
         )
     else:
-        frozen_source_id_to_model = None
+        source_id_to_model_element = None
 
-    # 3. Build source_id → frozen layout element.
-    if frozen_layout is not None:
-        source_id_to_layout: dict[str, momapy.core.elements.LayoutElement] = {}
-        for source_id, builder_element in reading_context.xml_id_to_layout_element.items():
+    if layout is not None:
+        source_id_to_layout_element: dict[str, momapy.core.elements.LayoutElement] = {}
+        for source_id, registered_element in reading_context.xml_id_to_layout_element.items():
             if real_layout_source_ids is not None and source_id not in real_layout_source_ids:
                 continue
-            frozen_element = id_to_element.get(builder_element.id_)
+            frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:
-                source_id_to_layout[source_id] = frozen_element
-        frozen_source_id_to_layout = momapy.utils.FrozenSurjectionDict(
-            source_id_to_layout
+                source_id_to_layout_element[source_id] = frozen_element
+        source_id_to_layout_element = momapy.utils.FrozenSurjectionDict(
+            source_id_to_layout_element
         )
     else:
-        frozen_source_id_to_layout = None
+        source_id_to_layout_element = None
 
     return (
         frozendict.frozendict(id_to_element),
-        frozen_source_id_to_model,
-        frozen_source_id_to_layout,
+        source_id_to_model_element,
+        source_id_to_layout_element,
     )
 
 

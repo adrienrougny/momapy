@@ -360,21 +360,11 @@ class _SBGNMLReader(momapy.io.core.Reader):
         element_to_notes = frozendict.frozendict(
             {key: frozenset(value) for key, value in reading_context.element_to_notes.items()}
         )
-        # Build ID mappings.  For SBGN all registered IDs are real
-        # XML IDs, so no filtering is needed.
         if model is not None or layout is not None:
-            frozen_model = obj.model if return_type == "map" else (
-                obj if return_type == "model" else None
-            )
-            frozen_layout = obj.layout if return_type == "map" else (
-                obj if return_type == "layout" else None
-            )
             id_to_element, source_id_to_model_element, source_id_to_layout_element = (
                 momapy.io.utils.build_id_mappings(
                     reading_context=reading_context,
-                    frozen_obj=obj,
-                    frozen_model=frozen_model,
-                    frozen_layout=frozen_layout,
+                    obj=obj,
                 )
             )
         else:

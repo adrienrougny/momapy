@@ -19,14 +19,15 @@ Purpose: base element classes for maps, models, and layouts.
 Classes:
 - `Direction(enum.Enum)`, `HAlignment(enum.Enum)`, `VAlignment(enum.Enum)`
 - `MapElement` — root of everything; `id_: str` (not part of equality/hash)
-- `ModelElement(MapElement)` — tag class for model-level elements
+- `ModelElement(MapElement)` — base class for model-level elements
+  - Method: `descendants() -> list[ModelElement]` — every reachable `ModelElement` via scalar refs and `frozenset`/`tuple` fields, deduped by identity, excluding `self`.
 - `LayoutElement(MapElement, ABC)` — visual elements
   - Methods: `bbox() -> Bbox`, `drawing_elements() -> list[DrawingElement]`, `children() -> list[LayoutElement]`, `childless() -> Self`, `descendants() -> list[LayoutElement]`, `flattened() -> list[LayoutElement]`, `equals(other, flattened=False, unordered=False) -> bool`, `contains(other) -> bool`, `to_geometry() -> list[Segment|Curve|Arc]`, `anchor_point(anchor_name: str) -> Point`
 
 ### `src/momapy/core/model.py`
 Purpose: abstract `Model` base class.
 
-- `Model(MapElement)` — abstract; `is_submodel(other) -> bool`.
+- `Model(MapElement)` — abstract; `is_submodel(other) -> bool`, `descendants() -> list[ModelElement]` (same walk as `ModelElement.descendants()`, seeded from the `Model`'s fields).
   **Note**: `Model` extends `MapElement`, NOT `ModelElement`, in all formats (SBGN PD/AF, SBML, CellDesigner). Enforced by `tests/test_io_mappings.py`.
 
 ### `src/momapy/core/map.py`
@@ -155,8 +156,7 @@ Purpose: reader/writer base classes + dispatch.
 Purpose: reader-side helpers.
 
 - `ReadingContext` — base context with `xml_root`, `map_key`, `model`, `layout`, `xml_id_to_model_element`, `xml_id_to_layout_element`, `layout_model_mapping`, `element_to_annotations`, `element_to_notes`, `with_annotations`, `with_notes`, `model_element_cache`, `model_element_remap`, `evicted_elements`.
-- `collect_model_elements(model: Model) -> dict[str, ModelElement]` — recursively gathers every `ModelElement` reachable from a `Model` via frozenset/tuple fields; the `Model` itself is NOT included.
-- `build_id_mappings(reading_context, frozen_obj, frozen_model, frozen_layout, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenSurjectionDict|None, FrozenSurjectionDict|None)` — builds the three `ReaderResult` dicts.
+- `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenSurjectionDict|None, FrozenSurjectionDict|None)` — builds the three `ReaderResult` dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
 - `register_model_element(reading_context, element, collection, source_id=None)` and related remap helpers.
 
 ### `src/momapy/plugins/core.py`
@@ -456,7 +456,7 @@ Purpose: SBML core types and BioModels annotation enums.
 ## Cross-cutting reminders
 
 - **Frozen dataclasses everywhere**: mutate only via builders (`builder_from_object` → change → `build()`).
-- **`Model` is a `MapElement`, never a `ModelElement`** in any format. `collect_model_elements(model)` traverses `Model` directly by field walking, and the `Model` itself is excluded from its own element set.
+- **`Model` is a `MapElement`, never a `ModelElement`** in any format. `model.descendants()` traverses the `Model` directly by field walking, and the `Model` itself is excluded from its own element set.
 - **Equality on elements**: structural (all fields except `id_`, `metaid`); dedup during read relies on it.
 - **I/O `make_*` functions** are the public contract of `_reading_*` / `_writing_*` modules despite the underscore filenames.
 - **ReaderResult public dicts**: `id_to_element`, `source_id_to_model_element`, `source_id_to_layout_element` — the SBGN and CellDesigner readers populate both `source_id_to_*` dicts; the split ensures alias ids appear only on the layout side and SBML ids only on the model side for CellDesigner (via `real_model_source_ids` / `real_layout_source_ids` in `build_id_mappings`).

@@ -731,20 +731,11 @@ class CellDesignerReader(momapy.io.core.Reader):
         notes = frozendict.frozendict(
             {key: frozenset(val) for key, val in element_to_notes.items()}
         )
-        # Build ID mappings, filtering out synthetic/composite keys.
         if model is not None or layout is not None:
-            frozen_model = obj.model if return_type == "map" else (
-                obj if return_type == "model" else None
-            )
-            frozen_layout = obj.layout if return_type == "map" else (
-                obj if return_type == "layout" else None
-            )
             id_to_element, source_id_to_model_element, source_id_to_layout_element = (
                 momapy.io.utils.build_id_mappings(
                     reading_context=reading_context,
-                    frozen_obj=obj,
-                    frozen_model=frozen_model,
-                    frozen_layout=frozen_layout,
+                    obj=obj,
                     real_model_source_ids=reading_context.real_model_source_ids,
                     real_layout_source_ids=reading_context.real_layout_source_ids,
                 )
