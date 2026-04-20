@@ -234,7 +234,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         stroke_dasharray = self.get_current_value("stroke_dasharray")
         stroke_dashoffset = self.get_current_value("stroke_dashoffset")
 
-        if stroke != momapy.drawing.NoneValue and stroke is not None:
+        if stroke != momapy.drawing.NoneValue:
             self.context.set_line_width(stroke_width)
             self.context.set_source_rgba(*stroke.to_rgba(rgba_range=(0.0, 1.0)))
             if (
@@ -249,17 +249,16 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
 
     def _make_fill_paint(self):
         fill = self.get_current_value("fill")
-        if fill != momapy.drawing.NoneValue and fill is not None:
+        if fill != momapy.drawing.NoneValue:
             self.context.set_source_rgba(*fill.to_rgba(rgba_range=(0.0, 1.0)))
             return True
         return False
 
     def _stroke_and_fill(self):
         has_fill = self._make_fill_paint()
-        has_stroke = self.get_current_value("stroke") not in [
-            momapy.drawing.NoneValue,
-            None,
-        ]
+        has_stroke = (
+            self.get_current_value("stroke") != momapy.drawing.NoneValue
+        )
 
         if has_fill:
             if has_stroke:
