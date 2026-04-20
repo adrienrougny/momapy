@@ -6,7 +6,6 @@ returns ``None`` early when no layout is being built.
 """
 
 import math
-import lxml
 
 import momapy.builder
 import momapy.drawing
