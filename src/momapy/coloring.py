@@ -250,7 +250,7 @@ class Color(object):
         """
         color_str = color_str.lstrip("#")
         if len(color_str) != 6:
-            raise ValueError(f"invalid hexadecimal RBG value {color_str}")
+            raise ValueError(f"invalid hexadecimal RGB value {color_str}")
         red = int(color_str[:2], 16)
         green = int(color_str[2:4], 16)
         blue = int(color_str[4:6], 16)
@@ -276,7 +276,7 @@ class Color(object):
         """
         color_str = color_str.lstrip("#")
         if len(color_str) != 8:
-            raise ValueError(f"invalid hexadecimal RBGA value {color_str}")
+            raise ValueError(f"invalid hexadecimal RGBA value {color_str}")
         red = int(color_str[:2], 16)
         green = int(color_str[2:4], 16)
         blue = int(color_str[4:6], 16)
