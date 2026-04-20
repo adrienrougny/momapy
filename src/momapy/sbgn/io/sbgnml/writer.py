@@ -5,6 +5,7 @@ looking up layout elements via layout_model_mapping.
 """
 
 import dataclasses
+import os
 import typing
 
 import lxml.etree
@@ -582,7 +583,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
     def write(
         cls,
         obj: momapy.sbgn.core.SBGNMap,
-        file_path,
+        file_path: str | os.PathLike,
         element_to_annotations=None,
         element_to_notes=None,
         source_id_to_model_element=None,
