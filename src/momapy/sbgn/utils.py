@@ -92,9 +92,8 @@ def set_complexes_to_fit_content(
     else:
         map_builder = map_
     for entity_pool in map_builder.model.entity_pools:
-        if isinstance(
-            entity_pool,
-            momapy.builder.get_or_make_builder_cls(momapy.sbgn.pd.Complex),
+        if momapy.builder.isinstance_or_builder(
+            entity_pool, momapy.sbgn.pd.Complex
         ):
             for complex_layout in map_builder.get_mapping(entity_pool):
                 elements = []
