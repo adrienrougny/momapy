@@ -4,34 +4,20 @@ Model-first approach: iterates model collections in dependency order,
 looking up layout elements via layout_model_mapping.
 """
 
-import dataclasses
 import os
-import typing
 
 import lxml.etree
 
 import momapy.core.elements
 import momapy.core.layout
 import momapy.io.core
+import momapy.io.utils
 import momapy.utils
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbgn.io.sbgnml._writing
 import momapy.sbgn.io.sbgnml._writing_classification
-
-
-@dataclasses.dataclass
-class WritingContext:
-    """Bundles the shared state passed across all writer methods."""
-
-    map_: typing.Any
-    element_to_annotations: dict
-    element_to_notes: dict
-    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
-    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
-    with_annotations: bool
-    with_notes: bool
 
 
 # ---------------------------------------------------------------------------
@@ -612,7 +598,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             element_to_annotations = {}
         if element_to_notes is None:
             element_to_notes = {}
-        writing_context = WritingContext(
+        writing_context = momapy.io.utils.WritingContext(
             map_=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,

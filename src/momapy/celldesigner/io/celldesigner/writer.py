@@ -2,7 +2,6 @@
 
 import dataclasses
 import os
-import typing
 
 import lxml.etree
 
@@ -10,6 +9,7 @@ import momapy.coloring
 import momapy.drawing
 import momapy.geometry
 import momapy.io.core
+import momapy.io.utils
 import momapy.utils
 import momapy.celldesigner.core
 import momapy.celldesigner.io.celldesigner._reading_parsing
@@ -68,16 +68,9 @@ def _modulation_reaction_type(modulation):
 
 
 @dataclasses.dataclass
-class WritingContext:
+class WritingContext(momapy.io.utils.WritingContext):
     """Shared state for the writer."""
 
-    map_: typing.Any
-    element_to_annotations: dict
-    element_to_notes: dict
-    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
-    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
-    with_annotations: bool
-    with_notes: bool
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
     used_metaids: set = dataclasses.field(default_factory=set)
     species_to_id: dict = dataclasses.field(default_factory=dict)

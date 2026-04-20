@@ -17,6 +17,25 @@ import momapy.utils
 
 
 @dataclasses.dataclass
+class WritingContext:
+    """Base writing context shared by all format-specific writers.
+
+    Holds the map being written and the ancillary state (annotations,
+    notes, source-id lookups, feature flags) needed during XML
+    construction.  Format-specific writers subclass this and add
+    their own fields.
+    """
+
+    map_: typing.Any
+    element_to_annotations: dict
+    element_to_notes: dict
+    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
+    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
+    with_annotations: bool
+    with_notes: bool
+
+
+@dataclasses.dataclass
 class ReadingContext:
     """Base reading context shared by all format-specific readers.
 
