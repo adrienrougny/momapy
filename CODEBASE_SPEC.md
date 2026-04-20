@@ -264,7 +264,7 @@ Module-level `StyleSheet` constants: `cs_default`, `cs_black_and_white`, `sbgned
 
 ### `src/momapy/sbgn/io/sbgnml/reader.py`
 - `ReadingContext(momapy.io.utils.ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
-- `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, with_styles=True, xsep=0, ysep=0)`.
+- `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0)`.
 - `_get_map_key(sbgnml_map)` (abstract), `_parse_sbgnml_map(reading_context)`.
 
 ### `src/momapy/sbgn/io/sbgnml/writer.py`

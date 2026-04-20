@@ -84,7 +84,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-        with_styles: bool = True,
         xsep: float = 0,
         ysep: float = 0,
     ) -> momapy.io.core.ReaderResult:
@@ -226,7 +225,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-        with_styles: bool = True,
         xsep: float = 0,
         ysep: float = 0,
     ):
