@@ -272,7 +272,7 @@ class Renderer(abc.ABC):
 
     initial_values: typing.ClassVar[dict] = {
         "font_family": momapy.drawing.DEFAULT_FONT_FAMILY,
-        "font_weight": 16.0,
+        "font_weight": momapy.drawing.FontWeight.NORMAL,
     }
     font_weight_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.FontWeight.NORMAL: 400,
