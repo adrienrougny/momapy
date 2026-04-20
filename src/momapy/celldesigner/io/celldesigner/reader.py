@@ -1881,9 +1881,7 @@ class CellDesignerReader(momapy.io.core.Reader):
                     )
                 )
             if reading_context.model is not None:
-                if has_boolean_input:
-                    pass  # source_model_element already set above
-                else:
+                if not has_boolean_input:
                     source_model_element = reading_context.xml_id_to_model_element[
                         cd_base_reactant.get("alias")
                     ]
