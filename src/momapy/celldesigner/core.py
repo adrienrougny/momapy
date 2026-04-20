@@ -2002,7 +2002,6 @@ class _TruncatedProteinShape(momapy.core.layout.Shape):
             momapy.drawing.LineTo(self.joint3()),
             momapy.drawing.LineTo(self.joint4()),
             momapy.drawing.LineTo(self.joint5()),
-            momapy.drawing.LineTo(self.joint5()),
             momapy.drawing.LineTo(self.joint6()),
             momapy.drawing.EllipticalArc(
                 self.joint7(),
