@@ -90,8 +90,12 @@ class BQBiol(BiomodelQualifier):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class RDFAnnotation(momapy.core.elements.ModelElement):
+class RDFAnnotation:
     """RDF annotation linking model elements to external resources.
+
+    RDF annotations are metadata attached to model elements, not model
+    entities themselves, and are therefore plain frozen dataclasses rather
+    than ``ModelElement`` subclasses.
 
     Attributes:
         qualifier: The BioModels qualifier describing the relationship.
@@ -111,17 +115,6 @@ class RDFAnnotation(momapy.core.elements.ModelElement):
     resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
 
 
-# to be defined
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBOTerm(momapy.core.elements.ModelElement):
-    """SBO (Systems Biology Ontology) term annotation.
-
-    SBO terms provide standardized vocabulary for describing model elements.
-    """
-
-    pass
-
-
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBMLModelElement(momapy.core.elements.ModelElement):
@@ -131,12 +124,12 @@ class SBMLModelElement(momapy.core.elements.ModelElement):
 
     Attributes:
         name: Human-readable name of the element.
-        sbo_term: Optional SBO term for semantic annotation.
+        sbo_term: Optional SBO term identifier for semantic annotation.
         metaid: Optional metadata identifier for RDF annotations.
     """
 
     name: str | None = None
-    sbo_term: SBOTerm | None = None
+    sbo_term: str | None = None
     metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
 
 
@@ -265,7 +258,7 @@ class SBMLModel(momapy.core.model.Model):
 
     Attributes:
         name: Human-readable name of the model.
-        sbo_term: Optional SBO term for semantic annotation.
+        sbo_term: Optional SBO term identifier for semantic annotation.
         metaid: Optional metadata identifier for RDF annotations.
         compartments: Set of compartments in the model.
         species: Set of species in the model.
@@ -283,7 +276,7 @@ class SBMLModel(momapy.core.model.Model):
     """
 
     name: str | None = None
-    sbo_term: SBOTerm | None = None
+    sbo_term: str | None = None
     metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
     compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)

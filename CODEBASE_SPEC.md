@@ -418,9 +418,8 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 Purpose: SBML core types and BioModels annotation enums.
 
 - `BiomodelQualifier(Enum)` (abstract), `BQModel(BiomodelQualifier)` (HAS_INSTANCE, IS, IS_DERIVED_FROM, IS_DESCRIBED_BY, IS_INSTANCE_OF), `BQBiol(BiomodelQualifier)` (ENCODES, HAS_PART, HAS_PROPERTY, HAS_VERSION, IS, IS_DESCRIBED_BY, IS_ENCODED_BY, IS_HOMOLOG_TO, IS_PART_OF, IS_PROPERTY_OF, IS_VERSION_OF, OCCURS_IN, HAS_TAXON).
-- `SBMLModelElement(momapy.core.elements.ModelElement)` — abstract; `name: str|None`, `sbo_term: SBOTerm|None`, `metaid: str|None (compare=False, hash=False)`. **(Formerly named `SBase`; renamed so that `Model` is never a `ModelElement` — see `tests/test_io_mappings.py`.)**
-- `RDFAnnotation(ModelElement)` — `qualifier`, `resources: frozenset[str]`.
-- `SBOTerm(ModelElement)` — placeholder.
+- `SBMLModelElement(momapy.core.elements.ModelElement)` — abstract; `name: str|None`, `sbo_term: str|None`, `metaid: str|None (compare=False, hash=False)`. **(Formerly named `SBase`; renamed so that `Model` is never a `ModelElement` — see `tests/test_io_mappings.py`.)**
+- `RDFAnnotation` — plain frozen dataclass (metadata, not a model element); `qualifier`, `resources: frozenset[str]`.
 - `Compartment(SBMLModelElement)` — `outside: Compartment|None`.
 - `Species(SBMLModelElement)` — `compartment: Compartment|None`.
 - `SimpleSpeciesReference(SBMLModelElement)` — `referred_species: Species`.
