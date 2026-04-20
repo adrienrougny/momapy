@@ -1,4 +1,11 @@
-"""Class for rendering with Cairo"""
+"""Class for rendering with Cairo.
+
+Note:
+    SVG filter effects (e.g. drop shadow, Gaussian blur) are not supported
+    by this backend. Cairo has no native filter primitives, so any
+    `filter` attribute on drawing elements is ignored. Use the skia or
+    svg-native backend if you need filter effects.
+"""
 
 import dataclasses
 import typing
@@ -32,6 +39,10 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
 
     This renderer supports multiple output formats including PDF, SVG, PNG,
     and PostScript. It uses Pango for text rendering.
+
+    SVG filter effects (drop shadow, Gaussian blur, etc.) are not supported:
+    Cairo has no native filter primitives, so the `filter` attribute on
+    drawing elements is ignored.
 
     Attributes:
         context: The Cairo context used for rendering
