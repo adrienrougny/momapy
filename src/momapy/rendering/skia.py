@@ -18,6 +18,7 @@ except ModuleNotFoundError as e:
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
+import momapy.utils
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -139,6 +140,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
+        momapy.utils.check_parent_dir_exists(file_path)
         config = {}
         canvas = None
         if format_ == "pdf":

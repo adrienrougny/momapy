@@ -31,6 +31,7 @@ except ModuleNotFoundError as e:
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
+import momapy.utils
 
 
 @dataclasses.dataclass(kw_only=True)
@@ -129,6 +130,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
+        momapy.utils.check_parent_dir_exists(file_path)
         config = {}
         if format_ == "pdf":
             surface = cairo.PDFSurface(file_path, width, height)

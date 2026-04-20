@@ -14,6 +14,7 @@ import momapy.builder
 import momapy.core.elements
 import momapy.core.map
 import momapy.io.core
+import momapy.utils
 
 
 def _filter_mapping_by_classes(
@@ -136,6 +137,7 @@ class PickleWriter(momapy.io.core.Writer):
         source_id_to_layout_element=None,
     ) -> momapy.io.core.WriterResult:
         """Pickle a `ReaderResult` holding `obj` and its side-tables."""
+        momapy.utils.check_parent_dir_exists(file_path)
         reader_result = momapy.io.core.ReaderResult(
             obj=obj,
             element_to_annotations=element_to_annotations,

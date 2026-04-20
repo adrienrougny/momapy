@@ -8,6 +8,7 @@ import xml.sax.saxutils
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
+import momapy.utils
 
 
 @dataclasses.dataclass
@@ -215,6 +216,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
+        momapy.utils.check_parent_dir_exists(output_file)
         if config is None:
             config = {}
         config["output_file"] = output_file

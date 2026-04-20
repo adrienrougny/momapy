@@ -3274,6 +3274,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
         Returns:
             WriterResult.
         """
+        momapy.utils.check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
         if element_to_notes is None:

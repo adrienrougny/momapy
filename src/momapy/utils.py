@@ -6,6 +6,7 @@ pretty printing for dataclasses, and collection manipulation helpers.
 
 import collections.abc
 import dataclasses
+import os
 import uuid
 import types
 
@@ -348,3 +349,22 @@ def make_uuid4_as_str():
         ```
     """
     return str(uuid.uuid4())
+
+
+def check_parent_dir_exists(file_path: str | os.PathLike) -> None:
+    """Raise `FileNotFoundError` if the parent directory of `file_path` is missing.
+
+    Guards against C-backed writers (notably skia's `FILEWStream`) that
+    segfault when handed a path whose parent directory does not exist.
+
+    Args:
+        file_path: Output file path. The file itself does not need to exist.
+
+    Raises:
+        FileNotFoundError: If the parent directory does not exist.
+    """
+    parent_dir = os.path.dirname(os.path.abspath(os.fspath(file_path)))
+    if not os.path.isdir(parent_dir):
+        raise FileNotFoundError(
+            f"parent directory does not exist: {parent_dir}"
+        )

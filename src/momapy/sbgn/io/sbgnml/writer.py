@@ -607,6 +607,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
         """
+        momapy.utils.check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
         if element_to_notes is None:
