@@ -145,7 +145,7 @@ Purpose: `momapy` CLI.
 ### `src/momapy/io/core.py`
 Purpose: reader/writer base classes + dispatch.
 
-- `IOResult` — `exceptions: list[Exception]`.
+- `IOResult` — base class for I/O results.
 - `ReaderResult(IOResult)` — `obj`, `element_to_annotations`, `element_to_notes`, `id_to_element`, `source_id_to_model_element`, `source_id_to_layout_element`, `file_path`.
 - `WriterResult(IOResult)` — `obj`, `file_path`.
 - `Reader(ABC)` — `read(file_path, **options) -> ReaderResult`, `check_file(file_path) -> bool`.

@@ -23,13 +23,7 @@ import momapy.utils
 
 @dataclasses.dataclass
 class IOResult:
-    """Base class for I/O results.
-
-    Attributes:
-        exceptions: List of exceptions that occurred during I/O.
-    """
-
-    exceptions: list[Exception] = dataclasses.field(default_factory=list)
+    """Base class for I/O results."""
 
 
 @dataclasses.dataclass

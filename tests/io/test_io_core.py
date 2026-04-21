@@ -64,20 +64,18 @@ def test_register_writer():
 def test_io_result_creation():
     """Test IOResult creation."""
     result = momapy.io.core.IOResult()
-    assert result.exceptions == []
+    assert result is not None
 
 
 def test_reader_result_creation():
     """Test ReaderResult creation."""
     result = momapy.io.core.ReaderResult()
-    assert result.exceptions == []
     assert result.obj is None
 
 
 def test_writer_result_creation():
     """Test WriterResult creation."""
     result = momapy.io.core.WriterResult()
-    assert result.exceptions == []
     assert result.obj is None
 
 
