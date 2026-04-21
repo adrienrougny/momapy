@@ -179,6 +179,8 @@ class ReadingContext(momapy.io.utils.ReadingContext):
     cd_modulations: list = dataclasses.field(default_factory=list)
     real_model_source_ids: set = dataclasses.field(default_factory=set)
     real_layout_source_ids: set = dataclasses.field(default_factory=set)
+    canvas_width: float = 0.0
+    canvas_height: float = 0.0
 
 
 class CellDesignerReader(momapy.io.core.Reader):
@@ -470,6 +472,12 @@ class CellDesignerReader(momapy.io.core.Reader):
             momapy.celldesigner.io.celldesigner._reading_parsing.get_ordered_compartment_aliases(
                 cd_model, reading_context.xml_id_to_xml_element
             )
+        )
+        reading_context.canvas_width = float(
+            momapy.celldesigner.io.celldesigner._reading_parsing.get_width(cd_model)
+        )
+        reading_context.canvas_height = float(
+            momapy.celldesigner.io.celldesigner._reading_parsing.get_height(cd_model)
         )
         reading_context.cd_compartments = (
             momapy.celldesigner.io.celldesigner._reading_parsing.get_compartments(

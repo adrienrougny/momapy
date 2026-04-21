@@ -255,22 +255,85 @@ def make_species_structural_state(
     return layout_element
 
 
+_CD_CLASS_TO_CORNER = {
+    "SQUARE_CLOSEUP_NORTHWEST": momapy.celldesigner.core.CompartmentCorner.NORTHWEST,
+    "SQUARE_CLOSEUP_NORTHEAST": momapy.celldesigner.core.CompartmentCorner.NORTHEAST,
+    "SQUARE_CLOSEUP_SOUTHWEST": momapy.celldesigner.core.CompartmentCorner.SOUTHWEST,
+    "SQUARE_CLOSEUP_SOUTHEAST": momapy.celldesigner.core.CompartmentCorner.SOUTHEAST,
+}
+_CD_CLASS_TO_SIDE = {
+    "SQUARE_CLOSEUP_NORTH": momapy.celldesigner.core.CompartmentSide.NORTH,
+    "SQUARE_CLOSEUP_SOUTH": momapy.celldesigner.core.CompartmentSide.SOUTH,
+    "SQUARE_CLOSEUP_EAST": momapy.celldesigner.core.CompartmentSide.EAST,
+    "SQUARE_CLOSEUP_WEST": momapy.celldesigner.core.CompartmentSide.WEST,
+}
+
+
+def _corner_region(corner, px, py, canvas_width, canvas_height):
+    if corner is momapy.celldesigner.core.CompartmentCorner.NORTHWEST:
+        return px, py, canvas_width, canvas_height
+    if corner is momapy.celldesigner.core.CompartmentCorner.NORTHEAST:
+        return 0.0, py, px, canvas_height
+    if corner is momapy.celldesigner.core.CompartmentCorner.SOUTHWEST:
+        return px, 0.0, canvas_width, py
+    return 0.0, 0.0, px, py  # SOUTHEAST
+
+
+def _side_region(side, px, py, canvas_width, canvas_height):
+    if side is momapy.celldesigner.core.CompartmentSide.NORTH:
+        return 0.0, py, canvas_width, canvas_height
+    if side is momapy.celldesigner.core.CompartmentSide.SOUTH:
+        return 0.0, 0.0, canvas_width, py
+    if side is momapy.celldesigner.core.CompartmentSide.EAST:
+        return 0.0, 0.0, px, canvas_height
+    return px, 0.0, canvas_width, canvas_height  # WEST
+
+
 def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_alias):
     if reading_context.layout is None:
         return None
-    if getattr(cd_compartment_alias, "class").text == "OVAL":
+    cd_class = getattr(cd_compartment_alias, "class").text
+    corner = _CD_CLASS_TO_CORNER.get(cd_class)
+    side = _CD_CLASS_TO_SIDE.get(cd_class)
+    if cd_class == "OVAL":
         layout_element_cls = momapy.celldesigner.core.OvalCompartmentLayout
+    elif corner is not None:
+        layout_element_cls = momapy.celldesigner.core.CornerCompartmentLayout
+    elif side is not None:
+        layout_element_cls = momapy.celldesigner.core.LineCompartmentLayout
     else:
         layout_element_cls = momapy.celldesigner.core.RectangleCompartmentLayout
     layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = cd_compartment_alias.get("id")
-    cd_x = float(cd_compartment_alias.bounds.get("x"))
-    cd_y = float(cd_compartment_alias.bounds.get("y"))
-    cd_w = float(cd_compartment_alias.bounds.get("w"))
-    cd_h = float(cd_compartment_alias.bounds.get("h"))
-    layout_element.position = momapy.geometry.Point(cd_x + cd_w / 2, cd_y + cd_h / 2)
-    layout_element.width = cd_w
-    layout_element.height = cd_h
+    if corner is not None or side is not None:
+        cd_point = cd_compartment_alias.point
+        px = float(cd_point.get("x"))
+        py = float(cd_point.get("y"))
+        if corner is not None:
+            left, top, right, bottom = _corner_region(
+                corner, px, py, reading_context.canvas_width, reading_context.canvas_height
+            )
+            layout_element.corner = corner
+        else:
+            left, top, right, bottom = _side_region(
+                side, px, py, reading_context.canvas_width, reading_context.canvas_height
+            )
+            layout_element.side = side
+        layout_element.position = momapy.geometry.Point(
+            (left + right) / 2, (top + bottom) / 2
+        )
+        layout_element.width = right - left
+        layout_element.height = bottom - top
+    else:
+        cd_x = float(cd_compartment_alias.bounds.get("x"))
+        cd_y = float(cd_compartment_alias.bounds.get("y"))
+        cd_w = float(cd_compartment_alias.bounds.get("w"))
+        cd_h = float(cd_compartment_alias.bounds.get("h"))
+        layout_element.position = momapy.geometry.Point(
+            cd_x + cd_w / 2, cd_y + cd_h / 2
+        )
+        layout_element.width = cd_w
+        layout_element.height = cd_h
     layout_element.inner_stroke_width = float(
         cd_compartment_alias.doubleLine.get("innerWidth")
     )
@@ -286,7 +349,8 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
     layout_element.stroke = element_color
     layout_element.inner_stroke = element_color
     layout_element.fill = element_color.with_alpha(0.5)
-    layout_element.inner_fill = momapy.coloring.white
+    if hasattr(layout_element, "inner_fill"):
+        layout_element.inner_fill = momapy.coloring.white
     text = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
         cd_compartment.get("name")
     )

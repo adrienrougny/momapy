@@ -671,19 +671,58 @@ def _make_celldesigner_extension(writing_context):
 # --- Compartment aliases ---
 
 
+_COMPARTMENT_LAYOUT_CLASSES = (
+    momapy.celldesigner.core.RectangleCompartmentLayout,
+    momapy.celldesigner.core.OvalCompartmentLayout,
+    momapy.celldesigner.core.CornerCompartmentLayout,
+    momapy.celldesigner.core.LineCompartmentLayout,
+)
+
+
+def _compartment_class_name(layout_key):
+    if isinstance(layout_key, momapy.celldesigner.core.OvalCompartmentLayout):
+        return "OVAL"
+    if isinstance(layout_key, momapy.celldesigner.core.CornerCompartmentLayout):
+        return f"SQUARE_CLOSEUP_{layout_key.corner.value}"
+    if isinstance(layout_key, momapy.celldesigner.core.LineCompartmentLayout):
+        return f"SQUARE_CLOSEUP_{layout_key.side.value}"
+    return "SQUARE"
+
+
+def _compartment_closeup_point(layout_key):
+    bbox = layout_key.bbox()
+    left = bbox.north_west().x
+    top = bbox.north_west().y
+    right = bbox.south_east().x
+    bottom = bbox.south_east().y
+    if isinstance(layout_key, momapy.celldesigner.core.CornerCompartmentLayout):
+        corner = layout_key.corner
+        Corner = momapy.celldesigner.core.CompartmentCorner
+        if corner is Corner.NORTHWEST:
+            return left, top
+        if corner is Corner.NORTHEAST:
+            return right, top
+        if corner is Corner.SOUTHWEST:
+            return left, bottom
+        return right, bottom
+    side = layout_key.side
+    Side = momapy.celldesigner.core.CompartmentSide
+    if side is Side.NORTH:
+        return layout_key.position.x, top
+    if side is Side.SOUTH:
+        return layout_key.position.x, bottom
+    if side is Side.EAST:
+        return right, layout_key.position.y
+    return left, layout_key.position.y
+
+
 def _make_celldesigner_list_of_compartment_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfCompartmentAliases")
     for comp in sorted(writing_context.map_.model.compartments, key=lambda c: c.id_ or ""):
         for layout_key in _get_layouts(writing_context, comp):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(
-                layout_key,
-                (
-                    momapy.celldesigner.core.RectangleCompartmentLayout,
-                    momapy.celldesigner.core.OvalCompartmentLayout,
-                ),
-            ):
+            if isinstance(layout_key, _COMPARTMENT_LAYOUT_CLASSES):
                 alias = _make_celldesigner_element(
                     "compartmentAlias",
                     attrs={
@@ -691,18 +730,30 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
                         "compartment": comp.id_,
                     },
                 )
-                class_name = (
-                    "OVAL"
-                    if isinstance(
-                        layout_key,
-                        momapy.celldesigner.core.OvalCompartmentLayout,
-                    )
-                    else "SQUARE"
-                )
+                class_name = _compartment_class_name(layout_key)
                 alias.append(
                     _make_celldesigner_element("class", text=class_name)
                 )
-                alias.append(_make_celldesigner_element("bounds", attrs=_bounds_attrs(layout_key)))
+                if isinstance(
+                    layout_key,
+                    (
+                        momapy.celldesigner.core.CornerCompartmentLayout,
+                        momapy.celldesigner.core.LineCompartmentLayout,
+                    ),
+                ):
+                    px, py = _compartment_closeup_point(layout_key)
+                    alias.append(
+                        _make_celldesigner_element(
+                            "point",
+                            attrs={"x": str(px), "y": str(py)},
+                        )
+                    )
+                else:
+                    alias.append(
+                        _make_celldesigner_element(
+                            "bounds", attrs=_bounds_attrs(layout_key)
+                        )
+                    )
                 # namePoint (label position)
                 label = getattr(layout_key, "label", None)
                 if label is not None:
@@ -1034,13 +1085,7 @@ def _find_compartment_alias_id(writing_context, species_layout):
         for layout_key in _get_layouts(writing_context, comp):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(
-                layout_key,
-                (
-                    momapy.celldesigner.core.RectangleCompartmentLayout,
-                    momapy.celldesigner.core.OvalCompartmentLayout,
-                ),
-            ):
+            if isinstance(layout_key, _COMPARTMENT_LAYOUT_CLASSES):
                 bbox = layout_key.bbox()
                 north_west = bbox.north_west()
                 south_east = bbox.south_east()
