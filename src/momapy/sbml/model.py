@@ -1,24 +1,32 @@
-"""Core classes for SBML (Systems Biology Markup Language) maps.
+"""Concrete SBML model classes.
 
 This module provides dataclasses representing SBML model elements including
 compartments, species, reactions, and annotations using BioModels qualifiers.
 
 Examples:
     ```python
-    from momapy.sbml.core import Compartment, Species, Model
+    from momapy.sbml.model import Compartment, Species, SBMLModel
     compartment = Compartment(name="cytosol")
     species = Species(name="glucose", compartment=compartment)
-    model = Model(name="glycolysis", compartments={compartment}, species={species})
+    model = SBMLModel(
+        name="glycolysis",
+        compartments={compartment},
+        species={species},
+    )
     ```
 """
 
 import dataclasses
-import typing
 import enum
+import typing
 
-import momapy.core
-import momapy.core.elements
-import momapy.core.model
+from momapy.builder import get_or_make_builder_cls
+
+# Importing momapy.core.builders ensures ModelBuilder is registered with
+# ``new_element`` before SBMLModelBuilder derives from it.
+import momapy.core.builders  # noqa: F401
+from momapy.core.model import Model
+from momapy.sbml.elements import SBMLModelElement
 
 
 class BiomodelQualifier(enum.Enum):
@@ -103,7 +111,7 @@ class RDFAnnotation:
 
     Examples:
         ```python
-        from momapy.sbml.core import RDFAnnotation, BQBiol
+        from momapy.sbml.model import RDFAnnotation, BQBiol
         annotation = RDFAnnotation(
             qualifier=BQBiol.IS,
             resources={"https://identifiers.org/chebi:4167"}
@@ -113,24 +121,6 @@ class RDFAnnotation:
 
     qualifier: BiomodelQualifier
     resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
-
-
-# abstract
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBMLModelElement(momapy.core.elements.ModelElement):
-    """Abstract base class for all SBML elements.
-
-    SBMLModelElement provides common attributes shared by all SBML components.
-
-    Attributes:
-        name: Human-readable name of the element.
-        sbo_term: Optional SBO term identifier for semantic annotation.
-        metaid: Optional metadata identifier for RDF annotations.
-    """
-
-    name: str | None = None
-    sbo_term: str | None = None
-    metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -150,7 +140,7 @@ class Compartment(SBMLModelElement):
     """
 
     outside: typing.Optional[
-        typing.ForwardRef("Compartment", module="momapy.sbml.core")
+        typing.ForwardRef("Compartment", module="momapy.sbml.model")
     ] = None
 
 
@@ -250,7 +240,7 @@ class Reaction(SBMLModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBMLModel(momapy.core.model.Model):
+class SBMLModel(Model):
     """SBML model container.
 
     Models aggregate compartments, species, and reactions into a
@@ -315,8 +305,4 @@ class SBML(SBMLModelElement):
     model: SBMLModel | None = None
 
 
-# Import core.builders first to ensure ModelBuilder is created with
-# new_element before SBMLModelBuilder is derived from it.
-import momapy.core.builders  # noqa: E402
-
-SBMLModelBuilder = momapy.builder.get_or_make_builder_cls(SBMLModel)
+SBMLModelBuilder = get_or_make_builder_cls(SBMLModel)
