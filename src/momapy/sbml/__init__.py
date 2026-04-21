@@ -16,7 +16,6 @@ from momapy.sbml.model import RDFAnnotation as RDFAnnotation
 from momapy.sbml.model import Reaction as Reaction
 from momapy.sbml.model import SBML as SBML
 from momapy.sbml.model import SBMLModel as SBMLModel
-from momapy.sbml.model import SBMLModelBuilder as SBMLModelBuilder
 from momapy.sbml.model import SimpleSpeciesReference as SimpleSpeciesReference
 from momapy.sbml.model import Species as Species
 from momapy.sbml.model import SpeciesReference as SpeciesReference
@@ -32,7 +31,6 @@ __all__ = [
     "Reaction",
     "SBML",
     "SBMLModel",
-    "SBMLModelBuilder",
     "SimpleSpeciesReference",
     "Species",
     "SpeciesReference",

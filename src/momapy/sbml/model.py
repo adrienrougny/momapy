@@ -20,11 +20,6 @@ import dataclasses
 import enum
 import typing
 
-from momapy.builder import get_or_make_builder_cls
-
-# Importing momapy.core.builders ensures ModelBuilder is registered with
-# ``new_element`` before SBMLModelBuilder derives from it.
-import momapy.core.builders  # noqa: F401
 from momapy.core.model import Model
 from momapy.sbml.elements import SBMLModelElement
 
@@ -303,6 +298,3 @@ class SBML(SBMLModelElement):
     level: int = 3
     version: int = 2
     model: SBMLModel | None = None
-
-
-SBMLModelBuilder = get_or_make_builder_cls(SBMLModel)
