@@ -5,7 +5,7 @@ import os
 import dataclasses
 
 import momapy.io.core
-import momapy.celldesigner.core
+import momapy.celldesigner.map
 import momapy.core.layout
 import momapy.core.mapping
 
@@ -144,7 +144,8 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             anchors = [
-                el for el in frozenset_key
+                el
+                for el in frozenset_key
                 if mapping._singleton_to_key.get(el) == frozenset_key
             ]
             assert len(anchors) == 1, (
@@ -165,8 +166,7 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             arcs_in_frozenset = [
-                el for el in frozenset_key
-                if isinstance(el, momapy.core.layout.Arc)
+                el for el in frozenset_key if isinstance(el, momapy.core.layout.Arc)
             ]
             for arc in arcs_in_frozenset:
                 if arc not in mapping:
@@ -213,7 +213,8 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             anchors = [
-                el for el in frozenset_key
+                el
+                for el in frozenset_key
                 if mapping._singleton_to_key.get(el) == frozenset_key
             ]
             assert len(anchors) == 1, (

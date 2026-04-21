@@ -78,12 +78,20 @@ import sys
 import tempfile
 import webbrowser
 
-import momapy.celldesigner.core
 import momapy.celldesigner.utils
 import momapy.sbgn.af
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.utils
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.layout import (
+    ComplexActiveLayout,
+    ComplexLayout,
+    ModificationLayout,
+    OvalCompartmentLayout,
+    RectangleCompartmentLayout,
+    StructuralStateLayout,
+)
 
 
 _BUILTIN_PRESETS = {
@@ -214,7 +222,7 @@ def _infer_writer(map_):
     Raises:
         ValueError: If the map type is not supported for export.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+    if isinstance(map_, CellDesignerMap):
         return "celldesigner"
     elif isinstance(map_, momapy.sbgn.core.SBGNMap):
         return "sbgnml"
@@ -236,7 +244,7 @@ def _run_tidy_operation(map_, args):
         ValueError: If the operation is not supported for the map type.
     """
     operation = args.tidy_operation
-    is_celldesigner = isinstance(map_, momapy.celldesigner.core.CellDesignerMap)
+    is_celldesigner = isinstance(map_, CellDesignerMap)
     is_sbgn = isinstance(map_, momapy.sbgn.core.SBGNMap)
     if not is_celldesigner and not is_sbgn:
         raise ValueError(f"unsupported map type for tidy: {type(map_).__name__}")
@@ -276,12 +284,12 @@ def _run_tidy_operation(map_, args):
             xsep=xsep,
             ysep=ysep,
             exclude=[
-                momapy.celldesigner.core.ModificationLayout,
-                momapy.celldesigner.core.StructuralStateLayout,
-                momapy.celldesigner.core.ComplexLayout,
-                momapy.celldesigner.core.ComplexActiveLayout,
-                momapy.celldesigner.core.OvalCompartmentLayout,
-                momapy.celldesigner.core.RectangleCompartmentLayout,
+                ModificationLayout,
+                StructuralStateLayout,
+                ComplexLayout,
+                ComplexActiveLayout,
+                OvalCompartmentLayout,
+                RectangleCompartmentLayout,
             ],
         )
     elif operation == "fit-epns":
@@ -311,8 +319,8 @@ def _run_tidy_operation(map_, args):
                 xsep=xsep,
                 ysep=ysep,
                 restrict_to=[
-                    momapy.celldesigner.core.ModificationLayout,
-                    momapy.celldesigner.core.StructuralStateLayout,
+                    ModificationLayout,
+                    StructuralStateLayout,
                 ],
             )
         else:
@@ -1203,7 +1211,7 @@ def run(args):
                 momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
                 map_ = momapy.builder.object_from_builder(map_builder)
             if args.tidy:
-                if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+                if isinstance(map_, CellDesignerMap):
                     map_ = momapy.celldesigner.utils.tidy(map_)
                 elif isinstance(map_, momapy.sbgn.core.SBGNMap):
                     map_ = momapy.sbgn.utils.tidy(map_)
@@ -1237,7 +1245,7 @@ def run(args):
             momapy.styling.apply_style_sheet(map_builder, style_sheet)
             map_ = map_builder.build()
         if args.tidy:
-            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+            if isinstance(map_, CellDesignerMap):
                 map_ = momapy.celldesigner.utils.tidy(map_)
             elif isinstance(map_, momapy.sbgn.core.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)
@@ -1249,7 +1257,7 @@ def run(args):
 
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+        if isinstance(map_, CellDesignerMap):
             info = momapy.celldesigner.utils.get_info(map_)
         elif isinstance(map_, momapy.sbgn.core.SBGNMap):
             info = momapy.sbgn.utils.get_info(map_)
@@ -1389,7 +1397,7 @@ def run(args):
             momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
             map_ = momapy.builder.object_from_builder(map_builder)
         if args.tidy:
-            if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
+            if isinstance(map_, CellDesignerMap):
                 map_ = momapy.celldesigner.utils.tidy(map_)
             elif isinstance(map_, momapy.sbgn.core.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)

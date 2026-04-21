@@ -7,16 +7,27 @@ returns ``None`` early when no model is being built.
 
 import frozendict
 
-import momapy.celldesigner.core
-import momapy.sbml.core
-import momapy.celldesigner.io.celldesigner._reading_parsing
+from momapy.celldesigner.io.celldesigner._reading_parsing import (
+    get_notes,
+    get_products,
+    get_rdf,
+    get_rdf_from_notes,
+    get_reactants,
+    get_template_from_species,
+    make_name,
+)
 
-import momapy.sbml.io.sbml._model
-import momapy.sbml.io.sbml._parsing
-import momapy.sbml.io.sbml._qualifiers
-
-QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = (
-    momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER
+from momapy.sbml.io.sbml._model import make_annotations, make_notes
+from momapy.sbml.io.sbml._qualifiers import QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER
+from momapy.celldesigner.map import CellDesignerMapBuilder, CellDesignerModelBuilder
+from momapy.celldesigner.model import (
+    BooleanLogicGateInput,
+    Compartment,
+    Modification,
+    ModificationResidue,
+    Product,
+    Reactant,
+    StructuralState,
 )
 
 
@@ -29,10 +40,10 @@ def make_annotations_from_element(cd_element):
     Returns:
         List of annotations (empty if no RDF block).
     """
-    cd_rdf = momapy.celldesigner.io.celldesigner._reading_parsing.get_rdf(cd_element)
+    cd_rdf = get_rdf(cd_element)
     if cd_rdf is None:
         return []
-    return momapy.sbml.io.sbml._model.make_annotations(cd_rdf)
+    return make_annotations(cd_rdf)
 
 
 def make_annotations_from_notes(cd_notes):
@@ -44,12 +55,10 @@ def make_annotations_from_notes(cd_notes):
     Returns:
         List of annotations (empty if the notes contain no RDF).
     """
-    cd_rdf = momapy.celldesigner.io.celldesigner._reading_parsing.get_rdf_from_notes(
-        cd_notes
-    )
+    cd_rdf = get_rdf_from_notes(cd_notes)
     if cd_rdf is None:
         return []
-    return momapy.sbml.io.sbml._model.make_annotations(cd_rdf)
+    return make_annotations(cd_rdf)
 
 
 def make_notes_from_element(cd_element):
@@ -61,10 +70,8 @@ def make_notes_from_element(cd_element):
     Returns:
         The parsed notes, or an empty notes object if absent.
     """
-    cd_notes = momapy.celldesigner.io.celldesigner._reading_parsing.get_notes(
-        cd_element
-    )
-    return momapy.sbml.io.sbml._model.make_notes(cd_notes)
+    cd_notes = get_notes(cd_element)
+    return make_notes(cd_notes)
 
 
 def make_and_add_annotations(reading_context, cd_element, model_element):
@@ -90,7 +97,7 @@ def make_empty_model(cd_element):
     Returns:
         A new empty CellDesigner model builder.
     """
-    model = momapy.celldesigner.core.CellDesignerModelBuilder()
+    model = CellDesignerModelBuilder()
     return model
 
 
@@ -104,7 +111,7 @@ def make_empty_map(cd_element):
     Returns:
         A new empty CellDesigner map builder.
     """
-    map_ = momapy.celldesigner.core.CellDesignerMapBuilder()
+    map_ = CellDesignerMapBuilder()
     cd_map_id = cd_element.get("id")
     if cd_map_id is not None:
         map_.id_ = cd_map_id
@@ -123,13 +130,9 @@ def make_compartment(reading_context, cd_compartment):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(
-        momapy.celldesigner.core.Compartment
-    )
+    model_element = reading_context.model.new_element(Compartment)
     model_element.id_ = cd_compartment.get("id")
-    model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
-        cd_compartment.get("name")
-    )
+    model_element.name = make_name(cd_compartment.get("name"))
     model_element.metaid = cd_compartment.get("metaid")
     return model_element
 
@@ -149,9 +152,7 @@ def make_species_template(reading_context, cd_species_template, model_element_cl
         return None
     model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = cd_species_template.get("id")
-    model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
-        cd_species_template.get("name")
-    )
+    model_element.name = make_name(cd_species_template.get("name"))
     return model_element
 
 
@@ -172,16 +173,12 @@ def make_modification_residue(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(
-        momapy.celldesigner.core.ModificationResidue
-    )
+    model_element = reading_context.model.new_element(ModificationResidue)
     cd_modification_residue_id = (
         f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
     )
     model_element.id_ = cd_modification_residue_id
-    model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
-        cd_modification_residue.get("name")
-    )
+    model_element.name = make_name(cd_modification_residue.get("name"))
     model_element.order = order
     return model_element
 
@@ -205,9 +202,7 @@ def make_region(reading_context, cd_region, model_element_cls, super_cd_element,
     model_element = reading_context.model.new_element(model_element_cls)
     cd_region_id = f"{super_cd_element.get('id')}_{cd_region.get('id')}"
     model_element.id_ = cd_region_id
-    model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
-        cd_region.get("name")
-    )
+    model_element.name = make_name(cd_region.get("name"))
     active = cd_region.get("active")
     if active is not None:
         model_element.active = True if active == "true" else False
@@ -250,10 +245,8 @@ def make_species(
             cd_compartment_id
         ]
         model_element.compartment = compartment_model_element
-    cd_species_template = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_template_from_species(
-            cd_species, reading_context.xml_id_to_xml_element
-        )
+    cd_species_template = get_template_from_species(
+        cd_species, reading_context.xml_id_to_xml_element
     )
     if cd_species_template is not None:
         model_element.template = reading_context.xml_id_to_model_element[
@@ -280,9 +273,7 @@ def make_species_modification(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(
-        momapy.celldesigner.core.Modification
-    )
+    model_element = reading_context.model.new_element(Modification)
     modification_residue_model_element = reading_context.xml_id_to_model_element[
         cd_modification_residue_id
     ]
@@ -303,9 +294,7 @@ def make_species_structural_state(reading_context, cd_species_structural_state):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(
-        momapy.celldesigner.core.StructuralState
-    )
+    model_element = reading_context.model.new_element(StructuralState)
     model_element.value = cd_species_structural_state.get("structuralState")
     return model_element
 
@@ -344,14 +333,10 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
+    model_element = reading_context.model.new_element(Reactant)
     model_element.base = True
     cd_species_id = cd_base_reactant.get("species")
-    for (
-        cd_reactant
-    ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
-        cd_reaction
-    ):
+    for cd_reactant in get_reactants(cd_reaction):
         if cd_reactant.get("species") == cd_species_id:
             model_element.id_ = cd_reactant.get("metaid")
             cd_stoichiometry = cd_reactant.get("stoichiometry")
@@ -381,13 +366,9 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
+    model_element = reading_context.model.new_element(Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
-    for (
-        cd_reactant
-    ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
-        cd_reaction
-    ):
+    for cd_reactant in get_reactants(cd_reaction):
         if cd_reactant.get("species") == cd_species_id:
             model_element.id_ = cd_reactant.get("metaid")
             cd_stoichiometry = cd_reactant.get("stoichiometry")
@@ -418,12 +399,10 @@ def make_product_from_base(reading_context, cd_base_product, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Product)
+    model_element = reading_context.model.new_element(Product)
     model_element.base = True
     cd_species_id = cd_base_product.get("species")
-    for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
-        cd_reaction
-    ):
+    for cd_product in get_products(cd_reaction):
         if cd_product.get("species") == cd_species_id:
             model_element.id_ = cd_product.get("metaid")
             cd_stoichiometry = cd_product.get("stoichiometry")
@@ -453,11 +432,9 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Product)
+    model_element = reading_context.model.new_element(Product)
     cd_species_id = cd_product_link.get("product")
-    for cd_product in momapy.celldesigner.io.celldesigner._reading_parsing.get_products(
-        cd_reaction
-    ):
+    for cd_product in get_products(cd_reaction):
         if cd_product.get("species") == cd_species_id:
             model_element.id_ = cd_product.get("metaid")
             cd_stoichiometry = cd_product.get("stoichiometry")
@@ -522,9 +499,7 @@ def make_logic_gate_input(reading_context, input_model_element):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(
-        momapy.celldesigner.core.BooleanLogicGateInput
-    )
+    model_element = reading_context.model.new_element(BooleanLogicGateInput)
     model_element.element = input_model_element
     return model_element
 

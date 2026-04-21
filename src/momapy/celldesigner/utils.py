@@ -9,27 +9,69 @@ import collections
 import collections.abc
 import math
 
-import momapy.builder
-import momapy.celldesigner.core
-import momapy.celldesigner.io.celldesigner._reading_parsing
-import momapy.core.elements
-import momapy.core.layout
-import momapy.geometry
-import momapy.positioning
-import momapy.styling
-import momapy.coloring
-import momapy.drawing
-
-
-_ALL_ANCHOR_NAMES = list(
-    momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values()
+from momapy.builder import (
+    Builder,
+    builder_from_object,
+    isinstance_or_builder,
+    object_from_builder,
+)
+from momapy.celldesigner.io.celldesigner._reading_parsing import (
+    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
+)
+from momapy.core.elements import LayoutElement
+from momapy.core.layout import Arc, Node
+from momapy.geometry import Point
+from momapy.positioning import fit, set_fit, set_position
+from momapy.styling import (
+    ClassSelector,
+    CompoundSelector,
+    IdSelector,
+    NotSelector,
+    OrSelector,
+    StyleCollection,
+    StyleSheet,
+    TypeSelector,
+    apply_style_sheet,
+)
+from momapy.coloring import lightgray, white
+from momapy.drawing import NoneValue
+from momapy.celldesigner.model import Complex
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.layout import (
+    CatalysisLayout,
+    ComplexLayout,
+    ConsumptionLayout,
+    DissociationLayout,
+    HeterodimerAssociationLayout,
+    InhibitionLayout,
+    LogicArcLayout,
+    ModificationLayout,
+    ModulationLayout,
+    PhysicalStimulationLayout,
+    PositiveInfluenceLayout,
+    ProductionLayout,
+    ReactionLayout,
+    StructuralStateLayout,
+    TriggeringLayout,
+    TruncationLayout,
+    UnknownCatalysisLayout,
+    UnknownInhibitionLayout,
+    UnknownModulationLayout,
+    UnknownPhysicalStimulationLayout,
+    UnknownPositiveInfluenceLayout,
+    UnknownTriggeringLayout,
+    _ACTIVE_XSEP,
+    _ACTIVE_YSEP,
 )
 
 
+_ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
+
+
 def _closest_anchor_point(
-    node: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-    point: momapy.geometry.Point,
-) -> momapy.geometry.Point:
+    node: LayoutElement | Builder,
+    point: Point,
+) -> Point:
     """Find the named anchor point on a node closest to a given point.
 
     Iterates over the 16 compass anchor positions and returns the one
@@ -42,8 +84,8 @@ def _closest_anchor_point(
     Returns:
         The anchor point closest to ``point``.
     """
-    if isinstance(node, momapy.builder.Builder):
-        frozen_node = momapy.builder.object_from_builder(node)
+    if isinstance(node, Builder):
+        frozen_node = object_from_builder(node)
     else:
         frozen_node = node
     best_point = None
@@ -60,11 +102,9 @@ def _closest_anchor_point(
 
 
 def highlight_layout_elements(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
-    layout_elements: collections.abc.Iterable[
-        momapy.core.elements.LayoutElement | momapy.builder.Builder
-    ],
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+    map_: CellDesignerMap | Builder,
+    layout_elements: collections.abc.Iterable[LayoutElement | Builder],
+) -> CellDesignerMap | Builder:
     """Highlight specific layout elements by graying out all others.
 
     Applies a stylesheet that dims all layout elements except the
@@ -80,8 +120,8 @@ def highlight_layout_elements(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     all_layout_elements = []
@@ -89,26 +129,25 @@ def highlight_layout_elements(
         all_layout_elements.append(layout_element)
         all_layout_elements += layout_element.descendants()
     id_selectors = [
-        momapy.styling.IdSelector(layout_element.id_)
-        for layout_element in all_layout_elements
+        IdSelector(layout_element.id_) for layout_element in all_layout_elements
     ]
-    not_selector = momapy.styling.NotSelector(tuple(id_selectors))
-    layout_element_selector = momapy.styling.CompoundSelector(
-        tuple([momapy.styling.ClassSelector("LayoutElement"), not_selector])
+    not_selector = NotSelector(tuple(id_selectors))
+    layout_element_selector = CompoundSelector(
+        tuple([ClassSelector("LayoutElement"), not_selector])
     )
-    text_layout_selector = momapy.styling.CompoundSelector(
-        tuple([momapy.styling.TypeSelector("TextLayout"), not_selector])
+    text_layout_selector = CompoundSelector(
+        tuple([TypeSelector("TextLayout"), not_selector])
     )
-    production_layout_selector = momapy.styling.CompoundSelector(
-        tuple([momapy.styling.TypeSelector("ProductionLayout"), not_selector])
+    production_layout_selector = CompoundSelector(
+        tuple([TypeSelector("ProductionLayout"), not_selector])
     )
-    compartment_layout_selector = momapy.styling.CompoundSelector(
+    compartment_layout_selector = CompoundSelector(
         tuple(
             [
-                momapy.styling.OrSelector(
+                OrSelector(
                     tuple(
                         [
-                            momapy.styling.TypeSelector(class_name)
+                            TypeSelector(class_name)
                             for class_name in [
                                 "RectangleCompartmentLayout",
                                 "OvalCompartmentLayout",
@@ -122,13 +161,13 @@ def highlight_layout_elements(
             ]
         )
     )
-    reaction_layout_selector = momapy.styling.CompoundSelector(
+    reaction_layout_selector = CompoundSelector(
         tuple(
             [
-                momapy.styling.OrSelector(
+                OrSelector(
                     tuple(
                         [
-                            momapy.styling.TypeSelector(class_name)
+                            TypeSelector(class_name)
                             for class_name in [
                                 "StateTransitionLayout",
                                 "HeterodimerAssociationLayout",
@@ -145,12 +184,12 @@ def highlight_layout_elements(
             ]
         )
     )
-    style_sheet = momapy.styling.StyleSheet(
+    style_sheet = StyleSheet(
         {
-            layout_element_selector: momapy.styling.StyleCollection(
+            layout_element_selector: StyleCollection(
                 {
                     "stroke": None,
-                    "fill": momapy.coloring.white,
+                    "fill": white,
                     "path_stroke": None,
                     "end_arrowhead_stroke": None,
                     "start_arrowhead_stroke": None,
@@ -158,50 +197,50 @@ def highlight_layout_elements(
                     "reaction_node_stroke": None,
                     "active_stroke": None,
                     "inner_stroke": None,
-                    "group_stroke": momapy.coloring.lightgray,
+                    "group_stroke": lightgray,
                 }
             ),
-            text_layout_selector: momapy.styling.StyleCollection(
+            text_layout_selector: StyleCollection(
                 {
-                    "stroke": momapy.drawing.NoneValue,
-                    "fill": momapy.coloring.lightgray,
+                    "stroke": NoneValue,
+                    "fill": lightgray,
                 }
             ),
-            production_layout_selector: momapy.styling.StyleCollection(
+            production_layout_selector: StyleCollection(
                 {
-                    "arrowhead_stroke": momapy.coloring.lightgray,
-                    "arrowhead_fill": momapy.coloring.lightgray,
+                    "arrowhead_stroke": lightgray,
+                    "arrowhead_fill": lightgray,
                 }
             ),
-            compartment_layout_selector: momapy.styling.StyleCollection(
+            compartment_layout_selector: StyleCollection(
                 {
-                    "fill": momapy.coloring.lightgray,
+                    "fill": lightgray,
                 }
             ),
-            reaction_layout_selector: momapy.styling.StyleCollection(
+            reaction_layout_selector: StyleCollection(
                 {
-                    "end_arrowhead_stroke": momapy.coloring.lightgray,
-                    "end_arrowhead_fill": momapy.coloring.lightgray,
-                    "start_arrowhead_stroke": momapy.coloring.lightgray,
-                    "start_arrowhead_fill": momapy.coloring.lightgray,
-                    "_font_fill": momapy.coloring.lightgray,
+                    "end_arrowhead_stroke": lightgray,
+                    "end_arrowhead_fill": lightgray,
+                    "start_arrowhead_stroke": lightgray,
+                    "start_arrowhead_fill": lightgray,
+                    "_font_fill": lightgray,
                 }
             ),
         }
     )
-    map_builder.layout = momapy.styling.apply_style_sheet(
+    map_builder.layout = apply_style_sheet(
         map_builder.layout, style_sheet, strict=False
     )
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_layout_to_fit_content(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Resize layout to fit all elements.
 
     Adjusts the layout dimensions to contain all layout elements.
@@ -216,15 +255,13 @@ def set_layout_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
-    momapy.positioning.set_fit(
-        map_builder.layout, map_builder.layout.layout_elements, xsep, ysep
-    )
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    set_fit(map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
@@ -246,25 +283,21 @@ def _update_active_layout(layout_element):
             hasattr(child, "_cls_to_build")
             and child._cls_to_build.__name__.endswith("ActiveLayout")
         ):
-            child.width = (
-                layout_element.width + 2 * momapy.celldesigner.core._ACTIVE_XSEP
-            )
-            child.height = (
-                layout_element.height + 2 * momapy.celldesigner.core._ACTIVE_YSEP
-            )
+            child.width = layout_element.width + 2 * _ACTIVE_XSEP
+            child.height = layout_element.height + 2 * _ACTIVE_YSEP
             child.position = layout_element.position
             break
 
 
 def set_nodes_to_fit_labels(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
     omit_width: bool = False,
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
     exclude: collections.abc.Sequence[type] | None = None,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Resize nodes to fit their labels.
 
     Adjusts node dimensions to accommodate label text.
@@ -283,14 +316,14 @@ def set_nodes_to_fit_labels(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     if restrict_to is None:
         restrict_to = []
     if not restrict_to:
-        restrict_to = [momapy.core.layout.Node]
+        restrict_to = [Node]
     if exclude is None:
         exclude = []
     exclude = tuple(exclude)
@@ -299,32 +332,30 @@ def set_nodes_to_fit_labels(
         return map_builder
     for layout_element in map_builder.layout.descendants():
         if (
-            momapy.builder.isinstance_or_builder(layout_element, restrict_to)
-            and not momapy.builder.isinstance_or_builder(layout_element, exclude)
+            isinstance_or_builder(layout_element, restrict_to)
+            and not isinstance_or_builder(layout_element, exclude)
             and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
-            bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
+            bbox = fit([layout_element.label.bbox()], xsep, ysep)
             if not omit_width:
                 if bbox.width > layout_element.width:
                     layout_element.width = bbox.width
             if not omit_height:
                 if bbox.height > layout_element.height:
                     layout_element.height = bbox.height
-            momapy.positioning.set_position(
-                layout_element, bbox.position, anchor="label_center"
-            )
+            set_position(layout_element, bbox.position, anchor="label_center")
             _update_active_layout(layout_element)
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_compartments_to_fit_content(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Resize compartments to fit their content.
 
     Adjusts compartment dimensions to tightly enclose their contained
@@ -342,8 +373,8 @@ def set_compartments_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     compartment_species_mapping = collections.defaultdict(list)
@@ -390,14 +421,14 @@ def set_compartments_to_fit_content(
                         continue
                     elements.append(child_layout)
             if elements:
-                momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
+                set_fit(compartment_layout, elements, xsep, ysep)
                 if compartment_layout.label is not None:
                     compartment_layout.label.position = compartment_layout.south() - (
                         0.0,
                         compartment_layout.label.font_size,
                     )
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
@@ -436,10 +467,10 @@ def _sort_compartments_inside_out(
 
 
 def set_complexes_to_fit_content(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Resize complexes to fit their subunits.
 
     Adjusts complex dimensions to tightly enclose their contained
@@ -455,14 +486,12 @@ def set_complexes_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     for species in map_builder.model.species:
-        if not momapy.builder.isinstance_or_builder(
-            species, momapy.celldesigner.core.Complex
-        ):
+        if not isinstance_or_builder(species, Complex):
             continue
         species_layouts = map_builder.get_mapping(species)
         if species_layouts is None:
@@ -472,9 +501,7 @@ def set_complexes_to_fit_content(
         for complex_layout in species_layouts:
             if isinstance(complex_layout, frozenset):
                 continue
-            if not momapy.builder.isinstance_or_builder(
-                complex_layout, momapy.celldesigner.core.ComplexLayout
-            ):
+            if not isinstance_or_builder(complex_layout, ComplexLayout):
                 continue
             elements = []
             for subunit in species.subunits:
@@ -488,18 +515,18 @@ def set_complexes_to_fit_content(
                         continue
                     elements.append(subunit_layout)
             if elements:
-                momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
+                set_fit(complex_layout, elements, xsep, ysep)
                 if complex_layout.label is not None:
                     complex_layout.label.position = complex_layout.position
                 _update_active_layout(complex_layout)
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_modifications_to_borders(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+    map_: CellDesignerMap | Builder,
+) -> CellDesignerMap | Builder:
     """Position modifications and structural states at node borders.
 
     Moves modification and structural state layouts to the borders
@@ -516,11 +543,11 @@ def set_modifications_to_borders(
 
     def _recursive_set_modifications_to_borders(layout_element):
         for child in layout_element.children():
-            if momapy.builder.isinstance_or_builder(
+            if isinstance_or_builder(
                 child,
                 (
-                    momapy.celldesigner.core.ModificationLayout,
-                    momapy.celldesigner.core.StructuralStateLayout,
+                    ModificationLayout,
+                    StructuralStateLayout,
                 ),
             ):
                 position = layout_element.own_border(child.position)
@@ -529,20 +556,20 @@ def set_modifications_to_borders(
                     child.label.position = position
             _recursive_set_modifications_to_borders(child)
 
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     _recursive_set_modifications_to_borders(map_builder.layout)
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_modifications_label_font_size(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     font_size: float,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Set font size for modification and structural state labels.
 
     Args:
@@ -557,30 +584,30 @@ def set_modifications_label_font_size(
 
     def _recursive_set_font_size(layout_element, font_size):
         for child in layout_element.children():
-            if momapy.builder.isinstance_or_builder(
+            if isinstance_or_builder(
                 child,
                 (
-                    momapy.celldesigner.core.ModificationLayout,
-                    momapy.celldesigner.core.StructuralStateLayout,
+                    ModificationLayout,
+                    StructuralStateLayout,
                 ),
             ):
                 if child.label is not None:
                     child.label.font_size = font_size
             _recursive_set_font_size(child, font_size)
 
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     _recursive_set_font_size(map_builder.layout, font_size)
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_arcs_to_borders(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+    map_: CellDesignerMap | Builder,
+) -> CellDesignerMap | Builder:
     """Adjust arc endpoints to node borders.
 
     Updates arc start and end points to connect at the borders of
@@ -611,47 +638,41 @@ def set_arcs_to_borders(
             end_point = _closest_anchor_point(target, points[-1])
         else:
             end_point = points[-1]
-        arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
-            start_point
-        )
-        arc_layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
-            end_point
-        )
+        arc_layout_element.segments[0].p1 = builder_from_object(start_point)
+        arc_layout_element.segments[-1].p2 = builder_from_object(end_point)
 
     _MODIFIER_TYPES = (
-        momapy.celldesigner.core.CatalysisLayout,
-        momapy.celldesigner.core.UnknownCatalysisLayout,
-        momapy.celldesigner.core.InhibitionLayout,
-        momapy.celldesigner.core.UnknownInhibitionLayout,
-        momapy.celldesigner.core.PhysicalStimulationLayout,
-        momapy.celldesigner.core.UnknownPhysicalStimulationLayout,
-        momapy.celldesigner.core.ModulationLayout,
-        momapy.celldesigner.core.UnknownModulationLayout,
-        momapy.celldesigner.core.TriggeringLayout,
-        momapy.celldesigner.core.UnknownTriggeringLayout,
-        momapy.celldesigner.core.PositiveInfluenceLayout,
-        momapy.celldesigner.core.UnknownPositiveInfluenceLayout,
+        CatalysisLayout,
+        UnknownCatalysisLayout,
+        InhibitionLayout,
+        UnknownInhibitionLayout,
+        PhysicalStimulationLayout,
+        UnknownPhysicalStimulationLayout,
+        ModulationLayout,
+        UnknownModulationLayout,
+        TriggeringLayout,
+        UnknownTriggeringLayout,
+        PositiveInfluenceLayout,
+        UnknownPositiveInfluenceLayout,
     )
 
     _T_SHAPE_TYPES = (
-        momapy.celldesigner.core.HeterodimerAssociationLayout,
-        momapy.celldesigner.core.DissociationLayout,
-        momapy.celldesigner.core.TruncationLayout,
+        HeterodimerAssociationLayout,
+        DissociationLayout,
+        TruncationLayout,
     )
 
     def _snap_start_to_border(layout_element, node):
         """Snap segments[0].p1 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[0])
-        layout_element.segments[0].p1 = momapy.builder.builder_from_object(anchor_point)
+        layout_element.segments[0].p1 = builder_from_object(anchor_point)
 
     def _snap_end_to_border(layout_element, node):
         """Snap segments[-1].p2 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[-1])
-        layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
-            anchor_point
-        )
+        layout_element.segments[-1].p2 = builder_from_object(anchor_point)
 
     def _snap_end_to_reaction_node(layout_element, reaction_layout):
         """Snap segments[-1].p2 to reaction node border."""
@@ -659,12 +680,10 @@ def set_arcs_to_borders(
         reference = points[-2] if len(points) > 2 else points[0]
         border_point = reaction_layout.reaction_node_border(reference)
         if border_point is not None:
-            layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
-                border_point
-            )
+            layout_element.segments[-1].p2 = builder_from_object(border_point)
 
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
 
@@ -675,9 +694,7 @@ def set_arcs_to_borders(
         # Reaction layouts — snap source/target species endpoints.
         # This fixes the reaction node position (midpoint of segment).
         for layout_element in map_builder.layout.layout_elements:
-            if not momapy.builder.isinstance_or_builder(
-                layout_element, momapy.celldesigner.core.ReactionLayout
-            ):
+            if not isinstance_or_builder(layout_element, ReactionLayout):
                 continue
             source = layout_element.source
             target = layout_element.target
@@ -690,9 +707,7 @@ def set_arcs_to_borders(
         # border and target reaction node border (or target species
         # border for species-to-species modulations).
         for layout_element in map_builder.layout.layout_elements:
-            if not momapy.builder.isinstance_or_builder(
-                layout_element, _MODIFIER_TYPES
-            ):
+            if not isinstance_or_builder(layout_element, _MODIFIER_TYPES):
                 continue
             source = layout_element.source
             target = layout_element.target
@@ -707,37 +722,27 @@ def set_arcs_to_borders(
         # Consumption and production arcs — snap to species borders
         # and reaction connector tips.
         for layout_element in map_builder.layout.layout_elements:
-            if momapy.builder.isinstance_or_builder(
-                layout_element, momapy.celldesigner.core.ConsumptionLayout
-            ):
+            if isinstance_or_builder(layout_element, ConsumptionLayout):
                 reaction_layout = layout_element.source
                 species_layout = layout_element.target
                 if species_layout is not None and hasattr(species_layout, "own_border"):
                     _snap_start_to_border(layout_element, species_layout)
-                is_t_shape = momapy.builder.isinstance_or_builder(
-                    reaction_layout, _T_SHAPE_TYPES
-                )
+                is_t_shape = isinstance_or_builder(reaction_layout, _T_SHAPE_TYPES)
                 if not is_t_shape and hasattr(reaction_layout, "left_connector_tip"):
-                    layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+                    layout_element.segments[-1].p2 = builder_from_object(
                         reaction_layout.left_connector_tip()
                     )
-            elif momapy.builder.isinstance_or_builder(
-                layout_element, momapy.celldesigner.core.ProductionLayout
-            ):
+            elif isinstance_or_builder(layout_element, ProductionLayout):
                 reaction_layout = layout_element.source
                 species_layout = layout_element.target
-                is_t_shape = momapy.builder.isinstance_or_builder(
-                    reaction_layout, _T_SHAPE_TYPES
-                )
+                is_t_shape = isinstance_or_builder(reaction_layout, _T_SHAPE_TYPES)
                 if not is_t_shape and hasattr(reaction_layout, "right_connector_tip"):
-                    layout_element.segments[0].p1 = momapy.builder.builder_from_object(
+                    layout_element.segments[0].p1 = builder_from_object(
                         reaction_layout.right_connector_tip()
                     )
                 if species_layout is not None and hasattr(species_layout, "own_border"):
                     _snap_end_to_border(layout_element, species_layout)
-            elif momapy.builder.isinstance_or_builder(
-                layout_element, momapy.celldesigner.core.LogicArcLayout
-            ):
+            elif isinstance_or_builder(layout_element, LogicArcLayout):
                 _set_arc_to_borders(
                     layout_element,
                     layout_element.source,
@@ -746,15 +751,15 @@ def set_arcs_to_borders(
                     "border",
                 )
 
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def straighten_arcs(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     angle_tolerance: float = 5.0,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Straighten near-horizontal and near-vertical arc segments.
 
     For each segment in an arc, checks whether the segment is close to
@@ -779,14 +784,12 @@ def straighten_arcs(
     """
     min_segment_length = 1.0
 
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     for layout_element in map_builder.layout.layout_elements:
-        if not momapy.builder.isinstance_or_builder(
-            layout_element, momapy.core.layout.Arc
-        ):
+        if not isinstance_or_builder(layout_element, Arc):
             continue
         for index in range(len(layout_element.segments)):
             segment = layout_element.segments[index]
@@ -798,27 +801,23 @@ def straighten_arcs(
             angle_from_horizontal = math.degrees(math.atan2(abs(delta_y), abs(delta_x)))
             if angle_from_horizontal <= angle_tolerance:
                 # Nearly horizontal: snap p2.y to p1.y.
-                new_point = momapy.builder.builder_from_object(
-                    momapy.geometry.Point(segment.p2.x, segment.p1.y)
-                )
+                new_point = builder_from_object(Point(segment.p2.x, segment.p1.y))
                 segment.p2 = new_point
                 if index + 1 < len(layout_element.segments):
                     layout_element.segments[index + 1].p1 = new_point
             elif angle_from_horizontal >= 90.0 - angle_tolerance:
                 # Nearly vertical: snap p2.x to p1.x.
-                new_point = momapy.builder.builder_from_object(
-                    momapy.geometry.Point(segment.p1.x, segment.p2.y)
-                )
+                new_point = builder_from_object(Point(segment.p1.x, segment.p2.y))
                 segment.p2 = new_point
                 if index + 1 < len(layout_element.segments):
                     layout_element.segments[index + 1].p1 = new_point
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def tidy(
-    map_: momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder,
+    map_: CellDesignerMap | Builder,
     modifications_omit_width: bool = False,
     modifications_omit_height: bool = False,
     nodes_xsep: float = 4,
@@ -832,7 +831,7 @@ def tidy(
     layout_xsep: float = 0,
     layout_ysep: float = 0,
     arcs_angle_tolerance: float = 5.0,
-) -> momapy.celldesigner.core.CellDesignerMap | momapy.builder.Builder:
+) -> CellDesignerMap | Builder:
     """Apply comprehensive layout tidying to a CellDesigner map.
 
     Performs multiple layout optimization steps including fitting nodes to
@@ -863,8 +862,8 @@ def tidy(
         The tidied map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, CellDesignerMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     set_nodes_to_fit_labels(
@@ -872,9 +871,9 @@ def tidy(
         xsep=nodes_xsep,
         ysep=nodes_ysep,
         exclude=[
-            momapy.celldesigner.core.ModificationLayout,
-            momapy.celldesigner.core.StructuralStateLayout,
-            momapy.celldesigner.core.ComplexLayout,
+            ModificationLayout,
+            StructuralStateLayout,
+            ComplexLayout,
         ],
     )
     set_modifications_to_borders(map_builder)
@@ -885,8 +884,8 @@ def tidy(
         omit_width=modifications_omit_width,
         omit_height=modifications_omit_height,
         restrict_to=[
-            momapy.celldesigner.core.ModificationLayout,
-            momapy.celldesigner.core.StructuralStateLayout,
+            ModificationLayout,
+            StructuralStateLayout,
         ],
     )
     set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
@@ -894,12 +893,12 @@ def tidy(
     set_arcs_to_borders(map_builder)
     straighten_arcs(map_builder, arcs_angle_tolerance)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
-    if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, CellDesignerMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
-def get_info(map_: momapy.celldesigner.core.CellDesignerMap) -> dict:
+def get_info(map_: CellDesignerMap) -> dict:
     """Get a summary of the contents of a CellDesigner map.
 
     Returns a dictionary with the map type, model element counts,

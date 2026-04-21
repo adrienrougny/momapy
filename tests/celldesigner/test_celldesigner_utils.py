@@ -6,10 +6,15 @@ import pytest
 
 import momapy.io.core
 import momapy.builder
-import momapy.celldesigner.core
 import momapy.celldesigner.utils
 import momapy.coloring
 import momapy.core.layout
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.layout import (
+    ComplexLayout,
+    ModificationLayout,
+    StructuralStateLayout,
+)
 
 
 ALL_UTILS_FUNCTIONS = [
@@ -84,26 +89,22 @@ class TestReturnTypes:
     """Utils functions return the correct type depending on input."""
 
     @pytest.mark.parametrize("func_name", ALL_UTILS_FUNCTIONS)
-    def test_returns_cd_map_for_cd_map_input(
-        self, representative_map, func_name
-    ):
+    def test_returns_cd_map_for_cd_map_input(self, representative_map, func_name):
         result = _call_function(func_name, representative_map)
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        ), f"{func_name} should return CellDesignerMap when given CellDesignerMap"
+        assert isinstance(result, CellDesignerMap), (
+            f"{func_name} should return CellDesignerMap when given CellDesignerMap"
+        )
 
     @pytest.mark.parametrize("func_name", ALL_UTILS_FUNCTIONS)
-    def test_returns_builder_for_builder_input(
-        self, representative_map, func_name
-    ):
+    def test_returns_builder_for_builder_input(self, representative_map, func_name):
         builder = momapy.builder.builder_from_object(representative_map)
         result = _call_function(func_name, builder)
-        assert not isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        ), f"{func_name} should not return CellDesignerMap when given a builder"
-        assert momapy.builder.isinstance_or_builder(
-            result, momapy.celldesigner.core.CellDesignerMap
-        ), f"{func_name} should return a builder of CellDesignerMap"
+        assert not isinstance(result, CellDesignerMap), (
+            f"{func_name} should not return CellDesignerMap when given a builder"
+        )
+        assert momapy.builder.isinstance_or_builder(result, CellDesignerMap), (
+            f"{func_name} should return a builder of CellDesignerMap"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -119,9 +120,7 @@ class TestHighlightLayoutElements:
         result = momapy.celldesigner.utils.highlight_layout_elements(
             representative_map, []
         )
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        )
+        assert isinstance(result, CellDesignerMap)
 
 
 # ---------------------------------------------------------------------------
@@ -135,20 +134,16 @@ class TestSetNodesToFitLabels:
     def test_with_exclude(self, representative_map):
         result = momapy.celldesigner.utils.set_nodes_to_fit_labels(
             representative_map,
-            exclude=[momapy.celldesigner.core.ComplexLayout],
+            exclude=[ComplexLayout],
         )
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        )
+        assert isinstance(result, CellDesignerMap)
 
     def test_with_restrict_to(self, representative_map):
         result = momapy.celldesigner.utils.set_nodes_to_fit_labels(
             representative_map,
-            restrict_to=[momapy.celldesigner.core.ModificationLayout],
+            restrict_to=[ModificationLayout],
         )
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        )
+        assert isinstance(result, CellDesignerMap)
 
     def test_omit_both_returns_early(self, representative_map):
         builder = momapy.builder.builder_from_object(representative_map)
@@ -163,15 +158,13 @@ class TestSetModificationsLabelFontSize:
 
     def test_sets_font_size(self, representative_map):
         builder = momapy.builder.builder_from_object(representative_map)
-        momapy.celldesigner.utils.set_modifications_label_font_size(
-            builder, 8.0
-        )
+        momapy.celldesigner.utils.set_modifications_label_font_size(builder, 8.0)
         for layout_element in builder.layout.descendants():
             if momapy.builder.isinstance_or_builder(
                 layout_element,
                 (
-                    momapy.celldesigner.core.ModificationLayout,
-                    momapy.celldesigner.core.StructuralStateLayout,
+                    ModificationLayout,
+                    StructuralStateLayout,
                 ),
             ):
                 if layout_element.label is not None:
@@ -185,9 +178,7 @@ class TestSetLayoutToFitContent:
         result = momapy.celldesigner.utils.set_layout_to_fit_content(
             representative_map, xsep=20, ysep=20
         )
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        )
+        assert isinstance(result, CellDesignerMap)
 
 
 class TestTidy:
@@ -203,9 +194,7 @@ class TestTidy:
             compartments_xsep=10,
             compartments_ysep=10,
         )
-        assert isinstance(
-            result, momapy.celldesigner.core.CellDesignerMap
-        )
+        assert isinstance(result, CellDesignerMap)
 
 
 # ---------------------------------------------------------------------------
@@ -218,9 +207,7 @@ class TestNonCrash:
 
     def test_highlight_with_first_element(self, cd_map):
         layout_elements = list(cd_map.layout.layout_elements)[:1]
-        momapy.celldesigner.utils.highlight_layout_elements(
-            cd_map, layout_elements
-        )
+        momapy.celldesigner.utils.highlight_layout_elements(cd_map, layout_elements)
 
     def test_highlight_with_no_elements(self, cd_map):
         momapy.celldesigner.utils.highlight_layout_elements(cd_map, [])
@@ -241,9 +228,7 @@ class TestNonCrash:
         momapy.celldesigner.utils.set_modifications_to_borders(cd_map)
 
     def test_set_modifications_label_font_size(self, cd_map):
-        momapy.celldesigner.utils.set_modifications_label_font_size(
-            cd_map, 10.0
-        )
+        momapy.celldesigner.utils.set_modifications_label_font_size(cd_map, 10.0)
 
     def test_set_arcs_to_borders(self, cd_map):
         momapy.celldesigner.utils.set_arcs_to_borders(cd_map)

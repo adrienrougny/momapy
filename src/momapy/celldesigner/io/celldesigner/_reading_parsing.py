@@ -7,8 +7,7 @@ objectify trees and return raw Python / geometry values.
 
 import collections
 
-import momapy.geometry
-import momapy.sbml.io.sbml._parsing
+from momapy.sbml.io.sbml._parsing import _RDF_NAMESPACE, get_prefix_and_name
 
 _CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
 
@@ -275,9 +274,7 @@ _TEMPLATE_LOCALNAME_TO_TYPE = {
 def get_key_from_species_template(cd_species_template):
     template_type = cd_species_template.get("type")
     if template_type is None:
-        _, localname = momapy.sbml.io.sbml._parsing.get_prefix_and_name(
-            cd_species_template.tag
-        )
+        _, localname = get_prefix_and_name(cd_species_template.tag)
         template_type = _TEMPLATE_LOCALNAME_TO_TYPE.get(localname)
     return (
         "TEMPLATE",
@@ -299,9 +296,7 @@ def get_key_from_species(cd_species, cd_id_to_cd_element):
     else:
         key = cd_species_template.get("type")
         if key is None:
-            _, localname = momapy.sbml.io.sbml._parsing.get_prefix_and_name(
-                cd_species_template.tag
-            )
+            _, localname = get_prefix_and_name(cd_species_template.tag)
             key = _TEMPLATE_LOCALNAME_TO_TYPE.get(localname)
     return ("SPECIES", key)
 
@@ -548,7 +543,7 @@ def get_notes(cd_element):
 
 
 def get_rdf_from_notes(cd_notes):
-    rdfs = list(cd_notes.iter(f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF"))
+    rdfs = list(cd_notes.iter(f"{{{_RDF_NAMESPACE}}}RDF"))
     if rdfs:
         return rdfs[0]
     return None
@@ -558,9 +553,7 @@ def get_rdf(cd_element):
     annotation = get_annotation(cd_element)
     if annotation is None:
         return None
-    return getattr(
-        annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None
-    )
+    return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
 
 
 def make_id_to_element_mapping(cd_model):

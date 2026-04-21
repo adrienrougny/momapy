@@ -11,6 +11,7 @@ import pytest
 import momapy.core.elements
 import momapy.core.model
 import momapy.io.core
+from momapy.celldesigner.model import CellDesignerModel
 
 
 TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -93,9 +94,9 @@ class TestModelNotAModelElement:
         )
 
     def test_celldesigner_model(self):
-        import momapy.celldesigner.core
+        import momapy.celldesigner.model
 
         assert not issubclass(
-            momapy.celldesigner.core.CellDesignerModel,
+            CellDesignerModel,
             momapy.core.elements.ModelElement,
         )
