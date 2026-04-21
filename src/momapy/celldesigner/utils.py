@@ -106,7 +106,19 @@ def highlight_layout_elements(
     compartment_layout_selector = momapy.styling.CompoundSelector(
         tuple(
             [
-                momapy.styling.TypeSelector("RectangleCompartmentLayout"),
+                momapy.styling.OrSelector(
+                    tuple(
+                        [
+                            momapy.styling.TypeSelector(class_name)
+                            for class_name in [
+                                "RectangleCompartmentLayout",
+                                "OvalCompartmentLayout",
+                                "CornerCompartmentLayout",
+                                "LineCompartmentLayout",
+                            ]
+                        ]
+                    )
+                ),
                 not_selector,
             ]
         )
