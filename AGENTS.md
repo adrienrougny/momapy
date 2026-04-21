@@ -79,6 +79,48 @@ docs/
 
 Run `ruff format` on any file you edit before considering the change complete. The project follows ruff's default style; `ruff format src/ tests/` is the canonical way to normalise the tree.
 
+### Imports
+
+**Absolute imports only, with one carve-out.**
+
+In every `.py` file *except* `__init__.py`, use `import momapy.x.y` and refer to names as `momapy.x.y.Name`. Never use `from momapy.x.y import Name` or `from momapy.x.y import Name as N`. The rationale is clarity of origin and the avoidance of name-collision risks across the many similarly-named classes in the codebase (e.g. `Rectangle` exists in several submodules).
+
+```python
+# Good — anywhere in the codebase.
+import momapy.core.layout
+import momapy.geometry
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class MyNode(momapy.core.layout.Node):
+    position: momapy.geometry.Point
+
+
+# Bad — disallowed outside `__init__.py`.
+from momapy.core.layout import Node
+from momapy.geometry import Point
+```
+
+**Carve-out — inside `__init__.py` only**: `from .submodule import Name as Name` is allowed, *only* for re-exporting public API. The explicit `as Name` form is required — it is what type-checkers (Pyright/mypy) and Sphinx recognise as an intentional re-export. Do not use `from … import …` in `__init__.py` for internal convenience (e.g. to shorten code within the file itself); only for publishing API to callers.
+
+```python
+# src/momapy/core/__init__.py — allowed re-export pattern.
+from momapy.core.layout import Node as Node
+from momapy.core.layout import Arc as Arc
+
+__all__ = ["Node", "Arc"]
+```
+
+When re-exporting from an `__init__.py` that triggers loading submodules whose class bodies reference `momapy.pkg.submodule.Name` attribute chains, bind `momapy.pkg` on the parent before the re-exports to avoid circular-import errors:
+
+```python
+import sys as _sys
+
+import momapy as _momapy
+
+_momapy.core = _sys.modules[__name__]
+```
+
 ### Frozen Dataclasses (Critical)
 
 All map/layout/model elements are **frozen dataclasses**. Never mutate them directly.
