@@ -9,6 +9,7 @@ import os
 import pathlib
 
 import momapy.drawing
+import momapy.plugins.core
 import momapy.styling
 import momapy.positioning
 import momapy.geometry
@@ -19,23 +20,65 @@ import momapy.core.elements
 import momapy.core.map
 
 
-def register_renderer(name, renderer_cls):
+renderer_registry = momapy.plugins.core.PluginRegistry(
+    entry_point_group="momapy.renderers",
+)
+
+
+def get_renderer(name: str) -> type["Renderer"]:
+    """Get a renderer class by name.
+
+    Args:
+        name: Renderer name (e.g., "skia", "cairo", "svg-native").
+
+    Returns:
+        Renderer class for the specified backend.
+
+    Raises:
+        ValueError: If no renderer with that name exists.
+    """
+    renderer = renderer_registry.get(name)
+    if renderer is None:
+        available = renderer_registry.list_available()
+        raise ValueError(
+            f"No renderer named '{name}'. Available renderers: {', '.join(available)}"
+        )
+    return renderer
+
+
+def list_renderers() -> list[str]:
+    """List all available renderer names.
+
+    Returns:
+        Sorted list of available renderer names.
+    """
+    return renderer_registry.list_available()
+
+
+def register_renderer(name: str, cls: type["Renderer"]) -> None:
     """Register a renderer class.
 
-    .. deprecated::
-        Use `momapy.rendering.register_renderer()` instead.
+    Args:
+        name: Name to register the renderer under.
+        cls: Renderer class (must inherit from Renderer).
     """
-    import momapy.rendering
+    renderer_registry.register(name, cls)
 
-    momapy.rendering.register_renderer(name, renderer_cls)
+
+def register_lazy_renderer(name: str, import_path: str) -> None:
+    """Register a renderer for lazy loading.
+
+    Args:
+        name: Name to register the renderer under.
+        import_path: Import path in format "module.path:ClassName".
+    """
+    renderer_registry.register_lazy(name, import_path)
 
 
 def _detect_renderer(format_: str) -> str:
-    import momapy.rendering
-
     for candidate in ["svg-native", "skia", "cairo"]:
         try:
-            renderer_cls = momapy.rendering.get_renderer(candidate)
+            renderer_cls = get_renderer(candidate)
             if format_ in renderer_cls.supported_formats:
                 return candidate
         except (ValueError, ImportError, ModuleNotFoundError):
@@ -152,8 +195,6 @@ def render_layout_elements(
                         getattr(layout_element, attr_name).append(translation)
                         break
         return layout_elements, max_x, max_y
-
-    from momapy.rendering import get_renderer
 
     renderer_cls = get_renderer(renderer)
     if not multi_pages:

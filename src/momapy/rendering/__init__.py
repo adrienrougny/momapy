@@ -11,93 +11,20 @@ Examples:
     ```
 """
 
-from __future__ import annotations
-
-import typing
-
-import momapy.plugins.core
-
-if typing.TYPE_CHECKING:
-    import momapy.rendering.core
+from momapy.rendering.core import get_renderer as get_renderer
+from momapy.rendering.core import list_renderers as list_renderers
+from momapy.rendering.core import register_lazy_renderer as register_lazy_renderer
+from momapy.rendering.core import register_renderer as register_renderer
+from momapy.rendering.core import renderer_registry as renderer_registry
 
 
-renderer_registry = momapy.plugins.core.PluginRegistry(
-    entry_point_group="momapy.renderers",
-)
-
-
-def get_renderer(name: str) -> type[momapy.rendering.core.Renderer]:
-    """Get a renderer class by name.
-
-    Args:
-        name: Renderer name (e.g., "skia", "cairo", "svg-native").
-
-    Returns:
-        Renderer class for the specified backend.
-
-    Raises:
-        ValueError: If no renderer with that name exists.
-
-    Examples:
-        ```python
-        from momapy.rendering import get_renderer
-        renderer = get_renderer("skia")
-        ```
-    """
-    renderer = renderer_registry.get(name)
-    if renderer is None:
-        available = renderer_registry.list_available()
-        raise ValueError(
-            f"No renderer named '{name}'. Available renderers: {', '.join(available)}"
-        )
-    return renderer
-
-
-def list_renderers() -> list[str]:
-    """List all available renderer names.
-
-    Returns:
-        Sorted list of available renderer names.
-
-    Examples:
-        ```python
-        from momapy.rendering import list_renderers
-        list_renderers()
-        ```
-    """
-    return renderer_registry.list_available()
-
-
-def register_renderer(name: str, cls: type[momapy.rendering.core.Renderer]) -> None:
-    """Register a renderer class.
-
-    Args:
-        name: Name to register the renderer under.
-        cls: Renderer class (must inherit from Renderer).
-
-    Examples:
-        ```python
-        from momapy.rendering import register_renderer
-        register_renderer("myrenderer", MyRenderer)
-        ```
-    """
-    renderer_registry.register(name, cls)
-
-
-def register_lazy_renderer(name: str, import_path: str) -> None:
-    """Register a renderer for lazy loading.
-
-    Args:
-        name: Name to register the renderer under.
-        import_path: Import path in format "module.path:ClassName".
-
-    Examples:
-        ```python
-        from momapy.rendering import register_lazy_renderer
-        register_lazy_renderer("myrenderer", "mymodule.rendering:MyRenderer")
-        ```
-    """
-    renderer_registry.register_lazy(name, import_path)
+__all__ = [
+    "get_renderer",
+    "list_renderers",
+    "register_lazy_renderer",
+    "register_renderer",
+    "renderer_registry",
+]
 
 
 for name, import_path in [
