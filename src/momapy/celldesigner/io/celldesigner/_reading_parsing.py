@@ -271,10 +271,23 @@ def get_key_from_reaction(cd_reaction):
     return ("REACTION", cd_reaction_type)
 
 
+_TEMPLATE_LOCALNAME_TO_TYPE = {
+    "gene": "GENE",
+    "RNA": "RNA",
+    "AntisenseRNA": "ANTISENSE_RNA",
+}
+
+
 def get_key_from_species_template(cd_species_template):
+    template_type = cd_species_template.get("type")
+    if template_type is None:
+        _, localname = momapy.sbml.io.sbml._parsing.get_prefix_and_name(
+            cd_species_template.tag
+        )
+        template_type = _TEMPLATE_LOCALNAME_TO_TYPE.get(localname)
     return (
         "TEMPLATE",
-        cd_species_template.get("type"),
+        template_type,
     )
 
 
@@ -293,6 +306,11 @@ def get_key_from_species(cd_species, cd_id_to_cd_element):
         key = get_class_from_species(cd_species).text
     else:
         key = cd_species_template.get("type")
+        if key is None:
+            _, localname = momapy.sbml.io.sbml._parsing.get_prefix_and_name(
+                cd_species_template.tag
+            )
+            key = _TEMPLATE_LOCALNAME_TO_TYPE.get(localname)
     return ("SPECIES", key)
 
 
