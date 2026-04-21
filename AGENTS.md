@@ -81,54 +81,53 @@ Run `ruff format` on any file you edit before considering the change complete. T
 
 ### Imports
 
-**Absolute imports only, with one carve-out.**
+Absolute `from` imports are the default. The rules below are exhaustive — one style per case, no taste calls.
 
-In every `.py` file *except* `__init__.py`, use `import momapy.x.y` and refer to names as `momapy.x.y.Name`. Never use `from momapy.x.y import Name` or `from momapy.x.y import Name as N`. The rationale is clarity of origin and the avoidance of name-collision risks across the many similarly-named classes in the codebase (e.g. `Rectangle` exists in several submodules).
+**1. Default — every `.py` file, including `__init__.py`.** Use `from momapy.x.y import Name` (absolute, no `as`). Never use relative imports (`from . import foo`, `from .sub import Name`): always spell the full `momapy.x.y` path.
 
 ```python
-# Good — anywhere in the codebase.
-import momapy.core.layout
-import momapy.geometry
+from momapy.core.elements import LayoutElement
+from momapy.geometry import Point
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MyNode(momapy.core.layout.Node):
-    position: momapy.geometry.Point
-
-
-# Bad — disallowed outside `__init__.py`.
-from momapy.core.layout import Node
-from momapy.geometry import Point
+class MyNode(LayoutElement):
+    position: Point
 ```
 
-**Carve-out — inside `__init__.py` only**: `from .submodule import Name as Name` is allowed, *only* for re-exporting public API. The explicit `as Name` form is required — it is what type-checkers (Pyright/mypy) and Sphinx recognise as an intentional re-export. Do not use `from … import …` in `__init__.py` for internal convenience (e.g. to shorten code within the file itself); only for publishing API to callers.
+**2. Re-exports in `__init__.py` only.** Use `from momapy.package.sub import Name as Name` — the `as Name` repeat is required. It is what Pyright, mypy, and Sphinx recognise as an intentional public re-export (PEP 484 implicit-re-export rule). List the re-exported names in `__all__`.
 
 ```python
-# src/momapy/core/__init__.py — allowed re-export pattern.
+# src/momapy/core/__init__.py
+"""Core dataclasses for maps, models, and layouts."""
+
 from momapy.core.layout import Node as Node
 from momapy.core.layout import Arc as Arc
 
 __all__ = ["Node", "Arc"]
 ```
 
-When re-exporting from an `__init__.py` that triggers loading submodules whose class bodies reference `momapy.pkg.submodule.Name` attribute chains, bind `momapy.pkg` on the parent before the re-exports to avoid circular-import errors:
+**3. Name collisions — always rename.** When two modules export a name you both need, use `from momapy.x.y import Name as UnambiguousName`. No mixing of styles — the rename is the single form for the collision case, regardless of how often the name appears in the file.
 
 ```python
-import sys as _sys
-
-import momapy as _momapy
-
-_momapy.core = _sys.modules[__name__]
+from momapy.meta.shapes import Rectangle as RectangleShape
+from momapy.meta.nodes import Rectangle as RectangleNode
 ```
+
+**4. Module-only imports.** `import momapy.x.y` (without `from`) is reserved for runtime dynamism or tooling use — `importlib`, `sys.modules` manipulation, entry-point dispatch. It is not part of the normal import style.
 
 ### Frozen Dataclasses (Critical)
 
 All map/layout/model elements are **frozen dataclasses**. Never mutate them directly.
 
 ```python
+from momapy.core.elements import LayoutElement
+from momapy.geometry import Point
+
+
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MyElement(momapy.core.LayoutElement):
-    position: momapy.geometry.Point
+class MyElement(LayoutElement):
+    position: Point
     width: float
     height: float
 ```
@@ -136,7 +135,9 @@ class MyElement(momapy.core.LayoutElement):
 To modify, use the builder pattern:
 
 ```python
-builder = momapy.builder.builder_from_object(obj)
+from momapy.builder import builder_from_object
+
+builder = builder_from_object(obj)
 builder.some_field = new_value
 modified = builder.build()
 ```
