@@ -1,4 +1,23 @@
-"""Styling module for SBGN maps."""
+"""Styling module for SBGN maps.
+
+This subpackage bundles SBGN stylesheets as `.css` data files alongside
+Python `StyleSheet` objects that load them. The CSS files live next to
+this module so that relative `@import` directives inside them resolve
+correctly.
+
+Exposed stylesheets (loaded from the sibling `.css` files):
+
+- `cs_default` — default colorscheme (`cs_default.css`)
+- `cs_black_and_white` — black-and-white colorscheme (`cs_black_and_white.css`)
+- `sbgned` — SBGN-ED look (`sbgned.css`)
+- `newt` — Newt look (`newt.css`)
+- `fs_shadows` — drop-shadow font style (`fs_shadows.css`)
+
+Additional `.css` files in this directory (e.g. `default.css`,
+`default_colorscheme.css`, `white_colorscheme.css`, `shadows.css`,
+`sbgned_no_cs.css`, `newt_no_cs.css`) are included as `@import` targets
+of the stylesheets above and are not exposed as Python attributes.
+"""
 
 import pathlib
 import os
