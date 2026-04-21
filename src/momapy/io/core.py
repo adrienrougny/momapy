@@ -18,7 +18,112 @@ import typing
 
 import frozendict
 
+import momapy.plugins.core
 import momapy.utils
+
+
+reader_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.readers")
+writer_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.writers")
+
+
+def get_reader(name: str) -> type["Reader"]:
+    """Get a reader class by name.
+
+    Args:
+        name: Reader name (e.g., "sbgnml", "celldesigner").
+
+    Returns:
+        Reader class for the specified format.
+
+    Raises:
+        ValueError: If no reader with that name exists.
+    """
+    reader = reader_registry.get(name)
+    if reader is None:
+        available = reader_registry.list_available()
+        raise ValueError(
+            f"No reader named '{name}'. Available readers: {', '.join(available)}"
+        )
+    return reader
+
+
+def list_readers() -> list[str]:
+    """List all available reader names.
+
+    Returns:
+        Sorted list of available reader names.
+    """
+    return reader_registry.list_available()
+
+
+def register_reader(name: str, cls: type["Reader"]) -> None:
+    """Register a reader class.
+
+    Args:
+        name: Name to register the reader under.
+        cls: Reader class (must inherit from Reader).
+    """
+    reader_registry.register(name, cls)
+
+
+def register_lazy_reader(name: str, import_path: str) -> None:
+    """Register a reader for lazy loading.
+
+    Args:
+        name: Name to register the reader under.
+        import_path: Import path in format "module.path:ClassName".
+    """
+    reader_registry.register_lazy(name, import_path)
+
+
+def get_writer(name: str) -> type["Writer"]:
+    """Get a writer class by name.
+
+    Args:
+        name: Writer name (e.g., "sbgnml", "pickle").
+
+    Returns:
+        Writer class for the specified format.
+
+    Raises:
+        ValueError: If no writer with that name exists.
+    """
+    writer = writer_registry.get(name)
+    if writer is None:
+        available = writer_registry.list_available()
+        raise ValueError(
+            f"No writer named '{name}'. Available writers: {', '.join(available)}"
+        )
+    return writer
+
+
+def list_writers() -> list[str]:
+    """List all available writer names.
+
+    Returns:
+        Sorted list of available writer names.
+    """
+    return writer_registry.list_available()
+
+
+def register_writer(name: str, cls: type["Writer"]) -> None:
+    """Register a writer class.
+
+    Args:
+        name: Name to register the writer under.
+        cls: Writer class (must inherit from Writer).
+    """
+    writer_registry.register(name, cls)
+
+
+def register_lazy_writer(name: str, import_path: str) -> None:
+    """Register a writer for lazy loading.
+
+    Args:
+        name: Name to register the writer under.
+        import_path: Import path in format "module.path:ClassName".
+    """
+    writer_registry.register_lazy(name, import_path)
 
 
 @dataclasses.dataclass
@@ -101,14 +206,12 @@ def read(
         map_obj = result.obj
         ```
     """
-    import momapy.io
-
     if reader is not None:
-        reader_cls = momapy.io.get_reader(reader)
+        reader_cls = get_reader(reader)
     else:
         reader_cls = None
-        for name in momapy.io.reader_registry.list_available():
-            candidate_cls = momapy.io.get_reader(name)
+        for name in reader_registry.list_available():
+            candidate_cls = get_reader(name)
             if candidate_cls.check_file(file_path):
                 reader_cls = candidate_cls
                 break
@@ -146,9 +249,7 @@ def write(
         write(map_obj, "output.sbgn", writer="sbgnml")
         ```
     """
-    import momapy.io
-
-    writer_cls = momapy.io.get_writer(writer)
+    writer_cls = get_writer(writer)
     result = writer_cls.write(obj, file_path, **options)
     return result
 

@@ -11,166 +11,30 @@ Examples:
     ```
 """
 
-from __future__ import annotations
-
-import typing
-
-import momapy.plugins.core
-
-if typing.TYPE_CHECKING:
-    import momapy.io.core
-
-
-reader_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.readers")
-writer_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.writers")
+from momapy.io.core import get_reader as get_reader
+from momapy.io.core import get_writer as get_writer
+from momapy.io.core import list_readers as list_readers
+from momapy.io.core import list_writers as list_writers
+from momapy.io.core import reader_registry as reader_registry
+from momapy.io.core import register_lazy_reader as register_lazy_reader
+from momapy.io.core import register_lazy_writer as register_lazy_writer
+from momapy.io.core import register_reader as register_reader
+from momapy.io.core import register_writer as register_writer
+from momapy.io.core import writer_registry as writer_registry
 
 
-def get_reader(name: str) -> type[momapy.io.core.Reader]:
-    """Get a reader class by name.
-
-    Args:
-        name: Reader name (e.g., "sbgnml", "celldesigner").
-
-    Returns:
-        Reader class for the specified format.
-
-    Raises:
-        ValueError: If no reader with that name exists.
-
-    Examples:
-        ```python
-        from momapy.io import get_reader
-        reader = get_reader("sbgnml")
-        ```
-    """
-    reader = reader_registry.get(name)
-    if reader is None:
-        available = reader_registry.list_available()
-        raise ValueError(
-            f"No reader named '{name}'. Available readers: {', '.join(available)}"
-        )
-    return reader
-
-
-def list_readers() -> list[str]:
-    """List all available reader names.
-
-    Returns:
-        Sorted list of available reader names.
-
-    Examples:
-        ```python
-        from momapy.io import list_readers
-        list_readers()
-        ```
-    """
-    return reader_registry.list_available()
-
-
-def register_reader(name: str, cls: type[momapy.io.core.Reader]) -> None:
-    """Register a reader class.
-
-    Args:
-        name: Name to register the reader under.
-        cls: Reader class (must inherit from Reader).
-
-    Examples:
-        ```python
-        from momapy.io import register_reader
-        register_reader("myformat", MyFormatReader)
-        ```
-    """
-    reader_registry.register(name, cls)
-
-
-def register_lazy_reader(name: str, import_path: str) -> None:
-    """Register a reader for lazy loading.
-
-    Args:
-        name: Name to register the reader under.
-        import_path: Import path in format "module.path:ClassName".
-
-    Examples:
-        ```python
-        from momapy.io import register_lazy_reader
-        register_lazy_reader("myformat", "mymodule.io:MyFormatReader")
-        ```
-    """
-    reader_registry.register_lazy(name, import_path)
-
-
-def get_writer(name: str) -> type[momapy.io.core.Writer]:
-    """Get a writer class by name.
-
-    Args:
-        name: Writer name (e.g., "sbgnml", "pickle").
-
-    Returns:
-        Writer class for the specified format.
-
-    Raises:
-        ValueError: If no writer with that name exists.
-
-    Examples:
-        ```python
-        from momapy.io import get_writer
-        writer = get_writer("sbgnml")
-        ```
-    """
-    writer = writer_registry.get(name)
-    if writer is None:
-        available = writer_registry.list_available()
-        raise ValueError(
-            f"No writer named '{name}'. Available writers: {', '.join(available)}"
-        )
-    return writer
-
-
-def list_writers() -> list[str]:
-    """List all available writer names.
-
-    Returns:
-        Sorted list of available writer names.
-
-    Examples:
-        ```python
-        from momapy.io import list_writers
-        list_writers()
-        ```
-    """
-    return writer_registry.list_available()
-
-
-def register_writer(name: str, cls: type[momapy.io.core.Writer]) -> None:
-    """Register a writer class.
-
-    Args:
-        name: Name to register the writer under.
-        cls: Writer class (must inherit from Writer).
-
-    Examples:
-        ```python
-        from momapy.io import register_writer
-        register_writer("myformat", MyFormatWriter)
-        ```
-    """
-    writer_registry.register(name, cls)
-
-
-def register_lazy_writer(name: str, import_path: str) -> None:
-    """Register a writer for lazy loading.
-
-    Args:
-        name: Name to register the writer under.
-        import_path: Import path in format "module.path:ClassName".
-
-    Examples:
-        ```python
-        from momapy.io import register_lazy_writer
-        register_lazy_writer("myformat", "mymodule.io:MyFormatWriter")
-        ```
-    """
-    writer_registry.register_lazy(name, import_path)
+__all__ = [
+    "get_reader",
+    "get_writer",
+    "list_readers",
+    "list_writers",
+    "reader_registry",
+    "register_lazy_reader",
+    "register_lazy_writer",
+    "register_reader",
+    "register_writer",
+    "writer_registry",
+]
 
 
 for name, import_path in [
