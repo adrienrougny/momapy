@@ -1,8 +1,6 @@
 """Layout classes for SBGN Process Description (PD) maps."""
 
 import dataclasses
-import math
-import sys
 import typing
 
 import momapy.drawing
@@ -22,51 +20,6 @@ from momapy.sbgn.elements import (
     _TextMixin,
 )
 from momapy.sbgn.layout import SBGNLayout
-from momapy.sbgn.pd.model import (
-    AndOperator,
-    Association,
-    Catalysis,
-    Compartment,
-    Complex,
-    ComplexMultimer,
-    ComplexMultimerSubunit,
-    ComplexSubunit,
-    Dissociation,
-    EmptySet,
-    EquivalenceOperator,
-    GenericProcess,
-    Inhibition,
-    LogicalOperator,
-    Macromolecule,
-    MacromoleculeMultimer,
-    MacromoleculeMultimerSubunit,
-    MacromoleculeSubunit,
-    Modulation,
-    NecessaryStimulation,
-    NotOperator,
-    NucleicAcidFeature,
-    NucleicAcidFeatureMultimer,
-    NucleicAcidFeatureMultimerSubunit,
-    NucleicAcidFeatureSubunit,
-    OmittedProcess,
-    OrOperator,
-    PerturbingAgent,
-    Phenotype,
-    Process,
-    SimpleChemical,
-    SimpleChemicalMultimer,
-    SimpleChemicalMultimerSubunit,
-    SimpleChemicalSubunit,
-    Stimulation,
-    Submap,
-    Subunit,
-    Tag,
-    Terminal,
-    UncertainProcess,
-    UnitOfInformation,
-    UnspecifiedEntity,
-    UnspecifiedEntitySubunit,
-)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

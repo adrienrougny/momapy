@@ -1,8 +1,6 @@
 """Layout classes for SBGN Activity Flow (AF) maps."""
 
 import dataclasses
-import math
-import sys
 import typing
 
 import momapy.meta.arcs
