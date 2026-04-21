@@ -212,7 +212,9 @@ class Color(object):
         return cls(red, green, blue, alpha)
 
     @classmethod
-    def from_rgb(cls, red: int, green: int, blue: int):
+    def from_rgb(
+        cls, red: int, green: int, blue: int
+    ) -> typing_extensions.Self:
         """Create a color from RGB components.
 
         Args:
@@ -257,7 +259,7 @@ class Color(object):
         return cls(red, green, blue)
 
     @classmethod
-    def from_hexa(cls, color_str):
+    def from_hexa(cls, color_str: str) -> typing_extensions.Self:
         """Create a color from a hexadecimal string with alpha.
 
         Args:
@@ -284,7 +286,7 @@ class Color(object):
         return cls(red, green, blue, alpha)
 
 
-def list_colors():
+def list_colors() -> list[tuple[str, Color]]:
     """Return a list of all available named colors.
 
     Returns:
@@ -303,7 +305,7 @@ def list_colors():
     ]
 
 
-def print_colors():
+def print_colors() -> None:
     """Print all available named colors with their names.
 
     Displays color names in their actual color in the terminal.
@@ -317,7 +319,7 @@ def print_colors():
         print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
 
 
-def has_color(color_name):
+def has_color(color_name: str) -> bool:
     """Check if a named color exists.
 
     Args:
