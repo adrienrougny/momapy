@@ -7,6 +7,7 @@ returns ``None`` early when no layout is being built.
 
 import math
 
+import momapy.builder
 from momapy.builder import object_from_builder
 from momapy.drawing import DEFAULT_FONT_FAMILY, NoneValue
 from momapy.geometry import Point, Rotation, Segment, get_transformation_for_frame
@@ -27,7 +28,7 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     make_name,
 )
 from momapy.celldesigner.io.celldesigner._writing import _are_collinear
-from momapy.celldesigner.map import CellDesignerLayoutBuilder
+from momapy.celldesigner.layout import CellDesignerLayout
 from momapy.celldesigner.layout import (
     AntisenseRNAActiveLayout,
     AntisenseRNALayout,
@@ -141,7 +142,7 @@ def make_empty_layout(cd_element):
     Returns:
         A new empty CellDesigner layout builder.
     """
-    layout = CellDesignerLayoutBuilder()
+    layout = momapy.builder.new_builder_object(CellDesignerLayout)
     return layout
 
 
@@ -224,7 +225,7 @@ def make_species(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = cd_species_alias.get("id")
     cd_x, cd_y, cd_w, cd_h = get_bounds(cd_species_alias)
     layout_element.position = Point(
@@ -256,7 +257,7 @@ def make_species(
         layout_element.stroke_dasharray = (4, 2)
     if active:
         active_cls = _LAYOUT_TO_ACTIVE_LAYOUT[layout_element_cls]
-        active_element = reading_context.layout.new_element(active_cls)
+        active_element = momapy.builder.new_builder_object(active_cls)
         active_element.position = layout_element.position
         active_element.width = layout_element.width + _ACTIVE_XSEP * 2
         active_element.height = layout_element.height + _ACTIVE_YSEP * 2
@@ -285,7 +286,7 @@ def make_species_modification(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(ModificationLayout)
+    layout_element = momapy.builder.new_builder_object(ModificationLayout)
     angle = cd_modification_residue.get("angle")
     if angle is None:
         fraction = float(cd_modification_residue.get("pos"))
@@ -319,7 +320,7 @@ def make_species_modification(
     layout_element.label = text_layout
     cd_modification_residue_name = cd_modification_residue.get("name")
     if cd_modification_residue_name is not None:
-        residue_text_layout = reading_context.layout.new_element(TextLayout)
+        residue_text_layout = momapy.builder.new_builder_object(TextLayout)
         residue_text_layout.text = cd_modification_residue_name
         residue_text_layout.font_size = _DEFAULT_MODIFICATION_FONT_SIZE
         residue_text_layout.font_family = _DEFAULT_FONT_FAMILY
@@ -350,7 +351,7 @@ def make_species_structural_state(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(StructuralStateLayout)
+    layout_element = momapy.builder.new_builder_object(StructuralStateLayout)
     layout_element.position = super_layout_element.own_angle(90)
     text = cd_species_structural_state.get("structuralState")
     text_layout = TextLayout(
@@ -454,7 +455,7 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
         layout_element_cls = LineCompartmentLayout
     else:
         layout_element_cls = RectangleCompartmentLayout
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = cd_compartment_alias.get("id")
     if corner is not None or side is not None:
         cd_point = cd_compartment_alias.point
@@ -713,7 +714,7 @@ def make_reaction(
     if reading_context.layout is None:
         return None, False, False
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = f"{cd_reaction.get('id')}_layout"
     layout_element.reversible = cd_reaction.get("reversible") == "true"
     if not layout_element.reversible:
@@ -772,7 +773,7 @@ def make_reactant_from_base(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(ConsumptionLayout)
+    layout_element = momapy.builder.new_builder_object(ConsumptionLayout)
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
     cd_num_0 = cd_edit_points.get("num0")
     cd_num_1 = cd_edit_points.get("num1")
@@ -833,7 +834,7 @@ def make_reactant_from_link(reading_context, cd_reactant_link, super_layout_elem
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(ConsumptionLayout)
+    layout_element = momapy.builder.new_builder_object(ConsumptionLayout)
     species_layout_element = cd_id_to_layout_element[cd_reactant_link.get("alias")]
     reactant_anchor_name = get_anchor_name_for_frame(cd_reactant_link)
     if reactant_anchor_name == "center":
@@ -893,7 +894,7 @@ def make_product_from_base(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(ProductionLayout)
+    layout_element = momapy.builder.new_builder_object(ProductionLayout)
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
     cd_num_0 = cd_edit_points.get("num0")
     cd_num_1 = cd_edit_points.get("num1")
@@ -954,7 +955,7 @@ def make_product_from_link(reading_context, cd_product_link, super_layout_elemen
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(ProductionLayout)
+    layout_element = momapy.builder.new_builder_object(ProductionLayout)
     species_layout_element = cd_id_to_layout_element[cd_product_link.get("alias")]
     product_anchor_name = get_anchor_name_for_frame(cd_product_link)
     origin = super_layout_element.right_connector_tip()
@@ -1053,7 +1054,7 @@ def make_modifier(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     cd_edit_points = cd_reaction_modification.get("editPoints")
     if cd_edit_points is not None:
         edit_points = make_points(cd_edit_points)
@@ -1131,7 +1132,7 @@ def make_logic_gate(reading_context, cd_element, layout_element_cls):
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     cd_edit_points = cd_element.get("editPoints")
     edit_points = make_points(cd_edit_points)
     position = edit_points[-1]
@@ -1156,7 +1157,7 @@ def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(LogicArcLayout)
+    layout_element = momapy.builder.new_builder_object(LogicArcLayout)
     start_point = input_layout_element.own_border(gate_layout_element.position)
     end_point = gate_layout_element.own_border(start_point)
     segment = Segment(start_point, end_point)
@@ -1209,7 +1210,7 @@ def make_modulation(
             source_anchor_name = get_anchor_name_for_frame(cd_base_reactant)
         else:
             source_anchor_name = "center"
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = f"{cd_reaction.get('id')}_layout"
     if hasattr(cd_base_product, "linkAnchor"):
         target_anchor_name = get_anchor_name_for_frame(cd_base_product)

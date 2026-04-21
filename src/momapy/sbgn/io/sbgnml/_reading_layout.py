@@ -63,7 +63,9 @@ def make_arc_segments(sbgnml_arc, reverse=False):
 def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element):
     if sbgnml_stoichiometry is None:
         return
-    stoichiometry_layout_element = layout.new_element(momapy.sbgn.pd.CardinalityLayout)
+    stoichiometry_layout_element = momapy.builder.new_builder_object(
+        momapy.sbgn.pd.CardinalityLayout
+    )
     set_position_and_size(stoichiometry_layout_element, sbgnml_stoichiometry)
     sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
     if sbgnml_label is not None:
@@ -111,7 +113,7 @@ def make_compartment(reading_context, sbgnml_compartment):
         reading_context.layout
     )
     sbgnml_label = getattr(sbgnml_compartment, "label", None)
-    layout_element = reading_context.layout.new_element(module.CompartmentLayout)
+    layout_element = momapy.builder.new_builder_object(module.CompartmentLayout)
     layout_element.id_ = sbgnml_compartment.get("id")
     set_position_and_size(layout_element, sbgnml_compartment)
     if sbgnml_label is not None:
@@ -138,7 +140,7 @@ def make_entity_pool_or_subunit(
     if reading_context.layout is None:
         return None
     sbgnml_label = getattr(sbgnml_entity_pool_or_subunit, "label", None)
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_entity_pool_or_subunit.get("id")
     set_position_and_size(layout_element, sbgnml_entity_pool_or_subunit)
     if sbgnml_label is not None:
@@ -163,7 +165,7 @@ def make_activity(reading_context, sbgnml_activity, layout_element_cls):
     if reading_context.layout is None:
         return None
     sbgnml_label = getattr(sbgnml_activity, "label", None)
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_activity.get("id")
     set_position_and_size(layout_element, sbgnml_activity)
     if sbgnml_label is not None:
@@ -188,7 +190,7 @@ def make_state_variable(reading_context, sbgnml_state_variable, text):
     if reading_context.layout is None:
         return None
     sbgnml_id = sbgnml_state_variable.get("id")
-    layout_element = reading_context.layout.new_element(
+    layout_element = momapy.builder.new_builder_object(
         momapy.sbgn.pd.StateVariableLayout
     )
     layout_element.id_ = sbgnml_id
@@ -219,7 +221,7 @@ def make_unit_of_information(
         return None
     sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
     sbgnml_id = sbgnml_unit_of_information.get("id")
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_unit_of_information)
     if sbgnml_label is not None:
@@ -247,7 +249,7 @@ def make_submap(reading_context, sbgnml_submap, layout_element_cls):
         return None
     sbgnml_label = getattr(sbgnml_submap, "label", None)
     sbgnml_id = sbgnml_submap.get("id")
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_submap)
     if sbgnml_label is not None:
@@ -277,7 +279,7 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
         layout_element_cls = momapy.sbgn.pd.TerminalLayout
     else:
         layout_element_cls = momapy.sbgn.pd.TagLayout
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_terminal_or_tag)
     layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_direction(
@@ -309,7 +311,7 @@ def make_reference(reading_context, sbgnml_equivalence_arc, super_layout_element
     # to the terminal or tag. We invert the arc, so that the arc goes
     # from the reference to the referred node.
     sbgnml_target_id = sbgnml_equivalence_arc.get("source")
-    layout_element = reading_context.layout.new_element(
+    layout_element = momapy.builder.new_builder_object(
         momapy.sbgn.pd.EquivalenceArcLayout
     )
     layout_element.id_ = sbgnml_id
@@ -336,7 +338,7 @@ def make_stoichiometric_process(reading_context, sbgnml_process, layout_element_
     if reading_context.layout is None:
         return None
     sbgnml_id = sbgnml_process.get("id")
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_process)
     layout_element.direction = (
@@ -370,9 +372,7 @@ def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element)
     sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
-    layout_element = reading_context.layout.new_element(
-        momapy.sbgn.pd.ConsumptionLayout
-    )
+    layout_element = momapy.builder.new_builder_object(momapy.sbgn.pd.ConsumptionLayout)
     layout_element.id_ = sbgnml_consumption_arc.get("id")
     # The source becomes the target: in momapy flux arcs go from the process
     # to the entity pool node; this way reversible consumptions can be
@@ -406,7 +406,7 @@ def make_product(reading_context, sbgnml_production_arc, super_layout_element):
     sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_production_arc
     )
-    layout_element = reading_context.layout.new_element(momapy.sbgn.pd.ProductionLayout)
+    layout_element = momapy.builder.new_builder_object(momapy.sbgn.pd.ProductionLayout)
     layout_element.id_ = sbgnml_production_arc.get("id")
     layout_element.source = super_layout_element
     for segment in make_arc_segments(sbgnml_production_arc):
@@ -438,7 +438,7 @@ def make_logical_operator(
     if reading_context.layout is None:
         return None
     sbgnml_id = sbgnml_logical_operator.get("id")
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_logical_operator)
     layout_element.direction = (
@@ -471,7 +471,7 @@ def make_logical_operator_input(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(momapy.sbgn.pd.LogicArcLayout)
+    layout_element = momapy.builder.new_builder_object(momapy.sbgn.pd.LogicArcLayout)
     layout_element.id_ = sbgnml_logic_arc.get("id")
     # The source becomes the target: in momapy logic arcs go from
     # the operator to the input node.
@@ -504,7 +504,7 @@ def make_modulation(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(layout_element_cls)
+    layout_element = momapy.builder.new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_modulation.get("id")
     for segment in make_arc_segments(sbgnml_modulation):
         layout_element.segments.append(segment)

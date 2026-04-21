@@ -19,7 +19,9 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 
 from momapy.sbml.io.sbml._model import make_annotations, make_notes
 from momapy.sbml.io.sbml._qualifiers import QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER
-from momapy.celldesigner.map import CellDesignerMapBuilder, CellDesignerModelBuilder
+import momapy.builder
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.model import CellDesignerModel
 from momapy.celldesigner.model import (
     BooleanLogicGateInput,
     Compartment,
@@ -97,7 +99,7 @@ def make_empty_model(cd_element):
     Returns:
         A new empty CellDesigner model builder.
     """
-    model = CellDesignerModelBuilder()
+    model = momapy.builder.new_builder_object(CellDesignerModel)
     return model
 
 
@@ -111,7 +113,7 @@ def make_empty_map(cd_element):
     Returns:
         A new empty CellDesigner map builder.
     """
-    map_ = CellDesignerMapBuilder()
+    map_ = momapy.builder.new_builder_object(CellDesignerMap)
     cd_map_id = cd_element.get("id")
     if cd_map_id is not None:
         map_.id_ = cd_map_id
@@ -130,7 +132,7 @@ def make_compartment(reading_context, cd_compartment):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Compartment)
+    model_element = momapy.builder.new_builder_object(Compartment)
     model_element.id_ = cd_compartment.get("id")
     model_element.name = make_name(cd_compartment.get("name"))
     model_element.metaid = cd_compartment.get("metaid")
@@ -150,7 +152,7 @@ def make_species_template(reading_context, cd_species_template, model_element_cl
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = cd_species_template.get("id")
     model_element.name = make_name(cd_species_template.get("name"))
     return model_element
@@ -173,7 +175,7 @@ def make_modification_residue(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(ModificationResidue)
+    model_element = momapy.builder.new_builder_object(ModificationResidue)
     cd_modification_residue_id = (
         f"{super_cd_element.get('id')}_{cd_modification_residue.get('id')}"
     )
@@ -199,7 +201,7 @@ def make_region(reading_context, cd_region, model_element_cls, super_cd_element,
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     cd_region_id = f"{super_cd_element.get('id')}_{cd_region.get('id')}"
     model_element.id_ = cd_region_id
     model_element.name = make_name(cd_region.get("name"))
@@ -235,7 +237,7 @@ def make_species(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = cd_species.get("id")
     model_element.name = name
     model_element.metaid = cd_species.get("metaid")
@@ -273,7 +275,7 @@ def make_species_modification(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Modification)
+    model_element = momapy.builder.new_builder_object(Modification)
     modification_residue_model_element = reading_context.xml_id_to_model_element[
         cd_modification_residue_id
     ]
@@ -294,7 +296,7 @@ def make_species_structural_state(reading_context, cd_species_structural_state):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(StructuralState)
+    model_element = momapy.builder.new_builder_object(StructuralState)
     model_element.value = cd_species_structural_state.get("structuralState")
     return model_element
 
@@ -312,7 +314,7 @@ def make_reaction(reading_context, cd_reaction, model_element_cls):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = cd_reaction.get("id")
     model_element.reversible = cd_reaction.get("reversible") == "true"
     return model_element
@@ -333,7 +335,7 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Reactant)
+    model_element = momapy.builder.new_builder_object(Reactant)
     model_element.base = True
     cd_species_id = cd_base_reactant.get("species")
     for cd_reactant in get_reactants(cd_reaction):
@@ -366,7 +368,7 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Reactant)
+    model_element = momapy.builder.new_builder_object(Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
     for cd_reactant in get_reactants(cd_reaction):
         if cd_reactant.get("species") == cd_species_id:
@@ -399,7 +401,7 @@ def make_product_from_base(reading_context, cd_base_product, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Product)
+    model_element = momapy.builder.new_builder_object(Product)
     model_element.base = True
     cd_species_id = cd_base_product.get("species")
     for cd_product in get_products(cd_reaction):
@@ -432,7 +434,7 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(Product)
+    model_element = momapy.builder.new_builder_object(Product)
     cd_species_id = cd_product_link.get("product")
     for cd_product in get_products(cd_reaction):
         if cd_product.get("species") == cd_species_id:
@@ -464,7 +466,7 @@ def make_modifier(reading_context, model_element_cls, source_model_element, meta
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.referred_species = source_model_element
     model_element.id_ = metaid
     model_element.metaid = metaid
@@ -483,7 +485,7 @@ def make_logic_gate(reading_context, model_element_cls):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     return model_element
 
 
@@ -499,7 +501,7 @@ def make_logic_gate_input(reading_context, input_model_element):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(BooleanLogicGateInput)
+    model_element = momapy.builder.new_builder_object(BooleanLogicGateInput)
     model_element.element = input_model_element
     return model_element
 
@@ -527,7 +529,7 @@ def make_modulation(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(model_element_cls)
+    model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = cd_reaction.get("id")
     model_element.source = source_model_element
     model_element.target = target_model_element

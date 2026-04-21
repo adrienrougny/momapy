@@ -83,12 +83,12 @@ def make_notes_from_element(sbml_element):
 
 
 def make_empty_model(sbml_element):
-    model = momapy.sbml.model.SBMLModelBuilder()
+    model = momapy.builder.new_builder_object(momapy.sbml.model.SBMLModel)
     return model
 
 
 def make_compartment(sbml_compartment, model):
-    model_element = model.new_element(momapy.sbml.model.Compartment)
+    model_element = momapy.builder.new_builder_object(momapy.sbml.model.Compartment)
     model_element.id_ = sbml_compartment.get("id")
     model_element.name = sbml_compartment.get("name")
     model_element.metaid = sbml_compartment.get("metaid")
@@ -97,7 +97,7 @@ def make_compartment(sbml_compartment, model):
 
 
 def make_species(sbml_species, model, sbml_id_to_model_element):
-    model_element = model.new_element(momapy.sbml.model.Species)
+    model_element = momapy.builder.new_builder_object(momapy.sbml.model.Species)
     model_element.name = sbml_species.get("name")
     model_element.id_ = sbml_species.get("id")
     model_element.metaid = sbml_species.get("metaid")
@@ -109,7 +109,7 @@ def make_species(sbml_species, model, sbml_id_to_model_element):
 
 
 def make_reaction(sbml_reaction, model):
-    model_element = model.new_element(momapy.sbml.model.Reaction)
+    model_element = momapy.builder.new_builder_object(momapy.sbml.model.Reaction)
     model_element.id_ = sbml_reaction.get("id")
     model_element.name = sbml_reaction.get("name")
     model_element.sbo_term = sbml_reaction.get("sboTerm")
@@ -118,7 +118,9 @@ def make_reaction(sbml_reaction, model):
 
 
 def make_species_reference(sbml_species_reference, model, sbml_id_to_model_element):
-    model_element = model.new_element(momapy.sbml.model.SpeciesReference)
+    model_element = momapy.builder.new_builder_object(
+        momapy.sbml.model.SpeciesReference
+    )
     model_element.id_ = sbml_species_reference.get("metaid")
     sbml_stoichiometry = sbml_species_reference.get("stoichiometry")
     if sbml_stoichiometry is not None:
@@ -132,7 +134,9 @@ def make_species_reference(sbml_species_reference, model, sbml_id_to_model_eleme
 def make_modifier_species_reference(
     sbml_modifier_species_reference, model, sbml_id_to_model_element
 ):
-    model_element = model.new_element(momapy.sbml.model.ModifierSpeciesReference)
+    model_element = momapy.builder.new_builder_object(
+        momapy.sbml.model.ModifierSpeciesReference
+    )
     model_element.id_ = sbml_modifier_species_reference.get("metaid")
     sbml_species_id = sbml_modifier_species_reference.get("species")
     model_element.referred_species = sbml_id_to_model_element[sbml_species_id]
