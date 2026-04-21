@@ -48,42 +48,60 @@ class Compartment(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeUnitOfInformation(UnitOfInformation):
-    """Unit of information for macromolecules."""
+    """Unit of information typing a biological activity as a macromolecule.
+
+    Rendered as an SBGN macromolecule glyph embedded in the activity node.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureUnitOfInformation(UnitOfInformation):
-    """Unit of information for nucleic acid features."""
+    """Unit of information typing a biological activity as a nucleic acid feature.
+
+    Rendered as an SBGN nucleic acid feature glyph embedded in the activity node.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexUnitOfInformation(UnitOfInformation):
-    """Unit of information for complexes."""
+    """Unit of information typing a biological activity as a complex.
+
+    Rendered as an SBGN complex glyph embedded in the activity node.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalUnitOfInformation(UnitOfInformation):
-    """Unit of information for simple chemicals."""
+    """Unit of information typing a biological activity as a simple chemical.
+
+    Rendered as an SBGN simple chemical glyph embedded in the activity node.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityUnitOfInformation(UnitOfInformation):
-    """Unit of information for unspecified entities."""
+    """Unit of information typing a biological activity as an unspecified entity.
+
+    Used when the underlying entity class is unknown or deliberately abstract.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbationUnitOfInformation(UnitOfInformation):
-    """Unit of information for perturbations."""
+    """Unit of information typing a biological activity as a perturbation.
+
+    Denotes an external influence (drug, stimulus, mutation) acting on the system.
+    """
 
     pass
 
@@ -122,7 +140,9 @@ class BiologicalActivity(Activity):
 class Phenotype(Activity):
     """Phenotype activity.
 
-    Represents the manifestation of a phenotype or observable characteristic.
+    Represents an observable characteristic of the system — a system-level
+    outcome produced by the combination of biological activities rather than
+    an individual activity itself.
     """
 
     pass
@@ -161,28 +181,40 @@ class LogicalOperator(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperator(LogicalOperator):
-    """OR logical operator."""
+    """Logical OR operator.
+
+    The output is active when at least one input is active.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperator(LogicalOperator):
-    """AND logical operator."""
+    """Logical AND operator.
+
+    The output is active only when every input is active.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperator(LogicalOperator):
-    """NOT logical operator."""
+    """Logical NOT operator.
+
+    The output is active when its (single) input is inactive.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DelayOperator(LogicalOperator):
-    """DELAY logical operator."""
+    """Logical DELAY operator.
+
+    The output mirrors the input after a delay; used to model time-shifted influences.
+    """
 
     pass
 
@@ -204,28 +236,40 @@ class Influence(momapy.sbgn.core.SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnknownInfluence(Influence):
-    """Unknown influence."""
+    """Influence of unspecified sign.
+
+    Used when the regulatory effect of the source on the target is not known.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PositiveInfluence(Influence):
-    """Positive influence."""
+    """Positive (stimulating) influence.
+
+    The source increases the activity of the target.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NegativeInfluence(Influence):
-    """Negative influence."""
+    """Negative (inhibiting) influence.
+
+    The source decreases the activity of the target.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulation(Influence):
-    """Necessary stimulation."""
+    """Necessary stimulation.
+
+    The target requires the source to be active; without it the target cannot be active.
+    """
 
     pass
 
