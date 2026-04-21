@@ -3,7 +3,7 @@
 import pytest
 import os
 import momapy.io.core
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.sbgn.pd
 import momapy.sbml.model
 import momapy.core.layout
@@ -54,8 +54,8 @@ class TestSBGNReadOptionalParameters:
     @pytest.mark.parametrize(
         "return_type,expected_type",
         [
-            ("map", momapy.sbgn.core.SBGNMap),
-            ("model", momapy.sbgn.core.SBGNModel),
+            ("map", momapy.sbgn.SBGNMap),
+            ("model", momapy.sbgn.SBGNModel),
             ("layout", momapy.core.layout.Layout),
         ],
     )
@@ -68,7 +68,7 @@ class TestSBGNReadOptionalParameters:
         """Test with_model=True includes model in result."""
         result = momapy.io.core.read(test_file, return_type="map", with_model=True)
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
+        assert isinstance(result.obj, momapy.sbgn.SBGNMap)
         # Verify the map has a model
         assert hasattr(result.obj, "model")
         assert result.obj.model is not None
@@ -77,7 +77,7 @@ class TestSBGNReadOptionalParameters:
         """Test with_model=False excludes model from result."""
         result = momapy.io.core.read(test_file, return_type="map", with_model=False)
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
+        assert isinstance(result.obj, momapy.sbgn.SBGNMap)
         # Verify the map has no model (or model is None)
         assert hasattr(result.obj, "model")
         assert result.obj.model is None
@@ -86,7 +86,7 @@ class TestSBGNReadOptionalParameters:
         """Test with_layout=True includes layout in result."""
         result = momapy.io.core.read(test_file, return_type="map", with_layout=True)
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
+        assert isinstance(result.obj, momapy.sbgn.SBGNMap)
         # Verify the map has a layout
         assert hasattr(result.obj, "layout")
         assert result.obj.layout is not None
@@ -95,7 +95,7 @@ class TestSBGNReadOptionalParameters:
         """Test with_layout=False excludes layout from result."""
         result = momapy.io.core.read(test_file, return_type="map", with_layout=False)
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
+        assert isinstance(result.obj, momapy.sbgn.SBGNMap)
         # Verify the map has no layout (or layout is None)
         assert hasattr(result.obj, "layout")
         assert result.obj.layout is None

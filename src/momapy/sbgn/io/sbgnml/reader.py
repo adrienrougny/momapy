@@ -43,7 +43,7 @@ import momapy.positioning
 import momapy.builder
 import momapy.drawing
 import momapy.styling
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbgn.io.sbgnml._reading_classification
@@ -1553,7 +1553,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     layout_element = sbgnml_id_to_layout_element.get(id_)
                     if layout_element is not None:
                         if momapy.builder.isinstance_or_builder(
-                            layout_element, momapy.sbgn.core.SBGNNode
+                            layout_element, momapy.sbgn.SBGNNode
                         ):
                             node_ids.append(id_)
                         else:

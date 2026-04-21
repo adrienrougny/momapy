@@ -49,7 +49,7 @@ from momapy.meta.arcs import (
     StraightBarb,
     Triangle as MetaArcsTriangle,
 )
-import momapy.sbgn.core
+import momapy.sbgn
 from momapy.sbgn.pd import MacromoleculeMultimerLayout
 
 from momapy.celldesigner.elements import (
@@ -59,7 +59,7 @@ from momapy.celldesigner.elements import (
     _SimpleNodeMixin,
     _MultiNodeMixin,
 )
-from momapy.sbgn.core import _SBGNMixin, _TextMixin
+from momapy.sbgn.elements import _SBGNMixin, _TextMixin
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

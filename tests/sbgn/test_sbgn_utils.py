@@ -6,7 +6,7 @@ import pytest
 
 import momapy.io.core
 import momapy.builder
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbgn.utils
@@ -87,9 +87,9 @@ class TestReturnTypes:
 
     @pytest.mark.parametrize("func_name", ALL_UTILS_FUNCTIONS)
     def test_returns_sbgnmap_for_sbgnmap_input(self, representative_map, func_name):
-        assert isinstance(representative_map, momapy.sbgn.core.SBGNMap)
+        assert isinstance(representative_map, momapy.sbgn.SBGNMap)
         result = _call_function(func_name, representative_map)
-        assert isinstance(result, momapy.sbgn.core.SBGNMap), (
+        assert isinstance(result, momapy.sbgn.SBGNMap), (
             f"{func_name} should return SBGNMap when given SBGNMap"
         )
 
@@ -97,12 +97,12 @@ class TestReturnTypes:
     def test_returns_builder_for_builder_input(self, representative_map, func_name):
         builder = momapy.builder.builder_from_object(representative_map)
         result = _call_function(func_name, builder)
-        assert not isinstance(result, momapy.sbgn.core.SBGNMap), (
+        assert not isinstance(result, momapy.sbgn.SBGNMap), (
             f"{func_name} should not return SBGNMap when given a builder"
         )
-        assert momapy.builder.isinstance_or_builder(
-            result, momapy.sbgn.core.SBGNMap
-        ), f"{func_name} should return a builder of SBGNMap"
+        assert momapy.builder.isinstance_or_builder(result, momapy.sbgn.SBGNMap), (
+            f"{func_name} should return a builder of SBGNMap"
+        )
 
 
 # ---------------------------------------------------------------------------

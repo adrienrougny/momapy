@@ -13,7 +13,7 @@ import momapy.core.layout
 import momapy.io.core
 import momapy.io.utils
 import momapy.utils
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.sbgn.io.sbgnml._writing
@@ -532,7 +532,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
     @classmethod
     def write(
         cls,
-        obj: momapy.sbgn.core.SBGNMap,
+        obj: momapy.sbgn.SBGNMap,
         file_path: str | os.PathLike,
         element_to_annotations=None,
         element_to_notes=None,

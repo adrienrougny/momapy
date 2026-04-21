@@ -1,16 +1,16 @@
-"""Tests for momapy.sbgn.core module."""
+"""Tests for the momapy.sbgn subpackage."""
 
 import pytest
 
 
 class TestSBGNCoreModule:
-    """Tests for SBGN core module imports and basic functionality."""
+    """Tests for SBGN subpackage imports and basic functionality."""
 
-    def test_sbgn_core_import(self):
-        """Test that sbgn.core module can be imported."""
-        import momapy.sbgn.core
+    def test_sbgn_import(self):
+        """Test that the sbgn package can be imported."""
+        import momapy.sbgn
 
-        assert momapy.sbgn.core is not None
+        assert momapy.sbgn is not None
 
     def test_sbgn_pd_import(self):
         """Test that sbgn.pd module can be imported."""

@@ -24,7 +24,7 @@ from momapy.coloring import Color, black
 from momapy.core.elements import ModelElement
 from momapy.core.layout import DoubleHeadedArc, SingleHeadedArc
 from momapy.drawing import NoneValue, NoneValueType
-from momapy.sbgn.core import SBGNNode, _MultiMixin, _SBGNMixin, _SimpleMixin
+from momapy.sbgn.elements import SBGNNode, _MultiMixin, _SBGNMixin, _SimpleMixin
 
 
 # abstract

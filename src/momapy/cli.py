@@ -80,7 +80,7 @@ import webbrowser
 
 import momapy.celldesigner.utils
 import momapy.sbgn.af
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.sbgn.pd
 import momapy.sbgn.utils
 from momapy.celldesigner.map import CellDesignerMap
@@ -224,7 +224,7 @@ def _infer_writer(map_):
     """
     if isinstance(map_, CellDesignerMap):
         return "celldesigner"
-    elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+    elif isinstance(map_, momapy.sbgn.SBGNMap):
         return "sbgnml"
     else:
         raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
@@ -245,7 +245,7 @@ def _run_tidy_operation(map_, args):
     """
     operation = args.tidy_operation
     is_celldesigner = isinstance(map_, CellDesignerMap)
-    is_sbgn = isinstance(map_, momapy.sbgn.core.SBGNMap)
+    is_sbgn = isinstance(map_, momapy.sbgn.SBGNMap)
     if not is_celldesigner and not is_sbgn:
         raise ValueError(f"unsupported map type for tidy: {type(map_).__name__}")
     _default_sep = {
@@ -1213,7 +1213,7 @@ def run(args):
             if args.tidy:
                 if isinstance(map_, CellDesignerMap):
                     map_ = momapy.celldesigner.utils.tidy(map_)
-                elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+                elif isinstance(map_, momapy.sbgn.SBGNMap):
                     map_ = momapy.sbgn.utils.tidy(map_)
             layout = map_.layout
             layouts.append(layout)
@@ -1247,7 +1247,7 @@ def run(args):
         if args.tidy:
             if isinstance(map_, CellDesignerMap):
                 map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+            elif isinstance(map_, momapy.sbgn.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)
         if args.to_top_left:
             map_ = _move_map_to_top_left(map_)
@@ -1259,7 +1259,7 @@ def run(args):
         map_ = reader_result.obj
         if isinstance(map_, CellDesignerMap):
             info = momapy.celldesigner.utils.get_info(map_)
-        elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+        elif isinstance(map_, momapy.sbgn.SBGNMap):
             info = momapy.sbgn.utils.get_info(map_)
         else:
             raise ValueError(f"unsupported map type: {type(map_).__name__}")
@@ -1399,7 +1399,7 @@ def run(args):
         if args.tidy:
             if isinstance(map_, CellDesignerMap):
                 map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.core.SBGNMap):
+            elif isinstance(map_, momapy.sbgn.SBGNMap):
                 map_ = momapy.sbgn.utils.tidy(map_)
         _visualize_map(
             map_=map_,

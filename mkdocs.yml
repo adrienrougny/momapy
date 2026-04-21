@@ -20,7 +20,7 @@ nav:
       - Skia: api_reference/rendering/skia.md
       - SVG-native: api_reference/rendering/svg_native.md
     - SBGN:
-      - Core: api_reference/sbgn/core.md
+      - Elements: api_reference/sbgn/elements.md
       - PD: api_reference/sbgn/pd.md
       - AF: api_reference/sbgn/af.md
       - I/O:

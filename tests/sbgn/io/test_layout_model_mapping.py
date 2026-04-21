@@ -7,7 +7,7 @@ import dataclasses
 import momapy.io.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
-import momapy.sbgn.core
+import momapy.sbgn
 import momapy.core.layout
 import momapy.core.mapping
 
@@ -123,7 +123,8 @@ class TestFrozensetMappings:
         if not hasattr(sbgn_map.model, "processes"):
             pytest.skip("No processes attribute on model")
         process_model_elements = {
-            p for p in sbgn_map.model.processes
+            p
+            for p in sbgn_map.model.processes
             if isinstance(p, momapy.sbgn.pd.StoichiometricProcess)
         }
         for process in process_model_elements:
@@ -138,12 +139,10 @@ class TestFrozensetMappings:
             # The frozenset should contain at least the process layout (anchor)
             # plus consumption/production arcs and their entity pool targets
             arc_count = sum(
-                1 for el in found_key
-                if isinstance(el, momapy.core.layout.Arc)
+                1 for el in found_key if isinstance(el, momapy.core.layout.Arc)
             )
             node_count = sum(
-                1 for el in found_key
-                if isinstance(el, momapy.core.layout.Node)
+                1 for el in found_key if isinstance(el, momapy.core.layout.Node)
             )
             # At least 1 node (the process layout) and some arcs
             assert node_count >= 1, (
@@ -157,7 +156,8 @@ class TestFrozensetMappings:
         if not hasattr(sbgn_map.model, "processes"):
             pytest.skip("No processes attribute on model")
         process_model_elements = {
-            p for p in sbgn_map.model.processes
+            p
+            for p in sbgn_map.model.processes
             if isinstance(p, momapy.sbgn.pd.StoichiometricProcess)
         }
         for process in process_model_elements:
@@ -169,7 +169,8 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             anchors = [
-                el for el in frozenset_key
+                el
+                for el in frozenset_key
                 if mapping._singleton_to_key.get(el) == frozenset_key
             ]
             assert len(anchors) == 1, (
@@ -184,7 +185,8 @@ class TestFrozensetMappings:
         if not hasattr(sbgn_map.model, "processes"):
             pytest.skip("No processes attribute on model")
         process_model_elements = {
-            p for p in sbgn_map.model.processes
+            p
+            for p in sbgn_map.model.processes
             if isinstance(p, momapy.sbgn.pd.StoichiometricProcess)
         }
         for process in process_model_elements:
@@ -197,8 +199,7 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             arcs_in_frozenset = [
-                el for el in frozenset_key
-                if isinstance(el, momapy.core.layout.Arc)
+                el for el in frozenset_key if isinstance(el, momapy.core.layout.Arc)
             ]
             for arc in arcs_in_frozenset:
                 if arc not in mapping:
@@ -209,8 +210,7 @@ class TestFrozensetMappings:
                     f"{type(arc_value).__name__}, expected tuple"
                 )
                 assert len(arc_value) == 2, (
-                    f"Participant arc tuple has length {len(arc_value)}, "
-                    f"expected 2"
+                    f"Participant arc tuple has length {len(arc_value)}, expected 2"
                 )
                 assert arc_value[1] is process, (
                     f"Participant arc parent is "
@@ -255,7 +255,8 @@ class TestFrozensetMappings:
             if frozenset_key is None:
                 continue
             anchors = [
-                el for el in frozenset_key
+                el
+                for el in frozenset_key
                 if mapping._singleton_to_key.get(el) == frozenset_key
             ]
             assert len(anchors) == 1, (
