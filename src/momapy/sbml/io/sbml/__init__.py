@@ -1,5 +1,8 @@
 """Classes for reading SBML files."""
 
-import momapy.sbml.io.sbml.reader as _reader
+from momapy.sbml.io.sbml.reader import SBMLReader as SBMLReader
 
-SBMLReader = _reader.SBMLReader
+
+__all__ = [
+    "SBMLReader",
+]
