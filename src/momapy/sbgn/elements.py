@@ -1,27 +1,14 @@
-"""Core classes for SBGN (Systems Biology Graphical Notation) maps.
-
-This module provides base classes for SBGN diagram elements including models,
-nodes, arcs, layouts, and maps. SBGN is a standardized visual language for
-representing biological processes and networks.
-
-Examples:
-    ```python
-    from momapy.sbgn.core import SBGNModel, SBGNLayout, SBGNMap
-    model = SBGNModel()
-    layout = SBGNLayout()
-    map_ = SBGNMap(model=model, layout=layout)
-    ```
-"""
+"""Abstract base classes and mixins for SBGN model and layout elements."""
 
 import abc
 import dataclasses
 import typing
 
-import momapy.core
+import momapy.builder
+import momapy.coloring
 import momapy.core.elements
 import momapy.core.layout
-import momapy.core.map
-import momapy.core.model
+import momapy.drawing
 import momapy.geometry
 
 
@@ -57,66 +44,6 @@ class SBGNRole(SBGNModelElement):
     """
 
     element: SBGNModelElement
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNModel(momapy.core.model.Model):
-    """Base class for SBGN models.
-
-    SBGN models contain the semantic information represented in
-    SBGN diagrams, including entities and their relationships.
-
-    Examples:
-        ```python
-        model = SBGNModel()
-        ```
-    """
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNLayout(momapy.core.layout.Layout):
-    """Base class for SBGN layouts.
-
-    SBGN layouts define the visual representation of SBGN models,
-    including the positions and styles of glyphs.
-
-    Attributes:
-        fill: Background fill color for the layout.
-
-    Examples:
-        ```python
-        layout = SBGNLayout()
-        ```
-    """
-
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNMap(momapy.core.map.Map):
-    """Base class for SBGN maps.
-
-    SBGN maps combine a model and its visual layout into a complete
-    diagram representation.
-
-    Attributes:
-        model: The SBGN model containing semantic information.
-        layout: The SBGN layout defining the visual representation.
-
-    Examples:
-        ```python
-        model = SBGNModel()
-        layout = SBGNLayout()
-        map_ = SBGNMap(model=model, layout=layout)
-        ```
-    """
-
-    model: SBGNModel
-    layout: SBGNLayout
 
 
 @dataclasses.dataclass(frozen=True)
