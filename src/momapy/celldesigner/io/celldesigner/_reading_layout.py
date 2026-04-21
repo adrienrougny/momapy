@@ -80,11 +80,25 @@ def _apply_line_attributes(layout_element, cd_line_element):
 
 
 def make_empty_layout(cd_element):
+    """Create an empty CellDesigner layout builder.
+
+    Args:
+        cd_element: The root CellDesigner XML element (unused, kept for symmetry).
+
+    Returns:
+        A new empty CellDesigner layout builder.
+    """
     layout = momapy.celldesigner.core.CellDesignerLayoutBuilder()
     return layout
 
 
 def set_layout_size_and_position(reading_context, cd_model):
+    """Populate the layout size and center from the CellDesigner model.
+
+    Args:
+        reading_context: The reading context.
+        cd_model: The CellDesigner model XML element carrying width/height.
+    """
     if reading_context.layout is None:
         return
     reading_context.layout.width = float(
@@ -99,6 +113,14 @@ def set_layout_size_and_position(reading_context, cd_model):
 
 
 def make_segments(points):
+    """Build consecutive line segments from an ordered list of points.
+
+    Args:
+        points: Points in path order.
+
+    Returns:
+        List of ``Segment`` objects connecting each successive pair.
+    """
     segments = []
     for current_point, following_point in zip(points[:-1], points[1:]):
         segment = momapy.geometry.Segment(current_point, following_point)
@@ -107,6 +129,15 @@ def make_segments(points):
 
 
 def make_points(cd_edit_points):
+    """Parse CellDesigner ``<cd:editPoints>`` coordinates into Points.
+
+    Args:
+        cd_edit_points: Either the ``<cd:editPoints>`` XML element or its
+            raw text content (``"x1,y1 x2,y2 ..."``).
+
+    Returns:
+        List of ``Point`` in path order.
+    """
     if getattr(cd_edit_points, "text", None) is not None:
         cd_edit_points = cd_edit_points.text
     cd_coordinates = [
@@ -122,6 +153,20 @@ def make_points(cd_edit_points):
 def make_species(
     reading_context, cd_species_alias, layout_element_cls, name, homomultimer, hypothetical, active
 ):
+    """Create a species layout builder (and its active-border sibling if needed).
+
+    Args:
+        reading_context: The reading context.
+        cd_species_alias: The CellDesigner ``<cd:speciesAlias>`` XML element.
+        layout_element_cls: The species layout element class to instantiate.
+        name: The species display name.
+        homomultimer: Multimer count (``1`` if not a multimer).
+        hypothetical: Whether to render a dashed stroke for hypothetical species.
+        active: Whether to also attach an active-border layout element.
+
+    Returns:
+        A species layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(layout_element_cls)
@@ -178,6 +223,17 @@ def make_species_modification(
     modification_state,
     super_layout_element,
 ):
+    """Create a modification layout builder attached to a species layout.
+
+    Args:
+        reading_context: The reading context.
+        cd_modification_residue: The CellDesigner modification residue XML element.
+        modification_state: The modification state (``None`` renders an empty label).
+        super_layout_element: The parent species layout element to anchor against.
+
+    Returns:
+        A modification layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ModificationLayout)
@@ -235,6 +291,16 @@ def make_species_modification(
 def make_species_structural_state(
     reading_context, cd_species_structural_state, super_layout_element
 ):
+    """Create a structural state layout builder attached to a species layout.
+
+    Args:
+        reading_context: The reading context.
+        cd_species_structural_state: The CellDesigner structural state XML element.
+        super_layout_element: The parent species layout element to anchor against.
+
+    Returns:
+        A structural state layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(momapy.celldesigner.core.StructuralStateLayout)
@@ -270,6 +336,18 @@ _CD_CLASS_TO_SIDE = {
 
 
 def _corner_region(corner, px, py, canvas_width, canvas_height):
+    """Return the (left, top, right, bottom) rectangle for a corner close-up.
+
+    Args:
+        corner: The ``CompartmentCorner`` that the close-up covers.
+        px: The split point x-coordinate.
+        py: The split point y-coordinate.
+        canvas_width: Width of the enclosing canvas.
+        canvas_height: Height of the enclosing canvas.
+
+    Returns:
+        Tuple ``(left, top, right, bottom)`` defining the covered region.
+    """
     if corner is momapy.celldesigner.core.CompartmentCorner.NORTHWEST:
         return px, py, canvas_width, canvas_height
     if corner is momapy.celldesigner.core.CompartmentCorner.NORTHEAST:
@@ -280,6 +358,18 @@ def _corner_region(corner, px, py, canvas_width, canvas_height):
 
 
 def _side_region(side, px, py, canvas_width, canvas_height):
+    """Return the (left, top, right, bottom) rectangle for a side close-up.
+
+    Args:
+        side: The ``CompartmentSide`` that the close-up covers.
+        px: The split point x-coordinate.
+        py: The split point y-coordinate.
+        canvas_width: Width of the enclosing canvas.
+        canvas_height: Height of the enclosing canvas.
+
+    Returns:
+        Tuple ``(left, top, right, bottom)`` defining the covered region.
+    """
     if side is momapy.celldesigner.core.CompartmentSide.NORTH:
         return 0.0, py, canvas_width, canvas_height
     if side is momapy.celldesigner.core.CompartmentSide.SOUTH:
@@ -290,6 +380,20 @@ def _side_region(side, px, py, canvas_width, canvas_height):
 
 
 def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_alias):
+    """Create a compartment layout builder from a compartment alias.
+
+    Dispatches on the alias ``class`` attribute to pick between oval, corner
+    close-up, side close-up or plain rectangle layouts.
+
+    Args:
+        reading_context: The reading context.
+        cd_compartment: The CellDesigner compartment XML element (model side).
+        cd_compartment_alias: The CellDesigner compartment alias XML element
+            (layout side).
+
+    Returns:
+        A compartment layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_class = getattr(cd_compartment_alias, "class").text
@@ -371,6 +475,19 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
 
 
 def make_segments_non_t_shape(reading_context, cd_reaction):
+    """Build the arc segments for a straight (non T-shape) reaction.
+
+    Used when the reaction has exactly one base reactant and one base product
+    (no branching); edit points are interpreted in the frame defined by the
+    reactant and product anchor points.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction: The CellDesigner reaction XML element.
+
+    Returns:
+        List of ``Segment`` making up the arc path.
+    """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
@@ -432,6 +549,18 @@ def make_segments_non_t_shape(reading_context, cd_reaction):
 
 
 def make_segments_left_t_shape(reading_context, cd_reaction):
+    """Build arc segments for a reaction with two base reactants and one product.
+
+    The T-junction is placed at the last edit point relative to the frame
+    formed by the two reactants and the product.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction: The CellDesigner reaction XML element.
+
+    Returns:
+        List of ``Segment`` making up the arc path from the junction to the product.
+    """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
@@ -493,6 +622,18 @@ def make_segments_left_t_shape(reading_context, cd_reaction):
 
 
 def make_segments_right_t_shape(reading_context, cd_reaction):
+    """Build arc segments for a reaction with one reactant and two base products.
+
+    The T-junction is placed at the last edit point relative to the frame
+    formed by the reactant and the two products.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction: The CellDesigner reaction XML element.
+
+    Returns:
+        List of ``Segment`` making up the arc path from the reactant to the junction.
+    """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
         cd_reaction
@@ -561,6 +702,19 @@ def make_reaction(
     cd_base_reactants,
     cd_base_products,
 ):
+    """Create a reaction layout builder and flags for T-shape branches.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction: The CellDesigner reaction XML element.
+        layout_element_cls: The reaction layout element class to instantiate.
+        cd_base_reactants: Base reactant XML elements for this reaction.
+        cd_base_products: Base product XML elements for this reaction.
+
+    Returns:
+        Tuple ``(layout_element, is_left_t_shape, is_right_t_shape)``, or
+        ``(None, False, False)`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None, False, False
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -624,6 +778,18 @@ def make_reactant_from_base(
     cd_reaction,
     super_layout_element,
 ):
+    """Create a consumption arc layout for a base reactant in a T-shape reaction.
+
+    Args:
+        reading_context: The reading context.
+        cd_base_reactant: The CellDesigner base reactant XML element.
+        n_cd_base_reactant: Index of the base reactant (0 or 1) within the reaction.
+        cd_reaction: The enclosing reaction XML element.
+        super_layout_element: The reaction layout element the arc connects to.
+
+    Returns:
+        A consumption layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -689,6 +855,16 @@ def make_reactant_from_base(
 def make_reactant_from_link(
     reading_context, cd_reactant_link, super_layout_element
 ):
+    """Create a consumption arc layout from a reactant link.
+
+    Args:
+        reading_context: The reading context.
+        cd_reactant_link: The CellDesigner reactant link XML element.
+        super_layout_element: The reaction layout element the arc connects to.
+
+    Returns:
+        A consumption layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -745,6 +921,18 @@ def make_product_from_base(
     cd_reaction,
     super_layout_element,
 ):
+    """Create a production arc layout for a base product in a T-shape reaction.
+
+    Args:
+        reading_context: The reading context.
+        cd_base_product: The CellDesigner base product XML element.
+        n_cd_base_product: Index of the base product (0 or 1) within the reaction.
+        cd_reaction: The enclosing reaction XML element.
+        super_layout_element: The reaction layout element the arc connects to.
+
+    Returns:
+        A production layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -810,6 +998,16 @@ def make_product_from_base(
 def make_product_from_link(
     reading_context, cd_product_link, super_layout_element
 ):
+    """Create a production arc layout from a product link.
+
+    Args:
+        reading_context: The reading context.
+        cd_product_link: The CellDesigner product link XML element.
+        super_layout_element: The reaction layout element the arc connects to.
+
+    Returns:
+        A production layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -904,6 +1102,20 @@ def make_modifier(
     super_layout_element,
     has_boolean_input,
 ):
+    """Create a modifier arc layout builder.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction_modification: The CellDesigner reaction modification XML element.
+        layout_element_cls: The modifier arc layout class to instantiate.
+        source_layout_element: The modulator species (or logic gate) layout element.
+        super_layout_element: The reaction layout element being modulated.
+        has_boolean_input: Whether the modifier comes through a boolean logic
+            gate (changes edit-point interpretation).
+
+    Returns:
+        A modifier arc layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(layout_element_cls)
@@ -971,6 +1183,18 @@ def make_modifier(
 
 
 def make_logic_gate(reading_context, cd_element, layout_element_cls):
+    """Create a boolean logic gate layout builder.
+
+    The gate position is taken from the last edit point encoded on the element.
+
+    Args:
+        reading_context: The reading context.
+        cd_element: The CellDesigner boolean-gate XML element.
+        layout_element_cls: The gate layout class to instantiate.
+
+    Returns:
+        A logic gate layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
@@ -987,6 +1211,16 @@ def make_logic_gate(reading_context, cd_element, layout_element_cls):
 
 
 def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
+    """Create a logic arc layout connecting a boolean gate to one of its inputs.
+
+    Args:
+        reading_context: The reading context.
+        gate_layout_element: The boolean gate layout element.
+        input_layout_element: The species layout element feeding the gate.
+
+    Returns:
+        A logic arc layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     layout_element = reading_context.layout.new_element(momapy.celldesigner.core.LogicArcLayout)
@@ -1009,6 +1243,24 @@ def make_modulation(
     cd_base_reactant,
     cd_base_product,
 ):
+    """Create a modulation arc layout builder.
+
+    CellDesigner encodes modulations as fake reactions; this resolves the
+    source/target anchors, edit points, and builds the arc path.
+
+    Args:
+        reading_context: The reading context.
+        cd_reaction: The CellDesigner reaction XML element encoding the modulation.
+        layout_element_cls: The modulation arc layout class to instantiate.
+        source_layout_element: The source (modulator) layout element.
+        target_layout_element: The target (modulated) layout element.
+        has_boolean_input: Whether the modulation comes through a boolean logic gate.
+        cd_base_reactant: The base reactant XML element of the fake reaction.
+        cd_base_product: The base product XML element of the fake reaction.
+
+    Returns:
+        A modulation arc layout builder, or ``None`` if no layout is being built.
+    """
     if reading_context.layout is None:
         return None
     cd_edit_points = (
