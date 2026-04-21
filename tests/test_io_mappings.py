@@ -87,10 +87,10 @@ class TestModelNotAModelElement:
         )
 
     def test_sbml_model(self):
-        import momapy.sbml.core
+        import momapy.sbml.model
 
         assert not issubclass(
-            momapy.sbml.core.SBMLModel, momapy.core.elements.ModelElement
+            momapy.sbml.model.SBMLModel, momapy.core.elements.ModelElement
         )
 
     def test_celldesigner_model(self):

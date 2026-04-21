@@ -9,10 +9,45 @@ import re
 
 import lxml.etree
 
-import momapy.coloring
-import momapy.geometry
-import momapy.celldesigner.core
-import momapy.celldesigner.io.celldesigner._reading_parsing
+from momapy.coloring import Color
+from momapy.geometry import Point, Rotation, get_transformation_for_frame
+from momapy.celldesigner.io.celldesigner._reading_parsing import (
+    _CD_NAMESPACE,
+    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
+    _TEXT_TO_CHARACTER,
+)
+from momapy.celldesigner.model import (
+    AntisenseRNA,
+    Catalyzer,
+    Complex,
+    Degraded,
+    Dissociation,
+    Drug,
+    Gene,
+    GenericProtein,
+    HeterodimerAssociation,
+    Inhibitor,
+    Ion,
+    IonChannel,
+    KnownTransitionOmitted,
+    Modulator,
+    Phenotype,
+    PhysicalStimulator,
+    RNA,
+    Receptor,
+    SimpleMolecule,
+    StateTransition,
+    Transcription,
+    Translation,
+    Transport,
+    Trigger,
+    TruncatedProtein,
+    Truncation,
+    Unknown,
+    UnknownCatalyzer,
+    UnknownInhibitor,
+    UnknownTransition,
+)
 
 
 def _are_collinear(p1, p2, p3, epsilon=1e-6):
@@ -39,12 +74,11 @@ _SBML_SID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_]")
 _XML_ID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_\-\.:]")
 _XML_ID_INVALID_START_RE = re.compile(r"^[^a-zA-Z_:]")
 
-_CD_NAMESPACE = momapy.celldesigner.io.celldesigner._reading_parsing._CD_NAMESPACE
+_CD_NAMESPACE = _CD_NAMESPACE
 
 # Reverse of _parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME
 _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION = {
-    v: k
-    for k, v in momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
+    v: k for k, v in _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items()
 }
 
 # Reverse of _parsing._TEXT_TO_CHARACTER (pick first occurrence as canonical)
@@ -52,48 +86,48 @@ _CHARACTER_TO_TEXT = {}
 for (
     _text,
     _char,
-) in momapy.celldesigner.io.celldesigner._reading_parsing._TEXT_TO_CHARACTER.items():
+) in _TEXT_TO_CHARACTER.items():
     if _char not in _CHARACTER_TO_TEXT:
         _CHARACTER_TO_TEXT[_char] = _text
 
 
 _CLASS_TO_CD_STRING = {
-    momapy.celldesigner.core.GenericProtein: "PROTEIN",
-    momapy.celldesigner.core.TruncatedProtein: "PROTEIN",
-    momapy.celldesigner.core.Receptor: "PROTEIN",
-    momapy.celldesigner.core.IonChannel: "PROTEIN",
-    momapy.celldesigner.core.Gene: "GENE",
-    momapy.celldesigner.core.RNA: "RNA",
-    momapy.celldesigner.core.AntisenseRNA: "ANTISENSE_RNA",
-    momapy.celldesigner.core.SimpleMolecule: "SIMPLE_MOLECULE",
-    momapy.celldesigner.core.Ion: "ION",
-    momapy.celldesigner.core.Drug: "DRUG",
-    momapy.celldesigner.core.Phenotype: "PHENOTYPE",
-    momapy.celldesigner.core.Unknown: "UNKNOWN",
-    momapy.celldesigner.core.Degraded: "DEGRADED",
-    momapy.celldesigner.core.Complex: "COMPLEX",
+    GenericProtein: "PROTEIN",
+    TruncatedProtein: "PROTEIN",
+    Receptor: "PROTEIN",
+    IonChannel: "PROTEIN",
+    Gene: "GENE",
+    RNA: "RNA",
+    AntisenseRNA: "ANTISENSE_RNA",
+    SimpleMolecule: "SIMPLE_MOLECULE",
+    Ion: "ION",
+    Drug: "DRUG",
+    Phenotype: "PHENOTYPE",
+    Unknown: "UNKNOWN",
+    Degraded: "DEGRADED",
+    Complex: "COMPLEX",
 }
 
 _CLASS_TO_REACTION_TYPE = {
-    momapy.celldesigner.core.StateTransition: "STATE_TRANSITION",
-    momapy.celldesigner.core.KnownTransitionOmitted: "KNOWN_TRANSITION_OMITTED",
-    momapy.celldesigner.core.UnknownTransition: "UNKNOWN_TRANSITION",
-    momapy.celldesigner.core.Transcription: "TRANSCRIPTION",
-    momapy.celldesigner.core.Translation: "TRANSLATION",
-    momapy.celldesigner.core.Transport: "TRANSPORT",
-    momapy.celldesigner.core.HeterodimerAssociation: "HETERODIMER_ASSOCIATION",
-    momapy.celldesigner.core.Dissociation: "DISSOCIATION",
-    momapy.celldesigner.core.Truncation: "TRUNCATION",
+    StateTransition: "STATE_TRANSITION",
+    KnownTransitionOmitted: "KNOWN_TRANSITION_OMITTED",
+    UnknownTransition: "UNKNOWN_TRANSITION",
+    Transcription: "TRANSCRIPTION",
+    Translation: "TRANSLATION",
+    Transport: "TRANSPORT",
+    HeterodimerAssociation: "HETERODIMER_ASSOCIATION",
+    Dissociation: "DISSOCIATION",
+    Truncation: "TRUNCATION",
 }
 
 _CLASS_TO_MODIFIER_TYPE = {
-    momapy.celldesigner.core.Catalyzer: "CATALYSIS",
-    momapy.celldesigner.core.UnknownCatalyzer: "UNKNOWN_CATALYSIS",
-    momapy.celldesigner.core.Inhibitor: "INHIBITION",
-    momapy.celldesigner.core.UnknownInhibitor: "UNKNOWN_INHIBITION",
-    momapy.celldesigner.core.PhysicalStimulator: "PHYSICAL_STIMULATION",
-    momapy.celldesigner.core.Modulator: "MODULATION",
-    momapy.celldesigner.core.Trigger: "TRIGGER",
+    Catalyzer: "CATALYSIS",
+    UnknownCatalyzer: "UNKNOWN_CATALYSIS",
+    Inhibitor: "INHIBITION",
+    UnknownInhibitor: "UNKNOWN_INHIBITION",
+    PhysicalStimulator: "PHYSICAL_STIMULATION",
+    Modulator: "MODULATION",
+    Trigger: "TRIGGER",
 }
 
 _MODIFICATION_STATE_TO_CD = {
@@ -198,7 +232,7 @@ def color_to_cd_hex(color):
     """Convert momapy Color (RRGGBBAA) to CellDesigner hex (AARRGGBB).
 
     Args:
-        color: A momapy.coloring.Color instance.
+        color: A Color instance.
 
     Returns:
         CellDesigner AARRGGBB hex string (e.g. "FFCC0000").
@@ -229,7 +263,7 @@ def points_to_edit_points_text(points):
     """Format a list of Points as CellDesigner edit points text.
 
     Args:
-        points: List of momapy.geometry.Point.
+        points: List of Point.
 
     Returns:
         Space-separated "x,y" pairs, e.g. "0.5,0.3 0.7,-0.1".
@@ -237,9 +271,7 @@ def points_to_edit_points_text(points):
     return " ".join(f"{p.x},{p.y}" for p in points)
 
 
-_ALL_ANCHOR_NAMES = list(
-    momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values()
-)
+_ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
 
 
 def infer_anchor_name(species_layout, point, tol=1e-3):
@@ -247,7 +279,7 @@ def infer_anchor_name(species_layout, point, tol=1e-3):
 
     Args:
         species_layout: A layout element with anchor_point() method.
-        point: The momapy.geometry.Point to match.
+        point: The Point to match.
         tol: Absolute tolerance for coordinate matching.
 
     Returns:
@@ -307,9 +339,7 @@ def _build_frame_and_inverse(origin, unit_x, unit_y):
     Returns:
         The inverse MatrixTransformation.
     """
-    transformation = momapy.geometry.get_transformation_for_frame(
-        origin, unit_x, unit_y
-    )
+    transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     return transformation.inverted()
 
 
@@ -323,7 +353,7 @@ def _perp_point(origin, unit_x):
     Returns:
         Rotated point.
     """
-    return unit_x.transformed(momapy.geometry.Rotation(math.radians(90), origin))
+    return unit_x.transformed(Rotation(math.radians(90), origin))
 
 
 def inverse_edit_points_non_t_shape(reaction_layout, reactant_layout, product_layout):
@@ -382,7 +412,7 @@ def inverse_edit_points_left_t_shape(
     unit_x_f1 = reactant_layout_1.center()
     unit_y_f1 = product_layout.center()
     if _are_collinear(unit_x_f1, unit_y_f1, origin_f1):
-        origin_f1 = momapy.geometry.Point(origin_f1.x + 1, origin_f1.y + 1)
+        origin_f1 = Point(origin_f1.x + 1, origin_f1.y + 1)
     inverse_f1 = _build_frame_and_inverse(origin_f1, unit_x_f1, unit_y_f1)
     # The T-junction is the start point of the main reaction path
     t_junction = reaction_layout.points()[0]
@@ -473,7 +503,7 @@ def inverse_edit_points_right_t_shape(
     unit_x_f1 = product_layout_0.center()
     unit_y_f1 = product_layout_1.center()
     if _are_collinear(unit_x_f1, unit_y_f1, origin_f1):
-        origin_f1 = momapy.geometry.Point(origin_f1.x + 1, origin_f1.y + 1)
+        origin_f1 = Point(origin_f1.x + 1, origin_f1.y + 1)
     inverse_f1 = _build_frame_and_inverse(origin_f1, unit_x_f1, unit_y_f1)
     # The T-junction is the end point of the main reaction path
     t_junction = reaction_layout.points()[-1]

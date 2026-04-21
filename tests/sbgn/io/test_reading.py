@@ -5,7 +5,7 @@ import os
 import momapy.io.core
 import momapy.sbgn.core
 import momapy.sbgn.pd
-import momapy.sbml.core
+import momapy.sbml.model
 import momapy.core.layout
 import frozendict
 
@@ -14,12 +14,14 @@ import frozendict
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 SBGN_MAPS_DIR = os.path.join(TEST_DIR, "..", "maps", "pd")
 
+
 # Discover all .sbgn files in the maps directory
 def get_sbgn_files():
     """Get all SBGN files from the maps directory."""
     if not os.path.exists(SBGN_MAPS_DIR):
         return []
-    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith('.sbgn')]
+    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith(".sbgn")]
+
 
 SBGN_FILES = get_sbgn_files()
 
@@ -49,11 +51,14 @@ class TestSBGNReadOptionalParameters:
             pytest.skip("No SBGN test files found")
         return os.path.join(SBGN_MAPS_DIR, SBGN_FILES[0])
 
-    @pytest.mark.parametrize("return_type,expected_type", [
-        ("map", momapy.sbgn.core.SBGNMap),
-        ("model", momapy.sbgn.core.SBGNModel),
-        ("layout", momapy.core.layout.Layout),
-    ])
+    @pytest.mark.parametrize(
+        "return_type,expected_type",
+        [
+            ("map", momapy.sbgn.core.SBGNMap),
+            ("model", momapy.sbgn.core.SBGNModel),
+            ("layout", momapy.core.layout.Layout),
+        ],
+    )
     def test_return_type_parameter(self, test_file, return_type, expected_type):
         """Test return_type parameter returns correct object type."""
         result = momapy.io.core.read(test_file, return_type=return_type)
@@ -65,7 +70,7 @@ class TestSBGNReadOptionalParameters:
         assert result.obj is not None
         assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
         # Verify the map has a model
-        assert hasattr(result.obj, 'model')
+        assert hasattr(result.obj, "model")
         assert result.obj.model is not None
 
     def test_with_model_false(self, test_file):
@@ -74,7 +79,7 @@ class TestSBGNReadOptionalParameters:
         assert result.obj is not None
         assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
         # Verify the map has no model (or model is None)
-        assert hasattr(result.obj, 'model')
+        assert hasattr(result.obj, "model")
         assert result.obj.model is None
 
     def test_with_layout_true(self, test_file):
@@ -83,7 +88,7 @@ class TestSBGNReadOptionalParameters:
         assert result.obj is not None
         assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
         # Verify the map has a layout
-        assert hasattr(result.obj, 'layout')
+        assert hasattr(result.obj, "layout")
         assert result.obj.layout is not None
 
     def test_with_layout_false(self, test_file):
@@ -92,34 +97,34 @@ class TestSBGNReadOptionalParameters:
         assert result.obj is not None
         assert isinstance(result.obj, momapy.sbgn.core.SBGNMap)
         # Verify the map has no layout (or layout is None)
-        assert hasattr(result.obj, 'layout')
+        assert hasattr(result.obj, "layout")
         assert result.obj.layout is None
 
     def test_with_annotations_true(self, test_file):
         """Test with_annotations=True includes annotations in result."""
         result = momapy.io.core.read(test_file, with_annotations=True)
-        assert hasattr(result, 'element_to_annotations')
+        assert hasattr(result, "element_to_annotations")
         assert isinstance(result.element_to_annotations, frozendict.frozendict)
         # Annotations may be empty if file has none, but should be a frozendict
 
     def test_with_annotations_false(self, test_file):
         """Test with_annotations=False excludes annotations from result."""
         result = momapy.io.core.read(test_file, with_annotations=False)
-        assert hasattr(result, 'element_to_annotations')
+        assert hasattr(result, "element_to_annotations")
         # Should be empty frozendict when with_annotations=False
         assert result.element_to_annotations == frozendict.frozendict()
 
     def test_with_notes_true(self, test_file):
         """Test with_notes=True includes notes in result."""
         result = momapy.io.core.read(test_file, with_notes=True)
-        assert hasattr(result, 'element_to_notes')
+        assert hasattr(result, "element_to_notes")
         assert isinstance(result.element_to_notes, frozendict.frozendict)
         # Notes may be empty if file has none, but should be a frozendict
 
     def test_with_notes_false(self, test_file):
         """Test with_notes=False excludes notes from result."""
         result = momapy.io.core.read(test_file, with_notes=False)
-        assert hasattr(result, 'element_to_notes')
+        assert hasattr(result, "element_to_notes")
         # Should be empty frozendict when with_notes=False
         assert result.element_to_notes == frozendict.frozendict()
 
@@ -170,7 +175,7 @@ class TestSBGNAnnotationsContent:
         for elem, annots in result.element_to_annotations.items():
             assert isinstance(annots, frozenset)
             for a in annots:
-                assert isinstance(a, momapy.sbml.core.RDFAnnotation)
+                assert isinstance(a, momapy.sbml.model.RDFAnnotation)
 
     def test_erk_annotations(self, result):
         """Test annotations on glyph1 (ERK macromolecule)."""
@@ -178,8 +183,8 @@ class TestSBGNAnnotationsContent:
         assert len(annots) == 2
         qualifiers = {a.qualifier for a in annots}
         assert qualifiers == {
-            momapy.sbml.core.BQBiol.IS,
-            momapy.sbml.core.BQBiol.IS_DESCRIBED_BY,
+            momapy.sbml.model.BQBiol.IS,
+            momapy.sbml.model.BQBiol.IS_DESCRIBED_BY,
         }
         resources = {r for a in annots for r in a.resources}
         assert "urn:miriam:uniprot:P28482" in resources
@@ -190,10 +195,8 @@ class TestSBGNAnnotationsContent:
         annots = self._get_annotations_by_id(result, "glyph2_model")
         assert len(annots) == 1
         annotation = next(iter(annots))
-        assert annotation.qualifier == momapy.sbml.core.BQBiol.IS
-        assert annotation.resources == frozenset(
-            {"urn:miriam:uniprot:Q02750"}
-        )
+        assert annotation.qualifier == momapy.sbml.model.BQBiol.IS
+        assert annotation.resources == frozenset({"urn:miriam:uniprot:Q02750"})
 
     def test_annotated_elements_are_macromolecules(self, result):
         """Test that annotated elements are Macromolecule instances."""
@@ -205,9 +208,7 @@ class TestSBGNAnnotationsContent:
         """Test that with_annotations=False produces no annotations."""
         if not os.path.exists(ANNOTATED_FILE):
             pytest.skip("simple_annotated.sbgn not found")
-        result = momapy.io.core.read(
-            ANNOTATED_FILE, with_annotations=False
-        )
+        result = momapy.io.core.read(ANNOTATED_FILE, with_annotations=False)
         assert result.element_to_annotations == frozendict.frozendict()
 
 
@@ -228,9 +229,7 @@ class TestSBGNNotesContent:
     def test_notes_are_non_empty(self, result):
         """Test that the file produces a non-empty notes dict."""
         non_empty = {
-            elem: notes
-            for elem, notes in result.element_to_notes.items()
-            if notes
+            elem: notes for elem, notes in result.element_to_notes.items() if notes
         }
         assert len(non_empty) > 0
 
@@ -263,7 +262,5 @@ class TestSBGNNotesContent:
         """Test that with_notes=False produces no notes."""
         if not os.path.exists(ANNOTATED_FILE):
             pytest.skip("simple_annotated.sbgn not found")
-        result = momapy.io.core.read(
-            ANNOTATED_FILE, with_notes=False
-        )
+        result = momapy.io.core.read(ANNOTATED_FILE, with_notes=False)
         assert result.element_to_notes == frozendict.frozendict()

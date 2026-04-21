@@ -2,7 +2,7 @@
 
 import pytest
 import os
-import momapy.sbml.core
+import momapy.sbml.model
 import momapy.sbml.io.sbml.reader
 import frozendict
 
@@ -31,7 +31,7 @@ class TestSBMLReading:
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(path)
         assert result is not None
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbml.core.SBMLModel)
+        assert isinstance(result.obj, momapy.sbml.model.SBMLModel)
 
     @pytest.mark.parametrize("filename", SBML_FILES)
     def test_read_produces_model_with_content(self, filename):
@@ -68,16 +68,12 @@ class TestSBMLReadOptionalParameters:
 
     def test_with_notes_true(self, test_file):
         """Test with_notes=True includes notes in result."""
-        result = momapy.sbml.io.sbml.reader.SBMLReader.read(
-            test_file, with_notes=True
-        )
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(test_file, with_notes=True)
         assert isinstance(result.element_to_notes, frozendict.frozendict)
 
     def test_with_notes_false(self, test_file):
         """Test with_notes=False excludes notes from result."""
-        result = momapy.sbml.io.sbml.reader.SBMLReader.read(
-            test_file, with_notes=False
-        )
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(test_file, with_notes=False)
         assert result.element_to_notes == frozendict.frozendict()
 
 
@@ -126,15 +122,15 @@ class TestSBMLAnnotationsContent:
         for elem, annots in result.element_to_annotations.items():
             assert isinstance(annots, frozenset)
             for a in annots:
-                assert isinstance(a, momapy.sbml.core.RDFAnnotation)
+                assert isinstance(a, momapy.sbml.model.RDFAnnotation)
 
     def test_compartment_annotation(self, result):
         """Test annotations on compartment Vre."""
         annots = self._get_annotations_by_id(result, "Vre")
         assert len(annots) == 3
         qualifiers = {a.qualifier for a in annots}
-        assert momapy.sbml.core.BQBiol.IS in qualifiers
-        assert momapy.sbml.core.BQBiol.IS_PART_OF in qualifiers
+        assert momapy.sbml.model.BQBiol.IS in qualifiers
+        assert momapy.sbml.model.BQBiol.IS_PART_OF in qualifiers
 
     def test_species_annotation(self, result):
         """Test annotations on species Cki_plasma_gli."""
@@ -181,9 +177,7 @@ class TestSBMLNotesContent:
     def test_notes_are_non_empty(self, result):
         """Test that the file produces a non-empty notes dict."""
         non_empty = {
-            elem: notes
-            for elem, notes in result.element_to_notes.items()
-            if notes
+            elem: notes for elem, notes in result.element_to_notes.items() if notes
         }
         assert len(non_empty) > 0
 

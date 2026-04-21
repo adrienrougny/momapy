@@ -30,7 +30,7 @@ nav:
       - I/O:
         - CD: api_reference/celldesigner/io/celldesigner.md
     - SBML:
-      - Core: api_reference/sbml/core.md
+      - Model: api_reference/sbml/model.md
       - I/O:
         - SBML: api_reference/sbml/io/sbml.md
   - Changelog: CHANGELOG.md

@@ -9,12 +9,12 @@ import dataclasses
 import enum
 
 from momapy.celldesigner.elements import CellDesignerModelElement
-from momapy.sbml.core import Compartment as SBMLCompartment
-from momapy.sbml.core import Species as SBMLSpecies
-from momapy.sbml.core import SpeciesReference
-from momapy.sbml.core import ModifierSpeciesReference
-from momapy.sbml.core import Reaction as SBMLReaction
-from momapy.sbml.core import SBMLModel
+from momapy.sbml.model import Compartment as SBMLCompartment
+from momapy.sbml.model import Species as SBMLSpecies
+from momapy.sbml.model import SpeciesReference
+from momapy.sbml.model import ModifierSpeciesReference
+from momapy.sbml.model import Reaction as SBMLReaction
+from momapy.sbml.model import SBMLModel
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

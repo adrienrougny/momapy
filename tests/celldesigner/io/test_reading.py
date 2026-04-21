@@ -4,7 +4,7 @@ import pytest
 import os
 import momapy.io.core
 import momapy.core.layout
-import momapy.sbml.core
+import momapy.sbml.model
 import frozendict
 from momapy.celldesigner.model import CellDesignerModel, ModificationState
 from momapy.celldesigner.map import CellDesignerMap
@@ -174,14 +174,14 @@ class TestCellDesignerAnnotationsContent:
         for elem, annots in result.element_to_annotations.items():
             assert isinstance(annots, frozenset)
             for a in annots:
-                assert isinstance(a, momapy.sbml.core.RDFAnnotation)
+                assert isinstance(a, momapy.sbml.model.RDFAnnotation)
 
     def test_compartment_annotation(self, result):
         """Test annotation on compartment s_id_ca4 (plasma membrane)."""
         annots = self._get_annotations_by_id(result, "s_id_ca4")
         assert len(annots) == 1
         annotation = next(iter(annots))
-        assert annotation.qualifier == momapy.sbml.core.BQBiol.IS
+        assert annotation.qualifier == momapy.sbml.model.BQBiol.IS
         assert annotation.resources == frozenset({"urn:miriam:obo.go:GO%3A0005886"})
 
     def test_species_annotations(self, result):
@@ -189,7 +189,7 @@ class TestCellDesignerAnnotationsContent:
         annots = self._get_annotations_by_id(result, "s_id_sa30")
         assert len(annots) == 6
         qualifiers = {a.qualifier for a in annots}
-        assert qualifiers == {momapy.sbml.core.BQBiol.IS_DESCRIBED_BY}
+        assert qualifiers == {momapy.sbml.model.BQBiol.IS_DESCRIBED_BY}
         resources = {r for a in annots for r in a.resources}
         assert "urn:miriam:uniprot:Q07812" in resources
         assert "urn:miriam:hgnc.symbol:BAX" in resources

@@ -46,7 +46,6 @@ import momapy.styling
 import momapy.sbgn.core
 import momapy.sbgn.pd
 import momapy.sbgn.af
-import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._reading_classification
 import momapy.sbgn.io.sbgnml._reading_parsing
 import momapy.sbgn.io.sbgnml._reading_model

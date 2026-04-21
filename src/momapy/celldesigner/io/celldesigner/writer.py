@@ -5,16 +5,86 @@ import os
 
 import lxml.etree
 
-import momapy.coloring
-import momapy.drawing
-import momapy.geometry
-import momapy.io.core
-import momapy.io.utils
-import momapy.utils
-import momapy.celldesigner.core
-import momapy.celldesigner.io.celldesigner._reading_parsing
-import momapy.celldesigner.io.celldesigner._writing
-import momapy.sbml.core
+from momapy.drawing import NoneValue, NoneValueType
+from momapy.geometry import Point, get_transformation_for_frame
+from momapy.io.core import Writer, WriterResult
+from momapy.io.utils import WritingContext
+from momapy.utils import check_parent_dir_exists
+from momapy.celldesigner.io.celldesigner._reading_parsing import (
+    _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
+)
+from momapy.celldesigner.io.celldesigner._writing import (
+    _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION,
+    _CLASS_TO_CD_STRING,
+    _CLASS_TO_MODIFIER_TYPE,
+    _CLASS_TO_REACTION_TYPE,
+    _MODIFICATION_STATE_TO_CD,
+    color_to_cd_hex,
+    compute_cd_angle,
+    encode_name,
+    node_to_bounds_attrs,
+)
+from momapy.celldesigner.elements import CellDesignerNode
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.model import (
+    AndGate,
+    AntisenseRNATemplate,
+    BooleanLogicGate,
+    Catalysis,
+    Catalyzer,
+    CodingRegion,
+    Complex,
+    Dissociation,
+    GeneTemplate,
+    HeterodimerAssociation,
+    Inhibition,
+    IonChannelTemplate,
+    ModificationSite,
+    Modulation,
+    NegativeInfluence,
+    NotGate,
+    OrGate,
+    Phenotype,
+    PhysicalStimulation,
+    PositiveInfluence,
+    ProteinBindingDomain,
+    ProteinTemplate,
+    RNATemplate,
+    ReceptorTemplate,
+    RegulatoryRegion,
+    TranscriptionStartingSiteL,
+    TranscriptionStartingSiteR,
+    Triggering,
+    TruncatedProteinTemplate,
+    Truncation,
+    UnknownCatalysis,
+    UnknownGate,
+    UnknownInhibition,
+    UnknownModulation,
+    UnknownNegativeInfluence,
+    UnknownPhysicalStimulation,
+    UnknownPositiveInfluence,
+    UnknownTriggering,
+)
+from momapy.celldesigner.layout import (
+    AndGateLayout,
+    CompartmentCorner,
+    CompartmentSide,
+    ComplexLayout,
+    ConsumptionLayout,
+    CornerCompartmentLayout,
+    LineCompartmentLayout,
+    LogicArcLayout,
+    ModificationLayout,
+    NotGateLayout,
+    OrGateLayout,
+    OvalCompartmentLayout,
+    ProductionLayout,
+    ReactionLayout,
+    RectangleCompartmentLayout,
+    StructuralStateLayout,
+    UnknownGateLayout,
+)
 
 _CD_NS = "http://www.sbml.org/2001/ns/celldesigner"
 _SBML_NS = "http://www.sbml.org/sbml/level2/version4"
@@ -24,8 +94,6 @@ _NSMAP = {
     None: _SBML_NS,
     "celldesigner": _CD_NS,
 }
-
-_writing = momapy.celldesigner.io.celldesigner._writing
 
 
 def _modulation_reaction_type(modulation):
@@ -38,42 +106,40 @@ def _modulation_reaction_type(modulation):
     - Otherwise → standard type
     """
     target = modulation.target
-    is_reduced = target is not None and not isinstance(
-        target, momapy.celldesigner.core.Phenotype
-    )
+    is_reduced = target is not None and not isinstance(target, Phenotype)
     _MAP = {
-        momapy.celldesigner.core.Catalysis: ("CATALYSIS", None),
-        momapy.celldesigner.core.UnknownCatalysis: ("UNKNOWN_CATALYSIS", None),
-        momapy.celldesigner.core.Inhibition: ("INHIBITION", "NEGATIVE_INFLUENCE"),
-        momapy.celldesigner.core.UnknownInhibition: (
+        Catalysis: ("CATALYSIS", None),
+        UnknownCatalysis: ("UNKNOWN_CATALYSIS", None),
+        Inhibition: ("INHIBITION", "NEGATIVE_INFLUENCE"),
+        UnknownInhibition: (
             "UNKNOWN_INHIBITION",
             "UNKNOWN_NEGATIVE_INFLUENCE",
         ),
-        momapy.celldesigner.core.PhysicalStimulation: (
+        PhysicalStimulation: (
             "PHYSICAL_STIMULATION",
             "REDUCED_PHYSICAL_STIMULATION",
         ),
-        momapy.celldesigner.core.UnknownPhysicalStimulation: (
+        UnknownPhysicalStimulation: (
             "UNKNOWN_PHYSICAL_STIMULATION",
             "UNKNOWN_REDUCED_PHYSICAL_STIMULATION",
         ),
-        momapy.celldesigner.core.Modulation: ("MODULATION", "REDUCED_MODULATION"),
-        momapy.celldesigner.core.UnknownModulation: (
+        Modulation: ("MODULATION", "REDUCED_MODULATION"),
+        UnknownModulation: (
             "UNKNOWN_MODULATION",
             "UNKNOWN_REDUCED_MODULATION",
         ),
-        momapy.celldesigner.core.Triggering: ("TRIGGER", "REDUCED_TRIGGER"),
-        momapy.celldesigner.core.UnknownTriggering: (
+        Triggering: ("TRIGGER", "REDUCED_TRIGGER"),
+        UnknownTriggering: (
             "UNKNOWN_TRIGGER",
             "UNKNOWN_REDUCED_TRIGGER",
         ),
-        momapy.celldesigner.core.PositiveInfluence: ("POSITIVE_INFLUENCE", None),
-        momapy.celldesigner.core.NegativeInfluence: ("NEGATIVE_INFLUENCE", None),
-        momapy.celldesigner.core.UnknownPositiveInfluence: (
+        PositiveInfluence: ("POSITIVE_INFLUENCE", None),
+        NegativeInfluence: ("NEGATIVE_INFLUENCE", None),
+        UnknownPositiveInfluence: (
             "UNKNOWN_POSITIVE_INFLUENCE",
             None,
         ),
-        momapy.celldesigner.core.UnknownNegativeInfluence: (
+        UnknownNegativeInfluence: (
             "UNKNOWN_NEGATIVE_INFLUENCE",
             None,
         ),
@@ -88,7 +154,7 @@ def _modulation_reaction_type(modulation):
 
 
 @dataclasses.dataclass
-class WritingContext(momapy.io.utils.WritingContext):
+class WritingContext(WritingContext):
     """Shared state for the writer."""
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
@@ -124,7 +190,7 @@ def _make_sbml_element(tag, attrs=None, text=None, nsmap=None):
     return _make_lxml_element(tag, ns=_SBML_NS, attrs=attrs, text=text, nsmap=nsmap)
 
 
-_encode_name = _writing.encode_name
+_encode_name = encode_name
 
 
 def _strip_active(species):
@@ -157,7 +223,7 @@ def _get_species_id(species, writing_context=None):
     return _strip_active(species)
 
 
-_color_hex = _writing.color_to_cd_hex
+_color_hex = color_to_cd_hex
 
 
 def _get_line_attributes(layout, include_type=False):
@@ -179,7 +245,7 @@ def _get_line_attributes(layout, include_type=False):
         if getattr(layout, "path_stroke_width", None) is not None:
             width = str(layout.path_stroke_width)
         stroke = getattr(layout, "path_stroke", None)
-        if stroke is not None and not isinstance(stroke, momapy.drawing.NoneValueType):
+        if stroke is not None and not isinstance(stroke, NoneValueType):
             color = _color_hex(stroke)
     attrs = {"width": width, "color": color}
     if include_type:
@@ -226,7 +292,7 @@ def _sort_modifications_by_layout(writing_context, species):
     residue_order = {}
     suffix = "_layout"
     for i, child in enumerate(alias_layout.layout_elements):
-        if isinstance(child, momapy.celldesigner.core.ModificationLayout):
+        if isinstance(child, ModificationLayout):
             layout_id = child.id_
             if layout_id.endswith(suffix):
                 # Strip the suffix and the species prefix to get residue id
@@ -255,18 +321,18 @@ def _find_any_alias_layout(writing_context, species):
     for layout_key in _get_layouts(writing_context, species):
         if isinstance(layout_key, frozenset):
             continue
-        if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+        if isinstance(layout_key, CellDesignerNode):
             return layout_key
     # Search in layout_model_mapping for this species
     mapping = _mapping(writing_context)
     for layout_element in writing_context.map_.layout.layout_elements:
-        if not isinstance(layout_element, momapy.celldesigner.core.CellDesignerNode):
+        if not isinstance(layout_element, CellDesignerNode):
             continue
         if not hasattr(layout_element, "layout_elements"):
             continue
         # Search children of complexes
         for child in layout_element.layout_elements:
-            if not isinstance(child, momapy.celldesigner.core.CellDesignerNode):
+            if not isinstance(child, CellDesignerNode):
                 continue
             model_info = mapping.get_mapping(child)
             if model_info is not None:
@@ -280,7 +346,7 @@ def _find_any_alias_layout(writing_context, species):
                 for grandchild in child.layout_elements:
                     if not isinstance(
                         grandchild,
-                        momapy.celldesigner.core.CellDesignerNode,
+                        CellDesignerNode,
                     ):
                         continue
                     model_info2 = mapping.get_mapping(grandchild)
@@ -492,7 +558,7 @@ def _find_layout_for_participant(
 def _get_reaction_layout(frozenset_mapping):
     """Extract the ReactionLayout from a frozenset."""
     for elem in frozenset_mapping:
-        if isinstance(elem, momapy.celldesigner.core.ReactionLayout):
+        if isinstance(elem, ReactionLayout):
             return elem
     return None
 
@@ -527,18 +593,18 @@ def _collect_arcs_for_reaction(
 
 def _species_class_string(species):
     """Map a species model class to its CellDesigner class string."""
-    return _writing._CLASS_TO_CD_STRING.get(type(species), "UNKNOWN")
+    return _CLASS_TO_CD_STRING.get(type(species), "UNKNOWN")
 
 
 def _template_ref_tag(template):
     """Map a template to its XML reference tag name."""
-    if isinstance(template, momapy.celldesigner.core.ProteinTemplate):
+    if isinstance(template, ProteinTemplate):
         return "proteinReference"
-    if isinstance(template, momapy.celldesigner.core.GeneTemplate):
+    if isinstance(template, GeneTemplate):
         return "geneReference"
-    if isinstance(template, momapy.celldesigner.core.RNATemplate):
+    if isinstance(template, RNATemplate):
         return "rnaReference"
-    if isinstance(template, momapy.celldesigner.core.AntisenseRNATemplate):
+    if isinstance(template, AntisenseRNATemplate):
         return "antisensernaReference"
     return "proteinReference"
 
@@ -548,15 +614,15 @@ def _modification_state_string(state):
     if state is None:
         return "empty"
     name = state.name if hasattr(state, "name") else str(state)
-    return _writing._MODIFICATION_STATE_TO_CD.get(name, "empty")
+    return _MODIFICATION_STATE_TO_CD.get(name, "empty")
 
 
-_bounds_attrs = _writing.node_to_bounds_attrs
+_bounds_attrs = node_to_bounds_attrs
 
 
 def _anchor_name_to_position(anchor_name):
     """Convert an anchor name to CellDesigner link anchor position string."""
-    return _writing._ANCHOR_NAME_TO_LINK_ANCHOR_POSITION.get(anchor_name)
+    return _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION.get(anchor_name)
 
 
 def _compute_target_line_index(reaction_layout, modifier_arc):
@@ -619,7 +685,7 @@ def _infer_anchor_position(species_layout, point, tol=0.5):
     for (
         cd_position,
         anchor_name,
-    ) in momapy.celldesigner.io.celldesigner._reading_parsing._LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items():
+    ) in _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.items():
         anchor_point = species_layout.anchor_point(anchor_name)
         if anchor_point is None:
             continue
@@ -698,19 +764,19 @@ def _make_celldesigner_extension(writing_context):
 
 
 _COMPARTMENT_LAYOUT_CLASSES = (
-    momapy.celldesigner.core.RectangleCompartmentLayout,
-    momapy.celldesigner.core.OvalCompartmentLayout,
-    momapy.celldesigner.core.CornerCompartmentLayout,
-    momapy.celldesigner.core.LineCompartmentLayout,
+    RectangleCompartmentLayout,
+    OvalCompartmentLayout,
+    CornerCompartmentLayout,
+    LineCompartmentLayout,
 )
 
 
 def _compartment_class_name(layout_key):
-    if isinstance(layout_key, momapy.celldesigner.core.OvalCompartmentLayout):
+    if isinstance(layout_key, OvalCompartmentLayout):
         return "OVAL"
-    if isinstance(layout_key, momapy.celldesigner.core.CornerCompartmentLayout):
+    if isinstance(layout_key, CornerCompartmentLayout):
         return f"SQUARE_CLOSEUP_{layout_key.corner.value}"
-    if isinstance(layout_key, momapy.celldesigner.core.LineCompartmentLayout):
+    if isinstance(layout_key, LineCompartmentLayout):
         return f"SQUARE_CLOSEUP_{layout_key.side.value}"
     return "SQUARE"
 
@@ -721,9 +787,9 @@ def _compartment_closeup_point(layout_key):
     top = bbox.north_west().y
     right = bbox.south_east().x
     bottom = bbox.south_east().y
-    if isinstance(layout_key, momapy.celldesigner.core.CornerCompartmentLayout):
+    if isinstance(layout_key, CornerCompartmentLayout):
         corner = layout_key.corner
-        Corner = momapy.celldesigner.core.CompartmentCorner
+        Corner = CompartmentCorner
         if corner is Corner.NORTHWEST:
             return left, top
         if corner is Corner.NORTHEAST:
@@ -732,7 +798,7 @@ def _compartment_closeup_point(layout_key):
             return left, bottom
         return right, bottom
     side = layout_key.side
-    Side = momapy.celldesigner.core.CompartmentSide
+    Side = CompartmentSide
     if side is Side.NORTH:
         return layout_key.position.x, top
     if side is Side.SOUTH:
@@ -763,8 +829,8 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
                 if isinstance(
                     layout_key,
                     (
-                        momapy.celldesigner.core.CornerCompartmentLayout,
-                        momapy.celldesigner.core.LineCompartmentLayout,
+                        CornerCompartmentLayout,
+                        LineCompartmentLayout,
                     ),
                 ):
                     px, py = _compartment_closeup_point(layout_key)
@@ -812,7 +878,7 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
                 # so we write back the stroke color directly to preserve
                 # the original alpha.
                 stroke = getattr(layout_key, "stroke", None)
-                if stroke is not None and stroke is not momapy.drawing.NoneValue:
+                if stroke is not None and stroke is not NoneValue:
                     paint_color = _color_hex(stroke)
                 else:
                     paint_color = "ffcccccc"
@@ -839,7 +905,7 @@ def _make_celldesigner_list_of_included_species(writing_context):
     for species in sorted(
         writing_context.map_.model.species, key=lambda s: s.id_ or ""
     ):
-        if isinstance(species, momapy.celldesigner.core.Complex):
+        if isinstance(species, Complex):
             _collect_included_species(
                 writing_context, species, species, list_elem, seen_ids
             )
@@ -857,7 +923,7 @@ def _collect_included_species(
             list_elem.append(
                 _make_celldesigner_included_species(writing_context, sub, complex_)
             )
-        if isinstance(sub, momapy.celldesigner.core.Complex):
+        if isinstance(sub, Complex):
             _collect_included_species(
                 writing_context, sub, root_complex, list_elem, seen_ids
             )
@@ -973,7 +1039,7 @@ def _make_celldesigner_list_of_complex_species_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfComplexSpeciesAliases")
     # Top-level complexes
     for species in writing_context.map_.model.species:
-        if not isinstance(species, momapy.celldesigner.core.Complex):
+        if not isinstance(species, Complex):
             continue
         _collect_complex_aliases(writing_context, species, list_elem)
     layout_order_index = _build_layout_order_index(writing_context.map_.layout)
@@ -986,7 +1052,7 @@ def _collect_complex_aliases(writing_context, complex_, list_elem):
     for layout_key in _get_layouts(writing_context, complex_):
         if isinstance(layout_key, frozenset):
             continue
-        if isinstance(layout_key, momapy.celldesigner.core.ComplexLayout):
+        if isinstance(layout_key, ComplexLayout):
             list_elem.append(
                 _make_celldesigner_alias(
                     writing_context, layout_key, complex_, "complexSpeciesAlias"
@@ -999,7 +1065,7 @@ def _collect_complex_aliases(writing_context, complex_, list_elem):
 def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
     """Walk layout children and emit complexSpeciesAliases for nested complexes."""
     for child in parent_layout.layout_elements:
-        if not isinstance(child, momapy.celldesigner.core.ComplexLayout):
+        if not isinstance(child, ComplexLayout):
             continue
         model_info = _mapping(writing_context).get_mapping(child)
         if model_info is None:
@@ -1025,14 +1091,14 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfSpeciesAliases")
     # Top-level species (non-complex, non-subunit)
     for species in writing_context.map_.model.species:
-        if isinstance(species, momapy.celldesigner.core.Complex):
+        if isinstance(species, Complex):
             continue
         if species in writing_context.subunit_to_complex:
             continue
         for layout_key in _get_layouts(writing_context, species):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            if isinstance(layout_key, CellDesignerNode):
                 list_elem.append(
                     _make_celldesigner_alias(
                         writing_context, layout_key, species, "speciesAlias"
@@ -1040,7 +1106,7 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
                 )
     # Subunit species (inside complexes), recursively
     for species in writing_context.map_.model.species:
-        if not isinstance(species, momapy.celldesigner.core.Complex):
+        if not isinstance(species, Complex):
             continue
         _collect_subunit_aliases(writing_context, species, list_elem)
     layout_order_index = _build_layout_order_index(writing_context.map_.layout)
@@ -1058,7 +1124,7 @@ def _collect_subunit_aliases(writing_context, complex_, list_elem):
     for complex_layout in _get_layouts(writing_context, complex_):
         if isinstance(complex_layout, frozenset):
             continue
-        if not isinstance(complex_layout, momapy.celldesigner.core.ComplexLayout):
+        if not isinstance(complex_layout, ComplexLayout):
             continue
         _collect_aliases_from_layout_children(
             writing_context, complex_layout, complex_layout.id_, list_elem
@@ -1070,20 +1136,20 @@ def _collect_aliases_from_layout_children(
 ):
     """Walk layout children and emit speciesAliases for non-complex nodes."""
     for child in parent_layout.layout_elements:
-        if isinstance(child, momapy.celldesigner.core.ComplexLayout):
+        if isinstance(child, ComplexLayout):
             # Recurse into nested complex layouts
             _collect_aliases_from_layout_children(
                 writing_context, child, child.id_, list_elem
             )
             continue
-        if not isinstance(child, momapy.celldesigner.core.CellDesignerNode):
+        if not isinstance(child, CellDesignerNode):
             continue
         # Skip non-species child layouts (structural states, modifications)
         if isinstance(
             child,
             (
-                momapy.celldesigner.core.StructuralStateLayout,
-                momapy.celldesigner.core.ModificationLayout,
+                StructuralStateLayout,
+                ModificationLayout,
             ),
         ):
             continue
@@ -1173,7 +1239,7 @@ def _make_celldesigner_alias(
     line_width = "2.0" if tag == "complexSpeciesAlias" else "1.0"
     usual.append(_make_celldesigner_element("singleLine", attrs={"width": line_width}))
     fill = getattr(layout, "fill", None)
-    if fill is not None and fill is not momapy.drawing.NoneValue:
+    if fill is not None and fill is not NoneValue:
         paint_color = _color_hex(fill)
     else:
         paint_color = "fff7f7f7" if tag == "complexSpeciesAlias" else "ffccffcc"
@@ -1224,14 +1290,14 @@ def _make_celldesigner_list_of_proteins(writing_context):
     for tmpl in sorted(
         writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""
     ):
-        if not isinstance(tmpl, momapy.celldesigner.core.ProteinTemplate):
+        if not isinstance(tmpl, ProteinTemplate):
             continue
         protein_type = "GENERIC"
-        if isinstance(tmpl, momapy.celldesigner.core.ReceptorTemplate):
+        if isinstance(tmpl, ReceptorTemplate):
             protein_type = "RECEPTOR"
-        elif isinstance(tmpl, momapy.celldesigner.core.IonChannelTemplate):
+        elif isinstance(tmpl, IonChannelTemplate):
             protein_type = "ION_CHANNEL"
-        elif isinstance(tmpl, momapy.celldesigner.core.TruncatedProteinTemplate):
+        elif isinstance(tmpl, TruncatedProteinTemplate):
             protein_type = "TRUNCATED"
         attrs = {
             "id": tmpl.id_,
@@ -1283,7 +1349,7 @@ def _find_residue_angle(writing_context, template, residue):
         for layout_key in _get_layouts(writing_context, species):
             if isinstance(layout_key, frozenset):
                 continue
-            if not isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            if not isinstance(layout_key, CellDesignerNode):
                 continue
             children = getattr(layout_key, "layout_elements", None)
             if not children:
@@ -1291,7 +1357,7 @@ def _find_residue_angle(writing_context, template, residue):
             # Build a mapping from XML residue id to layout child
             species_id = _get_species_id(species, writing_context)
             for child in children:
-                if not isinstance(child, momapy.celldesigner.core.ModificationLayout):
+                if not isinstance(child, ModificationLayout):
                     continue
                 # Match by residue id encoded in the layout id:
                 # layout id = f"{species_id}_{xml_residue_id}_layout"
@@ -1301,11 +1367,7 @@ def _find_residue_angle(writing_context, template, residue):
                     layout_residue_id = child.id_[len(prefix) : -len(suffix)]
                     xml_residue_id = _strip_template_prefix(residue, template)
                     if layout_residue_id == xml_residue_id:
-                        return str(
-                            momapy.celldesigner.io.celldesigner._writing.compute_cd_angle(
-                                child.position, layout_key
-                            )
-                        )
+                        return str(compute_cd_angle(child.position, layout_key))
     return "0.0"
 
 
@@ -1336,7 +1398,7 @@ def _make_celldesigner_list_of_genes(writing_context):
     for tmpl in sorted(
         writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""
     ):
-        if not isinstance(tmpl, momapy.celldesigner.core.GeneTemplate):
+        if not isinstance(tmpl, GeneTemplate):
             continue
         gene_elem = _make_celldesigner_element(
             "gene",
@@ -1357,7 +1419,7 @@ def _make_celldesigner_list_of_rnas(writing_context):
     for tmpl in sorted(
         writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""
     ):
-        if not isinstance(tmpl, momapy.celldesigner.core.RNATemplate):
+        if not isinstance(tmpl, RNATemplate):
             continue
         rna_elem = _make_celldesigner_element(
             "RNA",
@@ -1378,7 +1440,7 @@ def _make_celldesigner_list_of_antisense_rnas(writing_context):
     for tmpl in sorted(
         writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""
     ):
-        if not isinstance(tmpl, momapy.celldesigner.core.AntisenseRNATemplate):
+        if not isinstance(tmpl, AntisenseRNATemplate):
             continue
         arna_elem = _make_celldesigner_element(
             "antisenseRNA",
@@ -1394,12 +1456,12 @@ def _make_celldesigner_list_of_antisense_rnas(writing_context):
 
 
 _REGION_CLASS_TO_CD_TYPE = {
-    momapy.celldesigner.core.ModificationSite: "Modification Site",
-    momapy.celldesigner.core.RegulatoryRegion: "RegulatoryRegion",
-    momapy.celldesigner.core.TranscriptionStartingSiteL: "transcriptionStartingSiteL",
-    momapy.celldesigner.core.TranscriptionStartingSiteR: "transcriptionStartingSiteR",
-    momapy.celldesigner.core.CodingRegion: "CodingRegion",
-    momapy.celldesigner.core.ProteinBindingDomain: "proteinBindingDomain",
+    ModificationSite: "Modification Site",
+    RegulatoryRegion: "RegulatoryRegion",
+    TranscriptionStartingSiteL: "transcriptionStartingSiteL",
+    TranscriptionStartingSiteR: "transcriptionStartingSiteR",
+    CodingRegion: "CodingRegion",
+    ProteinBindingDomain: "proteinBindingDomain",
 }
 
 
@@ -1428,7 +1490,7 @@ def _all_species_recursive(writing_context):
 
     def _collect(species):
         result.append(species)
-        if isinstance(species, momapy.celldesigner.core.Complex):
+        if isinstance(species, Complex):
             for sub in species.subunits:
                 _collect(sub)
 
@@ -1520,10 +1582,7 @@ def _find_catalyzed_reactions(writing_context, species):
     result = []
     for reaction in writing_context.map_.model.reactions:
         for modifier in reaction.modifiers:
-            if (
-                isinstance(modifier, momapy.celldesigner.core.Catalyzer)
-                and modifier.referred_species is species
-            ):
+            if isinstance(modifier, Catalyzer) and modifier.referred_species is species:
                 result.append(reaction.id_)
     return sorted(result)
 
@@ -1591,9 +1650,7 @@ def _make_celldesigner_reaction(
     # CD extension
     annotation = _make_lxml_element("annotation")
     extension = _make_celldesigner_element("extension")
-    reaction_type = _writing._CLASS_TO_REACTION_TYPE.get(
-        type(reaction), "STATE_TRANSITION"
-    )
+    reaction_type = _CLASS_TO_REACTION_TYPE.get(type(reaction), "STATE_TRANSITION")
     extension.append(_make_celldesigner_element("reactionType", text=reaction_type))
 
     # Split reactants/products into base + links using the base flag.
@@ -1605,12 +1662,12 @@ def _make_celldesigner_reaction(
         reactant_arc_order = _build_arc_alias_order(
             writing_context,
             reaction_layout,
-            momapy.celldesigner.core.ConsumptionLayout,
+            ConsumptionLayout,
         )
         product_arc_order = _build_arc_alias_order(
             writing_context,
             reaction_layout,
-            momapy.celldesigner.core.ProductionLayout,
+            ProductionLayout,
         )
         all_reactants.sort(
             key=lambda r: _participant_layout_position(
@@ -1636,12 +1693,12 @@ def _make_celldesigner_reaction(
         )
     base_reactants, link_reactants = _split_base_and_links(all_reactants)
     base_products, link_products = _split_base_and_links(all_products)
-    is_left_t = isinstance(reaction, momapy.celldesigner.core.HeterodimerAssociation)
+    is_left_t = isinstance(reaction, HeterodimerAssociation)
     is_right_t = isinstance(
         reaction,
         (
-            momapy.celldesigner.core.Dissociation,
-            momapy.celldesigner.core.Truncation,
+            Dissociation,
+            Truncation,
         ),
     )
 
@@ -1652,9 +1709,7 @@ def _make_celldesigner_reaction(
         base_species = base_reactants[0].referred_species
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(
-                    layout_element_item, momapy.celldesigner.core.ConsumptionLayout
-                )
+                isinstance(layout_element_item, ConsumptionLayout)
                 and layout_element_item.source is reaction_layout
             ):
                 # Only base arcs: target must map to the base species
@@ -1701,9 +1756,7 @@ def _make_celldesigner_reaction(
         base_species = base_products[0].referred_species
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(
-                    layout_element_item, momapy.celldesigner.core.ProductionLayout
-                )
+                isinstance(layout_element_item, ProductionLayout)
                 and layout_element_item.source is reaction_layout
             ):
                 target_model = _mapping(writing_context).get_mapping(
@@ -1750,7 +1803,7 @@ def _make_celldesigner_reaction(
         base_species_set = {r.referred_species for r in base_reactants}
         for arc in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(arc, momapy.celldesigner.core.ConsumptionLayout)
+                isinstance(arc, ConsumptionLayout)
                 and arc.source is reaction_layout
                 and arc.target is not None
             ):
@@ -1774,7 +1827,7 @@ def _make_celldesigner_reaction(
                 for arc in _collect_arcs_for_reaction(
                     writing_context,
                     reaction_layout,
-                    momapy.celldesigner.core.ConsumptionLayout,
+                    ConsumptionLayout,
                 )
                 if arc.target not in base_reactant_aliases
             ]
@@ -1783,7 +1836,7 @@ def _make_celldesigner_reaction(
             link_consumption_arcs = _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ConsumptionLayout,
+                ConsumptionLayout,
                 exclude_alias=base_reactant_alias,
             )
         for arc_layout in link_consumption_arcs:
@@ -1820,7 +1873,7 @@ def _make_celldesigner_reaction(
             base_product_species_set = {p.referred_species for p in base_products}
             for arc in writing_context.map_.layout.layout_elements:
                 if (
-                    isinstance(arc, momapy.celldesigner.core.ProductionLayout)
+                    isinstance(arc, ProductionLayout)
                     and arc.source is reaction_layout
                     and arc.target is not None
                 ):
@@ -1838,7 +1891,7 @@ def _make_celldesigner_reaction(
                 for arc in _collect_arcs_for_reaction(
                     writing_context,
                     reaction_layout,
-                    momapy.celldesigner.core.ProductionLayout,
+                    ProductionLayout,
                 )
                 if arc.target not in base_product_aliases
             ]
@@ -1847,7 +1900,7 @@ def _make_celldesigner_reaction(
             link_production_arcs = _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ProductionLayout,
+                ProductionLayout,
                 exclude_alias=base_product_alias,
             )
         for arc_layout in link_production_arcs:
@@ -1893,7 +1946,7 @@ def _make_celldesigner_reaction(
     modifiers = sorted(reaction.modifiers, key=lambda m: m.id_ or "")
     for modifier in modifiers:
         species = modifier.referred_species
-        if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
+        if isinstance(species, BooleanLogicGate):
             # Write gate entry + per-input entries
             gate_mods = _make_celldesigner_gate_modifications(
                 writing_context, modifier, species, reaction_layout, frozenset_mapping
@@ -1925,9 +1978,7 @@ def _make_celldesigner_reaction(
         base_species = base_reactants[0].referred_species
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(
-                    layout_element_item, momapy.celldesigner.core.ConsumptionLayout
-                )
+                isinstance(layout_element_item, ConsumptionLayout)
                 and layout_element_item.source is reaction_layout
             ):
                 target_model = _mapping(writing_context).get_mapping(
@@ -1977,7 +2028,7 @@ def _make_celldesigner_reaction(
             for arc_layout in _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ConsumptionLayout,
+                ConsumptionLayout,
             ):
                 if arc_layout.target not in base_reactant_aliases:
                     list_of_reactants.append(
@@ -1991,7 +2042,7 @@ def _make_celldesigner_reaction(
             for arc_layout in _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ConsumptionLayout,
+                ConsumptionLayout,
                 exclude_alias=base_reactant_alias,
             ):
                 list_of_reactants.append(
@@ -2020,9 +2071,7 @@ def _make_celldesigner_reaction(
         base_species = base_products[0].referred_species
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(
-                    layout_element_item, momapy.celldesigner.core.ProductionLayout
-                )
+                isinstance(layout_element_item, ProductionLayout)
                 and layout_element_item.source is reaction_layout
             ):
                 target_model = _mapping(writing_context).get_mapping(
@@ -2072,7 +2121,7 @@ def _make_celldesigner_reaction(
             for arc_layout in _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ProductionLayout,
+                ProductionLayout,
             ):
                 if arc_layout.target not in base_product_aliases:
                     list_of_products.append(
@@ -2086,7 +2135,7 @@ def _make_celldesigner_reaction(
             for arc_layout in _collect_arcs_for_reaction(
                 writing_context,
                 reaction_layout,
-                momapy.celldesigner.core.ProductionLayout,
+                ProductionLayout,
                 exclude_alias=base_product_alias,
             ):
                 list_of_products.append(
@@ -2114,7 +2163,7 @@ def _make_celldesigner_reaction(
         list_of_modifiers = _make_lxml_element("listOfModifiers")
         for modifier in modifiers:
             species = modifier.referred_species
-            if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
+            if isinstance(species, BooleanLogicGate):
                 # Write each input species as a separate modifier
                 for inp in sorted(species.inputs, key=lambda s: s.id_ or ""):
                     input_species = inp.element
@@ -2132,9 +2181,7 @@ def _make_celldesigner_reaction(
                         for layout_key in _get_layouts(writing_context, input_species):
                             if isinstance(layout_key, frozenset):
                                 continue
-                            if isinstance(
-                                layout_key, momapy.celldesigner.core.CellDesignerNode
-                            ):
+                            if isinstance(layout_key, CellDesignerNode):
                                 alias_layout = layout_key
                                 break
                     alias_id = alias_layout.id_ if alias_layout else ""
@@ -2361,11 +2408,7 @@ def _find_arc_endpoint_for_species(
     Uses the arc's source/target to find the correct arc for this
     species, then returns the endpoint closest to the species.
     """
-    arc_cls = (
-        momapy.celldesigner.core.ConsumptionLayout
-        if is_start
-        else momapy.celldesigner.core.ProductionLayout
-    )
+    arc_cls = ConsumptionLayout if is_start else ProductionLayout
     # source is always the reaction, target is always the species
     for layout_element_item in writing_context.map_.layout.layout_elements:
         if not isinstance(layout_element_item, arc_cls):
@@ -2436,9 +2479,7 @@ def _make_celldesigner_connect_scheme(
                 continue
             for layout_element_item in writing_context.map_.layout.layout_elements:
                 if (
-                    isinstance(
-                        layout_element_item, momapy.celldesigner.core.ConsumptionLayout
-                    )
+                    isinstance(layout_element_item, ConsumptionLayout)
                     and layout_element_item.source is reaction_layout
                     and layout_element_item.target is br_layout
                 ):
@@ -2479,10 +2520,8 @@ def _make_celldesigner_connect_scheme(
                 unit_x = rl[1].center()
                 unit_y = product_layout.center()
                 if writing._are_collinear(unit_x, unit_y, origin):
-                    origin = momapy.geometry.Point(origin.x + 1, origin.y + 1)
-                trans = momapy.geometry.get_transformation_for_frame(
-                    origin, unit_x, unit_y
-                )
+                    origin = Point(origin.x + 1, origin.y + 1)
+                trans = get_transformation_for_frame(origin, unit_x, unit_y)
                 roundtrip = ep.transformed(trans)
                 dist = (roundtrip.x - t_junction.x) ** 2 + (
                     roundtrip.y - t_junction.y
@@ -2590,9 +2629,7 @@ def _make_celldesigner_connect_scheme(
             # Find the production arc for this product
             for layout_element_item in writing_context.map_.layout.layout_elements:
                 if (
-                    isinstance(
-                        layout_element_item, momapy.celldesigner.core.ProductionLayout
-                    )
+                    isinstance(layout_element_item, ProductionLayout)
                     and layout_element_item.source is reaction_layout
                     and layout_element_item.target is bp_layout
                 ):
@@ -2623,10 +2660,8 @@ def _make_celldesigner_connect_scheme(
                 unit_x = pl[0].center()
                 unit_y = pl[1].center()
                 if writing._are_collinear(unit_x, unit_y, origin):
-                    origin = momapy.geometry.Point(origin.x + 1, origin.y + 1)
-                trans = momapy.geometry.get_transformation_for_frame(
-                    origin, unit_x, unit_y
-                )
+                    origin = Point(origin.x + 1, origin.y + 1)
+                trans = get_transformation_for_frame(origin, unit_x, unit_y)
                 roundtrip = ep.transformed(trans)
                 dist = (roundtrip.x - t_junction.x) ** 2 + (
                     roundtrip.y - t_junction.y
@@ -2735,9 +2770,7 @@ def _make_celldesigner_connect_scheme(
         if reactant_layout is not None:
             for layout_element_item in writing_context.map_.layout.layout_elements:
                 if (
-                    isinstance(
-                        layout_element_item, momapy.celldesigner.core.ConsumptionLayout
-                    )
+                    isinstance(layout_element_item, ConsumptionLayout)
                     and layout_element_item.source is reaction_layout
                     and layout_element_item.target is reactant_layout
                 ):
@@ -2746,9 +2779,7 @@ def _make_celldesigner_connect_scheme(
         if product_layout is not None:
             for layout_element_item in writing_context.map_.layout.layout_elements:
                 if (
-                    isinstance(
-                        layout_element_item, momapy.celldesigner.core.ProductionLayout
-                    )
+                    isinstance(layout_element_item, ProductionLayout)
                     and layout_element_item.source is reaction_layout
                     and layout_element_item.target is product_layout
                 ):
@@ -2868,11 +2899,7 @@ def _make_celldesigner_participant_link(
     arc_layout = None
     if reaction_layout is not None and alias_layout is not None:
         is_reactant = tag == "reactantLink"
-        arc_cls = (
-            momapy.celldesigner.core.ConsumptionLayout
-            if is_reactant
-            else momapy.celldesigner.core.ProductionLayout
-        )
+        arc_cls = ConsumptionLayout if is_reactant else ProductionLayout
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(layout_element_item, arc_cls)
@@ -3029,7 +3056,7 @@ def _make_celldesigner_modification(
     """Build a CD modification element for a reaction modifier."""
     writing = _writing
     species = modifier.referred_species
-    if isinstance(species, momapy.celldesigner.core.BooleanLogicGate):
+    if isinstance(species, BooleanLogicGate):
         return None
     alias_layout = (
         _find_layout_for_species_in_frozenset(
@@ -3039,7 +3066,7 @@ def _make_celldesigner_modification(
         else None
     )
     alias_id = alias_layout.id_ if alias_layout else ""
-    modifier_type = _writing._CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
+    modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
     # Find modifier arc layout and compute edit points
     edit_points = []
     source_anchor_name = None
@@ -3116,12 +3143,12 @@ def _make_celldesigner_gate_modifications(
     then one per input species.
     """
     result = []
-    modifier_type = _writing._CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
+    modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
     gate_type_map = {
-        momapy.celldesigner.core.AndGate: "BOOLEAN_LOGIC_GATE_AND",
-        momapy.celldesigner.core.OrGate: "BOOLEAN_LOGIC_GATE_OR",
-        momapy.celldesigner.core.NotGate: "BOOLEAN_LOGIC_GATE_NOT",
-        momapy.celldesigner.core.UnknownGate: "BOOLEAN_LOGIC_GATE_UNKNOWN",
+        AndGate: "BOOLEAN_LOGIC_GATE_AND",
+        OrGate: "BOOLEAN_LOGIC_GATE_OR",
+        NotGate: "BOOLEAN_LOGIC_GATE_NOT",
+        UnknownGate: "BOOLEAN_LOGIC_GATE_UNKNOWN",
     }
     gate_type = gate_type_map.get(type(gate), "BOOLEAN_LOGIC_GATE_AND")
 
@@ -3132,10 +3159,10 @@ def _make_celldesigner_gate_modifications(
             if isinstance(
                 elem,
                 (
-                    momapy.celldesigner.core.AndGateLayout,
-                    momapy.celldesigner.core.OrGateLayout,
-                    momapy.celldesigner.core.NotGateLayout,
-                    momapy.celldesigner.core.UnknownGateLayout,
+                    AndGateLayout,
+                    OrGateLayout,
+                    NotGateLayout,
+                    UnknownGateLayout,
                 ),
             ):
                 gate_layout = elem
@@ -3147,7 +3174,7 @@ def _make_celldesigner_gate_modifications(
     if gate_layout is not None:
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(layout_element_item, momapy.celldesigner.core.LogicArcLayout)
+                isinstance(layout_element_item, LogicArcLayout)
                 and layout_element_item.source is gate_layout
             ):
                 input_alias_layout = layout_element_item.target
@@ -3188,7 +3215,7 @@ def _make_celldesigner_gate_modifications(
             for layout_key in _get_layouts(writing_context, input_species):
                 if isinstance(layout_key, frozenset):
                     continue
-                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                if isinstance(layout_key, CellDesignerNode):
                     alias_layout = layout_key
                     break
         input_alias_ids.append(alias_layout.id_ if alias_layout else "")
@@ -3296,7 +3323,7 @@ def _make_celldesigner_modulation_reaction(
     source = modulation.source
     target = modulation.target
 
-    if isinstance(source, momapy.celldesigner.core.BooleanLogicGate):
+    if isinstance(source, BooleanLogicGate):
         return _make_celldesigner_gate_modulation_reaction(writing_context, modulation)
 
     # Resolve layouts from the given frozenset
@@ -3338,7 +3365,7 @@ def _make_celldesigner_modulation_reaction(
         for layout_key in _get_layouts(writing_context, source):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            if isinstance(layout_key, CellDesignerNode):
                 source_layout = layout_key
                 break
 
@@ -3346,7 +3373,7 @@ def _make_celldesigner_modulation_reaction(
         for layout_key in _get_layouts(writing_context, target):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            if isinstance(layout_key, CellDesignerNode):
                 target_layout = layout_key
                 break
 
@@ -3512,10 +3539,10 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     target = modulation.target
 
     gate_type_map = {
-        momapy.celldesigner.core.AndGate: "BOOLEAN_LOGIC_GATE_AND",
-        momapy.celldesigner.core.OrGate: "BOOLEAN_LOGIC_GATE_OR",
-        momapy.celldesigner.core.NotGate: "BOOLEAN_LOGIC_GATE_NOT",
-        momapy.celldesigner.core.UnknownGate: "BOOLEAN_LOGIC_GATE_UNKNOWN",
+        AndGate: "BOOLEAN_LOGIC_GATE_AND",
+        OrGate: "BOOLEAN_LOGIC_GATE_OR",
+        NotGate: "BOOLEAN_LOGIC_GATE_NOT",
+        UnknownGate: "BOOLEAN_LOGIC_GATE_UNKNOWN",
     }
     gate_type = gate_type_map.get(type(gate), "BOOLEAN_LOGIC_GATE_AND")
 
@@ -3535,10 +3562,10 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
         if isinstance(
             layout_element_item,
             (
-                momapy.celldesigner.core.AndGateLayout,
-                momapy.celldesigner.core.OrGateLayout,
-                momapy.celldesigner.core.NotGateLayout,
-                momapy.celldesigner.core.UnknownGateLayout,
+                AndGateLayout,
+                OrGateLayout,
+                NotGateLayout,
+                UnknownGateLayout,
             ),
         ):
             gate_model = _mapping(writing_context).get_mapping(layout_element_item)
@@ -3551,7 +3578,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     if gate_layout is not None:
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
-                isinstance(layout_element_item, momapy.celldesigner.core.LogicArcLayout)
+                isinstance(layout_element_item, LogicArcLayout)
                 and layout_element_item.source is gate_layout
             ):
                 inp_layout = layout_element_item.target
@@ -3570,7 +3597,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
             for layout_key in _get_layouts(writing_context, inp.element):
                 if isinstance(layout_key, frozenset):
                     continue
-                if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+                if isinstance(layout_key, CellDesignerNode):
                     inp_layout = layout_key
                     break
             input_layouts.append((inp.element, inp_layout))
@@ -3580,7 +3607,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
         for layout_key in _get_layouts(writing_context, target):
             if isinstance(layout_key, frozenset):
                 continue
-            if isinstance(layout_key, momapy.celldesigner.core.CellDesignerNode):
+            if isinstance(layout_key, CellDesignerNode):
                 target_layout = layout_key
                 break
 
@@ -3865,13 +3892,13 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
 # ---------------------------------------------------------------------------
 
 
-class CellDesignerWriter(momapy.io.core.Writer):
+class CellDesignerWriter(Writer):
     """CellDesigner XML writer (model-first approach)."""
 
     @classmethod
     def write(
         cls,
-        obj: momapy.celldesigner.core.CellDesignerMap,
+        obj: CellDesignerMap,
         file_path: str | os.PathLike,
         element_to_annotations=None,
         element_to_notes=None,
@@ -3898,7 +3925,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
         Returns:
             WriterResult.
         """
-        momapy.utils.check_parent_dir_exists(file_path)
+        check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
         if element_to_notes is None:
@@ -3912,7 +3939,7 @@ class CellDesignerWriter(momapy.io.core.Writer):
                 species_id = _strip_active(species)
                 if id(species) not in species_to_id:
                     species_to_id[id(species)] = species_id
-                if isinstance(species, momapy.celldesigner.core.Complex):
+                if isinstance(species, Complex):
                     for sub in species.subunits:
                         # Map to top-level ancestor, not immediate parent.
                         # If the parent is itself a subunit, its entry
@@ -3946,4 +3973,4 @@ class CellDesignerWriter(momapy.io.core.Writer):
             xml_declaration=True,
             encoding="UTF-8",
         )
-        return momapy.io.core.WriterResult(obj=obj, file_path=file_path)
+        return WriterResult(obj=obj, file_path=file_path)

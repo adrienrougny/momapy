@@ -1,16 +1,20 @@
-"""Tests for momapy.sbml.core module."""
-
-import pytest
+"""Tests for momapy.sbml module."""
 
 
-class TestSBMLCoreModule:
-    """Tests for SBML core module imports and basic functionality."""
+class TestSBMLModule:
+    """Tests for SBML module imports and basic functionality."""
 
-    def test_sbml_core_import(self):
-        """Test that sbml.core module can be imported."""
-        import momapy.sbml.core
+    def test_sbml_import(self):
+        """Test that sbml package can be imported."""
+        import momapy.sbml
 
-        assert momapy.sbml.core is not None
+        assert momapy.sbml is not None
+
+    def test_sbml_model_import(self):
+        """Test that sbml.model module can be imported."""
+        import momapy.sbml.model
+
+        assert momapy.sbml.model is not None
 
     def test_sbml_io_import(self):
         """Test that sbml.io module can be imported."""
@@ -30,17 +34,16 @@ class TestSBMLModel:
 
     def test_model_creation(self):
         """Test creating an SBML model."""
-        import momapy.sbml.core
+        import momapy.sbml
 
-        model = momapy.sbml.core.SBMLModel()
+        model = momapy.sbml.SBMLModel()
         assert model is not None
 
     def test_model_has_expected_attributes(self):
         """Test that SBML model has expected attributes."""
-        import momapy.sbml.core
+        import momapy.sbml
 
-        model = momapy.sbml.core.SBMLModel()
+        model = momapy.sbml.SBMLModel()
 
-        # Check for common model attributes
         assert hasattr(model, "id_")
         assert hasattr(model, "name")

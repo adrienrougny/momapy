@@ -11,7 +11,6 @@ import lxml.objectify
 import momapy.builder
 import momapy.utils
 import momapy.io.core
-import momapy.sbml.core
 import momapy.sbml.io.sbml._parsing
 import momapy.sbml.io.sbml._model
 

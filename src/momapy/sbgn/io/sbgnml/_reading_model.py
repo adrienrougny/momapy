@@ -9,7 +9,6 @@ import momapy.builder
 import momapy.core.elements
 import momapy.io.utils
 import momapy.sbgn.pd
-import momapy.sbml.core
 import momapy.sbgn.io.sbgnml._reading_classification
 import momapy.sbgn.io.sbgnml._reading_parsing
 import momapy.sbml.io.sbml._model
