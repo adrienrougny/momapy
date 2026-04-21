@@ -1,10 +1,15 @@
 """Classes for rendering in the SVG format"""
 
 import dataclasses
+import os
 import typing
 import math
 import xml.sax.saxutils
 
+import typing_extensions
+
+import momapy.core.elements
+import momapy.core.map
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
@@ -193,7 +198,14 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
 
     @classmethod
-    def from_file(cls, output_file, width, height, format_, config=None):
+    def from_file(
+        cls,
+        output_file: str | os.PathLike,
+        width: float,
+        height: float,
+        format_: typing.Literal["svg"],
+        config: dict | None = None,
+    ) -> typing_extensions.Self:
         """Create an SVGNativeRenderer instance from a file path.
 
         Args:
@@ -232,7 +244,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         )
         return cls(svg=svg, config=config)
 
-    def begin_session(self):
+    def begin_session(self) -> None:
         """Begin a rendering session.
 
         This method initializes the rendering context. For SVGNativeRenderer,
@@ -241,7 +253,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         """
         pass
 
-    def end_session(self):
+    def end_session(self) -> None:
         """End the rendering session and save the output.
 
         This method finalizes the SVG document, adds any filter definitions
@@ -254,7 +266,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
             with open(self.config["output_file"], "w", encoding="utf-8") as f:
                 f.write(str(self.svg))
 
-    def new_page(self, width, height):
+    def new_page(self, width: float, height: float) -> None:
         """Create a new page in the output document.
 
         Args:
@@ -266,7 +278,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         """
         pass
 
-    def render_map(self, map_):
+    def render_map(self, map_: momapy.core.map.Map) -> None:
         """Render a map to the output.
 
         Args:
@@ -274,7 +286,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         """
         self.render_layout_element(map_.layout)
 
-    def render_layout_element(self, layout_element):
+    def render_layout_element(
+        self, layout_element: momapy.core.elements.LayoutElement
+    ) -> None:
         """Render a layout element to the output.
 
         Args:
@@ -284,7 +298,9 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
-    def render_drawing_element(self, drawing_element):
+    def render_drawing_element(
+        self, drawing_element: momapy.drawing.DrawingElement
+    ) -> None:
         """Render a drawing element to the output.
 
         Args:
