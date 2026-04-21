@@ -75,6 +75,10 @@ docs/
 
 ## Code Conventions
 
+### Formatting
+
+Run `ruff format` on any file you edit before considering the change complete. The project follows ruff's default style; `ruff format src/ tests/` is the canonical way to normalise the tree.
+
 ### Frozen Dataclasses (Critical)
 
 All map/layout/model elements are **frozen dataclasses**. Never mutate them directly.
