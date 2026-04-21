@@ -2,27 +2,25 @@
 
 import dataclasses
 
-import momapy.core.elements
-import momapy.core.layout
-import momapy.core.model
-import momapy.core.mapping
+from momapy.core.elements import MapElement
+from momapy.core.layout import Layout
+from momapy.core.mapping import LayoutModelMapping
+from momapy.core.model import Model
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Map(momapy.core.elements.MapElement):
+class Map(MapElement):
     """Class for maps"""
 
-    model: momapy.core.model.Model | None = dataclasses.field(
+    model: Model | None = dataclasses.field(
         default=None, metadata={"description": "The model of the map"}
     )
-    layout: momapy.core.layout.Layout | None = dataclasses.field(
+    layout: Layout | None = dataclasses.field(
         default=None, metadata={"description": "The layout of the map"}
     )
-    layout_model_mapping: momapy.core.mapping.LayoutModelMapping | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The layout model mapping of the map"},
-        )
+    layout_model_mapping: LayoutModelMapping | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The layout model mapping of the map"},
     )
 
     def is_submap(self, other):
@@ -41,7 +39,7 @@ class Map(momapy.core.elements.MapElement):
 
     def get_mapping(
         self,
-        map_element: "momapy.core.elements.MapElement | tuple",
+        map_element: "MapElement | tuple",
     ):
         """Return the layout elements mapped to the given model element"""
         return self.layout_model_mapping.get_mapping(map_element)

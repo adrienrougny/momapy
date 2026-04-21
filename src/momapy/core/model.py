@@ -3,18 +3,18 @@
 import abc
 import dataclasses
 
-import momapy.core.elements
+from momapy.core.elements import MapElement, ModelElement, _walk_model_graph
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Model(momapy.core.elements.MapElement):
+class Model(MapElement):
     """Base class for models"""
 
     @abc.abstractmethod
     def is_submodel(self, other) -> bool:
         pass
 
-    def descendants(self) -> list[momapy.core.elements.ModelElement]:
+    def descendants(self) -> list[ModelElement]:
         """Return every `ModelElement` reachable from this `Model`.
 
         Walks scalar `ModelElement` fields and `frozenset`/`tuple`
@@ -26,9 +26,7 @@ class Model(momapy.core.elements.MapElement):
             order.
         """
         seen: set[int] = set()
-        result: list[momapy.core.elements.ModelElement] = []
+        result: list[ModelElement] = []
         for field in dataclasses.fields(type(self)):
-            momapy.core.elements._walk_model_graph(
-                getattr(self, field.name), seen, result
-            )
+            _walk_model_graph(getattr(self, field.name), seen, result)
         return result

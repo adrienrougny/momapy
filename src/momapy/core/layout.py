@@ -9,17 +9,18 @@ import math
 import copy
 
 import uharfbuzz
-import momapy.core.fonts
+
+from momapy.core.elements import HAlignment, LayoutElement, VAlignment
+from momapy.core.fonts import find_font
 
 import momapy.drawing
 import momapy.geometry
 import momapy.coloring
 import momapy.builder
-import momapy.core.elements
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TextLayout(momapy.core.elements.LayoutElement):
+class TextLayout(LayoutElement):
     """Class for text layouts"""
 
     text: str = dataclasses.field(
@@ -50,12 +51,12 @@ class TextLayout(momapy.core.elements.LayoutElement):
     height: float | None = dataclasses.field(
         default=None, metadata={"description": "The height of the text layout"}
     )
-    horizontal_alignment: momapy.core.elements.HAlignment = dataclasses.field(
-        default=momapy.core.elements.HAlignment.LEFT,
+    horizontal_alignment: HAlignment = dataclasses.field(
+        default=HAlignment.LEFT,
         metadata={"description": "The horizontal alignment of the text layout"},
     )
-    vertical_alignment: momapy.core.elements.VAlignment = dataclasses.field(
-        default=momapy.core.elements.VAlignment.TOP,
+    vertical_alignment: VAlignment = dataclasses.field(
+        default=VAlignment.TOP,
         metadata={"description": "The vertical alignment of the text layout"},
     )
     justify: bool = dataclasses.field(
@@ -117,7 +118,7 @@ class TextLayout(momapy.core.elements.LayoutElement):
 
     @classmethod
     def _get_font_file_path(cls, font_family, font_weight, font_style):
-        return momapy.core.fonts.find_font(
+        return find_font(
             family=font_family,
             weight=font_weight,
             style=font_style,
@@ -164,26 +165,18 @@ class TextLayout(momapy.core.elements.LayoutElement):
         text_height = font_height * (len(lines) - 1) + font_ascent + font_descent
         for i, line in enumerate(lines):
             line_width = self._get_text_width(line, font)
-            if (
-                self.width is not None
-                and self.horizontal_alignment is momapy.core.elements.HAlignment.LEFT
-            ):
+            if self.width is not None and self.horizontal_alignment is HAlignment.LEFT:
                 x = self.position.x - self.width / 2
             elif (
-                self.width is not None
-                and self.horizontal_alignment is momapy.core.elements.HAlignment.RIGHT
+                self.width is not None and self.horizontal_alignment is HAlignment.RIGHT
             ):
                 x = self.position.x + self.width / 2 - line_width
             else:
                 x = self.position.x - line_width / 2
-            if (
-                self.height is not None
-                and self.vertical_alignment is momapy.core.elements.VAlignment.TOP
-            ):
+            if self.height is not None and self.vertical_alignment is VAlignment.TOP:
                 y = self.position.y - self.height / 2 + font_ascent + i * font_height
             elif (
-                self.height is not None
-                and self.vertical_alignment is momapy.core.elements.VAlignment.BOTTOM
+                self.height is not None and self.vertical_alignment is VAlignment.BOTTOM
             ):
                 y = (
                     self.position.y
@@ -254,7 +247,7 @@ class TextLayout(momapy.core.elements.LayoutElement):
             max_y - min_y,
         )
 
-    def children(self) -> list[momapy.core.elements.LayoutElement]:
+    def children(self) -> list[LayoutElement]:
         """Return the children of the text layout.
         The text layout has no children, so return an empty list"""
         return []
@@ -331,7 +324,7 @@ class TextLayout(momapy.core.elements.LayoutElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Shape(momapy.core.elements.LayoutElement):
+class Shape(LayoutElement):
     """Class for basic shapes. The shape is the most simple layout element.
     It has no children."""
 
@@ -340,7 +333,7 @@ class Shape(momapy.core.elements.LayoutElement):
         A shape has no children, so return a copy of the shape"""
         return copy.deepcopy(self)
 
-    def children(self) -> list[momapy.core.elements.LayoutElement]:
+    def children(self) -> list[LayoutElement]:
         """Return the children of the shape.
         A shape has no children, so return an empty list"""
         return []
@@ -355,13 +348,13 @@ class Shape(momapy.core.elements.LayoutElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class GroupLayout(momapy.core.elements.LayoutElement):
+class GroupLayout(LayoutElement):
     """Base class for group layouts. A group layout is a layout element grouping other layout elements.
     It has its own drawing elements and set of children (called self drawing elements and self children, respectively).
     The drawing elements of a group layout is a group drawing element formed of its self drawing elements and those of its children
     """
 
-    layout_elements: tuple[momapy.core.elements.LayoutElement] = dataclasses.field(
+    layout_elements: tuple[LayoutElement] = dataclasses.field(
         default_factory=tuple,
         metadata={
             "description": "The sub-layout elements of the group layout. These are part of the children of the group layout"
@@ -481,7 +474,7 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         pass
 
     @abc.abstractmethod
-    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[LayoutElement]:
         """Return the self children of the group layout"""
         pass
 
@@ -513,7 +506,7 @@ class GroupLayout(momapy.core.elements.LayoutElement):
         )
         return [group]
 
-    def children(self) -> list[momapy.core.elements.LayoutElement]:
+    def children(self) -> list[LayoutElement]:
         """Return the children of the group layout.
         These are the self children of the group layout (returned by the `own_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
         """
@@ -603,7 +596,7 @@ class Node(GroupLayout):
         )
         return [group]
 
-    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[LayoutElement]:
         """Return the self children of the node. A node has unique child that is its label"""
         if self.label is not None:
             return [self.label]
@@ -869,14 +862,14 @@ class Arc(GroupLayout):
         default_factory=tuple,
         metadata={"description": "The path segments of the arc"},
     )
-    source: momapy.core.elements.LayoutElement | None = dataclasses.field(
+    source: LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The source of the arc"}
     )
     start_shorten: float = dataclasses.field(
         default=0.0,
         metadata={"description": "The length the start of the arc will be shorten by"},
     )
-    target: momapy.core.elements.LayoutElement | None = dataclasses.field(
+    target: LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The target of the arc"}
     )
     transform: (
@@ -885,7 +878,7 @@ class Arc(GroupLayout):
         default=None, metadata={"description": "The transform of the arc"}
     )
 
-    def own_children(self) -> list[momapy.core.elements.LayoutElement]:
+    def own_children(self) -> list[LayoutElement]:
         """Return the self children of the arc"""
         return []
 

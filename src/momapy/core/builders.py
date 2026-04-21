@@ -2,12 +2,23 @@
 
 import abc
 
+from momapy.core.elements import (
+    LayoutElement,
+    MapElement,
+    ModelElement,
+)
+from momapy.core.layout import (
+    DoubleHeadedArc,
+    Layout,
+    Node,
+    SingleHeadedArc,
+    TextLayout,
+)
+from momapy.core.map import Map
+from momapy.core.mapping import LayoutModelMappingBuilder
+from momapy.core.model import Model
+
 import momapy.builder
-import momapy.core.elements
-import momapy.core.layout
-import momapy.core.model
-import momapy.core.mapping
-import momapy.core.map
 
 
 def _map_element_builder_hash(self):
@@ -19,41 +30,29 @@ def _map_element_builder_eq(self, other):
 
 
 MapElementBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.elements.MapElement,
+    MapElement,
     builder_namespace={
         "__hash__": _map_element_builder_hash,
         "__eq__": _map_element_builder_eq,
     },
 )
 
-ModelElementBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.elements.ModelElement
-)
+ModelElementBuilder = momapy.builder.get_or_make_builder_cls(ModelElement)
 """Base class for model element builders"""
-LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.elements.LayoutElement
-)
+LayoutElementBuilder = momapy.builder.get_or_make_builder_cls(LayoutElement)
 """Base class for layout element builders"""
-NodeBuilder = momapy.builder.get_or_make_builder_cls(momapy.core.layout.Node)
+NodeBuilder = momapy.builder.get_or_make_builder_cls(Node)
 """Base class for node builders"""
-SingleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.layout.SingleHeadedArc
-)
+SingleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(SingleHeadedArc)
 """Base class for single-headed arc builders"""
-DoubleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.layout.DoubleHeadedArc
-)
+DoubleHeadedArcBuilder = momapy.builder.get_or_make_builder_cls(DoubleHeadedArc)
 """Base class for double-headed arc builders"""
-TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.layout.TextLayout
-)
+TextLayoutBuilder = momapy.builder.get_or_make_builder_cls(TextLayout)
 """Class for text layout builders"""
 
 
 def _model_builder_new_element(self, element_cls, *args, **kwargs):
-    if not momapy.builder.issubclass_or_builder(
-        element_cls, momapy.core.elements.ModelElement
-    ):
+    if not momapy.builder.issubclass_or_builder(element_cls, ModelElement):
         raise TypeError(
             "element class must be a subclass of ModelElementBuilder or ModelElement"
         )
@@ -61,16 +60,14 @@ def _model_builder_new_element(self, element_cls, *args, **kwargs):
 
 
 ModelBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.model.Model,
+    Model,
     builder_namespace={"new_element": _model_builder_new_element},
 )
 """Base class for model builders"""
 
 
 def _layout_builder_new_element(self, element_cls, *args, **kwargs):
-    if not momapy.builder.issubclass_or_builder(
-        element_cls, momapy.core.elements.LayoutElement
-    ):
+    if not momapy.builder.issubclass_or_builder(element_cls, LayoutElement):
         raise TypeError(
             "element class must be a subclass of LayoutElementBuilder or LayoutElement"
         )
@@ -78,13 +75,13 @@ def _layout_builder_new_element(self, element_cls, *args, **kwargs):
 
 
 LayoutBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.layout.Layout,
+    Layout,
     builder_namespace={"new_element": _layout_builder_new_element},
 )
 """Base class for layout builders"""
 
 
-momapy.builder.register_builder_cls(momapy.core.mapping.LayoutModelMappingBuilder)
+momapy.builder.register_builder_cls(LayoutModelMappingBuilder)
 
 
 @abc.abstractmethod
@@ -99,8 +96,8 @@ def _map_builder_new_layout(self, *args, **kwargs) -> LayoutBuilder:
 
 def _map_builder_new_layout_model_mapping(
     self,
-) -> momapy.core.mapping.LayoutModelMappingBuilder:
-    return momapy.core.mapping.LayoutModelMappingBuilder()
+) -> LayoutModelMappingBuilder:
+    return LayoutModelMappingBuilder()
 
 
 def _map_builder_new_model_element(
@@ -119,21 +116,21 @@ def _map_builder_new_layout_element(
 
 def _map_builder_add_mapping(
     self,
-    layout_element: "momapy.core.elements.LayoutElement",
-    model_element: "momapy.core.elements.ModelElement | tuple[momapy.core.elements.ModelElement, momapy.core.elements.ModelElement]",
+    layout_element: "LayoutElement",
+    model_element: "ModelElement | tuple[ModelElement, ModelElement]",
 ):
     self.layout_model_mapping.add_mapping(layout_element, model_element)
 
 
 def _map_builder_get_mapping(
     self,
-    map_element: "momapy.core.elements.MapElement",
-) -> "momapy.core.elements.ModelElement | list[momapy.core.elements.LayoutElement]":
+    map_element: "MapElement",
+) -> "ModelElement | list[LayoutElement]":
     return self.layout_model_mapping.get_mapping(map_element)
 
 
 MapBuilder = momapy.builder.get_or_make_builder_cls(
-    momapy.core.map.Map,
+    Map,
     builder_namespace={
         "new_model": _map_builder_new_model,
         "new_layout": _map_builder_new_layout,
