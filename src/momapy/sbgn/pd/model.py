@@ -4,12 +4,16 @@ import dataclasses
 import sys
 import typing
 
-import momapy.sbgn.elements
-import momapy.sbgn.model
+from momapy.sbgn.elements import (
+    SBGNAuxiliaryUnit,
+    SBGNModelElement,
+    SBGNRole,
+)
+from momapy.sbgn.model import SBGNModel
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateVariable(momapy.sbgn.elements.SBGNAuxiliaryUnit):
+class StateVariable(SBGNAuxiliaryUnit):
     """Class for state variables"""
 
     variable: str | None = dataclasses.field(
@@ -27,7 +31,7 @@ class StateVariable(momapy.sbgn.elements.SBGNAuxiliaryUnit):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformation(momapy.sbgn.elements.SBGNAuxiliaryUnit):
+class UnitOfInformation(SBGNAuxiliaryUnit):
     """Class for units of information"""
 
     value: str = dataclasses.field(
@@ -40,7 +44,7 @@ class UnitOfInformation(momapy.sbgn.elements.SBGNAuxiliaryUnit):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Subunit(momapy.sbgn.elements.SBGNAuxiliaryUnit):
+class Subunit(SBGNAuxiliaryUnit):
     """Base class for subunits"""
 
     label: str | None = dataclasses.field(
@@ -162,7 +166,7 @@ class ComplexMultimerSubunit(MultimerSubunit):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Compartment(momapy.sbgn.elements.SBGNModelElement):
+class Compartment(SBGNModelElement):
     """Class for compartments"""
 
     label: str | None = dataclasses.field(
@@ -179,7 +183,7 @@ class Compartment(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EntityPool(momapy.sbgn.elements.SBGNModelElement):
+class EntityPool(SBGNModelElement):
     """Base class for entity pools"""
 
     compartment: Compartment | None = dataclasses.field(
@@ -324,7 +328,7 @@ class ComplexMultimer(Multimer):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class FluxRole(momapy.sbgn.elements.SBGNRole):
+class FluxRole(SBGNRole):
     """Base class for flux roles"""
 
     element: EntityPool = dataclasses.field(
@@ -350,7 +354,7 @@ class Product(FluxRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicalOperatorInput(momapy.sbgn.elements.SBGNRole):
+class LogicalOperatorInput(SBGNRole):
     """Class for inputs of logical operators"""
 
     element: typing.Union[
@@ -362,7 +366,7 @@ class LogicalOperatorInput(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceOperatorInput(momapy.sbgn.elements.SBGNRole):
+class EquivalenceOperatorInput(SBGNRole):
     """Class for inputs of equivalence operators"""
 
     element: EntityPool = dataclasses.field(
@@ -371,7 +375,7 @@ class EquivalenceOperatorInput(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceOperatorOutput(momapy.sbgn.elements.SBGNRole):
+class EquivalenceOperatorOutput(SBGNRole):
     """Class for outputs of equivalence operators"""
 
     element: EntityPool = dataclasses.field(
@@ -380,7 +384,7 @@ class EquivalenceOperatorOutput(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Process(momapy.sbgn.elements.SBGNModelElement):
+class Process(SBGNModelElement):
     """Base class for processes"""
 
     pass
@@ -451,7 +455,7 @@ class Phenotype(Process):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicalOperator(momapy.sbgn.elements.SBGNModelElement):
+class LogicalOperator(SBGNModelElement):
     """Class for logical operators"""
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
@@ -482,7 +486,7 @@ class NotOperator(LogicalOperator):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceOperator(momapy.sbgn.elements.SBGNModelElement):
+class EquivalenceOperator(SBGNModelElement):
     """Class for equivalence operators"""
 
     inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
@@ -495,7 +499,7 @@ class EquivalenceOperator(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Modulation(momapy.sbgn.elements.SBGNModelElement):
+class Modulation(SBGNModelElement):
     """Class for modulations"""
 
     source: EntityPool | LogicalOperator = dataclasses.field(
@@ -535,7 +539,7 @@ class NecessaryStimulation(Stimulation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagReference(momapy.sbgn.elements.SBGNRole):
+class TagReference(SBGNRole):
     """Class for tag references"""
 
     element: EntityPool | Compartment = dataclasses.field(
@@ -544,7 +548,7 @@ class TagReference(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Tag(momapy.sbgn.elements.SBGNModelElement):
+class Tag(SBGNModelElement):
     """Class for tags"""
 
     label: str | None = dataclasses.field(
@@ -556,7 +560,7 @@ class Tag(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TerminalReference(momapy.sbgn.elements.SBGNRole):
+class TerminalReference(SBGNRole):
     """Class for terminal references"""
 
     element: EntityPool | Compartment = dataclasses.field(
@@ -565,7 +569,7 @@ class TerminalReference(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Terminal(momapy.sbgn.elements.SBGNAuxiliaryUnit):
+class Terminal(SBGNAuxiliaryUnit):
     """Class for terminals"""
 
     label: str | None = dataclasses.field(
@@ -577,7 +581,7 @@ class Terminal(momapy.sbgn.elements.SBGNAuxiliaryUnit):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Submap(momapy.sbgn.elements.SBGNModelElement):
+class Submap(SBGNModelElement):
     """Class for submaps"""
 
     label: str | None = dataclasses.field(
@@ -590,7 +594,7 @@ class Submap(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNPDModel(momapy.sbgn.model.SBGNModel):
+class SBGNPDModel(SBGNModel):
     """Class for SBGN-PD models"""
 
     entity_pools: frozenset[EntityPool] = dataclasses.field(

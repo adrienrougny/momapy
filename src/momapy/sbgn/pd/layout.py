@@ -5,15 +5,23 @@ import math
 import sys
 import typing
 
-import momapy.coloring
-import momapy.core.elements
-import momapy.core.layout
 import momapy.drawing
-import momapy.geometry
 import momapy.meta.arcs
 import momapy.meta.shapes
-import momapy.sbgn.elements
-import momapy.sbgn.layout
+
+from momapy.coloring import Color
+from momapy.core.elements import Direction
+from momapy.core.layout import Shape
+from momapy.geometry import Point
+from momapy.sbgn.elements import (
+    SBGNNode,
+    SBGNSingleHeadedArc,
+    _ConnectorsMixin,
+    _MultiMixin,
+    _SimpleMixin,
+    _TextMixin,
+)
+from momapy.sbgn.layout import SBGNLayout
 from momapy.sbgn.pd.model import (
     AndOperator,
     Association,
@@ -62,16 +70,14 @@ from momapy.sbgn.pd.model import (
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNPDLayout(momapy.sbgn.layout.SBGNLayout):
+class SBGNPDLayout(SBGNLayout):
     """Class for SBGN-PD layouts"""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StateVariableLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class StateVariableLayout(_SimpleMixin, SBGNNode):
     """Class for state variable layouts"""
 
     width: float = dataclasses.field(
@@ -91,9 +97,7 @@ class StateVariableLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformationLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Class for unit of information layouts"""
 
     width: float = 12.0
@@ -108,12 +112,12 @@ class UnitOfInformationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TerminalLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode):
+class TerminalLayout(_SimpleMixin, SBGNNode):
     """Class for terminal layouts"""
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
+    direction: Direction = Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
@@ -121,9 +125,7 @@ class TerminalLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBG
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CardinalityLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class CardinalityLayout(_SimpleMixin, SBGNNode):
     """Class for cardinality layouts"""
 
     width: float = 12.0
@@ -134,9 +136,7 @@ class CardinalityLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnspecifiedEntitySubunitLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class UnspecifiedEntitySubunitLayout(_SimpleMixin, SBGNNode):
     """Class for unspecified entity subunit layouts"""
 
     width: float = 60.0
@@ -147,9 +147,7 @@ class UnspecifiedEntitySubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleChemicalSubunitLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class SimpleChemicalSubunitLayout(_SimpleMixin, SBGNNode):
     """Class for simple chemical subunit layouts"""
 
     width: float = 30.0
@@ -160,9 +158,7 @@ class SimpleChemicalSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MacromoleculeSubunitLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class MacromoleculeSubunitLayout(_SimpleMixin, SBGNNode):
     """Class for macromolecule subunit layouts"""
 
     width: float = 60.0
@@ -174,9 +170,7 @@ class MacromoleculeSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NucleicAcidFeatureSubunitLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class NucleicAcidFeatureSubunitLayout(_SimpleMixin, SBGNNode):
     """Class for nucleic acid feature subunit layouts"""
 
     width: float = 60.0
@@ -188,9 +182,7 @@ class NucleicAcidFeatureSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexSubunitLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class ComplexSubunitLayout(_SimpleMixin, SBGNNode):
     """Class for complex subunit layouts"""
 
     width: float = 60.0
@@ -202,9 +194,7 @@ class ComplexSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleChemicalMultimerSubunitLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class SimpleChemicalMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Class for simple chemical multimer subunit layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -225,9 +215,7 @@ class SimpleChemicalMultimerSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MacromoleculeMultimerSubunitLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class MacromoleculeMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Class for macromolecule multimer subunit layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -257,9 +245,7 @@ class MacromoleculeMultimerSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NucleicAcidFeatureMultimerSubunitLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class NucleicAcidFeatureMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Class for nucleic acid feature multimer subunit layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -285,9 +271,7 @@ class NucleicAcidFeatureMultimerSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexMultimerSubunitLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class ComplexMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Class for complex multimer subunit layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -321,9 +305,7 @@ class ComplexMultimerSubunitLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CompartmentLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class CompartmentLayout(_SimpleMixin, SBGNNode):
     """Class for compartment layouts"""
 
     width: float = 80.0
@@ -337,8 +319,8 @@ class CompartmentLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SubmapLayout(
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _SimpleMixin,
+    SBGNNode,
 ):
     """Class for submap layouts"""
 
@@ -355,9 +337,7 @@ class SubmapLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnspecifiedEntityLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class UnspecifiedEntityLayout(_SimpleMixin, SBGNNode):
     """Class for unspecified entity layouts"""
 
     width: float = 60.0
@@ -370,9 +350,7 @@ class UnspecifiedEntityLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleChemicalLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class SimpleChemicalLayout(_SimpleMixin, SBGNNode):
     """Class for simple chemical layouts"""
 
     width: float = 30.0
@@ -385,9 +363,7 @@ class SimpleChemicalLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MacromoleculeLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class MacromoleculeLayout(_SimpleMixin, SBGNNode):
     """Class for macromolecule layouts"""
 
     width: float = 60.0
@@ -411,9 +387,7 @@ class MacromoleculeLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NucleicAcidFeatureLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class NucleicAcidFeatureLayout(_SimpleMixin, SBGNNode):
     """Class for nucleic acid feature layouts"""
 
     width: float = 60.0
@@ -433,7 +407,7 @@ class NucleicAcidFeatureLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode):
+class ComplexLayout(_SimpleMixin, SBGNNode):
     """Class for complex layouts"""
 
     width: float = 44.0
@@ -461,9 +435,7 @@ class ComplexLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGN
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SimpleChemicalMultimerLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class SimpleChemicalMultimerLayout(_MultiMixin, SBGNNode):
     """Class for simple chemical multimer layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -484,9 +456,7 @@ class SimpleChemicalMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class MacromoleculeMultimerLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class MacromoleculeMultimerLayout(_MultiMixin, SBGNNode):
     """Class for macromolecule multimer layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -516,9 +486,7 @@ class MacromoleculeMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NucleicAcidFeatureMultimerLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class NucleicAcidFeatureMultimerLayout(_MultiMixin, SBGNNode):
     """Class for nucleic acid feature multimer layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -544,9 +512,7 @@ class NucleicAcidFeatureMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ComplexMultimerLayout(
-    momapy.sbgn.elements._MultiMixin, momapy.sbgn.elements.SBGNNode
-):
+class ComplexMultimerLayout(_MultiMixin, SBGNNode):
     """Class for complex multimer layouts"""
 
     _n: typing.ClassVar[int] = 2
@@ -580,8 +546,8 @@ class ComplexMultimerLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _EmptySetShape(momapy.core.layout.Shape):
-    position: momapy.geometry.Point
+class _EmptySetShape(Shape):
+    position: Point
     width: float
     height: float
 
@@ -598,7 +564,7 @@ class _EmptySetShape(momapy.core.layout.Shape):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EmptySetLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode):
+class EmptySetLayout(_SimpleMixin, SBGNNode):
     """Class for empty set layouts"""
 
     width: float = 22.0
@@ -613,9 +579,7 @@ class EmptySetLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBG
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class PerturbingAgentLayout(
-    momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
-):
+class PerturbingAgentLayout(_SimpleMixin, SBGNNode):
     """Class for perturbing agent layouts"""
 
     width: float = 60.0
@@ -634,20 +598,20 @@ class PerturbingAgentLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperatorLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for and operator layouts"""
 
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "AND"
     width: float = 30.0
@@ -661,20 +625,20 @@ class AndOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperatorLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for or operator layouts"""
 
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "OR"
     width: float = 30.0
@@ -688,20 +652,20 @@ class OrOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperatorLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for not operator layouts"""
 
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     _text: typing.ClassVar[str] = "NOT"
     width: float = 30.0
@@ -715,20 +679,20 @@ class NotOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for equivalence operator layouts"""
 
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
     _text: typing.ClassVar[str] = "≡"
     width: float = 30.0
@@ -742,9 +706,9 @@ class EquivalenceOperatorLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProcessLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    SBGNNode,
 ):
     """Class for generic process layouts"""
 
@@ -759,22 +723,22 @@ class GenericProcessLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OmittedProcessLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for omitted process layouts"""
 
     _text: typing.ClassVar[str] = "\\\\"
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
 
     width: float = 20.0
     height: float = 20.0
@@ -785,22 +749,22 @@ class OmittedProcessLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UncertainProcessLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements._TextMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    _TextMixin,
+    SBGNNode,
 ):
     """Class for uncertain process layouts"""
 
     _text: typing.ClassVar[str] = "?"
     _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    _font_fill: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[
-        momapy.coloring.Color | momapy.drawing.NoneValueType
-    ] = momapy.drawing.NoneValue
+    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.coloring.black
+    )
+    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
+        momapy.drawing.NoneValue
+    )
 
     width: float = 20.0
     height: float = 20.0
@@ -811,18 +775,16 @@ class UncertainProcessLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AssociationLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    SBGNNode,
 ):
     """Class for association layouts"""
 
     width: float = 20.0
     height: float = 20.0
 
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    fill: momapy.drawing.NoneValueType | Color | None = momapy.coloring.black
 
     def _make_shape(self):
         return momapy.meta.shapes.Ellipse(
@@ -831,8 +793,8 @@ class AssociationLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class _DissociationShape(momapy.core.layout.Shape):
-    position: momapy.geometry.Point
+class _DissociationShape(Shape):
+    position: Point
     width: float
     height: float
     sep: float
@@ -851,9 +813,9 @@ class _DissociationShape(momapy.core.layout.Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DissociationLayout(
-    momapy.sbgn.elements._ConnectorsMixin,
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _ConnectorsMixin,
+    _SimpleMixin,
+    SBGNNode,
 ):
     """Class for dissociation layouts"""
 
@@ -872,8 +834,8 @@ class DissociationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PhenotypeLayout(
-    momapy.sbgn.elements._SimpleMixin,
-    momapy.sbgn.elements.SBGNNode,
+    _SimpleMixin,
+    SBGNNode,
 ):
     """Class for phenotype layouts"""
 
@@ -892,16 +854,16 @@ class PhenotypeLayout(
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode):
+class TagLayout(_SimpleMixin, SBGNNode):
     """Class for tag layouts"""
 
     width: float = 35.0
     height: float = 35.0
-    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.RIGHT
+    direction: Direction = Direction.RIGHT
     angle: float = 70.0
 
     def _make_shape(self):
-        if self.direction == momapy.core.elements.Direction.RIGHT:
+        if self.direction == Direction.RIGHT:
             return momapy.meta.shapes.Hexagon(
                 position=self.position,
                 width=self.width,
@@ -909,7 +871,7 @@ class TagLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
                 left_angle=90.0,
                 right_angle=self.angle,
             )
-        elif self.direction == momapy.core.elements.Direction.LEFT:
+        elif self.direction == Direction.LEFT:
             return momapy.meta.shapes.Hexagon(
                 position=self.position,
                 width=self.width,
@@ -917,7 +879,7 @@ class TagLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
                 left_angle=self.angle,
                 right_angle=90.0,
             )
-        elif self.direction == momapy.core.elements.Direction.UP:
+        elif self.direction == Direction.UP:
             return momapy.meta.shapes.TurnedHexagon(
                 position=self.position,
                 width=self.width,
@@ -925,7 +887,7 @@ class TagLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
                 top_angle=self.angle,
                 bottom_angle=90.0,
             )
-        elif self.direction == momapy.core.elements.Direction.DOWN:
+        elif self.direction == Direction.DOWN:
             return momapy.meta.shapes.TurnedHexagon(
                 position=self.position,
                 width=self.width,
@@ -936,7 +898,7 @@ class TagLayout(momapy.sbgn.elements._SimpleMixin, momapy.sbgn.elements.SBGNNode
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ConsumptionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class ConsumptionLayout(SBGNSingleHeadedArc):
     """Class for consumption layouts"""
 
     def _arrowhead_border_drawing_elements(self):
@@ -944,12 +906,10 @@ class ConsumptionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ProductionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class ProductionLayout(SBGNSingleHeadedArc):
     """Class for production layouts"""
 
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    arrowhead_fill: momapy.drawing.NoneValueType | Color | None = momapy.coloring.black
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -958,12 +918,10 @@ class ProductionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class ModulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class ModulationLayout(SBGNSingleHeadedArc):
     """Class for modulation layouts"""
 
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    arrowhead_fill: momapy.drawing.NoneValueType | Color | None = momapy.coloring.white
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
 
@@ -972,7 +930,7 @@ class ModulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class StimulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class StimulationLayout(SBGNSingleHeadedArc):
     """Class for stimulation layouts"""
 
     arrowhead_height: float = 10.0
@@ -983,7 +941,7 @@ class StimulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class NecessaryStimulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class NecessaryStimulationLayout(SBGNSingleHeadedArc):
     """Class for necessary stimulation layouts"""
 
     arrowhead_bar_height: float = 12.0
@@ -993,32 +951,26 @@ class NecessaryStimulationLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
     def _arrowhead_border_drawing_elements(self):
         actions = [
-            momapy.drawing.MoveTo(
-                momapy.geometry.Point(0, -self.arrowhead_bar_height / 2)
-            ),
-            momapy.drawing.LineTo(
-                momapy.geometry.Point(0, self.arrowhead_bar_height / 2)
-            ),
+            momapy.drawing.MoveTo(Point(0, -self.arrowhead_bar_height / 2)),
+            momapy.drawing.LineTo(Point(0, self.arrowhead_bar_height / 2)),
         ]
         bar = momapy.drawing.Path(actions=actions)
         actions = [
-            momapy.drawing.MoveTo(momapy.geometry.Point(0, 0)),
-            momapy.drawing.LineTo(momapy.geometry.Point(self.arrowhead_sep, 0)),
+            momapy.drawing.MoveTo(Point(0, 0)),
+            momapy.drawing.LineTo(Point(self.arrowhead_sep, 0)),
         ]
         sep = momapy.drawing.Path(actions=actions)
         triangle = momapy.meta.shapes.Triangle(
-            position=momapy.geometry.Point(
-                self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0
-            ),
+            position=Point(self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
-            direction=momapy.core.elements.Direction.RIGHT,
+            direction=Direction.RIGHT,
         )
         return [bar, sep] + triangle.drawing_elements()
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class CatalysisLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class CatalysisLayout(SBGNSingleHeadedArc):
     """Class for catalysis layouts"""
 
     arrowhead_height: float = 10.0
@@ -1029,7 +981,7 @@ class CatalysisLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class InhibitionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class InhibitionLayout(SBGNSingleHeadedArc):
     """Class for inhibition layouts"""
 
     arrowhead_height: float = 10.0
@@ -1039,7 +991,7 @@ class InhibitionLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicArcLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class LogicArcLayout(SBGNSingleHeadedArc):
     """Class for logic arc layouts"""
 
     def _arrowhead_border_drawing_elements(self):
@@ -1047,7 +999,7 @@ class LogicArcLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EquivalenceArcLayout(momapy.sbgn.elements.SBGNSingleHeadedArc):
+class EquivalenceArcLayout(SBGNSingleHeadedArc):
     """Class for equivalence arc layouts"""
 
     def _arrowhead_border_drawing_elements(self):

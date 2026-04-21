@@ -4,12 +4,15 @@ import dataclasses
 import sys
 import typing
 
-import momapy.sbgn.elements
-import momapy.sbgn.model
+from momapy.sbgn.elements import (
+    SBGNModelElement,
+    SBGNRole,
+)
+from momapy.sbgn.model import SBGNModel
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class UnitOfInformation(momapy.sbgn.elements.SBGNModelElement):
+class UnitOfInformation(SBGNModelElement):
     """Unit of information for activities and compartments.
 
     Units of information provide additional information about activities or compartments.
@@ -22,7 +25,7 @@ class UnitOfInformation(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Compartment(momapy.sbgn.elements.SBGNModelElement):
+class Compartment(SBGNModelElement):
     """Compartment in an SBGN-AF map.
 
     Compartments represent distinct spatial regions where activities are located.
@@ -98,7 +101,7 @@ class PerturbationUnitOfInformation(UnitOfInformation):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Activity(momapy.sbgn.elements.SBGNModelElement):
+class Activity(SBGNModelElement):
     """Activity in an SBGN-AF map.
 
     Activities represent biological activities or processes.
@@ -140,7 +143,7 @@ class Phenotype(Activity):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicalOperatorInput(momapy.sbgn.elements.SBGNRole):
+class LogicalOperatorInput(SBGNRole):
     """Input to a logical operator.
 
     Represents an input connection to a logical operator.
@@ -156,7 +159,7 @@ class LogicalOperatorInput(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class LogicalOperator(momapy.sbgn.elements.SBGNModelElement):
+class LogicalOperator(SBGNModelElement):
     """Logical operator.
 
     Represents logical operations (AND, OR, NOT, DELAY) on activities.
@@ -211,7 +214,7 @@ class DelayOperator(LogicalOperator):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Influence(momapy.sbgn.elements.SBGNModelElement):
+class Influence(SBGNModelElement):
     """Influence between activities.
 
     Represents an influence from a source activity to a target activity.
@@ -266,7 +269,7 @@ class NecessaryStimulation(Influence):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TerminalReference(momapy.sbgn.elements.SBGNRole):
+class TerminalReference(SBGNRole):
     """Reference to a terminal.
 
     Attributes:
@@ -277,7 +280,7 @@ class TerminalReference(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagReference(momapy.sbgn.elements.SBGNRole):
+class TagReference(SBGNRole):
     """Reference to a tag.
 
     Attributes:
@@ -288,7 +291,7 @@ class TagReference(momapy.sbgn.elements.SBGNRole):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Terminal(momapy.sbgn.elements.SBGNModelElement):
+class Terminal(SBGNModelElement):
     """Terminal element.
 
     Terminals represent connection points to submaps.
@@ -303,7 +306,7 @@ class Terminal(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Tag(momapy.sbgn.elements.SBGNModelElement):
+class Tag(SBGNModelElement):
     """Tag element.
 
     Tags provide identifiers that can be referenced from other locations.
@@ -318,7 +321,7 @@ class Tag(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Submap(momapy.sbgn.elements.SBGNModelElement):
+class Submap(SBGNModelElement):
     """Submap element.
 
     Submaps represent embedded or referenced sub-diagrams.
@@ -333,7 +336,7 @@ class Submap(momapy.sbgn.elements.SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNAFModel(momapy.sbgn.model.SBGNModel):
+class SBGNAFModel(SBGNModel):
     """SBGN-AF model.
 
     Represents a complete SBGN Activity Flow model.
