@@ -299,7 +299,9 @@ def make_toy_arc(
 def show_room(cls, type_="anchor"):
     WIDTH = 450
     HEIGHT = 300
-    POSITION = momapy.geometry.PointBuilder(WIDTH / 2, HEIGHT / 2)
+    POSITION = momapy.builder.new_builder_object(
+        momapy.geometry.Point, WIDTH / 2, HEIGHT / 2
+    )
     START_POINT = POSITION - (100, -100)
     END_POINT = POSITION + (100, -100)
     FONT_SIZE = 12

@@ -58,11 +58,6 @@ Purpose: font file lookup via uharfbuzz.
 - `find_font(family: str, weight: FontWeight|int, style: FontStyle) -> str | None`
 - Internal: `_FontEntry`, `_get_font_directories() -> list[str]`, `_read_font_metadata(path: str) -> list[_FontEntry]`.
 
-### `src/momapy/core/builders.py`
-Purpose: auto-generated builder classes for core elements.
-
-Exports `MapElementBuilder`, `ModelElementBuilder`, `LayoutElementBuilder`, `NodeBuilder`, `SingleHeadedArcBuilder`, `DoubleHeadedArcBuilder`, `TextLayoutBuilder`, `ModelBuilder` (with `new_element`), `LayoutBuilder` (with `new_element`).
-
 ### `src/momapy/geometry.py`
 Purpose: geometric primitives and affine transformations.
 
@@ -426,7 +421,6 @@ Purpose: SBML core types and BioModels annotation enums.
 - `Reaction(SBMLModelElement)` — `reversible`, `compartment`, `reactants`, `products`, `modifiers`.
 - `SBMLModel(momapy.core.model.Model)` — **does NOT inherit `SBMLModelElement`**; declares its own `name`, `sbo_term`, `metaid`, plus `compartments`, `species`, `reactions`. `is_submodel(other)`.
 - `SBML(SBMLModelElement)` — root; `xmlns`, `level=3`, `version=2`, `model: SBMLModel|None`.
-- `SBMLModelBuilder` (auto-generated).
 
 ### `src/momapy/sbml/io/sbml/reader.py`
 - `ReadingContext` — `sbml_model`, `model`, `sbml_id_to_model_element`, `sbml_id_to_sbml_element`, `element_to_annotations`, `element_to_notes`, `map_element_to_ids`, `with_annotations`, `with_notes`.
