@@ -1,4 +1,10 @@
-"""Subpackage for SBML maps (partial: reader only, model skeleton)."""
+"""Partial SBML support: reader only, model skeleton (no layout, no writer).
+
+This subpackage exposes a minimal SBML model used as a building block by
+other formats (for example CellDesigner). It is intentionally incomplete:
+only an SBML reader is provided, there is no layout representation, and
+there is no writer. Do not rely on it for round-tripping SBML files.
+"""
 
 from momapy.sbml.elements import SBMLModelElement as SBMLModelElement
 from momapy.sbml.model import BiomodelQualifier as BiomodelQualifier
