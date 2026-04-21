@@ -2565,6 +2565,257 @@ class RectangleCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
         )
 
 
+class CompartmentCorner(enum.Enum):
+    """Rounded-corner position for a `CornerCompartmentLayout`."""
+
+    NORTHWEST = "NORTHWEST"
+    NORTHEAST = "NORTHEAST"
+    SOUTHWEST = "SOUTHWEST"
+    SOUTHEAST = "SOUTHEAST"
+
+
+class CompartmentSide(enum.Enum):
+    """Border-side position for a `LineCompartmentLayout`."""
+
+    NORTH = "NORTH"
+    SOUTH = "SOUTH"
+    EAST = "EAST"
+    WEST = "WEST"
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _CornerCompartmentShape(momapy.core.layout.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
+    corner: CompartmentCorner
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    inner_stroke_width: float | None = None
+    rounded_corners: float = 40.0
+    sep: float = 12.0
+
+    def drawing_elements(self):
+        left = self.position.x - self.width / 2
+        right = self.position.x + self.width / 2
+        top = self.position.y - self.height / 2
+        bottom = self.position.y + self.height / 2
+        sep = self.sep
+        r_outer = self.rounded_corners
+        r_inner = max(r_outer - sep, 0.0)
+        P = momapy.geometry.Point
+        if self.corner is CompartmentCorner.NORTHWEST:
+            outer_start = P(right, top)
+            outer_tan_a = P(left + r_outer, top)
+            outer_corner = P(left, top)
+            outer_tan_b = P(left, top + r_outer)
+            outer_end = P(left, bottom)
+            inner_start = P(right, top + sep)
+            inner_tan_a = P(left + r_outer, top + sep)
+            inner_corner = P(left + sep, top + sep)
+            inner_tan_b = P(left + sep, top + r_outer)
+            inner_end = P(left + sep, bottom)
+        elif self.corner is CompartmentCorner.NORTHEAST:
+            outer_start = P(left, top)
+            outer_tan_a = P(right - r_outer, top)
+            outer_corner = P(right, top)
+            outer_tan_b = P(right, top + r_outer)
+            outer_end = P(right, bottom)
+            inner_start = P(left, top + sep)
+            inner_tan_a = P(right - r_outer, top + sep)
+            inner_corner = P(right - sep, top + sep)
+            inner_tan_b = P(right - sep, top + r_outer)
+            inner_end = P(right - sep, bottom)
+        elif self.corner is CompartmentCorner.SOUTHWEST:
+            outer_start = P(right, bottom)
+            outer_tan_a = P(left + r_outer, bottom)
+            outer_corner = P(left, bottom)
+            outer_tan_b = P(left, bottom - r_outer)
+            outer_end = P(left, top)
+            inner_start = P(right, bottom - sep)
+            inner_tan_a = P(left + r_outer, bottom - sep)
+            inner_corner = P(left + sep, bottom - sep)
+            inner_tan_b = P(left + sep, bottom - r_outer)
+            inner_end = P(left + sep, top)
+        else:  # SOUTHEAST
+            outer_start = P(left, bottom)
+            outer_tan_a = P(right - r_outer, bottom)
+            outer_corner = P(right, bottom)
+            outer_tan_b = P(right, bottom - r_outer)
+            outer_end = P(right, top)
+            inner_start = P(left, bottom - sep)
+            inner_tan_a = P(right - r_outer, bottom - sep)
+            inner_corner = P(right - sep, bottom - sep)
+            inner_tan_b = P(right - sep, bottom - r_outer)
+            inner_end = P(right - sep, top)
+        if r_inner <= 0:
+            inner_tan_a = inner_corner
+            inner_tan_b = inner_corner
+        fill_path = momapy.drawing.Path(
+            stroke=momapy.drawing.NoneValue,
+            actions=(
+                momapy.drawing.MoveTo(outer_start),
+                momapy.drawing.LineTo(outer_tan_a),
+                momapy.drawing.QuadraticCurveTo(
+                    point=outer_tan_b, control_point=outer_corner
+                ),
+                momapy.drawing.LineTo(outer_end),
+                momapy.drawing.LineTo(inner_end),
+                momapy.drawing.LineTo(inner_tan_b),
+                momapy.drawing.QuadraticCurveTo(
+                    point=inner_tan_a, control_point=inner_corner
+                ),
+                momapy.drawing.LineTo(inner_start),
+                momapy.drawing.ClosePath(),
+            ),
+        )
+        outer_path = momapy.drawing.Path(
+            fill=momapy.drawing.NoneValue,
+            actions=(
+                momapy.drawing.MoveTo(outer_start),
+                momapy.drawing.LineTo(outer_tan_a),
+                momapy.drawing.QuadraticCurveTo(
+                    point=outer_tan_b, control_point=outer_corner
+                ),
+                momapy.drawing.LineTo(outer_end),
+            ),
+        )
+        inner_path = momapy.drawing.Path(
+            fill=momapy.drawing.NoneValue,
+            stroke=self.inner_stroke,
+            stroke_width=self.inner_stroke_width,
+            actions=(
+                momapy.drawing.MoveTo(inner_start),
+                momapy.drawing.LineTo(inner_tan_a),
+                momapy.drawing.QuadraticCurveTo(
+                    point=inner_tan_b, control_point=inner_corner
+                ),
+                momapy.drawing.LineTo(inner_end),
+            ),
+        )
+        return [fill_path, outer_path, inner_path]
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class CornerCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
+    """Class for corner closeup compartment layouts.
+
+    Represents CellDesigner `SQUARE_CLOSEUP_{NORTHWEST,NORTHEAST,
+    SOUTHWEST,SOUTHEAST}` compartments: a quarter-rectangle whose
+    rounded border sits at the named corner while the opposite sides
+    coincide with the canvas edges.
+    """
+
+    width: float = 16.0
+    height: float = 16.0
+    corner: CompartmentCorner = CompartmentCorner.NORTHWEST
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    inner_stroke_width: float | None = 1.0
+    rounded_corners: float = 40.0
+    sep: float = 12.0
+
+    def _make_shape(self):
+        return _CornerCompartmentShape(
+            position=self.position,
+            width=self.width,
+            height=self.height,
+            corner=self.corner,
+            inner_stroke=self.inner_stroke,
+            inner_stroke_width=self.inner_stroke_width,
+            rounded_corners=self.rounded_corners,
+            sep=self.sep,
+        )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _LineCompartmentShape(momapy.core.layout.Shape):
+    position: momapy.geometry.Point
+    width: float
+    height: float
+    side: CompartmentSide
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = None
+    inner_stroke_width: float | None = None
+    sep: float = 12.0
+
+    def drawing_elements(self):
+        left = self.position.x - self.width / 2
+        right = self.position.x + self.width / 2
+        top = self.position.y - self.height / 2
+        bottom = self.position.y + self.height / 2
+        sep = self.sep
+        P = momapy.geometry.Point
+        if self.side is CompartmentSide.NORTH:
+            outer_a, outer_b = P(left, top), P(right, top)
+            inner_a, inner_b = P(left, top + sep), P(right, top + sep)
+        elif self.side is CompartmentSide.SOUTH:
+            outer_a, outer_b = P(left, bottom), P(right, bottom)
+            inner_a, inner_b = P(left, bottom - sep), P(right, bottom - sep)
+        elif self.side is CompartmentSide.EAST:
+            outer_a, outer_b = P(right, top), P(right, bottom)
+            inner_a, inner_b = P(right - sep, top), P(right - sep, bottom)
+        else:  # WEST
+            outer_a, outer_b = P(left, top), P(left, bottom)
+            inner_a, inner_b = P(left + sep, top), P(left + sep, bottom)
+        fill_path = momapy.drawing.Path(
+            stroke=momapy.drawing.NoneValue,
+            actions=(
+                momapy.drawing.MoveTo(outer_a),
+                momapy.drawing.LineTo(outer_b),
+                momapy.drawing.LineTo(inner_b),
+                momapy.drawing.LineTo(inner_a),
+                momapy.drawing.ClosePath(),
+            ),
+        )
+        outer_path = momapy.drawing.Path(
+            fill=momapy.drawing.NoneValue,
+            actions=(
+                momapy.drawing.MoveTo(outer_a),
+                momapy.drawing.LineTo(outer_b),
+            ),
+        )
+        inner_path = momapy.drawing.Path(
+            fill=momapy.drawing.NoneValue,
+            stroke=self.inner_stroke,
+            stroke_width=self.inner_stroke_width,
+            actions=(
+                momapy.drawing.MoveTo(inner_a),
+                momapy.drawing.LineTo(inner_b),
+            ),
+        )
+        return [fill_path, outer_path, inner_path]
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class LineCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
+    """Class for line closeup compartment layouts.
+
+    Represents CellDesigner `SQUARE_CLOSEUP_{NORTH,SOUTH,EAST,WEST}`
+    compartments: a half-plane bounded on the named side by a single
+    horizontal or vertical double line spanning the canvas.
+    """
+
+    width: float = 16.0
+    height: float = 16.0
+    side: CompartmentSide = CompartmentSide.NORTH
+    inner_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
+        momapy.coloring.black
+    )
+    inner_stroke_width: float | None = 1.0
+    sep: float = 12.0
+
+    def _make_shape(self):
+        return _LineCompartmentShape(
+            position=self.position,
+            width=self.width,
+            height=self.height,
+            side=self.side,
+            inner_stroke=self.inner_stroke,
+            inner_stroke_width=self.inner_stroke_width,
+            sep=self.sep,
+        )
+
+
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ConsumptionLayout(CellDesignerSingleHeadedArc):
     """Class for consumption layouts"""
