@@ -11,6 +11,7 @@ import lxml.etree
 
 from momapy.coloring import Color
 from momapy.geometry import Point, Rotation, get_transformation_for_frame
+from momapy.sbml.io.sbml._qualifiers import QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
     _CD_NAMESPACE,
     _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
@@ -755,3 +756,83 @@ def make_cd_element(tag, ns=None, attributes=None, text=None):
     if text is not None:
         element.text = text
     return element
+
+
+# ---------------------------------------------------------------------------
+# RDF annotation helpers
+# ---------------------------------------------------------------------------
+
+_RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+_XHTML_NAMESPACE = "http://www.w3.org/1999/xhtml"
+
+_RDF_NSMAP = {
+    "rdf": _RDF_NAMESPACE,
+    "bqbiol": "http://biomodels.net/biology-qualifiers/",
+    "bqmodel": "http://biomodels.net/model-qualifiers/",
+}
+
+
+def make_rdf_annotation(annotations, about_id):
+    """Build an ``<rdf:RDF>`` element holding BioModels.net annotations.
+
+    Args:
+        annotations: Iterable of ``momapy.sbml.model.RDFAnnotation``.
+        about_id: The id referenced by
+            ``<rdf:Description rdf:about="#...">``.
+
+    Returns:
+        An lxml element, or ``None`` if ``annotations`` is empty.
+    """
+    annotations = list(annotations)
+    if not annotations:
+        return None
+    rdf_element = lxml.etree.Element(f"{{{_RDF_NAMESPACE}}}RDF", nsmap=_RDF_NSMAP)
+    description = lxml.etree.SubElement(
+        rdf_element,
+        f"{{{_RDF_NAMESPACE}}}Description",
+        attrib={f"{{{_RDF_NAMESPACE}}}about": f"#{about_id}"},
+    )
+    sorted_annotations = sorted(
+        annotations,
+        key=lambda annotation: (
+            annotation.qualifier.__class__.__name__,
+            annotation.qualifier.name,
+            sorted(annotation.resources),
+        ),
+    )
+    for annotation in sorted_annotations:
+        qualifier_namespace, qualifier_tag = QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
+            annotation.qualifier
+        ]
+        bq_element = lxml.etree.SubElement(
+            description, f"{{{qualifier_namespace}}}{qualifier_tag}"
+        )
+        bag_element = lxml.etree.SubElement(bq_element, f"{{{_RDF_NAMESPACE}}}Bag")
+        for resource in sorted(annotation.resources):
+            lxml.etree.SubElement(
+                bag_element,
+                f"{{{_RDF_NAMESPACE}}}li",
+                attrib={f"{{{_RDF_NAMESPACE}}}resource": resource},
+            )
+    return rdf_element
+
+
+def inject_rdf_into_celldesigner_notes(notes_element, rdf_element):
+    """Append an ``<rdf:RDF>`` element into the ``<body>`` of a CellDesigner notes.
+
+    CellDesigner embeds RDF annotations for included species (subunits)
+    inside the ``<html>/<body>`` of their ``<celldesigner:notes>`` element,
+    alongside human-readable text. This helper ensures the scaffold exists
+    and appends ``rdf_element`` as a child of the ``<body>``.
+
+    Args:
+        notes_element: The ``<celldesigner:notes>`` element.
+        rdf_element: The ``<rdf:RDF>`` element to inject.
+    """
+    html = notes_element.find(f"{{{_XHTML_NAMESPACE}}}html")
+    if html is None:
+        html = lxml.etree.SubElement(notes_element, f"{{{_XHTML_NAMESPACE}}}html")
+    body = html.find(f"{{{_XHTML_NAMESPACE}}}body")
+    if body is None:
+        body = lxml.etree.SubElement(html, f"{{{_XHTML_NAMESPACE}}}body")
+    body.append(rdf_element)

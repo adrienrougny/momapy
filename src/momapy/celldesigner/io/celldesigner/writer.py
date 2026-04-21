@@ -716,24 +716,62 @@ def _make_celldesigner_model(writing_context):
     model_id = writing_context.map_.id_ or "untitled"
     model = _make_lxml_element("model", attrs={"metaid": model_id, "id": model_id})
     # notes
-    model_notes = writing_context.element_to_notes.get(writing_context.map_, set())
-    if model_notes:
-        notes_elem = _make_lxml_element("notes")
-        for note in model_notes:
-            try:
-                parsed = lxml.etree.fromstring(note)
-                notes_elem.append(parsed)
-            except lxml.etree.XMLSyntaxError:
-                pass
-        model.append(notes_elem)
+    notes_element = _build_sbml_notes(writing_context, writing_context.map_)
+    if notes_element is not None:
+        model.append(notes_element)
     # annotation
     annotation = _make_lxml_element("annotation")
     annotation.append(_make_celldesigner_extension(writing_context))
+    _append_rdf_to_annotation(
+        writing_context, annotation, writing_context.map_, model_id
+    )
     model.append(annotation)
     model.append(_make_celldesigner_list_of_compartments(writing_context))
     model.append(_make_celldesigner_list_of_species(writing_context))
     model.append(_make_celldesigner_list_of_reactions(writing_context))
     return model
+
+
+def _build_sbml_notes(writing_context, model_element):
+    """Build a plain ``<notes>`` element for an SBML-namespaced element.
+
+    Returns None when ``with_notes`` is disabled or no notes are stored for
+    ``model_element``.
+    """
+    if not writing_context.with_notes:
+        return None
+    notes = writing_context.element_to_notes.get(model_element)
+    if not notes:
+        return None
+    notes_element = _make_lxml_element("notes")
+    for note in notes:
+        try:
+            parsed = lxml.etree.fromstring(note)
+        except lxml.etree.XMLSyntaxError:
+            continue
+        notes_element.append(parsed)
+        break
+    if len(notes_element) == 0:
+        return None
+    return notes_element
+
+
+def _append_rdf_to_annotation(
+    writing_context, annotation_element, model_element, about_id
+):
+    """Append an ``<rdf:RDF>`` block to an ``<annotation>`` element.
+
+    No-op when ``with_annotations`` is disabled or the element has no
+    annotations.
+    """
+    if not writing_context.with_annotations:
+        return
+    annotations = writing_context.element_to_annotations.get(model_element)
+    if not annotations:
+        return
+    rdf_element = _writing.make_rdf_annotation(annotations, about_id)
+    if rdf_element is not None:
+        annotation_element.append(rdf_element)
 
 
 # --- Extension (CD annotation) ---
@@ -931,16 +969,21 @@ def _collect_included_species(
 
 
 def _make_celldesigner_included_species(writing_context, species, parent_complex):
+    species_id = _get_species_id(species, writing_context)
     species_element = _make_celldesigner_element(
         "species",
         attrs={
-            "id": _get_species_id(species, writing_context),
+            "id": species_id,
             "name": _encode_name(species.name) or "",
         },
     )
     # notes (CellDesigner expects exactly one <html> child)
     notes = _make_celldesigner_element("notes")
-    species_notes = writing_context.element_to_notes.get(species, set())
+    species_notes = (
+        writing_context.element_to_notes.get(species, set())
+        if writing_context.with_notes
+        else set()
+    )
     parsed_one = False
     if species_notes:
         for note in species_notes:
@@ -956,6 +999,14 @@ def _make_celldesigner_included_species(writing_context, species, parent_complex
         head = lxml.etree.SubElement(html, f"{{{_XHTML_NS}}}head")
         lxml.etree.SubElement(head, f"{{{_XHTML_NS}}}title")
         lxml.etree.SubElement(html, f"{{{_XHTML_NS}}}body")
+    # Included species round-trip their RDF inside <celldesigner:notes>,
+    # embedded in the <body> alongside human-readable text.
+    if writing_context.with_annotations:
+        species_annotations = writing_context.element_to_annotations.get(species)
+        if species_annotations:
+            rdf_element = _writing.make_rdf_annotation(species_annotations, species_id)
+            if rdf_element is not None:
+                _writing.inject_rdf_into_celldesigner_notes(notes, rdf_element)
     species_element.append(notes)
     # annotation
     annotation = _make_celldesigner_element("annotation")
@@ -1520,8 +1571,37 @@ def _make_celldesigner_list_of_compartments(writing_context):
         outside = getattr(comp, "outside", None)
         if outside is not None:
             attrs["outside"] = outside.id_
-        list_elem.append(_make_lxml_element("compartment", attrs=attrs))
+        compartment_element = _make_lxml_element("compartment", attrs=attrs)
+        notes_element = _build_sbml_notes(writing_context, comp)
+        if notes_element is not None:
+            compartment_element.append(notes_element)
+        _append_compartment_annotation(writing_context, compartment_element, comp)
+        list_elem.append(compartment_element)
     return list_elem
+
+
+def _append_compartment_annotation(writing_context, compartment_element, compartment):
+    """Append ``<annotation>`` with CD extension + optional RDF to a compartment.
+
+    Every annotated compartment in the CellDesigner corpus carries a
+    ``<celldesigner:extension>`` sibling to the ``<rdf:RDF>`` block, with a
+    ``<celldesigner:name>`` child when the compartment has a non-empty name.
+    We emit this whenever the compartment has annotations or a non-empty
+    name, and skip the whole ``<annotation>`` otherwise.
+    """
+    has_rdf = writing_context.with_annotations and bool(
+        writing_context.element_to_annotations.get(compartment)
+    )
+    comp_name = _encode_name(compartment.name)
+    if not has_rdf and not comp_name:
+        return
+    annotation = _make_lxml_element("annotation")
+    extension = _make_celldesigner_element("extension")
+    if comp_name:
+        extension.append(_make_celldesigner_element("name", text=comp_name))
+    annotation.append(extension)
+    _append_rdf_to_annotation(writing_context, annotation, compartment, compartment.id_)
+    compartment_element.append(annotation)
 
 
 # --- SBML species ---
@@ -1559,6 +1639,10 @@ def _make_sbml_document_species(writing_context, species):
         "boundaryCondition": "false",
     }
     species_element = _make_lxml_element("species", attrs=attrs)
+    # notes
+    notes_element = _build_sbml_notes(writing_context, species)
+    if notes_element is not None:
+        species_element.append(notes_element)
     # annotation with CD extension
     annotation = _make_lxml_element("annotation")
     extension = _make_celldesigner_element("extension")
@@ -1574,6 +1658,7 @@ def _make_sbml_document_species(writing_context, species):
             )
         extension.append(cat_list)
     annotation.append(extension)
+    _append_rdf_to_annotation(writing_context, annotation, species, species_id)
     species_element.append(annotation)
     return species_element
 
@@ -1647,6 +1732,11 @@ def _make_celldesigner_reaction(
         "reversible": "true" if reaction.reversible else "false",
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
+
+    # notes
+    notes_element = _build_sbml_notes(writing_context, reaction)
+    if notes_element is not None:
+        reaction_element.append(notes_element)
 
     # CD extension
     annotation = _make_lxml_element("annotation")
@@ -1970,6 +2060,7 @@ def _make_celldesigner_reaction(
     )
 
     annotation.append(extension)
+    _append_rdf_to_annotation(writing_context, annotation, reaction, xml_id)
     reaction_element.append(annotation)
 
     # SBML listOfReactants — base first, then links.
@@ -3362,6 +3453,11 @@ def _make_celldesigner_modulation_reaction(
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
 
+    # notes
+    notes_element = _build_sbml_notes(writing_context, modulation)
+    if notes_element is not None:
+        reaction_element.append(notes_element)
+
     if source_layout is None and source is not None:
         for layout_key in _get_layouts(writing_context, source):
             if isinstance(layout_key, frozenset):
@@ -3479,6 +3575,7 @@ def _make_celldesigner_modulation_reaction(
     )
 
     annotation.append(extension)
+    _append_rdf_to_annotation(writing_context, annotation, modulation, xml_id)
     reaction_element.append(annotation)
 
     # SBML listOfReactants (use complex ID for subunits)
@@ -3556,6 +3653,11 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
         "reversible": "false",
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
+
+    # notes
+    notes_element = _build_sbml_notes(writing_context, modulation)
+    if notes_element is not None:
+        reaction_element.append(notes_element)
 
     # Find the gate layout
     gate_layout = None
@@ -3842,6 +3944,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     )
 
     annotation.append(extension)
+    _append_rdf_to_annotation(writing_context, annotation, modulation, modulation.id_)
     reaction_element.append(annotation)
 
     # SBML listOfReactants (gate inputs)
