@@ -182,3 +182,6 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
             for singleton, key in obj._singleton_to_key.items()
         }
         return builder
+
+
+momapy.builder.register_builder_cls(LayoutModelMappingBuilder)
