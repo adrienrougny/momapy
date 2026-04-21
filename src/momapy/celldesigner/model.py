@@ -8,23 +8,7 @@ modulations.
 import dataclasses
 import enum
 
-import momapy.core
-import momapy.core.builders
-import momapy.core.elements
-import momapy.core.layout
-import momapy.core.map
-import momapy.geometry
-import momapy.coloring
-import momapy.drawing
-import momapy.builder
-import momapy.meta.shapes
-import momapy.meta.nodes
-import momapy.meta.arcs
-import momapy.sbml.core
-import momapy.sbgn.core
-import momapy.sbgn.pd
-
-from momapy.celldesigner.core import CellDesignerModelElement
+from momapy.celldesigner.elements import CellDesignerModelElement
 from momapy.sbml.core import Compartment as SBMLCompartment
 from momapy.sbml.core import Species as SBMLSpecies
 from momapy.sbml.core import SpeciesReference

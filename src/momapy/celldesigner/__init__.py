@@ -1,24 +1,24 @@
 """CellDesigner format support."""
 
-from momapy.celldesigner.core import (
+from momapy.celldesigner.elements import (
     CellDesignerModelElement as CellDesignerModelElement,
 )
-from momapy.celldesigner.core import CellDesignerNode as CellDesignerNode
-from momapy.celldesigner.core import (
+from momapy.celldesigner.elements import CellDesignerNode as CellDesignerNode
+from momapy.celldesigner.elements import (
     CellDesignerSingleHeadedArc as CellDesignerSingleHeadedArc,
 )
-from momapy.celldesigner.core import (
+from momapy.celldesigner.elements import (
     CellDesignerDoubleHeadedArc as CellDesignerDoubleHeadedArc,
 )
-from momapy.celldesigner.core import CellDesignerLayout as CellDesignerLayout
-from momapy.celldesigner.core import CellDesignerMap as CellDesignerMap
-from momapy.celldesigner.core import (
+from momapy.celldesigner.layout import CellDesignerLayout as CellDesignerLayout
+from momapy.celldesigner.map import CellDesignerMap as CellDesignerMap
+from momapy.celldesigner.map import (
     CellDesignerModelBuilder as CellDesignerModelBuilder,
 )
-from momapy.celldesigner.core import (
+from momapy.celldesigner.map import (
     CellDesignerLayoutBuilder as CellDesignerLayoutBuilder,
 )
-from momapy.celldesigner.core import CellDesignerMapBuilder as CellDesignerMapBuilder
+from momapy.celldesigner.map import CellDesignerMapBuilder as CellDesignerMapBuilder
 
 from momapy.celldesigner.model import ModificationResidue as ModificationResidue
 from momapy.celldesigner.model import ModificationState as ModificationState
