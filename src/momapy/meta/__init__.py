@@ -1,1 +1,1 @@
-"""Meta-model subpackage."""
+"""Generic reusable shapes, nodes, and arcs."""
