@@ -1354,6 +1354,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         )
 
     def north_west(self) -> momapy.geometry.Point:
+        """Return the north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1364,6 +1365,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1()
 
     def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1374,6 +1376,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.75 + shape.joint2() * 0.25
 
     def north(self) -> momapy.geometry.Point:
+        """Return the north anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1384,6 +1387,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() / 2 + shape.joint2() / 2
 
     def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1394,6 +1398,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.25 + shape.joint2() * 0.75
 
     def north_east(self) -> momapy.geometry.Point:
+        """Return the north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1404,6 +1409,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint2()
 
     def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1414,6 +1420,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() / 2 + shape.joint2() / 2
 
     def east(self) -> momapy.geometry.Point:
+        """Return the east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1424,6 +1431,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3()
 
     def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1434,6 +1442,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint3() / 2
 
     def south_east(self) -> momapy.geometry.Point:
+        """Return the south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1444,6 +1453,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4()
 
     def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1454,6 +1464,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5() * 0.25 + shape.joint4() * 0.75
 
     def south(self) -> momapy.geometry.Point:
+        """Return the south anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1464,6 +1475,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5() / 2 + shape.joint4() / 2
 
     def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1474,6 +1486,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5() * 0.75 + shape.joint4() * 0.25
 
     def south_west(self) -> momapy.geometry.Point:
+        """Return the south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1484,6 +1497,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5()
 
     def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1494,6 +1508,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6() / 2 + shape.joint5() / 2
 
     def west(self) -> momapy.geometry.Point:
+        """Return the west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1504,6 +1519,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6()
 
     def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1554,6 +1570,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         )
 
     def north_west(self) -> momapy.geometry.Point:
+        """Return the north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1564,6 +1581,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1()
 
     def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1574,6 +1592,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.75 + shape.joint2() * 0.25
 
     def north(self) -> momapy.geometry.Point:
+        """Return the north anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1584,6 +1603,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() / 2 + shape.joint2() / 2
 
     def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1594,6 +1614,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.25 + shape.joint2() * 0.75
 
     def north_east(self) -> momapy.geometry.Point:
+        """Return the north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1604,6 +1625,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint2()
 
     def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1614,6 +1636,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() * 0.25 + shape.joint2() * 0.75
 
     def east(self) -> momapy.geometry.Point:
+        """Return the east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1624,6 +1647,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() / 2 + shape.joint2() / 2
 
     def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1634,6 +1658,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() * 0.75 + shape.joint2() * 0.25
 
     def south_east(self) -> momapy.geometry.Point:
+        """Return the south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1644,6 +1669,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3()
 
     def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1654,6 +1680,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.25 + shape.joint3() * 0.75
 
     def south(self) -> momapy.geometry.Point:
+        """Return the south anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1664,6 +1691,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint3() / 2
 
     def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1674,6 +1702,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.75 + shape.joint3() * 0.25
 
     def south_west(self) -> momapy.geometry.Point:
+        """Return the south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1684,6 +1713,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4()
 
     def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1694,6 +1724,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.75 + shape.joint1() * 0.25
 
     def west(self) -> momapy.geometry.Point:
+        """Return the west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1704,6 +1735,7 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint1() / 2
 
     def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1753,6 +1785,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         )
 
     def north_west(self) -> momapy.geometry.Point:
+        """Return the north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1763,6 +1796,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1()
 
     def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1773,6 +1807,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.75 + shape.joint2() * 0.25
 
     def north(self) -> momapy.geometry.Point:
+        """Return the north anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1783,6 +1818,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() / 2 + shape.joint2() / 2
 
     def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1793,6 +1829,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() * 0.25 + shape.joint2() * 0.75
 
     def north_east(self) -> momapy.geometry.Point:
+        """Return the north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1803,6 +1840,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint2()
 
     def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1813,6 +1851,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() * 0.25 + shape.joint2() * 0.75
 
     def east(self) -> momapy.geometry.Point:
+        """Return the east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1823,6 +1862,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() / 2 + shape.joint2() / 2
 
     def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1833,6 +1873,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3() * 0.75 + shape.joint2() * 0.25
 
     def south_east(self) -> momapy.geometry.Point:
+        """Return the south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1843,6 +1884,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3()
 
     def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1853,6 +1895,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.25 + shape.joint3() * 0.75
 
     def south(self) -> momapy.geometry.Point:
+        """Return the south anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1863,6 +1906,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint3() / 2
 
     def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1873,6 +1917,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.75 + shape.joint3() * 0.25
 
     def south_west(self) -> momapy.geometry.Point:
+        """Return the south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1883,6 +1928,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4()
 
     def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1893,6 +1939,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.75 + shape.joint1() * 0.25
 
     def west(self) -> momapy.geometry.Point:
+        """Return the west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -1903,6 +1950,7 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint1() / 2
 
     def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2097,6 +2145,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         )
 
     def north_west(self) -> momapy.geometry.Point:
+        """Return the north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2107,6 +2156,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1()
 
     def north_north_west(self) -> momapy.geometry.Point:
+        """Return the north-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2117,6 +2167,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint1() / 2 + shape.joint2() / 2
 
     def north(self) -> momapy.geometry.Point:
+        """Return the north anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2127,6 +2178,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint2()
 
     def north_north_east(self) -> momapy.geometry.Point:
+        """Return the north-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2137,6 +2189,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint2() * 0.25 + shape.joint3() * 0.75
 
     def north_east(self) -> momapy.geometry.Point:
+        """Return the north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2147,6 +2200,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint3()
 
     def east_north_east(self) -> momapy.geometry.Point:
+        """Return the east-north-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2157,6 +2211,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.25 + shape.joint3() * 0.75
 
     def east(self) -> momapy.geometry.Point:
+        """Return the east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2167,6 +2222,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() / 2 + shape.joint3() / 2
 
     def east_south_east(self) -> momapy.geometry.Point:
+        """Return the east-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2177,6 +2233,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4() * 0.75 + shape.joint3() * 0.25
 
     def south_east(self) -> momapy.geometry.Point:
+        """Return the south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2187,6 +2244,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint4()
 
     def south_south_east(self) -> momapy.geometry.Point:
+        """Return the south-south-east anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2197,6 +2255,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5() / 2 + shape.joint4() / 2
 
     def south(self) -> momapy.geometry.Point:
+        """Return the south anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2207,6 +2266,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint5()
 
     def south_south_west(self) -> momapy.geometry.Point:
+        """Return the south-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2217,6 +2277,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6() / 2 + shape.joint5() / 2
 
     def south_west(self) -> momapy.geometry.Point:
+        """Return the south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2227,6 +2288,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6()
 
     def west_south_west(self) -> momapy.geometry.Point:
+        """Return the west-south-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2237,6 +2299,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6() * 0.75 + shape.joint1() * 0.25
 
     def west(self) -> momapy.geometry.Point:
+        """Return the west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
@@ -2247,6 +2310,7 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
         return shape.joint6() / 2 + shape.joint1() / 2
 
     def west_north_west(self) -> momapy.geometry.Point:
+        """Return the west-north-west anchor point of the top subunit shape."""
         width = self.width - self.offset * (self._n - 1)
         height = self.height - self.offset * (self._n - 1)
         position = self.position + (
