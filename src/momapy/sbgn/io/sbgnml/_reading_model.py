@@ -29,9 +29,7 @@ def make_notes_from_element(sbgnml_element):
     return momapy.sbml.io.sbml._model.make_notes(sbgnml_notes)
 
 
-def make_and_add_annotations_and_notes(
-    reading_context, sbgnml_element, model_element
-):
+def make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element):
     """Add annotations and notes from an SBGN-ML element to the context.
 
     Args:
@@ -42,9 +40,7 @@ def make_and_add_annotations_and_notes(
     if reading_context.with_annotations:
         annotations = make_annotations_from_element(sbgnml_element)
         if annotations:
-            reading_context.element_to_annotations[model_element].update(
-                annotations
-            )
+            reading_context.element_to_annotations[model_element].update(annotations)
     if reading_context.with_notes:
         notes = make_notes_from_element(sbgnml_element)
         if notes:
@@ -286,9 +282,7 @@ def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
     return model_element
 
 
-def make_stoichiometric_process(
-    reading_context, sbgnml_process, model_element_cls
-):
+def make_stoichiometric_process(reading_context, sbgnml_process, model_element_cls):
     """Create a stoichiometric process model builder.
 
     Args:
@@ -304,8 +298,10 @@ def make_stoichiometric_process(
     sbgnml_id = sbgnml_process.get("id")
     model_element = reading_context.model.new_element(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
-    model_element.reversible = momapy.sbgn.io.sbgnml._reading_parsing.is_process_reversible(
-        sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
+    model_element.reversible = (
+        momapy.sbgn.io.sbgnml._reading_parsing.is_process_reversible(
+            sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
+        )
     )
     return model_element
 
@@ -420,7 +416,9 @@ def make_logical_operator_input(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.sbgn.pd.LogicalOperatorInput)
+    model_element = reading_context.model.new_element(
+        momapy.sbgn.pd.LogicalOperatorInput
+    )
     model_element.id_ = f"{sbgnml_logic_arc.get('id')}_model"
     model_element.element = source_model_element
     model_element = momapy.builder.object_from_builder(model_element)

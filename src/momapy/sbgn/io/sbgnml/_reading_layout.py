@@ -188,7 +188,9 @@ def make_state_variable(reading_context, sbgnml_state_variable, text):
     if reading_context.layout is None:
         return None
     sbgnml_id = sbgnml_state_variable.get("id")
-    layout_element = reading_context.layout.new_element(momapy.sbgn.pd.StateVariableLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.sbgn.pd.StateVariableLayout
+    )
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_state_variable)
     layout_element.label = make_text_layout(
@@ -289,9 +291,7 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
     return layout_element
 
 
-def make_reference(
-    reading_context, sbgnml_equivalence_arc, super_layout_element
-):
+def make_reference(reading_context, sbgnml_equivalence_arc, super_layout_element):
     """Create a frozen reference (equivalence arc) layout element.
 
     Args:
@@ -309,7 +309,9 @@ def make_reference(
     # to the terminal or tag. We invert the arc, so that the arc goes
     # from the reference to the referred node.
     sbgnml_target_id = sbgnml_equivalence_arc.get("source")
-    layout_element = reading_context.layout.new_element(momapy.sbgn.pd.EquivalenceArcLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.sbgn.pd.EquivalenceArcLayout
+    )
     layout_element.id_ = sbgnml_id
     layout_element.source = super_layout_element
     for segment in make_arc_segments(sbgnml_equivalence_arc, reverse=True):
@@ -320,9 +322,7 @@ def make_reference(
     return layout_element
 
 
-def make_stoichiometric_process(
-    reading_context, sbgnml_process, layout_element_cls
-):
+def make_stoichiometric_process(reading_context, sbgnml_process, layout_element_cls):
     """Create a stoichiometric process layout builder.
 
     Args:
@@ -339,8 +339,10 @@ def make_stoichiometric_process(
     layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_process)
-    layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
-        sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
+    layout_element.direction = (
+        momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
+            sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
+        )
     )
     layout_element.left_to_right = (
         momapy.sbgn.io.sbgnml._reading_parsing.is_process_left_to_right(
@@ -368,7 +370,9 @@ def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element)
     sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
-    layout_element = reading_context.layout.new_element(momapy.sbgn.pd.ConsumptionLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.sbgn.pd.ConsumptionLayout
+    )
     layout_element.id_ = sbgnml_consumption_arc.get("id")
     # The source becomes the target: in momapy flux arcs go from the process
     # to the entity pool node; this way reversible consumptions can be
@@ -378,7 +382,9 @@ def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element)
     layout_element.source = super_layout_element
     source_layout_element = reading_context.xml_id_to_layout_element[sbgnml_source_id]
     layout_element.target = source_layout_element
-    make_stoichiometry_layout(sbgnml_stoichiometry, reading_context.layout, layout_element)
+    make_stoichiometry_layout(
+        sbgnml_stoichiometry, reading_context.layout, layout_element
+    )
     layout_element = momapy.builder.object_from_builder(layout_element)
     return layout_element
 
@@ -407,7 +413,9 @@ def make_product(reading_context, sbgnml_production_arc, super_layout_element):
         layout_element.segments.append(segment)
     target_layout_element = reading_context.xml_id_to_layout_element[sbgnml_target_id]
     layout_element.target = target_layout_element
-    make_stoichiometry_layout(sbgnml_stoichiometry, reading_context.layout, layout_element)
+    make_stoichiometry_layout(
+        sbgnml_stoichiometry, reading_context.layout, layout_element
+    )
     layout_element = momapy.builder.object_from_builder(layout_element)
     return layout_element
 
@@ -433,15 +441,15 @@ def make_logical_operator(
     layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_logical_operator)
-    layout_element.direction = momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
-        sbgnml_logical_operator, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
-    )
-    layout_element.left_to_right = (
-        momapy.sbgn.io.sbgnml._reading_parsing.is_operator_left_to_right(
-            sbgnml_operator=sbgnml_logical_operator,
-            sbgnml_id_to_sbgnml_element=reading_context.xml_id_to_xml_element,
-            sbgnml_glyph_id_to_sbgnml_arcs=reading_context.sbgnml_glyph_id_to_sbgnml_arcs,
+    layout_element.direction = (
+        momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
+            sbgnml_logical_operator, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
         )
+    )
+    layout_element.left_to_right = momapy.sbgn.io.sbgnml._reading_parsing.is_operator_left_to_right(
+        sbgnml_operator=sbgnml_logical_operator,
+        sbgnml_id_to_sbgnml_element=reading_context.xml_id_to_xml_element,
+        sbgnml_glyph_id_to_sbgnml_arcs=reading_context.sbgnml_glyph_id_to_sbgnml_arcs,
     )
     set_connector_lengths(layout_element, sbgnml_logical_operator)
     return layout_element

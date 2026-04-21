@@ -124,10 +124,7 @@ class _AppendStyleSource(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
-        if (
-            not hasattr(namespace, "style_sources")
-            or namespace.style_sources is None
-        ):
+        if not hasattr(namespace, "style_sources") or namespace.style_sources is None:
             namespace.style_sources = []
         namespace.style_sources.append((self.const, values))
 
@@ -161,7 +158,13 @@ def _translate_layout_element(layout_element, translation_x, translation_y):
         new_segments = []
         for segment in layout_element.segments:
             new_point_attributes = {}
-            for attribute_name in ["p1", "p2", "control_point", "control_point1", "control_point2"]:
+            for attribute_name in [
+                "p1",
+                "p2",
+                "control_point",
+                "control_point1",
+                "control_point2",
+            ]:
                 if hasattr(segment, attribute_name):
                     point = getattr(segment, attribute_name)
                     new_point_attributes[attribute_name] = momapy.geometry.Point(
@@ -216,9 +219,7 @@ def _infer_writer(map_):
     elif isinstance(map_, momapy.sbgn.core.SBGNMap):
         return "sbgnml"
     else:
-        raise ValueError(
-            f"could not infer writer for map type {type(map_).__name__}"
-        )
+        raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
 
 
 def _run_tidy_operation(map_, args):
@@ -235,14 +236,10 @@ def _run_tidy_operation(map_, args):
         ValueError: If the operation is not supported for the map type.
     """
     operation = args.tidy_operation
-    is_celldesigner = isinstance(
-        map_, momapy.celldesigner.core.CellDesignerMap
-    )
+    is_celldesigner = isinstance(map_, momapy.celldesigner.core.CellDesignerMap)
     is_sbgn = isinstance(map_, momapy.sbgn.core.SBGNMap)
     if not is_celldesigner and not is_sbgn:
-        raise ValueError(
-            f"unsupported map type for tidy: {type(map_).__name__}"
-        )
+        raise ValueError(f"unsupported map type for tidy: {type(map_).__name__}")
     _default_sep = {
         "all": (4, 4),
         "fit-species": (4, 4),
@@ -267,9 +264,7 @@ def _run_tidy_operation(map_, args):
                 arcs_angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
         else:
-            return momapy.sbgn.utils.tidy(
-                map_, nodes_xsep=xsep, nodes_ysep=ysep
-            )
+            return momapy.sbgn.utils.tidy(map_, nodes_xsep=xsep, nodes_ysep=ysep)
     elif operation == "fit-species":
         if not is_celldesigner:
             raise ValueError(
@@ -310,9 +305,7 @@ def _run_tidy_operation(map_, args):
         )
     elif operation == "fit-auxiliary":
         if is_celldesigner:
-            map_ = momapy.celldesigner.utils.set_modifications_to_borders(
-                map_
-            )
+            map_ = momapy.celldesigner.utils.set_modifications_to_borders(map_)
             return momapy.celldesigner.utils.set_nodes_to_fit_labels(
                 map_,
                 xsep=xsep,
@@ -358,9 +351,7 @@ def _run_tidy_operation(map_, args):
                 map_, xsep=xsep, ysep=ysep
             )
         else:
-            raise ValueError(
-                "fit-submaps is only supported for SBGN maps"
-            )
+            raise ValueError("fit-submaps is only supported for SBGN maps")
     elif operation == "fit-layout":
         if is_celldesigner:
             return momapy.celldesigner.utils.set_layout_to_fit_content(
@@ -382,9 +373,7 @@ def _run_tidy_operation(map_, args):
                 angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
         else:
-            raise ValueError(
-                "straighten-arcs is only supported for CellDesigner maps"
-            )
+            raise ValueError("straighten-arcs is only supported for CellDesigner maps")
     else:
         raise ValueError(f"unknown tidy operation: {operation}")
 
@@ -437,9 +426,7 @@ def _write_xml_to_stdout(map_, writer):
     """
     import momapy.io.core
 
-    temporary_file = tempfile.NamedTemporaryFile(
-        mode="w", suffix=".xml", delete=False
-    )
+    temporary_file = tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False)
     temporary_file_path = temporary_file.name
     temporary_file.close()
     try:
@@ -616,19 +603,13 @@ def _render_svg_string(layout_element, style_sheet=None, to_top_left=False):
             style_sheets = [
                 (
                     momapy.styling.StyleSheet.from_file(single_style_sheet)
-                    if not isinstance(
-                        single_style_sheet, momapy.styling.StyleSheet
-                    )
+                    if not isinstance(single_style_sheet, momapy.styling.StyleSheet)
                     else single_style_sheet
                 )
                 for single_style_sheet in style_sheets
             ]
-            combined_style_sheet = momapy.styling.combine_style_sheets(
-                style_sheets
-            )
-            momapy.styling.apply_style_sheet(
-                layout_element, combined_style_sheet
-            )
+            combined_style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+            momapy.styling.apply_style_sheet(layout_element, combined_style_sheet)
         if to_top_left:
             min_x = bbox.x - bbox.width / 2
             min_y = bbox.y - bbox.height / 2
@@ -1091,9 +1072,7 @@ $svg_content
 """)
 
 
-def _visualize_map(
-    map_, style_sheet=None, input_file_path=None, to_top_left=False
-):
+def _visualize_map(map_, style_sheet=None, input_file_path=None, to_top_left=False):
     """Render a map as an interactive HTML page and open it in the browser.
 
     Generates a self-contained HTML file with the map rendered as inline SVG,
@@ -1111,9 +1090,7 @@ def _visualize_map(
     svg_string = _render_svg_string(
         map_.layout, style_sheet=style_sheet, to_top_left=to_top_left
     )
-    layout_id_to_model_id = _build_layout_to_model_id_mapping(
-        map_.layout_model_mapping
-    )
+    layout_id_to_model_id = _build_layout_to_model_id_mapping(map_.layout_model_mapping)
     element_metadata = _extract_element_metadata(
         map_.layout,
         layout_id_to_model_id=layout_id_to_model_id,
@@ -1169,9 +1146,7 @@ def _resolve_class(class_path):
     try:
         module = importlib.import_module(module_path)
     except ModuleNotFoundError:
-        raise argparse.ArgumentTypeError(
-            f"module not found: {module_path!r}"
-        )
+        raise argparse.ArgumentTypeError(f"module not found: {module_path!r}")
     try:
         cls = getattr(module, class_name)
     except AttributeError:
@@ -1225,9 +1200,7 @@ def run(args):
             map_ = _read_input(input_file_path).obj
             if style_sheet is not None:
                 map_builder = momapy.builder.builder_from_object(map_)
-                momapy.styling.apply_style_sheet(
-                    map_builder.layout, style_sheet
-                )
+                momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
                 map_ = momapy.builder.object_from_builder(map_builder)
             if args.tidy:
                 if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
@@ -1281,9 +1254,7 @@ def run(args):
         elif isinstance(map_, momapy.sbgn.core.SBGNMap):
             info = momapy.sbgn.utils.get_info(map_)
         else:
-            raise ValueError(
-                f"unsupported map type: {type(map_).__name__}"
-            )
+            raise ValueError(f"unsupported map type: {type(map_).__name__}")
         info["file"] = str(args.input_file_path) if args.input_file_path else "<stdin>"
         if args.format == "json":
             output = json.dumps(info, indent=2)
@@ -1329,9 +1300,7 @@ def run(args):
                 if list_subcommand == "renderers":
                     try:
                         renderer_cls = momapy.rendering.get_renderer(name)
-                        formats = ", ".join(
-                            renderer_cls.supported_formats
-                        )
+                        formats = ", ".join(renderer_cls.supported_formats)
                         line = f"{name} (formats: {formats})"
                     except (ImportError, ModuleNotFoundError):
                         line = f"{name} (not installed)"
@@ -1390,9 +1359,7 @@ def run(args):
                 module = importlib.import_module(module_name)
                 style_sheets.append(getattr(module, attribute_name))
             else:
-                style_sheets.append(
-                    momapy.styling.StyleSheet.from_file(value)
-                )
+                style_sheets.append(momapy.styling.StyleSheet.from_file(value))
         if len(style_sheets) > 1:
             style_sheet = momapy.styling.combine_style_sheets(style_sheets)
         else:
@@ -1419,9 +1386,7 @@ def run(args):
             else:
                 style_sheet = style_sheets[0]
             map_builder = momapy.builder.builder_from_object(map_)
-            momapy.styling.apply_style_sheet(
-                map_builder.layout, style_sheet
-            )
+            momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
             map_ = momapy.builder.object_from_builder(map_builder)
         if args.tidy:
             if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
@@ -1460,7 +1425,11 @@ def main():
         "render",
         description="Render a map (SBGN-ML or CellDesigner) to an output image file. If no format is specified, will base the format on the extension of the output file path. If no renderer is specified, will take the most appropriate renderer.",
     )
-    render_parser.add_argument("input_file_path", nargs="*", help="input file path (reads from stdin if omitted)")
+    render_parser.add_argument(
+        "input_file_path",
+        nargs="*",
+        help="input file path (reads from stdin if omitted)",
+    )
     render_parser.add_argument(
         "-o", "--output-file-path", required=True, help="output file path"
     )
@@ -1508,7 +1477,12 @@ def main():
         "export",
         description="Export a map (SBGN-ML or CellDesigner) to a file in the same format. Useful for roundtrip testing.",
     )
-    export_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
+    export_parser.add_argument(
+        "input_file_path",
+        nargs="?",
+        default=None,
+        help="input file path (reads from stdin if omitted)",
+    )
     export_parser.add_argument(
         "-o",
         "--output-file-path",
@@ -1540,7 +1514,12 @@ def main():
         "info",
         description="Print a summary of a map file's contents (map type, model element counts, layout dimensions).",
     )
-    info_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
+    info_parser.add_argument(
+        "input_file_path",
+        nargs="?",
+        default=None,
+        help="input file path (reads from stdin if omitted)",
+    )
     info_parser.add_argument(
         "-o",
         "--output-file-path",
@@ -1622,7 +1601,10 @@ def main():
             description=operation_description,
         )
         operation_parser.add_argument(
-            "input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)"
+            "input_file_path",
+            nargs="?",
+            default=None,
+            help="input file path (reads from stdin if omitted)",
         )
         operation_parser.add_argument(
             "-o",
@@ -1702,7 +1684,12 @@ def main():
         "visualize",
         description="Open an interactive viewer for a molecular map in the default web browser.",
     )
-    visualize_parser.add_argument("input_file_path", nargs="?", default=None, help="input file path (reads from stdin if omitted)")
+    visualize_parser.add_argument(
+        "input_file_path",
+        nargs="?",
+        default=None,
+        help="input file path (reads from stdin if omitted)",
+    )
     visualize_parser.add_argument(
         "-t",
         "--tidy",

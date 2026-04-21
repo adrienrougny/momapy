@@ -15,6 +15,7 @@ import momapy.sbgn.pd
 import momapy.sbgn.af
 import momapy.core.layout
 
+
 def set_compartments_to_fit_content(
     map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
     xsep: float = 0,
@@ -92,9 +93,7 @@ def set_complexes_to_fit_content(
     else:
         map_builder = map_
     for entity_pool in map_builder.model.entity_pools:
-        if momapy.builder.isinstance_or_builder(
-            entity_pool, momapy.sbgn.pd.Complex
-        ):
+        if momapy.builder.isinstance_or_builder(entity_pool, momapy.sbgn.pd.Complex):
             for complex_layout in map_builder.get_mapping(entity_pool):
                 elements = []
                 for subunit in entity_pool.subunits:
@@ -207,9 +206,7 @@ def set_nodes_to_fit_labels(
                 and hasattr(layout_element, "label")
                 and layout_element.label is not None
             ):
-                bbox = momapy.positioning.fit(
-                    [layout_element.label.bbox()], xsep, ysep
-                )
+                bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
                 if not omit_width:
                     if bbox.width > layout_element.width:
                         layout_element.width = bbox.width
@@ -224,7 +221,9 @@ def set_nodes_to_fit_labels(
     return map_builder
 
 
-def set_arcs_to_borders(map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
+def set_arcs_to_borders(
+    map_: momapy.sbgn.core.SBGNMap | momapy.builder.Builder,
+) -> momapy.sbgn.core.SBGNMap | momapy.builder.Builder:
     """Adjust arc endpoints to node borders.
 
     Updates arc start and end points to connect at the borders of
@@ -741,9 +740,7 @@ def get_info(map_: momapy.sbgn.core.SBGNMap) -> dict:
             "tags": len(model.tags),
         }
     else:
-        raise ValueError(
-            f"unknown SBGN model type: {type(model).__name__}"
-        )
+        raise ValueError(f"unknown SBGN model type: {type(model).__name__}")
     layout_info = {
         "width": layout.width,
         "height": layout.height,

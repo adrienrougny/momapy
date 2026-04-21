@@ -543,9 +543,7 @@ class DrawingElement(abc.ABC):
         """
         primitives = self.to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(
-                momapy.geometry.Point(0, 0), 0, 0
-            )
+            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
         return momapy.geometry.Bbox.union(bboxes)
 
@@ -652,6 +650,7 @@ class Text(DrawingElement):
             An empty list.
         """
         return []
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Group(DrawingElement):
@@ -1139,7 +1138,6 @@ class Path(DrawingElement):
         return primitives
 
 
-
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(DrawingElement):
     """Ellipse drawing element.
@@ -1228,6 +1226,7 @@ class Ellipse(DrawingElement):
             A list of geometry primitives.
         """
         return self.to_path().to_geometry()
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(DrawingElement):

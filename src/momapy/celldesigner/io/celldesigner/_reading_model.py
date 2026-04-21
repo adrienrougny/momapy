@@ -44,7 +44,9 @@ def make_annotations_from_notes(cd_notes):
     Returns:
         List of annotations (empty if the notes contain no RDF).
     """
-    cd_rdf = momapy.celldesigner.io.celldesigner._reading_parsing.get_rdf_from_notes(cd_notes)
+    cd_rdf = momapy.celldesigner.io.celldesigner._reading_parsing.get_rdf_from_notes(
+        cd_notes
+    )
     if cd_rdf is None:
         return []
     return momapy.sbml.io.sbml._model.make_annotations(cd_rdf)
@@ -59,7 +61,9 @@ def make_notes_from_element(cd_element):
     Returns:
         The parsed notes, or an empty notes object if absent.
     """
-    cd_notes = momapy.celldesigner.io.celldesigner._reading_parsing.get_notes(cd_element)
+    cd_notes = momapy.celldesigner.io.celldesigner._reading_parsing.get_notes(
+        cd_element
+    )
     return momapy.sbml.io.sbml._model.make_notes(cd_notes)
 
 
@@ -74,9 +78,7 @@ def make_and_add_annotations(reading_context, cd_element, model_element):
     if reading_context.with_annotations:
         annotations = make_annotations_from_element(cd_element)
         if annotations:
-            reading_context.element_to_annotations[model_element].update(
-                annotations
-            )
+            reading_context.element_to_annotations[model_element].update(annotations)
 
 
 def make_empty_model(cd_element):
@@ -121,7 +123,9 @@ def make_compartment(reading_context, cd_compartment):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Compartment)
+    model_element = reading_context.model.new_element(
+        momapy.celldesigner.core.Compartment
+    )
     model_element.id_ = cd_compartment.get("id")
     model_element.name = momapy.celldesigner.io.celldesigner._reading_parsing.make_name(
         cd_compartment.get("name")
@@ -276,7 +280,9 @@ def make_species_modification(
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.Modification)
+    model_element = reading_context.model.new_element(
+        momapy.celldesigner.core.Modification
+    )
     modification_residue_model_element = reading_context.xml_id_to_model_element[
         cd_modification_residue_id
     ]
@@ -297,7 +303,9 @@ def make_species_structural_state(reading_context, cd_species_structural_state):
     """
     if reading_context.model is None:
         return None
-    model_element = reading_context.model.new_element(momapy.celldesigner.core.StructuralState)
+    model_element = reading_context.model.new_element(
+        momapy.celldesigner.core.StructuralState
+    )
     model_element.value = cd_species_structural_state.get("structuralState")
     return model_element
 
@@ -339,7 +347,9 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
     model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
     model_element.base = True
     cd_species_id = cd_base_reactant.get("species")
-    for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
+    for (
+        cd_reactant
+    ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
         cd_reaction
     ):
         if cd_reactant.get("species") == cd_species_id:
@@ -373,7 +383,9 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
         return None
     model_element = reading_context.model.new_element(momapy.celldesigner.core.Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
-    for cd_reactant in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
+    for (
+        cd_reactant
+    ) in momapy.celldesigner.io.celldesigner._reading_parsing.get_reactants(
         cd_reaction
     ):
         if cd_reactant.get("species") == cd_species_id:
@@ -518,7 +530,11 @@ def make_logic_gate_input(reading_context, input_model_element):
 
 
 def make_modulation(
-    reading_context, cd_reaction, model_element_cls, source_model_element, target_model_element
+    reading_context,
+    cd_reaction,
+    model_element_cls,
+    source_model_element,
+    target_model_element,
 ):
     """Create a modulation model builder.
 

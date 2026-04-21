@@ -30,7 +30,6 @@ class ReadingContext:
 
 
 class SBMLReader(momapy.io.core.Reader):
-
     @staticmethod
     def _register_model_element(
         model_element,
@@ -91,8 +90,8 @@ class SBMLReader(momapy.io.core.Reader):
         element_to_annotations = collections.defaultdict(set)
         map_element_to_ids = collections.defaultdict(set)
         element_to_notes = collections.defaultdict(set)
-        sbml_id_to_sbml_element = momapy.sbml.io.sbml._parsing.make_id_to_element_mapping(
-            sbml_model
+        sbml_id_to_sbml_element = (
+            momapy.sbml.io.sbml._parsing.make_id_to_element_mapping(sbml_model)
         )
         ctx = ReadingContext(
             sbml_model=sbml_model,
@@ -105,7 +104,9 @@ class SBMLReader(momapy.io.core.Reader):
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
-        for sbml_compartment in momapy.sbml.io.sbml._parsing.get_compartments(ctx.sbml_model):
+        for sbml_compartment in momapy.sbml.io.sbml._parsing.get_compartments(
+            ctx.sbml_model
+        ):
             cls._make_and_add_compartment(ctx, sbml_compartment)
         for sbml_species in momapy.sbml.io.sbml._parsing.get_species(ctx.sbml_model):
             cls._make_and_add_species(ctx, sbml_species)
@@ -113,7 +114,9 @@ class SBMLReader(momapy.io.core.Reader):
             cls._make_and_add_reaction(ctx, sbml_reaction)
         obj = momapy.builder.object_from_builder(model)
         if with_annotations:
-            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_model)
+            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(
+                sbml_model
+            )
             element_to_annotations[obj].update(annotations)
         if with_notes:
             notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_model)
@@ -132,7 +135,9 @@ class SBMLReader(momapy.io.core.Reader):
 
     @classmethod
     def _make_and_add_compartment(cls, ctx, sbml_compartment):
-        model_element = momapy.sbml.io.sbml._model.make_compartment(sbml_compartment, ctx.model)
+        model_element = momapy.sbml.io.sbml._model.make_compartment(
+            sbml_compartment, ctx.model
+        )
         model_element = momapy.builder.object_from_builder(model_element)
         model_element = cls._register_model_element(
             model_element,
@@ -142,7 +147,9 @@ class SBMLReader(momapy.io.core.Reader):
         )
         ctx.map_element_to_ids[model_element].add(sbml_compartment.get("id"))
         if ctx.with_annotations:
-            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_compartment)
+            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(
+                sbml_compartment
+            )
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
@@ -152,7 +159,9 @@ class SBMLReader(momapy.io.core.Reader):
 
     @classmethod
     def _make_and_add_species(cls, ctx, sbml_species):
-        model_element = momapy.sbml.io.sbml._model.make_species(sbml_species, ctx.model, ctx.sbml_id_to_model_element)
+        model_element = momapy.sbml.io.sbml._model.make_species(
+            sbml_species, ctx.model, ctx.sbml_id_to_model_element
+        )
         model_element = momapy.builder.object_from_builder(model_element)
         model_element = cls._register_model_element(
             model_element,
@@ -161,7 +170,9 @@ class SBMLReader(momapy.io.core.Reader):
             ctx.sbml_id_to_model_element,
         )
         if ctx.with_annotations:
-            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_species)
+            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(
+                sbml_species
+            )
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
         if ctx.with_notes:
@@ -171,7 +182,9 @@ class SBMLReader(momapy.io.core.Reader):
 
     @classmethod
     def _make_and_add_reaction(cls, ctx, sbml_reaction):
-        model_element = momapy.sbml.io.sbml._model.make_reaction(sbml_reaction, ctx.model)
+        model_element = momapy.sbml.io.sbml._model.make_reaction(
+            sbml_reaction, ctx.model
+        )
         for sbml_reactant in momapy.sbml.io.sbml._parsing.get_reactants(sbml_reaction):
             cls._make_and_add_reactant(ctx, sbml_reactant, model_element)
         for sbml_product in momapy.sbml.io.sbml._parsing.get_products(sbml_reaction):
@@ -187,31 +200,43 @@ class SBMLReader(momapy.io.core.Reader):
         )
         ctx.map_element_to_ids[model_element].add(sbml_reaction.get("id"))
         if ctx.with_annotations:
-            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(sbml_reaction)
+            annotations = momapy.sbml.io.sbml._model.make_annotations_from_element(
+                sbml_reaction
+            )
             if annotations:
                 ctx.element_to_annotations[model_element].update(annotations)
             if ctx.with_notes:
-                notes = momapy.sbml.io.sbml._model.make_notes_from_element(sbml_reaction)
+                notes = momapy.sbml.io.sbml._model.make_notes_from_element(
+                    sbml_reaction
+                )
                 ctx.element_to_notes[model_element].update(notes)
         return model_element
 
     @classmethod
     def _make_and_add_reactant(cls, ctx, sbml_species_reference, super_model_element):
-        model_element = momapy.sbml.io.sbml._model.make_species_reference(sbml_species_reference, ctx.model, ctx.sbml_id_to_model_element)
+        model_element = momapy.sbml.io.sbml._model.make_species_reference(
+            sbml_species_reference, ctx.model, ctx.sbml_id_to_model_element
+        )
         super_model_element.reactants.add(model_element)
         ctx.sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
 
     @classmethod
     def _make_and_add_product(cls, ctx, sbml_species_reference, super_model_element):
-        model_element = momapy.sbml.io.sbml._model.make_species_reference(sbml_species_reference, ctx.model, ctx.sbml_id_to_model_element)
+        model_element = momapy.sbml.io.sbml._model.make_species_reference(
+            sbml_species_reference, ctx.model, ctx.sbml_id_to_model_element
+        )
         super_model_element.products.add(model_element)
         ctx.sbml_id_to_model_element[model_element.id_] = model_element
         return model_element
 
     @classmethod
-    def _make_and_add_modifier(cls, ctx, sbml_modifier_species_reference, super_model_element):
-        model_element = momapy.sbml.io.sbml._model.make_modifier_species_reference(sbml_modifier_species_reference, ctx.model, ctx.sbml_id_to_model_element)
+    def _make_and_add_modifier(
+        cls, ctx, sbml_modifier_species_reference, super_model_element
+    ):
+        model_element = momapy.sbml.io.sbml._model.make_modifier_species_reference(
+            sbml_modifier_species_reference, ctx.model, ctx.sbml_id_to_model_element
+        )
         super_model_element.modifiers.add(model_element)
         ctx.sbml_id_to_model_element[model_element.id_] = model_element
         return model_element

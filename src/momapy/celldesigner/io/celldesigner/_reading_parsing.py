@@ -98,9 +98,7 @@ def get_extension(cd_element):
     cd_annotation = get_annotation(cd_element)
     if cd_annotation is None:
         return None
-    cd_extension = getattr(
-        cd_element.annotation, f"{{{_CD_NAMESPACE}}}extension", None
-    )
+    cd_extension = getattr(cd_element.annotation, f"{{{_CD_NAMESPACE}}}extension", None)
     return cd_extension
 
 
@@ -121,9 +119,7 @@ def get_reactions(cd_model):
 def get_species_aliases(cd_model):
     # only the non-included ones
     extension = get_extension(cd_model)
-    species_aliases = list(
-        getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
-    )
+    species_aliases = list(getattr(extension.listOfSpeciesAliases, "speciesAlias", []))
     species_aliases = [
         species_alias
         for species_alias in species_aliases
@@ -134,9 +130,7 @@ def get_species_aliases(cd_model):
 
 def get_included_species_aliases(cd_model):
     extension = get_extension(cd_model)
-    species_aliases = list(
-        getattr(extension.listOfSpeciesAliases, "speciesAlias", [])
-    )
+    species_aliases = list(getattr(extension.listOfSpeciesAliases, "speciesAlias", []))
     species_aliases = [
         species_alias
         for species_alias in species_aliases
@@ -299,9 +293,7 @@ def get_key_from_region(cd_region):
 
 
 def get_key_from_species(cd_species, cd_id_to_cd_element):
-    cd_species_template = get_template_from_species(
-        cd_species, cd_id_to_cd_element
-    )
+    cd_species_template = get_template_from_species(cd_species, cd_id_to_cd_element)
     if cd_species_template is None:
         key = get_class_from_species(cd_species).text
     else:
@@ -315,12 +307,8 @@ def get_key_from_species(cd_species, cd_id_to_cd_element):
 
 
 def get_key_from_reaction_modification(cd_reaction_modification):
-    if has_boolean_input_from_modification(
-        cd_reaction_modification
-    ):
-        cd_reaction_modification_type = cd_reaction_modification.get(
-            "modificationType"
-        )
+    if has_boolean_input_from_modification(cd_reaction_modification):
+        cd_reaction_modification_type = cd_reaction_modification.get("modificationType")
     else:
         cd_reaction_modification_type = cd_reaction_modification.get("type")
     return ("MODIFIER", cd_reaction_modification_type)
@@ -377,9 +365,7 @@ def get_species_modifications(cd_species):
     cd_species_state = get_state(cd_species)
     if cd_species_state is None:
         return []
-    cd_list_of_modifications = getattr(
-        cd_species_state, "listOfModifications", None
-    )
+    cd_list_of_modifications = getattr(cd_species_state, "listOfModifications", None)
     if cd_list_of_modifications is None:
         return []
     return list(getattr(cd_list_of_modifications, "modification", []))
@@ -500,9 +486,7 @@ def has_boolean_input_from_modification(cd_reaction_modification):
 
 
 def has_boolean_input_from_reaction(cd_reaction):
-    return (
-        get_reaction_type(cd_reaction) == "BOOLEAN_LOGIC_GATE"
-    )
+    return get_reaction_type(cd_reaction) == "BOOLEAN_LOGIC_GATE"
 
 
 def get_modifier_species_references(cd_reaction):
@@ -517,9 +501,7 @@ def get_modifier_species_references(cd_reaction):
     list_of_modifiers = getattr(cd_reaction, "listOfModifiers", None)
     if list_of_modifiers is None:
         return []
-    return list(
-        getattr(list_of_modifiers, "modifierSpeciesReference", [])
-    )
+    return list(getattr(list_of_modifiers, "modifierSpeciesReference", []))
 
 
 def get_reaction_modifications(cd_reaction):
@@ -576,7 +558,9 @@ def get_rdf(cd_element):
     annotation = get_annotation(cd_element)
     if annotation is None:
         return None
-    return getattr(annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None)
+    return getattr(
+        annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None
+    )
 
 
 def make_id_to_element_mapping(cd_model):
@@ -590,13 +574,11 @@ def make_id_to_element_mapping(cd_model):
     # species templates
     for cd_species_template in get_species_templates(cd_model):
         cd_id_to_cd_element[cd_species_template.get("id")] = cd_species_template
-        for cd_modification_residue in get_modification_residues(
-            cd_species_template
-        ):
-            cd_modification_residue_id = f"{cd_species_template.get('id')}_{cd_modification_residue.get('id')}"
-            cd_id_to_cd_element[cd_modification_residue_id] = (
-                cd_modification_residue
+        for cd_modification_residue in get_modification_residues(cd_species_template):
+            cd_modification_residue_id = (
+                f"{cd_species_template.get('id')}_{cd_modification_residue.get('id')}"
             )
+            cd_id_to_cd_element[cd_modification_residue_id] = cd_modification_residue
         for cd_region in get_regions(cd_species_template):
             cd_region_id = f"{cd_species_template.get('id')}_{cd_region.get('id')}"
             cd_id_to_cd_element[cd_region_id] = cd_region

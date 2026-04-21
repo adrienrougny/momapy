@@ -28,13 +28,17 @@ def make_annotations(rdf):
     if description is not None:
         for bq_element in description.iterchildren():
             key = momapy.sbml.io.sbml._parsing.get_prefix_and_name(bq_element.tag)
-            qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(key)
+            qualifier = momapy.sbml.io.sbml._qualifiers.QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER.get(
+                key
+            )
             if qualifier is not None:
                 bags = momapy.sbml.io.sbml._parsing.get_bags(bq_element)
                 for bag in bags:
                     lis = momapy.sbml.io.sbml._parsing.get_list_items(bag)
                     resources = [
-                        li.get(f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource")
+                        li.get(
+                            f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}resource"
+                        )
                         for li in lis
                     ]
                     annotation = momapy.sbml.core.RDFAnnotation(
@@ -125,7 +129,9 @@ def make_species_reference(sbml_species_reference, model, sbml_id_to_model_eleme
     return model_element
 
 
-def make_modifier_species_reference(sbml_modifier_species_reference, model, sbml_id_to_model_element):
+def make_modifier_species_reference(
+    sbml_modifier_species_reference, model, sbml_id_to_model_element
+):
     model_element = model.new_element(momapy.sbml.core.ModifierSpeciesReference)
     model_element.id_ = sbml_modifier_species_reference.get("metaid")
     sbml_species_id = sbml_modifier_species_reference.get("species")

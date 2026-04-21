@@ -17,9 +17,7 @@ import momapy.io.core
 import momapy.utils
 
 
-def _filter_mapping_by_classes(
-    mapping, include_classes=None, exclude_classes=None
-):
+def _filter_mapping_by_classes(mapping, include_classes=None, exclude_classes=None):
     """Return a new mapping of the same type with filtered keys.
 
     A key is kept unless it is an instance of any class in

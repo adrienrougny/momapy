@@ -88,7 +88,9 @@ QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER = {
 
 # Extra entry: biology-qualifiers/hasInstance maps to BQModel.HAS_INSTANCE
 # (used in SBML and CellDesigner readers, not in the writer)
-QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[(
-    "http://biomodels.net/biology-qualifiers/",
-    "hasInstance",
-)] = momapy.sbml.core.BQModel.HAS_INSTANCE
+QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER[
+    (
+        "http://biomodels.net/biology-qualifiers/",
+        "hasInstance",
+    )
+] = momapy.sbml.core.BQModel.HAS_INSTANCE

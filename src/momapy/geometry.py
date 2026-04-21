@@ -481,8 +481,7 @@ class Segment(GeometryObject):
         origin_offset_x = line.p1.x - self.p1.x
         origin_offset_y = line.p1.y - self.p1.y
         t = (
-            origin_offset_y * line_direction_x
-            - origin_offset_x * line_direction_y
+            origin_offset_y * line_direction_x - origin_offset_x * line_direction_y
         ) / denominator
         if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
             t = max(0.0, min(1.0, t))

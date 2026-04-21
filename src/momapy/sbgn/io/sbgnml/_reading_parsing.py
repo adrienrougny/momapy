@@ -46,12 +46,7 @@ def get_nexts(sbgnml_arc):
 
 
 def get_sbgnml_points(sbgnml_arc):
-    return (
-        [sbgnml_arc.start]
-        + get_nexts(sbgnml_arc)
-        + [sbgnml_arc.end]
-    )
-
+    return [sbgnml_arc.start] + get_nexts(sbgnml_arc) + [sbgnml_arc.end]
 
 
 def get_annotation(sbgnml_element):
@@ -70,13 +65,13 @@ def get_notes(sbgnml_element):
     return getattr(sbgnml_element, "notes", None)
 
 
-
-
 def get_rdf(sbgnml_element):
     annotation = get_annotation(sbgnml_element)
     if annotation is None:
         return None
-    return getattr(annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None)
+    return getattr(
+        annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None
+    )
 
 
 _SBGNML_STATE_VARIABLE_CLASSES = {"state variable"}
@@ -137,9 +132,7 @@ def get_stoichiometry(sbgnml_element):
     return None
 
 
-def get_consumption_and_production_arcs(
-    sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
-):
+def get_consumption_and_production_arcs(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
     sbgnml_consumption_arcs = []
     sbgnml_production_arcs = []
     for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_process.get("id")]:
@@ -156,9 +149,7 @@ def get_equivalence_arcs(
     sbgnml_glyph_id_to_sbgnml_arcs,
 ):
     sbgnml_equivalence_arcs = []
-    for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[
-        sbgnml_tag_or_terminal.get("id")
-    ]:
+    for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_tag_or_terminal.get("id")]:
         if (
             transform_class(sbgnml_arc.get("class")) == "EQUIVALENCE_ARC"
             and sbgnml_id_to_sbgnml_element[sbgnml_arc.get("target")]
@@ -177,8 +168,7 @@ def get_logic_arcs(
     for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_operator.get("id")]:
         if (
             transform_class(sbgnml_arc.get("class")) == "LOGIC_ARC"
-            and sbgnml_id_to_sbgnml_element[sbgnml_arc.get("target")]
-            == sbgnml_operator
+            and sbgnml_id_to_sbgnml_element[sbgnml_arc.get("target")] == sbgnml_operator
         ):
             sbgnml_logic_arcs.append(sbgnml_arc)
     return sbgnml_logic_arcs
@@ -186,11 +176,9 @@ def get_logic_arcs(
 
 def get_process_direction(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
     for sbgnml_port in get_ports(sbgnml_process):
-        if float(sbgnml_port.get("x")) < float(
-            sbgnml_process.bbox.get("x")
-        ) or float(sbgnml_port.get("x")) >= float(
-            sbgnml_process.bbox.get("x")
-        ) + float(
+        if float(sbgnml_port.get("x")) < float(sbgnml_process.bbox.get("x")) or float(
+            sbgnml_port.get("x")
+        ) >= float(sbgnml_process.bbox.get("x")) + float(
             sbgnml_process.bbox.get("w")
         ):  # LEFT OR RIGHT
             return momapy.core.elements.Direction.HORIZONTAL
@@ -282,10 +270,8 @@ def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
 
 
 def is_process_reversible(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
-    sbgnml_consumption_arcs, _ = (
-        get_consumption_and_production_arcs(
-            sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
-        )
+    sbgnml_consumption_arcs, _ = get_consumption_and_production_arcs(
+        sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
     if sbgnml_consumption_arcs:
         return False

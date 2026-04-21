@@ -96,7 +96,9 @@ def make_sbgnml_points(points):
     sbgnml_elements = []
     start_point = points[0]
     sbgnml_elements.append(
-        make_lxml_element("start", attributes={"x": str(start_point.x), "y": str(start_point.y)})
+        make_lxml_element(
+            "start", attributes={"x": str(start_point.x), "y": str(start_point.y)}
+        )
     )
     for point in points[1:-1]:
         sbgnml_elements.append(
@@ -104,16 +106,16 @@ def make_sbgnml_points(points):
         )
     end_point = points[-1]
     sbgnml_elements.append(
-        make_lxml_element("end", attributes={"x": str(end_point.x), "y": str(end_point.y)})
+        make_lxml_element(
+            "end", attributes={"x": str(end_point.x), "y": str(end_point.y)}
+        )
     )
     return sbgnml_elements
 
 
 def make_sbgnml_annotation(annotations, sbgnml_id):
     sbgnml_annotation = make_lxml_element("annotation")
-    sbgnml_rdf = make_lxml_element(
-        tag="RDF", namespace=NSMAP["rdf"], nsmap=NSMAP
-    )
+    sbgnml_rdf = make_lxml_element(tag="RDF", namespace=NSMAP["rdf"], nsmap=NSMAP)
     sbgnml_annotation.append(sbgnml_rdf)
     sbgnml_description = make_lxml_element(
         tag="Description",
@@ -122,9 +124,11 @@ def make_sbgnml_annotation(annotations, sbgnml_id):
     )
     sbgnml_rdf.append(sbgnml_description)
     for annotation in annotations:
-        namespace, tag = momapy.sbml.io.sbml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
-            annotation.qualifier
-        ]
+        namespace, tag = (
+            momapy.sbml.io.sbml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
+                annotation.qualifier
+            ]
+        )
         sbgnml_bq = make_lxml_element(tag=tag, namespace=namespace)
         sbgnml_description.append(sbgnml_bq)
         sbgnml_bag = make_lxml_element(tag="Bag", namespace=NSMAP["rdf"])

@@ -212,9 +212,7 @@ class Color(object):
         return cls(red, green, blue, alpha)
 
     @classmethod
-    def from_rgb(
-        cls, red: int, green: int, blue: int
-    ) -> typing_extensions.Self:
+    def from_rgb(cls, red: int, green: int, blue: int) -> typing_extensions.Self:
         """Create a color from RGB components.
 
         Args:

@@ -861,7 +861,6 @@ _ACTIVE_YSEP = 4.0
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleNodeMixin(momapy.sbgn.core._SimpleMixin):
-
     @classmethod
     def _mixin_drawing_elements(cls, obj):
         return momapy.sbgn.core._SimpleMixin._mixin_drawing_elements(obj)
@@ -3190,7 +3189,9 @@ class _ReactionNodeMixin(momapy.sbgn.core._SBGNMixin):
 
     def reaction_node_angle(self, angle):
         reaction_node = self._make_reaction_node()
-        border_point = reaction_node.own_angle(angle, self._get_reaction_node_position())
+        border_point = reaction_node.own_angle(
+            angle, self._get_reaction_node_position()
+        )
         if border_point is None:
             border_point = reaction_node.center()
         rotation = self._make_reaction_node_rotation()

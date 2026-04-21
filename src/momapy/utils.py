@@ -365,6 +365,4 @@ def check_parent_dir_exists(file_path: str | os.PathLike) -> None:
     """
     parent_dir = os.path.dirname(os.path.abspath(os.fspath(file_path)))
     if not os.path.isdir(parent_dir):
-        raise FileNotFoundError(
-            f"parent directory does not exist: {parent_dir}"
-        )
+        raise FileNotFoundError(f"parent directory does not exist: {parent_dir}")

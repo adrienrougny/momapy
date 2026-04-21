@@ -18,9 +18,11 @@ class Map(momapy.core.elements.MapElement):
     layout: momapy.core.layout.Layout | None = dataclasses.field(
         default=None, metadata={"description": "The layout of the map"}
     )
-    layout_model_mapping: momapy.core.mapping.LayoutModelMapping | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The layout model mapping of the map"},
+    layout_model_mapping: momapy.core.mapping.LayoutModelMapping | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The layout model mapping of the map"},
+        )
     )
 
     def is_submap(self, other):

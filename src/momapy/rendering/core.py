@@ -113,7 +113,9 @@ def render_layout_elements(
                     new_layout_elements.append(
                         momapy.builder.builder_from_object(layout_element)
                     )
-                elif isinstance(layout_element, momapy.core.builders.LayoutElementBuilder):
+                elif isinstance(
+                    layout_element, momapy.core.builders.LayoutElementBuilder
+                ):
                     new_layout_elements.append(copy.deepcopy(layout_element))
             layout_elements = new_layout_elements
         if style_sheet is not None:
@@ -146,9 +148,7 @@ def render_layout_elements(
                 for attr_name in ["group_transform", "transform"]:
                     if hasattr(layout_element, attr_name):
                         if getattr(layout_element, attr_name) is None:
-                            setattr(
-                                layout_element, attr_name, []
-                            )
+                            setattr(layout_element, attr_name, [])
                         getattr(layout_element, attr_name).append(translation)
                         break
         return layout_elements, max_x, max_y

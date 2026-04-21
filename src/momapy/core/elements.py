@@ -166,9 +166,7 @@ class LayoutElement(MapElement, abc.ABC):
         | momapy.geometry.EllipticalArc
     ]:
         """Return a list of geometry primitives from the drawing elements."""
-        return momapy.drawing.drawing_elements_to_geometry(
-            self.drawing_elements()
-        )
+        return momapy.drawing.drawing_elements_to_geometry(self.drawing_elements())
 
     def anchor_point(self, anchor_name: str) -> momapy.geometry.Point:
         """Return an anchor point of the layout element"""

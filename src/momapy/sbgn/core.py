@@ -274,7 +274,9 @@ class _ConnectorsMixin(_SBGNMixin):
         right_connector_length: Length of the right connector.
     """
 
-    direction: momapy.core.elements.Direction = momapy.core.elements.Direction.HORIZONTAL
+    direction: momapy.core.elements.Direction = (
+        momapy.core.elements.Direction.HORIZONTAL
+    )
     left_to_right: bool = True
     left_connector_length: float = 10.0
     right_connector_length: float = 10.0

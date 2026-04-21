@@ -269,9 +269,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
 
     def _stroke_and_fill(self):
         has_fill = self._make_fill_paint()
-        has_stroke = (
-            self.get_current_value("stroke") != momapy.drawing.NoneValue
-        )
+        has_stroke = self.get_current_value("stroke") != momapy.drawing.NoneValue
 
         if has_fill:
             if has_stroke:

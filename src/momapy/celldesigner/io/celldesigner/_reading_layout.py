@@ -151,7 +151,13 @@ def make_points(cd_edit_points):
 
 
 def make_species(
-    reading_context, cd_species_alias, layout_element_cls, name, homomultimer, hypothetical, active
+    reading_context,
+    cd_species_alias,
+    layout_element_cls,
+    name,
+    homomultimer,
+    hypothetical,
+    active,
 ):
     """Create a species layout builder (and its active-border sibling if needed).
 
@@ -171,8 +177,10 @@ def make_species(
         return None
     layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = cd_species_alias.get("id")
-    cd_x, cd_y, cd_w, cd_h = momapy.celldesigner.io.celldesigner._reading_parsing.get_bounds(
-        cd_species_alias
+    cd_x, cd_y, cd_w, cd_h = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_bounds(
+            cd_species_alias
+        )
     )
     layout_element.position = momapy.geometry.Point(
         float(cd_x) + float(cd_w) / 2,
@@ -236,7 +244,9 @@ def make_species_modification(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ModificationLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.ModificationLayout
+    )
     angle = cd_modification_residue.get("angle")
     if angle is None:
         fraction = float(cd_modification_residue.get("pos"))
@@ -270,7 +280,9 @@ def make_species_modification(
     layout_element.label = text_layout
     cd_modification_residue_name = cd_modification_residue.get("name")
     if cd_modification_residue_name is not None:
-        residue_text_layout = reading_context.layout.new_element(momapy.core.layout.TextLayout)
+        residue_text_layout = reading_context.layout.new_element(
+            momapy.core.layout.TextLayout
+        )
         residue_text_layout.text = cd_modification_residue_name
         residue_text_layout.font_size = _DEFAULT_MODIFICATION_FONT_SIZE
         residue_text_layout.font_family = _DEFAULT_FONT_FAMILY
@@ -303,7 +315,9 @@ def make_species_structural_state(
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.StructuralStateLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.StructuralStateLayout
+    )
     layout_element.position = super_layout_element.own_angle(90)
     text = cd_species_structural_state.get("structuralState")
     text_layout = momapy.core.layout.TextLayout(
@@ -415,12 +429,20 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
         py = float(cd_point.get("y"))
         if corner is not None:
             left, top, right, bottom = _corner_region(
-                corner, px, py, reading_context.canvas_width, reading_context.canvas_height
+                corner,
+                px,
+                py,
+                reading_context.canvas_width,
+                reading_context.canvas_height,
             )
             layout_element.corner = corner
         else:
             left, top, right, bottom = _side_region(
-                side, px, py, reading_context.canvas_width, reading_context.canvas_height
+                side,
+                px,
+                py,
+                reading_context.canvas_width,
+                reading_context.canvas_height,
             )
             layout_element.side = side
         layout_element.position = momapy.geometry.Point(
@@ -489,11 +511,15 @@ def make_segments_non_t_shape(reading_context, cd_reaction):
         List of ``Segment`` making up the arc path.
     """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
-        cd_reaction
+    cd_base_reactants = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
+            cd_reaction
+        )
     )
-    cd_base_products = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
-        cd_reaction
+    cd_base_products = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
+            cd_reaction
+        )
     )
     cd_base_reactant = cd_base_reactants[0]
     cd_base_product = cd_base_products[0]
@@ -516,10 +542,8 @@ def make_segments_non_t_shape(reading_context, cd_reaction):
         origin, unit_x, unit_y
     )
     intermediate_points = []
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     if cd_edit_points is None:
         edit_points = []
@@ -562,11 +586,15 @@ def make_segments_left_t_shape(reading_context, cd_reaction):
         List of ``Segment`` making up the arc path from the junction to the product.
     """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
-        cd_reaction
+    cd_base_reactants = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
+            cd_reaction
+        )
     )
-    cd_base_products = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
-        cd_reaction
+    cd_base_products = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
+            cd_reaction
+        )
     )
     cd_base_reactant_0 = cd_base_reactants[0]
     cd_base_reactant_1 = cd_base_reactants[1]
@@ -587,10 +615,8 @@ def make_segments_left_t_shape(reading_context, cd_reaction):
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
     )
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     edit_points = make_points(cd_edit_points)
     start_point = edit_points[-1].transformed(transformation)
@@ -635,11 +661,15 @@ def make_segments_right_t_shape(reading_context, cd_reaction):
         List of ``Segment`` making up the arc path from the reactant to the junction.
     """
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    cd_base_reactants = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
-        cd_reaction
+    cd_base_reactants = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_reactants(
+            cd_reaction
+        )
     )
-    cd_base_products = momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
-        cd_reaction
+    cd_base_products = (
+        momapy.celldesigner.io.celldesigner._reading_parsing.get_base_products(
+            cd_reaction
+        )
     )
     cd_base_product_0 = cd_base_products[0]
     cd_base_product_1 = cd_base_products[1]
@@ -660,10 +690,8 @@ def make_segments_right_t_shape(reading_context, cd_reaction):
     transformation = momapy.geometry.get_transformation_for_frame(
         origin, unit_x, unit_y
     )
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     edit_points = make_points(cd_edit_points)
     end_point = edit_points[-1].transformed(transformation)
@@ -735,7 +763,9 @@ def make_reaction(
     elif len(cd_base_reactants) > 1 and len(cd_base_products) == 1:
         segments = make_segments_left_t_shape(reading_context, cd_reaction)
         reaction_node_segment = int(
-            momapy.celldesigner.io.celldesigner._reading_parsing.get_t_shape_index(cd_reaction)
+            momapy.celldesigner.io.celldesigner._reading_parsing.get_t_shape_index(
+                cd_reaction
+            )
         )
         make_base_reactant_layouts = True
         make_base_product_layouts = False
@@ -793,11 +823,11 @@ def make_reactant_from_base(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.ConsumptionLayout
+    )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     cd_num_0 = cd_edit_points.get("num0")
     cd_num_1 = cd_edit_points.get("num1")
@@ -852,9 +882,7 @@ def make_reactant_from_base(
     return layout_element
 
 
-def make_reactant_from_link(
-    reading_context, cd_reactant_link, super_layout_element
-):
+def make_reactant_from_link(reading_context, cd_reactant_link, super_layout_element):
     """Create a consumption arc layout from a reactant link.
 
     Args:
@@ -868,7 +896,9 @@ def make_reactant_from_link(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ConsumptionLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.ConsumptionLayout
+    )
     species_layout_element = cd_id_to_layout_element[cd_reactant_link.get("alias")]
     reactant_anchor_name = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
@@ -936,11 +966,11 @@ def make_product_from_base(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ProductionLayout)
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.ProductionLayout
+    )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     cd_num_0 = cd_edit_points.get("num0")
     cd_num_1 = cd_edit_points.get("num1")
@@ -995,9 +1025,7 @@ def make_product_from_base(
     return layout_element
 
 
-def make_product_from_link(
-    reading_context, cd_product_link, super_layout_element
-):
+def make_product_from_link(reading_context, cd_product_link, super_layout_element):
     """Create a production arc layout from a product link.
 
     Args:
@@ -1011,7 +1039,9 @@ def make_product_from_link(
     if reading_context.layout is None:
         return None
     cd_id_to_layout_element = reading_context.xml_id_to_layout_element
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.ProductionLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.ProductionLayout
+    )
     species_layout_element = cd_id_to_layout_element[cd_product_link.get("alias")]
     product_anchor_name = (
         momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
@@ -1138,7 +1168,9 @@ def make_modifier(
             source_anchor_name = "center"
     else:
         source_anchor_name = "center"
-        edit_points = edit_points[1:-1]  # first point is origin marker (0,0), last point is the position of the logic gate
+        edit_points = edit_points[
+            1:-1
+        ]  # first point is origin marker (0,0), last point is the position of the logic gate
     origin = source_layout_element.anchor_point(source_anchor_name)
     cd_target_line_index = cd_reaction_modification.get("targetLineIndex")
     target_anchor_point = _get_anchor_point_from_target_line_index(
@@ -1223,7 +1255,9 @@ def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
     """
     if reading_context.layout is None:
         return None
-    layout_element = reading_context.layout.new_element(momapy.celldesigner.core.LogicArcLayout)
+    layout_element = reading_context.layout.new_element(
+        momapy.celldesigner.core.LogicArcLayout
+    )
     start_point = input_layout_element.own_border(gate_layout_element.position)
     end_point = gate_layout_element.own_border(start_point)
     segment = momapy.geometry.Segment(start_point, end_point)
@@ -1263,10 +1297,8 @@ def make_modulation(
     """
     if reading_context.layout is None:
         return None
-    cd_edit_points = (
-        momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
-            cd_reaction
-        )
+    cd_edit_points = momapy.celldesigner.io.celldesigner._reading_parsing.get_edit_points_from_reaction(
+        cd_reaction
     )
     if cd_edit_points is not None:
         edit_points = make_points(cd_edit_points)
@@ -1277,20 +1309,16 @@ def make_modulation(
         edit_points = edit_points[:-1]
     else:
         if hasattr(cd_base_reactant, "linkAnchor"):
-            source_anchor_name = (
-                momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
-                    cd_base_reactant
-                )
+            source_anchor_name = momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
+                cd_base_reactant
             )
         else:
             source_anchor_name = "center"
     layout_element = reading_context.layout.new_element(layout_element_cls)
     layout_element.id_ = f"{cd_reaction.get('id')}_layout"
     if hasattr(cd_base_product, "linkAnchor"):
-        target_anchor_name = (
-            momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
-                cd_base_product
-            )
+        target_anchor_name = momapy.celldesigner.io.celldesigner._reading_parsing.get_anchor_name_for_frame(
+            cd_base_product
         )
     else:
         target_anchor_name = "center"

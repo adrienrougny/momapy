@@ -50,10 +50,9 @@ def _closest_anchor_point(
     best_distance_squared = float("inf")
     for anchor_name in _ALL_ANCHOR_NAMES:
         anchor_point = frozen_node.anchor_point(anchor_name)
-        distance_squared = (
-            (anchor_point.x - point.x) ** 2
-            + (anchor_point.y - point.y) ** 2
-        )
+        distance_squared = (anchor_point.x - point.x) ** 2 + (
+            anchor_point.y - point.y
+        ) ** 2
         if distance_squared < best_distance_squared:
             best_distance_squared = distance_squared
             best_point = anchor_point
@@ -248,12 +247,10 @@ def _update_active_layout(layout_element):
             and child._cls_to_build.__name__.endswith("ActiveLayout")
         ):
             child.width = (
-                layout_element.width
-                + 2 * momapy.celldesigner.core._ACTIVE_XSEP
+                layout_element.width + 2 * momapy.celldesigner.core._ACTIVE_XSEP
             )
             child.height = (
-                layout_element.height
-                + 2 * momapy.celldesigner.core._ACTIVE_YSEP
+                layout_element.height + 2 * momapy.celldesigner.core._ACTIVE_YSEP
             )
             child.position = layout_element.position
             break
@@ -303,15 +300,11 @@ def set_nodes_to_fit_labels(
     for layout_element in map_builder.layout.descendants():
         if (
             momapy.builder.isinstance_or_builder(layout_element, restrict_to)
-            and not momapy.builder.isinstance_or_builder(
-                layout_element, exclude
-            )
+            and not momapy.builder.isinstance_or_builder(layout_element, exclude)
             and hasattr(layout_element, "label")
             and layout_element.label is not None
         ):
-            bbox = momapy.positioning.fit(
-                [layout_element.label.bbox()], xsep, ysep
-            )
+            bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
             if not omit_width:
                 if bbox.width > layout_element.width:
                     layout_element.width = bbox.width
@@ -376,9 +369,7 @@ def set_compartments_to_fit_content(
             if isinstance(compartment_layout, frozenset):
                 continue
             elements = []
-            for species in compartment_species_mapping.get(
-                compartment, []
-            ):
+            for species in compartment_species_mapping.get(compartment, []):
                 species_layouts = map_builder.get_mapping(species)
                 if species_layouts is None:
                     continue
@@ -388,12 +379,8 @@ def set_compartments_to_fit_content(
                     if isinstance(species_layout, frozenset):
                         continue
                     elements.append(species_layout)
-            for child_compartment in compartment_children_mapping.get(
-                compartment, []
-            ):
-                child_layouts = map_builder.get_mapping(
-                    child_compartment
-                )
+            for child_compartment in compartment_children_mapping.get(compartment, []):
+                child_layouts = map_builder.get_mapping(child_compartment)
                 if child_layouts is None:
                     continue
                 if not isinstance(child_layouts, list):
@@ -403,13 +390,11 @@ def set_compartments_to_fit_content(
                         continue
                     elements.append(child_layout)
             if elements:
-                momapy.positioning.set_fit(
-                    compartment_layout, elements, xsep, ysep
-                )
+                momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
                 if compartment_layout.label is not None:
-                    compartment_layout.label.position = (
-                        compartment_layout.south()
-                        - (0.0, compartment_layout.label.font_size)
+                    compartment_layout.label.position = compartment_layout.south() - (
+                        0.0,
+                        compartment_layout.label.font_size,
                     )
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
         return momapy.builder.object_from_builder(map_builder)
@@ -493,9 +478,7 @@ def set_complexes_to_fit_content(
                 continue
             elements = []
             for subunit in species.subunits:
-                subunit_layouts = map_builder.get_mapping(
-                    (subunit, species)
-                )
+                subunit_layouts = map_builder.get_mapping((subunit, species))
                 if subunit_layouts is None:
                     continue
                 if not isinstance(subunit_layouts, list):
@@ -505,9 +488,7 @@ def set_complexes_to_fit_content(
                         continue
                     elements.append(subunit_layout)
             if elements:
-                momapy.positioning.set_fit(
-                    complex_layout, elements, xsep, ysep
-                )
+                momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
                 if complex_layout.label is not None:
                     complex_layout.label.position = complex_layout.position
                 _update_active_layout(complex_layout)
@@ -630,11 +611,11 @@ def set_arcs_to_borders(
             end_point = _closest_anchor_point(target, points[-1])
         else:
             end_point = points[-1]
-        arc_layout_element.segments[0].p1 = (
-            momapy.builder.builder_from_object(start_point)
+        arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
+            start_point
         )
-        arc_layout_element.segments[-1].p2 = (
-            momapy.builder.builder_from_object(end_point)
+        arc_layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+            end_point
         )
 
     _MODIFIER_TYPES = (
@@ -662,16 +643,14 @@ def set_arcs_to_borders(
         """Snap segments[0].p1 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[0])
-        layout_element.segments[0].p1 = (
-            momapy.builder.builder_from_object(anchor_point)
-        )
+        layout_element.segments[0].p1 = momapy.builder.builder_from_object(anchor_point)
 
     def _snap_end_to_border(layout_element, node):
         """Snap segments[-1].p2 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[-1])
-        layout_element.segments[-1].p2 = (
-            momapy.builder.builder_from_object(anchor_point)
+        layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+            anchor_point
         )
 
     def _snap_end_to_reaction_node(layout_element, reaction_layout):
@@ -680,8 +659,8 @@ def set_arcs_to_borders(
         reference = points[-2] if len(points) > 2 else points[0]
         border_point = reaction_layout.reaction_node_border(reference)
         if border_point is not None:
-            layout_element.segments[-1].p2 = (
-                momapy.builder.builder_from_object(border_point)
+            layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+                border_point
             )
 
     if isinstance(map_, momapy.celldesigner.core.CellDesignerMap):
@@ -733,20 +712,14 @@ def set_arcs_to_borders(
             ):
                 reaction_layout = layout_element.source
                 species_layout = layout_element.target
-                if species_layout is not None and hasattr(
-                    species_layout, "own_border"
-                ):
+                if species_layout is not None and hasattr(species_layout, "own_border"):
                     _snap_start_to_border(layout_element, species_layout)
                 is_t_shape = momapy.builder.isinstance_or_builder(
                     reaction_layout, _T_SHAPE_TYPES
                 )
-                if not is_t_shape and hasattr(
-                    reaction_layout, "left_connector_tip"
-                ):
-                    layout_element.segments[-1].p2 = (
-                        momapy.builder.builder_from_object(
-                            reaction_layout.left_connector_tip()
-                        )
+                if not is_t_shape and hasattr(reaction_layout, "left_connector_tip"):
+                    layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
+                        reaction_layout.left_connector_tip()
                     )
             elif momapy.builder.isinstance_or_builder(
                 layout_element, momapy.celldesigner.core.ProductionLayout
@@ -756,17 +729,11 @@ def set_arcs_to_borders(
                 is_t_shape = momapy.builder.isinstance_or_builder(
                     reaction_layout, _T_SHAPE_TYPES
                 )
-                if not is_t_shape and hasattr(
-                    reaction_layout, "right_connector_tip"
-                ):
-                    layout_element.segments[0].p1 = (
-                        momapy.builder.builder_from_object(
-                            reaction_layout.right_connector_tip()
-                        )
+                if not is_t_shape and hasattr(reaction_layout, "right_connector_tip"):
+                    layout_element.segments[0].p1 = momapy.builder.builder_from_object(
+                        reaction_layout.right_connector_tip()
                     )
-                if species_layout is not None and hasattr(
-                    species_layout, "own_border"
-                ):
+                if species_layout is not None and hasattr(species_layout, "own_border"):
                     _snap_end_to_border(layout_element, species_layout)
             elif momapy.builder.isinstance_or_builder(
                 layout_element, momapy.celldesigner.core.LogicArcLayout
@@ -828,9 +795,7 @@ def straighten_arcs(
             length = math.sqrt(delta_x * delta_x + delta_y * delta_y)
             if length < min_segment_length:
                 continue
-            angle_from_horizontal = math.degrees(
-                math.atan2(abs(delta_y), abs(delta_x))
-            )
+            angle_from_horizontal = math.degrees(math.atan2(abs(delta_y), abs(delta_x)))
             if angle_from_horizontal <= angle_tolerance:
                 # Nearly horizontal: snap p2.y to p1.y.
                 new_point = momapy.builder.builder_from_object(
@@ -924,12 +889,8 @@ def tidy(
             momapy.celldesigner.core.StructuralStateLayout,
         ],
     )
-    set_complexes_to_fit_content(
-        map_builder, complexes_xsep, complexes_ysep
-    )
-    set_compartments_to_fit_content(
-        map_builder, compartments_xsep, compartments_ysep
-    )
+    set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
+    set_compartments_to_fit_content(map_builder, compartments_xsep, compartments_ysep)
     set_arcs_to_borders(map_builder)
     straighten_arcs(map_builder, arcs_angle_tolerance)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)

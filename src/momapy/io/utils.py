@@ -135,8 +135,14 @@ def build_id_mappings(
 
     if model is not None:
         source_id_to_model_element: dict[str, momapy.core.elements.ModelElement] = {}
-        for source_id, registered_element in reading_context.xml_id_to_model_element.items():
-            if real_model_source_ids is not None and source_id not in real_model_source_ids:
+        for (
+            source_id,
+            registered_element,
+        ) in reading_context.xml_id_to_model_element.items():
+            if (
+                real_model_source_ids is not None
+                and source_id not in real_model_source_ids
+            ):
                 continue
             frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:
@@ -149,8 +155,14 @@ def build_id_mappings(
 
     if layout is not None:
         source_id_to_layout_element: dict[str, momapy.core.elements.LayoutElement] = {}
-        for source_id, registered_element in reading_context.xml_id_to_layout_element.items():
-            if real_layout_source_ids is not None and source_id not in real_layout_source_ids:
+        for (
+            source_id,
+            registered_element,
+        ) in reading_context.xml_id_to_layout_element.items():
+            if (
+                real_layout_source_ids is not None
+                and source_id not in real_layout_source_ids
+            ):
                 continue
             frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:

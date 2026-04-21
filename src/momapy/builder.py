@@ -608,5 +608,3 @@ def super_or_builder(type_: typing.Type, obj: typing.Any) -> typing.Type:
     except TypeError:
         builder = get_or_make_builder_cls(type_)
         return super(builder, obj)
-
-
