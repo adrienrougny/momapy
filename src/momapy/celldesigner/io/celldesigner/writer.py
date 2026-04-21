@@ -10,6 +10,7 @@ from momapy.geometry import Point, get_transformation_for_frame
 from momapy.io.core import Writer, WriterResult
 from momapy.io.utils import WritingContext
 from momapy.utils import check_parent_dir_exists
+from momapy.celldesigner.io.celldesigner import _writing
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
     _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME,
 )
