@@ -15,6 +15,10 @@ from momapy.rendering.core import get_renderer as get_renderer
 from momapy.rendering.core import list_renderers as list_renderers
 from momapy.rendering.core import register_lazy_renderer as register_lazy_renderer
 from momapy.rendering.core import register_renderer as register_renderer
+from momapy.rendering.core import render_layout_element as render_layout_element
+from momapy.rendering.core import render_layout_elements as render_layout_elements
+from momapy.rendering.core import render_map as render_map
+from momapy.rendering.core import render_maps as render_maps
 from momapy.rendering.core import renderer_registry as renderer_registry
 
 
@@ -23,6 +27,10 @@ __all__ = [
     "list_renderers",
     "register_lazy_renderer",
     "register_renderer",
+    "render_layout_element",
+    "render_layout_elements",
+    "render_map",
+    "render_maps",
     "renderer_registry",
 ]
 
