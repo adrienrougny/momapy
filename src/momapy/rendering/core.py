@@ -15,7 +15,6 @@ import momapy.positioning
 import momapy.geometry
 import momapy.builder
 import momapy.core
-import momapy.core.builders
 import momapy.core.elements
 import momapy.core.map
 
@@ -156,9 +155,7 @@ def render_layout_elements(
                     new_layout_elements.append(
                         momapy.builder.builder_from_object(layout_element)
                     )
-                elif isinstance(
-                    layout_element, momapy.core.builders.LayoutElementBuilder
-                ):
+                elif isinstance(layout_element, momapy.builder.Builder):
                     new_layout_elements.append(copy.deepcopy(layout_element))
             layout_elements = new_layout_elements
         if style_sheet is not None:

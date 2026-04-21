@@ -11,10 +11,10 @@ import pyparsing
 import copy
 
 
+import momapy.builder
 import momapy.coloring
 import momapy.drawing
 import momapy.core
-import momapy.core.builders
 import momapy.core.elements
 import momapy.core.map
 
@@ -140,12 +140,10 @@ def combine_style_sheets(
 
 
 def apply_style_collection(
-    layout_element: (
-        momapy.core.elements.LayoutElement | momapy.core.builders.LayoutElementBuilder
-    ),
+    layout_element: (momapy.core.elements.LayoutElement | momapy.builder.Builder),
     style_collection: StyleCollection,
     strict: bool = True,
-) -> momapy.core.elements.LayoutElement | momapy.core.builders.LayoutElementBuilder:
+) -> momapy.core.elements.LayoutElement | momapy.builder.Builder:
     """Apply a StyleCollection to a layout element.
 
     Args:
@@ -182,20 +180,14 @@ def apply_style_sheet(
     map_or_layout_element: (
         momapy.core.map.Map
         | momapy.core.elements.LayoutElement
-        | momapy.core.builders.MapBuilder
-        | momapy.core.builders.LayoutElementBuilder
+        | momapy.builder.Builder
     ),
     style_sheet: StyleSheet,
     strict: bool = True,
     ancestors: collections.abc.Collection[
-        momapy.core.elements.LayoutElement | momapy.core.builders.LayoutElementBuilder
+        momapy.core.elements.LayoutElement | momapy.builder.Builder
     ] = None,
-) -> (
-    momapy.core.map.Map
-    | momapy.core.elements.LayoutElement
-    | momapy.core.builders.LayoutElementBuilder
-    | momapy.core.builders.MapBuilder
-):
+) -> momapy.core.map.Map | momapy.core.elements.LayoutElement | momapy.builder.Builder:
     """Apply a StyleSheet to a layout element or map layout recursively.
 
     Args:
@@ -214,7 +206,7 @@ def apply_style_sheet(
         is_builder = False
     else:
         is_builder = True
-    if isinstance(map_or_layout_element, momapy.core.builders.MapBuilder):
+    if momapy.builder.isinstance_or_builder(map_or_layout_element, momapy.core.map.Map):
         layout_element = map_or_layout_element.layout
     else:
         layout_element = map_or_layout_element
@@ -252,11 +244,9 @@ class Selector(object):
     @abc.abstractmethod
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ) -> bool:
         """Check if the layout element matches this selector.
@@ -291,11 +281,9 @@ class TypeSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if the object's class name matches exactly.
@@ -334,11 +322,9 @@ class ClassSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if the object is an instance of the specified class.
@@ -375,11 +361,9 @@ class IdSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if the object has the specified id.
@@ -418,11 +402,9 @@ class ChildSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if the object is a direct child matching the criteria.
@@ -466,11 +448,9 @@ class DescendantSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if the object is a descendant matching the criteria.
@@ -513,11 +493,9 @@ class OrSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if any selector in the tuple matches.
@@ -552,11 +530,9 @@ class CompoundSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if all selectors in the tuple match.
@@ -591,11 +567,9 @@ class NotSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement
-        | momapy.core.builders.LayoutElementBuilder,
+        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
         ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement
-            | momapy.core.builders.LayoutElementBuilder
+            momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
     ):
         """Check if none of the selectors in the tuple match.
