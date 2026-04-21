@@ -221,14 +221,41 @@ def _make_builder_cls(
     builder_namespace["build"] = _builder_build
     builder_namespace["from_object"] = classmethod(_builder_from_object)
     builder_namespace["_cls_to_build"] = cls
-    # We add the undundered methods from the non-builder class
-    # Do we really want this? Should we keep builders really only to build?
-    for member in inspect.getmembers(cls):
-        func_name = member[0]
-        func = member[1]
-
-        if not func_name.startswith("__") and not func_name == "_cls_to_build":
-            builder_namespace[func_name] = func
+    # Non-dunder methods from the source class are copied so builders
+    # share helper methods. User-defined arithmetic / iteration /
+    # __post_init__ dunders are also copied.
+    _COPIED_DUNDERS = {
+        "__post_init__",
+        "__add__",
+        "__radd__",
+        "__sub__",
+        "__rsub__",
+        "__mul__",
+        "__rmul__",
+        "__truediv__",
+        "__rtruediv__",
+        "__floordiv__",
+        "__mod__",
+        "__neg__",
+        "__pos__",
+        "__abs__",
+        "__iter__",
+        "__len__",
+        "__contains__",
+        "__lt__",
+        "__le__",
+        "__gt__",
+        "__ge__",
+    }
+    for func_name, func in inspect.getmembers(cls):
+        if func_name == "_cls_to_build":
+            continue
+        if func_name.startswith("__"):
+            if func_name not in _COPIED_DUNDERS:
+                continue
+            if func_name not in cls.__dict__:
+                continue
+        builder_namespace.setdefault(func_name, func)
     # We add the transformed bases
     cls_bases = [get_or_make_builder_cls(base_cls) for base_cls in cls.__bases__]
     builder_bases = builder_bases + [
