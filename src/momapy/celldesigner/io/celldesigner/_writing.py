@@ -71,6 +71,78 @@ def _are_collinear(p1, p2, p3, epsilon=1e-6):
     return abs(cross) < epsilon
 
 
+def _is_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6):
+    """Check whether a (origin, unit_x, unit_y) frame is singular.
+
+    The frame is singular when the basis vectors (unit_x - origin) and
+    (unit_y - origin) are parallel, which includes the cases where any
+    two of the three points coincide.
+
+    Args:
+        origin: Origin point.
+        unit_x: Unit x-axis point.
+        unit_y: Unit y-axis point.
+        epsilon: Tolerance on the determinant.
+
+    Returns:
+        True if the frame would produce a singular transformation.
+    """
+    determinant = (unit_x.x - origin.x) * (unit_y.y - origin.y) - (
+        unit_y.x - origin.x
+    ) * (unit_x.y - origin.y)
+    return abs(determinant) < epsilon
+
+
+def _make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0):
+    """Return a well-conditioned (origin, unit_x, unit_y) triple.
+
+    When the supplied frame is singular (coincident or collinear points),
+    the origin is nudged perpendicular to the dominant available axis so
+    the resulting basis becomes non-singular. When all three points
+    coincide, an orthonormal basis around the nudged origin is
+    synthesized. A non-degenerate input is returned unchanged.
+
+    Args:
+        origin: Origin point.
+        unit_x: Unit x-axis point.
+        unit_y: Unit y-axis point.
+        epsilon: Tolerance on the determinant.
+        scale: Magnitude of the perturbation, in input-coordinate units.
+
+    Returns:
+        A (origin, unit_x, unit_y) triple forming a non-singular frame.
+    """
+    if not _is_degenerate_frame(origin, unit_x, unit_y, epsilon):
+        return origin, unit_x, unit_y
+    candidate_axes = [
+        (unit_y.x - unit_x.x, unit_y.y - unit_x.y),
+        (unit_x.x - origin.x, unit_x.y - origin.y),
+        (unit_y.x - origin.x, unit_y.y - origin.y),
+    ]
+    direction_x = 1.0
+    direction_y = 0.0
+    for candidate_x, candidate_y in candidate_axes:
+        length = math.hypot(candidate_x, candidate_y)
+        if length >= epsilon:
+            direction_x = candidate_x / length
+            direction_y = candidate_y / length
+            break
+    perpendicular_x = -direction_y * scale
+    perpendicular_y = direction_x * scale
+    new_origin = Point(origin.x + perpendicular_x, origin.y + perpendicular_y)
+    if not _is_degenerate_frame(new_origin, unit_x, unit_y, epsilon):
+        return new_origin, unit_x, unit_y
+    new_unit_x = Point(
+        new_origin.x + direction_x * scale,
+        new_origin.y + direction_y * scale,
+    )
+    new_unit_y = Point(
+        new_origin.x + perpendicular_x,
+        new_origin.y + perpendicular_y,
+    )
+    return new_origin, new_unit_x, new_unit_y
+
+
 _SBML_SID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_]")
 _XML_ID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_\-\.:]")
 _XML_ID_INVALID_START_RE = re.compile(r"^[^a-zA-Z_:]")
@@ -332,6 +404,9 @@ def compute_cd_angle(modification_position, species_layout):
 def _build_frame_and_inverse(origin, unit_x, unit_y):
     """Build a coordinate frame and return its inverse transformation.
 
+    Perturbs the frame points when they are degenerate (coincident or
+    collinear) so the returned transformation is always invertible.
+
     Args:
         origin: Origin point.
         unit_x: Unit x-axis point.
@@ -340,6 +415,7 @@ def _build_frame_and_inverse(origin, unit_x, unit_y):
     Returns:
         The inverse MatrixTransformation.
     """
+    origin, unit_x, unit_y = _make_non_degenerate_frame(origin, unit_x, unit_y)
     transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     return transformation.inverted()
 
@@ -412,8 +488,6 @@ def inverse_edit_points_left_t_shape(
     origin_f1 = reactant_layout_0.center()
     unit_x_f1 = reactant_layout_1.center()
     unit_y_f1 = product_layout.center()
-    if _are_collinear(unit_x_f1, unit_y_f1, origin_f1):
-        origin_f1 = Point(origin_f1.x + 1, origin_f1.y + 1)
     inverse_f1 = _build_frame_and_inverse(origin_f1, unit_x_f1, unit_y_f1)
     # The T-junction is the start point of the main reaction path
     t_junction = reaction_layout.points()[0]
@@ -503,8 +577,6 @@ def inverse_edit_points_right_t_shape(
     origin_f1 = reactant_layout.center()
     unit_x_f1 = product_layout_0.center()
     unit_y_f1 = product_layout_1.center()
-    if _are_collinear(unit_x_f1, unit_y_f1, origin_f1):
-        origin_f1 = Point(origin_f1.x + 1, origin_f1.y + 1)
     inverse_f1 = _build_frame_and_inverse(origin_f1, unit_x_f1, unit_y_f1)
     # The T-junction is the end point of the main reaction path
     t_junction = reaction_layout.points()[-1]

@@ -1,12 +1,13 @@
 """CellDesigner XML writer (new, model-first approach)."""
 
 import dataclasses
+import math
 import os
 
 import lxml.etree
 
 from momapy.drawing import NoneValue, NoneValueType
-from momapy.geometry import Point, get_transformation_for_frame
+from momapy.geometry import get_transformation_for_frame
 from momapy.io.core import Writer, WriterResult
 from momapy.io.utils import WritingContext
 from momapy.utils import check_parent_dir_exists
@@ -2611,16 +2612,24 @@ def _make_celldesigner_connect_scheme(
                 origin = rl[0].center()
                 unit_x = rl[1].center()
                 unit_y = product_layout.center()
-                if writing._are_collinear(unit_x, unit_y, origin):
-                    origin = Point(origin.x + 1, origin.y + 1)
+                origin, unit_x, unit_y = writing._make_non_degenerate_frame(
+                    origin, unit_x, unit_y
+                )
                 trans = get_transformation_for_frame(origin, unit_x, unit_y)
                 roundtrip = ep.transformed(trans)
                 dist = (roundtrip.x - t_junction.x) ** 2 + (
                     roundtrip.y - t_junction.y
                 ) ** 2
-                if dist < best_dist:
+                if math.isfinite(dist) and dist < best_dist:
                     best_dist = dist
                     best_result = result
+            if best_result is None:
+                best_result = writing.inverse_edit_points_left_t_shape(
+                    reaction_layout,
+                    reactant_layouts,
+                    product_layout,
+                    consumption_layouts,
+                )
             (
                 all_edit_points,
                 num0,
@@ -2751,16 +2760,24 @@ def _make_celldesigner_connect_scheme(
                 origin = reactant_layout.center()
                 unit_x = pl[0].center()
                 unit_y = pl[1].center()
-                if writing._are_collinear(unit_x, unit_y, origin):
-                    origin = Point(origin.x + 1, origin.y + 1)
+                origin, unit_x, unit_y = writing._make_non_degenerate_frame(
+                    origin, unit_x, unit_y
+                )
                 trans = get_transformation_for_frame(origin, unit_x, unit_y)
                 roundtrip = ep.transformed(trans)
                 dist = (roundtrip.x - t_junction.x) ** 2 + (
                     roundtrip.y - t_junction.y
                 ) ** 2
-                if dist < best_dist:
+                if math.isfinite(dist) and dist < best_dist:
                     best_dist = dist
                     best_result = result
+            if best_result is None:
+                best_result = writing.inverse_edit_points_right_t_shape(
+                    reaction_layout,
+                    reactant_layout,
+                    product_layouts,
+                    production_layouts,
+                )
             (
                 all_edit_points,
                 num0,
