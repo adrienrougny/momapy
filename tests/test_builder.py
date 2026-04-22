@@ -1,4 +1,5 @@
 """Tests for momapy.builder module."""
+
 import pytest
 import dataclasses
 import momapy.builder
@@ -7,6 +8,7 @@ import momapy.builder
 @dataclasses.dataclass(frozen=True)
 class SimpleClass:
     """Simple dataclass for testing builders."""
+
     value: int
     name: str
 

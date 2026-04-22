@@ -124,9 +124,7 @@ class TestPath:
         )
         primitives = path.to_geometry()
         assert len(primitives) == 4
-        assert all(
-            isinstance(p, momapy.geometry.Segment) for p in primitives
-        )
+        assert all(isinstance(p, momapy.geometry.Segment) for p in primitives)
 
     def test_path_transformed_with_translation(self):
         """Test Path.transformed() shifts coordinates correctly."""

@@ -1,4 +1,5 @@
 """Shared fixtures for rendering tests."""
+
 import pytest
 import tempfile
 import os
@@ -14,7 +15,7 @@ def get_sbgn_files():
     """Get all SBGN files from the maps directory."""
     if not os.path.exists(SBGN_MAPS_DIR):
         return []
-    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith('.sbgn')]
+    return [f for f in os.listdir(SBGN_MAPS_DIR) if f.endswith(".sbgn")]
 
 
 SBGN_FILES = get_sbgn_files()

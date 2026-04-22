@@ -1,4 +1,5 @@
 """Tests for momapy.monitoring module."""
+
 import pytest
 import dataclasses
 import momapy.monitoring
@@ -7,6 +8,7 @@ import momapy.monitoring
 @dataclasses.dataclass
 class SampleObject:
     """Simple dataclass for testing monitoring."""
+
     value: int = 0
     name: str = "test"
 
@@ -14,6 +16,7 @@ class SampleObject:
 @dataclasses.dataclass
 class MonitoredSampleObject(momapy.monitoring.Monitored):
     """Monitored dataclass for testing."""
+
     value: int = 0
 
 

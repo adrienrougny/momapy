@@ -36,9 +36,7 @@ class TestScoreFont:
             weight=400,
             is_italic=False,
         )
-        score = momapy.core.fonts._score_font(
-            entry, "arial", 400, False
-        )
+        score = momapy.core.fonts._score_font(entry, "arial", 400, False)
         assert score == 0.0
 
     def test_family_mismatch_adds_ten(self):
@@ -48,9 +46,7 @@ class TestScoreFont:
             weight=400,
             is_italic=False,
         )
-        score = momapy.core.fonts._score_font(
-            entry, "arial", 400, False
-        )
+        score = momapy.core.fonts._score_font(entry, "arial", 400, False)
         assert score >= 10.0
 
     def test_italic_mismatch_adds_one(self):
@@ -60,9 +56,7 @@ class TestScoreFont:
             weight=400,
             is_italic=True,
         )
-        score = momapy.core.fonts._score_font(
-            entry, "arial", 400, False
-        )
+        score = momapy.core.fonts._score_font(entry, "arial", 400, False)
         assert score == 1.0
 
     def test_weight_difference(self):
@@ -72,9 +66,7 @@ class TestScoreFont:
             weight=700,
             is_italic=False,
         )
-        score = momapy.core.fonts._score_font(
-            entry, "arial", 400, False
-        )
+        score = momapy.core.fonts._score_font(entry, "arial", 400, False)
         assert 0 < score < 1
 
 

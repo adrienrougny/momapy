@@ -234,7 +234,9 @@ def test_child_selector_matches_direct_child():
     parent = momapy.core.layout.Layout(
         position=momapy.geometry.Point(0, 0), width=100, height=100, layout_elements=[]
     )
-    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(
+        text="Test", position=momapy.geometry.Point(10, 10)
+    )
 
     # Child with parent in ancestors
     # Using ClassSelector since Layout inherits from Node which inherits from GroupLayout
@@ -252,7 +254,9 @@ def test_child_selector_does_not_match_without_parent():
         parent_selector=parent_selector, child_selector=child_selector
     )
 
-    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(
+        text="Test", position=momapy.geometry.Point(10, 10)
+    )
 
     # Child without ancestors
     assert selector.select(child, []) is False
@@ -272,7 +276,9 @@ def test_child_selector_does_not_match_wrong_parent():
     wrong_parent = momapy.core.layout.TextLayout(
         text="Wrong Parent", position=momapy.geometry.Point(0, 0)
     )
-    child = momapy.core.layout.TextLayout(text="Test", position=momapy.geometry.Point(10, 10))
+    child = momapy.core.layout.TextLayout(
+        text="Test", position=momapy.geometry.Point(10, 10)
+    )
 
     # Child with wrong parent type in ancestors
     assert selector.select(child, [wrong_parent]) is False

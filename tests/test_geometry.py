@@ -330,6 +330,7 @@ class TestBbox:
 
     def test_around_points_generator(self):
         """Test around_points accepts a generator."""
+
         def gen():
             yield momapy.geometry.Point(0.0, 0.0)
             yield momapy.geometry.Point(4.0, 6.0)
@@ -551,6 +552,7 @@ class TestCubicBezierCurve:
             momapy.geometry.Point(2.0, 1.0),
         )
         import numpy
+
         points = curve.evaluate_multi(numpy.array([0.0, 0.5, 1.0]))
         assert len(points) == 3
         assert points[0].x == pytest.approx(0.0, abs=0.01)

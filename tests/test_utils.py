@@ -1,4 +1,5 @@
 """Tests for momapy.utils module."""
+
 import pytest
 import momapy.utils
 
@@ -14,34 +15,34 @@ class TestSurjectionDict:
 
     def test_init_with_items(self):
         """Test creating SurjectionDict with initial items."""
-        d = momapy.utils.SurjectionDict({'a': 1, 'b': 2, 'c': 1})
-        assert d['a'] == 1
-        assert d['b'] == 2
-        assert d['c'] == 1
+        d = momapy.utils.SurjectionDict({"a": 1, "b": 2, "c": 1})
+        assert d["a"] == 1
+        assert d["b"] == 2
+        assert d["c"] == 1
         assert 1 in d.inverse
-        assert set(d.inverse[1]) == {'a', 'c'}
+        assert set(d.inverse[1]) == {"a", "c"}
 
     def test_setitem(self):
         """Test setting items."""
         d = momapy.utils.SurjectionDict()
-        d['key1'] = 'value1'
-        assert d['key1'] == 'value1'
-        assert 'value1' in d.inverse
+        d["key1"] = "value1"
+        assert d["key1"] == "value1"
+        assert "value1" in d.inverse
 
     def test_delitem(self):
         """Test deleting items."""
-        d = momapy.utils.SurjectionDict({'a': 1, 'b': 2})
-        del d['a']
-        assert 'a' not in d
+        d = momapy.utils.SurjectionDict({"a": 1, "b": 2})
+        del d["a"]
+        assert "a" not in d
         assert 1 not in d.inverse
 
     def test_inverse_property(self):
         """Test inverse property."""
-        d = momapy.utils.SurjectionDict({'a': 1, 'b': 1, 'c': 2})
+        d = momapy.utils.SurjectionDict({"a": 1, "b": 1, "c": 2})
         inverse = d.inverse
         assert 1 in inverse
-        assert set(inverse[1]) == {'a', 'b'}
-        assert set(inverse[2]) == {'c'}
+        assert set(inverse[1]) == {"a", "b"}
+        assert set(inverse[2]) == {"c"}
 
 
 class TestFrozenSurjectionDict:
@@ -55,16 +56,16 @@ class TestFrozenSurjectionDict:
 
     def test_init_with_items(self):
         """Test creating FrozenSurjectionDict with items."""
-        d = momapy.utils.FrozenSurjectionDict({'a': 1, 'b': 2, 'c': 1})
-        assert d['a'] == 1
-        assert d['b'] == 2
-        assert set(d.inverse[1]) == {'a', 'c'}
+        d = momapy.utils.FrozenSurjectionDict({"a": 1, "b": 2, "c": 1})
+        assert d["a"] == 1
+        assert d["b"] == 2
+        assert set(d.inverse[1]) == {"a", "c"}
 
     def test_immutable(self):
         """Test that FrozenSurjectionDict is immutable."""
-        d = momapy.utils.FrozenSurjectionDict({'a': 1})
+        d = momapy.utils.FrozenSurjectionDict({"a": 1})
         with pytest.raises(Exception):  # frozendict raises TypeError or similar
-            d['b'] = 2
+            d["b"] = 2
 
 
 def test_get_element_from_collection():

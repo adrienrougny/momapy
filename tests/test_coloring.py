@@ -1,4 +1,5 @@
 """Tests for momapy.coloring module."""
+
 import pytest
 import momapy.coloring
 
@@ -144,10 +145,10 @@ def test_has_color():
 def test_predefined_colors():
     """Test that some predefined colors exist."""
     # Test a few standard colors
-    assert hasattr(momapy.coloring, 'black')
+    assert hasattr(momapy.coloring, "black")
     assert isinstance(momapy.coloring.black, momapy.coloring.Color)
 
-    assert hasattr(momapy.coloring, 'white')
+    assert hasattr(momapy.coloring, "white")
     assert isinstance(momapy.coloring.white, momapy.coloring.Color)
 
     # Check black is actually black

@@ -1,4 +1,5 @@
 """Tests for momapy.core module."""
+
 import dataclasses
 import math
 import pytest
@@ -90,10 +91,7 @@ def test_text_layout_with_custom_alignment(sample_point):
 def test_layout_creation(sample_point):
     """Test Layout creation."""
     layout = momapy.core.layout.Layout(
-        position=sample_point,
-        width=100,
-        height=100,
-        layout_elements=[]
+        position=sample_point, width=100, height=100, layout_elements=[]
     )
     assert layout.position == sample_point
     assert layout.width == 100
@@ -110,7 +108,7 @@ def test_layout_with_elements(sample_point):
         position=momapy.geometry.Point(0, 0),
         width=200,
         height=200,
-        layout_elements=[text_layout]
+        layout_elements=[text_layout],
     )
     assert len(layout.layout_elements) == 1
 

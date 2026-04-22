@@ -92,9 +92,7 @@ class TestCLIInfoCommand:
 
     def test_info_text_output(self, capsys):
         """Test info command text output."""
-        with mock.patch(
-            "sys.argv", ["momapy", "info", self.SBGN_MAP_PATH]
-        ):
+        with mock.patch("sys.argv", ["momapy", "info", self.SBGN_MAP_PATH]):
             momapy.cli.main()
         captured = capsys.readouterr()
         assert "SBGN Process Description" in captured.out
@@ -142,9 +140,10 @@ class TestCLIExportCommand:
 
     def test_export_to_stdout(self, capsys):
         """Test export command outputs XML to stdout when stdout is a TTY."""
-        with mock.patch(
-            "sys.argv", ["momapy", "export", self.SBGN_MAP_PATH]
-        ), mock.patch("sys.stdout.isatty", return_value=True):
+        with (
+            mock.patch("sys.argv", ["momapy", "export", self.SBGN_MAP_PATH]),
+            mock.patch("sys.stdout.isatty", return_value=True),
+        ):
             momapy.cli.main()
         captured = capsys.readouterr()
         assert "<?xml" in captured.out

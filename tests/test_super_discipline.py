@@ -16,6 +16,7 @@ counterparts and fails if any raw `super(...)` call appears.  Purely
 lexical mentions in docstrings/comments are ignored because the check
 runs against the parsed AST, not the source text.
 """
+
 import ast
 import pathlib
 
@@ -57,6 +58,5 @@ def test_no_raw_super_in_frozen_hierarchy():
     assert not offenders, (
         "Raw `super(...)` calls found in the frozen hierarchy. Use "
         "`momapy.builder.super_or_builder(OriginalClass, self)` instead "
-        "so builder instances do not raise TypeError.\n"
-        + "\n".join(offenders)
+        "so builder instances do not raise TypeError.\n" + "\n".join(offenders)
     )
