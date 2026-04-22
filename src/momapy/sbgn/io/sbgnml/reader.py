@@ -471,7 +471,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in auxiliary_units_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
-                        (auxiliary_unit_model_element, model_element),
+                        auxiliary_unit_model_element,
                         replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
@@ -674,7 +674,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in auxiliary_units_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
-                        (auxiliary_unit_model_element, model_element),
+                        auxiliary_unit_model_element,
                         replace=True,
                     )
         else:
@@ -762,7 +762,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in auxiliary_units_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
-                        (auxiliary_unit_model_element, model_element),
+                        auxiliary_unit_model_element,
                         replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
@@ -948,11 +948,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     layout_element
                 )
             if model_element is not None and layout_element is not None:
-                # Build a lookup of terminal_xml_id -> terminal_model for
-                # reference mapping
-                terminal_model_by_xml_id = {
-                    xml_id: t_model for t_model, _, xml_id in terminal_map_elements
-                }
                 for (
                     terminal_model_el,
                     terminal_layout_el,
@@ -960,21 +955,49 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in terminal_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         terminal_layout_el,
-                        (terminal_model_el, model_element),
+                        terminal_model_el,
                         replace=True,
                     )
                 for (
                     ref_model,
                     ref_layout,
-                    terminal_xml_id,
+                    _,
                 ) in reference_map_elements:
-                    terminal_model_el = terminal_model_by_xml_id.get(terminal_xml_id)
-                    if terminal_model_el is not None:
-                        reading_context.layout_model_mapping.add_mapping(
-                            ref_layout,
-                            (ref_model, terminal_model_el),
-                            replace=True,
-                        )
+                    reading_context.layout_model_mapping.add_mapping(
+                        ref_layout,
+                        ref_model,
+                        replace=True,
+                    )
+                for (
+                    terminal_model_el,
+                    terminal_layout_el,
+                    terminal_xml_id,
+                ) in terminal_map_elements:
+                    references_for_terminal = [
+                        (ref_model, ref_layout)
+                        for ref_model, ref_layout, xml_id in reference_map_elements
+                        if xml_id == terminal_xml_id
+                    ]
+                    if not references_for_terminal:
+                        continue
+                    frozenset_elements = {terminal_layout_el}
+                    for _, ref_layout in references_for_terminal:
+                        frozenset_elements.add(ref_layout)
+                        referenced_entity_layout = ref_layout.target
+                        if referenced_entity_layout is not None:
+                            existing_key = reading_context.layout_model_mapping._singleton_to_key.get(
+                                referenced_entity_layout
+                            )
+                            if existing_key is not None:
+                                frozenset_elements |= existing_key
+                            else:
+                                frozenset_elements.add(referenced_entity_layout)
+                    reading_context.layout_model_mapping.add_mapping(
+                        frozenset(frozenset_elements),
+                        terminal_model_el,
+                        replace=True,
+                        anchor=terminal_layout_el,
+                    )
                 reading_context.layout_model_mapping.add_mapping(
                     layout_element, model_element, replace=True
                 )
@@ -1048,12 +1071,31 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in reference_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         reference_layout_element,
-                        (reference_model_element, tag_model),
+                        reference_model_element,
                         replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
                     tag_layout, tag_model, replace=True
                 )
+                if reference_map_elements:
+                    frozenset_elements = {tag_layout}
+                    for _, reference_layout_element in reference_map_elements:
+                        frozenset_elements.add(reference_layout_element)
+                        referenced_entity_layout = reference_layout_element.target
+                        if referenced_entity_layout is not None:
+                            existing_key = reading_context.layout_model_mapping._singleton_to_key.get(
+                                referenced_entity_layout
+                            )
+                            if existing_key is not None:
+                                frozenset_elements |= existing_key
+                            else:
+                                frozenset_elements.add(referenced_entity_layout)
+                    reading_context.layout_model_mapping.add_mapping(
+                        frozenset(frozenset_elements),
+                        tag_model,
+                        replace=True,
+                        anchor=tag_layout,
+                    )
         else:
             tag_model = None
             tag_layout = None
@@ -1194,7 +1236,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in participant_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
-                        (participant_model_element, model_element),
+                        participant_model_element,
                         replace=True,
                     )
         else:
@@ -1351,7 +1393,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ) in input_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         input_layout_element,
-                        (input_model_element, model_element),
+                        input_model_element,
                         replace=True,
                     )
         else:

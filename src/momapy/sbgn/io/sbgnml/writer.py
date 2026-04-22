@@ -28,7 +28,9 @@ import momapy.sbgn.io.sbgnml._writing_classification
 def _get_layout_elements(writing_context, model_element):
     """Get all layout elements for a model element.
 
-    Returns only non-frozenset items from the inverse mapping lookup.
+    Returns singleton layouts plus the anchors of any frozenset keys
+    mapped to the model element. Duplicates are removed while preserving
+    order.
 
     Args:
         writing_context: The current writing context.
@@ -37,10 +39,23 @@ def _get_layout_elements(writing_context, model_element):
     Returns:
         A list of layout elements (may be empty).
     """
-    result = writing_context.map_.layout_model_mapping.get_mapping(model_element)
+    mapping = writing_context.map_.layout_model_mapping
+    result = mapping.get_mapping(model_element)
     if result is None or not isinstance(result, list):
         return []
-    return [item for item in result if not isinstance(item, frozenset)]
+    layout_elements = []
+    seen = set()
+    for item in result:
+        if isinstance(item, frozenset):
+            for anchor in mapping._singleton_to_key.inverse.get(item, []):
+                if anchor not in seen:
+                    seen.add(anchor)
+                    layout_elements.append(anchor)
+        else:
+            if item not in seen:
+                seen.add(item)
+                layout_elements.append(item)
+    return layout_elements
 
 
 def _get_frozenset_keys(writing_context, model_element):
@@ -70,15 +85,13 @@ def _get_child_layout_element(writing_context, child_model, parent_model):
     Returns:
         The layout element, or ``None``.
     """
-    result = writing_context.map_.layout_model_mapping.get_mapping(
-        (child_model, parent_model)
+    layout_elements = (
+        writing_context.map_.layout_model_mapping.get_child_layout_elements(
+            child_model, parent_model
+        )
     )
-    if result is None:
-        return None
-    if isinstance(result, list):
-        for item in result:
-            if not isinstance(item, frozenset):
-                return item
+    if layout_elements:
+        return layout_elements[0]
     return None
 
 
