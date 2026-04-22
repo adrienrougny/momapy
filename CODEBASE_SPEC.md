@@ -38,8 +38,8 @@ Purpose: top-level `Map` combining model, layout, and mapping.
 ### `src/momapy/core/mapping.py`
 Purpose: bidirectional layout↔model mappings.
 
-- `LayoutModelMapping(FrozenSurjectionDict)` — immutable; `get_mapping(map_element)`, `is_submapping(other)`.
-- `LayoutModelMappingBuilder(SurjectionDict, Builder)` — mutable; `add_mapping(layout_element, model_element, replace=False, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`.
+- `LayoutModelMapping(FrozenSurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`. Carries `_singleton_to_key: FrozenSurjectionDict` mapping each frozenset anchor to its frozenset key.
+- `LayoutModelMappingBuilder(SurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, replace=False, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
 
 ### `src/momapy/core/layout.py`
 Purpose: visual layout element hierarchy.

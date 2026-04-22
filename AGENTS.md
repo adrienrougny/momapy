@@ -273,11 +273,20 @@ Writers use a **model-first** approach: iterate model collections in dependency 
 
 ### layout_model_mapping
 
-- Simple elements (compartments, entity pools): singleton layout key → model element
-- Child elements (state variables, subunits): singleton layout key → `(child_model, parent_model)` tuple
-- Processes/reactions: **frozenset** key (process layout + participant arcs + participant targets) → process model. Each participant arc is also separately mapped as arc → `(participant_model, process_model)`.
+Every value in the mapping is a plain model element — there are no tuple values. Keys are either a singleton layout element or a frozenset of layout elements.
+
+- Simple elements (compartments, entity pools, activities): singleton layout key → model element
+- Child elements (state variables, units of information, subunits, modifications, terminals, reactants/products, logical operator inputs, tag/terminal references): singleton layout key → child model element
+- Processes/reactions: **frozenset** key (process layout + participant arcs + participant targets) → process model
+- Logical operators / boolean logic gates: **frozenset** key (operator layout + logic arcs + input targets) → operator model
 - Modulations: **frozenset** key (modulation arc + source frozenset + target frozenset) → modulation model. Uses `_singleton_to_key` to resolve source/target frozensets.
-- Each frozenset has exactly one **anchor** registered in `_singleton_to_key`.
+- Tag/terminal with references: **frozenset** key (tag/terminal layout + reference arcs + referenced entity layouts) → tag/terminal model
+- Each frozenset has exactly one **anchor** registered in `_singleton_to_key` (a `SurjectionDict`, so `inverse` gives frozenset → anchor in O(1))
+
+`LayoutModelMapping.get_child_layout_elements(child_model_element, parent_model_element)` is the single helper used to look up the layout elements representing a child under a given parent. It computes the intersection of two sets:
+
+- **S1** (layouts under the parent): children of each container layout mapped to the parent, plus members of each frozenset key mapped to the parent.
+- **S2** (layouts for the child): singleton layouts mapped to the child, plus the anchors of any frozenset keys mapped to the child.
 
 ## Testing Patterns
 
