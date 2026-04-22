@@ -242,7 +242,8 @@ An `API_REFERENCE.md` ships alongside this skill (and is symlinked at the repo r
 
 Match the project's own style so your output drops into the codebase cleanly:
 
-- Absolute imports only: `from momapy.sbgn.pd import Macromolecule` — never relative.
+- Absolute imports, spelling the full `momapy.x.y` path: `from momapy.sbgn.pd import Macromolecule`. No relative imports, no bare `import momapy.x.y`.
+- Re-exports in `__init__.py` use `from momapy.x.y import Name as Name` and list `Name` in `__all__`.
 - Rename on collision: `from momapy.meta.shapes import Rectangle as RectangleShape`.
 - `kw_only=True, frozen=True` on every dataclass that subclasses a momapy element.
 - Trailing underscore for reserved-word attributes: `id_`, `map_`, `type_`.
