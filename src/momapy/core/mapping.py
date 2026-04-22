@@ -3,8 +3,6 @@
 import typing
 import typing_extensions
 
-import frozendict
-
 import momapy.utils
 import momapy.builder
 import momapy.core.elements
@@ -18,21 +16,20 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         object.__setattr__(
             self,
             "_singleton_to_key",
-            frozendict.frozendict(),
+            momapy.utils.FrozenSurjectionDict(),
         )
 
     def get_mapping(
         self,
-        map_element: "momapy.core.elements.MapElement | tuple[momapy.core.elements.ModelElement, momapy.core.elements.ModelElement]",
+        map_element: "momapy.core.elements.MapElement",
     ) -> "momapy.core.elements.ModelElement | list[momapy.core.elements.LayoutElement]":
         """Return the model element or layout elements mapped to `map_element`.
 
         Lookup order:
         1. Direct key: `map_element` is a singleton or frozenset key in the
            mapping; returns the associated model element directly.
-        2. Inverse: `map_element` is a model element (or tuple thereof);
-           returns the list of layout elements (or frozenset keys) that map
-           to it.
+        2. Inverse: `map_element` is a model element; returns the list of
+           layout elements (or frozenset keys) that map to it.
         3. Anchor fallback: `map_element` was registered as the anchor of a
            frozenset key via the ``anchor`` argument of ``add_mapping``;
            returns the model element stored under that frozenset key.
@@ -49,6 +46,37 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
             return self[key]
         return None
 
+    def get_child_layout_elements(
+        self,
+        child_model_element: "momapy.core.elements.ModelElement",
+        parent_model_element: "momapy.core.elements.ModelElement",
+    ) -> "list[momapy.core.elements.LayoutElement]":
+        """Return the layout elements representing ``child_model_element`` under ``parent_model_element``.
+
+        Computes the intersection of two sets:
+
+        - ``S1``: layouts that belong under ``parent_model_element`` — the
+          children of each container layout mapped to the parent, plus the
+          members of each frozenset key mapped to the parent.
+        - ``S2``: layouts that represent ``child_model_element`` — each
+          singleton layout mapped to the child, plus the anchors of each
+          frozenset key mapped to the child.
+        """
+        child_s2 = set()
+        for key in self.inverse.get(child_model_element, []):
+            if isinstance(key, frozenset):
+                for anchor in self._singleton_to_key.inverse.get(key, []):
+                    child_s2.add(anchor)
+            else:
+                child_s2.add(key)
+        parent_s1 = set()
+        for parent_layout in self.inverse.get(parent_model_element, []):
+            if isinstance(parent_layout, frozenset):
+                parent_s1 |= parent_layout
+            elif hasattr(parent_layout, "layout_elements"):
+                parent_s1.update(parent_layout.layout_elements)
+        return list(parent_s1 & child_s2)
+
     def is_submapping(self, other) -> bool:
         """Return `true` if the mapping is a submapping of another `LayoutModelMapping`, `false` otherwise"""
         return self.items() <= other.items()
@@ -59,20 +87,41 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._singleton_to_key = {}
+        self._singleton_to_key = momapy.utils.SurjectionDict()
 
     def get_mapping(
         self,
-        map_element: "momapy.core.elements.MapElement | tuple[momapy.core.elements.ModelElement, momapy.core.elements.ModelElement]",
+        map_element: "momapy.core.elements.MapElement",
     ):
         if map_element in self:
             return self[map_element]
         return self.inverse.get(map_element)
 
+    def get_child_layout_elements(
+        self,
+        child_model_element: "momapy.core.elements.ModelElement",
+        parent_model_element: "momapy.core.elements.ModelElement",
+    ) -> "list[momapy.core.elements.LayoutElement]":
+        """Return the layout elements representing ``child_model_element`` under ``parent_model_element``."""
+        child_s2 = set()
+        for key in self.inverse.get(child_model_element, []):
+            if isinstance(key, frozenset):
+                for anchor in self._singleton_to_key.inverse.get(key, []):
+                    child_s2.add(anchor)
+            else:
+                child_s2.add(key)
+        parent_s1 = set()
+        for parent_layout in self.inverse.get(parent_model_element, []):
+            if isinstance(parent_layout, frozenset):
+                parent_s1 |= parent_layout
+            elif hasattr(parent_layout, "layout_elements"):
+                parent_s1.update(parent_layout.layout_elements)
+        return list(parent_s1 & child_s2)
+
     def add_mapping(
         self,
         layout_element: "momapy.core.elements.LayoutElement",
-        model_element: "momapy.core.elements.ModelElement | tuple[momapy.core.elements.ModelElement, momapy.core.elements.ModelElement]",
+        model_element: "momapy.core.elements.ModelElement",
         replace=False,
         anchor=None,
     ):
@@ -81,8 +130,8 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
         Args:
             layout_element: The layout element (or frozenset of layout
                 elements) to use as the key.
-            model_element: The model element (or tuple of model elements)
-                to associate with the layout element.
+            model_element: The model element to associate with the layout
+                element.
             replace: When ``True`` and a mapping for ``model_element``
                 already exists, the existing layout elements are re-mapped
                 before adding the new entry.
@@ -118,7 +167,7 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
                 for key, value in self.items()
             }
         )
-        singleton_to_key = frozendict.frozendict(
+        singleton_to_key = momapy.utils.FrozenSurjectionDict(
             {
                 momapy.builder.object_from_builder(
                     singleton, builder_to_object=builder_to_object
@@ -153,19 +202,9 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
                 new_key = momapy.builder.builder_from_object(
                     key, object_to_builder=object_to_builder
                 )
-            if isinstance(value, tuple):
-                new_value = tuple(
-                    [
-                        momapy.builder.builder_from_object(
-                            element, object_to_builder=object_to_builder
-                        )
-                        for element in value
-                    ]
-                )
-            else:
-                new_value = momapy.builder.builder_from_object(
-                    value, object_to_builder=object_to_builder
-                )
+            new_value = momapy.builder.builder_from_object(
+                value, object_to_builder=object_to_builder
+            )
             items.append(
                 (
                     new_key,
@@ -173,14 +212,24 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
                 )
             )
         builder = cls(items)
-        builder._singleton_to_key = {
-            momapy.builder.builder_from_object(
+        singleton_to_key_items = {}
+        for singleton, key in obj._singleton_to_key.items():
+            new_singleton = momapy.builder.builder_from_object(
                 singleton, object_to_builder=object_to_builder
-            ): momapy.builder.builder_from_object(
-                key, object_to_builder=object_to_builder
             )
-            for singleton, key in obj._singleton_to_key.items()
-        }
+            if isinstance(key, frozenset):
+                new_key = frozenset(
+                    momapy.builder.builder_from_object(
+                        element, object_to_builder=object_to_builder
+                    )
+                    for element in key
+                )
+            else:
+                new_key = momapy.builder.builder_from_object(
+                    key, object_to_builder=object_to_builder
+                )
+            singleton_to_key_items[new_singleton] = new_key
+        builder._singleton_to_key = momapy.utils.SurjectionDict(singleton_to_key_items)
         return builder
 
 

@@ -39,7 +39,7 @@ class Map(MapElement):
 
     def get_mapping(
         self,
-        map_element: "MapElement | tuple",
+        map_element: "MapElement",
     ):
         """Return the layout elements mapped to the given model element"""
         return self.layout_model_mapping.get_mapping(map_element)
