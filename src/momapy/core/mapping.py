@@ -9,7 +9,39 @@ import momapy.core.elements
 
 
 class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
-    """Class for mappings between model elements and layout elements"""
+    """Mapping between model elements and layout elements.
+
+    A :class:`~momapy.core.Map` can draw the same model element several
+    times, so the relation between layouts and model elements is a
+    many-to-one mapping whose keys are layout elements and whose values
+    are model elements. Two kinds of keys are used:
+
+    - **Singleton key** — a single :class:`~momapy.core.LayoutElement`
+      that represents a model element on its own (a macromolecule
+      glyph, a compartment, a state variable, a modulation arc when
+      no cluster is needed).
+    - **Frozenset key** — a ``frozenset`` of several layout elements
+      that *jointly* represent one model element. Used whenever a
+      model concept is drawn as a cluster of shapes: a process and
+      its participant arcs and target layouts, a logical operator and
+      its input arcs and targets, a modulation arc with its source and
+      target clusters, a tag or terminal with its reference arcs.
+
+    When the key is a frozenset, it is useful to designate one of the
+    layouts as the **anchor** — the element that stands for the cluster
+    on its own. The anchor is typically the "central" layout (the
+    process glyph for a process, the operator glyph for a logical
+    operator, the modulation arc for a modulation, the tag glyph for a
+    tag). Anchors are registered through the ``anchor`` argument of
+    :meth:`LayoutModelMappingBuilder.add_mapping`. Once registered,
+    :meth:`get_mapping` resolves the anchor back to the model element
+    stored under the frozenset key, and other composite keys can
+    reference the cluster by its anchor rather than by the whole
+    frozenset.
+
+    See the SBGN-PD, SBGN-AF, and CellDesigner module documentation for
+    the per-model-element catalogue of key shapes and anchors.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

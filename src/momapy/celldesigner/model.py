@@ -3,6 +3,90 @@
 This module provides classes for representing the semantic model of a
 CellDesigner pathway, including species, reactions, modifications, and
 modulations.
+
+Layout-model mapping catalogue
+------------------------------
+
+This section lists, for each model-element category in CellDesigner,
+the shape of the corresponding key in
+:class:`~momapy.core.LayoutModelMapping`. See
+:class:`~momapy.core.LayoutModelMapping` for the general concepts
+(singleton keys, frozenset keys, anchors).
+
+Singleton keys (one layout element represents the model element):
+
++---------------------------------------------------------+-------------------------------------------------------------+
+| Model element                                           | Layout element used as the key                              |
++=========================================================+=============================================================+
+| :class:`Compartment`                                    | The compartment alias layout (e.g.                          |
+|                                                         | :class:`OvalCompartmentLayout`,                             |
+|                                                         | :class:`RectangleCompartmentLayout`,                        |
+|                                                         | :class:`CornerCompartmentLayout`,                           |
+|                                                         | :class:`LineCompartmentLayout`)                             |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`Species` and subclasses (e.g.                   | The species alias layout (e.g.                              |
+| :class:`GenericProtein`, :class:`Receptor`,             | :class:`GenericProteinLayout`, :class:`GeneLayout`).        |
+| :class:`IonChannel`, :class:`Gene`, :class:`RNA`,       | Active species use the ``*ActiveLayout`` variant (e.g.      |
+| :class:`Complex`, :class:`SimpleMolecule`,              | :class:`GenericProteinActiveLayout`)                        |
+| :class:`Ion`, :class:`Drug`, :class:`Phenotype`)        |                                                             |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`Modification`                                   | :class:`ModificationLayout`                                 |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`StructuralState`                                | :class:`StructuralStateLayout`                              |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`Reactant`                                       | :class:`ConsumptionLayout`                                  |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`Product`                                        | :class:`ProductionLayout`                                   |
++---------------------------------------------------------+-------------------------------------------------------------+
+| :class:`BooleanLogicGateInput`                          | :class:`LogicArcLayout`                                     |
++---------------------------------------------------------+-------------------------------------------------------------+
+
+Frozenset keys (a cluster of layout elements jointly represents the
+model element; the **anchor** is the layout that stands for the cluster
+on its own and must be passed as ``anchor=`` when calling
+:meth:`~momapy.core.LayoutModelMappingBuilder.add_mapping`):
+
++-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| Model element                                         | Members of the frozenset key                                | Anchor                           |
++=======================================================+=============================================================+==================================+
+| :class:`Reaction` and subclasses (e.g.                | The reaction layout (e.g.                                   | The reaction layout              |
+| :class:`StateTransition`,                             | :class:`StateTransitionLayout`,                             |                                  |
+| :class:`KnownTransitionOmitted`,                      | :class:`TranscriptionLayout`,                               |                                  |
+| :class:`UnknownTransition`,                           | :class:`DissociationLayout`) + every                        |                                  |
+| :class:`Transcription`, :class:`Translation`,         | :class:`ConsumptionLayout` and :class:`ProductionLayout`    |                                  |
+| :class:`Transport`,                                   | attached to the reaction + every reactant and product       |                                  |
+| :class:`HeterodimerAssociation`,                      | target layout (the species alias layouts those arcs point   |                                  |
+| :class:`Dissociation`, :class:`Truncation`)           | to)                                                         |                                  |
++-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| :class:`KnownOrUnknownModulation` and subclasses      | The modulation arc layout (e.g.                             | The modulation arc layout        |
+| (e.g. :class:`Modulation`, :class:`Catalysis`,        | :class:`CatalysisLayout`, :class:`InhibitionLayout`,        |                                  |
+| :class:`Inhibition`,                                  | :class:`PositiveInfluenceLayout`) + all layouts in the      |                                  |
+| :class:`PhysicalStimulation`,                         | source cluster (resolved via the source's own frozenset     |                                  |
+| :class:`Triggering`, :class:`PositiveInfluence`,      | key if it has one, for example when the source is a         |                                  |
+| :class:`NegativeInfluence`,                           | boolean gate, else the source layout itself) + all          |                                  |
+| :class:`UnknownModulation` and its subclasses)        | layouts in the target cluster (resolved the same way)       |                                  |
++-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| :class:`BooleanLogicGate` and subclasses (e.g.        | The gate layout (e.g. :class:`AndGateLayout`,               | The gate layout                  |
+| :class:`AndGate`, :class:`OrGate`,                    | :class:`OrGateLayout`) + every :class:`LogicArcLayout`      |                                  |
+| :class:`NotGate`, :class:`UnknownGate`)               | input + every target species alias layout those logic arcs  |                                  |
+|                                                       | point to                                                    |                                  |
++-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+
+Notes:
+
+- :class:`SpeciesTemplate` and subclasses (e.g.
+  :class:`GenericProteinTemplate`, :class:`GeneTemplate`),
+  :class:`ModificationResidue`, and :class:`Region` have no layout key:
+  templates and their residues or regions are not drawn directly —
+  only their :class:`Species` instances and the
+  :class:`Modification` or :class:`StructuralState` objects they carry
+  are.
+- :class:`KnownOrUnknownModulator` and its subclasses (e.g.
+  :class:`Catalyzer`, :class:`Inhibitor`,
+  :class:`PhysicalStimulator`, :class:`Trigger`) are modifier
+  references: the modulation cluster above is what is stored in the
+  mapping. Modulator metadata lives on the source side of that
+  cluster.
 """
 
 import dataclasses
