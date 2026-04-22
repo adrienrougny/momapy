@@ -46,7 +46,7 @@ def _python_files():
 def test_no_raw_super_in_frozen_hierarchy():
     offenders = []
     for path in _python_files():
-        source = path.read_text()
+        source = path.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(path))
         for node in ast.walk(tree):
             if (
