@@ -66,7 +66,7 @@ All optional dependencies can also be installed together:
 Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes reading a map and exploring its model:
 
 ```python
-from momapy.io.core import read
+from momapy.io import read
 
 map_ = read("my_map.sbgn").obj
 for process in map_.model.processes:
@@ -76,7 +76,7 @@ for process in map_.model.processes:
 Or rendering its layout:
 
 ```python
-from momapy.rendering.core import render_map
+from momapy.rendering import render_map
 
 render_map(map_, "my_file.svg")
 ```

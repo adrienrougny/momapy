@@ -5,7 +5,7 @@ description: Build, read, write, modify, or render SBGN (Process Description / A
 
 # momapy
 
-`momapy` is a Python library for working with **molecular maps**: SBGN (PD and AF) and CellDesigner. It separates a map's **semantics** (what the diagram means) from its **visual layout** (how it is drawn) and provides readers, writers, renderers, and CSS-like styling.
+`momapy` is a Python library for working with **molecular maps**: SBGN (PD and AF) and CellDesigner. It separates a map's **semantics** (what the diagram represents) from its **visual layout** (how it is drawn) and provides readers, writers, renderers, and CSS-like styling.
 
 This skill captures the rules and recipes you need to write correct momapy code. **Read `momapy`'s installed source** (or its docs at <https://adrienrougny.github.io/momapy/>) for exact signatures — class hierarchies are large.
 
@@ -13,7 +13,7 @@ This skill captures the rules and recipes you need to write correct momapy code.
 
 ## Mental model
 
-A `momapy.core.map.Map` has three fields:
+A `momapy.core.Map` has three fields:
 
 - **`model`** — semantic content. Entity pools, processes, modulations, compartments, … (subclasses of `ModelElement`).
 - **`layout`** — visual content. Positions, sizes, shapes, arcs, styles (subclasses of `LayoutElement`).
@@ -22,7 +22,7 @@ A `momapy.core.map.Map` has three fields:
 You can have several layout elements representing the same model element (the same molecule drawn twice). The mapping is what tells you "this glyph means *that* molecule".
 
 ```python
-from momapy.io.core import read
+from momapy.io import read
 
 result = read("map.sbgn")
 map_ = result.obj
@@ -71,7 +71,7 @@ If you ever feel tempted to do `object.__setattr__(obj, "field", value)` to bypa
 ## Reading a map
 
 ```python
-from momapy.io.core import read
+from momapy.io import read
 
 # Format auto-detected from file extension; pass reader="sbgnml" / "celldesigner" / "pickle" to force.
 result = read("map.sbgn")
@@ -97,7 +97,7 @@ Reader-specific options can be passed as kwargs to `read()` (e.g. `with_annotati
 ## Writing a map
 
 ```python
-from momapy.io.core import write
+from momapy.io import write
 
 write(map_, "out.sbgn", writer="sbgnml")
 write(map_, "out.xml", writer="celldesigner")
@@ -119,7 +119,7 @@ Three rendering backends are available:
 | `skia` | pdf, svg, png, jpeg, webp | `pip install momapy[skia]` |
 
 ```python
-from momapy.rendering.core import render_map
+from momapy.rendering import render_map
 from momapy.styling import StyleSheet
 
 render_map(map_, "out.svg")                       # svg_native, auto-detected from extension
@@ -140,7 +140,7 @@ The full pattern: read → builder → mutate → build → write.
 
 ```python
 from momapy.builder import builder_from_object
-from momapy.io.core import read, write
+from momapy.io import read, write
 from momapy import coloring
 
 result = read("map.sbgn")
@@ -211,8 +211,8 @@ When you need an exact signature, prefer reading the source over guessing — cl
 | Geometry (`Point`, `Bbox`, transformations) | `momapy/geometry.py` |
 | Drawing primitives | `momapy/drawing.py` |
 | Builder utilities | `momapy/builder.py` |
-| SBGN PD model + layout classes | `momapy/sbgn/pd.py` |
-| SBGN AF model + layout classes | `momapy/sbgn/af.py` |
+| SBGN PD model + layout classes | `momapy/sbgn/pd/` |
+| SBGN AF model + layout classes | `momapy/sbgn/af/` |
 | CellDesigner model + layout | `momapy/celldesigner/` |
 | SBGN-ML reader/writer | `momapy/sbgn/io/sbgnml/` |
 | Generic shapes / nodes / arcs | `momapy/meta/` |

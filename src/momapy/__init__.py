@@ -5,8 +5,8 @@ molecular maps, with support for various formats including SBGN-ML and CellDesig
 
 Examples:
     ```python
-    from momapy.io.core import read
-    from momapy.rendering.core import render_map
+    from momapy.io import read
+    from momapy.rendering import render_map
 
     # Read a molecular map
     map_ = read("map.sbgn").obj
