@@ -113,7 +113,7 @@ Three rendering backends are available:
 
 | Backend | Formats | Install |
 |---|---|---|
-| `svg_native` | svg | always available |
+| `svg-native` | svg | always available |
 | `cairo` | pdf, svg, png, ps | `pip install momapy[cairo]` |
 | `skia` | pdf, svg, png, jpeg, webp | `pip install momapy[skia]` |
 
@@ -121,9 +121,10 @@ Three rendering backends are available:
 from momapy.rendering import render_map
 from momapy.styling import StyleSheet
 
-render_map(map_, "out.svg")                       # svg_native, auto-detected from extension
+render_map(map_, "out.svg")                       # svg-native, auto-detected from extension
 render_map(map_, "out.pdf", renderer="cairo")
 render_map(map_, "out.png", renderer="skia")
+```
 
 For multi-page output or rendering a list of maps, use `render_maps([...], ...)`.
 
@@ -197,10 +198,11 @@ The `momapy` CLI wraps the most common operations:
 momapy render map.sbgn -o out.svg
 momapy render map.sbgn -o out.pdf -r cairo -s style.css
 momapy export map.sbgn -o out.xml          # convert SBGN-ML → CellDesigner
-momapy visualize map.sbgn                  # GLFW window
-momapy tidy map.sbgn -o tidied.sbgn
-momapy list readers                        # also: writers, renderers, styles
-momapy info                                # version + capabilities
+momapy visualize map.sbgn                  # opens an interactive viewer in the browser
+momapy tidy all map.sbgn -o tidied.sbgn
+momapy style map.sbgn -p sbgned -o styled.sbgn
+momapy list readers                        # also: writers, renderers, styles, colors, attributes
+momapy info map.sbgn                       # inspect a map file (add --format json for JSON)
 ```
 
 ---
