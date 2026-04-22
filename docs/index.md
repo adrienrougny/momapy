@@ -6,9 +6,19 @@ Its key feature is its definition of a map, that is formed of two entities: a mo
 This definition is borrowed from [SBML](https://www.sbml.org) and its extensions layout+render, that allow users to add a layout to an SBML model.
 <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> aims at extending this definition to SBGN and CellDesigner maps.
 
-Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span>:
+Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> include the following:
 
-![Image title](features.png)
+* support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read/write, with annotations and notes)
+* decomposition of a map object into:
+    * a model object;
+    * a layout object;
+    * a mapping from layout element objects to model element objects.
+* map, model, layout and mapping objects comparison; fast object in set checking
+* rendering of maps to images (SVG, PDF, JPEG, PNG, WebP) and other surfaces (e.g. GLFW window)
+* support for styling and CSS-like stylesheets (including effects such as shadows)
+* automatic geometry and anchors (for arcs, shape borders)
+* local positioning (e.g. right of shape, fit set of shapes)
+* easy extension with new model and layout element types
 
 ## Installation
 
@@ -50,7 +60,7 @@ All optional dependencies can also be installed together:
 Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes reading a map and exploring its model:
 
 ```python
-from momapy.io.core import read
+from momapy.io import read
 
 map_ = read("my_map.sbgn").obj
 for process in map_.model.processes:
@@ -60,7 +70,7 @@ for process in map_.model.processes:
 Or rendering its layout:
 
 ```python
-from momapy.rendering.core import render_map
+from momapy.rendering import render_map
 
 render_map(map_, "my_file.svg")
 ```

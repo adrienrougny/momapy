@@ -9,7 +9,9 @@ Available subcommands:
 - **`render`** — Render maps to image formats (SVG, PDF, PNG, JPEG, WebP)
 - **`export`** — Export maps back to their original format (useful for roundtrip testing)
 - **`info`** — Print a summary of a map file's contents
-- **`list`** — List available readers, writers, or renderers
+- **`list`** — List available readers, writers, renderers, colors, styles, or stylable attributes
+- **`tidy`** — Apply layout tidying operations (fit nodes, snap arcs, etc.)
+- **`style`** — Bake CSS stylesheets into map data and output the styled map
 - **`visualize`** — Open an interactive viewer in the default web browser
 
 ## Synopsis
@@ -18,7 +20,9 @@ Available subcommands:
 momapy render <input_file_path>... -o <output_file_path> [options]
 momapy export <input_file_path> -o <output_file_path> [options]
 momapy info <input_file_path> [options]
-momapy list {readers,writers,renderers}
+momapy list {readers,writers,renderers,colors,styles,attributes}
+momapy tidy <operation> [<input_file_path>] [options]
+momapy style [<input_file_path>] [options]
 momapy visualize <input_file_path> [options]
 ```
 
@@ -40,7 +44,8 @@ Renders one or more molecular maps to an image file.
 | `--renderer` | `-r` | Renderer to use: `svg-native`, `skia`, `cairo` (auto-detected if omitted) |
 | `--format` | `-f` | Output format: `svg`, `pdf`, `png`, `jpeg`, `webp` (inferred from extension if omitted) |
 | `--multi-pages` | `-m` | Render one map per page (for multi-input PDF) |
-| `--to-top-left` | `-t` | Move elements to the top-left of the page |
+| `--to-top-left` | `-l` | Move elements to the top-left of the page |
+| `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
 | `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
 
 ### Renderer/Format Compatibility
@@ -103,7 +108,7 @@ momapy render my_map.sbgn -o output.svg -s base.css -s overrides.css
 Move all elements to the top-left corner of the output:
 
 ```bash
-momapy render my_map.sbgn -o output.svg -t
+momapy render my_map.sbgn -o output.svg -l
 ```
 
 ## Installation
@@ -137,7 +142,8 @@ Reads a map and writes it back in the same format. This is useful for roundtrip 
 | Option | Short | Description |
 |--------|-------|-------------|
 | `--output-file-path` | `-o` | Output file path (default: stdout) |
-| `--tidy` | `-c` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--to-top-left` | `-l` | Move elements to the top-left of the page |
 | `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
 
 The writer is inferred automatically from the map type: SBGN maps are exported using the `sbgnml` writer, CellDesigner maps using the `celldesigner` writer.
@@ -171,7 +177,7 @@ momapy export my_map.xml -o output.xml
 Tidy the map before exporting (reroute arcs, fit labels, etc.):
 
 ```bash
-momapy export my_map.sbgn -o output.sbgn -c
+momapy export my_map.sbgn -o output.sbgn -t
 ```
 
 #### Apply style sheets
@@ -267,13 +273,18 @@ momapy info my_map.xml
 
 ## Subcommand: `list`
 
-Lists available readers, writers, or renderers registered in momapy. For renderers, also shows supported output formats and whether the required dependencies are installed.
+Lists plugins, named colors, built-in style presets, or stylable attributes of a layout element class.
 
 ### Arguments
 
 | Argument | Description |
 |----------|-------------|
-| `plugin_type` | Type of plugin to list: `readers`, `writers`, or `renderers` |
+| `readers` | List available map readers |
+| `writers` | List available map writers |
+| `renderers` | List available renderers (with supported output formats) |
+| `colors` | List all named colors (displayed in their own color) |
+| `styles` | List built-in style presets |
+| `attributes <class_path>` | List stylable attributes of a layout element class |
 
 ### Examples
 
@@ -326,6 +337,160 @@ svg-native-compat (formats: svg)
 
 If a renderer's dependencies are not installed, it shows `(not installed)` instead of formats.
 
+#### List named colors
+
+```bash
+momapy list colors
+```
+
+Each color name is printed in its own color. Useful for picking values for `fill`, `stroke`, and similar properties in stylesheets.
+
+#### List built-in style presets
+
+```bash
+momapy list styles
+```
+
+Output:
+
+```
+cs_black_and_white       Black and white colorscheme
+cs_default               Default colorscheme
+fs_shadows               Drop shadows
+newt                     Newt style
+sbgned                   SBGN-ED style
+```
+
+Preset names can be passed to `momapy style -p` or `momapy render`/`momapy export` via `--preset`.
+
+#### List stylable attributes of a class
+
+```bash
+momapy list attributes momapy.sbgn.pd:MacromoleculeLayout
+```
+
+Lists every attribute that can be targeted in a stylesheet for the given class. Pass `-p` / `--presentation-only` to restrict the output to visual presentation attributes (fill, stroke, font, etc.).
+
+```bash
+momapy list attributes momapy.sbgn.pd:MacromoleculeLayout --presentation-only
+```
+
+## Subcommand: `tidy`
+
+Applies layout tidying operations to a map and outputs the result. Use a specific operation sub-command or `all` to run the full pipeline.
+
+### Synopsis
+
+```bash
+momapy tidy <operation> [<input_file_path>] [options]
+```
+
+### Operations
+
+| Operation | Description |
+|-----------|-------------|
+| `all` | Apply all tidying operations in sequence |
+| `fit-species` | Resize species nodes to fit their labels (CellDesigner only) |
+| `fit-epns` | Resize entity pool nodes to fit their labels (SBGN only) |
+| `fit-auxiliary` | Position and resize auxiliary elements (modifications/state variables/units of information) |
+| `fit-complexes` | Resize complexes to fit their subunits |
+| `fit-compartments` | Resize compartments to fit their content |
+| `fit-submaps` | Resize submaps to fit their terminals (SBGN only) |
+| `fit-layout` | Resize the overall layout to fit all elements |
+| `snap-arcs` | Snap arc endpoints to node borders |
+| `straighten-arcs` | Straighten near-horizontal and near-vertical arc segments (CellDesigner only) |
+
+### Options
+
+All operations accept:
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--output-file-path` | `-o` | Output file path (default: stdout) |
+
+The `all`, `fit-species`, `fit-epns`, `fit-auxiliary`, `fit-complexes`, `fit-compartments`, `fit-submaps`, and `fit-layout` operations also accept:
+
+| Option | Description |
+|--------|-------------|
+| `--xsep <float>` | Horizontal padding (default: depends on operation and map type) |
+| `--ysep <float>` | Vertical padding (default: depends on operation and map type) |
+
+The `all` and `straighten-arcs` operations also accept:
+
+| Option | Description |
+|--------|-------------|
+| `--angle-tolerance <float>` | Angle tolerance in degrees for straightening (default: 5.0) |
+
+### Examples
+
+#### Apply all tidying operations
+
+```bash
+momapy tidy all my_map.sbgn -o tidy_map.sbgn
+```
+
+#### Fit entity pool nodes to their labels
+
+```bash
+momapy tidy fit-epns my_map.sbgn -o tidy_map.sbgn
+```
+
+#### Snap arc endpoints to node borders with custom padding
+
+```bash
+momapy tidy snap-arcs my_map.sbgn -o tidy_map.sbgn --xsep 5.0 --ysep 5.0
+```
+
+#### Read from stdin and write to stdout (pipeline)
+
+```bash
+cat my_map.sbgn | momapy tidy all > tidy_map.sbgn
+```
+
+## Subcommand: `style`
+
+Applies CSS stylesheets (and/or built-in presets) to a map, baking the styles into the map data, and outputs the result. Multiple `-s` and `-p` flags can be interleaved; stylesheets are merged left-to-right (later rules override earlier ones).
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `input_file_path` | Input file path (reads from stdin if omitted) |
+
+### Options
+
+| Option | Short | Description |
+|--------|-------|-------------|
+| `--output-file-path` | `-o` | Output file path (default: stdout) |
+| `--style-sheet-file-path` | `-s` | Custom CSS file path (repeatable) |
+| `--preset` | `-p` | Built-in preset name (repeatable); see `momapy list styles` |
+
+### Examples
+
+#### Apply a custom stylesheet
+
+```bash
+momapy style my_map.sbgn -s my_style.css -o styled_map.sbgn
+```
+
+#### Apply a built-in preset
+
+```bash
+momapy style my_map.sbgn -p sbgned -o styled_map.sbgn
+```
+
+#### Combine a preset with a custom override
+
+```bash
+momapy style my_map.sbgn -p cs_default -s overrides.css -o styled_map.sbgn
+```
+
+#### Read from stdin
+
+```bash
+cat my_map.sbgn | momapy style -p newt > styled_map.sbgn
+```
+
 ## Subcommand: `visualize`
 
 Opens an interactive viewer for a molecular map in the default web browser. The viewer is a self-contained HTML page with the map rendered as inline SVG, featuring:
@@ -346,7 +511,8 @@ Opens an interactive viewer for a molecular map in the default web browser. The 
 
 | Option | Short | Description |
 |--------|-------|-------------|
-| `--tidy` | `-c` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--tidy` | `-t` | Tidy the map (reroute arcs, fit labels, etc.) |
+| `--to-top-left` | `-l` | Move elements to the top-left of the page |
 | `--style-sheet-file-path` | `-s` | Style sheet file path (can be repeated for multiple style sheets) |
 
 ### Examples
@@ -360,7 +526,7 @@ momapy visualize my_map.sbgn
 #### Visualize with tidy and style sheet
 
 ```bash
-momapy visualize my_map.xml -c -s custom_styles.css
+momapy visualize my_map.xml -t -s custom_styles.css
 ```
 
 ## Getting Help
@@ -371,5 +537,9 @@ Display help information:
 momapy --help
 momapy render --help
 momapy export --help
+momapy info --help
 momapy list --help
+momapy tidy --help
+momapy style --help
+momapy visualize --help
 ```
