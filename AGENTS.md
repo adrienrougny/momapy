@@ -4,7 +4,7 @@
 
 - **Docs**: <https://adrienrougny.github.io/momapy/>
 - **Issues**: <https://github.com/adrienrougny/momapy/issues>
-- **API surface inventory**: `./CODEBASE_SPEC.md` — module-by-module class/function signature reference. Load it when you need an orientation snapshot without reading every source file.
+- **API surface inventory**: `./API_REFERENCE.md` — module-by-module class/function signature reference. Load it when you need an orientation snapshot without reading every source file.
 
 ## Key Commands
 

@@ -1,4 +1,4 @@
-# momapy — Codebase API Specification
+# momapy — API Reference
 
 Condensed module-by-module inventory of public classes and function signatures for fast orientation in future Claude Code sessions. Pairs with `CLAUDE.md` (which covers architecture, conventions, and I/O patterns); this file covers the *surface*.
 
