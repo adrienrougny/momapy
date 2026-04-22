@@ -179,8 +179,8 @@ class TestFrozensetMappings:
             )
 
     def test_process_participants_mapped_as_children(self, sbgn_map):
-        """Each consumption/production arc should be mapped as
-        (participant_model, process_model) tuple."""
+        """Each consumption/production arc should be mapped to its participant model
+        element and be retrievable via ``get_child_layout_elements`` under the process."""
         mapping = sbgn_map.layout_model_mapping
         if not hasattr(sbgn_map.model, "processes"):
             pytest.skip("No processes attribute on model")
@@ -190,7 +190,6 @@ class TestFrozensetMappings:
             if isinstance(p, momapy.sbgn.pd.StoichiometricProcess)
         }
         for process in process_model_elements:
-            # Find participant arcs in the frozenset
             frozenset_key = None
             for key, value in mapping.items():
                 if isinstance(key, frozenset) and value is process:
@@ -204,18 +203,18 @@ class TestFrozensetMappings:
             for arc in arcs_in_frozenset:
                 if arc not in mapping:
                     continue
-                arc_value = mapping[arc]
-                assert isinstance(arc_value, tuple), (
-                    f"Participant arc {type(arc).__name__} mapped to "
-                    f"{type(arc_value).__name__}, expected tuple"
+                participant_model_element = mapping[arc]
+                assert not isinstance(participant_model_element, tuple), (
+                    f"Participant arc {type(arc).__name__} should map to a plain "
+                    f"participant model element, got tuple"
                 )
-                assert len(arc_value) == 2, (
-                    f"Participant arc tuple has length {len(arc_value)}, expected 2"
+                child_layouts = mapping.get_child_layout_elements(
+                    participant_model_element, process
                 )
-                assert arc_value[1] is process, (
-                    f"Participant arc parent is "
-                    f"{type(arc_value[1]).__name__}({arc_value[1].id_}), "
-                    f"expected process {process.id_}"
+                assert arc in child_layouts, (
+                    f"Arc {type(arc).__name__} not found under participant "
+                    f"{type(participant_model_element).__name__} of process "
+                    f"{process.id_}"
                 )
 
     def test_every_modulation_is_mapped_via_frozenset(self, sbgn_map):
