@@ -505,14 +505,12 @@ def set_complexes_to_fit_content(
                 continue
             elements = []
             for subunit in species.subunits:
-                subunit_layouts = map_builder.get_mapping((subunit, species))
-                if subunit_layouts is None:
-                    continue
-                if not isinstance(subunit_layouts, list):
-                    subunit_layouts = [subunit_layouts]
+                subunit_layouts = (
+                    map_builder.layout_model_mapping.get_child_layout_elements(
+                        subunit, species
+                    )
+                )
                 for subunit_layout in subunit_layouts:
-                    if isinstance(subunit_layout, frozenset):
-                        continue
                     elements.append(subunit_layout)
             if elements:
                 set_fit(complex_layout, elements, xsep, ysep)

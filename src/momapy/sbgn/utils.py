@@ -97,7 +97,11 @@ def set_complexes_to_fit_content(
             for complex_layout in map_builder.get_mapping(entity_pool):
                 elements = []
                 for subunit in entity_pool.subunits:
-                    subunit_layouts = map_builder.get_mapping((subunit, entity_pool))
+                    subunit_layouts = (
+                        map_builder.layout_model_mapping.get_child_layout_elements(
+                            subunit, entity_pool
+                        )
+                    )
                     for subunit_layout in subunit_layouts:
                         if subunit_layout in complex_layout.layout_elements:
                             elements.append(subunit_layout)
@@ -137,10 +141,9 @@ def set_submaps_to_fit_content(
         for submap_layout in map_builder.get_mapping(submap):
             elements = []
             for terminal in submap.terminals:
-                terminal_layouts = map_builder.layout_model_mapping.get_mapping(
-                    (
-                        terminal,
-                        submap,
+                terminal_layouts = (
+                    map_builder.layout_model_mapping.get_child_layout_elements(
+                        terminal, submap
                     )
                 )
                 for terminal_layout in terminal_layouts:
@@ -309,7 +312,7 @@ def set_arcs_to_borders(
             layout_element, momapy.sbgn.pd.ProductionLayout
         ):
             source = layout_element.source
-            product, _ = map_builder.get_mapping(layout_element)
+            product = map_builder.get_mapping(layout_element)
             if momapy.builder.isinstance_or_builder(product, momapy.sbgn.pd.Product):
                 if source.left_to_right:
                     source_type = "right"
