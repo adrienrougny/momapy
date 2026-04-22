@@ -156,7 +156,7 @@ def _modulation_reaction_type(modulation):
 
 
 @dataclasses.dataclass
-class WritingContext(WritingContext):
+class CellDesignerWritingContext(WritingContext):
     """Shared state for the writer."""
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
@@ -4000,7 +4000,7 @@ class CellDesignerWriter(Writer):
             for species in obj.model.species:
                 _collect(species)
 
-        writing_context = WritingContext(
+        writing_context = CellDesignerWritingContext(
             map_=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,

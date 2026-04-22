@@ -258,7 +258,7 @@ Functions (all accept `SBGNMap | Builder`, return same):
 Module-level `StyleSheet` constants: `cs_default`, `cs_black_and_white`, `sbgned`, `newt`, `fs_shadows`.
 
 ### `src/momapy/sbgn/io/sbgnml/reader.py`
-- `ReadingContext(momapy.io.utils.ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
+- `SBGNMLReadingContext(momapy.io.utils.ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
 - `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0)`.
 - `_get_map_key(sbgnml_map)` (abstract), `_parse_sbgnml_map(reading_context)`.
 
@@ -357,12 +357,12 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `get_info(map_) -> dict`
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
-- `ReadingContext(ReadingContext)` — model/layout/map state, classified lists (cd_compartments, cd_compartment_aliases, cd_species_templates, cd_species_aliases, cd_reactions, cd_modulations), ID caches, `real_model_source_ids` + `real_layout_source_ids` (split for `ReaderResult.source_id_to_model_element` vs `_layout_element`).
+- `CellDesignerReadingContext(momapy.io.utils.ReadingContext)` — model/layout/map state, classified lists (cd_compartments, cd_compartment_aliases, cd_species_templates, cd_species_aliases, cd_reactions, cd_modulations), ID caches, `real_model_source_ids` + `real_layout_source_ids` (split for `ReaderResult.source_id_to_model_element` vs `_layout_element`).
 - `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
 - Key internal classification map: `_KEY_TO_CLASS` (tuple keys for templates/species/reactions to momapy classes).
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
-- `WritingContext` — `map_`, metadata dicts, `subunit_to_complex`, `used_metaids`, `species_to_id`.
+- `CellDesignerWritingContext(momapy.io.utils.WritingContext)` — `map_`, metadata dicts, `subunit_to_complex`, `used_metaids`, `species_to_id`.
 - `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None)`.
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)

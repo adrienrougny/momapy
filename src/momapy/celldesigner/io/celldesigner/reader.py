@@ -301,7 +301,7 @@ def _get_modifier_metaid(cd_reaction_modification, cd_reaction):
 
 
 @dataclasses.dataclass
-class ReadingContext(ReadingContext):
+class CellDesignerReadingContext(ReadingContext):
     """CellDesigner-specific reading context."""
 
     cd_complex_alias_id_to_cd_included_species_ids: dict = dataclasses.field(
@@ -739,7 +739,7 @@ class CellDesignerReader(Reader):
                 layout_model_mapping = LayoutModelMappingBuilder()
             else:
                 layout_model_mapping = None
-            reading_context = ReadingContext(
+            reading_context = CellDesignerReadingContext(
                 xml_root=cd_model,
                 model=model,
                 layout=layout,

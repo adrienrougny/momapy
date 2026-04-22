@@ -53,7 +53,7 @@ import momapy.sbgn.io.sbgnml._reading_layout
 
 
 @dataclasses.dataclass
-class ReadingContext(momapy.io.utils.ReadingContext):
+class SBGNMLReadingContext(momapy.io.utils.ReadingContext):
     """SBGN-specific reading context."""
 
     sbgnml_compartments: list = dataclasses.field(default_factory=list)
@@ -261,7 +261,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
             else:
                 layout_model_mapping = None
-            reading_context = ReadingContext(
+            reading_context = SBGNMLReadingContext(
                 xml_root=sbgnml_map,
                 map_key=cls._get_map_key(sbgnml_map),
                 model=model,
