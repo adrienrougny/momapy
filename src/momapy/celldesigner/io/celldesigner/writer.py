@@ -337,13 +337,8 @@ def _find_any_alias_layout(writing_context, species):
             if not isinstance(child, CellDesignerNode):
                 continue
             model_info = mapping.get_mapping(child)
-            if model_info is not None:
-                model_elem = (
-                    model_info[0] if isinstance(model_info, tuple) else model_info
-                )
-                if model_elem is species:
-                    return child
-            # Check deeper nesting
+            if model_info is species:
+                return child
             if hasattr(child, "layout_elements"):
                 for grandchild in child.layout_elements:
                     if not isinstance(
@@ -352,14 +347,8 @@ def _find_any_alias_layout(writing_context, species):
                     ):
                         continue
                     model_info2 = mapping.get_mapping(grandchild)
-                    if model_info2 is not None:
-                        model_elem2 = (
-                            model_info2[0]
-                            if isinstance(model_info2, tuple)
-                            else model_info2
-                        )
-                        if model_elem2 is species:
-                            return grandchild
+                    if model_info2 is species:
+                        return grandchild
     return None
 
 
@@ -483,13 +472,8 @@ def _get_layouts(writing_context, model_element):
     """Get layout elements for a model element.
 
     Returns a list. Items can be single layout elements or frozensets.
-    Also handles subunits, whose mapping is keyed by (subunit, complex).
     """
     result = _mapping(writing_context).get_mapping(model_element)
-    if result is None and model_element in writing_context.subunit_to_complex:
-        result = _mapping(writing_context).get_mapping(
-            (model_element, writing_context.subunit_to_complex[model_element])
-        )
     if result is None:
         return []
     if isinstance(result, list):
@@ -502,8 +486,6 @@ def _find_layout_for_species_in_frozenset(writing_context, species, frozenset_ma
     for elem in frozenset_mapping:
         model = _mapping(writing_context).get_mapping(elem)
         if model is species:
-            return elem
-        if isinstance(model, tuple) and model[0] is species:
             return elem
     return None
 
@@ -536,19 +518,14 @@ def _find_layout_for_participant(
         result = reaction_layout.source if is_start else reaction_layout.target
         if result is not None:
             return result
-    arc_layouts = _mapping(writing_context).get_mapping((participant, reaction))
-    if arc_layouts is not None:
-        if not isinstance(arc_layouts, list):
-            arc_layouts = [arc_layouts]
-        for arc_layout in arc_layouts:
-            if hasattr(arc_layout, "target"):
-                # For multi-copy reactions, only use arcs from this frozenset
-                if (
-                    frozenset_mapping is not None
-                    and arc_layout not in frozenset_mapping
-                ):
-                    continue
-                return arc_layout.target
+    arc_layouts = _mapping(writing_context).get_child_layout_elements(
+        participant, reaction
+    )
+    for arc_layout in arc_layouts:
+        if hasattr(arc_layout, "target"):
+            if frozenset_mapping is not None and arc_layout not in frozenset_mapping:
+                continue
+            return arc_layout.target
     species = participant.referred_species
     if frozenset_mapping is not None:
         return _find_layout_for_species_in_frozenset(
@@ -1120,10 +1097,9 @@ def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
     for child in parent_layout.layout_elements:
         if not isinstance(child, ComplexLayout):
             continue
-        model_info = _mapping(writing_context).get_mapping(child)
-        if model_info is None:
+        model_elem = _mapping(writing_context).get_mapping(child)
+        if model_elem is None:
             continue
-        model_elem = model_info[0] if isinstance(model_info, tuple) else model_info
         list_elem.append(
             _make_celldesigner_alias(
                 writing_context,
@@ -1206,11 +1182,9 @@ def _collect_aliases_from_layout_children(
             ),
         ):
             continue
-        # Get the model element for this layout
-        model_info = _mapping(writing_context).get_mapping(child)
-        if model_info is None:
+        model_elem = _mapping(writing_context).get_mapping(child)
+        if model_elem is None:
             continue
-        model_elem = model_info[0] if isinstance(model_info, tuple) else model_info
         list_elem.append(
             _make_celldesigner_alias(
                 writing_context,
@@ -1809,12 +1783,7 @@ def _make_celldesigner_reaction(
                     layout_element_item.target
                 )
                 if target_model is not None:
-                    target_model_element = (
-                        target_model[0]
-                        if isinstance(target_model, tuple)
-                        else target_model
-                    )
-                    if target_model_element is not base_species:
+                    if target_model is not base_species:
                         continue
                 alias_layout = layout_element_item.target
                 base_reactants_element.append(
@@ -1855,12 +1824,7 @@ def _make_celldesigner_reaction(
                     layout_element_item.target
                 )
                 if target_model is not None:
-                    target_model_element = (
-                        target_model[0]
-                        if isinstance(target_model, tuple)
-                        else target_model
-                    )
-                    if target_model_element is not base_species:
+                    if target_model is not base_species:
                         continue
                 alias_layout = layout_element_item.target
                 base_products_element.append(
@@ -1900,14 +1864,8 @@ def _make_celldesigner_reaction(
                 and arc.target is not None
             ):
                 target_model = _mapping(writing_context).get_mapping(arc.target)
-                if target_model is not None:
-                    target_elem = (
-                        target_model[0]
-                        if isinstance(target_model, tuple)
-                        else target_model
-                    )
-                    if target_elem in base_species_set:
-                        base_reactant_aliases.add(arc.target)
+                if target_model is not None and target_model in base_species_set:
+                    base_reactant_aliases.add(arc.target)
 
     # listOfReactantLinks — derive from layout arcs to handle
     # multiple visual copies of the same model element.
@@ -1970,14 +1928,11 @@ def _make_celldesigner_reaction(
                     and arc.target is not None
                 ):
                     target_model = _mapping(writing_context).get_mapping(arc.target)
-                    if target_model is not None:
-                        target_elem = (
-                            target_model[0]
-                            if isinstance(target_model, tuple)
-                            else target_model
-                        )
-                        if target_elem in base_product_species_set:
-                            base_product_aliases.add(arc.target)
+                    if (
+                        target_model is not None
+                        and target_model in base_product_species_set
+                    ):
+                        base_product_aliases.add(arc.target)
             link_production_arcs = [
                 arc
                 for arc in _collect_arcs_for_reaction(
@@ -2078,12 +2033,7 @@ def _make_celldesigner_reaction(
                     layout_element_item.target
                 )
                 if target_model is not None:
-                    target_model_element = (
-                        target_model[0]
-                        if isinstance(target_model, tuple)
-                        else target_model
-                    )
-                    if target_model_element is not base_species:
+                    if target_model is not base_species:
                         continue
                 sbml_species = writing_context.subunit_to_complex.get(
                     base_species, base_species
@@ -2171,12 +2121,7 @@ def _make_celldesigner_reaction(
                     layout_element_item.target
                 )
                 if target_model is not None:
-                    target_model_element = (
-                        target_model[0]
-                        if isinstance(target_model, tuple)
-                        else target_model
-                    )
-                    if target_model_element is not base_species:
+                    if target_model is not base_species:
                         continue
                 sbml_species = writing_context.subunit_to_complex.get(
                     base_species, base_species
@@ -2395,17 +2340,12 @@ def _make_sbml_document_species_reference_from_layout(writing_context, arc_layou
     """
     alias_layout = arc_layout.target
     alias_id = alias_layout.id_ if alias_layout else ""
-    model = _mapping(writing_context).get_mapping(alias_layout)
-    if isinstance(model, tuple):
-        species = model[0]
-    else:
-        species = model
+    species = _mapping(writing_context).get_mapping(alias_layout)
     sbml_species = writing_context.subunit_to_complex.get(species, species)
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
-    # Try to recover participant metaid from the arc mapping
     arc_model = _mapping(writing_context).get_mapping(arc_layout)
-    if isinstance(arc_model, tuple) and hasattr(arc_model[0], "id_"):
-        participant_metaid = arc_model[0].metaid or arc_model[0].id_
+    if arc_model is not None and hasattr(arc_model, "id_"):
+        participant_metaid = arc_model.metaid or arc_model.id_
         if participant_metaid:
             sr_attrs["metaid"] = _unique_metaid(writing_context, participant_metaid)
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
@@ -3094,11 +3034,7 @@ def _make_celldesigner_participant_link_from_layout(
     writing = _writing
     alias_layout = arc_layout.target
     alias_id = alias_layout.id_ if alias_layout else ""
-    model = _mapping(writing_context).get_mapping(alias_layout)
-    if isinstance(model, tuple):
-        species = model[0]
-    else:
-        species = model
+    species = _mapping(writing_context).get_mapping(alias_layout)
     link = _make_celldesigner_element(
         tag,
         attrs={
@@ -3287,12 +3223,7 @@ def _make_celldesigner_gate_modifications(
                 and layout_element_item.source is gate_layout
             ):
                 input_alias_layout = layout_element_item.target
-                model_info = _mapping(writing_context).get_mapping(input_alias_layout)
-                input_model = (
-                    (model_info[0] if isinstance(model_info, tuple) else model_info)
-                    if model_info is not None
-                    else None
-                )
+                input_model = _mapping(writing_context).get_mapping(input_alias_layout)
                 if input_model is not None:
                     logic_arc_inputs.append((input_model, input_alias_layout))
 
@@ -3448,11 +3379,6 @@ def _make_celldesigner_modulation_reaction(
                 source_layout = elem
             elif model is target:
                 target_layout = elem
-            elif isinstance(model, tuple):
-                if model[0] is source:
-                    source_layout = elem
-                elif model[0] is target:
-                    target_layout = elem
     else:
         for layout_key in _get_layouts(writing_context, modulation):
             if not isinstance(layout_key, frozenset):

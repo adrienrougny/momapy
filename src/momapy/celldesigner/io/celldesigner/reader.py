@@ -1059,7 +1059,6 @@ class CellDesignerReader(Reader):
         super_cd_element=None,
         super_model_element=None,
         super_layout_element=None,
-        pending_mappings=None,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
             cd_species = reading_context.xml_id_to_xml_element[
@@ -1189,17 +1188,13 @@ class CellDesignerReader(Reader):
                     cd_species_alias.get("id")
                 ]
             ]
-            local_mappings = []
             for cd_subunit in cd_subunits:
-                subunit_model_element, subunit_layout_element = (
-                    cls._make_and_add_species(
-                        reading_context,
-                        cd_species_alias=cd_subunit,
-                        super_cd_element=cd_species_alias,
-                        super_model_element=model_element,
-                        super_layout_element=layout_element,
-                        pending_mappings=local_mappings,
-                    )
+                cls._make_and_add_species(
+                    reading_context,
+                    cd_species_alias=cd_subunit,
+                    super_cd_element=cd_species_alias,
+                    super_model_element=model_element,
+                    super_layout_element=layout_element,
                 )
             if reading_context.model is not None:
                 model_element = object_from_builder(model_element)
@@ -1235,29 +1230,6 @@ class CellDesignerReader(Reader):
                     if reading_context.with_notes:
                         notes = _reading_model.make_notes_from_element(cd_species)
                         reading_context.element_to_notes[model_element].update(notes)
-                # Apply deferred subunit mappings.  Use model_element
-                # (the registered frozen parent) instead of the
-                # super_model_element captured during subunit creation
-                # (which is still a builder reference).
-                for (
-                    subunit_layout_element,
-                    subunit_model_element,
-                    stale_super_model_element,
-                ) in local_mappings:
-                    if pending_mappings is not None:
-                        pending_mappings.append(
-                            (
-                                subunit_layout_element,
-                                subunit_model_element,
-                                model_element,
-                            )
-                        )
-                    else:
-                        reading_context.layout_model_mapping.add_mapping(
-                            subunit_layout_element,
-                            (subunit_model_element, model_element),
-                            replace=True,
-                        )
                 reading_context.xml_id_to_model_element[cd_species.get("id")] = (
                     model_element
                 )
@@ -1280,24 +1252,12 @@ class CellDesignerReader(Reader):
                 ) in auxiliary_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_layout_element,
-                        (auxiliary_model_element, model_element),
+                        auxiliary_model_element,
                         replace=True,
                     )
-                if super_layout_element is None:  # species case
-                    reading_context.layout_model_mapping.add_mapping(
-                        layout_element, model_element, replace=True
-                    )
-                else:  # included species case
-                    if pending_mappings is not None:
-                        pending_mappings.append(
-                            (layout_element, model_element, super_model_element)
-                        )
-                    else:
-                        reading_context.layout_model_mapping.add_mapping(
-                            layout_element,
-                            (model_element, super_model_element),
-                            replace=True,
-                        )
+                reading_context.layout_model_mapping.add_mapping(
+                    layout_element, model_element, replace=True
+                )
         return model_element, layout_element
 
     @classmethod
@@ -1582,7 +1542,7 @@ class CellDesignerReader(Reader):
                 ) in participant_map_elements:
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
-                        (participant_model_element, model_element),
+                        participant_model_element,
                         replace=True,
                     )
         return model_element, layout_element
@@ -1879,7 +1839,7 @@ class CellDesignerReader(Reader):
                 if input_model_element is not None and logic_arc is not None:
                     reading_context.layout_model_mapping.add_mapping(
                         logic_arc,
-                        (input_model_element, model_element),
+                        input_model_element,
                         replace=True,
                     )
             if model_element is not None:
