@@ -1,35 +1,62 @@
-import copy
-
-import numpy
-import functools
-import operator
-import inspect
 import collections
-import pygments
-import pygments.lexers
-import pygments.formatters
-
+import copy
+import functools
+import inspect
+import operator
 
 import IPython.display
+import numpy
+import pygments
+import pygments.formatters
+import pygments.lexers
 
-import momapy.rendering.svg_native
-import momapy.geometry
-import momapy.builder
-import momapy.core.map
-import momapy.core.elements
-import momapy.core.layout
-import momapy.core.builders
-import momapy.drawing
-import momapy.meta.nodes
-import momapy.positioning
-import momapy.coloring
+from momapy import positioning
+from momapy.builder import (
+    Builder,
+    builder_from_object,
+    get_or_make_builder_cls,
+    issubclass_or_builder,
+    new_builder_object,
+    object_from_builder,
+)
+from momapy.coloring import red
+from momapy.core import (
+    Arc,
+    LayoutElement,
+    Map,
+    Node,
+    SingleHeadedArc,
+    TextLayout,
+)
+from momapy.drawing import NoneValue
+from momapy.geometry import Point, Segment, Translation
+from momapy.io import read
+from momapy.meta.nodes import CrossPoint
+from momapy.rendering.svg_native import SVGElement, SVGNativeRenderer
+from momapy.sbgn.pd import (
+    ComplexLayout,
+    ComplexMultimerLayout,
+    MacromoleculeLayout,
+    MacromoleculeMultimerLayout,
+    NucleicAcidFeatureLayout,
+    NucleicAcidFeatureMultimerLayout,
+    ProductionLayout,
+    SimpleChemicalLayout,
+    SimpleChemicalMultimerLayout,
+    StateVariableLayout,
+    UnitOfInformationLayout,
+)
+from momapy.styling import StyleSheet, apply_style_sheet
+
+
+TextLayoutBuilder = get_or_make_builder_cls(TextLayout)
 
 
 def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None):
     if markers is None:
         markers = []
     if isinstance(style_sheet, str):
-        style_sheet = momapy.styling.StyleSheet.from_file(style_sheet)
+        style_sheet = StyleSheet.from_file(style_sheet)
     if not isinstance(obj, collections.abc.Iterable) or isinstance(
         obj, (str, bytes, bytearray)
     ):
@@ -37,10 +64,10 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None
     layout_elements = []
     for element in obj:
         if isinstance(element, str):
-            layout_element = momapy.io.core.read(element, return_type="layout").obj
-        elif isinstance(element, momapy.core.map.Map):
+            layout_element = read(element, return_type="layout").obj
+        elif isinstance(element, Map):
             layout_element = element.layout
-        elif isinstance(element, momapy.core.elements.LayoutElement):
+        elif isinstance(element, LayoutElement):
             layout_element = element
         else:
             raise ValueError(f"unsupported type {type(element)}")
@@ -48,19 +75,19 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None
     bboxes = []
     if style_sheet is not None:
         layout_elements = [
-            momapy.styling.apply_style_sheet(layout_element, style_sheet)
+            apply_style_sheet(layout_element, style_sheet)
             for layout_element in layout_elements
         ]
     for layout_element in layout_elements:
         bbox = layout_element.bbox()
         if (
             layout_element.group_transform is not None
-            and layout_element.group_transform != momapy.drawing.NoneValue
+            and layout_element.group_transform != NoneValue
         ):
             total_transformation = functools.reduce(
                 operator.mul, layout_element.group_transform
             )
-            bbox = momapy.positioning.fit(
+            bbox = positioning.fit(
                 [
                     bbox.north_west().transformed(total_transformation),
                     bbox.north_east().transformed(total_transformation),
@@ -69,25 +96,21 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None
                 ]
             )
         bboxes.append(bbox)
-    bbox = momapy.positioning.fit(bboxes)
+    bbox = positioning.fit(bboxes)
     min_x = bbox.x - bbox.width / 2 - xsep
     min_y = bbox.y - bbox.height / 2 - ysep
     max_x = bbox.x + bbox.width / 2 - min_x + xsep
     max_y = bbox.y + bbox.height / 2 - min_y + ysep
-    translation = momapy.geometry.Translation(-min_x, -min_y)
+    translation = Translation(-min_x, -min_y)
     final_layout_elements = []
     for layout_element in layout_elements:
-        layout_element_builder = momapy.builder.builder_from_object(layout_element)
+        layout_element_builder = builder_from_object(layout_element)
         if layout_element.group_transform is None:
             layout_element_builder.group_transform = []
         layout_element_builder.group_transform.insert(0, translation)
-        final_layout_elements.append(
-            momapy.builder.object_from_builder(layout_element_builder)
-        )
-    cp_builder_cls = momapy.builder.get_or_make_builder_cls(
-        momapy.meta.nodes.CrossPoint
-    )
-    if isinstance(markers, momapy.geometry.Point):
+        final_layout_elements.append(object_from_builder(layout_element_builder))
+    cp_builder_cls = get_or_make_builder_cls(CrossPoint)
+    if isinstance(markers, Point):
         markers = [markers]
     for marker in markers:
         position = marker
@@ -95,14 +118,14 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None
             width=12.0,
             height=12.0,
             stroke_width=1.5,
-            stroke=momapy.coloring.red,
+            stroke=red,
             position=position,
         )
-        final_layout_elements.append(momapy.builder.object_from_builder(cp_builder))
+        final_layout_elements.append(object_from_builder(cp_builder))
     width = max_x
     height = max_y
-    renderer = momapy.rendering.svg_native.SVGNativeRenderer(
-        svg=momapy.rendering.svg_native.SVGElement(
+    renderer = SVGNativeRenderer(
+        svg=SVGElement(
             name="svg",
             attributes={
                 "xmlns": "http://www.w3.org/2000/svg",
@@ -120,74 +143,6 @@ def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None
     IPython.display.display(IPython.display.SVG(data=svg_string))
 
 
-# def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0):
-#     if markers is None:
-#         markers = []
-#     if isinstance(obj, momapy.core.map.Map):
-#         layout_element = obj.layout
-#     else:
-#         layout_element = obj
-#     bbox = layout_element.bbox()
-#     if (
-#         layout_element.group_transform is not None
-#         and layout_element.group_transform != momapy.drawing.NoneValue
-#     ):
-#         total_transformation = functools.reduce(
-#             operator.mul, layout_element.group_transform
-#         )
-#         bbox = momapy.positioning.fit(
-#             [
-#                 bbox.north_west().transformed(total_transformation),
-#                 bbox.north_east().transformed(total_transformation),
-#                 bbox.south_west().transformed(total_transformation),
-#                 bbox.south_east().transformed(total_transformation),
-#             ]
-#         )
-#     min_x = bbox.x - bbox.width / 2 - xsep
-#     min_y = bbox.y - bbox.height / 2 - ysep
-#     max_x = bbox.x + bbox.width / 2 - min_x + xsep
-#     max_y = bbox.y + bbox.height / 2 - min_y + ysep
-#     layout_element = momapy.builder.builder_from_object(layout_element)
-#     if layout_element.group_transform is None:
-#         layout_element.group_transform = []
-#     translation = momapy.geometry.Translation(-min_x, -min_y)
-#     layout_element.group_transform.insert(0, translation)
-#     cp_builder_cls = momapy.builder.get_or_make_builder_cls(
-#         momapy.meta.nodes.CrossPoint
-#     )
-#     if isinstance(markers, momapy.geometry.Point):
-#         markers = [markers]
-#     for marker in markers:
-#         position = marker
-#         cp = cp_builder_cls(
-#             width=12.0,
-#             height=12.0,
-#             stroke_width=1.5,
-#             stroke=momapy.coloring.red,
-#             position=position,
-#         )
-#         layout_element.layout_elements.append(cp)
-#     width = max_x
-#     height = max_y
-#     layout_element = momapy.builder.object_from_builder(layout_element)
-#     renderer = momapy.rendering.svg_native.SVGNativeRenderer(
-#         svg=momapy.rendering.svg_native.SVGElement(
-#             name="svg",
-#             attributes={
-#                 "xmlns": "http://www.w3.org/2000/svg",
-#                 "viewBox": f"0 0 {width} {height}",
-#                 "width": width * scale,
-#                 "height": height * scale,
-#             },
-#         )
-#     )
-#     renderer.begin_session()
-#     renderer.render_layout_element(layout_element)
-#     renderer.end_session()
-#     svg_string = str(renderer.svg)
-#     IPython.display.display(IPython.display.SVG(data=svg_string))
-
-
 def make_toy_node(
     cls,
     position,
@@ -196,8 +151,8 @@ def make_toy_node(
     auxiliary_unit_width=19,
     auxiliary_unit_height=8,
 ):
-    if not issubclass(cls, momapy.builder.Builder):
-        cls = momapy.builder.get_or_make_builder_cls(cls)
+    if not issubclass(cls, Builder):
+        cls = get_or_make_builder_cls(cls)
     m = cls()
     m.position = position
     m.width = m.width * scale
@@ -217,11 +172,9 @@ def make_toy_node(
             setattr(m, attr, getattr(m, attr) * scale / 2)
 
     if make_auxiliary:
-        StateVariableLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.StateVariableLayout
-        )
-        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.UnitOfInformationLayout
+        StateVariableLayoutBuilder = get_or_make_builder_cls(StateVariableLayout)
+        UnitOfInformationLayoutBuilder = get_or_make_builder_cls(
+            UnitOfInformationLayout
         )
         s1 = StateVariableLayoutBuilder(
             width=auxiliary_unit_width * scale,
@@ -241,7 +194,7 @@ def make_toy_node(
             position=m.south(),
         )
         m.layout_elements.append(u1)
-    m = momapy.builder.object_from_builder(m)
+    m = object_from_builder(m)
     return m
 
 
@@ -254,8 +207,8 @@ def make_toy_arc(
     auxiliary_unit_width=19,
     auxiliary_unit_height=8,
 ):
-    if not issubclass(cls, momapy.builder.Builder):
-        cls = momapy.builder.get_or_make_builder_cls(cls)
+    if not issubclass(cls, Builder):
+        cls = get_or_make_builder_cls(cls)
     m = cls()
     if hasattr(m, "arrowhead_width"):
         m.arrowhead_width = m.arrowhead_width * scale
@@ -281,27 +234,25 @@ def make_toy_arc(
         m.end_arrowhead_triangle_width = m.end_arrowhead_triangle_width * scale
     if hasattr(m, "end_arrowhead_triangle_height"):
         m.end_arrowhead_triangle_height = m.end_arrowhead_triangle_height * scale
-    m.segments = [momapy.geometry.Segment(start_point, end_point)]
+    m.segments = [Segment(start_point, end_point)]
     if make_auxiliary:
-        UnitOfInformationLayoutBuilder = momapy.builder.get_or_make_builder_cls(
-            momapy.sbgn.pd.UnitOfInformationLayout
+        UnitOfInformationLayoutBuilder = get_or_make_builder_cls(
+            UnitOfInformationLayout
         )
         u1 = UnitOfInformationLayoutBuilder(
             width=auxiliary_unit_width * scale,
             height=auxiliary_unit_height * scale,
         )
-        momapy.positioning.set_fraction_of(u1, m, 0.5, "south")
+        positioning.set_fraction_of(u1, m, 0.5, "south")
         m.layout_elements.append(u1)
-    m = momapy.builder.object_from_builder(m)
+    m = object_from_builder(m)
     return m
 
 
 def show_room(cls, type_="anchor"):
     WIDTH = 450
     HEIGHT = 300
-    POSITION = momapy.builder.new_builder_object(
-        momapy.geometry.Point, WIDTH / 2, HEIGHT / 2
-    )
+    POSITION = new_builder_object(Point, WIDTH / 2, HEIGHT / 2)
     START_POINT = POSITION - (100, -100)
     END_POINT = POSITION + (100, -100)
     FONT_SIZE = 12
@@ -339,26 +290,24 @@ def show_room(cls, type_="anchor"):
     FRACTION_STEP = 0.1
     AUXILIARY_UNIT_WIDTH = 18
     AUXILIARY_UNIT_HEIGHT = 9
-    CrossPointBuilder = momapy.builder.get_or_make_builder_cls(
-        momapy.meta.nodes.CrossPoint
-    )
-    if momapy.builder.issubclass_or_builder(cls, momapy.core.layout.Node):
+    CrossPointBuilder = get_or_make_builder_cls(CrossPoint)
+    if issubclass_or_builder(cls, Node):
         SCALE = 5.0
         if cls in [
-            momapy.sbgn.pd.MacromoleculeLayout,
-            momapy.sbgn.pd.SimpleChemicalLayout,
-            momapy.sbgn.pd.ComplexLayout,
-            momapy.sbgn.pd.NucleicAcidFeatureLayout,
-            momapy.sbgn.pd.MacromoleculeMultimerLayout,
-            momapy.sbgn.pd.SimpleChemicalMultimerLayout,
-            momapy.sbgn.pd.ComplexMultimerLayout,
-            momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout,
+            MacromoleculeLayout,
+            SimpleChemicalLayout,
+            ComplexLayout,
+            NucleicAcidFeatureLayout,
+            MacromoleculeMultimerLayout,
+            SimpleChemicalMultimerLayout,
+            ComplexMultimerLayout,
+            NucleicAcidFeatureMultimerLayout,
         ]:
             make_auxiliary = True
         else:
             make_auxiliary = False
         m = make_toy_node(cls, POSITION, SCALE, make_auxiliary)
-        m = momapy.builder.builder_from_object(m)
+        m = builder_from_object(m)
         if type_ == "anchor":
             l = NODE_ANCHORS.keys()
         elif type_ == "angle" or type_ == "own_angle":
@@ -378,12 +327,12 @@ def show_room(cls, type_="anchor"):
                 height=CROSS_SIZE,
                 position=position,
                 stroke_width=1.5,
-                stroke=momapy.coloring.red,
-                label=momapy.core.builders.TextLayoutBuilder(
+                stroke=red,
+                label=TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
-                    fill=momapy.coloring.red,
+                    fill=red,
                 ),
             )
             if type_ == "anchor":
@@ -408,20 +357,18 @@ def show_room(cls, type_="anchor"):
                 else:
                     func_name = "set_below_right_of"
                     attach = "north_west"
-            getattr(momapy.positioning, func_name)(
+            getattr(positioning, func_name)(
                 cross.label, cross, NODE_DISTANCE, anchor=attach
             )
             m.layout_elements.append(cross)
 
-    elif momapy.builder.issubclass_or_builder(cls, momapy.core.layout.Arc):
+    elif issubclass_or_builder(cls, Arc):
         SCALE = 3.0
         make_auxiliary = True
         m = make_toy_arc(cls, START_POINT, END_POINT, SCALE, make_auxiliary)
-        m = momapy.builder.builder_from_object(m)
+        m = builder_from_object(m)
         if type_ == "anchor":
-            if momapy.builder.issubclass_or_builder(
-                cls, momapy.core.layout.SingleHeadedArc
-            ):
+            if issubclass_or_builder(cls, SingleHeadedArc):
                 d = SINGLE_ARC_ANCHORS
                 l = SINGLE_ARC_ANCHORS.keys()
             else:
@@ -441,12 +388,12 @@ def show_room(cls, type_="anchor"):
                 height=CROSS_SIZE,
                 position=position,
                 stroke_width=1.5,
-                stroke=momapy.coloring.red,
-                label=momapy.core.builders.TextLayoutBuilder(
+                stroke=red,
+                label=TextLayoutBuilder(
                     text=text,
                     font_family="Arial",
                     font_size=FONT_SIZE,
-                    fill=momapy.coloring.red,
+                    fill=red,
                 ),
             )
             if type_ == "anchor":
@@ -462,19 +409,19 @@ def show_room(cls, type_="anchor"):
             elif type_ == "fraction":
                 attach = "north_west"
                 func_name = "set_below_right_of"
-            getattr(momapy.positioning, func_name)(
+            getattr(positioning, func_name)(
                 cross.label, cross, ARC_DISTANCE, anchor=attach
             )
             m.layout_elements.append(cross)
 
-    m = momapy.builder.object_from_builder(m)
+    m = object_from_builder(m)
     display(m)
 
 
 def macromolecule_toy():
     m = make_toy_node(
-        momapy.sbgn.pd.MacromoleculeLayout,
-        momapy.geometry.Point(225, 150),
+        MacromoleculeLayout,
+        Point(225, 150),
         5,
         True,
     )
@@ -483,8 +430,8 @@ def macromolecule_toy():
 
 def complex_multimer_toy():
     m = make_toy_node(
-        momapy.sbgn.pd.ComplexMultimerLayout,
-        momapy.geometry.Point(225, 150),
+        ComplexMultimerLayout,
+        Point(225, 150),
         5,
         True,
     )
@@ -493,9 +440,9 @@ def complex_multimer_toy():
 
 def production_toy():
     m = make_toy_arc(
-        momapy.sbgn.pd.ProductionLayout,
-        momapy.geometry.Point(125, 250),
-        momapy.geometry.Point(325, 50),
+        ProductionLayout,
+        Point(125, 250),
+        Point(325, 50),
         3.0,
         True,
     )
