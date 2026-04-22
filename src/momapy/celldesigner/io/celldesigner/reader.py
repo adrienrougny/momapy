@@ -530,12 +530,12 @@ class CellDesignerReader(Reader):
             Trigger,
             TriggeringLayout,
         ),
-        ("MODIFIER", "POSITIVE_INFLUENCE"): (  # older version?
-            PositiveInfluence,
-            PositiveInfluenceLayout,
+        ("MODIFIER", "POSITIVE_INFLUENCE"): (  # pre-4.0 CellDesigner
+            PhysicalStimulator,
+            PhysicalStimulationLayout,
         ),
-        ("MODIFIER", "NEGATIVE_INFLUENCE"): (  # older version?
-            NegativeInfluence,
+        ("MODIFIER", "NEGATIVE_INFLUENCE"): (  # pre-4.0 CellDesigner
+            Inhibitor,
             InhibitionLayout,
         ),
         ("GATE", "BOOLEAN_LOGIC_GATE_AND"): (
