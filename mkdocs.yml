@@ -72,6 +72,7 @@ plugins:
               - griffe_fieldz: {include_inherited: true}
               - griffe_inherited_docstrings
 markdown_extensions:
+  - tables
   - toc:
       toc_depth: 3
   - pymdownx.highlight:
