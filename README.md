@@ -1,4 +1,4 @@
-# <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span>
+# <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span>
 
 [![PyPI](https://img.shields.io/pypi/v/momapy)](https://pypi.org/project/momapy/)
 [![Python](https://img.shields.io/pypi/pyversions/momapy)](https://pypi.org/project/momapy/)
@@ -6,13 +6,13 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/adrienrougny/momapy/main?filepath=demos/user_manual/main.ipynb)
 [![Documentation](https://img.shields.io/badge/docs-latest-brightgreen)](https://adrienrougny.github.io/momapy/)
 
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is a library for working with molecular maps.
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> is a library for working with molecular maps.
 It currently supports [SBGN](https://www.sbgn.org) and [CellDesigner](https://www.celldesigner.org/) maps.
 Its key feature is its definition of a map, that is formed of two entities: a model, that describes what concepts are represented, and a layout, that describes how these concepts are represented.
 This definition is borrowed from [SBML](https://www.sbml.org) and its extensions layout+render, that allow users to add a layout to an SBML model.
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> aims at extending this definition to SBGN and CellDesigner maps.
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> aims at extending this definition to SBGN and CellDesigner maps.
 
-Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> include the following:
+Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> include the following:
 
 * support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read/write, with annotations and notes)
 * decomposition of a map object into:
@@ -28,13 +28,13 @@ Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span 
 
 ## Installation
 
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available as a Python package and can be installed with pip as follows (Python >=3.10,<=3.14):
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> is available as a Python package and can be installed with pip as follows (Python >=3.10,<=3.14):
 
 `pip install momapy`
 
 ### Optional dependencies
 
-<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes several optional dependencies for rendering maps with the skia or cairo backends:
+<span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> includes several optional dependencies for rendering maps with the skia or cairo backends:
 
 **skia**
 
@@ -63,7 +63,7 @@ All optional dependencies can also be installed together:
 
 ## Usage
 
-Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> includes reading a map and exploring its model:
+Typical usage of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> includes reading a map and exploring its model:
 
 ```python
 from momapy.io import read
@@ -102,4 +102,4 @@ The user manual demo includes additional files (`utils.py`, example data) in the
 
 ## Documentation
 
-The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> is available [here](https://adrienrougny.github.io/momapy/).
+The documentation for <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(212 160 23)">py</span> is available [here](https://adrienrougny.github.io/momapy/).

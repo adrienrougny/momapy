@@ -42,6 +42,7 @@ nav:
   - About: about.md
 theme:
   name: material
+  favicon: assets/favicon.png
   features:
     - navigation.instant
     - navigation.tabs
