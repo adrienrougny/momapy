@@ -45,10 +45,6 @@
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/momapy/</loc>
-         <lastmod>2026-04-23</lastmod>
-    </url>
-    <url>
          <loc>https://adrienrougny.github.io/momapy/latest/api_reference/positioning/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
@@ -57,7 +53,7 @@
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/celldesigner/core/</loc>
+         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/celldesigner/celldesigner/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
@@ -81,11 +77,11 @@
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbgn/elements/</loc>
+         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbgn/pd/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbgn/pd/</loc>
+         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbgn/sbgn/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
@@ -93,7 +89,7 @@
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbml/model/</loc>
+         <loc>https://adrienrougny.github.io/momapy/latest/api_reference/sbml/sbml/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
