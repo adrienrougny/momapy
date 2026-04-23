@@ -420,7 +420,7 @@ FONT_WEIGHT_TO_VALUE = {
 }
 
 
-def get_initial_value(attr_name: str):
+def get_initial_value(attr_name: str) -> typing.Any:
     """Get the initial value of a presentation attribute.
 
     Args:
@@ -769,7 +769,7 @@ class LineTo(PathAction):
         self,
         transformation: momapy.geometry.Transformation,
         current_point: momapy.geometry.Point,
-    ):
+    ) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -1200,7 +1200,7 @@ class Ellipse(DrawingElement):
         )
         return path
 
-    def transformed(self, transformation) -> Path:
+    def transformed(self, transformation: momapy.geometry.Transformation) -> Path:
         """Apply a transformation.
 
         Args:

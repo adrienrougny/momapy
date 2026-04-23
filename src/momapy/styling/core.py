@@ -285,7 +285,7 @@ class TypeSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if the object's class name matches exactly.
 
         Args:
@@ -326,7 +326,7 @@ class ClassSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if the object is an instance of the specified class.
 
         Args:
@@ -365,7 +365,7 @@ class IdSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if the object has the specified id.
 
         Args:
@@ -406,7 +406,7 @@ class ChildSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if the object is a direct child matching the criteria.
 
         Args:
@@ -452,7 +452,7 @@ class DescendantSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if the object is a descendant matching the criteria.
 
         Args:
@@ -497,7 +497,7 @@ class OrSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if any selector in the tuple matches.
 
         Args:
@@ -534,7 +534,7 @@ class CompoundSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if all selectors in the tuple match.
 
         Args:
@@ -571,7 +571,7 @@ class NotSelector(Selector):
         ancestors: collections.abc.Collection[
             momapy.core.elements.LayoutElement | momapy.builder.Builder
         ],
-    ):
+    ) -> bool:
         """Check if none of the selectors in the tuple match.
 
         Args:

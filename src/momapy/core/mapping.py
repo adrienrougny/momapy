@@ -154,8 +154,8 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
         self,
         layout_element: "momapy.core.elements.LayoutElement",
         model_element: "momapy.core.elements.ModelElement",
-        replace=False,
-        anchor=None,
+        replace: bool = False,
+        anchor: "momapy.core.elements.LayoutElement | None" = None,
     ):
         """Add a layout-element to model-element entry to the mapping.
 

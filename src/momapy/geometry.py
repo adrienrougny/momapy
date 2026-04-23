@@ -157,7 +157,7 @@ class Point(GeometryObject):
         """
         return Point(self.x, self.y)
 
-    def round(self, ndigits=None):
+    def round(self, ndigits: int | None = None) -> "Point":
         """Round coordinates to specified digits.
 
         Args:
@@ -929,7 +929,7 @@ class QuadraticBezierCurve(GeometryObject):
         """
         return QuadraticBezierCurve(self.p2, self.p1, self.control_point)
 
-    def transformed(self, transformation) -> "QuadraticBezierCurve":
+    def transformed(self, transformation: "Transformation") -> "QuadraticBezierCurve":
         """Apply a transformation to this curve.
 
         Args:
@@ -1246,7 +1246,7 @@ class CubicBezierCurve(GeometryObject):
             self.p2, self.p1, self.control_point2, self.control_point1
         )
 
-    def transformed(self, transformation) -> "CubicBezierCurve":
+    def transformed(self, transformation: "Transformation") -> "CubicBezierCurve":
         """Apply a transformation to this curve.
 
         Args:

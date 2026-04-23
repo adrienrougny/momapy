@@ -44,7 +44,7 @@ class SVGElement(object):
     attributes: dict = dataclasses.field(default_factory=dict)
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
-    def to_string(self, indent: int = 0):
+    def to_string(self, indent: int = 0) -> str:
         """Return the SVG string representing the element.
 
         Args:
@@ -77,7 +77,7 @@ class SVGElement(object):
     def __str__(self):
         return self.to_string()
 
-    def add_element(self, element):
+    def add_element(self, element: "SVGElement") -> None:
         """Add a sub-element to the SVG element.
 
         Args:

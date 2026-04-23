@@ -547,14 +547,14 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         cls,
         obj: momapy.sbgn.SBGNMap,
         file_path: str | os.PathLike,
-        element_to_annotations=None,
-        element_to_notes=None,
-        source_id_to_model_element=None,
-        source_id_to_layout_element=None,
-        with_render_information=True,
-        with_annotations=True,
-        with_notes=True,
-    ):
+        element_to_annotations: dict | None = None,
+        element_to_notes: dict | None = None,
+        source_id_to_model_element: dict | None = None,
+        source_id_to_layout_element: dict | None = None,
+        with_render_information: bool = True,
+        with_annotations: bool = True,
+        with_notes: bool = True,
+    ) -> None:
         """Write an SBGN map to an SBGN-ML file.
 
         Args:

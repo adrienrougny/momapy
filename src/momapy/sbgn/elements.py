@@ -242,7 +242,7 @@ class _ConnectorsMixin(_SBGNMixin):
         momapy.drawing.NoneValueType | momapy.drawing.Filter | None
     ) = None
 
-    def left_connector_base(self):
+    def left_connector_base(self) -> momapy.geometry.Point:
         """Get the base point of the left connector.
 
         Returns:
@@ -253,7 +253,7 @@ class _ConnectorsMixin(_SBGNMixin):
         else:
             return momapy.geometry.Point(self.x - self.width / 2, self.y)
 
-    def right_connector_base(self):
+    def right_connector_base(self) -> momapy.geometry.Point:
         """Get the base point of the right connector.
 
         Returns:
@@ -264,7 +264,7 @@ class _ConnectorsMixin(_SBGNMixin):
         else:
             return momapy.geometry.Point(self.x + self.width / 2, self.y)
 
-    def left_connector_tip(self):
+    def left_connector_tip(self) -> momapy.geometry.Point:
         """Get the tip point of the left connector.
 
         Returns:
@@ -279,7 +279,7 @@ class _ConnectorsMixin(_SBGNMixin):
                 self.x - self.width / 2 - self.left_connector_length, self.y
             )
 
-    def right_connector_tip(self):
+    def right_connector_tip(self) -> momapy.geometry.Point:
         """Get the tip point of the right connector.
 
         Returns:
@@ -294,7 +294,7 @@ class _ConnectorsMixin(_SBGNMixin):
                 self.x + self.width / 2 + self.right_connector_length, self.y
             )
 
-    def west(self):
+    def west(self) -> momapy.geometry.Point:
         """Get the west (left) anchor point.
 
         Returns:
@@ -307,7 +307,7 @@ class _ConnectorsMixin(_SBGNMixin):
                 self.x - self.width / 2 - self.left_connector_length, self.y
             )
 
-    def south(self):
+    def south(self) -> momapy.geometry.Point:
         """Get the south (bottom) anchor point.
 
         Returns:
@@ -320,7 +320,7 @@ class _ConnectorsMixin(_SBGNMixin):
         else:
             return momapy.geometry.Point(self.x, self.y + self.height / 2)
 
-    def east(self):
+    def east(self) -> momapy.geometry.Point:
         """Get the east (right) anchor point.
 
         Returns:
@@ -333,7 +333,7 @@ class _ConnectorsMixin(_SBGNMixin):
                 self.x + self.width / 2 + self.right_connector_length, self.y
             )
 
-    def north(self):
+    def north(self) -> momapy.geometry.Point:
         """Get the north (top) anchor point.
 
         Returns:
@@ -526,7 +526,7 @@ class _MultiMixin(_SBGNMixin):
             drawing_elements.append(group)
         return drawing_elements
 
-    def label_center(self):
+    def label_center(self) -> momapy.geometry.Point:
         """Get the center position for the node label.
 
         Returns:

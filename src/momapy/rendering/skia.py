@@ -199,7 +199,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             del self.canvas
             self._config["stream"].flush()
 
-    def new_page(self, width, height):
+    def new_page(self, width: float, height: float) -> None:
         """Create a new page in the output document.
 
         Args:
@@ -215,7 +215,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             canvas = self._config["document"].beginPage(width, height)
             self.canvas = canvas
 
-    def render_map(self, map_):
+    def render_map(self, map_: momapy.core.map.Map) -> None:
         """Render a map to the output.
 
         Args:
@@ -223,7 +223,9 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         """
         self.render_layout_element(map_.layout)
 
-    def render_layout_element(self, layout_element):
+    def render_layout_element(
+        self, layout_element: momapy.core.elements.LayoutElement
+    ) -> None:
         """Render a layout element to the output.
 
         Args:
@@ -233,7 +235,9 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
-    def render_drawing_element(self, drawing_element):
+    def render_drawing_element(
+        self, drawing_element: momapy.drawing.DrawingElement
+    ) -> None:
         """Render a drawing element to the output.
 
         Args:

@@ -231,7 +231,7 @@ class Color(object):
         return cls(red, green, blue)
 
     @classmethod
-    def from_hex(cls, color_str: str):
+    def from_hex(cls, color_str: str) -> typing_extensions.Self:
         """Create a color from a hexadecimal string.
 
         Args:

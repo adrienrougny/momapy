@@ -55,7 +55,7 @@ class SurjectionDict(dict):
             del self._inverse[value]
 
     @property
-    def inverse(self):
+    def inverse(self) -> frozendict.frozendict:
         """Get the inverse mapping from values to keys.
 
         Returns:
@@ -145,7 +145,7 @@ class FrozenSurjectionDict(frozendict.frozendict):
         object.__setattr__(self, "_inverse", frozendict.frozendict(inverse))
 
     @property
-    def inverse(self):
+    def inverse(self) -> frozendict.frozendict:
         """Get the inverse mapping from values to keys.
 
         Returns:

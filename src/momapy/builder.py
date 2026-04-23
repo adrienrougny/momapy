@@ -285,7 +285,7 @@ def _make_builder_cls(
 def object_from_builder(
     builder: Builder,
     builder_to_object: dict[int, typing.Any] | None = None,
-):
+) -> typing.Any:
     """Convert a builder (or collection of builders) to actual object(s).
 
     Recursively converts builder objects to their corresponding class instances.
@@ -360,7 +360,7 @@ def object_from_builder(
 
 def builder_from_object(
     obj: typing.Any,
-    omit_keys=True,
+    omit_keys: bool = True,
     object_to_builder: dict[int, "Builder"] | None = None,
 ) -> Builder:
     """Convert an object (or collection of objects) to builder(s).
@@ -452,7 +452,9 @@ def builder_from_object(
     return obj
 
 
-def new_builder_object(cls: typing.Type, *args, **kwargs) -> Builder:
+def new_builder_object(
+    cls: typing.Type, *args: typing.Any, **kwargs: typing.Any
+) -> Builder:
     """Create a new builder instance for a given class.
 
     Args:

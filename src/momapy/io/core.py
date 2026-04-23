@@ -179,7 +179,7 @@ class WriterResult(IOResult):
 def read(
     file_path: str | os.PathLike,
     reader: str | None = None,
-    **options,
+    **options: typing.Any,
 ) -> ReaderResult:
     """Read a map file.
 
@@ -227,7 +227,7 @@ def write(
     obj: typing.Any,
     file_path: str | os.PathLike,
     writer: str,
-    **options,
+    **options: typing.Any,
 ) -> WriterResult:
     """Write an object to a file.
 
@@ -276,7 +276,7 @@ class Reader(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def read(cls, file_path: str | os.PathLike, **options) -> ReaderResult:
+    def read(cls, file_path: str | os.PathLike, **options: typing.Any) -> ReaderResult:
         """Read a file and return the result.
 
         Args:
