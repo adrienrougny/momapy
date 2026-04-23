@@ -15,62 +15,26 @@ the shape of the corresponding key in
 
 Singleton keys (one layout element represents the model element):
 
-+---------------------------------------------------------+-------------------------------------------------------------+
-| Model element                                           | Layout element used as the key                              |
-+=========================================================+=============================================================+
-| :class:`Compartment`                                    | The compartment alias layout (e.g.                          |
-|                                                         | :class:`OvalCompartmentLayout`,                             |
-|                                                         | :class:`RectangleCompartmentLayout`,                        |
-|                                                         | :class:`CornerCompartmentLayout`,                           |
-|                                                         | :class:`LineCompartmentLayout`)                             |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Species` and subclasses (e.g.                   | The species alias layout (e.g.                              |
-| :class:`GenericProtein`, :class:`Receptor`,             | :class:`GenericProteinLayout`, :class:`GeneLayout`).        |
-| :class:`IonChannel`, :class:`Gene`, :class:`RNA`,       | Active species use the ``*ActiveLayout`` variant (e.g.      |
-| :class:`Complex`, :class:`SimpleMolecule`,              | :class:`GenericProteinActiveLayout`)                        |
-| :class:`Ion`, :class:`Drug`, :class:`Phenotype`)        |                                                             |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Modification`                                   | :class:`ModificationLayout`                                 |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`StructuralState`                                | :class:`StructuralStateLayout`                              |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Reactant`                                       | :class:`ConsumptionLayout`                                  |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Product`                                        | :class:`ProductionLayout`                                   |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`BooleanLogicGateInput`                          | :class:`LogicArcLayout`                                     |
-+---------------------------------------------------------+-------------------------------------------------------------+
+| Model element | Layout element used as the key |
+|---|---|
+| :class:`Compartment` | The compartment alias layout (e.g. :class:`OvalCompartmentLayout`, :class:`RectangleCompartmentLayout`, :class:`CornerCompartmentLayout`, :class:`LineCompartmentLayout`) |
+| :class:`Species` and subclasses (e.g. :class:`GenericProtein`, :class:`Receptor`, :class:`IonChannel`, :class:`Gene`, :class:`RNA`, :class:`Complex`, :class:`SimpleMolecule`, :class:`Ion`, :class:`Drug`, :class:`Phenotype`) | The species alias layout (e.g. :class:`GenericProteinLayout`, :class:`GeneLayout`). Active species use the `*ActiveLayout` variant (e.g. :class:`GenericProteinActiveLayout`) |
+| :class:`Modification` | :class:`ModificationLayout` |
+| :class:`StructuralState` | :class:`StructuralStateLayout` |
+| :class:`Reactant` | :class:`ConsumptionLayout` |
+| :class:`Product` | :class:`ProductionLayout` |
+| :class:`BooleanLogicGateInput` | :class:`LogicArcLayout` |
 
 Frozenset keys (a cluster of layout elements jointly represents the
 model element; the **anchor** is the layout that stands for the cluster
 on its own and must be passed as ``anchor=`` when calling
 :meth:`~momapy.core.LayoutModelMappingBuilder.add_mapping`):
 
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| Model element                                         | Members of the frozenset key                                | Anchor                           |
-+=======================================================+=============================================================+==================================+
-| :class:`Reaction` and subclasses (e.g.                | The reaction layout (e.g.                                   | The reaction layout              |
-| :class:`StateTransition`,                             | :class:`StateTransitionLayout`,                             |                                  |
-| :class:`KnownTransitionOmitted`,                      | :class:`TranscriptionLayout`,                               |                                  |
-| :class:`UnknownTransition`,                           | :class:`DissociationLayout`) + every                        |                                  |
-| :class:`Transcription`, :class:`Translation`,         | :class:`ConsumptionLayout` and :class:`ProductionLayout`    |                                  |
-| :class:`Transport`,                                   | attached to the reaction + every reactant and product       |                                  |
-| :class:`HeterodimerAssociation`,                      | target layout (the species alias layouts those arcs point   |                                  |
-| :class:`Dissociation`, :class:`Truncation`)           | to)                                                         |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| :class:`KnownOrUnknownModulation` and subclasses      | The modulation arc layout (e.g.                             | The modulation arc layout        |
-| (e.g. :class:`Modulation`, :class:`Catalysis`,        | :class:`CatalysisLayout`, :class:`InhibitionLayout`,        |                                  |
-| :class:`Inhibition`,                                  | :class:`PositiveInfluenceLayout`) + all layouts in the      |                                  |
-| :class:`PhysicalStimulation`,                         | source cluster (resolved via the source's own frozenset     |                                  |
-| :class:`Triggering`, :class:`PositiveInfluence`,      | key if it has one, for example when the source is a         |                                  |
-| :class:`NegativeInfluence`,                           | boolean gate, else the source layout itself) + all          |                                  |
-| :class:`UnknownModulation` and its subclasses)        | layouts in the target cluster (resolved the same way)       |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| :class:`BooleanLogicGate` and subclasses (e.g.        | The gate layout (e.g. :class:`AndGateLayout`,               | The gate layout                  |
-| :class:`AndGate`, :class:`OrGate`,                    | :class:`OrGateLayout`) + every :class:`LogicArcLayout`      |                                  |
-| :class:`NotGate`, :class:`UnknownGate`)               | input + every target species alias layout those logic arcs  |                                  |
-|                                                       | point to                                                    |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| Model element | Members of the frozenset key | Anchor |
+|---|---|---|
+| :class:`Reaction` and subclasses (e.g. :class:`StateTransition`, :class:`KnownTransitionOmitted`, :class:`UnknownTransition`, :class:`Transcription`, :class:`Translation`, :class:`Transport`, :class:`HeterodimerAssociation`, :class:`Dissociation`, :class:`Truncation`) | The reaction layout (e.g. :class:`StateTransitionLayout`, :class:`TranscriptionLayout`, :class:`DissociationLayout`) + every :class:`ConsumptionLayout` and :class:`ProductionLayout` attached to the reaction + every reactant and product target layout (the species alias layouts those arcs point to) | The reaction layout |
+| :class:`KnownOrUnknownModulation` and subclasses (e.g. :class:`Modulation`, :class:`Catalysis`, :class:`Inhibition`, :class:`PhysicalStimulation`, :class:`Triggering`, :class:`PositiveInfluence`, :class:`NegativeInfluence`, :class:`UnknownModulation` and its subclasses) | The modulation arc layout (e.g. :class:`CatalysisLayout`, :class:`InhibitionLayout`, :class:`PositiveInfluenceLayout`) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, for example when the source is a boolean gate, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
+| :class:`BooleanLogicGate` and subclasses (e.g. :class:`AndGate`, :class:`OrGate`, :class:`NotGate`, :class:`UnknownGate`) | The gate layout (e.g. :class:`AndGateLayout`, :class:`OrGateLayout`) + every :class:`LogicArcLayout` input + every target species alias layout those logic arcs point to | The gate layout |
 
 Notes:
 

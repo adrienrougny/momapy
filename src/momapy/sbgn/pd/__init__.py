@@ -10,67 +10,31 @@ See :class:`~momapy.core.LayoutModelMapping` for the general concepts
 
 Singleton keys (one layout element represents the model element):
 
-+---------------------------------------------------------+-------------------------------------------------------------+
-| Model element                                           | Layout element used as the key                              |
-+=========================================================+=============================================================+
-| :class:`Compartment`                                    | :class:`CompartmentLayout`                                  |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`EntityPool` and subclasses (e.g.                | The corresponding ``*Layout`` (e.g.                         |
-| :class:`Macromolecule`, :class:`NucleicAcidFeature`,    | :class:`MacromoleculeLayout`, :class:`ComplexLayout`,       |
-| :class:`SimpleChemical`, :class:`Complex`,              | :class:`EmptySetLayout`, :class:`PerturbingAgentLayout`)    |
-| :class:`UnspecifiedEntity`, :class:`EmptySet`,          |                                                             |
-| :class:`PerturbingAgent`, and every                     |                                                             |
-| :class:`Multimer` variant)                              |                                                             |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Subunit` and subclasses                         | The corresponding ``*SubunitLayout``                        |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`StateVariable`                                  | :class:`StateVariableLayout`                                |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`UnitOfInformation`                              | :class:`UnitOfInformationLayout`                            |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Submap`                                         | :class:`SubmapLayout`                                       |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Reactant`                                       | :class:`ConsumptionLayout`                                  |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Product`                                        | :class:`ProductionLayout`                                   |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`LogicalOperatorInput`                           | :class:`LogicArcLayout`                                     |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`TagReference`, :class:`TerminalReference`       | :class:`EquivalenceArcLayout`                               |
-+---------------------------------------------------------+-------------------------------------------------------------+
-| :class:`Phenotype`                                      | :class:`PhenotypeLayout`                                    |
-+---------------------------------------------------------+-------------------------------------------------------------+
+| Model element | Layout element used as the key |
+|---|---|
+| :class:`Compartment` | :class:`CompartmentLayout` |
+| :class:`EntityPool` and subclasses (e.g. :class:`Macromolecule`, :class:`NucleicAcidFeature`, :class:`SimpleChemical`, :class:`Complex`, :class:`UnspecifiedEntity`, :class:`EmptySet`, :class:`PerturbingAgent`, and every :class:`Multimer` variant) | The corresponding `*Layout` (e.g. :class:`MacromoleculeLayout`, :class:`ComplexLayout`, :class:`EmptySetLayout`, :class:`PerturbingAgentLayout`) |
+| :class:`Subunit` and subclasses | The corresponding `*SubunitLayout` |
+| :class:`StateVariable` | :class:`StateVariableLayout` |
+| :class:`UnitOfInformation` | :class:`UnitOfInformationLayout` |
+| :class:`Submap` | :class:`SubmapLayout` |
+| :class:`Reactant` | :class:`ConsumptionLayout` |
+| :class:`Product` | :class:`ProductionLayout` |
+| :class:`LogicalOperatorInput` | :class:`LogicArcLayout` |
+| :class:`TagReference`, :class:`TerminalReference` | :class:`EquivalenceArcLayout` |
+| :class:`Phenotype` | :class:`PhenotypeLayout` |
 
 Frozenset keys (a cluster of layout elements jointly represents the
 model element; the **anchor** is the layout that stands for the cluster
 on its own and must be passed as ``anchor=`` when calling
 :meth:`~momapy.core.LayoutModelMappingBuilder.add_mapping`):
 
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| Model element                                         | Members of the frozenset key                                | Anchor                           |
-+=======================================================+=============================================================+==================================+
-| :class:`Process` and subclasses (e.g.                 | The process ``*Layout`` (e.g.                               | The process ``*Layout``          |
-| :class:`StoichiometricProcess`,                       | :class:`GenericProcessLayout`, :class:`AssociationLayout`,  |                                  |
-| :class:`GenericProcess`,                              | :class:`DissociationLayout`) + every                        |                                  |
-| :class:`UncertainProcess`,                            | :class:`ConsumptionLayout` and :class:`ProductionLayout`    |                                  |
-| :class:`Association`, :class:`Dissociation`,          | attached to the process + every target layout (the          |                                  |
-| :class:`OmittedProcess`)                              | entity-pool layouts those arcs point to)                    |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| :class:`LogicalOperator` and subclasses (e.g.         | The operator ``*Layout`` (e.g. :class:`AndOperatorLayout`,  | The operator ``*Layout``         |
-| :class:`AndOperator`, :class:`OrOperator`,            | :class:`OrOperatorLayout`) + every :class:`LogicArcLayout`  |                                  |
-| :class:`NotOperator`, :class:`EquivalenceOperator`)   | input + every target layout those logic arcs point to       |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| :class:`Modulation` and subclasses (e.g.              | The modulation arc layout (e.g.                             | The modulation arc layout        |
-| :class:`Stimulation`, :class:`Inhibition`,            | :class:`ModulationLayout`, :class:`StimulationLayout`,      |                                  |
-| :class:`Catalysis`, :class:`NecessaryStimulation`)    | :class:`InhibitionLayout`) + all layouts in the source      |                                  |
-|                                                       | cluster (resolved via the source's own frozenset key if it  |                                  |
-|                                                       | has one, else the source layout itself) + all layouts in    |                                  |
-|                                                       | the target cluster (resolved the same way)                  |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
-| :class:`Tag` or :class:`Terminal` carrying            | The :class:`TagLayout` or :class:`TerminalLayout` + every   | The :class:`TagLayout` or        |
-| :class:`TagReference` or :class:`TerminalReference`   | :class:`EquivalenceArcLayout` reference arc + every         | :class:`TerminalLayout`          |
-| arcs                                                  | referenced entity layout                                    |                                  |
-+-------------------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| Model element | Members of the frozenset key | Anchor |
+|---|---|---|
+| :class:`Process` and subclasses (e.g. :class:`StoichiometricProcess`, :class:`GenericProcess`, :class:`UncertainProcess`, :class:`Association`, :class:`Dissociation`, :class:`OmittedProcess`) | The process `*Layout` (e.g. :class:`GenericProcessLayout`, :class:`AssociationLayout`, :class:`DissociationLayout`) + every :class:`ConsumptionLayout` and :class:`ProductionLayout` attached to the process + every target layout (the entity-pool layouts those arcs point to) | The process `*Layout` |
+| :class:`LogicalOperator` and subclasses (e.g. :class:`AndOperator`, :class:`OrOperator`, :class:`NotOperator`, :class:`EquivalenceOperator`) | The operator `*Layout` (e.g. :class:`AndOperatorLayout`, :class:`OrOperatorLayout`) + every :class:`LogicArcLayout` input + every target layout those logic arcs point to | The operator `*Layout` |
+| :class:`Modulation` and subclasses (e.g. :class:`Stimulation`, :class:`Inhibition`, :class:`Catalysis`, :class:`NecessaryStimulation`) | The modulation arc layout (e.g. :class:`ModulationLayout`, :class:`StimulationLayout`, :class:`InhibitionLayout`) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
+| :class:`Tag` or :class:`Terminal` carrying :class:`TagReference` or :class:`TerminalReference` arcs | The :class:`TagLayout` or :class:`TerminalLayout` + every :class:`EquivalenceArcLayout` reference arc + every referenced entity layout | The :class:`TagLayout` or :class:`TerminalLayout` |
 
 Standalone :class:`Tag` and :class:`Terminal` instances (with no
 reference arcs) use a singleton key: :class:`TagLayout` or
