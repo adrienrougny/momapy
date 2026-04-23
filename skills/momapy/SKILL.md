@@ -74,22 +74,72 @@ from momapy.io import read
 
 # Format auto-detected from file extension; pass reader="sbgnml" / "celldesigner" / "pickle" to force.
 result = read("map.sbgn")
-
-map_ = result.obj                                  # Map
-element_to_annotations = result.element_to_annotations        # dict[MapElement, list[Annotation]]
-element_to_notes = result.element_to_notes                    # dict[MapElement, str]
-id_to_element = result.id_to_element               # dict[str, MapElement]
 ```
 
-To list available readers / writers:
+`read()` returns a **`ReaderResult`** (`momapy.io.core.ReaderResult`) — a dataclass carrying the parsed object together with everything the reader learned about the source file that could not be stored on the frozen object itself. Every field is immutable (`frozendict` / `FrozenSurjectionDict` / frozen dataclass).
+
+| Field | Type | What it holds |
+|---|---|---|
+| `obj` | `Map` \| `Model` \| `Layout` \| `None` | The parsed object. Top-level object depends on `return_type` (default `"map"`). |
+| `element_to_annotations` | `frozendict[MapElement, frozenset[Annotation]]` | RDF/MIRIAM annotations attached to each element. |
+| `element_to_notes` | `frozendict[MapElement, frozenset[str]]` | Free-text `<notes>` blocks attached to each element. |
+| `id_to_element` | `frozendict[str, MapElement]` | Looks up any momapy element (model **or** layout) by its `id_`. Built by walking `obj.descendants()`. Keys are the momapy-assigned IDs — see "momapy IDs vs source IDs" below. |
+| `source_id_to_model_element` | `FrozenSurjectionDict[str, ModelElement]` \| `None` | Maps IDs that appeared verbatim in the source file to the model element they named. `None` when no model was read. |
+| `source_id_to_layout_element` | `FrozenSurjectionDict[str, LayoutElement]` \| `None` | Same, for layouts. `None` when no layout was read. |
+| `file_path` | `str` \| `os.PathLike` \| `None` | The path that was read. |
+
+### momapy IDs vs source IDs
+
+momapy elements carry a stable `id_` attribute (see the **ID Assignment Patterns** table in `CLAUDE.md`) that is *derived* from the source file — e.g. for SBGN-ML a model element's `id_` is `f"{xml_id}_model"` and the paired layout's `id_` is the raw `xml_id`. For CellDesigner the derivation is more involved (composite IDs, metaids, dual registration of species under both `species_id` and `speciesAlias_id`).
+
+Because of this, there are **two different lookup dicts**:
+
+- **`id_to_element`** is keyed by the **momapy `id_`** of the element. Use it when you already have a momapy ID in hand — e.g. a reference you stored earlier, a value from `element.id_`.
+- **`source_id_to_model_element`** / **`source_id_to_layout_element`** are keyed by the **original identifier from the source file** (e.g. `<glyph id="…">` in SBGN-ML, `<species id="…">` or `<speciesAlias id="…">` in CellDesigner). Use these when you need to correlate a momapy element back to the raw file — for roundtrip fidelity, cross-file references, or debugging.
+
+Only IDs that existed *verbatim* in the source land in `source_id_to_model_element` / `source_id_to_layout_element`. Synthetic / composite / auto-generated IDs (e.g. CellDesigner modification composite IDs, UUID fallbacks) are **excluded** — they would not make sense to a tool reading the source file. `id_to_element` has no such filter and contains every element in the map.
+
+### `FrozenSurjectionDict` and `.inverse`
+
+`source_id_to_model_element` and `source_id_to_layout_element` are **`FrozenSurjectionDict`** (`momapy.utils.FrozenSurjectionDict`) — an immutable dict that additionally exposes a cached **inverse mapping** from values back to keys. This is what you need when a single momapy element was registered under several source IDs (e.g. a CellDesigner species registered under both its `species_id` and its `speciesAlias_id`).
+
+```python
+source_id_to_model_element["s1"]                      # → the Macromolecule model element
+source_id_to_model_element.inverse[macromolecule]     # → ['s1', 'sa1']  (list of source IDs)
+```
+
+`.inverse` returns a `frozendict[value, list[key]]`. Each value maps to the **list** of source IDs that pointed to it. Writers use this to recover the original source IDs for roundtrip fidelity:
+
+```python
+# Inside a writer, wanting to reuse the original XML id for a model element
+original_ids = writing_context.source_id_to_model_element.inverse.get(model_element)
+xml_id = original_ids[0] if original_ids else generate_new_id()
+```
+
+Related surjection helpers — both live in `momapy.utils`:
+
+- **`SurjectionDict`** — the mutable equivalent, used inside the builder for `LayoutModelMapping._singleton_to_key` (the anchor → frozenset lookup). `.inverse` is rebuilt incrementally on every mutation.
+- **`IdentitySurjectionDict`** — identity-keyed variant; the inverse is keyed by `id(value)` so distinct objects that compare equal are kept distinct. Used internally by reading contexts (`xml_id_to_model_element`, `model_element_remap`) to avoid conflating model-element-equal-but-not-identical duplicates.
+
+You will normally only touch `FrozenSurjectionDict` on a `ReaderResult`. The other two are implementation details of the reader and builder.
+
+### Reader options
+
+Reader-specific options can be passed as kwargs to `read()`:
+
+- `return_type`: `"map"` (default), `"model"`, or `"layout"` — controls what `result.obj` is.
+- `with_annotations`, `with_notes`: set to `False` to skip parsing those blocks.
+- Format-specific options (e.g. `xsep`, `ysep` for SBGN-ML) — see each reader's `read()` signature.
+
+When `return_type != "map"`, the unused side's source-id dict is `None` (e.g. `source_id_to_layout_element is None` for `return_type="model"`).
+
+### Listing readers and writers
 
 ```python
 from momapy.io import list_readers, list_writers
 list_readers()   # ['sbgnml', 'celldesigner', 'pickle', ...]
 list_writers()
 ```
-
-Reader-specific options can be passed as kwargs to `read()` (e.g. `with_annotations=False`, `with_notes=False`, `return_type="map"`). See each reader's `read()` for the full signature.
 
 ---
 
