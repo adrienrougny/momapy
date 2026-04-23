@@ -1,1 +1,1 @@
-:::momapy.styling
+::: momapy.styling

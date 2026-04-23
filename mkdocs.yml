@@ -11,7 +11,6 @@ nav:
   - Styling: styling.md
   - CLI reference: cli.md
   - API reference:
-    - Momapy: api_reference/momapy.md
     - Core: api_reference/core.md
     - Builder: api_reference/builder.md
     - Drawing: api_reference/drawing.md
@@ -25,17 +24,17 @@ nav:
       - Skia: api_reference/rendering/skia.md
       - SVG-native: api_reference/rendering/svg_native.md
     - SBGN:
-      - Elements: api_reference/sbgn/elements.md
+      - SBGN: api_reference/sbgn/sbgn.md
       - PD: api_reference/sbgn/pd.md
       - AF: api_reference/sbgn/af.md
       - I/O:
         - SBGN-ML: api_reference/sbgn/io/sbgnml.md
     - CellDesigner:
-      - Core: api_reference/celldesigner/core.md
+      - CellDesigner: api_reference/celldesigner/celldesigner.md
       - I/O:
         - CD: api_reference/celldesigner/io/celldesigner.md
     - SBML:
-      - Model: api_reference/sbml/model.md
+      - SBML: api_reference/sbml/sbml.md
       - I/O:
         - SBML: api_reference/sbml/io/sbml.md
   - Changelog: CHANGELOG.md
