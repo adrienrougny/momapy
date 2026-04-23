@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sbgn xmlns="http://sbgn.org/libsbgn/0.3">
+    <map language="process description" id="map_dedup_annotated">
+        <glyph id="glyphA" class="macromolecule">
+            <label text="ERK"/>
+            <bbox y="100.0" x="100.0" h="60.0" w="120.0"/>
+            <extension>
+                <annotation>
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                             xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+                        <rdf:Description rdf:about="#glyphA">
+                            <bqbiol:is>
+                                <rdf:Bag>
+                                    <rdf:li rdf:resource="urn:miriam:uniprot:P28482"/>
+                                </rdf:Bag>
+                            </bqbiol:is>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </annotation>
+            </extension>
+            <notes>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                    <body>Note from glyphA.</body>
+                </html>
+            </notes>
+        </glyph>
+        <glyph id="glyphB" class="macromolecule">
+            <label text="ERK"/>
+            <bbox y="100.0" x="300.0" h="60.0" w="120.0"/>
+            <extension>
+                <annotation>
+                    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                             xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
+                        <rdf:Description rdf:about="#glyphB">
+                            <bqbiol:hasTaxon>
+                                <rdf:Bag>
+                                    <rdf:li rdf:resource="urn:miriam:taxonomy:9606"/>
+                                </rdf:Bag>
+                            </bqbiol:hasTaxon>
+                        </rdf:Description>
+                    </rdf:RDF>
+                </annotation>
+            </extension>
+            <notes>
+                <html xmlns="http://www.w3.org/1999/xhtml">
+                    <body>Note from glyphB.</body>
+                </html>
+            </notes>
+        </glyph>
+    </map>
+</sbgn>

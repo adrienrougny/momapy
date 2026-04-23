@@ -264,3 +264,78 @@ class TestSBGNNotesContent:
             pytest.skip("simple_annotated.sbgn not found")
         result = momapy.io.core.read(ANNOTATED_FILE, with_notes=False)
         assert result.element_to_notes == frozendict.frozendict()
+
+
+DEDUP_ANNOTATED_FILE = os.path.join(SBGN_MAPS_DIR, "dedup_annotated.sbgn")
+
+
+class TestSBGNSourceIdAnnotationsAndNotes:
+    """Tests per-source-id annotations/notes on ReaderResult for SBGN-ML.
+
+    Uses dedup_annotated.sbgn which has two macromolecule glyphs with the
+    same label (``ERK``) — they deduplicate to a single model element —
+    but carry divergent RDF annotations and divergent notes.
+    """
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(DEDUP_ANNOTATED_FILE):
+            pytest.skip("dedup_annotated.sbgn not found")
+        return momapy.io.core.read(
+            DEDUP_ANNOTATED_FILE, with_annotations=True, with_notes=True
+        )
+
+    def test_elements_are_deduplicated(self, result):
+        """The two ERK glyphs collapse to a single entity pool."""
+        assert len(result.obj.model.entity_pools) == 1
+
+    def test_source_id_to_annotations_is_frozendict(self, result):
+        assert isinstance(result.source_id_to_annotations, frozendict.frozendict)
+
+    def test_source_id_to_notes_is_frozendict(self, result):
+        assert isinstance(result.source_id_to_notes, frozendict.frozendict)
+
+    def test_per_source_annotations_granularity(self, result):
+        """Each source glyph keeps its own annotation set."""
+        a_annots = result.source_id_to_annotations["glyphA"]
+        b_annots = result.source_id_to_annotations["glyphB"]
+        a_resources = {r for annot in a_annots for r in annot.resources}
+        b_resources = {r for annot in b_annots for r in annot.resources}
+        assert "urn:miriam:uniprot:P28482" in a_resources
+        assert "urn:miriam:uniprot:P28482" not in b_resources
+        assert "urn:miriam:taxonomy:9606" in b_resources
+        assert "urn:miriam:taxonomy:9606" not in a_resources
+
+    def test_per_source_notes_granularity(self, result):
+        """Each source glyph keeps its own notes set."""
+        a_notes = " ".join(result.source_id_to_notes["glyphA"])
+        b_notes = " ".join(result.source_id_to_notes["glyphB"])
+        assert "glyphA" in a_notes and "glyphB" not in a_notes
+        assert "glyphB" in b_notes and "glyphA" not in b_notes
+
+    def test_merged_view_is_union_of_per_source(self, result):
+        """For the deduplicated ERK, merged annotations/notes equal the
+        union of per-source annotations/notes across source ids that
+        bind to it."""
+        (erk,) = tuple(result.obj.model.entity_pools)
+        source_ids = result.source_id_to_model_element.inverse[erk]
+        assert set(source_ids) == {"glyphA", "glyphB"}
+        union_annots = set()
+        union_notes = set()
+        for source_id in source_ids:
+            union_annots |= result.source_id_to_annotations.get(source_id, frozenset())
+            union_notes |= result.source_id_to_notes.get(source_id, frozenset())
+        assert result.element_to_annotations[erk] == frozenset(union_annots)
+        assert result.element_to_notes[erk] == frozenset(union_notes)
+
+    def test_with_annotations_false_empties_source_id(self):
+        if not os.path.exists(DEDUP_ANNOTATED_FILE):
+            pytest.skip("dedup_annotated.sbgn not found")
+        result = momapy.io.core.read(DEDUP_ANNOTATED_FILE, with_annotations=False)
+        assert result.source_id_to_annotations == frozendict.frozendict()
+
+    def test_with_notes_false_empties_source_id(self):
+        if not os.path.exists(DEDUP_ANNOTATED_FILE):
+            pytest.skip("dedup_annotated.sbgn not found")
+        result = momapy.io.core.read(DEDUP_ANNOTATED_FILE, with_notes=False)
+        assert result.source_id_to_notes == frozendict.frozendict()

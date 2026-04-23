@@ -151,6 +151,18 @@ class ReaderResult(IOResult):
         source_id_to_layout_element: Mapping from source file IDs
             (e.g. XML attributes) to layout elements.  Same
             constraints as ``source_id_to_model_element``.
+        source_id_to_annotations: Mapping from source file IDs to the
+            RDF/MIRIAM annotations attached to that specific source
+            element.  Parallel to ``element_to_annotations`` but
+            preserves per-source granularity when several source
+            elements deduplicate to a single model element.  Combine
+            with ``source_id_to_model_element.inverse`` to recover the
+            full set of source-side annotations that merged into a
+            given model element.
+        source_id_to_notes: Mapping from source file IDs to the free
+            text ``<notes>`` blocks attached to that specific source
+            element.  Parallel to ``element_to_notes``; same
+            per-source semantics as ``source_id_to_annotations``.
         file_path: Path of the file that was read.
     """
 
@@ -160,6 +172,8 @@ class ReaderResult(IOResult):
     id_to_element: frozendict.frozendict | None = None
     source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None = None
     source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None = None
+    source_id_to_annotations: frozendict.frozendict | None = None
+    source_id_to_notes: frozendict.frozendict | None = None
     file_path: str | os.PathLike | None = None
 
 

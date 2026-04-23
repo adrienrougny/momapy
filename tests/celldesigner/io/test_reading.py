@@ -325,3 +325,81 @@ class TestCellDesignerEmptyModifications:
         states = {mod.state for mod in species.modifications}
         assert ModificationState.PHOSPHORYLATED in states
         assert None in states
+
+
+APOPTOSIS_FILE = os.path.join(CELLDESIGNER_MAPS_DIR, "Apoptosis_pathway.xml")
+
+
+class TestCellDesignerSourceIdAnnotationsAndNotes:
+    """Tests per-source-id annotations/notes on ReaderResult for CellDesigner.
+
+    Uses the Apoptosis pathway map, which contains species that share
+    the same model identity across multiple CellDesigner aliases, so
+    per-source granularity is non-trivial.
+    """
+
+    @pytest.fixture(scope="class")
+    def result(self):
+        if not os.path.exists(APOPTOSIS_FILE):
+            pytest.skip("Apoptosis_pathway.xml not found")
+        return momapy.io.core.read(
+            APOPTOSIS_FILE, with_annotations=True, with_notes=True
+        )
+
+    def test_source_id_to_annotations_is_frozendict(self, result):
+        assert isinstance(result.source_id_to_annotations, frozendict.frozendict)
+
+    def test_source_id_to_notes_is_frozendict(self, result):
+        assert isinstance(result.source_id_to_notes, frozendict.frozendict)
+
+    def test_source_id_to_annotations_non_empty(self, result):
+        assert len(result.source_id_to_annotations) > 0
+
+    def test_values_are_frozensets_of_annotations(self, result):
+        for source_id, annots in result.source_id_to_annotations.items():
+            assert isinstance(source_id, str)
+            assert isinstance(annots, frozenset)
+            for a in annots:
+                assert isinstance(a, momapy.sbml.model.RDFAnnotation)
+
+    def test_values_are_frozensets_of_strings(self, result):
+        for source_id, notes in result.source_id_to_notes.items():
+            assert isinstance(source_id, str)
+            assert isinstance(notes, frozenset)
+            for n in notes:
+                assert isinstance(n, str)
+
+    def test_merged_view_is_union_of_per_source(self, result):
+        """``element_to_annotations[e]`` equals the union of
+        ``source_id_to_annotations[s]`` over ``s`` in the inverse
+        source-id set for ``e``.  Same invariant for notes."""
+        for (
+            model_element,
+            source_ids,
+        ) in result.source_id_to_model_element.inverse.items():
+            merged_annots = result.element_to_annotations.get(
+                model_element, frozenset()
+            )
+            union_annots = set()
+            for source_id in source_ids:
+                union_annots |= result.source_id_to_annotations.get(
+                    source_id, frozenset()
+                )
+            assert merged_annots == frozenset(union_annots)
+            merged_notes = result.element_to_notes.get(model_element, frozenset())
+            union_notes = set()
+            for source_id in source_ids:
+                union_notes |= result.source_id_to_notes.get(source_id, frozenset())
+            assert merged_notes == frozenset(union_notes)
+
+    def test_with_annotations_false_empties_source_id(self):
+        if not os.path.exists(APOPTOSIS_FILE):
+            pytest.skip("Apoptosis_pathway.xml not found")
+        result = momapy.io.core.read(APOPTOSIS_FILE, with_annotations=False)
+        assert result.source_id_to_annotations == frozendict.frozendict()
+
+    def test_with_notes_false_empties_source_id(self):
+        if not os.path.exists(APOPTOSIS_FILE):
+            pytest.skip("Apoptosis_pathway.xml not found")
+        result = momapy.io.core.read(APOPTOSIS_FILE, with_notes=False)
+        assert result.source_id_to_notes == frozendict.frozendict()

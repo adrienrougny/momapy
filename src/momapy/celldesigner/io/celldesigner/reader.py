@@ -695,6 +695,8 @@ class CellDesignerReader(Reader):
             id_to_element,
             source_id_to_model_element,
             source_id_to_layout_element,
+            source_id_to_annotations,
+            source_id_to_notes,
         ) = cls._make_main_obj(
             cd_model=cd_sbml.model,
             return_type=return_type,
@@ -710,6 +712,8 @@ class CellDesignerReader(Reader):
             id_to_element=id_to_element,
             source_id_to_model_element=source_id_to_model_element,
             source_id_to_layout_element=source_id_to_layout_element,
+            source_id_to_annotations=source_id_to_annotations,
+            source_id_to_notes=source_id_to_notes,
             file_path=file_path,
         )
         return result
@@ -734,6 +738,8 @@ class CellDesignerReader(Reader):
             layout = None
         element_to_annotations = collections.defaultdict(set)
         element_to_notes = collections.defaultdict(set)
+        source_id_to_annotations = collections.defaultdict(set)
+        source_id_to_notes = collections.defaultdict(set)
         if model is not None or layout is not None:
             if model is not None and layout is not None:
                 layout_model_mapping = LayoutModelMappingBuilder()
@@ -746,6 +752,8 @@ class CellDesignerReader(Reader):
                 xml_id_to_model_element=IdentitySurjectionDict(),
                 element_to_annotations=element_to_annotations,
                 element_to_notes=element_to_notes,
+                source_id_to_annotations=source_id_to_annotations,
+                source_id_to_notes=source_id_to_notes,
                 layout_model_mapping=layout_model_mapping,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
@@ -828,6 +836,12 @@ class CellDesignerReader(Reader):
         notes = frozendict.frozendict(
             {key: frozenset(val) for key, val in element_to_notes.items()}
         )
+        frozen_source_id_to_annotations = frozendict.frozendict(
+            {key: frozenset(val) for key, val in source_id_to_annotations.items()}
+        )
+        frozen_source_id_to_notes = frozendict.frozendict(
+            {key: frozenset(val) for key, val in source_id_to_notes.items()}
+        )
         if model is not None or layout is not None:
             id_to_element, source_id_to_model_element, source_id_to_layout_element = (
                 build_id_mappings(
@@ -848,6 +862,8 @@ class CellDesignerReader(Reader):
             id_to_element,
             source_id_to_model_element,
             source_id_to_layout_element,
+            frozen_source_id_to_annotations,
+            frozen_source_id_to_notes,
         )
 
     @classmethod
@@ -923,11 +939,17 @@ class CellDesignerReader(Reader):
                 cd_compartment.get("id"),
             )
             _reading_model.make_and_add_annotations(
-                reading_context, cd_compartment, model_element
+                reading_context,
+                cd_compartment,
+                model_element,
+                source_id=cd_compartment.get("id"),
             )
-            if reading_context.with_notes:
-                notes = _reading_model.make_notes_from_element(cd_compartment)
-                reading_context.element_to_notes[model_element].update(notes)
+            _reading_model.make_and_add_notes(
+                reading_context,
+                cd_compartment,
+                model_element,
+                source_id=cd_compartment.get("id"),
+            )
         else:
             model_element = None
         layout_element = None
@@ -1206,30 +1228,35 @@ class CellDesignerReader(Reader):
                         cd_species.get("id"),
                     )
                     _reading_model.make_and_add_annotations(
-                        reading_context, cd_species, model_element
+                        reading_context,
+                        cd_species,
+                        model_element,
+                        source_id=cd_species.get("id"),
                     )
-                    if reading_context.with_notes:
-                        notes = _reading_model.make_notes_from_element(cd_species)
-                        reading_context.element_to_notes[model_element].update(notes)
+                    _reading_model.make_and_add_notes(
+                        reading_context,
+                        cd_species,
+                        model_element,
+                        source_id=cd_species.get("id"),
+                    )
                 else:  # included species case
                     model_element = add_or_replace_element_in_set(
                         model_element,
                         super_model_element.subunits,
                         func=lambda new, old: new.id_ < old.id_,
                     )
-                    if reading_context.with_annotations:
-                        cd_notes = get_notes(cd_species)
-                        if cd_notes is not None:
-                            annotations = _reading_model.make_annotations_from_notes(
-                                cd_notes
-                            )
-                            if annotations:
-                                reading_context.element_to_annotations[
-                                    model_element
-                                ].update(annotations)
-                    if reading_context.with_notes:
-                        notes = _reading_model.make_notes_from_element(cd_species)
-                        reading_context.element_to_notes[model_element].update(notes)
+                    _reading_model.make_and_add_annotations_from_notes(
+                        reading_context,
+                        get_notes(cd_species),
+                        model_element,
+                        source_id=cd_species.get("id"),
+                    )
+                    _reading_model.make_and_add_notes(
+                        reading_context,
+                        cd_species,
+                        model_element,
+                        source_id=cd_species.get("id"),
+                    )
                 reading_context.xml_id_to_model_element[cd_species.get("id")] = (
                     model_element
                 )
@@ -1507,11 +1534,17 @@ class CellDesignerReader(Reader):
                     cd_reaction.get("id"),
                 )
                 _reading_model.make_and_add_annotations(
-                    reading_context, cd_reaction, model_element
+                    reading_context,
+                    cd_reaction,
+                    model_element,
+                    source_id=cd_reaction.get("id"),
                 )
-                if reading_context.with_notes:
-                    notes = _reading_model.make_notes_from_element(cd_reaction)
-                    reading_context.element_to_notes[model_element].update(notes)
+                _reading_model.make_and_add_notes(
+                    reading_context,
+                    cd_reaction,
+                    model_element,
+                    source_id=cd_reaction.get("id"),
+                )
             if reading_context.layout is not None:
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[layout_element.id_] = (
@@ -1901,11 +1934,17 @@ class CellDesignerReader(Reader):
                     cd_reaction.get("id"),
                 )
                 _reading_model.make_and_add_annotations(
-                    reading_context, cd_reaction, model_element
+                    reading_context,
+                    cd_reaction,
+                    model_element,
+                    source_id=cd_reaction.get("id"),
                 )
-                if reading_context.with_notes:
-                    notes = _reading_model.make_notes_from_element(cd_reaction)
-                    reading_context.element_to_notes[model_element].update(notes)
+                _reading_model.make_and_add_notes(
+                    reading_context,
+                    cd_reaction,
+                    model_element,
+                    source_id=cd_reaction.get("id"),
+                )
             else:
                 model_element = None
             if reading_context.layout is not None:

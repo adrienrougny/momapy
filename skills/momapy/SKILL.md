@@ -81,8 +81,10 @@ result = read("map.sbgn")
 | Field | Type | What it holds |
 |---|---|---|
 | `obj` | `Map` \| `Model` \| `Layout` \| `None` | The parsed object. Top-level object depends on `return_type` (default `"map"`). |
-| `element_to_annotations` | `frozendict[MapElement, frozenset[Annotation]]` | RDF/MIRIAM annotations attached to each element. |
-| `element_to_notes` | `frozendict[MapElement, frozenset[str]]` | Free-text `<notes>` blocks attached to each element. |
+| `element_to_annotations` | `frozendict[MapElement, frozenset[Annotation]]` | RDF/MIRIAM annotations attached to each element. Merged view: when reader dedup collapses several source elements into one model element, their annotation sets are unioned. |
+| `element_to_notes` | `frozendict[MapElement, frozenset[str]]` | Free-text `<notes>` blocks attached to each element. Merged view, same semantics as `element_to_annotations`. |
+| `source_id_to_annotations` | `frozendict[str, frozenset[Annotation]]` | Per-source view of annotations, keyed by the raw source XML id. Preserves per-source granularity even when several source elements deduplicate into a single model element — combine with `source_id_to_model_element.inverse` to recover which annotations came from which source. Only keys from source elements with a stable XML id are populated. |
+| `source_id_to_notes` | `frozendict[str, frozenset[str]]` | Per-source view of notes, keyed by the raw source XML id. Same semantics as `source_id_to_annotations`. |
 | `id_to_element` | `frozendict[str, MapElement]` | Looks up any momapy element (model **or** layout) by its `id_`. Built by walking `obj.descendants()`. Keys are the momapy-assigned IDs — see "momapy IDs vs source IDs" below. |
 | `source_id_to_model_element` | `FrozenSurjectionDict[str, ModelElement]` \| `None` | Maps IDs that appeared verbatim in the source file to the model element they named. `None` when no model was read. |
 | `source_id_to_layout_element` | `FrozenSurjectionDict[str, LayoutElement]` \| `None` | Same, for layouts. `None` when no layout was read. |

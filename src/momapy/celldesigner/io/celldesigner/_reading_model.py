@@ -76,18 +76,76 @@ def make_notes_from_element(cd_element):
     return make_notes(cd_notes)
 
 
-def make_and_add_annotations(reading_context, cd_element, model_element):
+def make_and_add_annotations(
+    reading_context, cd_element, model_element, source_id=None
+):
     """Add annotations from an XML element to the reading context.
+
+    Populates both ``element_to_annotations`` (keyed by model element,
+    merged view) and ``source_id_to_annotations`` (keyed by source XML
+    id, per-source granularity) when ``source_id`` is given.
 
     Args:
         reading_context: The reading context.
         cd_element: The CellDesigner XML element.
         model_element: The frozen model element to associate with.
+        source_id: The raw source XML id of ``cd_element``.  When
+            ``None``, the per-source side table is not populated (used
+            for elements without a stable source id, e.g. the SBML
+            ``<model>`` root).
     """
     if reading_context.with_annotations:
         annotations = make_annotations_from_element(cd_element)
         if annotations:
             reading_context.element_to_annotations[model_element].update(annotations)
+            if source_id is not None:
+                reading_context.source_id_to_annotations[source_id].update(annotations)
+
+
+def make_and_add_notes(reading_context, cd_element, model_element, source_id=None):
+    """Add notes from an XML element to the reading context.
+
+    Populates both ``element_to_notes`` (merged view) and
+    ``source_id_to_notes`` (per-source granularity) when ``source_id``
+    is given.
+
+    Args:
+        reading_context: The reading context.
+        cd_element: The CellDesigner XML element.
+        model_element: The frozen model element to associate with.
+        source_id: The raw source XML id of ``cd_element``.  When
+            ``None``, the per-source side table is not populated.
+    """
+    if reading_context.with_notes:
+        notes = make_notes_from_element(cd_element)
+        if notes:
+            reading_context.element_to_notes[model_element].update(notes)
+            if source_id is not None:
+                reading_context.source_id_to_notes[source_id].update(notes)
+
+
+def make_and_add_annotations_from_notes(
+    reading_context, cd_notes, model_element, source_id=None
+):
+    """Add RDF annotations embedded in a ``<notes>`` block.
+
+    Used by the CellDesigner reader for included species, where RDF
+    annotations are nested inside the notes block instead of a
+    top-level ``<annotation>`` element.
+
+    Args:
+        reading_context: The reading context.
+        cd_notes: The SBML notes XML element.
+        model_element: The frozen model element to associate with.
+        source_id: The raw source XML id of the enclosing element.
+            When ``None``, the per-source side table is not populated.
+    """
+    if reading_context.with_annotations and cd_notes is not None:
+        annotations = make_annotations_from_notes(cd_notes)
+        if annotations:
+            reading_context.element_to_annotations[model_element].update(annotations)
+            if source_id is not None:
+                reading_context.source_id_to_annotations[source_id].update(annotations)
 
 
 def make_empty_model(cd_element):

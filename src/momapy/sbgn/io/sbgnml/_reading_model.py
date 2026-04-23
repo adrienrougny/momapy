@@ -28,22 +28,37 @@ def make_notes_from_element(sbgnml_element):
     return momapy.sbml.io.sbml._model.make_notes(sbgnml_notes)
 
 
-def make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element):
+def make_and_add_annotations_and_notes(
+    reading_context, sbgnml_element, model_element, source_id=None
+):
     """Add annotations and notes from an SBGN-ML element to the context.
+
+    Populates both the merged ``element_to_annotations`` /
+    ``element_to_notes`` side tables and the per-source
+    ``source_id_to_annotations`` / ``source_id_to_notes`` side tables
+    when ``source_id`` is given.
 
     Args:
         reading_context: The reading context.
         sbgnml_element: The SBGN-ML XML element.
         model_element: The frozen model element to associate with.
+        source_id: The raw source XML id of ``sbgnml_element``.  When
+            ``None``, the per-source side tables are not populated
+            (used for elements with no stable source id, e.g. the map
+            root in SBGN-ML 0.2).
     """
     if reading_context.with_annotations:
         annotations = make_annotations_from_element(sbgnml_element)
         if annotations:
             reading_context.element_to_annotations[model_element].update(annotations)
+            if source_id is not None:
+                reading_context.source_id_to_annotations[source_id].update(annotations)
     if reading_context.with_notes:
         notes = make_notes_from_element(sbgnml_element)
         if notes:
             reading_context.element_to_notes[model_element].update(notes)
+            if source_id is not None:
+                reading_context.source_id_to_notes[source_id].update(notes)
 
 
 def set_label(model_element, sbgnml_element):

@@ -92,6 +92,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             id_to_element,
             source_id_to_model_element,
             source_id_to_layout_element,
+            source_id_to_annotations,
+            source_id_to_notes,
         ) = cls._make_main_obj(
             sbgnml_map=sbgnml_sbgn.map,
             return_type=return_type,
@@ -109,6 +111,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             id_to_element=id_to_element,
             source_id_to_model_element=source_id_to_model_element,
             source_id_to_layout_element=source_id_to_layout_element,
+            source_id_to_annotations=source_id_to_annotations,
+            source_id_to_notes=source_id_to_notes,
             file_path=file_path,
         )
         return result
@@ -270,6 +274,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 xml_id_to_layout_element={},
                 element_to_annotations=collections.defaultdict(set),
                 element_to_notes=collections.defaultdict(set),
+                source_id_to_annotations=collections.defaultdict(set),
+                source_id_to_notes=collections.defaultdict(set),
                 layout_model_mapping=layout_model_mapping,
                 with_annotations=with_annotations,
                 with_notes=with_notes,
@@ -356,6 +362,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context,
                 sbgnml_map,
                 obj,
+                source_id=sbgnml_map_id,
             )
         elif return_type == "layout":
             obj = momapy.builder.object_from_builder(layout)
@@ -371,6 +378,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context,
                 sbgnml_map,
                 obj,
+                source_id=sbgnml_map_id,
             )
         element_to_annotations = frozendict.frozendict(
             {
@@ -382,6 +390,18 @@ class _SBGNMLReader(momapy.io.core.Reader):
             {
                 key: frozenset(value)
                 for key, value in reading_context.element_to_notes.items()
+            }
+        )
+        source_id_to_annotations = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in reading_context.source_id_to_annotations.items()
+            }
+        )
+        source_id_to_notes = frozendict.frozendict(
+            {
+                key: frozenset(value)
+                for key, value in reading_context.source_id_to_notes.items()
             }
         )
         if model is not None or layout is not None:
@@ -402,6 +422,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             id_to_element,
             source_id_to_model_element,
             source_id_to_layout_element,
+            source_id_to_annotations,
+            source_id_to_notes,
         )
 
     @classmethod
@@ -456,7 +478,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_compartment.get("id"),
                 )
                 momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
-                    reading_context, sbgnml_compartment, model_element
+                    reading_context,
+                    sbgnml_compartment,
+                    model_element,
+                    source_id=sbgnml_compartment.get("id"),
                 )
             if layout_element is not None:
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -503,7 +528,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_entity_pool.get("id"),
                 )
                 momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
-                    reading_context, sbgnml_entity_pool, model_element
+                    reading_context,
+                    sbgnml_entity_pool,
+                    model_element,
+                    source_id=sbgnml_entity_pool.get("id"),
                 )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
@@ -650,6 +678,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         reading_context,
                         sbgnml_subunit,
                         subunit_model_element,
+                        source_id=sbgnml_subunit.get("id"),
                     )
                 if layout_element is not None:
                     layout_element.layout_elements.append(subunit_layout_element)
@@ -747,7 +776,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_activity.get("id"),
                 )
                 momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
-                    reading_context, sbgnml_activity, model_element
+                    reading_context,
+                    sbgnml_activity,
+                    model_element,
+                    source_id=sbgnml_activity.get("id"),
                 )
             if layout_element is not None:
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -939,7 +971,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_submap.get("id"),
                 )
                 momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
-                    reading_context, sbgnml_submap, model_element
+                    reading_context,
+                    sbgnml_submap,
+                    model_element,
+                    source_id=sbgnml_submap.get("id"),
                 )
             if layout_element is not None:
                 layout_element = momapy.builder.object_from_builder(layout_element)
@@ -1122,7 +1157,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     sbgnml_phenotype.get("id"),
                 )
                 momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
-                    reading_context, sbgnml_phenotype, model_element
+                    reading_context,
+                    sbgnml_phenotype,
+                    model_element,
+                    source_id=sbgnml_phenotype.get("id"),
                 )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
@@ -1212,6 +1250,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context,
                     sbgnml_process,
                     model_element,
+                    source_id=sbgnml_process.get("id"),
                 )
             if model_element is not None and layout_element is not None:
                 reading_context.layout_model_mapping.add_mapping(
@@ -1509,6 +1548,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context,
                     sbgnml_modulation,
                     model_element,
+                    source_id=sbgnml_modulation.get("id"),
                 )
             else:
                 model_element = None

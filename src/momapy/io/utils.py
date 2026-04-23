@@ -4,6 +4,7 @@ These functions handle model element deduplication and stale reference
 remapping during the read process.  They are not part of the public API.
 """
 
+import collections
 import dataclasses
 import typing
 
@@ -57,6 +58,19 @@ class ReadingContext:
     xml_id_to_xml_element: dict = dataclasses.field(default_factory=dict)
     element_to_annotations: dict = dataclasses.field(default_factory=dict)
     element_to_notes: dict = dataclasses.field(default_factory=dict)
+    source_id_to_annotations: dict[str, set] = dataclasses.field(
+        default_factory=lambda: collections.defaultdict(set)
+    )
+    """Per-source-id annotations, keyed by the raw XML id of the source
+    element.  Parallel to ``element_to_annotations`` but preserves
+    per-source granularity even when reader deduplication collapses
+    several source elements into a single model element."""
+    source_id_to_notes: dict[str, set] = dataclasses.field(
+        default_factory=lambda: collections.defaultdict(set)
+    )
+    """Per-source-id notes, keyed by the raw XML id of the source
+    element.  Parallel to ``element_to_notes``; see
+    ``source_id_to_annotations``."""
     layout_model_mapping: typing.Any = None
     with_annotations: bool = True
     with_notes: bool = True
