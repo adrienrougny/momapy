@@ -9,45 +9,45 @@ Layout-model mapping catalogue
 
 This section lists, for each model-element category in CellDesigner,
 the shape of the corresponding key in
-:class:`~momapy.core.LayoutModelMapping`. See
-:class:`~momapy.core.LayoutModelMapping` for the general concepts
+[LayoutModelMapping][momapy.core.LayoutModelMapping]. See
+[LayoutModelMapping][momapy.core.LayoutModelMapping] for the general concepts
 (singleton keys, frozenset keys, anchors).
 
 Singleton keys (one layout element represents the model element):
 
 | Model element | Layout element used as the key |
 |---|---|
-| :class:`Compartment` | The compartment alias layout (e.g. :class:`OvalCompartmentLayout`, :class:`RectangleCompartmentLayout`, :class:`CornerCompartmentLayout`, :class:`LineCompartmentLayout`) |
-| :class:`Species` and subclasses (e.g. :class:`GenericProtein`, :class:`Receptor`, :class:`IonChannel`, :class:`Gene`, :class:`RNA`, :class:`Complex`, :class:`SimpleMolecule`, :class:`Ion`, :class:`Drug`, :class:`Phenotype`) | The species alias layout (e.g. :class:`GenericProteinLayout`, :class:`GeneLayout`). Active species use the `*ActiveLayout` variant (e.g. :class:`GenericProteinActiveLayout`) |
-| :class:`Modification` | :class:`ModificationLayout` |
-| :class:`StructuralState` | :class:`StructuralStateLayout` |
-| :class:`Reactant` | :class:`ConsumptionLayout` |
-| :class:`Product` | :class:`ProductionLayout` |
-| :class:`BooleanLogicGateInput` | :class:`LogicArcLayout` |
+| [Compartment][momapy.celldesigner.Compartment] | The compartment alias layout (e.g. [OvalCompartmentLayout][momapy.celldesigner.OvalCompartmentLayout], [RectangleCompartmentLayout][momapy.celldesigner.RectangleCompartmentLayout], [CornerCompartmentLayout][momapy.celldesigner.CornerCompartmentLayout], [LineCompartmentLayout][momapy.celldesigner.LineCompartmentLayout]) |
+| [Species][momapy.celldesigner.Species] and subclasses (e.g. [GenericProtein][momapy.celldesigner.GenericProtein], [Receptor][momapy.celldesigner.Receptor], [IonChannel][momapy.celldesigner.IonChannel], [Gene][momapy.celldesigner.Gene], [RNA][momapy.celldesigner.RNA], [Complex][momapy.celldesigner.Complex], [SimpleMolecule][momapy.celldesigner.SimpleMolecule], [Ion][momapy.celldesigner.Ion], [Drug][momapy.celldesigner.Drug], [Phenotype][momapy.celldesigner.Phenotype]) | The species alias layout (e.g. [GenericProteinLayout][momapy.celldesigner.GenericProteinLayout], [GeneLayout][momapy.celldesigner.GeneLayout]). Active species use the `*ActiveLayout` variant (e.g. [GenericProteinActiveLayout][momapy.celldesigner.GenericProteinActiveLayout]) |
+| [Modification][momapy.celldesigner.Modification] | [ModificationLayout][momapy.celldesigner.ModificationLayout] |
+| [StructuralState][momapy.celldesigner.StructuralState] | [StructuralStateLayout][momapy.celldesigner.StructuralStateLayout] |
+| [Reactant][momapy.celldesigner.Reactant] | [ConsumptionLayout][momapy.celldesigner.ConsumptionLayout] |
+| [Product][momapy.celldesigner.Product] | [ProductionLayout][momapy.celldesigner.ProductionLayout] |
+| [BooleanLogicGateInput][momapy.celldesigner.BooleanLogicGateInput] | [LogicArcLayout][momapy.celldesigner.LogicArcLayout] |
 
 Frozenset keys (a cluster of layout elements jointly represents the
 model element; the **anchor** is the layout that stands for the cluster
 on its own and must be passed as ``anchor=`` when calling
-:meth:`~momapy.core.LayoutModelMappingBuilder.add_mapping`):
+[add_mapping][momapy.core.LayoutModelMappingBuilder.add_mapping]):
 
 | Model element | Members of the frozenset key | Anchor |
 |---|---|---|
-| :class:`Reaction` and subclasses (e.g. :class:`StateTransition`, :class:`KnownTransitionOmitted`, :class:`UnknownTransition`, :class:`Transcription`, :class:`Translation`, :class:`Transport`, :class:`HeterodimerAssociation`, :class:`Dissociation`, :class:`Truncation`) | The reaction layout (e.g. :class:`StateTransitionLayout`, :class:`TranscriptionLayout`, :class:`DissociationLayout`) + every :class:`ConsumptionLayout` and :class:`ProductionLayout` attached to the reaction + every reactant and product target layout (the species alias layouts those arcs point to) | The reaction layout |
-| :class:`KnownOrUnknownModulation` and subclasses (e.g. :class:`Modulation`, :class:`Catalysis`, :class:`Inhibition`, :class:`PhysicalStimulation`, :class:`Triggering`, :class:`PositiveInfluence`, :class:`NegativeInfluence`, :class:`UnknownModulation` and its subclasses) | The modulation arc layout (e.g. :class:`CatalysisLayout`, :class:`InhibitionLayout`, :class:`PositiveInfluenceLayout`) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, for example when the source is a boolean gate, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
-| :class:`BooleanLogicGate` and subclasses (e.g. :class:`AndGate`, :class:`OrGate`, :class:`NotGate`, :class:`UnknownGate`) | The gate layout (e.g. :class:`AndGateLayout`, :class:`OrGateLayout`) + every :class:`LogicArcLayout` input + every target species alias layout those logic arcs point to | The gate layout |
+| [Reaction][momapy.celldesigner.Reaction] and subclasses (e.g. [StateTransition][momapy.celldesigner.StateTransition], [KnownTransitionOmitted][momapy.celldesigner.KnownTransitionOmitted], [UnknownTransition][momapy.celldesigner.UnknownTransition], [Transcription][momapy.celldesigner.Transcription], [Translation][momapy.celldesigner.Translation], [Transport][momapy.celldesigner.Transport], [HeterodimerAssociation][momapy.celldesigner.HeterodimerAssociation], [Dissociation][momapy.celldesigner.Dissociation], [Truncation][momapy.celldesigner.Truncation]) | The reaction layout (e.g. [StateTransitionLayout][momapy.celldesigner.StateTransitionLayout], [TranscriptionLayout][momapy.celldesigner.TranscriptionLayout], [DissociationLayout][momapy.celldesigner.DissociationLayout]) + every [ConsumptionLayout][momapy.celldesigner.ConsumptionLayout] and [ProductionLayout][momapy.celldesigner.ProductionLayout] attached to the reaction + every reactant and product target layout (the species alias layouts those arcs point to) | The reaction layout |
+| [KnownOrUnknownModulation][momapy.celldesigner.KnownOrUnknownModulation] and subclasses (e.g. [Modulation][momapy.celldesigner.Modulation], [Catalysis][momapy.celldesigner.Catalysis], [Inhibition][momapy.celldesigner.Inhibition], [PhysicalStimulation][momapy.celldesigner.PhysicalStimulation], [Triggering][momapy.celldesigner.Triggering], [PositiveInfluence][momapy.celldesigner.PositiveInfluence], [NegativeInfluence][momapy.celldesigner.NegativeInfluence], [UnknownModulation][momapy.celldesigner.UnknownModulation] and its subclasses) | The modulation arc layout (e.g. [CatalysisLayout][momapy.celldesigner.CatalysisLayout], [InhibitionLayout][momapy.celldesigner.InhibitionLayout], [PositiveInfluenceLayout][momapy.celldesigner.PositiveInfluenceLayout]) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, for example when the source is a boolean gate, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
+| [BooleanLogicGate][momapy.celldesigner.BooleanLogicGate] and subclasses (e.g. [AndGate][momapy.celldesigner.AndGate], [OrGate][momapy.celldesigner.OrGate], [NotGate][momapy.celldesigner.NotGate], [UnknownGate][momapy.celldesigner.UnknownGate]) | The gate layout (e.g. [AndGateLayout][momapy.celldesigner.AndGateLayout], [OrGateLayout][momapy.celldesigner.OrGateLayout]) + every [LogicArcLayout][momapy.celldesigner.LogicArcLayout] input + every target species alias layout those logic arcs point to | The gate layout |
 
 Notes:
 
-- :class:`SpeciesTemplate` and subclasses (e.g.
-  :class:`GenericProteinTemplate`, :class:`GeneTemplate`),
-  :class:`ModificationResidue`, and :class:`Region` have no layout key:
+- [SpeciesTemplate][momapy.celldesigner.SpeciesTemplate] and subclasses (e.g.
+  [GenericProteinTemplate][momapy.celldesigner.GenericProteinTemplate], [GeneTemplate][momapy.celldesigner.GeneTemplate]),
+  [ModificationResidue][momapy.celldesigner.ModificationResidue], and [Region][momapy.celldesigner.Region] have no layout key:
   templates and their residues or regions are not drawn directly —
-  only their :class:`Species` instances and the
-  :class:`Modification` or :class:`StructuralState` objects they carry
+  only their [Species][momapy.celldesigner.Species] instances and the
+  [Modification][momapy.celldesigner.Modification] or [StructuralState][momapy.celldesigner.StructuralState] objects they carry
   are.
-- :class:`KnownOrUnknownModulator` and its subclasses (e.g.
-  :class:`Catalyzer`, :class:`Inhibitor`,
-  :class:`PhysicalStimulator`, :class:`Trigger`) are modifier
+- [KnownOrUnknownModulator][momapy.celldesigner.KnownOrUnknownModulator] and its subclasses (e.g.
+  [Catalyzer][momapy.celldesigner.Catalyzer], [Inhibitor][momapy.celldesigner.Inhibitor],
+  [PhysicalStimulator][momapy.celldesigner.PhysicalStimulator], [Trigger][momapy.celldesigner.Trigger]) are modifier
   references: the modulation cluster above is what is stored in the
   mapping. Modulator metadata lives on the source side of that
   cluster.

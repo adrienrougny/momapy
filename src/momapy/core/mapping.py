@@ -11,12 +11,12 @@ import momapy.core.elements
 class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
     """Mapping between model elements and layout elements.
 
-    A :class:`~momapy.core.Map` can draw the same model element several
+    A [Map][momapy.core.Map] can draw the same model element several
     times, so the relation between layouts and model elements is a
     many-to-one mapping whose keys are layout elements and whose values
     are model elements. Two kinds of keys are used:
 
-    - **Singleton key** — a single :class:`~momapy.core.LayoutElement`
+    - **Singleton key** — a single [LayoutElement][momapy.core.LayoutElement]
       that represents a model element on its own (a macromolecule
       glyph, a compartment, a state variable, a modulation arc when
       no cluster is needed).
@@ -33,8 +33,8 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
     process glyph for a process, the operator glyph for a logical
     operator, the modulation arc for a modulation, the tag glyph for a
     tag). Anchors are registered through the ``anchor`` argument of
-    :meth:`LayoutModelMappingBuilder.add_mapping`. Once registered,
-    :meth:`get_mapping` resolves the anchor back to the model element
+    [add_mapping][momapy.core.mapping.LayoutModelMappingBuilder.add_mapping]. Once registered,
+    [get_mapping][momapy.core.mapping.LayoutModelMapping.get_mapping] resolves the anchor back to the model element
     stored under the frozenset key, and other composite keys can
     reference the cluster by its anchor rather than by the whole
     frozenset.

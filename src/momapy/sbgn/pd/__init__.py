@@ -4,41 +4,41 @@ Layout-model mapping catalogue
 ------------------------------
 
 This section lists, for each model-element category in SBGN-PD, the shape
-of the corresponding key in :class:`~momapy.core.LayoutModelMapping`.
-See :class:`~momapy.core.LayoutModelMapping` for the general concepts
+of the corresponding key in [LayoutModelMapping][momapy.core.LayoutModelMapping].
+See [LayoutModelMapping][momapy.core.LayoutModelMapping] for the general concepts
 (singleton keys, frozenset keys, anchors).
 
 Singleton keys (one layout element represents the model element):
 
 | Model element | Layout element used as the key |
 |---|---|
-| :class:`Compartment` | :class:`CompartmentLayout` |
-| :class:`EntityPool` and subclasses (e.g. :class:`Macromolecule`, :class:`NucleicAcidFeature`, :class:`SimpleChemical`, :class:`Complex`, :class:`UnspecifiedEntity`, :class:`EmptySet`, :class:`PerturbingAgent`, and every :class:`Multimer` variant) | The corresponding `*Layout` (e.g. :class:`MacromoleculeLayout`, :class:`ComplexLayout`, :class:`EmptySetLayout`, :class:`PerturbingAgentLayout`) |
-| :class:`Subunit` and subclasses | The corresponding `*SubunitLayout` |
-| :class:`StateVariable` | :class:`StateVariableLayout` |
-| :class:`UnitOfInformation` | :class:`UnitOfInformationLayout` |
-| :class:`Submap` | :class:`SubmapLayout` |
-| :class:`Reactant` | :class:`ConsumptionLayout` |
-| :class:`Product` | :class:`ProductionLayout` |
-| :class:`LogicalOperatorInput` | :class:`LogicArcLayout` |
-| :class:`TagReference`, :class:`TerminalReference` | :class:`EquivalenceArcLayout` |
-| :class:`Phenotype` | :class:`PhenotypeLayout` |
+| [Compartment][momapy.sbgn.pd.Compartment] | [CompartmentLayout][momapy.sbgn.pd.CompartmentLayout] |
+| [EntityPool][momapy.sbgn.pd.EntityPool] and subclasses (e.g. [Macromolecule][momapy.sbgn.pd.Macromolecule], [NucleicAcidFeature][momapy.sbgn.pd.NucleicAcidFeature], [SimpleChemical][momapy.sbgn.pd.SimpleChemical], [Complex][momapy.sbgn.pd.Complex], [UnspecifiedEntity][momapy.sbgn.pd.UnspecifiedEntity], [EmptySet][momapy.sbgn.pd.EmptySet], [PerturbingAgent][momapy.sbgn.pd.PerturbingAgent], and every [Multimer][momapy.sbgn.pd.Multimer] variant) | The corresponding `*Layout` (e.g. [MacromoleculeLayout][momapy.sbgn.pd.MacromoleculeLayout], [ComplexLayout][momapy.sbgn.pd.ComplexLayout], [EmptySetLayout][momapy.sbgn.pd.EmptySetLayout], [PerturbingAgentLayout][momapy.sbgn.pd.PerturbingAgentLayout]) |
+| [Subunit][momapy.sbgn.pd.Subunit] and subclasses | The corresponding `*SubunitLayout` |
+| [StateVariable][momapy.sbgn.pd.StateVariable] | [StateVariableLayout][momapy.sbgn.pd.StateVariableLayout] |
+| [UnitOfInformation][momapy.sbgn.pd.UnitOfInformation] | [UnitOfInformationLayout][momapy.sbgn.pd.UnitOfInformationLayout] |
+| [Submap][momapy.sbgn.pd.Submap] | [SubmapLayout][momapy.sbgn.pd.SubmapLayout] |
+| [Reactant][momapy.sbgn.pd.Reactant] | [ConsumptionLayout][momapy.sbgn.pd.ConsumptionLayout] |
+| [Product][momapy.sbgn.pd.Product] | [ProductionLayout][momapy.sbgn.pd.ProductionLayout] |
+| [LogicalOperatorInput][momapy.sbgn.pd.LogicalOperatorInput] | [LogicArcLayout][momapy.sbgn.pd.LogicArcLayout] |
+| [TagReference][momapy.sbgn.pd.TagReference], [TerminalReference][momapy.sbgn.pd.TerminalReference] | [EquivalenceArcLayout][momapy.sbgn.pd.EquivalenceArcLayout] |
+| [Phenotype][momapy.sbgn.pd.Phenotype] | [PhenotypeLayout][momapy.sbgn.pd.PhenotypeLayout] |
 
 Frozenset keys (a cluster of layout elements jointly represents the
 model element; the **anchor** is the layout that stands for the cluster
 on its own and must be passed as ``anchor=`` when calling
-:meth:`~momapy.core.LayoutModelMappingBuilder.add_mapping`):
+[add_mapping][momapy.core.LayoutModelMappingBuilder.add_mapping]):
 
 | Model element | Members of the frozenset key | Anchor |
 |---|---|---|
-| :class:`Process` and subclasses (e.g. :class:`StoichiometricProcess`, :class:`GenericProcess`, :class:`UncertainProcess`, :class:`Association`, :class:`Dissociation`, :class:`OmittedProcess`) | The process `*Layout` (e.g. :class:`GenericProcessLayout`, :class:`AssociationLayout`, :class:`DissociationLayout`) + every :class:`ConsumptionLayout` and :class:`ProductionLayout` attached to the process + every target layout (the entity-pool layouts those arcs point to) | The process `*Layout` |
-| :class:`LogicalOperator` and subclasses (e.g. :class:`AndOperator`, :class:`OrOperator`, :class:`NotOperator`, :class:`EquivalenceOperator`) | The operator `*Layout` (e.g. :class:`AndOperatorLayout`, :class:`OrOperatorLayout`) + every :class:`LogicArcLayout` input + every target layout those logic arcs point to | The operator `*Layout` |
-| :class:`Modulation` and subclasses (e.g. :class:`Stimulation`, :class:`Inhibition`, :class:`Catalysis`, :class:`NecessaryStimulation`) | The modulation arc layout (e.g. :class:`ModulationLayout`, :class:`StimulationLayout`, :class:`InhibitionLayout`) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
-| :class:`Tag` or :class:`Terminal` carrying :class:`TagReference` or :class:`TerminalReference` arcs | The :class:`TagLayout` or :class:`TerminalLayout` + every :class:`EquivalenceArcLayout` reference arc + every referenced entity layout | The :class:`TagLayout` or :class:`TerminalLayout` |
+| [Process][momapy.sbgn.pd.Process] and subclasses (e.g. [StoichiometricProcess][momapy.sbgn.pd.StoichiometricProcess], [GenericProcess][momapy.sbgn.pd.GenericProcess], [UncertainProcess][momapy.sbgn.pd.UncertainProcess], [Association][momapy.sbgn.pd.Association], [Dissociation][momapy.sbgn.pd.Dissociation], [OmittedProcess][momapy.sbgn.pd.OmittedProcess]) | The process `*Layout` (e.g. [GenericProcessLayout][momapy.sbgn.pd.GenericProcessLayout], [AssociationLayout][momapy.sbgn.pd.AssociationLayout], [DissociationLayout][momapy.sbgn.pd.DissociationLayout]) + every [ConsumptionLayout][momapy.sbgn.pd.ConsumptionLayout] and [ProductionLayout][momapy.sbgn.pd.ProductionLayout] attached to the process + every target layout (the entity-pool layouts those arcs point to) | The process `*Layout` |
+| [LogicalOperator][momapy.sbgn.pd.LogicalOperator] and subclasses (e.g. [AndOperator][momapy.sbgn.pd.AndOperator], [OrOperator][momapy.sbgn.pd.OrOperator], [NotOperator][momapy.sbgn.pd.NotOperator], [EquivalenceOperator][momapy.sbgn.pd.EquivalenceOperator]) | The operator `*Layout` (e.g. [AndOperatorLayout][momapy.sbgn.pd.AndOperatorLayout], [OrOperatorLayout][momapy.sbgn.pd.OrOperatorLayout]) + every [LogicArcLayout][momapy.sbgn.pd.LogicArcLayout] input + every target layout those logic arcs point to | The operator `*Layout` |
+| [Modulation][momapy.sbgn.pd.Modulation] and subclasses (e.g. [Stimulation][momapy.sbgn.pd.Stimulation], [Inhibition][momapy.sbgn.pd.Inhibition], [Catalysis][momapy.sbgn.pd.Catalysis], [NecessaryStimulation][momapy.sbgn.pd.NecessaryStimulation]) | The modulation arc layout (e.g. [ModulationLayout][momapy.sbgn.pd.ModulationLayout], [StimulationLayout][momapy.sbgn.pd.StimulationLayout], [InhibitionLayout][momapy.sbgn.pd.InhibitionLayout]) + all layouts in the source cluster (resolved via the source's own frozenset key if it has one, else the source layout itself) + all layouts in the target cluster (resolved the same way) | The modulation arc layout |
+| [Tag][momapy.sbgn.pd.Tag] or [Terminal][momapy.sbgn.pd.Terminal] carrying [TagReference][momapy.sbgn.pd.TagReference] or [TerminalReference][momapy.sbgn.pd.TerminalReference] arcs | The [TagLayout][momapy.sbgn.pd.TagLayout] or [TerminalLayout][momapy.sbgn.pd.TerminalLayout] + every [EquivalenceArcLayout][momapy.sbgn.pd.EquivalenceArcLayout] reference arc + every referenced entity layout | The [TagLayout][momapy.sbgn.pd.TagLayout] or [TerminalLayout][momapy.sbgn.pd.TerminalLayout] |
 
-Standalone :class:`Tag` and :class:`Terminal` instances (with no
-reference arcs) use a singleton key: :class:`TagLayout` or
-:class:`TerminalLayout`.
+Standalone [Tag][momapy.sbgn.pd.Tag] and [Terminal][momapy.sbgn.pd.Terminal] instances (with no
+reference arcs) use a singleton key: [TagLayout][momapy.sbgn.pd.TagLayout] or
+[TerminalLayout][momapy.sbgn.pd.TerminalLayout].
 """
 
 from momapy.sbgn.pd.model import StateVariable as StateVariable
