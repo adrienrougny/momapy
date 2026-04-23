@@ -1,5 +1,10 @@
 site_name: momapy
 site_url: https://adrienrougny.github.io/momapy/
+extra:
+  version:
+    provider: mike
+    default: stable
+    alias: true
 nav:
   - Home: index.md
   - User manual: user_manual/main.ipynb

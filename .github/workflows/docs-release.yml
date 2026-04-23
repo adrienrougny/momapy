@@ -1,0 +1,68 @@
+name: Deploy release docs
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+
+jobs:
+  deploy-release:
+    name: Deploy versioned documentation
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Get latest tag and checkout
+      id: get_tag
+      run: |
+        LATEST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" origin/main)
+        VERSION=${LATEST_TAG#v}
+        echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        git checkout $LATEST_TAG
+
+    - name: Configure Git Credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+    - uses: actions/setup-python@v6
+      with:
+        python-version: 3.x
+    - name: Cache dependencies
+      uses: actions/cache@v5
+      with:
+        key: mkdocs-material-${{ github.run_id }}
+        path: ~/.cache
+        restore-keys: |
+          mkdocs-material-
+    - name: Install MkDocs and dependencies
+      run: |
+        pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments mike
+        pip install -e . --no-deps
+        pip install frozendict numpy pyparsing colorama lxml uharfbuzz typing-extensions
+
+    - name: Generate changelog
+      uses: orhun/git-cliff-action@v4
+      with:
+        config: cliff.toml
+        args: --verbose
+      env:
+        OUTPUT: CHANGELOG.md
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Fetch gh-pages
+      run: git fetch origin gh-pages --depth=1 || true
+
+    - name: Deploy versioned docs and update stable alias
+      run: mike deploy --push --update-aliases ${{ steps.get_tag.outputs.version }} stable
+
+    - name: Set stable as default
+      run: mike set-default --push stable

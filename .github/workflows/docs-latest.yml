@@ -1,16 +1,15 @@
-name: Deploy documentation
+name: Deploy latest docs
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Release"]
-    types: [completed]
+  push:
+    branches:
+      - main
 
 jobs:
-  deploy-docs:
-    name: Deploy documentation
+  deploy-latest:
+    name: Deploy latest (dev) documentation
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
 
@@ -19,13 +18,6 @@ jobs:
       with:
         ref: main
         fetch-depth: 0
-
-    - name: Get latest tag and checkout
-      id: get_tag
-      run: |
-        LATEST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" origin/main)
-        echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-        git checkout $LATEST_TAG
 
     - name: Configure Git Credentials
       run: |
@@ -43,9 +35,10 @@ jobs:
           mkdocs-material-
     - name: Install MkDocs and dependencies
       run: |
-        pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments
+        pip install mkdocs-material griffe-fieldz mkdocstrings-python griffe-inherited-docstrings mkdocs-jupyter mkdocs-pygments mike
         pip install -e . --no-deps
         pip install frozendict numpy pyparsing colorama lxml uharfbuzz typing-extensions
+
     - name: Generate changelog
       uses: orhun/git-cliff-action@v4
       with:
@@ -55,5 +48,8 @@ jobs:
         OUTPUT: CHANGELOG.md
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Deploy documentation
-      run: mkdocs gh-deploy --force
+    - name: Fetch gh-pages
+      run: git fetch origin gh-pages --depth=1 || true
+
+    - name: Deploy latest
+      run: mike deploy --push --update-aliases latest
