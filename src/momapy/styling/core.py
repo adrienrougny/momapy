@@ -7,6 +7,8 @@ docstring for usage examples.
 import abc
 import collections.abc
 import dataclasses
+import os
+import pathlib
 import pyparsing
 import copy
 
@@ -65,8 +67,12 @@ class StyleSheet(dict):
         return self.__or__(other)
 
     @classmethod
-    def from_file(cls, file_path: str) -> "StyleSheet":
+    def from_file(cls, file_path: str | os.PathLike) -> "StyleSheet":
         """Parse and return a StyleSheet from a CSS file.
+
+        Relative ``@import`` paths inside the CSS file are resolved against
+        the directory of ``file_path``, not against the process working
+        directory.
 
         Args:
             file_path: Path to the CSS file to parse.
@@ -77,7 +83,9 @@ class StyleSheet(dict):
         Raises:
             pyparsing.ParseException: If the CSS file is malformed.
         """
-        style_sheet = _css_document.parse_file(file_path, parse_all=True)[0]
+        path = pathlib.Path(file_path).resolve()
+        doc_parser = _make_document_parser(path.parent)
+        style_sheet = doc_parser.parse_file(str(path), parse_all=True)[0]
         return style_sheet
 
     @classmethod
@@ -737,11 +745,13 @@ def _resolve_css_attribute_value(results):
     return results
 
 
-@_css_import_statement.set_parse_action
-def _resolve_css_import_statement(results):
-    file_path = results[1]
-    style_sheet = StyleSheet.from_file(file_path)
-    return style_sheet
+def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
+    def _resolve_import(results):
+        return StyleSheet.from_file(base_dir / results[1])
+
+    import_stmt = _css_import_statement.copy()
+    import_stmt.set_parse_action(_resolve_import)
+    return import_stmt[...] + _css_style_sheet[...]
 
 
 @_css_attribute_name.set_parse_action
