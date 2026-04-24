@@ -94,7 +94,6 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         momapy.drawing.CompositionOperator.ATOP: skia.BlendMode.kSrcATop,
         momapy.drawing.CompositionOperator.XOR: skia.BlendMode.kXor,
         momapy.drawing.CompositionOperator.LIGHTER: skia.BlendMode.kLighten,
-        momapy.drawing.CompositionOperator.ARTIHMETIC: None,
     }
     _fe_gaussian_blur_edgemode_tilemode_mapping: typing.ClassVar[dict] = {
         momapy.drawing.EdgeMode.WRAP: skia.TileMode.kMirror,
@@ -377,16 +376,26 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         in2_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in2
         )
+        if filter_effect.operator == momapy.drawing.CompositionOperator.ARITHMETIC:
+            return skia.ImageFilters.Arithmetic(
+                k1=filter_effect.k1,
+                k2=filter_effect.k2,
+                k3=filter_effect.k3,
+                k4=filter_effect.k4,
+                enforcePMColor=True,
+                background=in2_skia_filter,
+                foreground=in_skia_filter,
+                cropRect=crop_rect,
+            )
         blend_mode = self._fe_composite_comp_op_blendmode_mapping[
             filter_effect.operator
-        ]  # TODO: arithmetic operator
-        skia_filter = skia.ImageFilters.Xfermode(
+        ]
+        return skia.ImageFilters.Xfermode(
             mode=blend_mode,
             background=in2_skia_filter,
             foreground=in_skia_filter,
             cropRect=crop_rect,
         )
-        return skia_filter
 
     def _make_flood_effect(self, filter_effect, filter_region, dskia_filters):
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)

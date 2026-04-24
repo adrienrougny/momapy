@@ -153,7 +153,7 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         momapy.drawing.CompositionOperator.ATOP: "atop",
         momapy.drawing.CompositionOperator.XOR: "xor",
         momapy.drawing.CompositionOperator.LIGHTER: "lighter",
-        momapy.drawing.CompositionOperator.ARTIHMETIC: "arithmetic",
+        momapy.drawing.CompositionOperator.ARITHMETIC: "arithmetic",
     }
     _fe_gaussian_blur_edgemode_value_mapping: typing.ClassVar[dict] = {
         momapy.drawing.EdgeMode.WRAP: "wrap",
@@ -439,6 +439,11 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         attributes["operator"] = self._fe_composite_comp_op_value_mapping[
             filter_effect.operator
         ]
+        if filter_effect.operator == momapy.drawing.CompositionOperator.ARITHMETIC:
+            attributes["k1"] = str(filter_effect.k1)
+            attributes["k2"] = str(filter_effect.k2)
+            attributes["k3"] = str(filter_effect.k3)
+            attributes["k4"] = str(filter_effect.k4)
         if filter_effect.result is not None:
             attributes["result"] = filter_effect.result
         element = SVGElement(

@@ -181,7 +181,7 @@ class CompositionOperator(enum.Enum):
     ATOP = 3
     XOR = 4
     LIGHTER = 5
-    ARTIHMETIC = 6
+    ARITHMETIC = 6
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -211,6 +211,22 @@ class CompositeEffect(FilterEffect):
         metadata={
             "description": "The operator to be used to compute the composite effect"
         },
+    )
+    k1: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "k1 coefficient for the arithmetic operator"},
+    )
+    k2: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "k2 coefficient for the arithmetic operator"},
+    )
+    k3: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "k3 coefficient for the arithmetic operator"},
+    )
+    k4: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "k4 coefficient for the arithmetic operator"},
     )
 
 
