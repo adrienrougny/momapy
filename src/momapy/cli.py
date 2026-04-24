@@ -66,9 +66,11 @@ Example:
 """
 
 import argparse
+import base64
 import collections.abc
 import dataclasses
 import importlib
+import importlib.resources
 import json
 import os
 import pathlib
@@ -652,7 +654,8 @@ _VISUALIZE_HTML_TEMPLATE = string.Template("""\
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>momapy — $map_file_name</title>
+<link rel="icon" type="image/png" href="$favicon_data_uri">
+<title>$page_title</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { overflow: hidden; font-family: system-ui, -apple-system, sans-serif; background: #f0f0f0; }
@@ -718,7 +721,7 @@ body { overflow: hidden; font-family: system-ui, -apple-system, sans-serif; back
 </head>
 <body>
 <div id="toolbar">
-    <span id="toolbar-title">$map_file_name</span>
+    <span id="toolbar-title">$toolbar_title</span>
     <input id="search-input" type="text" placeholder="Search by label or ID..." />
     <span id="search-count"></span>
     <span id="zoom-info">100%</span>
@@ -1106,10 +1109,21 @@ def _visualize_map(map_, style_sheet=None, input_file_path=None, to_top_left=Fal
     element_metadata_json = json.dumps(element_metadata)
     if input_file_path is not None:
         map_file_name = pathlib.Path(input_file_path).name
+        page_title = f"momapy — {map_file_name}"
+        toolbar_title = map_file_name
     else:
-        map_file_name = "map"
+        page_title = "momapy visualize"
+        toolbar_title = "momapy visualize"
+    favicon_bytes = (
+        importlib.resources.files("momapy").joinpath("assets/favicon.png").read_bytes()
+    )
+    favicon_data_uri = "data:image/png;base64," + base64.b64encode(
+        favicon_bytes
+    ).decode("ascii")
     html_content = _VISUALIZE_HTML_TEMPLATE.substitute(
-        map_file_name=map_file_name,
+        page_title=page_title,
+        toolbar_title=toolbar_title,
+        favicon_data_uri=favicon_data_uri,
         svg_content=svg_string,
         element_metadata_json=element_metadata_json,
     )
@@ -1403,7 +1417,7 @@ def run(args):
                 map_ = momapy.sbgn.utils.tidy(map_)
         _visualize_map(
             map_=map_,
-            input_file_path=args.input_file_path or "<stdin>",
+            input_file_path=args.input_file_path,
             to_top_left=args.to_top_left,
         )
     else:
