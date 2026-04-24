@@ -113,6 +113,26 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         """Return `true` if the mapping is a submapping of another `LayoutModelMapping`, `false` otherwise"""
         return self.items() <= other.items()
 
+    def __reduce__(self):
+        """Pickle hook that preserves `_singleton_to_key` across round-trips.
+
+        The inherited `frozendict.__reduce__` only serialises the dict
+        contents, which drops the anchor table added by this subclass.
+        """
+        return (
+            type(self),
+            (dict(self),),
+            {"_singleton_to_key": dict(self._singleton_to_key)},
+        )
+
+    def __setstate__(self, state):
+        """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
+        object.__setattr__(
+            self,
+            "_singleton_to_key",
+            momapy.utils.FrozenSurjectionDict(state["_singleton_to_key"]),
+        )
+
 
 class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Builder):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
@@ -211,6 +231,24 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
         )
         object.__setattr__(mapping, "_singleton_to_key", singleton_to_key)
         return mapping
+
+    def __reduce__(self):
+        """Pickle hook that preserves `_singleton_to_key` across round-trips.
+
+        The default `dict`-subclass pickle emits SETITEMS before BUILD, so
+        `SurjectionDict.__setitem__` fires before `_inverse` exists and
+        crashes. Routing through `__init__` fixes both that and the
+        `_singleton_to_key` loss.
+        """
+        return (
+            type(self),
+            (dict(self),),
+            {"_singleton_to_key": dict(self._singleton_to_key)},
+        )
+
+    def __setstate__(self, state):
+        """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
+        self._singleton_to_key = momapy.utils.SurjectionDict(state["_singleton_to_key"])
 
     @classmethod
     def from_object(
