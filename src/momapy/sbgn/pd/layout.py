@@ -558,15 +558,8 @@ class AndOperatorLayout(
 ):
     """Class for and operator layouts"""
 
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "AND"
+    text: str = "AND"
     width: float = 30.0
     height: float = 30.0
 
@@ -585,15 +578,8 @@ class OrOperatorLayout(
 ):
     """Class for or operator layouts"""
 
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "OR"
+    text: str = "OR"
     width: float = 30.0
     height: float = 30.0
 
@@ -612,15 +598,8 @@ class NotOperatorLayout(
 ):
     """Class for not operator layouts"""
 
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "NOT"
+    text: str = "NOT"
     width: float = 30.0
     height: float = 30.0
 
@@ -639,15 +618,8 @@ class EquivalenceOperatorLayout(
 ):
     """Class for equivalence operator layouts"""
 
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
-    _text: typing.ClassVar[str] = "≡"
+    text: str = "≡"
     width: float = 30.0
     height: float = 30.0
 
@@ -683,16 +655,8 @@ class OmittedProcessLayout(
 ):
     """Class for omitted process layouts"""
 
-    _text: typing.ClassVar[str] = "\\\\"
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
-
+    text: str = "\\\\"
     width: float = 20.0
     height: float = 20.0
 
@@ -709,16 +673,8 @@ class UncertainProcessLayout(
 ):
     """Class for uncertain process layouts"""
 
-    _text: typing.ClassVar[str] = "?"
-    _font_family: typing.ClassVar[str] = momapy.drawing.DEFAULT_FONT_FAMILY
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    _font_fill: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.coloring.black
-    )
-    _font_stroke: typing.ClassVar[Color | momapy.drawing.NoneValueType] = (
-        momapy.drawing.NoneValue
-    )
-
+    text: str = "?"
     width: float = 20.0
     height: float = 20.0
 

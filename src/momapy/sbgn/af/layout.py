@@ -195,11 +195,8 @@ class AndOperatorLayout(
 ):
     """Layout for AND operators."""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "AND"
+    text: str = "AND"
     width: float = 30.0
     height: float = 30.0
 
@@ -218,11 +215,8 @@ class OrOperatorLayout(
 ):
     """Layout for OR operators."""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "OR"
+    text: str = "OR"
     width: float = 30.0
     height: float = 30.0
 
@@ -241,11 +235,8 @@ class NotOperatorLayout(
 ):
     """Layout for NOT operators."""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "NOT"
+    text: str = "NOT"
     width: float = 30.0
     height: float = 30.0
 
@@ -264,11 +255,8 @@ class DelayOperatorLayout(
 ):
     """Layout for DELAY operators."""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = momapy.coloring.black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
-    _text: typing.ClassVar[str] = "τ"
+    text: str = "τ"
     width: float = 30.0
     height: float = 30.0
 

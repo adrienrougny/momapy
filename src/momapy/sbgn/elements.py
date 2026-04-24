@@ -544,7 +544,7 @@ class _MultiMixin(_SBGNMixin):
         ).position
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class _TextMixin(_SBGNMixin):
     """Private mixin for SBGN nodes with text labels.
 
@@ -552,26 +552,28 @@ class _TextMixin(_SBGNMixin):
     such as state variables or unit of information labels.
 
     Attributes:
-        _text: Text content to display.
-        _font_family: Font family for the text.
-        _font_size_func: Function to calculate font size.
-        _font_style: Font style (normal, italic, etc.).
-        _font_weight: Font weight (normal, bold, etc.).
-        _font_fill: Fill color for the text.
-        _font_stroke: Stroke color for the text outline.
+        text: Text content to display.
+        font_family: Font family for the text.
+        font_style: Font style (normal, italic, etc.).
+        font_weight: Font weight (normal, bold, etc.).
+        font_fill: Fill color for the text.
+        font_stroke: Stroke color for the text outline.
+        _font_size_func: Function to calculate font size. Kept as a
+            ``ClassVar`` because it is a computation rule rather than
+            a style value and relies on descriptor binding.
     """
 
-    _text: typing.ClassVar[str]
-    _font_family: typing.ClassVar[str]
     _font_size_func: typing.ClassVar[typing.Callable]
-    _font_style: typing.ClassVar[momapy.drawing.FontStyle] = (
-        momapy.drawing.FontStyle.NORMAL
+    text: str = ""
+    font_family: str = momapy.drawing.DEFAULT_FONT_FAMILY
+    font_fill: momapy.coloring.Color | momapy.drawing.NoneValueType = (
+        momapy.coloring.black
     )
-    _font_weight: typing.ClassVar[momapy.drawing.FontWeight | float] = (
-        momapy.drawing.FontWeight.NORMAL
+    font_stroke: momapy.coloring.Color | momapy.drawing.NoneValueType = (
+        momapy.drawing.NoneValue
     )
-    _font_fill: typing.ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
-    _font_stroke: typing.ClassVar[momapy.coloring.Color | momapy.drawing.NoneValueType]
+    font_style: momapy.drawing.FontStyle = momapy.drawing.FontStyle.NORMAL
+    font_weight: momapy.drawing.FontWeight | float = momapy.drawing.FontWeight.NORMAL
 
     def _make_text_layout(self):
         """Create a text layout for the label.
@@ -580,14 +582,14 @@ class _TextMixin(_SBGNMixin):
             TextLayout object configured for this node's label.
         """
         text_layout = momapy.core.layout.TextLayout(
-            text=self._text,
+            text=self.text,
             position=self.label_center(),
-            font_family=self._font_family,
+            font_family=self.font_family,
             font_size=self._font_size_func(),
-            font_style=self._font_style,
-            font_weight=self._font_weight,
-            fill=self._font_fill,
-            stroke=self._font_stroke,
+            font_style=self.font_style,
+            font_weight=self.font_weight,
+            fill=self.font_fill,
+            stroke=self.font_stroke,
         )
         return text_layout
 

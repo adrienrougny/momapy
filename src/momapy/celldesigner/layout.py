@@ -2235,15 +2235,15 @@ class ReactionLayout(CellDesignerDoubleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _ReactionNodeMixin(_SBGNMixin):
-    _reaction_node_text: typing.ClassVar[str | None] = None
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
     _font_size_func: typing.ClassVar[typing.Callable]
-    _font_style: typing.ClassVar[FontStyle] = FontStyle.NORMAL
-    _font_weight: typing.ClassVar[FontWeight | float] = FontWeight.NORMAL
-    _font_fill: typing.ClassVar[Color | NoneValueType] = black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     left_connector_fraction: float = 0.375
     right_connector_fraction: float = 0.625
+    reaction_node_font_family: str = DEFAULT_FONT_FAMILY
+    reaction_node_font_fill: Color | NoneValueType = black
+    reaction_node_font_stroke: Color | NoneValueType = NoneValue
+    reaction_node_font_style: FontStyle = FontStyle.NORMAL
+    reaction_node_font_weight: FontWeight | float = FontWeight.NORMAL
+    reaction_node_text: str | None = None
     reaction_node_height: float = 10.0
     reaction_node_width: float = 10.0
     reaction_node_segment: int = 1
@@ -2310,16 +2310,16 @@ class _ReactionNodeMixin(_SBGNMixin):
 
     def _make_reaction_node(self):
         position = self._get_reaction_node_position()
-        if self._reaction_node_text is not None:
+        if self.reaction_node_text is not None:
             label = TextLayout(
-                text=self._reaction_node_text,
+                text=self.reaction_node_text,
                 position=position,
-                font_family=self._font_family,
+                font_family=self.reaction_node_font_family,
                 font_size=self._font_size_func(),
-                font_style=self._font_style,
-                font_weight=self._font_weight,
-                fill=self._font_fill,
-                stroke=self._font_stroke,
+                font_style=self.reaction_node_font_style,
+                font_weight=self.reaction_node_font_weight,
+                fill=self.reaction_node_font_fill,
+                stroke=self.reaction_node_font_stroke,
                 transform=(self._make_reaction_node_rotation(),),
             )
         else:
@@ -2351,7 +2351,6 @@ class _ReactionNodeMixin(_SBGNMixin):
 class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for state transition layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2390,8 +2389,8 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
         lambda obj: obj.reaction_node_width / 1.1
     )
-    _font_weight: typing.ClassVar[FontWeight | float] = FontWeight.BOLD
-    _reaction_node_text: typing.ClassVar[str | None] = "//"
+    reaction_node_font_weight: FontWeight | float = FontWeight.BOLD
+    reaction_node_text: str | None = "//"
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2429,8 +2428,8 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
         lambda obj: obj.reaction_node_width / 1.1
     )
-    _font_weight: typing.ClassVar[FontWeight | float] = FontWeight.BOLD
-    _reaction_node_text: typing.ClassVar[str | None] = "?"
+    reaction_node_font_weight: FontWeight | float = FontWeight.BOLD
+    reaction_node_text: str | None = "?"
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2465,7 +2464,6 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
 class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for transcription layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2508,7 +2506,6 @@ class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
 class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for translation layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2549,7 +2546,6 @@ class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
 class TransportLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for transport layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_bar_height: float = 8.0
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
@@ -2626,7 +2622,6 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
 class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for heterodimer association layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_fill: NoneValueType | Color | None = black
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 8.0
@@ -2664,7 +2659,6 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
 class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
     """Class for dissociation layouts"""
 
-    _reaction_node_text: typing.ClassVar[str | None] = None
     end_arrowhead_fill: NoneValueType | Color | None = white
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 10.0
@@ -2713,8 +2707,8 @@ class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
     _font_size_func: typing.ClassVar[typing.Callable | None] = (
         lambda obj: obj.reaction_node_width / 1.1
     )
-    _font_weight: typing.ClassVar[FontWeight | float] = FontWeight.BOLD
-    _reaction_node_text: typing.ClassVar[str | None] = "N"
+    reaction_node_font_weight: FontWeight | float = FontWeight.BOLD
+    reaction_node_text: str | None = "N"
     end_arrowhead_fill: NoneValueType | Color | None = white
     end_arrowhead_filter: NoneValueType | Filter | None = None
     end_arrowhead_height: float = 10.0
@@ -2752,11 +2746,8 @@ class AndGateLayout(
 ):
     """Class for and gate layouts"""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width
-    _text: typing.ClassVar[str] = "&"
+    text: str = "&"
     width: float = 15.0
     height: float = 15.0
 
@@ -2774,11 +2765,8 @@ class OrGateLayout(
 ):
     """Class for or gate layouts"""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "|"
+    text: str = "|"
     width: float = 15.0
     height: float = 15.0
 
@@ -2796,11 +2784,8 @@ class NotGateLayout(
 ):
     """Class for not gate layouts"""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "!"
+    text: str = "!"
     width: float = 15.0
     height: float = 15.0
 
@@ -2818,11 +2803,8 @@ class UnknownGateLayout(
 ):
     """Class for unknown gate layouts"""
 
-    _font_family: typing.ClassVar[str] = DEFAULT_FONT_FAMILY
-    _font_fill: typing.ClassVar[Color | NoneValueType] = black
-    _font_stroke: typing.ClassVar[Color | NoneValueType] = NoneValue
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    _text: typing.ClassVar[str] = "?"
+    text: str = "?"
     width: float = 15.0
     height: float = 15.0
 

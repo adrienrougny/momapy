@@ -223,7 +223,7 @@ def highlight_layout_elements(
                     "end_arrowhead_fill": lightgray,
                     "start_arrowhead_stroke": lightgray,
                     "start_arrowhead_fill": lightgray,
-                    "_font_fill": lightgray,
+                    "reaction_node_font_fill": lightgray,
                 }
             ),
         }
