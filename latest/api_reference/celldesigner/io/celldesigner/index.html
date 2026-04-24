@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#momapy.celldesigner.io.celldesigner" class="md-skip">
+        <a href="#id-assignment" class="md-skip">
           Skip to content
         </a>
       
@@ -1299,24 +1299,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CD
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -1334,62 +1318,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;celldesigner
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" celldesigner">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner.CellDesignerReader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CellDesignerReader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner.CellDesignerWriter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CellDesignerWriter
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1673,53 +1601,8 @@
   
   
   
+    
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;celldesigner
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" celldesigner">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner.CellDesignerReader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CellDesignerReader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.celldesigner.io.celldesigner.CellDesignerWriter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;CellDesignerWriter
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -1736,7 +1619,165 @@
 
 
 
-  <h1>CD</h1>
+<h1 id="id-assignment">ID assignment</h1>
+<p>When reading a CellDesigner file, ID assignment is more complex than SBGN-ML: model and layout often use different XML ID sources (e.g., <code>&lt;species id&gt;</code> for the model vs. <code>&lt;speciesAlias id&gt;</code> for the layout). Some elements have no XML ID and rely on SBML <code>metaid</code>, composite IDs, or auto-generated UUIDs.</p>
+<p><strong>ID provenance key</strong>:</p>
+<ul>
+<li><code>sbml:X</code> — from an SBML element attribute (e.g., <code>&lt;species id="s1"&gt;</code>, <code>&lt;modifierSpeciesReference metaid="MSR0"&gt;</code>)</li>
+<li><code>cd:X</code> — from a CellDesigner extension element attribute (e.g., <code>&lt;speciesAlias id="sa1"&gt;</code>)</li>
+<li><code>composite</code> — synthetic ID built from parent + child XML IDs</li>
+<li><code>auto</code> — auto-generated UUID from the builder</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Element type</th>
+<th>Model <code>id_</code></th>
+<th>Source</th>
+<th>Layout <code>id_</code></th>
+<th>Source</th>
+<th>Registered</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compartment</td>
+<td><code>compartment_id</code></td>
+<td>sbml:<code>compartment/@id</code></td>
+<td><code>alias_id</code></td>
+<td>cd:<code>compartmentAlias/@id</code></td>
+<td>yes</td>
+<td><code>metaid</code> also stored</td>
+</tr>
+<tr>
+<td>Species Template</td>
+<td><code>template_id</code></td>
+<td>cd:<code>proteinReference/@id</code> etc.</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Species</td>
+<td><code>species_id</code> or <code>f"{species_id}_active"</code></td>
+<td>sbml:<code>species/@id</code></td>
+<td><code>alias_id</code></td>
+<td>cd:<code>speciesAlias/@id</code></td>
+<td>yes</td>
+<td>Dual model registration; active species get <code>_active</code> suffix</td>
+</tr>
+<tr>
+<td>ModificationResidue</td>
+<td><code>f"{template_id}_{residue_id}"</code></td>
+<td>composite</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td>Global uniqueness via parent</td>
+</tr>
+<tr>
+<td>Region</td>
+<td><code>f"{template_id}_{region_id}"</code></td>
+<td>composite</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td>Global uniqueness via parent</td>
+</tr>
+<tr>
+<td>Modification</td>
+<td><code>f"{species_id}_{residue_id}"</code></td>
+<td>composite</td>
+<td><code>f"{species_id}_{residue_id}_layout"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Deterministic from species + residue</td>
+</tr>
+<tr>
+<td>StructuralState</td>
+<td><code>f"{species_id}_{value}"</code></td>
+<td>composite</td>
+<td><code>f"{species_id}_{value}_layout"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Deterministic from species + value</td>
+</tr>
+<tr>
+<td>Reactant (base/link)</td>
+<td><code>metaid</code> or <code>f"{reaction_id}_{species_id}"</code></td>
+<td>sbml:<code>speciesReference/@metaid</code> or composite</td>
+<td><code>f"{model_id}_layout"</code></td>
+<td>derived from model id</td>
+<td>yes</td>
+<td><code>metaid</code> preferred; layout only for link reactants and some base</td>
+</tr>
+<tr>
+<td>Product (base/link)</td>
+<td><code>metaid</code> or <code>f"{reaction_id}_{species_id}"</code></td>
+<td>sbml:<code>speciesReference/@metaid</code> or composite</td>
+<td><code>f"{model_id}_layout"</code></td>
+<td>derived from model id</td>
+<td>yes</td>
+<td><code>metaid</code> preferred; layout only for link products and some base</td>
+</tr>
+<tr>
+<td>Modulator</td>
+<td><code>metaid</code></td>
+<td>sbml:<code>modifierSpeciesReference/@metaid</code></td>
+<td><code>f"{metaid}_layout"</code></td>
+<td>derived from metaid</td>
+<td>yes</td>
+<td><code>metaid</code> always present</td>
+</tr>
+<tr>
+<td>BooleanGate</td>
+<td><code>f"{reaction_id}_gate_{sorted_aliases}"</code></td>
+<td>composite</td>
+<td><code>f"{...}_layout"</code></td>
+<td>composite</td>
+<td>model only</td>
+<td>Deterministic from reaction + sorted aliases</td>
+</tr>
+<tr>
+<td>BooleanGateInput / LogicArcLayout</td>
+<td><code>f"{gate_id}_input_{input_alias}"</code></td>
+<td>composite</td>
+<td><code>f"{gate_id}_arc_{input_alias}"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Frozen child of gate</td>
+</tr>
+<tr>
+<td>Reaction</td>
+<td><code>reaction_id</code></td>
+<td>sbml:<code>reaction/@id</code></td>
+<td><code>f"{reaction_id}_layout"</code></td>
+<td>derived from sbml</td>
+<td>yes</td>
+<td>No reaction alias in CellDesigner</td>
+</tr>
+<tr>
+<td>Modulation</td>
+<td><code>reaction_id</code></td>
+<td>sbml:<code>reaction/@id</code></td>
+<td><code>f"{reaction_id}_layout"</code></td>
+<td>derived from sbml</td>
+<td>yes</td>
+<td>Encoded as fake reactions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li><strong>Dual registration</strong>: Species model is registered in <code>xml_id_to_model_element</code> under both <code>species_id</code> and <code>species_alias_id</code> (CellDesigner reactions reference species by alias ID for cross-reference resolution).</li>
+<li><strong><code>_layout</code> suffix</strong>: Used when model and layout share the same XML ID source (reactions, modulations, modulators with <code>metaid</code>). No suffix is needed when they come from different XML elements (species vs. alias, compartment vs. alias).</li>
+<li><strong><code>metaid</code></strong>: The SBML <code>metaid</code> attribute is preferred for Reactants, Products, and Modulators. Falls back to a composite ID or UUID when absent.</li>
+<li><strong>Composite IDs</strong>: <code>f"{parent_id}_{child_id}"</code> for ModificationResidue and Region, since child IDs are only unique within a parent template.</li>
+</ul>
+<h1 id="api">API</h1>
+
 
 <div class="doc doc-object doc-module">
 
@@ -1979,7 +2020,12 @@
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="momapy.io.core.ReaderResult">ReaderResult</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2177,7 +2223,12 @@
 
   
       dataclass
-   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">element_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">element_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="momapy.io.core.WriterResult">WriterResult</span></span>
+   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">element_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">element_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            WriterResult
+
+
+  
+      dataclass
+   (momapy.io.core.WriterResult)" href="../../../io/#momapy.io.WriterResult">WriterResult</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2346,7 +2397,12 @@ element mapping from ReaderResult.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="momapy.io.core.WriterResult">WriterResult</span></code>
+                  <code><a class="autorefs autorefs-internal" title="            WriterResult
+
+
+  
+      dataclass
+   (momapy.io.core.WriterResult)" href="../../../io/#momapy.io.WriterResult">WriterResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">

@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#momapy.sbgn.io.sbgnml" class="md-skip">
+        <a href="#id-assignment" class="md-skip">
           Skip to content
         </a>
       
@@ -1116,24 +1116,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    SBGN-ML
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -1151,73 +1135,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;sbgnml
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" sbgnml">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_2Reader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_2Reader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_3Reader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_3Reader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_3Writer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_3Writer
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1684,64 +1601,8 @@
   
   
   
+    
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;sbgnml
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" sbgnml">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_2Reader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_2Reader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_3Reader" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_3Reader
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#momapy.sbgn.io.sbgnml.SBGNML0_3Writer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SBGNML0_3Writer
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -1758,7 +1619,140 @@
 
 
 
-  <h1>SBGN-ML</h1>
+<h1 id="id-assignment">ID assignment</h1>
+<p>When reading an SBGN-ML file, every element follows a consistent pattern:</p>
+<ul>
+<li>Model <code>id_</code> = <code>f"{xml_id}_model"</code></li>
+<li>Layout <code>id_</code> = <code>xml_id</code></li>
+</ul>
+<p>Both <code>xml_id_to_model_element</code> and <code>xml_id_to_layout_element</code> are keyed by the raw <code>xml_id</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Element type</th>
+<th>Model <code>id_</code></th>
+<th>Layout <code>id_</code></th>
+<th>Registered</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compartment</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>EntityPool / Subunit</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Activity</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>StateVariable</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>UnitOfInformation</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>Submap</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Terminal / Tag</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>TerminalRef / TagRef</td>
+<td><code>f"{arc_id}_model"</code></td>
+<td><code>arc_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>StoichiometricProcess</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Reactant</td>
+<td><code>f"{arc_id}_model"</code></td>
+<td><code>arc_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>Product</td>
+<td><code>f"{arc_id}_model"</code></td>
+<td><code>arc_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>LogicalOperator</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>LogicalOperatorInput</td>
+<td><code>f"{arc_id}_model"</code></td>
+<td><code>arc_id</code></td>
+<td>yes</td>
+<td>Frozen child</td>
+</tr>
+<tr>
+<td>Modulation</td>
+<td><code>f"{arc_id}_model"</code></td>
+<td><code>arc_id</code></td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Phenotype</td>
+<td><code>f"{glyph_id}_model"</code></td>
+<td><code>glyph_id</code></td>
+<td>yes</td>
+<td>In <code>model.processes</code></td>
+</tr>
+</tbody>
+</table>
+<p>Map, model, and layout IDs come from <code>&lt;map id="..."&gt;</code>:</p>
+<ul>
+<li><code>map_.id_</code> = <code>map_id</code></li>
+<li><code>model.id_</code> = <code>f"{map_id}_model"</code></li>
+<li><code>layout.id_</code> = <code>f"{map_id}_layout"</code></li>
+</ul>
+<p>These are only set for SBGN-ML 0.3. SBGN-ML 0.2 has no map id, so the builder falls back to UUID defaults.</p>
+<h1 id="api">API</h1>
+
 
 <div class="doc doc-object doc-module">
 
@@ -2009,7 +2003,12 @@
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">xsep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ysep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="momapy.io.core.ReaderResult">ReaderResult</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">xsep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ysep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2279,7 +2278,12 @@
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">xsep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ysep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="momapy.io.core.ReaderResult">ReaderResult</span></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">xsep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ysep</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
