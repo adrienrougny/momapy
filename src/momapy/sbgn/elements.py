@@ -471,6 +471,7 @@ class _MultiMixin(_SBGNMixin):
         tuple[momapy.drawing.NoneValueType | momapy.drawing.Filter] | None
     ) = None
 
+    @abc.abstractmethod
     def _make_subunit_shape(
         self,
         position,
