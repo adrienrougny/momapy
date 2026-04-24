@@ -99,9 +99,7 @@ _immutable_collection_to_builder: dict[type, type] = {
 
 
 def _transform_type(type_, make_optional=False, make_union=False):
-    if isinstance(
-        type_, typing.ForwardRef
-    ):  # TO DO: should find if type is already in builders first
+    if isinstance(type_, typing.ForwardRef):
         new_type = typing.ForwardRef(f"{type_.__forward_arg__}Builder")
     else:
         # We get the origin of type_, e.g., if type_ = X[Y, Z, ...] we get X
@@ -208,7 +206,7 @@ def _make_builder_cls(
                     field_dict["default_factory"] = field_.default_factory
                 has_default = True
             if field_.default != dataclasses.MISSING:
-                field_dict["default"] = field_.default  # TO DO: transform?
+                field_dict["default"] = field_.default
                 has_default = True
             if not has_default:
                 field_dict["default"] = None
