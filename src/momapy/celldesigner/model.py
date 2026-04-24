@@ -443,7 +443,7 @@ class Reactant(SpeciesReference, CellDesignerModelElement):
     base: bool = dataclasses.field(
         default=False,
         metadata={"description": "Whether the reactant is a base reactant or not"},
-    )  # TODO: no default?
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -453,7 +453,7 @@ class Product(SpeciesReference, CellDesignerModelElement):
     base: bool = dataclasses.field(
         default=False,
         metadata={"description": "Whether the product is a base product or not"},
-    )  # TODO: no default?
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
