@@ -64,6 +64,7 @@ import os
 import collections
 import dataclasses
 import typing
+import warnings
 
 import frozendict
 import lxml.objectify
@@ -1953,6 +1954,30 @@ class CellDesignerReader(Reader):
             has_boolean_input = has_boolean_input_from_reaction(cd_reaction)
             cd_base_reactant = get_base_reactants(cd_reaction)[0]
             cd_base_product = get_base_products(cd_reaction)[0]
+            # TODO: remove once a proper reader warning/error mechanism exists.
+            # A modulation pointing at (or originating from) a Degraded
+            # species cannot be represented in the model — Degraded has no
+            # model peer in the new design. Such modulations are malformed
+            # input (e.g. Iron_metabolism.xml: ir3e6 -> ir15b); skip them
+            # entirely with a warning so the user notices.
+            source_alias_is_degraded = (
+                not has_boolean_input
+                and cd_base_reactant.get("alias")
+                in reading_context.cd_degraded_alias_ids
+            )
+            target_alias_is_degraded = (
+                cd_base_product.get("alias") in reading_context.cd_degraded_alias_ids
+            )
+            if source_alias_is_degraded or target_alias_is_degraded:
+                warnings.warn(
+                    f"skipping modulation '{cd_reaction.get('id')}': "
+                    f"references a Degraded species "
+                    f"(source alias='{cd_base_reactant.get('alias')}', "
+                    f"target alias='{cd_base_product.get('alias')}'); "
+                    "Degraded species have no model peer.",
+                    stacklevel=2,
+                )
+                return None, None
             if has_boolean_input:
                 cd_gate_members = get_gate_members(cd_reaction)
                 cd_gate_member = cd_gate_members[0]
