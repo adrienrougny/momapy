@@ -37,6 +37,7 @@ from momapy.celldesigner.model import (
     Catalyzer,
     CodingRegion,
     Complex,
+    Degraded,
     Dissociation,
     GeneTemplate,
     HeterodimerAssociation,
@@ -50,9 +51,11 @@ from momapy.celldesigner.model import (
     Phenotype,
     PhysicalStimulation,
     PositiveInfluence,
+    Product,
     ProteinBindingDomain,
     ProteinTemplate,
     RNATemplate,
+    Reactant,
     ReceptorTemplate,
     RegulatoryRegion,
     TranscriptionStartingSiteL,
@@ -76,6 +79,8 @@ from momapy.celldesigner.layout import (
     ComplexLayout,
     ConsumptionLayout,
     CornerCompartmentLayout,
+    DegradedActiveLayout,
+    DegradedLayout,
     LineCompartmentLayout,
     LogicArcLayout,
     ModificationLayout,
@@ -88,6 +93,7 @@ from momapy.celldesigner.layout import (
     StructuralStateLayout,
     UnknownGateLayout,
 )
+import momapy.builder
 
 _CD_NS = "http://www.sbml.org/2001/ns/celldesigner"
 _SBML_NS = "http://www.sbml.org/sbml/level2/version4"
@@ -3940,6 +3946,140 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
 # ---------------------------------------------------------------------------
 
 
+def _synthesize_degraded_for_flagged_reactions(obj):
+    """Synthesise Degraded model species for reactions with external flags.
+
+    Returns a (potentially) new map where every Reaction with
+    ``has_external_source`` or ``has_external_sink`` set has explicit
+    ``Degraded`` species + ``Reactant`` / ``Product`` model elements
+    derived from the corresponding ``DegradedLayout`` instances. This
+    lets the rest of the writer treat them as ordinary participants
+    without needing layout-only emission paths.
+
+    The original map is not mutated; a builder copy is built and
+    returned. Maps without flagged reactions are returned unchanged.
+    """
+    if obj.model is None or obj.layout is None:
+        return obj
+    needs_synthesis = any(
+        getattr(reaction, "has_external_source", False)
+        or getattr(reaction, "has_external_sink", False)
+        for reaction in obj.model.reactions
+    )
+    if not needs_synthesis:
+        return obj
+
+    map_builder = momapy.builder.builder_from_object(obj)
+    mapping_builder = map_builder.layout_model_mapping
+    model_builder = map_builder.model
+
+    original_reactions = list(obj.model.reactions)
+    builder_reactions = list(model_builder.reactions)
+    # Reactions iterate by id_ to align frozen and builder views.
+    id_to_builder_reaction = {r.id_: r for r in builder_reactions}
+
+    for reaction in original_reactions:
+        if not (
+            getattr(reaction, "has_external_source", False)
+            or getattr(reaction, "has_external_sink", False)
+        ):
+            continue
+        builder_reaction = id_to_builder_reaction.get(reaction.id_)
+        if builder_reaction is None:
+            continue
+        # Find DegradedLayouts attached to this reaction via the frozenset
+        # key in the mapping. Use the original (frozen) reaction as the
+        # mapping key — builder mapping inherits the same keys.
+        degraded_layouts = []
+        mapping_result = obj.layout_model_mapping.get_mapping(reaction)
+        if mapping_result is None:
+            continue
+        for entry in mapping_result:
+            if isinstance(entry, frozenset):
+                for member in entry:
+                    if isinstance(member, (DegradedLayout, DegradedActiveLayout)):
+                        degraded_layouts.append(member)
+        if not degraded_layouts:
+            continue
+        # Need the reaction layout to determine reactant-vs-product side
+        # for each degraded layout via the connecting arc.
+        reaction_layout = None
+        for entry in mapping_result:
+            if isinstance(entry, ReactionLayout):
+                reaction_layout = entry
+                break
+        if reaction_layout is None:
+            for entry in mapping_result:
+                if isinstance(entry, frozenset):
+                    for member in entry:
+                        if isinstance(member, ReactionLayout):
+                            reaction_layout = member
+                            break
+                    if reaction_layout is not None:
+                        break
+        if reaction_layout is None:
+            continue
+        for degraded_layout in degraded_layouts:
+            side = _classify_degraded_arc_side(
+                obj.layout, reaction_layout, degraded_layout
+            )
+            if side is None:
+                continue
+            degraded_id = f"degraded_{degraded_layout.id_}"
+            degraded_species = momapy.builder.new_builder_object(Degraded)
+            degraded_species.id_ = degraded_id
+            degraded_species.name = ""
+            degraded_species.metaid = degraded_id
+            built_degraded = momapy.builder.object_from_builder(degraded_species)
+            model_builder.species.add(built_degraded)
+            participant_cls = Reactant if side == "reactant" else Product
+            participant = momapy.builder.new_builder_object(participant_cls)
+            participant.id_ = f"{reaction.id_}_{degraded_id}"
+            participant.referred_species = built_degraded
+            participant.base = True
+            built_participant = momapy.builder.object_from_builder(participant)
+            if side == "reactant":
+                builder_reaction.reactants.add(built_participant)
+            else:
+                builder_reaction.products.add(built_participant)
+            mapping_builder.add_mapping(degraded_layout, built_degraded, replace=True)
+
+    return map_builder.build()
+
+
+def _classify_degraded_arc_side(layout, reaction_layout, degraded_layout):
+    """Return "reactant" or "product" by inspecting the connecting arc.
+
+    Two cases are handled:
+    - 1-to-1 reactions where the reaction layout itself acts as the arc:
+      its ``source`` is the base reactant and ``target`` is the base
+      product.
+    - T-shape reactions or link participants where a separate
+      ``ConsumptionLayout`` / ``ProductionLayout`` connects the reaction
+      layout to the participant.
+
+    Returns None if no connecting arc is found.
+    """
+    if getattr(reaction_layout, "source", None) is degraded_layout:
+        return "reactant"
+    if getattr(reaction_layout, "target", None) is degraded_layout:
+        return "product"
+    for layout_element in layout.layout_elements:
+        if isinstance(layout_element, ConsumptionLayout):
+            if (
+                layout_element.source is reaction_layout
+                and layout_element.target is degraded_layout
+            ):
+                return "reactant"
+        elif isinstance(layout_element, ProductionLayout):
+            if (
+                layout_element.source is reaction_layout
+                and layout_element.target is degraded_layout
+            ):
+                return "product"
+    return None
+
+
 class CellDesignerWriter(Writer):
     """CellDesigner XML writer (model-first approach)."""
 
@@ -3978,6 +4118,10 @@ class CellDesignerWriter(Writer):
             element_to_annotations = {}
         if element_to_notes is None:
             element_to_notes = {}
+        # Synthesise Degraded model species for reactions flagged with
+        # has_external_source / has_external_sink so the rest of the
+        # writer can treat them as ordinary participants.
+        obj = _synthesize_degraded_for_flagged_reactions(obj)
 
         subunit_to_complex = {}
         species_to_id = {}

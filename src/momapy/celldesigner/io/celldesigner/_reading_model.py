@@ -284,16 +284,18 @@ def make_species(
     Args:
         reading_context: The reading context.
         cd_species: The CellDesigner species XML element.
-        model_element_cls: The model element class to instantiate.
+        model_element_cls: The model element class to instantiate. May be
+            None for species with no model representation (e.g. Degraded).
         name: The species display name.
         homomultimer: Multimer count (``1`` if not a multimer).
         hypothetical: Whether the species is marked hypothetical.
         active: Whether the species is active.
 
     Returns:
-        A species model builder, or ``None`` if no model is being built.
+        A species model builder, or ``None`` if no model element should be
+        created.
     """
-    if reading_context.model is None:
+    if reading_context.model is None or model_element_cls is None:
         return None
     model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = cd_species.get("id")
@@ -389,9 +391,11 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
 
     Returns:
         A reactant model builder with ``base=True``, or ``None`` if no model
-        is being built.
+        is being built or the referred alias is a Degraded species.
     """
     if reading_context.model is None:
+        return None
+    if cd_base_reactant.get("alias") in reading_context.cd_degraded_alias_ids:
         return None
     model_element = momapy.builder.new_builder_object(Reactant)
     model_element.base = True
@@ -422,9 +426,12 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
             matching SBML ``speciesReference`` for id/stoichiometry.
 
     Returns:
-        A reactant model builder (non-base), or ``None`` if no model is being built.
+        A reactant model builder (non-base), or ``None`` if no model is being
+        built or the referred alias is a Degraded species.
     """
     if reading_context.model is None:
+        return None
+    if cd_reactant_link.get("alias") in reading_context.cd_degraded_alias_ids:
         return None
     model_element = momapy.builder.new_builder_object(Reactant)
     cd_species_id = cd_reactant_link.get("reactant")
@@ -455,9 +462,11 @@ def make_product_from_base(reading_context, cd_base_product, cd_reaction):
 
     Returns:
         A product model builder with ``base=True``, or ``None`` if no model
-        is being built.
+        is being built or the referred alias is a Degraded species.
     """
     if reading_context.model is None:
+        return None
+    if cd_base_product.get("alias") in reading_context.cd_degraded_alias_ids:
         return None
     model_element = momapy.builder.new_builder_object(Product)
     model_element.base = True
@@ -488,9 +497,12 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
             matching SBML ``speciesReference`` for id/stoichiometry.
 
     Returns:
-        A product model builder (non-base), or ``None`` if no model is being built.
+        A product model builder (non-base), or ``None`` if no model is being
+        built or the referred alias is a Degraded species.
     """
     if reading_context.model is None:
+        return None
+    if cd_product_link.get("alias") in reading_context.cd_degraded_alias_ids:
         return None
     model_element = momapy.builder.new_builder_object(Product)
     cd_species_id = cd_product_link.get("product")

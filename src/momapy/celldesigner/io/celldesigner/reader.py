@@ -317,6 +317,8 @@ class CellDesignerReadingContext(ReadingContext):
     real_layout_source_ids: set = dataclasses.field(default_factory=set)
     canvas_width: float = 0.0
     canvas_height: float = 0.0
+    cd_degraded_alias_ids: set = dataclasses.field(default_factory=set)
+    cd_degraded_species_ids: set = dataclasses.field(default_factory=set)
 
 
 class CellDesignerReader(Reader):
@@ -395,7 +397,7 @@ class CellDesignerReader(Reader):
             UnknownLayout,
         ),
         ("SPECIES", "DEGRADED"): (
-            Degraded,
+            None,
             DegradedLayout,
         ),
         ("REACTION", "STATE_TRANSITION"): (
@@ -1106,6 +1108,11 @@ class CellDesignerReader(Reader):
                 active = cd_species_activity.text == "active"
                 if active:
                     cd_species.attrib["id"] = f"{cd_species.get('id')}_active"
+            if model_element_cls is None:
+                # Degraded species — no model peer; track ids so reactant /
+                # product / modifier creation can detect references to them.
+                reading_context.cd_degraded_alias_ids.add(cd_species_alias.get("id"))
+                reading_context.cd_degraded_species_ids.add(cd_species.get("id"))
             if reading_context.model is not None:
                 model_element = _reading_model.make_species(
                     reading_context,
@@ -1218,7 +1225,7 @@ class CellDesignerReader(Reader):
                     super_model_element=model_element,
                     super_layout_element=layout_element,
                 )
-            if reading_context.model is not None:
+            if reading_context.model is not None and model_element is not None:
                 model_element = object_from_builder(model_element)
                 if super_model_element is None:  # species case
                     model_element = register_model_element(
@@ -1272,7 +1279,11 @@ class CellDesignerReader(Reader):
                 reading_context.xml_id_to_layout_element[cd_species_alias.get("id")] = (
                     layout_element
                 )
-            if reading_context.model is not None and reading_context.layout is not None:
+            if (
+                reading_context.model is not None
+                and reading_context.layout is not None
+                and model_element is not None
+            ):
                 for (
                     auxiliary_model_element,
                     auxiliary_layout_element,
@@ -1391,6 +1402,33 @@ class CellDesignerReader(Reader):
                 model_element = _reading_model.make_reaction(
                     reading_context, cd_reaction, model_element_cls
                 )
+                # Flag external source/sink before reactant/product creation:
+                # a Degraded alias on either side of the reaction means the
+                # reaction has unspecified external flux on that side.
+                for cd_base in cd_base_reactants:
+                    if cd_base.get("alias") in reading_context.cd_degraded_alias_ids:
+                        model_element.has_external_source = True
+                        break
+                else:
+                    for cd_link in get_reactant_links(cd_reaction):
+                        if (
+                            cd_link.get("alias")
+                            in reading_context.cd_degraded_alias_ids
+                        ):
+                            model_element.has_external_source = True
+                            break
+                for cd_base in cd_base_products:
+                    if cd_base.get("alias") in reading_context.cd_degraded_alias_ids:
+                        model_element.has_external_sink = True
+                        break
+                else:
+                    for cd_link in get_product_links(cd_reaction):
+                        if (
+                            cd_link.get("alias")
+                            in reading_context.cd_degraded_alias_ids
+                        ):
+                            model_element.has_external_sink = True
+                            break
             else:
                 model_element = None
             if reading_context.layout is not None:
@@ -1573,6 +1611,8 @@ class CellDesignerReader(Reader):
                     participant_model_element,
                     participant_layout_element,
                 ) in participant_map_elements:
+                    if participant_model_element is None:
+                        continue
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
                         participant_model_element,
@@ -1598,13 +1638,16 @@ class CellDesignerReader(Reader):
                 cd_base_reactant,
                 super_cd_element,
             )
-            model_element = object_from_builder(model_element)
-            model_element = add_or_replace_element_in_set(
-                model_element,
-                super_model_element.reactants,
-                func=lambda new, old: new.id_ < old.id_,
-            )
-            reading_context.xml_id_to_model_element[model_element.id_] = model_element
+            if model_element is not None:
+                model_element = object_from_builder(model_element)
+                model_element = add_or_replace_element_in_set(
+                    model_element,
+                    super_model_element.reactants,
+                    func=lambda new, old: new.id_ < old.id_,
+                )
+                reading_context.xml_id_to_model_element[model_element.id_] = (
+                    model_element
+                )
         else:
             model_element = None
         if reading_context.layout is not None and make_layout:
@@ -1638,13 +1681,16 @@ class CellDesignerReader(Reader):
                 cd_reactant_link,
                 super_cd_element,
             )
-            model_element = object_from_builder(model_element)
-            model_element = add_or_replace_element_in_set(
-                model_element,
-                super_model_element.reactants,
-                func=lambda new, old: new.id_ < old.id_,
-            )
-            reading_context.xml_id_to_model_element[model_element.id_] = model_element
+            if model_element is not None:
+                model_element = object_from_builder(model_element)
+                model_element = add_or_replace_element_in_set(
+                    model_element,
+                    super_model_element.reactants,
+                    func=lambda new, old: new.id_ < old.id_,
+                )
+                reading_context.xml_id_to_model_element[model_element.id_] = (
+                    model_element
+                )
         else:
             model_element = None
         if reading_context.layout is not None:
@@ -1678,13 +1724,16 @@ class CellDesignerReader(Reader):
                 cd_base_product,
                 super_cd_element,
             )
-            model_element = object_from_builder(model_element)
-            model_element = add_or_replace_element_in_set(
-                model_element,
-                super_model_element.products,
-                func=lambda new, old: new.id_ < old.id_,
-            )
-            reading_context.xml_id_to_model_element[model_element.id_] = model_element
+            if model_element is not None:
+                model_element = object_from_builder(model_element)
+                model_element = add_or_replace_element_in_set(
+                    model_element,
+                    super_model_element.products,
+                    func=lambda new, old: new.id_ < old.id_,
+                )
+                reading_context.xml_id_to_model_element[model_element.id_] = (
+                    model_element
+                )
         else:
             model_element = None
         if reading_context.layout is not None and make_layout:
@@ -1718,13 +1767,16 @@ class CellDesignerReader(Reader):
                 cd_product_link,
                 super_cd_element,
             )
-            model_element = object_from_builder(model_element)
-            model_element = add_or_replace_element_in_set(
-                model_element,
-                super_model_element.products,
-                func=lambda new, old: new.id_ < old.id_,
-            )
-            reading_context.xml_id_to_model_element[model_element.id_] = model_element
+            if model_element is not None:
+                model_element = object_from_builder(model_element)
+                model_element = add_or_replace_element_in_set(
+                    model_element,
+                    super_model_element.products,
+                    func=lambda new, old: new.id_ < old.id_,
+                )
+                reading_context.xml_id_to_model_element[model_element.id_] = (
+                    model_element
+                )
         else:
             model_element = None
         if reading_context.layout is not None:

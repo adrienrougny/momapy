@@ -122,11 +122,11 @@ KEY_TO_CLASS = {
         momapy.sbgn.pd.ComplexMultimerLayout,
     ),
     ("PROCESS_DESCRIPTION", "GLYPH", "SOURCE_AND_SINK"): (
-        momapy.sbgn.pd.EmptySet,
+        None,
         momapy.sbgn.pd.EmptySetLayout,
     ),
     ("PROCESS_DESCRIPTION", "GLYPH", "EMPTY_SET"): (
-        momapy.sbgn.pd.EmptySet,
+        None,
         momapy.sbgn.pd.EmptySetLayout,
     ),
     ("PROCESS_DESCRIPTION", "GLYPH", "PERTURBING_AGENT"): (

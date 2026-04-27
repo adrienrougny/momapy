@@ -431,7 +431,14 @@ class Complex(Species):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Degraded(Species):
-    """Class for degradeds"""
+    """Class for degradeds.
+
+    .. deprecated::
+        Degraded species are no longer represented as model species. Use
+        the ``has_external_source`` / ``has_external_sink`` flags on
+        ``Reaction`` instead. The class is retained for backward
+        compatibility with user code that constructs it directly.
+    """
 
     pass
 
@@ -587,6 +594,24 @@ class Reaction(SBMLReaction, CellDesignerModelElement):
     modifiers: frozenset[KnownOrUnknownModulator] = dataclasses.field(
         default_factory=frozenset,
         metadata={"description": "The modifiers of the reaction"},
+    )
+    has_external_source: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "description": (
+                "Whether the reaction has an unspecified external source "
+                "(a Degraded reactant in CellDesigner)."
+            )
+        },
+    )
+    has_external_sink: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "description": (
+                "Whether the reaction has an unspecified external sink "
+                "(a Degraded product in CellDesigner)."
+            )
+        },
     )
 
 

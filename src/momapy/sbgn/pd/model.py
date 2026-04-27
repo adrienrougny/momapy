@@ -193,7 +193,14 @@ class EntityPool(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EmptySet(EntityPool):
-    """Class for empty sets"""
+    """Class for empty sets.
+
+    .. deprecated::
+        Empty-set glyphs are no longer represented as model entity pools.
+        Use the ``has_external_source`` / ``has_external_sink`` flags on
+        ``StoichiometricProcess`` instead. The class is retained for
+        backward compatibility with user code that constructs it directly.
+    """
 
     pass
 
@@ -406,6 +413,24 @@ class StoichiometricProcess(Process):
         default=False,
         metadata={
             "description": "Whether the stoichiometric process is reversible or not"
+        },
+    )
+    has_external_source: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "description": (
+                "Whether the process has an unspecified external source "
+                "(an empty-set / source-and-sink reactant in SBGN PD)."
+            )
+        },
+    )
+    has_external_sink: bool = dataclasses.field(
+        default=False,
+        metadata={
+            "description": (
+                "Whether the process has an unspecified external sink "
+                "(an empty-set / source-and-sink product in SBGN PD)."
+            )
         },
     )
 
