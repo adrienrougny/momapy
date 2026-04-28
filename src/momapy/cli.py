@@ -263,6 +263,7 @@ def _run_tidy_operation(map_, args):
     ysep_raw = getattr(args, "ysep", None)
     xsep = xsep_raw if xsep_raw is not None else default_xsep
     ysep = ysep_raw if ysep_raw is not None else default_ysep
+    snap_arcs = not getattr(args, "no_snap_arcs", False)
     if operation == "all":
         if is_celldesigner:
             return momapy.celldesigner.utils.tidy(
@@ -291,6 +292,7 @@ def _run_tidy_operation(map_, args):
                 OvalCompartmentLayout,
                 RectangleCompartmentLayout,
             ],
+            snap_arcs=snap_arcs,
         )
     elif operation == "fit-epns":
         if not is_sbgn:
@@ -310,6 +312,7 @@ def _run_tidy_operation(map_, args):
                 momapy.sbgn.af.UnitOfInformationLayout,
                 momapy.sbgn.af.CompartmentLayout,
             ],
+            snap_arcs=snap_arcs,
         )
     elif operation == "fit-auxiliary":
         if is_celldesigner:
@@ -322,6 +325,7 @@ def _run_tidy_operation(map_, args):
                     ModificationLayout,
                     StructuralStateLayout,
                 ],
+                snap_arcs=snap_arcs,
             )
         else:
             map_ = momapy.sbgn.utils.set_auxiliary_units_to_borders(map_)
@@ -334,29 +338,30 @@ def _run_tidy_operation(map_, args):
                     momapy.sbgn.pd.UnitOfInformationLayout,
                     momapy.sbgn.af.UnitOfInformationLayout,
                 ],
+                snap_arcs=snap_arcs,
             )
     elif operation == "fit-complexes":
         if is_celldesigner:
             return momapy.celldesigner.utils.set_complexes_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
+                map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
             return momapy.sbgn.utils.set_complexes_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
+                map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
     elif operation == "fit-compartments":
         if is_celldesigner:
             return momapy.celldesigner.utils.set_compartments_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
+                map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
             return momapy.sbgn.utils.set_compartments_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
+                map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
     elif operation == "fit-submaps":
         if is_sbgn:
             return momapy.sbgn.utils.set_submaps_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
+                map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
             raise ValueError("fit-submaps is only supported for SBGN maps")
@@ -1648,6 +1653,24 @@ def main():
                 type=float,
                 default=5.0,
                 help="angle tolerance in degrees for straightening (default: 5.0)",
+            )
+        if operation_name in (
+            "fit-species",
+            "fit-epns",
+            "fit-auxiliary",
+            "fit-complexes",
+            "fit-compartments",
+            "fit-submaps",
+        ):
+            operation_parser.add_argument(
+                "--no-snap-arcs",
+                action="store_true",
+                default=False,
+                help=(
+                    "do not snap arc endpoints to node borders after "
+                    "the operation (useful when chaining multiple tidy "
+                    "operations; run 'tidy snap-arcs' once at the end)"
+                ),
             )
     style_parser = subparsers.add_parser(
         "style",

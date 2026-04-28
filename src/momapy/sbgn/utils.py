@@ -20,6 +20,8 @@ def set_compartments_to_fit_content(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
     xsep: float = 0,
     ysep: float = 0,
+    *,
+    snap_arcs: bool = False,
 ) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
     """Resize compartments to fit their content.
 
@@ -31,6 +33,8 @@ def set_compartments_to_fit_content(
             it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -64,6 +68,8 @@ def set_compartments_to_fit_content(
                     0.0,
                     compartment_layout.label.font_size,
                 )
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -73,6 +79,8 @@ def set_complexes_to_fit_content(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
     xsep: float = 0,
     ysep: float = 0,
+    *,
+    snap_arcs: bool = False,
 ) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
     """Resize complexes to fit their subunits.
 
@@ -83,6 +91,8 @@ def set_complexes_to_fit_content(
             it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -109,6 +119,8 @@ def set_complexes_to_fit_content(
                     momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
                     if complex_layout.label is not None:
                         complex_layout.label.position = complex_layout.position
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -118,6 +130,8 @@ def set_submaps_to_fit_content(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
     xsep: float = 0,
     ysep: float = 0,
+    *,
+    snap_arcs: bool = False,
 ) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
     """Resize submaps to fit their terminals.
 
@@ -128,6 +142,8 @@ def set_submaps_to_fit_content(
             it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -157,6 +173,8 @@ def set_submaps_to_fit_content(
                     submap_layout.height = bbox.height
                 if submap_layout.label is not None:
                     submap_layout.label.position = submap_layout.position
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -170,6 +188,8 @@ def set_nodes_to_fit_labels(
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
     exclude: collections.abc.Sequence[type] | None = None,
+    *,
+    snap_arcs: bool = False,
 ) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
     """Resize nodes to fit their labels.
 
@@ -184,6 +204,8 @@ def set_nodes_to_fit_labels(
         omit_height: If True, do not adjust height. Defaults to False.
         restrict_to: Node types to include. Defaults to all nodes.
         exclude: Node types to exclude. Defaults to none.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -219,6 +241,8 @@ def set_nodes_to_fit_labels(
                 momapy.positioning.set_position(
                     layout_element, bbox.position, anchor="label_center"
                 )
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -433,6 +457,8 @@ def set_arcs_to_borders(
 
 def set_auxiliary_units_to_borders(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    *,
+    snap_arcs: bool = False,
 ) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
     """Position auxiliary units at node borders.
 
@@ -442,6 +468,8 @@ def set_auxiliary_units_to_borders(
     Args:
         map_: An SBGN map or map builder. If a builder is given,
             it is modified in place.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            repositioning. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -474,6 +502,8 @@ def set_auxiliary_units_to_borders(
     else:
         map_builder = map_
     _rec_set_auxiliary_units_to_borders(map_builder.layout)
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
     return map_builder
@@ -614,8 +644,9 @@ def tidy(
             momapy.sbgn.pd.ComplexLayout,
             momapy.sbgn.af.UnitOfInformationLayout,
         ],
+        snap_arcs=True,
     )
-    set_auxiliary_units_to_borders(map_builder)
+    set_auxiliary_units_to_borders(map_builder, snap_arcs=True)
     set_nodes_to_fit_labels(
         map_builder,
         xsep=auxiliary_units_xsep,
@@ -627,12 +658,16 @@ def tidy(
             momapy.sbgn.pd.UnitOfInformationLayout,
             momapy.sbgn.af.UnitOfInformationLayout,
         ],
+        snap_arcs=True,
     )
     if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
-        set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
-    set_submaps_to_fit_content(map_builder, 0, 0)
-    set_compartments_to_fit_content(map_builder, compartments_xsep, compartments_ysep)
-    set_arcs_to_borders(map_builder)
+        set_complexes_to_fit_content(
+            map_builder, complexes_xsep, complexes_ysep, snap_arcs=True
+        )
+    set_submaps_to_fit_content(map_builder, 0, 0, snap_arcs=True)
+    set_compartments_to_fit_content(
+        map_builder, compartments_xsep, compartments_ysep, snap_arcs=True
+    )
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
     if isinstance(map_, momapy.sbgn.SBGNMap):
         return momapy.builder.object_from_builder(map_builder)
