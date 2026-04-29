@@ -13,6 +13,8 @@ from momapy.celldesigner.map import CellDesignerMap
 from momapy.celldesigner.layout import (
     ComplexLayout,
     ModificationLayout,
+    OvalCompartmentLayout,
+    RectangleCompartmentLayout,
     StructuralStateLayout,
 )
 
@@ -195,6 +197,45 @@ class TestTidy:
             compartments_ysep=10,
         )
         assert isinstance(result, CellDesignerMap)
+
+    def test_does_not_shift_compartments_during_label_fitting(
+        self, cd_map, monkeypatch
+    ):
+        """tidy() must exclude compartments from set_nodes_to_fit_labels.
+
+        Regression: when compartments were not in the exclude list of
+        the initial set_nodes_to_fit_labels call inside tidy(), the
+        label-anchor reposition step translated each compartment so its
+        (south-edge) label anchor landed on the label's current
+        position, moving compartments off their species. The bug is
+        normally masked by the later set_compartments_to_fit_content
+        step, so we neutralise that step here and check the
+        intermediate state.
+        """
+        compartment_types = (OvalCompartmentLayout, RectangleCompartmentLayout)
+        before = {}
+        for le in cd_map.layout.descendants():
+            if isinstance(le, compartment_types):
+                before[le.id_] = (le.position.x, le.position.y)
+        if not before:
+            pytest.skip("no compartments in this map")
+
+        def _noop(map_, *args, **kwargs):
+            return map_
+
+        monkeypatch.setattr(
+            momapy.celldesigner.utils,
+            "set_compartments_to_fit_content",
+            _noop,
+        )
+        result = momapy.celldesigner.utils.tidy(cd_map)
+        for le in result.layout.descendants():
+            if not momapy.builder.isinstance_or_builder(le, compartment_types):
+                continue
+            old = before.get(le.id_)
+            if old is None:
+                continue
+            assert (le.position.x, le.position.y) == pytest.approx(old)
 
 
 # ---------------------------------------------------------------------------
