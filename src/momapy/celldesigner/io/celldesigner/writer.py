@@ -3378,14 +3378,13 @@ def _make_celldesigner_modulation_reaction(
     source_layout = None
     target_layout = None
     if frozenset_mapping is not None:
-        for elem in frozenset_mapping:
-            model = _mapping(writing_context).get_mapping(elem)
-            if model is modulation:
-                modulation_layout = elem
-            elif model is source:
-                source_layout = elem
-            elif model is target:
-                target_layout = elem
+        for layout_element in frozenset_mapping:
+            if _mapping(writing_context).get_mapping(layout_element) is modulation:
+                modulation_layout = layout_element
+                break
+        if modulation_layout is not None and hasattr(modulation_layout, "source"):
+            source_layout = modulation_layout.source
+            target_layout = modulation_layout.target
     else:
         for layout_key in _get_layouts(writing_context, modulation):
             if not isinstance(layout_key, frozenset):
