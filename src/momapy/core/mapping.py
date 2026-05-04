@@ -8,7 +8,7 @@ import momapy.builder
 import momapy.core.elements
 
 
-class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
+class LayoutModelMapping(momapy.utils.FrozenIdentitySurjectionDict):
     """Mapping between model elements and layout elements.
 
     A [Map][momapy.core.Map] can draw the same model element several
@@ -61,7 +61,9 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         1. Direct key: `map_element` is a singleton or frozenset key in the
            mapping; returns the associated model element directly.
         2. Inverse: `map_element` is a model element; returns the list of
-           layout elements (or frozenset keys) that map to it.
+           layout elements (or frozenset keys) whose stored model value
+           **is** ``map_element`` by object identity. Two content-equal
+           but id-distinct model instances are *not* aliased.
         3. Anchor fallback: `map_element` was registered as the anchor of a
            frozenset key via the ``anchor`` argument of ``add_mapping``;
            returns the model element stored under that frozenset key.
@@ -70,9 +72,9 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         """
         if map_element in self:
             return self[map_element]
-        result = self.inverse.get(map_element)
-        if result is not None:
-            return result
+        result = self.inverse.get(id(map_element))
+        if result:
+            return list(result)
         key = self._singleton_to_key.get(map_element)
         if key is not None:
             return self[key]
@@ -93,16 +95,20 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         - ``S2``: layouts that represent ``child_model_element`` — each
           singleton layout mapped to the child, plus the anchors of each
           frozenset key mapped to the child.
+
+        The inverse is identity-keyed, so two content-equal but id-distinct
+        model instances are not aliased: layouts under one parent do not
+        cross-pollute the result for the sibling instance.
         """
         child_s2 = set()
-        for key in self.inverse.get(child_model_element, []):
+        for key in self.inverse.get(id(child_model_element), ()):
             if isinstance(key, frozenset):
                 for anchor in self._singleton_to_key.inverse.get(key, []):
                     child_s2.add(anchor)
             else:
                 child_s2.add(key)
         parent_s1 = set()
-        for parent_layout in self.inverse.get(parent_model_element, []):
+        for parent_layout in self.inverse.get(id(parent_model_element), ()):
             if isinstance(parent_layout, frozenset):
                 parent_s1 |= parent_layout
             elif hasattr(parent_layout, "layout_elements"):
@@ -134,7 +140,9 @@ class LayoutModelMapping(momapy.utils.FrozenSurjectionDict):
         )
 
 
-class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Builder):
+class LayoutModelMappingBuilder(
+    momapy.utils.IdentitySurjectionDict, momapy.builder.Builder
+):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
 
     def __init__(self, *args, **kwargs):
@@ -147,7 +155,10 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
     ):
         if map_element in self:
             return self[map_element]
-        return self.inverse.get(map_element)
+        result = self.inverse.get(id(map_element))
+        if result:
+            return list(result)
+        return None
 
     def get_child_layout_elements(
         self,
@@ -156,14 +167,14 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
     ) -> "list[momapy.core.elements.LayoutElement]":
         """Return the layout elements representing ``child_model_element`` under ``parent_model_element``."""
         child_s2 = set()
-        for key in self.inverse.get(child_model_element, []):
+        for key in self.inverse.get(id(child_model_element), ()):
             if isinstance(key, frozenset):
                 for anchor in self._singleton_to_key.inverse.get(key, []):
                     child_s2.add(anchor)
             else:
                 child_s2.add(key)
         parent_s1 = set()
-        for parent_layout in self.inverse.get(parent_model_element, []):
+        for parent_layout in self.inverse.get(id(parent_model_element), ()):
             if isinstance(parent_layout, frozenset):
                 parent_s1 |= parent_layout
             elif hasattr(parent_layout, "layout_elements"):
@@ -236,9 +247,9 @@ class LayoutModelMappingBuilder(momapy.utils.SurjectionDict, momapy.builder.Buil
         """Pickle hook that preserves `_singleton_to_key` across round-trips.
 
         The default `dict`-subclass pickle emits SETITEMS before BUILD, so
-        `SurjectionDict.__setitem__` fires before `_inverse` exists and
-        crashes. Routing through `__init__` fixes both that and the
-        `_singleton_to_key` loss.
+        `IdentitySurjectionDict.__setitem__` fires before
+        `_identity_inverse` exists and crashes. Routing through
+        `__init__` fixes both that and the `_singleton_to_key` loss.
         """
         return (
             type(self),

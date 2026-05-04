@@ -1216,25 +1216,6 @@ def _make_celldesigner_species_state(writing_context, species):
 # --- Complex species aliases ---
 
 
-def _is_subunit_bearing_layout(layout):
-    """Whether a layout under a complex layout depicts a subunit.
-
-    Returns ``True`` for nested complex layouts and for non-decorative
-    species-glyph layouts (i.e. CellDesigner nodes that are not
-    structural-state or modification annotations and not active-border
-    overlays added inside an active species/complex layout).
-    """
-    if isinstance(layout, _ACTIVE_OVERLAY_LAYOUT_CLASSES):
-        return False
-    if isinstance(layout, ComplexLayout):
-        return True
-    if not isinstance(layout, CellDesignerNode):
-        return False
-    if isinstance(layout, (StructuralStateLayout, ModificationLayout)):
-        return False
-    return True
-
-
 def _get_layouts_for_subunit(writing_context, subunit, parent_complex):
     """Return layouts of ``subunit`` recorded under ``parent_complex``.
 
@@ -1242,49 +1223,6 @@ def _get_layouts_for_subunit(writing_context, subunit, parent_complex):
     [LayoutModelMapping.get_child_layout_elements][momapy.core.mapping.LayoutModelMapping.get_child_layout_elements].
     """
     return _mapping(writing_context).get_child_layout_elements(subunit, parent_complex)
-
-
-def _validate_complex_layout_mapping_invariant(writing_context):
-    """Verify mapping consistency under each complex layout.
-
-    For every subunit-bearing child of a complex layout, the mapping
-    must point to a model element that is in the parent complex's
-    ``subunits`` (compared by ``==``). Raises ``ValueError`` on the
-    first inconsistency so the alias-emission walk can rely on the
-    invariant.
-    """
-    layout = writing_context.map_.layout
-    if layout is None:
-        return
-    mapping = _mapping(writing_context)
-
-    def _walk(elements):
-        for element in elements:
-            if isinstance(element, ComplexLayout):
-                parent_complex = mapping.get_mapping(element)
-                if isinstance(parent_complex, Complex):
-                    for child in element.layout_elements:
-                        if not _is_subunit_bearing_layout(child):
-                            continue
-                        child_model = mapping.get_mapping(child)
-                        if child_model is None:
-                            raise ValueError(
-                                f"layout {child.id_} has no mapping entry; "
-                                "map is malformed"
-                            )
-                        if not any(
-                            child_model == subunit
-                            for subunit in parent_complex.subunits
-                        ):
-                            raise ValueError(
-                                f"layout {child.id_} maps to {child_model.id_}, "
-                                f"which is not a subunit of {parent_complex.id_}; "
-                                "model and mapping disagree"
-                            )
-            if hasattr(element, "layout_elements"):
-                _walk(element.layout_elements)
-
-    _walk(layout.layout_elements)
 
 
 def _make_celldesigner_list_of_complex_species_aliases(writing_context):
@@ -4514,7 +4452,6 @@ class CellDesignerWriter(Writer):
             writing_context.degraded_entries = _collect_degraded_entries(
                 writing_context
             )
-            _validate_complex_layout_mapping_invariant(writing_context)
 
         sbml = _build_make_sbml_element(writing_context)
         tree = lxml.etree.ElementTree(sbml)

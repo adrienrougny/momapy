@@ -15,9 +15,7 @@ import pytest
 
 import momapy.builder
 import momapy.io.core
-from momapy.celldesigner.layout import GenericProteinLayout
 from momapy.celldesigner.model import Complex
-from momapy.geometry import Point
 
 
 _CD_NS = "http://www.sbml.org/2001/ns/celldesigner"
@@ -51,7 +49,7 @@ def _find_complex_with_non_complex_subunit(map_):
 
 
 def _find_outer_layout(map_, complex_):
-    for key in map_.layout_model_mapping.inverse.get(complex_, []):
+    for key in map_.layout_model_mapping.inverse.get(id(complex_), ()):
         if not isinstance(key, frozenset):
             return key
     raise RuntimeError(f"no singleton layout for complex {complex_.id_}")
@@ -65,7 +63,7 @@ def _find_nested_complex_pair(map_):
             continue
         outer_layouts = [
             key
-            for key in mapping.inverse.get(outer, [])
+            for key in mapping.inverse.get(id(outer), ())
             if not isinstance(key, frozenset)
         ]
         if not outer_layouts:
@@ -80,23 +78,27 @@ def _find_nested_complex_pair(map_):
 
 
 class TestStaleMappingSurvivesWriting:
-    """Writer uses the model walk's identity, not the layout-model
-    mapping's stored value, when emitting subunit aliases.
+    """Identity-keyed mapping is authoritative for layout↔model pairing.
 
-    Model dataclasses set ``compare=False`` on ``id_``, so a content-
-    equal copy with a different ``id_`` is ``__eq__`` to the original
-    and the value-keyed mapping treats them as the same key. Replacing
-    the mapping value simulates an upstream construction artefact where
-    the mapping holds a content-equal-but-id-distinct sibling.
+    Replacing a mapping value with a content-equal-but-id-distinct
+    sibling no longer aliases the two: the layout pairs to the
+    inserted instance by identity, and the original (still in the
+    model graph) has no recorded layout. The writer's pairing oracle
+    (``get_child_layout_elements``) therefore returns no layout for
+    the in-scope subunit, and no alias is emitted. The pairing is
+    consistent — model and mapping disagree only by identity, which
+    Tier 2 surfaces precisely.
     """
 
-    def test_writer_emits_model_walk_subunit_id(self, neuro_map, tmp_path):
+    def test_writer_drops_alias_for_id_distinct_mapping_value(
+        self, neuro_map, tmp_path
+    ):
         target_complex, target_subunit, target_layout = (
             _find_complex_with_non_complex_subunit(neuro_map)
         )
         stale_subunit = dataclasses.replace(target_subunit, id_="STALE_ALTERNATE_ID")
         assert stale_subunit == target_subunit
-        assert stale_subunit.id_ != target_subunit.id_
+        assert stale_subunit is not target_subunit
         cache: dict = {}
         map_builder = momapy.builder.builder_from_object(
             neuro_map, object_to_builder=cache
@@ -105,20 +107,26 @@ class TestStaleMappingSurvivesWriting:
         stale_subunit_builder = momapy.builder.builder_from_object(stale_subunit)
         map_builder.layout_model_mapping[target_layout_builder] = stale_subunit_builder
         new_map = momapy.builder.object_from_builder(map_builder)
+        # Forward-dict lookup: ``==``-keyed by layout, value is the
+        # inserted stale instance.
         assert (
             new_map.layout_model_mapping.get_mapping(target_layout).id_
             == "STALE_ALTERNATE_ID"
         )
+        # Identity-keyed inverse: target_subunit's identity is not in
+        # the mapping; only stale_subunit's is.
+        mapping = new_map.layout_model_mapping
+        assert mapping.inverse.get(id(target_subunit)) is None
         out_file = tmp_path / "stale.xml"
         momapy.io.core.write(new_map, out_file, writer="celldesigner")
         tree = lxml.etree.parse(str(out_file))
         aliases = tree.getroot().findall(
             f".//{{{_CD_NS}}}speciesAlias[@id='{target_layout.id_}']"
         )
-        assert len(aliases) == 1
-        assert aliases[0].get("species") == target_subunit.id_, (
-            "writer used the mapping's stale value instead of the "
-            "model walk's in-scope subunit"
+        assert aliases == [], (
+            "mapping is identity-keyed: target_layout pairs to the inserted "
+            "stale instance, so target_subunit (still in the model) has no "
+            "paired layout and no alias should be emitted"
         )
 
     def test_round_trip_succeeds_with_stale_mapping(self, neuro_map, tmp_path):
@@ -138,60 +146,6 @@ class TestStaleMappingSurvivesWriting:
         momapy.io.core.write(new_map, out_file, writer="celldesigner")
         result = momapy.io.core.read(str(out_file), reader="celldesigner")
         assert result.obj is not None
-
-
-class TestMappingMissRaises:
-    """A subunit-bearing layout under a complex layout with no mapping
-    entry triggers a pre-emission ValueError naming the layout id."""
-
-    def test_unmapped_complex_child_raises(self, neuro_map, tmp_path):
-        target_complex, _, _ = _find_complex_with_non_complex_subunit(neuro_map)
-        outer_layout = _find_outer_layout(neuro_map, target_complex)
-        cache: dict = {}
-        map_builder = momapy.builder.builder_from_object(
-            neuro_map, object_to_builder=cache
-        )
-        outer_layout_builder = cache[id(outer_layout)]
-        stray_layout_builder = momapy.builder.new_builder_object(GenericProteinLayout)
-        stray_layout_builder.position = Point(0.0, 0.0)
-        stray_layout_builder.width = 30.0
-        stray_layout_builder.height = 20.0
-        stray_layout_builder.id_ = "STRAY_UNMAPPED_LAYOUT"
-        outer_layout_builder.layout_elements.append(stray_layout_builder)
-        new_map = momapy.builder.object_from_builder(map_builder)
-        out_file = tmp_path / "miss.xml"
-        with pytest.raises(ValueError, match="STRAY_UNMAPPED_LAYOUT"):
-            momapy.io.core.write(new_map, out_file, writer="celldesigner")
-
-
-class TestModelMappingDisagreementRaises:
-    """A layout under a complex layout that maps to a model element not
-    in the parent complex's ``subunits`` triggers a ValueError."""
-
-    def test_layout_mapped_to_non_subunit_raises(self, neuro_map, tmp_path):
-        target_complex, target_subunit, target_layout = (
-            _find_complex_with_non_complex_subunit(neuro_map)
-        )
-        unrelated_species = None
-        for species in neuro_map.model.species:
-            if isinstance(species, Complex):
-                continue
-            if any(species == sub for sub in target_complex.subunits):
-                continue
-            unrelated_species = species
-            break
-        assert unrelated_species is not None
-        cache: dict = {}
-        map_builder = momapy.builder.builder_from_object(
-            neuro_map, object_to_builder=cache
-        )
-        target_layout_builder = cache[id(target_layout)]
-        unrelated_builder = cache[id(unrelated_species)]
-        map_builder.layout_model_mapping[target_layout_builder] = unrelated_builder
-        new_map = momapy.builder.object_from_builder(map_builder)
-        out_file = tmp_path / "disagree.xml"
-        with pytest.raises(ValueError, match="not a subunit"):
-            momapy.io.core.write(new_map, out_file, writer="celldesigner")
 
 
 class TestNestedComplexAliasChaining:

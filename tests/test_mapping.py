@@ -298,3 +298,118 @@ class TestIsSubmapping:
         full = builder.build()
         empty = momapy.core.mapping.LayoutModelMappingBuilder().build()
         assert not full.is_submapping(empty)
+
+
+# ---------------------------------------------------------------------------
+# Identity-keyed inverse — Tier 2 invariants
+# ---------------------------------------------------------------------------
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True)
+class _ContainerLayout(momapy.core.elements.LayoutElement):
+    """Layout element whose ``layout_elements`` enumerates direct children.
+
+    Used to exercise ``get_child_layout_elements``'s parent-side set
+    construction, which relies on ``hasattr(parent_layout,
+    'layout_elements')``.
+    """
+
+    name: str = ""
+    layout_elements: tuple[momapy.core.elements.LayoutElement, ...] = ()
+
+    def bbox(self):
+        return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 1, 1)
+
+    def drawing_elements(self):
+        return []
+
+    def children(self):
+        return list(self.layout_elements)
+
+    def childless(self):
+        return dataclasses.replace(self, layout_elements=())
+
+
+def _container(name: str, *children) -> _ContainerLayout:
+    return _ContainerLayout(name=name, layout_elements=tuple(children))
+
+
+class TestIdentityKeyedInverse:
+    """The mapping's inverse distinguishes content-equal-but-id-distinct values."""
+
+    def test_two_equal_model_elements_keep_separate_inverse_entries(self):
+        """Two ``==``-equal but id-distinct model elements stay distinct."""
+        builder = momapy.core.mapping.LayoutModelMappingBuilder()
+        le1, le2 = _le("le1"), _le("le2")
+        m1, m2 = _me(), _me()
+        # Sanity: ModelElement equality ignores id_, so m1 == m2.
+        assert m1 == m2 and m1 is not m2
+        builder.add_mapping(le1, m1)
+        builder.add_mapping(le2, m2)
+        mapping = builder.build()
+        # Identity-precise inverse: each model element maps to its own layout.
+        assert mapping.inverse[id(m1)] == {le1}
+        assert mapping.inverse[id(m2)] == {le2}
+
+    def test_get_mapping_resolves_by_identity(self):
+        builder = momapy.core.mapping.LayoutModelMappingBuilder()
+        le1, le2 = _le("le1"), _le("le2")
+        m1, m2 = _me(), _me()
+        builder.add_mapping(le1, m1)
+        builder.add_mapping(le2, m2)
+        mapping = builder.build()
+        result_m1 = mapping.get_mapping(m1)
+        result_m2 = mapping.get_mapping(m2)
+        assert result_m1 == [le1]
+        assert result_m2 == [le2]
+
+    def test_get_child_layout_elements_does_not_cross_pollute(self):
+        """Two content-equal subunits in different parents resolve precisely."""
+        builder = momapy.core.mapping.LayoutModelMappingBuilder()
+        # Parents are content-distinct via their ``name`` field on the
+        # layout side; on the model side they are both _ModelElement
+        # instances, content-equal but id-distinct.
+        sub_x_layout, sub_y_layout = _le("sub_x"), _le("sub_y")
+        parent_x_layout = _container("parent_x", sub_x_layout)
+        parent_y_layout = _container("parent_y", sub_y_layout)
+        parent_x_model, parent_y_model = _me(), _me()
+        sub_x_model, sub_y_model = _me(), _me()
+        # All four model elements are ``==``-equal but id-distinct.
+        assert parent_x_model == parent_y_model
+        assert sub_x_model == sub_y_model
+        builder.add_mapping(parent_x_layout, parent_x_model)
+        builder.add_mapping(parent_y_layout, parent_y_model)
+        builder.add_mapping(sub_x_layout, sub_x_model)
+        builder.add_mapping(sub_y_layout, sub_y_model)
+        mapping = builder.build()
+        # Identity-precise lookup: sub_x_model belongs to parent_x_model
+        # only; the value-keyed lookup would have returned both layouts.
+        assert mapping.get_child_layout_elements(sub_x_model, parent_x_model) == [
+            sub_x_layout
+        ]
+        assert mapping.get_child_layout_elements(sub_y_model, parent_y_model) == [
+            sub_y_layout
+        ]
+        # Cross-pairs find no child layout because the sub_*_model
+        # identity does not match any layout under the wrong parent.
+        assert mapping.get_child_layout_elements(sub_x_model, parent_y_model) == []
+        assert mapping.get_child_layout_elements(sub_y_model, parent_x_model) == []
+
+    def test_pickle_roundtrip_preserves_identity_lookup(self):
+        import pickle
+
+        builder = momapy.core.mapping.LayoutModelMappingBuilder()
+        le1, le2 = _le("le1"), _le("le2")
+        m1, m2 = _me(), _me()
+        builder.add_mapping(le1, m1)
+        builder.add_mapping(le2, m2)
+        mapping = builder.build()
+        loaded = pickle.loads(pickle.dumps(mapping))
+        # The loaded mapping holds fresh model-element identities; the
+        # inverse must be keyed against those, not the originals'.
+        loaded_m1 = loaded[le1]
+        loaded_m2 = loaded[le2]
+        assert loaded.inverse[id(loaded_m1)] == {le1}
+        assert loaded.inverse[id(loaded_m2)] == {le2}
+        # Forward-dict equality preserved.
+        assert mapping == loaded

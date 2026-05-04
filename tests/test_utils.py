@@ -68,6 +68,67 @@ class TestFrozenSurjectionDict:
             d["b"] = 2
 
 
+class _Holder:
+    """Hashable, ``==``-equal but id-distinct helper for identity tests."""
+
+    def __init__(self, label):
+        self.label = label
+
+    def __eq__(self, other):
+        return isinstance(other, _Holder) and self.label == other.label
+
+    def __hash__(self):
+        return hash(self.label)
+
+
+class TestFrozenIdentitySurjectionDict:
+    """Tests for FrozenIdentitySurjectionDict class."""
+
+    def test_init_empty(self):
+        d = momapy.utils.FrozenIdentitySurjectionDict()
+        assert len(d) == 0
+        assert d.inverse == {}
+
+    def test_inverse_keyed_by_id_not_value(self):
+        a = _Holder("x")
+        b = _Holder("x")
+        assert a == b and a is not b
+        d = momapy.utils.FrozenIdentitySurjectionDict({"k1": a, "k2": b})
+        assert d.inverse[id(a)] == {"k1"}
+        assert d.inverse[id(b)] == {"k2"}
+        assert id(a) != id(b)
+
+    def test_multiple_keys_same_value(self):
+        a = _Holder("only")
+        d = momapy.utils.FrozenIdentitySurjectionDict({"k1": a, "k2": a})
+        assert d.inverse[id(a)] == {"k1", "k2"}
+
+    def test_forward_dict_uses_eq(self):
+        """Forward-dict semantics are unchanged: ``==`` keys collide."""
+        d = momapy.utils.FrozenIdentitySurjectionDict({"k": 1})
+        assert d["k"] == 1
+
+    def test_immutable(self):
+        d = momapy.utils.FrozenIdentitySurjectionDict({"k": 1})
+        with pytest.raises(Exception):
+            d["other"] = 2
+
+    def test_pickle_roundtrip_rebuilds_inverse(self):
+        import pickle
+
+        a = _Holder("x")
+        b = _Holder("x")
+        d = momapy.utils.FrozenIdentitySurjectionDict({"k1": a, "k2": b})
+        loaded = pickle.loads(pickle.dumps(d))
+        # Forward dict equal under ==, but underlying value identities are
+        # fresh: the rebuilt inverse keys must match the loaded values'
+        # id()s, not the originals'.
+        loaded_a = loaded["k1"]
+        loaded_b = loaded["k2"]
+        assert loaded.inverse[id(loaded_a)] == {"k1"}
+        assert loaded.inverse[id(loaded_b)] == {"k2"}
+
+
 def test_get_element_from_collection():
     """Test get_element_from_collection function."""
     collection = [1, 2, 3, 4]

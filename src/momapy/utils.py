@@ -154,6 +154,44 @@ class FrozenSurjectionDict(frozendict.frozendict):
         return self._inverse
 
 
+class FrozenIdentitySurjectionDict(frozendict.frozendict):
+    """An immutable version of IdentitySurjectionDict.
+
+    A frozen dictionary whose inverse is keyed by ``id(value)``, not by
+    value equality.  The forward dict still uses normal ``frozendict``
+    semantics (``==`` on keys); only the value-side index is
+    identity-keyed.
+
+    The inverse is safe from ``id()`` address reuse because the forward
+    dict holds a reference to each value, keeping it alive for the
+    lifetime of the dict.
+
+    Examples:
+        ```python
+        a, b = object(), object()
+        d = FrozenIdentitySurjectionDict({'x': a, 'y': a, 'z': b})
+        d.inverse[id(a)]  # {'x', 'y'}
+        d.inverse[id(b)]  # {'z'}
+        ```
+    """
+
+    def __init__(self, *args, **kwargs):
+        inverse: dict[int, set] = {}
+        for key, value in self.items():
+            inverse.setdefault(id(value), set()).add(key)
+        object.__setattr__(self, "_identity_inverse", inverse)
+
+    @property
+    def inverse(self) -> dict[int, set]:
+        """Get the identity-based inverse mapping.
+
+        Returns:
+            A dict mapping ``id(value)`` to the set of keys that point
+            to that value by identity.
+        """
+        return self._identity_inverse
+
+
 def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
     """Pretty print a dataclass or iterable object with colors.
 
