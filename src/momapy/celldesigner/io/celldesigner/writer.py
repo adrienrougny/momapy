@@ -50,9 +50,11 @@ from momapy.celldesigner.model import (
     Phenotype,
     PhysicalStimulation,
     PositiveInfluence,
+    Product,
     ProteinBindingDomain,
     ProteinTemplate,
     RNATemplate,
+    Reactant,
     ReceptorTemplate,
     RegulatoryRegion,
     TranscriptionStartingSiteL,
@@ -76,6 +78,8 @@ from momapy.celldesigner.layout import (
     ComplexLayout,
     ConsumptionLayout,
     CornerCompartmentLayout,
+    DegradedActiveLayout,
+    DegradedLayout,
     LineCompartmentLayout,
     LogicArcLayout,
     ModificationLayout,
@@ -157,12 +161,30 @@ def _modulation_reaction_type(modulation):
 
 
 @dataclasses.dataclass
+class _DegradedEntry:
+    """One degraded participant emitted from layout (no model peer).
+
+    ``link_arc`` is ``None`` when the degraded glyph is the reaction's
+    base source/target (1-to-1 case); it is the connecting arc layout
+    when the degraded glyph is reached via a separate Consumption /
+    Production link arc (T-shape link case).
+    """
+
+    reaction: typing.Any
+    side: str  # "reactant" or "product"
+    degraded_layout: typing.Any
+    reaction_layout: typing.Any
+    link_arc: typing.Any = None
+
+
+@dataclasses.dataclass
 class CellDesignerWritingContext(WritingContext):
     """Shared state for the writer."""
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
     used_metaids: set = dataclasses.field(default_factory=set)
     species_to_id: dict = dataclasses.field(default_factory=dict)
+    degraded_entries: list = dataclasses.field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +295,104 @@ def _unique_metaid(writing_context, candidate):
 def _mapping(writing_context):
     """Shortcut to access layout_model_mapping."""
     return writing_context.map_.layout_model_mapping
+
+
+def _degraded_species_id(degraded_layout):
+    """Synthetic SBML species id for a degraded layout glyph."""
+    return f"degraded_{degraded_layout.id_}"
+
+
+def _is_degraded_layout(layout_element):
+    return isinstance(layout_element, (DegradedLayout, DegradedActiveLayout))
+
+
+def _collect_degraded_entries(writing_context):
+    """Build the list of degraded-side participants for flagged reactions.
+
+    A flagged reaction (``has_external_source`` or ``has_external_sink``)
+    has a corresponding ``DegradedLayout`` / ``DegradedActiveLayout`` on
+    the affected side. That degraded glyph may be the reaction layout's
+    base source/target (1-to-1 case) or be linked via a separate
+    Consumption / Production arc (T-shape link case).
+    """
+    entries = []
+    layout = writing_context.map_.layout
+    if layout is None:
+        return entries
+    for reaction in writing_context.map_.model.reactions:
+        flagged_source = getattr(reaction, "has_external_source", False)
+        flagged_sink = getattr(reaction, "has_external_sink", False)
+        if not flagged_source and not flagged_sink:
+            continue
+        for layout_key in _get_layouts(writing_context, reaction):
+            if not isinstance(layout_key, frozenset):
+                continue
+            reaction_layout = _get_reaction_layout(layout_key)
+            if reaction_layout is None:
+                continue
+            if flagged_source:
+                if _is_degraded_layout(reaction_layout.source):
+                    entries.append(
+                        _DegradedEntry(
+                            reaction=reaction,
+                            side="reactant",
+                            degraded_layout=reaction_layout.source,
+                            reaction_layout=reaction_layout,
+                            link_arc=None,
+                        )
+                    )
+                else:
+                    for arc in layout.layout_elements:
+                        if (
+                            isinstance(arc, ConsumptionLayout)
+                            and arc.source is reaction_layout
+                            and _is_degraded_layout(arc.target)
+                        ):
+                            entries.append(
+                                _DegradedEntry(
+                                    reaction=reaction,
+                                    side="reactant",
+                                    degraded_layout=arc.target,
+                                    reaction_layout=reaction_layout,
+                                    link_arc=arc,
+                                )
+                            )
+            if flagged_sink:
+                if _is_degraded_layout(reaction_layout.target):
+                    entries.append(
+                        _DegradedEntry(
+                            reaction=reaction,
+                            side="product",
+                            degraded_layout=reaction_layout.target,
+                            reaction_layout=reaction_layout,
+                            link_arc=None,
+                        )
+                    )
+                else:
+                    for arc in layout.layout_elements:
+                        if (
+                            isinstance(arc, ProductionLayout)
+                            and arc.source is reaction_layout
+                            and _is_degraded_layout(arc.target)
+                        ):
+                            entries.append(
+                                _DegradedEntry(
+                                    reaction=reaction,
+                                    side="product",
+                                    degraded_layout=arc.target,
+                                    reaction_layout=reaction_layout,
+                                    link_arc=arc,
+                                )
+                            )
+    return entries
+
+
+def _degraded_entries_for_reaction(writing_context, reaction, side):
+    return [
+        e
+        for e in writing_context.degraded_entries
+        if e.reaction is reaction and e.side == side
+    ]
 
 
 def _sort_modifications_by_layout(writing_context, species):
@@ -1139,9 +1259,86 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
         if not isinstance(species, Complex):
             continue
         _collect_subunit_aliases(writing_context, species, list_elem)
+    seen_degraded = set()
+    for entry in writing_context.degraded_entries:
+        key = id(entry.degraded_layout)
+        if key in seen_degraded:
+            continue
+        seen_degraded.add(key)
+        list_elem.append(
+            _make_celldesigner_degraded_alias(writing_context, entry.degraded_layout)
+        )
     layout_order_index = _build_layout_order_index(writing_context.map_.layout)
     _sort_aliases_by_layout_order(list_elem, layout_order_index)
     return list_elem
+
+
+def _make_celldesigner_degraded_alias(writing_context, degraded_layout):
+    species_id = _degraded_species_id(degraded_layout)
+    attrs = {
+        "id": degraded_layout.id_,
+        "species": species_id,
+    }
+    alias = _make_celldesigner_element("speciesAlias", attrs=attrs)
+    activity_text = (
+        "active" if isinstance(degraded_layout, DegradedActiveLayout) else "inactive"
+    )
+    alias.append(_make_celldesigner_element("activity", text=activity_text))
+    alias.append(
+        _make_celldesigner_element("bounds", attrs=_bounds_attrs(degraded_layout))
+    )
+    alias.append(_make_celldesigner_element("font", attrs={"size": "12"}))
+    alias.append(_make_celldesigner_element("view", attrs={"state": "usual"}))
+    usual = _make_celldesigner_element("usualView")
+    usual.append(
+        _make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+    )
+    usual.append(
+        _make_celldesigner_element(
+            "boxSize",
+            attrs={
+                "width": str(degraded_layout.width),
+                "height": str(degraded_layout.height),
+            },
+        )
+    )
+    usual.append(_make_celldesigner_element("singleLine", attrs={"width": "1.0"}))
+    usual.append(
+        _make_celldesigner_element(
+            "paint", attrs={"color": "ffccffcc", "scheme": "Color"}
+        )
+    )
+    alias.append(usual)
+    brief = _make_celldesigner_element("briefView")
+    brief.append(
+        _make_celldesigner_element("innerPosition", attrs={"x": "0.0", "y": "0.0"})
+    )
+    brief.append(
+        _make_celldesigner_element(
+            "boxSize",
+            attrs={
+                "width": str(degraded_layout.width),
+                "height": str(degraded_layout.height),
+            },
+        )
+    )
+    brief.append(_make_celldesigner_element("singleLine", attrs={"width": "1.0"}))
+    brief.append(
+        _make_celldesigner_element(
+            "paint", attrs={"color": "ffccffcc", "scheme": "Color"}
+        )
+    )
+    alias.append(brief)
+    alias.append(
+        _make_celldesigner_element(
+            "info",
+            attrs={
+                "state": "empty",
+                "angle": "-1.5707963267948966",
+            },
+        )
+    )
+    return alias
 
 
 def _collect_subunit_aliases(writing_context, complex_, list_elem):
@@ -1597,7 +1794,41 @@ def _make_celldesigner_list_of_species(writing_context):
             continue
         seen_ids.add(species_id)
         list_elem.append(_make_sbml_document_species(writing_context, species))
+    seen_degraded = set()
+    for entry in writing_context.degraded_entries:
+        key = id(entry.degraded_layout)
+        if key in seen_degraded:
+            continue
+        seen_degraded.add(key)
+        list_elem.append(
+            _make_sbml_document_degraded_species(writing_context, entry.degraded_layout)
+        )
     return list_elem
+
+
+def _make_sbml_document_degraded_species(writing_context, degraded_layout):
+    species_id = _degraded_species_id(degraded_layout)
+    attrs = {
+        "metaid": species_id,
+        "id": species_id,
+        "name": "",
+        "compartment": "default",
+        "initialAmount": "0",
+        "hasOnlySubstanceUnits": "false",
+        "constant": "false",
+        "boundaryCondition": "false",
+    }
+    species_element = _make_lxml_element("species", attrs=attrs)
+    annotation = _make_lxml_element("annotation")
+    extension = _make_celldesigner_element("extension")
+    extension.append(_make_celldesigner_element("positionToCompartment", text="inside"))
+    identity = _make_celldesigner_element("speciesIdentity")
+    identity.append(_make_celldesigner_element("class", text="DEGRADED"))
+    identity.append(_make_celldesigner_element("name"))
+    extension.append(identity)
+    annotation.append(extension)
+    species_element.append(annotation)
+    return species_element
 
 
 def _make_sbml_document_species(writing_context, species):
@@ -1810,6 +2041,17 @@ def _make_celldesigner_reaction(
                     reaction=reaction,
                 )
             )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "reactant"):
+        if entry.link_arc is None:
+            base_reactants_element.append(
+                _make_celldesigner_degraded_base_participant(
+                    writing_context,
+                    entry.degraded_layout,
+                    "baseReactant",
+                    entry.reaction_layout,
+                    is_start=True,
+                )
+            )
     extension.append(base_reactants_element)
 
     # baseProducts — same for right-T with 1 model product but 2 aliases.
@@ -1849,6 +2091,17 @@ def _make_celldesigner_reaction(
                     reaction_layout,
                     is_start=False,
                     reaction=reaction,
+                )
+            )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "product"):
+        if entry.link_arc is None:
+            base_products_element.append(
+                _make_celldesigner_degraded_base_participant(
+                    writing_context,
+                    entry.degraded_layout,
+                    "baseProduct",
+                    entry.reaction_layout,
+                    is_start=False,
                 )
             )
     extension.append(base_products_element)
@@ -1891,6 +2144,8 @@ def _make_celldesigner_reaction(
                 exclude_alias=base_reactant_alias,
             )
         for arc_layout in link_consumption_arcs:
+            if _is_degraded_layout(arc_layout.target):
+                continue
             reactant_links_element.append(
                 _make_celldesigner_participant_link_from_layout(
                     writing_context,
@@ -1911,6 +2166,18 @@ def _make_celldesigner_reaction(
                     frozenset_mapping,
                     reaction_layout=reaction_layout,
                     reaction=reaction,
+                )
+            )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "reactant"):
+        if entry.link_arc is not None:
+            reactant_links_element.append(
+                _make_celldesigner_degraded_participant_link(
+                    writing_context,
+                    entry.link_arc,
+                    entry.degraded_layout,
+                    "reactantLink",
+                    "reactant",
+                    reaction_layout,
                 )
             )
     extension.append(reactant_links_element)
@@ -1952,6 +2219,8 @@ def _make_celldesigner_reaction(
                 exclude_alias=base_product_alias,
             )
         for arc_layout in link_production_arcs:
+            if _is_degraded_layout(arc_layout.target):
+                continue
             product_links_element.append(
                 _make_celldesigner_participant_link_from_layout(
                     writing_context,
@@ -1972,6 +2241,18 @@ def _make_celldesigner_reaction(
                     frozenset_mapping,
                     reaction_layout=reaction_layout,
                     reaction=reaction,
+                )
+            )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "product"):
+        if entry.link_arc is not None:
+            product_links_element.append(
+                _make_celldesigner_degraded_participant_link(
+                    writing_context,
+                    entry.link_arc,
+                    entry.degraded_layout,
+                    "productLink",
+                    "product",
+                    reaction_layout,
                 )
             )
     extension.append(product_links_element)
@@ -2074,13 +2355,16 @@ def _make_celldesigner_reaction(
                 reaction_layout,
                 ConsumptionLayout,
             ):
-                if arc_layout.target not in base_reactant_aliases:
-                    list_of_reactants.append(
-                        _make_sbml_document_species_reference_from_layout(
-                            writing_context,
-                            arc_layout,
-                        )
+                if arc_layout.target in base_reactant_aliases:
+                    continue
+                if _is_degraded_layout(arc_layout.target):
+                    continue
+                list_of_reactants.append(
+                    _make_sbml_document_species_reference_from_layout(
+                        writing_context,
+                        arc_layout,
                     )
+                )
         else:
             base_reactant_alias = reaction_layout.source
             for arc_layout in _collect_arcs_for_reaction(
@@ -2089,6 +2373,8 @@ def _make_celldesigner_reaction(
                 ConsumptionLayout,
                 exclude_alias=base_reactant_alias,
             ):
+                if _is_degraded_layout(arc_layout.target):
+                    continue
                 list_of_reactants.append(
                     _make_sbml_document_species_reference_from_layout(
                         writing_context,
@@ -2107,6 +2393,12 @@ def _make_celldesigner_reaction(
                     is_start=True,
                 )
             )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "reactant"):
+        list_of_reactants.append(
+            _make_sbml_document_degraded_species_reference(
+                writing_context, entry.degraded_layout
+            )
+        )
     reaction_element.append(list_of_reactants)
 
     # SBML listOfProducts — same for right-T.
@@ -2162,13 +2454,16 @@ def _make_celldesigner_reaction(
                 reaction_layout,
                 ProductionLayout,
             ):
-                if arc_layout.target not in base_product_aliases:
-                    list_of_products.append(
-                        _make_sbml_document_species_reference_from_layout(
-                            writing_context,
-                            arc_layout,
-                        )
+                if arc_layout.target in base_product_aliases:
+                    continue
+                if _is_degraded_layout(arc_layout.target):
+                    continue
+                list_of_products.append(
+                    _make_sbml_document_species_reference_from_layout(
+                        writing_context,
+                        arc_layout,
                     )
+                )
         else:
             base_product_alias = reaction_layout.target
             for arc_layout in _collect_arcs_for_reaction(
@@ -2177,6 +2472,8 @@ def _make_celldesigner_reaction(
                 ProductionLayout,
                 exclude_alias=base_product_alias,
             ):
+                if _is_degraded_layout(arc_layout.target):
+                    continue
                 list_of_products.append(
                     _make_sbml_document_species_reference_from_layout(
                         writing_context,
@@ -2195,6 +2492,12 @@ def _make_celldesigner_reaction(
                     is_start=False,
                 )
             )
+    for entry in _degraded_entries_for_reaction(writing_context, reaction, "product"):
+        list_of_products.append(
+            _make_sbml_document_degraded_species_reference(
+                writing_context, entry.degraded_layout
+            )
+        )
     reaction_element.append(list_of_products)
 
     # SBML listOfModifiers
@@ -2427,6 +2730,101 @@ def _make_celldesigner_base_participant(
         )
         if ref_point is not None:
             anchor = _infer_anchor_position(alias_layout, ref_point)
+            if anchor is not None:
+                elem.append(
+                    _make_celldesigner_element("linkAnchor", attrs={"position": anchor})
+                )
+    return elem
+
+
+def _make_celldesigner_degraded_participant_link(
+    writing_context, arc_layout, degraded_layout, tag, attr_name, reaction_layout
+):
+    """Build a reactantLink/productLink for a degraded link arc."""
+    writing = _writing
+    species_id = _degraded_species_id(degraded_layout)
+    link = _make_celldesigner_element(
+        tag,
+        attrs={
+            attr_name: species_id,
+            "alias": degraded_layout.id_,
+        },
+    )
+    is_reactant = tag == "reactantLink"
+    if is_reactant:
+        edit_points, anchor_name = writing.inverse_edit_points_reactant_link(
+            arc_layout, degraded_layout, reaction_layout
+        )
+    else:
+        edit_points, anchor_name = writing.inverse_edit_points_product_link(
+            arc_layout, degraded_layout, reaction_layout
+        )
+    if anchor_name is not None:
+        anchor_pos = _anchor_name_to_position(anchor_name)
+        if anchor_pos is not None:
+            link.append(
+                _make_celldesigner_element("linkAnchor", attrs={"position": anchor_pos})
+            )
+    connect_scheme = _make_celldesigner_element(
+        "connectScheme", attrs={"connectPolicy": "direct"}
+    )
+    line_direction_list = _make_celldesigner_element("listOfLineDirection")
+    for i in range(len(edit_points) + 1):
+        line_direction_list.append(
+            _make_celldesigner_element(
+                "lineDirection", attrs={"index": str(i), "value": "unknown"}
+            )
+        )
+    connect_scheme.append(line_direction_list)
+    link.append(connect_scheme)
+    if edit_points:
+        link.append(
+            _make_celldesigner_element(
+                "editPoints",
+                text=writing.points_to_edit_points_text(edit_points),
+            )
+        )
+    link.append(
+        _make_celldesigner_element(
+            "line", attrs=_get_line_attributes(arc_layout, include_type=True)
+        )
+    )
+    return link
+
+
+def _make_sbml_document_degraded_species_reference(writing_context, degraded_layout):
+    """Build a speciesReference for a degraded layout (no model peer)."""
+    species_id = _degraded_species_id(degraded_layout)
+    species_reference = _make_lxml_element(
+        "speciesReference", attrs={"species": species_id}
+    )
+    species_reference_annotation = _make_lxml_element("annotation")
+    species_reference_extension = _make_celldesigner_element("extension")
+    species_reference_extension.append(
+        _make_celldesigner_element("alias", text=degraded_layout.id_)
+    )
+    species_reference_annotation.append(species_reference_extension)
+    species_reference.append(species_reference_annotation)
+    return species_reference
+
+
+def _make_celldesigner_degraded_base_participant(
+    writing_context, degraded_layout, tag, reaction_layout, is_start
+):
+    """Build a baseReactant/baseProduct for a degraded layout glyph."""
+    elem = _make_celldesigner_element(
+        tag,
+        attrs={
+            "species": _degraded_species_id(degraded_layout),
+            "alias": degraded_layout.id_,
+        },
+    )
+    if reaction_layout is not None:
+        ref_point = _find_arc_endpoint_for_species(
+            writing_context, reaction_layout, degraded_layout, is_start
+        )
+        if ref_point is not None:
+            anchor = _infer_anchor_position(degraded_layout, ref_point)
             if anchor is not None:
                 elem.append(
                     _make_celldesigner_element("linkAnchor", attrs={"position": anchor})
@@ -3372,14 +3770,13 @@ def _make_celldesigner_modulation_reaction(
     source_layout = None
     target_layout = None
     if frozenset_mapping is not None:
-        for elem in frozenset_mapping:
-            model = _mapping(writing_context).get_mapping(elem)
-            if model is modulation:
-                modulation_layout = elem
-            elif model is source:
-                source_layout = elem
-            elif model is target:
-                target_layout = elem
+        for layout_element in frozenset_mapping:
+            if _mapping(writing_context).get_mapping(layout_element) is modulation:
+                modulation_layout = layout_element
+                break
+        if modulation_layout is not None and hasattr(modulation_layout, "source"):
+            source_layout = modulation_layout.source
+            target_layout = modulation_layout.target
     else:
         for layout_key in _get_layouts(writing_context, modulation):
             if not isinstance(layout_key, frozenset):
@@ -4012,6 +4409,10 @@ class CellDesignerWriter(Writer):
             subunit_to_complex=subunit_to_complex,
             species_to_id=species_to_id,
         )
+        if obj.model is not None and obj.layout is not None:
+            writing_context.degraded_entries = _collect_degraded_entries(
+                writing_context
+            )
 
         sbml = _build_make_sbml_element(writing_context)
         tree = lxml.etree.ElementTree(sbml)

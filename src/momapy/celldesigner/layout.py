@@ -77,9 +77,11 @@ _ACTIVE_YSEP = 4.0
 class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for generic protein layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 40.0
     rounded_corners: float = 5.0
+    fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return MacromoleculeMultimerLayout._make_subunit_shape(
@@ -91,8 +93,8 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
 class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for generic protein layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
+    height: float = 40.0 + _ACTIVE_YSEP * 2
     rounded_corners: float = 5.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -234,10 +236,12 @@ class _IonChannelShape(Shape):
 class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for generic ion channel layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 40.0
     rounded_corners: float = 5.0
     right_rectangle_width: float = 20.0
+    fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return _IonChannelShape(
@@ -256,8 +260,8 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
 class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for ion channel layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
+    height: float = 40.0 + _ACTIVE_YSEP * 2
     rounded_corners: float = 5.0
     right_rectangle_width: float = 20.0
     fill: NoneValueType | Color | None = NoneValue
@@ -281,9 +285,11 @@ class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for complex layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 100.0
+    height: float = 120.0
     cut_corners: float = 6.0
+    fill: NoneValueType | Color | None = Color.from_hex("#F7F7F7")
+    stroke_width: float | None = 2.0
     # label -12 from south
 
     def _make_subunit_shape(self, position, width, height):
@@ -313,8 +319,8 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
 class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for complex layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 100.0 + _ACTIVE_XSEP * 2
+    height: float = 120.0 + _ACTIVE_YSEP * 2
     cut_corners: float = 6.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -347,8 +353,10 @@ class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for simple chemical layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 70.0
+    height: float = 25.0
+    fill: NoneValueType | Color | None = Color.from_hex("#CCFF66")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return MetaShapesEllipse(position=position, width=width, height=height)
@@ -358,8 +366,8 @@ class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
 class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for simple molecule layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 70.0 + _ACTIVE_XSEP * 2
+    height: float = 25.0 + _ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -375,8 +383,10 @@ class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class IonLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for ion layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 35.0
+    height: float = 35.0
+    fill: NoneValueType | Color | None = Color.from_hex("#9999FF")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return MetaShapesEllipse(position=position, width=width, height=height)
@@ -386,8 +396,8 @@ class IonLayout(_MultiNodeMixin, CellDesignerNode):
 class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for ion layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 35.0 + _ACTIVE_XSEP * 2
+    height: float = 35.0 + _ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -406,7 +416,8 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 60.0
     height: float = 30.0
     stroke: NoneValueType | Color | None = NoneValue
-    fill: NoneValueType | Color | None = gray
+    fill: NoneValueType | Color | None = Color.from_hex("#CCCCCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return MetaShapesEllipse(position=position, width=width, height=height)
@@ -479,8 +490,10 @@ class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class GeneLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for gene layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 25.0
+    fill: NoneValueType | Color | None = Color.from_hex("#FFFFCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return MetaShapesRectangle(position=position, width=width, height=height)
@@ -490,8 +503,8 @@ class GeneLayout(_MultiNodeMixin, CellDesignerNode):
 class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for gene layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
+    height: float = 25.0 + _ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -507,9 +520,11 @@ class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for phenotype layouts"""
 
-    width: float = 60.0
+    width: float = 80.0
     height: float = 30.0
     angle: float = 60.0
+    fill: NoneValueType | Color | None = Color.from_hex("#CC99FF")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return Hexagon(
@@ -701,7 +716,7 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
 class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for phenotype layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
     height: float = 30.0 + _ACTIVE_YSEP * 2
     angle: float = 60.0
     fill: NoneValueType | Color | None = NoneValue
@@ -725,9 +740,11 @@ class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class RNALayout(_MultiNodeMixin, CellDesignerNode):
     """Class for RNA layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 90.0
+    height: float = 25.0
     angle: float = 45.0
+    fill: NoneValueType | Color | None = Color.from_hex("#66FF66")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return Parallelogram(
@@ -915,8 +932,8 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
 class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for RNA layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 90.0 + _ACTIVE_XSEP * 2
+    height: float = 25.0 + _ACTIVE_YSEP * 2
     angle: float = 45.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -935,9 +952,11 @@ class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
     """Class for antisense RNA layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 90.0
+    height: float = 25.0
     angle: float = 45.0
+    fill: NoneValueType | Color | None = Color.from_hex("#FFCCCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return Parallelogram(
@@ -1128,8 +1147,8 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
 class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for antisense RNA layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 90.0 + _ACTIVE_XSEP * 2
+    height: float = 25.0 + _ACTIVE_YSEP * 2
     angle: float = 45.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -1239,11 +1258,13 @@ class _TruncatedProteinShape(Shape):
 class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for truncated protein layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 50.0
     rounded_corners: float = 15.0
     vertical_truncation: float = 0.40
     horizontal_truncation: float = 0.20
+    fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return _TruncatedProteinShape(
@@ -1260,8 +1281,8 @@ class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
 class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for truncated protein layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
+    height: float = 50.0 + _ACTIVE_YSEP * 2
     rounded_corners: float = 15.0
     vertical_truncation: float = 0.40
     horizontal_truncation: float = 0.20
@@ -1287,9 +1308,11 @@ class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
 class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for receptor layouts"""
 
-    width: float = 60.0
-    height: float = 30.0
+    width: float = 80.0
+    height: float = 40.0
     vertical_truncation: float = 0.10  # proportion of total height, number in ]0, 1[
+    fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         angle = math.atan2(width / 2, self.vertical_truncation * height)
@@ -1484,8 +1507,8 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
 class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for receptor layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
+    height: float = 40.0 + _ACTIVE_YSEP * 2
     vertical_truncation: float = 0.10
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -1599,10 +1622,12 @@ class _DrugShape(Shape):
 class DrugLayout(_MultiNodeMixin, CellDesignerNode):
     """Class for drug layouts"""
 
-    width: float = 60.0
+    width: float = 80.0
     height: float = 30.0
     horizontal_proportion: float = 0.20
     sep: float = 4.0
+    fill: NoneValueType | Color | None = Color.from_hex("#FF00FF")
+    stroke_width: float | None = 1.0
 
     def _make_subunit_shape(self, position, width, height):
         return _DrugShape(
@@ -1618,7 +1643,7 @@ class DrugLayout(_MultiNodeMixin, CellDesignerNode):
 class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for drug layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
+    width: float = 80.0 + _ACTIVE_XSEP * 2
     height: float = 30.0 + _ACTIVE_YSEP * 2
     horizontal_proportion: float = 0.20
     sep: float = 4.0

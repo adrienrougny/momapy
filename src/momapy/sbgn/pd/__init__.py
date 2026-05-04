@@ -13,7 +13,7 @@ Singleton keys (one layout element represents the model element):
 | Model element | Layout element used as the key |
 |---|---|
 | [Compartment][momapy.sbgn.pd.Compartment] | [CompartmentLayout][momapy.sbgn.pd.CompartmentLayout] |
-| [EntityPool][momapy.sbgn.pd.EntityPool] and subclasses (e.g. [Macromolecule][momapy.sbgn.pd.Macromolecule], [NucleicAcidFeature][momapy.sbgn.pd.NucleicAcidFeature], [SimpleChemical][momapy.sbgn.pd.SimpleChemical], [Complex][momapy.sbgn.pd.Complex], [UnspecifiedEntity][momapy.sbgn.pd.UnspecifiedEntity], [EmptySet][momapy.sbgn.pd.EmptySet], [PerturbingAgent][momapy.sbgn.pd.PerturbingAgent], and every [Multimer][momapy.sbgn.pd.Multimer] variant) | The corresponding `*Layout` (e.g. [MacromoleculeLayout][momapy.sbgn.pd.MacromoleculeLayout], [ComplexLayout][momapy.sbgn.pd.ComplexLayout], [EmptySetLayout][momapy.sbgn.pd.EmptySetLayout], [PerturbingAgentLayout][momapy.sbgn.pd.PerturbingAgentLayout]) |
+| [EntityPool][momapy.sbgn.pd.EntityPool] and subclasses (e.g. [Macromolecule][momapy.sbgn.pd.Macromolecule], [NucleicAcidFeature][momapy.sbgn.pd.NucleicAcidFeature], [SimpleChemical][momapy.sbgn.pd.SimpleChemical], [Complex][momapy.sbgn.pd.Complex], [UnspecifiedEntity][momapy.sbgn.pd.UnspecifiedEntity], [PerturbingAgent][momapy.sbgn.pd.PerturbingAgent], and every [Multimer][momapy.sbgn.pd.Multimer] variant) | The corresponding `*Layout` (e.g. [MacromoleculeLayout][momapy.sbgn.pd.MacromoleculeLayout], [ComplexLayout][momapy.sbgn.pd.ComplexLayout], [PerturbingAgentLayout][momapy.sbgn.pd.PerturbingAgentLayout]) |
 | [Subunit][momapy.sbgn.pd.Subunit] and subclasses | The corresponding `*SubunitLayout` |
 | [StateVariable][momapy.sbgn.pd.StateVariable] | [StateVariableLayout][momapy.sbgn.pd.StateVariableLayout] |
 | [UnitOfInformation][momapy.sbgn.pd.UnitOfInformation] | [UnitOfInformationLayout][momapy.sbgn.pd.UnitOfInformationLayout] |
@@ -39,6 +39,12 @@ on its own and must be passed as ``anchor=`` when calling
 Standalone [Tag][momapy.sbgn.pd.Tag] and [Terminal][momapy.sbgn.pd.Terminal] instances (with no
 reference arcs) use a singleton key: [TagLayout][momapy.sbgn.pd.TagLayout] or
 [TerminalLayout][momapy.sbgn.pd.TerminalLayout].
+
+Empty-set glyphs ([EmptySetLayout][momapy.sbgn.pd.EmptySetLayout]) have no
+model singleton. They are members of the frozenset key of the process they
+attach to, and the two boolean flags ``has_external_source`` and
+``has_external_sink`` on the [StoichiometricProcess][momapy.sbgn.pd.StoichiometricProcess]
+record which side of the process the empty set represents.
 """
 
 from momapy.sbgn.pd.model import StateVariable as StateVariable
@@ -62,7 +68,6 @@ from momapy.sbgn.pd.model import (
 from momapy.sbgn.pd.model import ComplexMultimerSubunit as ComplexMultimerSubunit
 from momapy.sbgn.pd.model import Compartment as Compartment
 from momapy.sbgn.pd.model import EntityPool as EntityPool
-from momapy.sbgn.pd.model import EmptySet as EmptySet
 from momapy.sbgn.pd.model import PerturbingAgent as PerturbingAgent
 from momapy.sbgn.pd.model import UnspecifiedEntity as UnspecifiedEntity
 from momapy.sbgn.pd.model import Macromolecule as Macromolecule
@@ -197,7 +202,6 @@ __all__ = [
     "ComplexMultimerSubunit",
     "Compartment",
     "EntityPool",
-    "EmptySet",
     "PerturbingAgent",
     "UnspecifiedEntity",
     "Macromolecule",

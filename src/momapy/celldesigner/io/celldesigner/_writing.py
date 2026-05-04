@@ -21,7 +21,6 @@ from momapy.celldesigner.model import (
     AntisenseRNA,
     Catalyzer,
     Complex,
-    Degraded,
     Dissociation,
     Drug,
     Gene,
@@ -177,7 +176,6 @@ _CLASS_TO_CD_STRING = {
     Drug: "DRUG",
     Phenotype: "PHENOTYPE",
     Unknown: "UNKNOWN",
-    Degraded: "DEGRADED",
     Complex: "COMPLEX",
 }
 

@@ -66,6 +66,7 @@ class SBGNMLReadingContext(momapy.io.utils.ReadingContext):
     sbgnml_modulations: list = dataclasses.field(default_factory=list)
     sbgnml_tags: list = dataclasses.field(default_factory=list)
     sbgnml_glyph_id_to_sbgnml_arcs: dict = dataclasses.field(default_factory=dict)
+    empty_set_xml_ids: set = dataclasses.field(default_factory=set)
 
 
 class _SBGNMLReader(momapy.io.core.Reader):
@@ -139,7 +140,11 @@ class _SBGNMLReader(momapy.io.core.Reader):
             model_element_cls, _ = (
                 momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
             )
-            if issubclass(model_element_cls, momapy.sbgn.pd.EntityPool):
+            if model_element_cls is None:
+                # Empty-set / source-and-sink glyphs have no model peer
+                # but live in the entity-pool slot of the XML layout.
+                reading_context.sbgnml_entity_pools.append(sbgnml_glyph)
+            elif issubclass(model_element_cls, momapy.sbgn.pd.EntityPool):
                 reading_context.sbgnml_entity_pools.append(sbgnml_glyph)
             elif issubclass(
                 model_element_cls,
@@ -514,6 +519,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_entity_pool,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
+            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
+                sbgnml_entity_pool, reading_context.map_key
+            )
+            model_element_cls, _ = (
+                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
+            )
+            if model_element_cls is None:
+                reading_context.empty_set_xml_ids.add(sbgnml_entity_pool.get("id"))
             model_element, layout_element = cls._make_entity_pool_or_subunit(
                 reading_context=reading_context,
                 sbgnml_entity_pool_or_subunit=sbgnml_entity_pool,
@@ -1220,7 +1233,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         super_layout_element=layout_element,
                     )
                 )
-                if model_element is not None and layout_element is not None:
+                if layout_element is not None and reactant_layout_element is not None:
                     participant_map_elements.append(
                         (reactant_model_element, reactant_layout_element)
                     )
@@ -1234,7 +1247,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         super_sbgnml_element=sbgnml_process,
                     )
                 )
-                if model_element is not None and layout_element is not None:
+                if layout_element is not None and product_layout_element is not None:
                     participant_map_elements.append(
                         (product_model_element, product_layout_element)
                     )
@@ -1273,6 +1286,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     participant_model_element,
                     participant_layout_element,
                 ) in participant_map_elements:
+                    if participant_model_element is None:
+                        continue
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
                         participant_model_element,
@@ -1304,6 +1319,12 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context.xml_id_to_model_element[sbgnml_consumption_arc_id] = (
                     model_element
                 )
+            elif (
+                super_model_element is not None
+                and sbgnml_consumption_arc.get("source")
+                in reading_context.empty_set_xml_ids
+            ):
+                super_model_element.has_external_source = True
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[sbgnml_consumption_arc_id] = (
@@ -1345,6 +1366,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context.xml_id_to_model_element[sbgnml_production_arc_id] = (
                     model_element
                 )
+            elif (
+                super_model_element is not None
+                and sbgnml_production_arc.get("target")
+                in reading_context.empty_set_xml_ids
+            ):
+                cls._set_empty_set_flag_from_production_arc(
+                    super_model_element,
+                    sbgnml_production_arc,
+                    super_sbgnml_element,
+                    process_direction,
+                )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[sbgnml_production_arc_id] = (
@@ -1354,6 +1386,36 @@ class _SBGNMLReader(momapy.io.core.Reader):
             model_element = None
             layout_element = None
         return model_element, layout_element
+
+    @staticmethod
+    def _set_empty_set_flag_from_production_arc(
+        super_model_element,
+        sbgnml_production_arc,
+        super_sbgnml_element,
+        process_direction,
+    ):
+        """Set has_external_source / has_external_sink on the parent process.
+
+        Production arcs to an empty-set glyph mean external sink, except
+        on a reversible process where the arc may originate from the
+        reactant side — geometrically determined by comparing the arc
+        start to the process bbox center.
+        """
+        if not super_model_element.reversible:
+            super_model_element.has_external_sink = True
+            return
+        if process_direction == momapy.core.elements.Direction.HORIZONTAL:
+            on_product_side = float(sbgnml_production_arc.start.get("x")) > float(
+                super_sbgnml_element.bbox.get("x")
+            )
+        else:
+            on_product_side = float(sbgnml_production_arc.start.get("y")) > float(
+                super_sbgnml_element.bbox.get("y")
+            )
+        if on_product_side:
+            super_model_element.has_external_sink = True
+        else:
+            super_model_element.has_external_source = True
 
     @classmethod
     def _make_and_add_logical_operator(

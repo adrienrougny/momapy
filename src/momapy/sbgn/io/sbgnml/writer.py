@@ -306,6 +306,26 @@ def _collect_model_elements(writing_context):
                     writing_context, sbgnml_glyph, entity_pool
                 )
                 _register(layout_el, sbgnml_glyph)
+        # 2b. Empty sets — no model element. Driven by the
+        # has_external_source / has_external_sink flags on processes:
+        # find every EmptySetLayout in a flagged process's frozenset key
+        # and emit a glyph for it.
+        seen_empty_set_layouts = set()
+        for process in model.processes:
+            if not isinstance(process, momapy.sbgn.pd.StoichiometricProcess):
+                continue
+            if not (process.has_external_source or process.has_external_sink):
+                continue
+            for frozenset_key in _get_frozenset_keys(writing_context, process):
+                for item in frozenset_key:
+                    if isinstance(item, momapy.sbgn.pd.EmptySetLayout):
+                        if item in seen_empty_set_layouts:
+                            continue
+                        seen_empty_set_layouts.add(item)
+                        sbgnml_glyph = _make_sbgnml_glyph(
+                            writing_context, item, model_element=None
+                        )
+                        _register(item, sbgnml_glyph)
     else:
         for activity in model.activities:
             for layout_el in _get_layout_elements(writing_context, activity):

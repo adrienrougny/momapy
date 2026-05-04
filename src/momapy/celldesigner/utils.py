@@ -47,10 +47,12 @@ from momapy.celldesigner.layout import (
     LogicArcLayout,
     ModificationLayout,
     ModulationLayout,
+    OvalCompartmentLayout,
     PhysicalStimulationLayout,
     PositiveInfluenceLayout,
     ProductionLayout,
     ReactionLayout,
+    RectangleCompartmentLayout,
     StructuralStateLayout,
     TriggeringLayout,
     TruncationLayout,
@@ -297,6 +299,8 @@ def set_nodes_to_fit_labels(
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
     exclude: collections.abc.Sequence[type] | None = None,
+    *,
+    snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize nodes to fit their labels.
 
@@ -311,6 +315,8 @@ def set_nodes_to_fit_labels(
         omit_height: If True, do not adjust height. Defaults to False.
         restrict_to: Node types to include. Defaults to all nodes.
         exclude: Node types to exclude. Defaults to none.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -346,6 +352,8 @@ def set_nodes_to_fit_labels(
                     layout_element.height = bbox.height
             set_position(layout_element, bbox.position, anchor="label_center")
             _update_active_layout(layout_element)
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, CellDesignerMap):
         return object_from_builder(map_builder)
     return map_builder
@@ -355,6 +363,8 @@ def set_compartments_to_fit_content(
     map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
+    *,
+    snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize compartments to fit their content.
 
@@ -368,6 +378,8 @@ def set_compartments_to_fit_content(
             it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -427,6 +439,8 @@ def set_compartments_to_fit_content(
                         0.0,
                         compartment_layout.label.font_size,
                     )
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, CellDesignerMap):
         return object_from_builder(map_builder)
     return map_builder
@@ -470,6 +484,8 @@ def set_complexes_to_fit_content(
     map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
+    *,
+    snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize complexes to fit their subunits.
 
@@ -481,6 +497,8 @@ def set_complexes_to_fit_content(
             it is modified in place.
         xsep: Horizontal separation padding. Defaults to 0.
         ysep: Vertical separation padding. Defaults to 0.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            resizing. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -517,6 +535,8 @@ def set_complexes_to_fit_content(
                 if complex_layout.label is not None:
                     complex_layout.label.position = complex_layout.position
                 _update_active_layout(complex_layout)
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, CellDesignerMap):
         return object_from_builder(map_builder)
     return map_builder
@@ -524,6 +544,8 @@ def set_complexes_to_fit_content(
 
 def set_modifications_to_borders(
     map_: CellDesignerMap | Builder,
+    *,
+    snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Position modifications and structural states at node borders.
 
@@ -533,6 +555,8 @@ def set_modifications_to_borders(
     Args:
         map_: A CellDesigner map or map builder. If a builder is given,
             it is modified in place.
+        snap_arcs: If True, snap arc endpoints to node borders after
+            repositioning. Defaults to False.
 
     Returns:
         The modified map or map builder. If a frozen map was given,
@@ -559,6 +583,8 @@ def set_modifications_to_borders(
     else:
         map_builder = map_
     _recursive_set_modifications_to_borders(map_builder.layout)
+    if snap_arcs:
+        set_arcs_to_borders(map_builder)
     if isinstance(map_, CellDesignerMap):
         return object_from_builder(map_builder)
     return map_builder
@@ -872,9 +898,12 @@ def tidy(
             ModificationLayout,
             StructuralStateLayout,
             ComplexLayout,
+            OvalCompartmentLayout,
+            RectangleCompartmentLayout,
         ],
+        snap_arcs=True,
     )
-    set_modifications_to_borders(map_builder)
+    set_modifications_to_borders(map_builder, snap_arcs=True)
     set_nodes_to_fit_labels(
         map_builder,
         xsep=modifications_xsep,
@@ -885,10 +914,14 @@ def tidy(
             ModificationLayout,
             StructuralStateLayout,
         ],
+        snap_arcs=True,
     )
-    set_complexes_to_fit_content(map_builder, complexes_xsep, complexes_ysep)
-    set_compartments_to_fit_content(map_builder, compartments_xsep, compartments_ysep)
-    set_arcs_to_borders(map_builder)
+    set_complexes_to_fit_content(
+        map_builder, complexes_xsep, complexes_ysep, snap_arcs=True
+    )
+    set_compartments_to_fit_content(
+        map_builder, compartments_xsep, compartments_ysep, snap_arcs=True
+    )
     straighten_arcs(map_builder, arcs_angle_tolerance)
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
     if isinstance(map_, CellDesignerMap):

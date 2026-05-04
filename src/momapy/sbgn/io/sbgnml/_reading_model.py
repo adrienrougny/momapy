@@ -117,12 +117,15 @@ def make_entity_pool_or_subunit(
     Args:
         reading_context: The reading context.
         sbgnml_entity_pool_or_subunit: The SBGN-ML element.
-        model_element_cls: The model element class to instantiate.
+        model_element_cls: The model element class to instantiate. May be
+            None for glyphs with no model representation (e.g. empty set).
 
     Returns:
-        A model element builder, or None if reading_context.model is None.
+        A model element builder, or None if no model element should be
+        created (either ``reading_context.model`` is None or
+        ``model_element_cls`` is None).
     """
-    if reading_context.model is None:
+    if reading_context.model is None or model_element_cls is None:
         return None
     model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_entity_pool_or_subunit.get('id')}_model"
@@ -328,11 +331,14 @@ def make_reactant(reading_context, sbgnml_consumption_arc):
         sbgnml_consumption_arc: The SBGN-ML consumption arc element.
 
     Returns:
-        A frozen model element, or None if reading_context.model is None.
+        A frozen model element, or None if reading_context.model is None
+        or the source glyph is an empty set (no model peer).
     """
     if reading_context.model is None:
         return None
     sbgnml_source_id = sbgnml_consumption_arc.get("source")
+    if sbgnml_source_id in reading_context.empty_set_xml_ids:
+        return None
     sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_consumption_arc
     )
@@ -362,11 +368,14 @@ def make_product(
         process_direction: The direction of the process.
 
     Returns:
-        A frozen model element, or None if reading_context.model is None.
+        A frozen model element, or None if reading_context.model is None
+        or the target glyph is an empty set (no model peer).
     """
     if reading_context.model is None:
         return None
     sbgnml_target_id = sbgnml_production_arc.get("target")
+    if sbgnml_target_id in reading_context.empty_set_xml_ids:
+        return None
     sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
         sbgnml_production_arc
     )
