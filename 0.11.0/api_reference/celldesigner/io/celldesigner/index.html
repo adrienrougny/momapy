@@ -1,0 +1,2671 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://adrienrougny.github.io/momapy/0.11.0/api_reference/celldesigner/io/celldesigner/">
+      
+      
+        <link rel="prev" href="../../celldesigner/">
+      
+      
+        <link rel="next" href="../../../sbml/sbml/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CD - momapy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#id-assignment" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="momapy" class="md-header__button md-logo" aria-label="momapy" data-md-component="logo">
+      
+  <img src="../../../../assets/favicon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            momapy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CD
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../user_manual/main/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  User manual
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../styling/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Styling
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../cli/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  CLI reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../" class="md-tabs__link">
+          
+  
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../about/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="momapy" class="md-nav__button md-logo" aria-label="momapy" data-md-component="logo">
+      
+  <img src="../../../../assets/favicon.png" alt="logo">
+
+    </a>
+    momapy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../user_manual/main/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User manual
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../drawing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Drawing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../coloring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coloring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../geometry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Geometry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../io/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../positioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Positioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Styling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rendering
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rendering
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../rendering/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../rendering/skia/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Skia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../rendering/svg_native/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SVG-native
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBGN
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SBGN
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbgn/sbgn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBGN
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbgn/pd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbgn/af/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_11_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11_4" id="__nav_5_11_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbgn/io/sbgnml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBGN-ML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CellDesigner
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CellDesigner
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../celldesigner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CellDesigner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_12_2" id="__nav_5_12_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_12_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_12_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBML
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SBML
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbml/sbml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_13_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13_2" id="__nav_5_13_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    I/O
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_13_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    I/O
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../sbml/io/sbml/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SBML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="id-assignment">ID assignment</h1>
+<p>When reading a CellDesigner file, ID assignment is more complex than SBGN-ML: model and layout often use different XML ID sources (e.g., <code>&lt;species id&gt;</code> for the model vs. <code>&lt;speciesAlias id&gt;</code> for the layout). Some elements have no XML ID and rely on SBML <code>metaid</code>, composite IDs, or auto-generated UUIDs.</p>
+<p><strong>ID provenance key</strong>:</p>
+<ul>
+<li><code>sbml:X</code> — from an SBML element attribute (e.g., <code>&lt;species id="s1"&gt;</code>, <code>&lt;modifierSpeciesReference metaid="MSR0"&gt;</code>)</li>
+<li><code>cd:X</code> — from a CellDesigner extension element attribute (e.g., <code>&lt;speciesAlias id="sa1"&gt;</code>)</li>
+<li><code>composite</code> — synthetic ID built from parent + child XML IDs</li>
+<li><code>auto</code> — auto-generated UUID from the builder</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Element type</th>
+<th>Model <code>id_</code></th>
+<th>Source</th>
+<th>Layout <code>id_</code></th>
+<th>Source</th>
+<th>Registered</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compartment</td>
+<td><code>compartment_id</code></td>
+<td>sbml:<code>compartment/@id</code></td>
+<td><code>alias_id</code></td>
+<td>cd:<code>compartmentAlias/@id</code></td>
+<td>yes</td>
+<td><code>metaid</code> also stored</td>
+</tr>
+<tr>
+<td>Species Template</td>
+<td><code>template_id</code></td>
+<td>cd:<code>proteinReference/@id</code> etc.</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td></td>
+</tr>
+<tr>
+<td>Species</td>
+<td><code>species_id</code> or <code>f"{species_id}_active"</code></td>
+<td>sbml:<code>species/@id</code></td>
+<td><code>alias_id</code></td>
+<td>cd:<code>speciesAlias/@id</code></td>
+<td>yes</td>
+<td>Dual model registration; active species get <code>_active</code> suffix</td>
+</tr>
+<tr>
+<td>ModificationResidue</td>
+<td><code>f"{template_id}_{residue_id}"</code></td>
+<td>composite</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td>Global uniqueness via parent</td>
+</tr>
+<tr>
+<td>Region</td>
+<td><code>f"{template_id}_{region_id}"</code></td>
+<td>composite</td>
+<td>no layout</td>
+<td>—</td>
+<td>yes</td>
+<td>Global uniqueness via parent</td>
+</tr>
+<tr>
+<td>Modification</td>
+<td><code>f"{species_id}_{residue_id}"</code></td>
+<td>composite</td>
+<td><code>f"{species_id}_{residue_id}_layout"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Deterministic from species + residue</td>
+</tr>
+<tr>
+<td>StructuralState</td>
+<td><code>f"{species_id}_{value}"</code></td>
+<td>composite</td>
+<td><code>f"{species_id}_{value}_layout"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Deterministic from species + value</td>
+</tr>
+<tr>
+<td>Reactant (base/link)</td>
+<td><code>metaid</code> or <code>f"{reaction_id}_{species_id}"</code></td>
+<td>sbml:<code>speciesReference/@metaid</code> or composite</td>
+<td><code>f"{model_id}_layout"</code></td>
+<td>derived from model id</td>
+<td>yes</td>
+<td><code>metaid</code> preferred; layout only for link reactants and some base</td>
+</tr>
+<tr>
+<td>Product (base/link)</td>
+<td><code>metaid</code> or <code>f"{reaction_id}_{species_id}"</code></td>
+<td>sbml:<code>speciesReference/@metaid</code> or composite</td>
+<td><code>f"{model_id}_layout"</code></td>
+<td>derived from model id</td>
+<td>yes</td>
+<td><code>metaid</code> preferred; layout only for link products and some base</td>
+</tr>
+<tr>
+<td>Modulator</td>
+<td><code>metaid</code></td>
+<td>sbml:<code>modifierSpeciesReference/@metaid</code></td>
+<td><code>f"{metaid}_layout"</code></td>
+<td>derived from metaid</td>
+<td>yes</td>
+<td><code>metaid</code> always present</td>
+</tr>
+<tr>
+<td>BooleanGate</td>
+<td><code>f"{reaction_id}_gate_{sorted_aliases}"</code></td>
+<td>composite</td>
+<td><code>f"{...}_layout"</code></td>
+<td>composite</td>
+<td>model only</td>
+<td>Deterministic from reaction + sorted aliases</td>
+</tr>
+<tr>
+<td>BooleanGateInput / LogicArcLayout</td>
+<td><code>f"{gate_id}_input_{input_alias}"</code></td>
+<td>composite</td>
+<td><code>f"{gate_id}_arc_{input_alias}"</code></td>
+<td>composite</td>
+<td>no</td>
+<td>Frozen child of gate</td>
+</tr>
+<tr>
+<td>Reaction</td>
+<td><code>reaction_id</code></td>
+<td>sbml:<code>reaction/@id</code></td>
+<td><code>f"{reaction_id}_layout"</code></td>
+<td>derived from sbml</td>
+<td>yes</td>
+<td>No reaction alias in CellDesigner</td>
+</tr>
+<tr>
+<td>Modulation</td>
+<td><code>reaction_id</code></td>
+<td>sbml:<code>reaction/@id</code></td>
+<td><code>f"{reaction_id}_layout"</code></td>
+<td>derived from sbml</td>
+<td>yes</td>
+<td>Encoded as fake reactions</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes</strong>:</p>
+<ul>
+<li><strong>Dual registration</strong>: Species model is registered in <code>xml_id_to_model_element</code> under both <code>species_id</code> and <code>species_alias_id</code> (CellDesigner reactions reference species by alias ID for cross-reference resolution).</li>
+<li><strong><code>_layout</code> suffix</strong>: Used when model and layout share the same XML ID source (reactions, modulations, modulators with <code>metaid</code>). No suffix is needed when they come from different XML elements (species vs. alias, compartment vs. alias).</li>
+<li><strong><code>metaid</code></strong>: The SBML <code>metaid</code> attribute is preferred for Reactants, Products, and Modulators. Falls back to a composite ID or UUID when absent.</li>
+<li><strong>Composite IDs</strong>: <code>f"{parent_id}_{child_id}"</code> for ModificationResidue and Region, since child IDs are only unique within a parent template.</li>
+</ul>
+<h1 id="api">API</h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<h2 id="momapy.celldesigner.io.celldesigner" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <span class="doc doc-object-name doc-module-name">momapy.celldesigner.io.celldesigner</span>
+
+
+</h2>
+
+    <div class="doc doc-contents first">
+
+        <p>Classes for reading and writing CellDesigner files.</p>
+
+
+
+
+
+
+<p><span class="doc-section-title">Modules:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="momapy.celldesigner.io.celldesigner.reader">reader</span></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>CellDesigner reader class.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="momapy.celldesigner.io.celldesigner.writer">writer</span></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>CellDesigner XML writer (new, model-first approach).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+<p><span class="doc-section-title">Classes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="            CellDesignerReader (momapy.celldesigner.io.celldesigner.CellDesignerReader)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader">CellDesignerReader</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>Class for CellDesigner reader objects</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="            CellDesignerWriter (momapy.celldesigner.io.celldesigner.CellDesignerWriter)" href="#momapy.celldesigner.io.celldesigner.CellDesignerWriter">CellDesignerWriter</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>CellDesigner XML writer (model-first approach).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="momapy.celldesigner.io.celldesigner.CellDesignerReader" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CellDesignerReader</span>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="momapy.io.core.Reader">Reader</span></code></p>
+
+
+
+        <p>Class for CellDesigner reader objects</p>
+
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            check_file
+
+
+  
+      classmethod
+   (momapy.celldesigner.io.celldesigner.CellDesignerReader.check_file)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader.check_file">check_file</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Return <code>true</code> if the file is a CellDesigner file, <code>false</code> otherwise</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            read
+
+
+  
+      classmethod
+   (momapy.celldesigner.io.celldesigner.CellDesignerReader.read)" href="#momapy.celldesigner.io.celldesigner.CellDesignerReader.read">read</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Read a CellDesigner file and return a reader result object</p>
+                </div>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="momapy.celldesigner.io.celldesigner.CellDesignerReader.check_file" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">check_file</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">check_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return <code>true</code> if the file is a CellDesigner file, <code>false</code> otherwise</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/reader.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-668">668</a></span>
+<span class="normal"><a href="#__codelineno-0-669">669</a></span>
+<span class="normal"><a href="#__codelineno-0-670">670</a></span>
+<span class="normal"><a href="#__codelineno-0-671">671</a></span>
+<span class="normal"><a href="#__codelineno-0-672">672</a></span>
+<span class="normal"><a href="#__codelineno-0-673">673</a></span>
+<span class="normal"><a href="#__codelineno-0-674">674</a></span>
+<span class="normal"><a href="#__codelineno-0-675">675</a></span>
+<span class="normal"><a href="#__codelineno-0-676">676</a></span>
+<span class="normal"><a href="#__codelineno-0-677">677</a></span>
+<span class="normal"><a href="#__codelineno-0-678">678</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-668"><a id="__codelineno-0-668" name="__codelineno-0-668"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-669"><a id="__codelineno-0-669" name="__codelineno-0-669"></a><span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">):</span>
+</span><span id="__span-0-670"><a id="__codelineno-0-670" name="__codelineno-0-670"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return `true` if the file is a CellDesigner file, `false` otherwise&quot;&quot;&quot;</span>
+</span><span id="__span-0-671"><a id="__codelineno-0-671" name="__codelineno-0-671"></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="__span-0-672"><a id="__codelineno-0-672" name="__codelineno-0-672"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-673"><a id="__codelineno-0-673" name="__codelineno-0-673"></a>            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="__span-0-674"><a id="__codelineno-0-674" name="__codelineno-0-674"></a>                <span class="k">if</span> <span class="s2">&quot;http://www.sbml.org/2001/ns/celldesigner&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+</span><span id="__span-0-675"><a id="__codelineno-0-675" name="__codelineno-0-675"></a>                    <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-676"><a id="__codelineno-0-676" name="__codelineno-0-676"></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="__span-0-677"><a id="__codelineno-0-677" name="__codelineno-0-677"></a>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span><span id="__span-0-678"><a id="__codelineno-0-678" name="__codelineno-0-678"></a>        <span class="k">return</span> <span class="kc">False</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="momapy.celldesigner.io.celldesigner.CellDesignerReader.read" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">read</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">return_type</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;layout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;map&#39;</span><span class="p">,</span> <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            ReaderResult
+
+
+  
+      dataclass
+   (momapy.io.core.ReaderResult)" href="../../../io/#momapy.io.ReaderResult">ReaderResult</a></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Read a CellDesigner file and return a reader result object</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/reader.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-680">680</a></span>
+<span class="normal"><a href="#__codelineno-0-681">681</a></span>
+<span class="normal"><a href="#__codelineno-0-682">682</a></span>
+<span class="normal"><a href="#__codelineno-0-683">683</a></span>
+<span class="normal"><a href="#__codelineno-0-684">684</a></span>
+<span class="normal"><a href="#__codelineno-0-685">685</a></span>
+<span class="normal"><a href="#__codelineno-0-686">686</a></span>
+<span class="normal"><a href="#__codelineno-0-687">687</a></span>
+<span class="normal"><a href="#__codelineno-0-688">688</a></span>
+<span class="normal"><a href="#__codelineno-0-689">689</a></span>
+<span class="normal"><a href="#__codelineno-0-690">690</a></span>
+<span class="normal"><a href="#__codelineno-0-691">691</a></span>
+<span class="normal"><a href="#__codelineno-0-692">692</a></span>
+<span class="normal"><a href="#__codelineno-0-693">693</a></span>
+<span class="normal"><a href="#__codelineno-0-694">694</a></span>
+<span class="normal"><a href="#__codelineno-0-695">695</a></span>
+<span class="normal"><a href="#__codelineno-0-696">696</a></span>
+<span class="normal"><a href="#__codelineno-0-697">697</a></span>
+<span class="normal"><a href="#__codelineno-0-698">698</a></span>
+<span class="normal"><a href="#__codelineno-0-699">699</a></span>
+<span class="normal"><a href="#__codelineno-0-700">700</a></span>
+<span class="normal"><a href="#__codelineno-0-701">701</a></span>
+<span class="normal"><a href="#__codelineno-0-702">702</a></span>
+<span class="normal"><a href="#__codelineno-0-703">703</a></span>
+<span class="normal"><a href="#__codelineno-0-704">704</a></span>
+<span class="normal"><a href="#__codelineno-0-705">705</a></span>
+<span class="normal"><a href="#__codelineno-0-706">706</a></span>
+<span class="normal"><a href="#__codelineno-0-707">707</a></span>
+<span class="normal"><a href="#__codelineno-0-708">708</a></span>
+<span class="normal"><a href="#__codelineno-0-709">709</a></span>
+<span class="normal"><a href="#__codelineno-0-710">710</a></span>
+<span class="normal"><a href="#__codelineno-0-711">711</a></span>
+<span class="normal"><a href="#__codelineno-0-712">712</a></span>
+<span class="normal"><a href="#__codelineno-0-713">713</a></span>
+<span class="normal"><a href="#__codelineno-0-714">714</a></span>
+<span class="normal"><a href="#__codelineno-0-715">715</a></span>
+<span class="normal"><a href="#__codelineno-0-716">716</a></span>
+<span class="normal"><a href="#__codelineno-0-717">717</a></span>
+<span class="normal"><a href="#__codelineno-0-718">718</a></span>
+<span class="normal"><a href="#__codelineno-0-719">719</a></span>
+<span class="normal"><a href="#__codelineno-0-720">720</a></span>
+<span class="normal"><a href="#__codelineno-0-721">721</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-680"><a id="__codelineno-0-680" name="__codelineno-0-680"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-681"><a id="__codelineno-0-681" name="__codelineno-0-681"></a><span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
+</span><span id="__span-0-682"><a id="__codelineno-0-682" name="__codelineno-0-682"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-683"><a id="__codelineno-0-683" name="__codelineno-0-683"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+</span><span id="__span-0-684"><a id="__codelineno-0-684" name="__codelineno-0-684"></a>    <span class="n">return_type</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;layout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+</span><span id="__span-0-685"><a id="__codelineno-0-685" name="__codelineno-0-685"></a>    <span class="n">with_model</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-686"><a id="__codelineno-0-686" name="__codelineno-0-686"></a>    <span class="n">with_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-687"><a id="__codelineno-0-687" name="__codelineno-0-687"></a>    <span class="n">with_annotations</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-688"><a id="__codelineno-0-688" name="__codelineno-0-688"></a>    <span class="n">with_notes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-689"><a id="__codelineno-0-689" name="__codelineno-0-689"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReaderResult</span><span class="p">:</span>
+</span><span id="__span-0-690"><a id="__codelineno-0-690" name="__codelineno-0-690"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a CellDesigner file and return a reader result object&quot;&quot;&quot;</span>
+</span><span id="__span-0-691"><a id="__codelineno-0-691" name="__codelineno-0-691"></a>    <span class="n">cd_document</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">objectify</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-692"><a id="__codelineno-0-692" name="__codelineno-0-692"></a>    <span class="n">cd_sbml</span> <span class="o">=</span> <span class="n">cd_document</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+</span><span id="__span-0-693"><a id="__codelineno-0-693" name="__codelineno-0-693"></a>    <span class="p">(</span>
+</span><span id="__span-0-694"><a id="__codelineno-0-694" name="__codelineno-0-694"></a>        <span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-695"><a id="__codelineno-0-695" name="__codelineno-0-695"></a>        <span class="n">annotations</span><span class="p">,</span>
+</span><span id="__span-0-696"><a id="__codelineno-0-696" name="__codelineno-0-696"></a>        <span class="n">notes</span><span class="p">,</span>
+</span><span id="__span-0-697"><a id="__codelineno-0-697" name="__codelineno-0-697"></a>        <span class="n">id_to_element</span><span class="p">,</span>
+</span><span id="__span-0-698"><a id="__codelineno-0-698" name="__codelineno-0-698"></a>        <span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-699"><a id="__codelineno-0-699" name="__codelineno-0-699"></a>        <span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-700"><a id="__codelineno-0-700" name="__codelineno-0-700"></a>        <span class="n">source_id_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-701"><a id="__codelineno-0-701" name="__codelineno-0-701"></a>        <span class="n">source_id_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-702"><a id="__codelineno-0-702" name="__codelineno-0-702"></a>    <span class="p">)</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_make_main_obj</span><span class="p">(</span>
+</span><span id="__span-0-703"><a id="__codelineno-0-703" name="__codelineno-0-703"></a>        <span class="n">cd_model</span><span class="o">=</span><span class="n">cd_sbml</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+</span><span id="__span-0-704"><a id="__codelineno-0-704" name="__codelineno-0-704"></a>        <span class="n">return_type</span><span class="o">=</span><span class="n">return_type</span><span class="p">,</span>
+</span><span id="__span-0-705"><a id="__codelineno-0-705" name="__codelineno-0-705"></a>        <span class="n">with_model</span><span class="o">=</span><span class="n">with_model</span><span class="p">,</span>
+</span><span id="__span-0-706"><a id="__codelineno-0-706" name="__codelineno-0-706"></a>        <span class="n">with_layout</span><span class="o">=</span><span class="n">with_layout</span><span class="p">,</span>
+</span><span id="__span-0-707"><a id="__codelineno-0-707" name="__codelineno-0-707"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
+</span><span id="__span-0-708"><a id="__codelineno-0-708" name="__codelineno-0-708"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
+</span><span id="__span-0-709"><a id="__codelineno-0-709" name="__codelineno-0-709"></a>    <span class="p">)</span>
+</span><span id="__span-0-710"><a id="__codelineno-0-710" name="__codelineno-0-710"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">ReaderResult</span><span class="p">(</span>
+</span><span id="__span-0-711"><a id="__codelineno-0-711" name="__codelineno-0-711"></a>        <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-712"><a id="__codelineno-0-712" name="__codelineno-0-712"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">notes</span><span class="p">,</span>
+</span><span id="__span-0-713"><a id="__codelineno-0-713" name="__codelineno-0-713"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">annotations</span><span class="p">,</span>
+</span><span id="__span-0-714"><a id="__codelineno-0-714" name="__codelineno-0-714"></a>        <span class="n">id_to_element</span><span class="o">=</span><span class="n">id_to_element</span><span class="p">,</span>
+</span><span id="__span-0-715"><a id="__codelineno-0-715" name="__codelineno-0-715"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-716"><a id="__codelineno-0-716" name="__codelineno-0-716"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-717"><a id="__codelineno-0-717" name="__codelineno-0-717"></a>        <span class="n">source_id_to_annotations</span><span class="o">=</span><span class="n">source_id_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-718"><a id="__codelineno-0-718" name="__codelineno-0-718"></a>        <span class="n">source_id_to_notes</span><span class="o">=</span><span class="n">source_id_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-719"><a id="__codelineno-0-719" name="__codelineno-0-719"></a>        <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span>
+</span><span id="__span-0-720"><a id="__codelineno-0-720" name="__codelineno-0-720"></a>    <span class="p">)</span>
+</span><span id="__span-0-721"><a id="__codelineno-0-721" name="__codelineno-0-721"></a>    <span class="k">return</span> <span class="n">result</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="momapy.celldesigner.io.celldesigner.CellDesignerWriter" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">CellDesignerWriter</span>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="momapy.io.core.Writer">Writer</span></code></p>
+
+
+
+        <p>CellDesigner XML writer (model-first approach).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            write
+
+
+  
+      classmethod
+   (momapy.celldesigner.io.celldesigner.CellDesignerWriter.write)" href="#momapy.celldesigner.io.celldesigner.CellDesignerWriter.write">write</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Write a CellDesigner map to a file.</p>
+                </div>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="momapy.celldesigner.io.celldesigner.CellDesignerWriter.write" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">write</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">write</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            CellDesignerMap
+
+
+  
+      dataclass
+   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="n"><span title="os.PathLike">PathLike</span></span><span class="p">,</span> <span class="n">element_to_annotations</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">element_to_notes</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">with_annotations</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">with_notes</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n"><span title="typing.Any">Any</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            WriterResult
+
+
+  
+      dataclass
+   (momapy.io.core.WriterResult)" href="../../../io/#momapy.io.WriterResult">WriterResult</a></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Write a CellDesigner map to a file.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>obj</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            CellDesignerMap
+
+
+  
+      dataclass
+   (momapy.celldesigner.map.CellDesignerMap)" href="../../celldesigner/#momapy.celldesigner.CellDesignerMap">CellDesignerMap</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A CellDesignerMap instance.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>file_path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | <span title="os.PathLike">PathLike</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Output file path.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>element_to_annotations</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Annotations dict from reader result.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>element_to_notes</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Notes dict from reader result.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>source_id_to_model_element</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional source ID to model
+element mapping from ReaderResult.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>source_id_to_layout_element</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional source ID to layout
+element mapping from ReaderResult.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_annotations</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to write annotations.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>with_notes</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to write notes.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="            WriterResult
+
+
+  
+      dataclass
+   (momapy.io.core.WriterResult)" href="../../../io/#momapy.io.WriterResult">WriterResult</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>WriterResult.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/momapy/celldesigner/io/celldesigner/writer.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-4343">4343</a></span>
+<span class="normal"><a href="#__codelineno-0-4344">4344</a></span>
+<span class="normal"><a href="#__codelineno-0-4345">4345</a></span>
+<span class="normal"><a href="#__codelineno-0-4346">4346</a></span>
+<span class="normal"><a href="#__codelineno-0-4347">4347</a></span>
+<span class="normal"><a href="#__codelineno-0-4348">4348</a></span>
+<span class="normal"><a href="#__codelineno-0-4349">4349</a></span>
+<span class="normal"><a href="#__codelineno-0-4350">4350</a></span>
+<span class="normal"><a href="#__codelineno-0-4351">4351</a></span>
+<span class="normal"><a href="#__codelineno-0-4352">4352</a></span>
+<span class="normal"><a href="#__codelineno-0-4353">4353</a></span>
+<span class="normal"><a href="#__codelineno-0-4354">4354</a></span>
+<span class="normal"><a href="#__codelineno-0-4355">4355</a></span>
+<span class="normal"><a href="#__codelineno-0-4356">4356</a></span>
+<span class="normal"><a href="#__codelineno-0-4357">4357</a></span>
+<span class="normal"><a href="#__codelineno-0-4358">4358</a></span>
+<span class="normal"><a href="#__codelineno-0-4359">4359</a></span>
+<span class="normal"><a href="#__codelineno-0-4360">4360</a></span>
+<span class="normal"><a href="#__codelineno-0-4361">4361</a></span>
+<span class="normal"><a href="#__codelineno-0-4362">4362</a></span>
+<span class="normal"><a href="#__codelineno-0-4363">4363</a></span>
+<span class="normal"><a href="#__codelineno-0-4364">4364</a></span>
+<span class="normal"><a href="#__codelineno-0-4365">4365</a></span>
+<span class="normal"><a href="#__codelineno-0-4366">4366</a></span>
+<span class="normal"><a href="#__codelineno-0-4367">4367</a></span>
+<span class="normal"><a href="#__codelineno-0-4368">4368</a></span>
+<span class="normal"><a href="#__codelineno-0-4369">4369</a></span>
+<span class="normal"><a href="#__codelineno-0-4370">4370</a></span>
+<span class="normal"><a href="#__codelineno-0-4371">4371</a></span>
+<span class="normal"><a href="#__codelineno-0-4372">4372</a></span>
+<span class="normal"><a href="#__codelineno-0-4373">4373</a></span>
+<span class="normal"><a href="#__codelineno-0-4374">4374</a></span>
+<span class="normal"><a href="#__codelineno-0-4375">4375</a></span>
+<span class="normal"><a href="#__codelineno-0-4376">4376</a></span>
+<span class="normal"><a href="#__codelineno-0-4377">4377</a></span>
+<span class="normal"><a href="#__codelineno-0-4378">4378</a></span>
+<span class="normal"><a href="#__codelineno-0-4379">4379</a></span>
+<span class="normal"><a href="#__codelineno-0-4380">4380</a></span>
+<span class="normal"><a href="#__codelineno-0-4381">4381</a></span>
+<span class="normal"><a href="#__codelineno-0-4382">4382</a></span>
+<span class="normal"><a href="#__codelineno-0-4383">4383</a></span>
+<span class="normal"><a href="#__codelineno-0-4384">4384</a></span>
+<span class="normal"><a href="#__codelineno-0-4385">4385</a></span>
+<span class="normal"><a href="#__codelineno-0-4386">4386</a></span>
+<span class="normal"><a href="#__codelineno-0-4387">4387</a></span>
+<span class="normal"><a href="#__codelineno-0-4388">4388</a></span>
+<span class="normal"><a href="#__codelineno-0-4389">4389</a></span>
+<span class="normal"><a href="#__codelineno-0-4390">4390</a></span>
+<span class="normal"><a href="#__codelineno-0-4391">4391</a></span>
+<span class="normal"><a href="#__codelineno-0-4392">4392</a></span>
+<span class="normal"><a href="#__codelineno-0-4393">4393</a></span>
+<span class="normal"><a href="#__codelineno-0-4394">4394</a></span>
+<span class="normal"><a href="#__codelineno-0-4395">4395</a></span>
+<span class="normal"><a href="#__codelineno-0-4396">4396</a></span>
+<span class="normal"><a href="#__codelineno-0-4397">4397</a></span>
+<span class="normal"><a href="#__codelineno-0-4398">4398</a></span>
+<span class="normal"><a href="#__codelineno-0-4399">4399</a></span>
+<span class="normal"><a href="#__codelineno-0-4400">4400</a></span>
+<span class="normal"><a href="#__codelineno-0-4401">4401</a></span>
+<span class="normal"><a href="#__codelineno-0-4402">4402</a></span>
+<span class="normal"><a href="#__codelineno-0-4403">4403</a></span>
+<span class="normal"><a href="#__codelineno-0-4404">4404</a></span>
+<span class="normal"><a href="#__codelineno-0-4405">4405</a></span>
+<span class="normal"><a href="#__codelineno-0-4406">4406</a></span>
+<span class="normal"><a href="#__codelineno-0-4407">4407</a></span>
+<span class="normal"><a href="#__codelineno-0-4408">4408</a></span>
+<span class="normal"><a href="#__codelineno-0-4409">4409</a></span>
+<span class="normal"><a href="#__codelineno-0-4410">4410</a></span>
+<span class="normal"><a href="#__codelineno-0-4411">4411</a></span>
+<span class="normal"><a href="#__codelineno-0-4412">4412</a></span>
+<span class="normal"><a href="#__codelineno-0-4413">4413</a></span>
+<span class="normal"><a href="#__codelineno-0-4414">4414</a></span>
+<span class="normal"><a href="#__codelineno-0-4415">4415</a></span>
+<span class="normal"><a href="#__codelineno-0-4416">4416</a></span>
+<span class="normal"><a href="#__codelineno-0-4417">4417</a></span>
+<span class="normal"><a href="#__codelineno-0-4418">4418</a></span>
+<span class="normal"><a href="#__codelineno-0-4419">4419</a></span>
+<span class="normal"><a href="#__codelineno-0-4420">4420</a></span>
+<span class="normal"><a href="#__codelineno-0-4421">4421</a></span>
+<span class="normal"><a href="#__codelineno-0-4422">4422</a></span>
+<span class="normal"><a href="#__codelineno-0-4423">4423</a></span>
+<span class="normal"><a href="#__codelineno-0-4424">4424</a></span>
+<span class="normal"><a href="#__codelineno-0-4425">4425</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-4343"><a id="__codelineno-0-4343" name="__codelineno-0-4343"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-4344"><a id="__codelineno-0-4344" name="__codelineno-0-4344"></a><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
+</span><span id="__span-0-4345"><a id="__codelineno-0-4345" name="__codelineno-0-4345"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-4346"><a id="__codelineno-0-4346" name="__codelineno-0-4346"></a>    <span class="n">obj</span><span class="p">:</span> <span class="n">CellDesignerMap</span><span class="p">,</span>
+</span><span id="__span-0-4347"><a id="__codelineno-0-4347" name="__codelineno-0-4347"></a>    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">,</span>
+</span><span id="__span-0-4348"><a id="__codelineno-0-4348" name="__codelineno-0-4348"></a>    <span class="n">element_to_annotations</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4349"><a id="__codelineno-0-4349" name="__codelineno-0-4349"></a>    <span class="n">element_to_notes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4350"><a id="__codelineno-0-4350" name="__codelineno-0-4350"></a>    <span class="n">source_id_to_model_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4351"><a id="__codelineno-0-4351" name="__codelineno-0-4351"></a>    <span class="n">source_id_to_layout_element</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4352"><a id="__codelineno-0-4352" name="__codelineno-0-4352"></a>    <span class="n">with_annotations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-4353"><a id="__codelineno-0-4353" name="__codelineno-0-4353"></a>    <span class="n">with_notes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-4354"><a id="__codelineno-0-4354" name="__codelineno-0-4354"></a>    <span class="o">**</span><span class="n">options</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-4355"><a id="__codelineno-0-4355" name="__codelineno-0-4355"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WriterResult</span><span class="p">:</span>
+</span><span id="__span-0-4356"><a id="__codelineno-0-4356" name="__codelineno-0-4356"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a CellDesigner map to a file.</span>
+</span><span id="__span-0-4357"><a id="__codelineno-0-4357" name="__codelineno-0-4357"></a>
+</span><span id="__span-0-4358"><a id="__codelineno-0-4358" name="__codelineno-0-4358"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-4359"><a id="__codelineno-0-4359" name="__codelineno-0-4359"></a><span class="sd">        obj: A CellDesignerMap instance.</span>
+</span><span id="__span-0-4360"><a id="__codelineno-0-4360" name="__codelineno-0-4360"></a><span class="sd">        file_path: Output file path.</span>
+</span><span id="__span-0-4361"><a id="__codelineno-0-4361" name="__codelineno-0-4361"></a><span class="sd">        element_to_annotations: Annotations dict from reader result.</span>
+</span><span id="__span-0-4362"><a id="__codelineno-0-4362" name="__codelineno-0-4362"></a><span class="sd">        element_to_notes: Notes dict from reader result.</span>
+</span><span id="__span-0-4363"><a id="__codelineno-0-4363" name="__codelineno-0-4363"></a><span class="sd">        source_id_to_model_element: Optional source ID to model</span>
+</span><span id="__span-0-4364"><a id="__codelineno-0-4364" name="__codelineno-0-4364"></a><span class="sd">            element mapping from ReaderResult.</span>
+</span><span id="__span-0-4365"><a id="__codelineno-0-4365" name="__codelineno-0-4365"></a><span class="sd">        source_id_to_layout_element: Optional source ID to layout</span>
+</span><span id="__span-0-4366"><a id="__codelineno-0-4366" name="__codelineno-0-4366"></a><span class="sd">            element mapping from ReaderResult.</span>
+</span><span id="__span-0-4367"><a id="__codelineno-0-4367" name="__codelineno-0-4367"></a><span class="sd">        with_annotations: Whether to write annotations.</span>
+</span><span id="__span-0-4368"><a id="__codelineno-0-4368" name="__codelineno-0-4368"></a><span class="sd">        with_notes: Whether to write notes.</span>
+</span><span id="__span-0-4369"><a id="__codelineno-0-4369" name="__codelineno-0-4369"></a>
+</span><span id="__span-0-4370"><a id="__codelineno-0-4370" name="__codelineno-0-4370"></a><span class="sd">    Returns:</span>
+</span><span id="__span-0-4371"><a id="__codelineno-0-4371" name="__codelineno-0-4371"></a><span class="sd">        WriterResult.</span>
+</span><span id="__span-0-4372"><a id="__codelineno-0-4372" name="__codelineno-0-4372"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-4373"><a id="__codelineno-0-4373" name="__codelineno-0-4373"></a>    <span class="n">check_parent_dir_exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</span><span id="__span-0-4374"><a id="__codelineno-0-4374" name="__codelineno-0-4374"></a>    <span class="k">if</span> <span class="n">element_to_annotations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-4375"><a id="__codelineno-0-4375" name="__codelineno-0-4375"></a>        <span class="n">element_to_annotations</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-4376"><a id="__codelineno-0-4376" name="__codelineno-0-4376"></a>    <span class="k">if</span> <span class="n">element_to_notes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-4377"><a id="__codelineno-0-4377" name="__codelineno-0-4377"></a>        <span class="n">element_to_notes</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-4378"><a id="__codelineno-0-4378" name="__codelineno-0-4378"></a>
+</span><span id="__span-0-4379"><a id="__codelineno-0-4379" name="__codelineno-0-4379"></a>    <span class="n">subunit_to_complex</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-4380"><a id="__codelineno-0-4380" name="__codelineno-0-4380"></a>    <span class="n">species_to_id</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-4381"><a id="__codelineno-0-4381" name="__codelineno-0-4381"></a>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-4382"><a id="__codelineno-0-4382" name="__codelineno-0-4382"></a>
+</span><span id="__span-0-4383"><a id="__codelineno-0-4383" name="__codelineno-0-4383"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_collect</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
+</span><span id="__span-0-4384"><a id="__codelineno-0-4384" name="__codelineno-0-4384"></a>            <span class="n">species_id</span> <span class="o">=</span> <span class="n">_strip_active</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+</span><span id="__span-0-4385"><a id="__codelineno-0-4385" name="__codelineno-0-4385"></a>            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">species_to_id</span><span class="p">:</span>
+</span><span id="__span-0-4386"><a id="__codelineno-0-4386" name="__codelineno-0-4386"></a>                <span class="n">species_to_id</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">species</span><span class="p">)]</span> <span class="o">=</span> <span class="n">species_id</span>
+</span><span id="__span-0-4387"><a id="__codelineno-0-4387" name="__codelineno-0-4387"></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">Complex</span><span class="p">):</span>
+</span><span id="__span-0-4388"><a id="__codelineno-0-4388" name="__codelineno-0-4388"></a>                <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">species</span><span class="o">.</span><span class="n">subunits</span><span class="p">:</span>
+</span><span id="__span-0-4389"><a id="__codelineno-0-4389" name="__codelineno-0-4389"></a>                    <span class="c1"># Map to top-level ancestor, not immediate parent.</span>
+</span><span id="__span-0-4390"><a id="__codelineno-0-4390" name="__codelineno-0-4390"></a>                    <span class="c1"># If the parent is itself a subunit, its entry</span>
+</span><span id="__span-0-4391"><a id="__codelineno-0-4391" name="__codelineno-0-4391"></a>                    <span class="c1"># was already set (parent before children).</span>
+</span><span id="__span-0-4392"><a id="__codelineno-0-4392" name="__codelineno-0-4392"></a>                    <span class="n">ancestor</span> <span class="o">=</span> <span class="n">species</span>
+</span><span id="__span-0-4393"><a id="__codelineno-0-4393" name="__codelineno-0-4393"></a>                    <span class="k">while</span> <span class="n">ancestor</span> <span class="ow">in</span> <span class="n">subunit_to_complex</span><span class="p">:</span>
+</span><span id="__span-0-4394"><a id="__codelineno-0-4394" name="__codelineno-0-4394"></a>                        <span class="n">ancestor</span> <span class="o">=</span> <span class="n">subunit_to_complex</span><span class="p">[</span><span class="n">ancestor</span><span class="p">]</span>
+</span><span id="__span-0-4395"><a id="__codelineno-0-4395" name="__codelineno-0-4395"></a>                    <span class="n">subunit_to_complex</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span> <span class="o">=</span> <span class="n">ancestor</span>
+</span><span id="__span-0-4396"><a id="__codelineno-0-4396" name="__codelineno-0-4396"></a>                    <span class="n">_collect</span><span class="p">(</span><span class="n">sub</span><span class="p">)</span>
+</span><span id="__span-0-4397"><a id="__codelineno-0-4397" name="__codelineno-0-4397"></a>
+</span><span id="__span-0-4398"><a id="__codelineno-0-4398" name="__codelineno-0-4398"></a>        <span class="k">for</span> <span class="n">species</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+</span><span id="__span-0-4399"><a id="__codelineno-0-4399" name="__codelineno-0-4399"></a>            <span class="n">_collect</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+</span><span id="__span-0-4400"><a id="__codelineno-0-4400" name="__codelineno-0-4400"></a>
+</span><span id="__span-0-4401"><a id="__codelineno-0-4401" name="__codelineno-0-4401"></a>    <span class="n">writing_context</span> <span class="o">=</span> <span class="n">CellDesignerWritingContext</span><span class="p">(</span>
+</span><span id="__span-0-4402"><a id="__codelineno-0-4402" name="__codelineno-0-4402"></a>        <span class="n">map_</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-4403"><a id="__codelineno-0-4403" name="__codelineno-0-4403"></a>        <span class="n">element_to_annotations</span><span class="o">=</span><span class="n">element_to_annotations</span><span class="p">,</span>
+</span><span id="__span-0-4404"><a id="__codelineno-0-4404" name="__codelineno-0-4404"></a>        <span class="n">element_to_notes</span><span class="o">=</span><span class="n">element_to_notes</span><span class="p">,</span>
+</span><span id="__span-0-4405"><a id="__codelineno-0-4405" name="__codelineno-0-4405"></a>        <span class="n">source_id_to_model_element</span><span class="o">=</span><span class="n">source_id_to_model_element</span><span class="p">,</span>
+</span><span id="__span-0-4406"><a id="__codelineno-0-4406" name="__codelineno-0-4406"></a>        <span class="n">source_id_to_layout_element</span><span class="o">=</span><span class="n">source_id_to_layout_element</span><span class="p">,</span>
+</span><span id="__span-0-4407"><a id="__codelineno-0-4407" name="__codelineno-0-4407"></a>        <span class="n">with_annotations</span><span class="o">=</span><span class="n">with_annotations</span><span class="p">,</span>
+</span><span id="__span-0-4408"><a id="__codelineno-0-4408" name="__codelineno-0-4408"></a>        <span class="n">with_notes</span><span class="o">=</span><span class="n">with_notes</span><span class="p">,</span>
+</span><span id="__span-0-4409"><a id="__codelineno-0-4409" name="__codelineno-0-4409"></a>        <span class="n">subunit_to_complex</span><span class="o">=</span><span class="n">subunit_to_complex</span><span class="p">,</span>
+</span><span id="__span-0-4410"><a id="__codelineno-0-4410" name="__codelineno-0-4410"></a>        <span class="n">species_to_id</span><span class="o">=</span><span class="n">species_to_id</span><span class="p">,</span>
+</span><span id="__span-0-4411"><a id="__codelineno-0-4411" name="__codelineno-0-4411"></a>    <span class="p">)</span>
+</span><span id="__span-0-4412"><a id="__codelineno-0-4412" name="__codelineno-0-4412"></a>    <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">layout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-4413"><a id="__codelineno-0-4413" name="__codelineno-0-4413"></a>        <span class="n">writing_context</span><span class="o">.</span><span class="n">degraded_entries</span> <span class="o">=</span> <span class="n">_collect_degraded_entries</span><span class="p">(</span>
+</span><span id="__span-0-4414"><a id="__codelineno-0-4414" name="__codelineno-0-4414"></a>            <span class="n">writing_context</span>
+</span><span id="__span-0-4415"><a id="__codelineno-0-4415" name="__codelineno-0-4415"></a>        <span class="p">)</span>
+</span><span id="__span-0-4416"><a id="__codelineno-0-4416" name="__codelineno-0-4416"></a>
+</span><span id="__span-0-4417"><a id="__codelineno-0-4417" name="__codelineno-0-4417"></a>    <span class="n">sbml</span> <span class="o">=</span> <span class="n">_build_make_sbml_element</span><span class="p">(</span><span class="n">writing_context</span><span class="p">)</span>
+</span><span id="__span-0-4418"><a id="__codelineno-0-4418" name="__codelineno-0-4418"></a>    <span class="n">tree</span> <span class="o">=</span> <span class="n">lxml</span><span class="o">.</span><span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">sbml</span><span class="p">)</span>
+</span><span id="__span-0-4419"><a id="__codelineno-0-4419" name="__codelineno-0-4419"></a>    <span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+</span><span id="__span-0-4420"><a id="__codelineno-0-4420" name="__codelineno-0-4420"></a>        <span class="n">file_path</span><span class="p">,</span>
+</span><span id="__span-0-4421"><a id="__codelineno-0-4421" name="__codelineno-0-4421"></a>        <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-4422"><a id="__codelineno-0-4422" name="__codelineno-0-4422"></a>        <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-4423"><a id="__codelineno-0-4423" name="__codelineno-0-4423"></a>        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4424"><a id="__codelineno-0-4424" name="__codelineno-0-4424"></a>    <span class="p">)</span>
+</span><span id="__span-0-4425"><a id="__codelineno-0-4425" name="__codelineno-0-4425"></a>    <span class="k">return</span> <span class="n">WriterResult</span><span class="p">(</span><span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.instant", "navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "default": "stable", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
