@@ -192,20 +192,6 @@ class EntityPool(SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class EmptySet(EntityPool):
-    """Class for empty sets.
-
-    .. deprecated::
-        Empty-set glyphs are no longer represented as model entity pools.
-        Use the ``has_external_source`` / ``has_external_sink`` flags on
-        ``StoichiometricProcess`` instead. The class is retained for
-        backward compatibility with user code that constructs it directly.
-    """
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbingAgent(EntityPool):
     """Class for perturbing agents"""
 

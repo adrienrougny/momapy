@@ -31,9 +31,8 @@ class TestSBGNExternalFlux:
         assert process.has_external_sink is False
 
     def test_two_processes_with_external_source_not_equal(self):
-        """Two distinct ``∅ → X`` processes targeting different species are
-        no longer spuriously collapsed through a shared ``EmptySet``
-        phantom — they remain distinct because the products differ."""
+        """Two distinct ``∅ → X`` processes targeting different species
+        remain distinct because the products differ."""
         a = momapy.sbgn.pd.UnspecifiedEntity(label="A")
         b = momapy.sbgn.pd.UnspecifiedEntity(label="B")
         p_a = momapy.sbgn.pd.GenericProcess(
@@ -98,19 +97,14 @@ class TestSBGNEmptySetRoundTrip:
     """Integration tests on a fixture map containing two empty-set glyphs.
 
     The fixture map has two ``∅ → X`` processes; reading must populate
-    ``has_external_source`` on those processes, drop ``EmptySet`` from
-    ``model.entity_pools``, and preserve both ``EmptySetLayout`` instances
-    in ``layout.layout_elements``."""
+    ``has_external_source`` on those processes and preserve both
+    ``EmptySetLayout`` instances in ``layout.layout_elements``."""
 
     @pytest.fixture
     def map_(self):
         if not os.path.exists(EMPTY_SET_FIXTURE):
             pytest.skip(f"fixture {EMPTY_SET_FIXTURE} not found")
         return momapy.io.core.read(EMPTY_SET_FIXTURE).obj
-
-    def test_no_empty_set_in_entity_pools(self, map_):
-        for entity_pool in map_.model.entity_pools:
-            assert not isinstance(entity_pool, momapy.sbgn.pd.EmptySet)
 
     def test_empty_set_layouts_preserved(self, map_):
         empty_set_layouts = [

@@ -55,7 +55,6 @@ from momapy.celldesigner.model import SimpleMolecule as SimpleMolecule
 from momapy.celldesigner.model import Drug as Drug
 from momapy.celldesigner.model import Unknown as Unknown
 from momapy.celldesigner.model import Complex as Complex
-from momapy.celldesigner.model import Degraded as Degraded
 from momapy.celldesigner.model import Reactant as Reactant
 from momapy.celldesigner.model import Product as Product
 from momapy.celldesigner.model import BooleanLogicGateInput as BooleanLogicGateInput
@@ -249,7 +248,6 @@ __all__ = [
     "Drug",
     "Unknown",
     "Complex",
-    "Degraded",
     "Reactant",
     "Product",
     "BooleanLogicGateInput",

@@ -68,7 +68,6 @@ from momapy.sbgn.pd.model import (
 from momapy.sbgn.pd.model import ComplexMultimerSubunit as ComplexMultimerSubunit
 from momapy.sbgn.pd.model import Compartment as Compartment
 from momapy.sbgn.pd.model import EntityPool as EntityPool
-from momapy.sbgn.pd.model import EmptySet as EmptySet
 from momapy.sbgn.pd.model import PerturbingAgent as PerturbingAgent
 from momapy.sbgn.pd.model import UnspecifiedEntity as UnspecifiedEntity
 from momapy.sbgn.pd.model import Macromolecule as Macromolecule
@@ -203,7 +202,6 @@ __all__ = [
     "ComplexMultimerSubunit",
     "Compartment",
     "EntityPool",
-    "EmptySet",
     "PerturbingAgent",
     "UnspecifiedEntity",
     "Macromolecule",

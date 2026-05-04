@@ -133,7 +133,6 @@ from momapy.celldesigner.model import (
     Catalyzer,
     CodingRegion,
     Complex,
-    Degraded,
     Dissociation,
     Drug,
     Gene,

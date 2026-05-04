@@ -430,20 +430,6 @@ class Complex(Species):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class Degraded(Species):
-    """Class for degradeds.
-
-    .. deprecated::
-        Degraded species are no longer represented as model species. Use
-        the ``has_external_source`` / ``has_external_sink`` flags on
-        ``Reaction`` instead. The class is retained for backward
-        compatibility with user code that constructs it directly.
-    """
-
-    pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
 class Reactant(SpeciesReference, CellDesignerModelElement):
     """Class for reactants"""
 
@@ -870,7 +856,6 @@ __all__ = [
     "Drug",
     "Unknown",
     "Complex",
-    "Degraded",
     "Reactant",
     "Product",
     "BooleanLogicGateInput",
