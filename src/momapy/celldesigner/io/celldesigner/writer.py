@@ -73,24 +73,54 @@ from momapy.celldesigner.model import (
 )
 from momapy.celldesigner.layout import (
     AndGateLayout,
+    AntisenseRNAActiveLayout,
     CompartmentCorner,
     CompartmentSide,
+    ComplexActiveLayout,
     ComplexLayout,
     ConsumptionLayout,
     CornerCompartmentLayout,
     DegradedActiveLayout,
     DegradedLayout,
+    DrugActiveLayout,
+    GeneActiveLayout,
+    GenericProteinActiveLayout,
+    IonActiveLayout,
+    IonChannelActiveLayout,
     LineCompartmentLayout,
     LogicArcLayout,
     ModificationLayout,
     NotGateLayout,
     OrGateLayout,
     OvalCompartmentLayout,
+    PhenotypeActiveLayout,
     ProductionLayout,
+    RNAActiveLayout,
     ReactionLayout,
+    ReceptorActiveLayout,
     RectangleCompartmentLayout,
+    SimpleMoleculeActiveLayout,
     StructuralStateLayout,
+    TruncatedProteinActiveLayout,
+    UnknownActiveLayout,
     UnknownGateLayout,
+)
+
+_ACTIVE_OVERLAY_LAYOUT_CLASSES = (
+    AntisenseRNAActiveLayout,
+    ComplexActiveLayout,
+    DegradedActiveLayout,
+    DrugActiveLayout,
+    GeneActiveLayout,
+    GenericProteinActiveLayout,
+    IonActiveLayout,
+    IonChannelActiveLayout,
+    PhenotypeActiveLayout,
+    RNAActiveLayout,
+    ReceptorActiveLayout,
+    SimpleMoleculeActiveLayout,
+    TruncatedProteinActiveLayout,
+    UnknownActiveLayout,
 )
 
 _CD_NS = "http://www.sbml.org/2001/ns/celldesigner"
@@ -1186,52 +1216,171 @@ def _make_celldesigner_species_state(writing_context, species):
 # --- Complex species aliases ---
 
 
+def _is_subunit_bearing_layout(layout):
+    """Whether a layout under a complex layout depicts a subunit.
+
+    Returns ``True`` for nested complex layouts and for non-decorative
+    species-glyph layouts (i.e. CellDesigner nodes that are not
+    structural-state or modification annotations and not active-border
+    overlays added inside an active species/complex layout).
+    """
+    if isinstance(layout, _ACTIVE_OVERLAY_LAYOUT_CLASSES):
+        return False
+    if isinstance(layout, ComplexLayout):
+        return True
+    if not isinstance(layout, CellDesignerNode):
+        return False
+    if isinstance(layout, (StructuralStateLayout, ModificationLayout)):
+        return False
+    return True
+
+
+def _get_layouts_for_subunit(writing_context, subunit, parent_complex):
+    """Return layouts of ``subunit`` recorded under ``parent_complex``.
+
+    Thin wrapper around
+    [LayoutModelMapping.get_child_layout_elements][momapy.core.mapping.LayoutModelMapping.get_child_layout_elements].
+    """
+    return _mapping(writing_context).get_child_layout_elements(subunit, parent_complex)
+
+
+def _validate_complex_layout_mapping_invariant(writing_context):
+    """Verify mapping consistency under each complex layout.
+
+    For every subunit-bearing child of a complex layout, the mapping
+    must point to a model element that is in the parent complex's
+    ``subunits`` (compared by ``==``). Raises ``ValueError`` on the
+    first inconsistency so the alias-emission walk can rely on the
+    invariant.
+    """
+    layout = writing_context.map_.layout
+    if layout is None:
+        return
+    mapping = _mapping(writing_context)
+
+    def _walk(elements):
+        for element in elements:
+            if isinstance(element, ComplexLayout):
+                parent_complex = mapping.get_mapping(element)
+                if isinstance(parent_complex, Complex):
+                    for child in element.layout_elements:
+                        if not _is_subunit_bearing_layout(child):
+                            continue
+                        child_model = mapping.get_mapping(child)
+                        if child_model is None:
+                            raise ValueError(
+                                f"layout {child.id_} has no mapping entry; "
+                                "map is malformed"
+                            )
+                        if not any(
+                            child_model == subunit
+                            for subunit in parent_complex.subunits
+                        ):
+                            raise ValueError(
+                                f"layout {child.id_} maps to {child_model.id_}, "
+                                f"which is not a subunit of {parent_complex.id_}; "
+                                "model and mapping disagree"
+                            )
+            if hasattr(element, "layout_elements"):
+                _walk(element.layout_elements)
+
+    _walk(layout.layout_elements)
+
+
 def _make_celldesigner_list_of_complex_species_aliases(writing_context):
     list_elem = _make_celldesigner_element("listOfComplexSpeciesAliases")
-    # Top-level complexes
     for species in writing_context.map_.model.species:
         if not isinstance(species, Complex):
             continue
-        _collect_complex_aliases(writing_context, species, list_elem)
+        _collect_complex_aliases(
+            writing_context,
+            species,
+            complex_alias_list=list_elem,
+            species_alias_list=None,
+        )
     layout_order_index = _build_layout_order_index(writing_context.map_.layout)
     _sort_aliases_by_layout_order(list_elem, layout_order_index)
     return list_elem
 
 
-def _collect_complex_aliases(writing_context, complex_, list_elem):
-    """Collect complex aliases by walking layout containment."""
-    for layout_key in _get_layouts(writing_context, complex_):
-        if isinstance(layout_key, frozenset):
-            continue
-        if isinstance(layout_key, ComplexLayout):
-            list_elem.append(
+def _collect_complex_aliases(
+    writing_context,
+    target_complex,
+    complex_alias_list,
+    species_alias_list,
+    parent_layout=None,
+    parent_complex=None,
+):
+    """Walk ``target_complex`` and emit alias entries from the model.
+
+    Walks the model tree starting at ``target_complex``: for each layout
+    of ``target_complex`` (scoped to children of ``parent_layout`` when
+    nested), emit a ``complexSpeciesAlias`` into ``complex_alias_list``,
+    then iterate ``target_complex.subunits`` and emit each one — leaf
+    species into ``species_alias_list``, nested complexes by recursion.
+
+    Identifiers emitted into XML come from the in-scope model element
+    (``target_complex`` and ``subunit``). The mapping is consulted only
+    to find the layouts that pair with each model element.
+
+    Pass ``complex_alias_list=None`` (or ``species_alias_list=None``) to
+    skip emission for that side; the walk is unchanged.
+    """
+    mapping = _mapping(writing_context)
+    if parent_layout is None:
+        target_layouts = [
+            layout
+            for layout in _get_layouts(writing_context, target_complex)
+            if isinstance(layout, ComplexLayout)
+        ]
+        parent_alias_id = None
+    else:
+        siblings = set(parent_layout.layout_elements)
+        target_layouts = [
+            layout
+            for layout in mapping.get_child_layout_elements(
+                target_complex, parent_complex
+            )
+            if isinstance(layout, ComplexLayout) and layout in siblings
+        ]
+        parent_alias_id = parent_layout.id_
+    for target_layout in target_layouts:
+        if complex_alias_list is not None:
+            complex_alias_list.append(
                 _make_celldesigner_alias(
-                    writing_context, layout_key, complex_, "complexSpeciesAlias"
+                    writing_context,
+                    target_layout,
+                    target_complex,
+                    "complexSpeciesAlias",
+                    complex_alias_id=parent_alias_id,
                 )
             )
-            # Collect nested complex layouts from children
-            _collect_nested_complex_aliases(writing_context, layout_key, list_elem)
-
-
-def _collect_nested_complex_aliases(writing_context, parent_layout, list_elem):
-    """Walk layout children and emit complexSpeciesAliases for nested complexes."""
-    for child in parent_layout.layout_elements:
-        if not isinstance(child, ComplexLayout):
-            continue
-        model_elem = _mapping(writing_context).get_mapping(child)
-        if model_elem is None:
-            continue
-        list_elem.append(
-            _make_celldesigner_alias(
-                writing_context,
-                child,
-                model_elem,
-                "complexSpeciesAlias",
-                complex_alias_id=parent_layout.id_,
-            )
-        )
-        # Recurse deeper
-        _collect_nested_complex_aliases(writing_context, child, list_elem)
+        children_in_layout = set(target_layout.layout_elements)
+        for subunit in target_complex.subunits:
+            if isinstance(subunit, Complex):
+                _collect_complex_aliases(
+                    writing_context,
+                    subunit,
+                    complex_alias_list,
+                    species_alias_list,
+                    parent_layout=target_layout,
+                    parent_complex=target_complex,
+                )
+            elif species_alias_list is not None:
+                for child_layout in _get_layouts_for_subunit(
+                    writing_context, subunit, target_complex
+                ):
+                    if child_layout not in children_in_layout:
+                        continue
+                    species_alias_list.append(
+                        _make_celldesigner_alias(
+                            writing_context,
+                            child_layout,
+                            subunit,
+                            "speciesAlias",
+                            complex_alias_id=target_layout.id_,
+                        )
+                    )
 
 
 # --- Species aliases ---
@@ -1258,7 +1407,12 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
     for species in writing_context.map_.model.species:
         if not isinstance(species, Complex):
             continue
-        _collect_subunit_aliases(writing_context, species, list_elem)
+        _collect_complex_aliases(
+            writing_context,
+            species,
+            complex_alias_list=None,
+            species_alias_list=list_elem,
+        )
     seen_degraded = set()
     for entry in writing_context.degraded_entries:
         key = id(entry.degraded_layout)
@@ -1339,59 +1493,6 @@ def _make_celldesigner_degraded_alias(writing_context, degraded_layout):
         )
     )
     return alias
-
-
-def _collect_subunit_aliases(writing_context, complex_, list_elem):
-    """Collect species aliases for subunits by walking layout containment.
-
-    Instead of using the mapping (which conflates different
-    instances of the same nested complex), walk the complex
-    layout's children directly.
-    """
-    for complex_layout in _get_layouts(writing_context, complex_):
-        if isinstance(complex_layout, frozenset):
-            continue
-        if not isinstance(complex_layout, ComplexLayout):
-            continue
-        _collect_aliases_from_layout_children(
-            writing_context, complex_layout, complex_layout.id_, list_elem
-        )
-
-
-def _collect_aliases_from_layout_children(
-    writing_context, parent_layout, complex_alias_id, list_elem
-):
-    """Walk layout children and emit speciesAliases for non-complex nodes."""
-    for child in parent_layout.layout_elements:
-        if isinstance(child, ComplexLayout):
-            # Recurse into nested complex layouts
-            _collect_aliases_from_layout_children(
-                writing_context, child, child.id_, list_elem
-            )
-            continue
-        if not isinstance(child, CellDesignerNode):
-            continue
-        # Skip non-species child layouts (structural states, modifications)
-        if isinstance(
-            child,
-            (
-                StructuralStateLayout,
-                ModificationLayout,
-            ),
-        ):
-            continue
-        model_elem = _mapping(writing_context).get_mapping(child)
-        if model_elem is None:
-            continue
-        list_elem.append(
-            _make_celldesigner_alias(
-                writing_context,
-                child,
-                model_elem,
-                "speciesAlias",
-                complex_alias_id=complex_alias_id,
-            )
-        )
 
 
 def _find_compartment_alias_id(writing_context, species_layout):
@@ -4413,6 +4514,7 @@ class CellDesignerWriter(Writer):
             writing_context.degraded_entries = _collect_degraded_entries(
                 writing_context
             )
+            _validate_complex_layout_mapping_invariant(writing_context)
 
         sbml = _build_make_sbml_element(writing_context)
         tree = lxml.etree.ElementTree(sbml)
