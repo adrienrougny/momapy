@@ -385,7 +385,16 @@ class Process(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StoichiometricProcess(Process):
-    """Base class for stoichiometric processes"""
+    """Base class for stoichiometric processes.
+
+    SBGN PD's empty-set glyph (used as a source-and-sink for unspecified
+    external flux) is *not* represented as a member of ``reactants`` or
+    ``products``. Instead, it is encoded as the boolean flags
+    ``has_external_source`` (an empty-set on the reactant side) and
+    ``has_external_sink`` (an empty-set on the product side). The
+    corresponding empty-set glyph lives only in the layout
+    (``EmptySetLayout``); the model carries no peer entity pool for it.
+    """
 
     reactants: frozenset[Reactant] = dataclasses.field(
         default_factory=frozenset,

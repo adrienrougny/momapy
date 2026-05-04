@@ -567,7 +567,18 @@ class UnknownInhibitor(UnknownModulator):
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reaction(SBMLReaction, CellDesignerModelElement):
-    """Base class for reactions"""
+    """Base class for reactions.
+
+    CellDesigner's degraded glyph (a ``<species class="DEGRADED">`` used
+    on either side of a reaction to denote unspecified external flux)
+    is *not* represented as a member of ``reactants`` or ``products``.
+    Instead, it is encoded as the boolean flags ``has_external_source``
+    (a degraded reactant) and ``has_external_sink`` (a degraded product).
+    The corresponding glyph lives only in the layout (``DegradedLayout``
+    / ``DegradedActiveLayout``); the model carries no peer species for
+    it. The writer reconstructs the degraded SBML/XML elements from the
+    layout at write time.
+    """
 
     reactants: frozenset[Reactant] = dataclasses.field(
         default_factory=frozenset,
