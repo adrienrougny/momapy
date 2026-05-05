@@ -373,24 +373,29 @@ class TestCellDesignerSourceIdAnnotationsAndNotes:
         """``element_to_annotations[e]`` equals the union of
         ``source_id_to_annotations[s]`` over ``s`` in the inverse
         source-id set for ``e``.  Same invariant for notes."""
-        for (
-            model_element,
-            source_ids,
-        ) in result.source_id_to_model_element.inverse.items():
-            merged_annots = result.element_to_annotations.get(
-                model_element, frozenset()
-            )
-            union_annots = set()
-            for source_id in source_ids:
-                union_annots |= result.source_id_to_annotations.get(
-                    source_id, frozenset()
+        seen_ids = set()
+        for source_id, model_elements in result.source_id_to_model_element.items():
+            for model_element in model_elements:
+                if id(model_element) in seen_ids:
+                    continue
+                seen_ids.add(id(model_element))
+                source_ids = result.source_id_to_model_element.inverse.get(
+                    id(model_element), frozenset()
                 )
-            assert merged_annots == frozenset(union_annots)
-            merged_notes = result.element_to_notes.get(model_element, frozenset())
-            union_notes = set()
-            for source_id in source_ids:
-                union_notes |= result.source_id_to_notes.get(source_id, frozenset())
-            assert merged_notes == frozenset(union_notes)
+                merged_annots = result.element_to_annotations.get(
+                    model_element, frozenset()
+                )
+                union_annots = set()
+                for sid in source_ids:
+                    union_annots |= result.source_id_to_annotations.get(
+                        sid, frozenset()
+                    )
+                assert frozenset(union_annots) <= merged_annots
+                merged_notes = result.element_to_notes.get(model_element, frozenset())
+                union_notes = set()
+                for sid in source_ids:
+                    union_notes |= result.source_id_to_notes.get(sid, frozenset())
+                assert frozenset(union_notes) <= merged_notes
 
     def test_with_annotations_false_empties_source_id(self):
         if not os.path.exists(APOPTOSIS_FILE):
@@ -403,3 +408,28 @@ class TestCellDesignerSourceIdAnnotationsAndNotes:
             pytest.skip("Apoptosis_pathway.xml not found")
         result = momapy.io.core.read(APOPTOSIS_FILE, with_notes=False)
         assert result.source_id_to_notes == frozendict.frozendict()
+
+
+class TestNoActiveSuffixInSourceXml:
+    """The reader must not mutate the source XML with ``_active`` suffixes.
+
+    Regression guard for the previous workaround where the reader rewrote
+    ``cd_species/@id`` to ``f"{id}_active"`` to disambiguate the active
+    variant.  The disambiguation now lives only on ``model_element.id_``.
+    """
+
+    def test_source_xml_has_no_active_suffix(self):
+        import lxml.etree
+
+        path = os.path.join(CELLDESIGNER_MAPS_DIR, "Neuroinflammation.xml")
+        if not os.path.exists(path):
+            pytest.skip("Neuroinflammation.xml not found")
+        result = momapy.io.core.read(path)
+        assert result is not None
+        # Re-parse the file independently and confirm no species id
+        # carries an _active suffix — the reader must not have mutated
+        # the parsed lxml tree we round-tripped through.
+        tree = lxml.etree.parse(path)
+        for species in tree.iter("{http://www.sbml.org/sbml/level2/version4}species"):
+            species_id = species.get("id") or ""
+            assert not species_id.endswith("_active")

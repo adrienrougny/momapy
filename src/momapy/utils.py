@@ -125,6 +125,211 @@ class IdentitySurjectionDict(dict):
         return self._identity_inverse
 
 
+class IdentityMultiDict:
+    """An identity-keyed multidict for n-to-m string -> object mappings.
+
+    Forward: ``dict[str, set[object]]`` — a key may name several values.
+    Inverse: ``dict[int, set[str]]`` keyed by ``id(value)``.
+
+    The forward dict holds references to every value, so the
+    identity-keyed inverse is safe from ``id()`` address reuse for the
+    lifetime of the multidict.
+
+    The class deliberately does **not** subclass ``dict`` so that
+    accidental ``d[key] = value`` writes (which would replace the whole
+    set with a single object) raise instead of silently corrupting
+    state.  Use ``add`` / ``remove`` / ``replace_value`` to mutate.
+
+    Examples:
+        ```python
+        d = IdentityMultiDict()
+        a, b = object(), object()
+        d.add('x', a)
+        d.add('x', b)
+        d.get_all('x')      # frozenset({a, b})
+        d.inverse[id(a)]    # frozenset({'x'})
+        ```
+    """
+
+    def __init__(self):
+        self._forward: dict[str, set] = {}
+        self._inverse: dict[int, set[str]] = {}
+
+    def add(self, key: str, value: object) -> None:
+        """Register ``value`` under ``key``.  Idempotent on identity."""
+        bucket = self._forward.setdefault(key, set())
+        for existing in bucket:
+            if existing is value:
+                return
+        bucket.add(value)
+        self._inverse.setdefault(id(value), set()).add(key)
+
+    def remove(self, key: str, value: object) -> None:
+        """Drop ``value`` from ``key``.  Raises ``KeyError`` if absent."""
+        bucket = self._forward.get(key)
+        if bucket is None:
+            raise KeyError(key)
+        target = None
+        for existing in bucket:
+            if existing is value:
+                target = existing
+                break
+        if target is None:
+            raise KeyError(key)
+        bucket.discard(target)
+        if not bucket:
+            del self._forward[key]
+        keys_for_value = self._inverse.get(id(value))
+        if keys_for_value is not None:
+            keys_for_value.discard(key)
+            if not keys_for_value:
+                del self._inverse[id(value)]
+
+    def replace_value(self, old: object, new: object) -> None:
+        """Replace ``old`` with ``new`` everywhere it appears (by identity).
+
+        Drives the dedup remap path: every key whose set contains
+        ``old`` (compared by identity) drops ``old`` and adds ``new``.
+        """
+        keys = self._inverse.pop(id(old), None)
+        if not keys:
+            return
+        for key in keys:
+            bucket = self._forward.get(key)
+            if bucket is None:
+                continue
+            target = None
+            for existing in bucket:
+                if existing is old:
+                    target = existing
+                    break
+            if target is not None:
+                bucket.discard(target)
+            already_present = False
+            for existing in bucket:
+                if existing is new:
+                    already_present = True
+                    break
+            if not already_present:
+                bucket.add(new)
+            self._inverse.setdefault(id(new), set()).add(key)
+
+    def get_one(self, key: str, default=None):
+        """Return the single value for ``key`` or ``default``.
+
+        Raises:
+            ValueError: If ``key`` is registered with more than one value.
+        """
+        bucket = self._forward.get(key)
+        if bucket is None:
+            return default
+        if len(bucket) != 1:
+            raise ValueError(f"key {key!r} has {len(bucket)} values; use get_all")
+        return next(iter(bucket))
+
+    def get_all(self, key: str) -> frozenset:
+        """Return the frozenset of values registered under ``key``."""
+        bucket = self._forward.get(key)
+        if bucket is None:
+            return frozenset()
+        return frozenset(bucket)
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._forward
+
+    def __iter__(self):
+        return iter(self._forward)
+
+    def __len__(self) -> int:
+        return len(self._forward)
+
+    def keys(self):
+        return self._forward.keys()
+
+    def items(self):
+        """Iterate ``(key, frozenset_of_values)`` pairs."""
+        for key, bucket in self._forward.items():
+            yield key, frozenset(bucket)
+
+    def items_flat(self):
+        """Iterate one ``(key, value)`` pair per value member of each key."""
+        for key, bucket in self._forward.items():
+            for value in bucket:
+                yield key, value
+
+    @property
+    def inverse(self) -> dict[int, frozenset[str]]:
+        """Identity-keyed inverse: ``id(value) -> frozenset[str]``."""
+        return {value_id: frozenset(keys) for value_id, keys in self._inverse.items()}
+
+
+class FrozenIdentityMultiDict(frozendict.frozendict):
+    """An immutable identity-keyed multidict.
+
+    Forward: ``frozendict[str, frozenset[object]]``.  Inverse:
+    ``dict[int, frozenset[str]]`` keyed by ``id(value)``.
+
+    Constructed from any mapping ``str -> Iterable[object]``.
+
+    Examples:
+        ```python
+        a, b = object(), object()
+        d = FrozenIdentityMultiDict({'x': [a, b], 'y': [a]})
+        d.get_all('x')      # frozenset({a, b})
+        d.inverse[id(a)]    # frozenset({'x', 'y'})
+        ```
+    """
+
+    def __new__(cls, mapping=None):
+        frozen_forward: dict[str, frozenset] = {}
+        if mapping is not None:
+            for key, values in mapping.items():
+                frozen_forward[key] = frozenset(values)
+        return super().__new__(cls, frozen_forward)
+
+    def __init__(self, mapping=None):
+        inverse: dict[int, set[str]] = {}
+        for key, bucket in self.items():
+            for value in bucket:
+                inverse.setdefault(id(value), set()).add(key)
+        object.__setattr__(
+            self,
+            "_identity_inverse",
+            {value_id: frozenset(keys) for value_id, keys in inverse.items()},
+        )
+
+    def get_one(self, key: str, default=None):
+        """Return the single value for ``key`` or ``default``.
+
+        Raises:
+            ValueError: If ``key`` has more than one value.
+        """
+        bucket = self.get(key)
+        if bucket is None:
+            return default
+        if len(bucket) != 1:
+            raise ValueError(f"key {key!r} has {len(bucket)} values; use get_all")
+        return next(iter(bucket))
+
+    def get_all(self, key: str) -> frozenset:
+        """Return the frozenset of values registered under ``key``."""
+        bucket = self.get(key)
+        if bucket is None:
+            return frozenset()
+        return bucket
+
+    def items_flat(self):
+        """Iterate one ``(key, value)`` pair per value member of each key."""
+        for key, bucket in self.items():
+            for value in bucket:
+                yield key, value
+
+    @property
+    def inverse(self) -> dict[int, frozenset[str]]:
+        """Identity-keyed inverse: ``id(value) -> frozenset[str]``."""
+        return self._identity_inverse
+
+
 class FrozenSurjectionDict(frozendict.frozendict):
     """An immutable version of SurjectionDict.
 

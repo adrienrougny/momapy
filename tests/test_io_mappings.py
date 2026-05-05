@@ -50,8 +50,9 @@ class TestSourceIdToModelElement:
             pytest.skip(f"fixture not found: {fixture_path}")
         result = momapy.io.core.read(fixture_path)
         model = result.obj.model
-        for value in result.source_id_to_model_element.values():
-            assert not isinstance(value, momapy.core.model.Model)
+        for bucket in result.source_id_to_model_element.values():
+            for value in bucket:
+                assert not isinstance(value, momapy.core.model.Model)
         assert model.id_ not in result.source_id_to_model_element
 
     @pytest.mark.parametrize(
@@ -65,8 +66,9 @@ class TestSourceIdToModelElement:
         if not os.path.exists(fixture_path):
             pytest.skip(f"fixture not found: {fixture_path}")
         result = momapy.io.core.read(fixture_path)
-        for value in result.source_id_to_model_element.values():
-            assert isinstance(value, momapy.core.elements.ModelElement)
+        for bucket in result.source_id_to_model_element.values():
+            for value in bucket:
+                assert isinstance(value, momapy.core.elements.ModelElement)
 
 
 class TestModelNotAModelElement:

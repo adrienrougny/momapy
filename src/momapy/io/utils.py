@@ -30,8 +30,15 @@ class WritingContext:
     map_: typing.Any
     element_to_annotations: dict
     element_to_notes: dict
-    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None
+    source_id_to_model_element: momapy.utils.FrozenIdentityMultiDict | None
+    """N-to-m source id -> model element mapping; one source id may name
+    several model elements (e.g. CellDesigner active/inactive species).
+    Use ``get_one`` for the 1-to-1 case, ``get_all`` for the n-to-m
+    case, or ``inverse`` to recover the source ids of a model element."""
     source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
+    """1-to-1 source id -> layout element mapping.  Layout elements are
+    not subject to the same n-to-m driver as model elements (every
+    layout element has at most one source id)."""
     with_annotations: bool
     with_notes: bool
 
@@ -49,8 +56,8 @@ class ReadingContext:
     map_key: str | None = None
     model: typing.Any = None
     layout: typing.Any = None
-    xml_id_to_model_element: momapy.utils.IdentitySurjectionDict = dataclasses.field(
-        default_factory=momapy.utils.IdentitySurjectionDict
+    xml_id_to_model_element: momapy.utils.IdentityMultiDict = dataclasses.field(
+        default_factory=momapy.utils.IdentityMultiDict
     )
     xml_id_to_layout_element: dict[str, momapy.core.elements.MapElement] = (
         dataclasses.field(default_factory=dict)
@@ -97,7 +104,7 @@ def build_id_mappings(
     real_layout_source_ids: set[str] | None = None,
 ) -> tuple[
     frozendict.frozendict,
-    momapy.utils.FrozenSurjectionDict | None,
+    momapy.utils.FrozenIdentityMultiDict | None,
     momapy.utils.FrozenSurjectionDict | None,
 ]:
     """Build the three ID mapping dicts for a ReaderResult.
@@ -148,11 +155,13 @@ def build_id_mappings(
     id_to_element[obj.id_] = obj
 
     if model is not None:
-        source_id_to_model_element: dict[str, momapy.core.elements.ModelElement] = {}
+        source_id_to_model_element_set: dict[
+            str, set[momapy.core.elements.ModelElement]
+        ] = {}
         for (
             source_id,
             registered_element,
-        ) in reading_context.xml_id_to_model_element.items():
+        ) in reading_context.xml_id_to_model_element.items_flat():
             if (
                 real_model_source_ids is not None
                 and source_id not in real_model_source_ids
@@ -160,9 +169,11 @@ def build_id_mappings(
                 continue
             frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:
-                source_id_to_model_element[source_id] = frozen_element
-        source_id_to_model_element = momapy.utils.FrozenSurjectionDict(
-            source_id_to_model_element
+                source_id_to_model_element_set.setdefault(source_id, set()).add(
+                    frozen_element
+                )
+        source_id_to_model_element = momapy.utils.FrozenIdentityMultiDict(
+            source_id_to_model_element_set
         )
     else:
         source_id_to_model_element = None
@@ -213,10 +224,9 @@ def remap_model_element(
         surviving_element: The element that won deduplication.
     """
     # Fix stale entries in xml_id_to_model_element via identity inverse.
-    for xml_id in list(
-        reading_context.xml_id_to_model_element.inverse.get(id(evicted_element), ())
-    ):
-        reading_context.xml_id_to_model_element[xml_id] = surviving_element
+    reading_context.xml_id_to_model_element.replace_value(
+        evicted_element, surviving_element
+    )
     # Chain: if earlier A→B and now B→C, update A→C.
     # Uses the remap's identity inverse to find all entries whose
     # surviving element is the current evicted element.
@@ -342,7 +352,7 @@ def register_model_element(
         func=lambda new, old: new.id_ < old.id_,
         cache=reading_context.model_element_cache,
     )
-    reading_context.xml_id_to_model_element[id_] = surviving_element
+    reading_context.xml_id_to_model_element.add(id_, surviving_element)
     if existing_element is not None:
         evicted_element = (
             model_element

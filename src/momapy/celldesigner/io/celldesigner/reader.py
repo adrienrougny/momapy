@@ -78,7 +78,7 @@ from momapy.io.utils import (
     register_model_element,
 )
 from momapy.builder import object_from_builder
-from momapy.utils import IdentitySurjectionDict, add_or_replace_element_in_set
+from momapy.utils import IdentityMultiDict, add_or_replace_element_in_set
 
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_activity,
@@ -751,7 +751,7 @@ class CellDesignerReader(Reader):
                 xml_root=cd_model,
                 model=model,
                 layout=layout,
-                xml_id_to_model_element=IdentitySurjectionDict(),
+                xml_id_to_model_element=IdentityMultiDict(),
                 element_to_annotations=element_to_annotations,
                 element_to_notes=element_to_notes,
                 source_id_to_annotations=source_id_to_annotations,
@@ -882,7 +882,7 @@ class CellDesignerReader(Reader):
                 # we make and add the model element from the cd compartment
                 # the cd element is an alias of, if it has not already been made
                 # while being outside another one
-                model_element = reading_context.xml_id_to_model_element.get(
+                model_element = reading_context.xml_id_to_model_element.get_one(
                     cd_compartment.get("id")
                 )
                 if model_element is None:
@@ -920,7 +920,7 @@ class CellDesignerReader(Reader):
                 reading_context, cd_compartment
             )
             if cd_compartment.get("outside") is not None:
-                outside_model_element = reading_context.xml_id_to_model_element.get(
+                outside_model_element = reading_context.xml_id_to_model_element.get_one(
                     cd_compartment.get("outside")
                 )
                 # if outside is not already made, we make it
@@ -1037,8 +1037,8 @@ class CellDesignerReader(Reader):
             super_model_element.modification_residues.add(model_element)
             # we use the model element's id (a composite of the parent and
             # child cd ids) rather than the cd element's own id
-            reading_context.xml_id_to_model_element[cd_modification_residue_id] = (
-                model_element
+            reading_context.xml_id_to_model_element.add(
+                cd_modification_residue_id, model_element
             )
         else:
             model_element = None
@@ -1069,7 +1069,9 @@ class CellDesignerReader(Reader):
             super_model_element.regions.add(model_element)
             # we use the model element's id (a composite of the parent and
             # child cd ids) rather than the cd element's own id
-            reading_context.xml_id_to_model_element[model_element.id_] = model_element
+            reading_context.xml_id_to_model_element.add(
+                model_element.id_, model_element
+            )
         else:
             model_element = None
         layout_element = None  # purely a model element
@@ -1104,10 +1106,9 @@ class CellDesignerReader(Reader):
             else:
                 hypothetical = False
             cd_species_activity = get_activity(cd_species_alias)
-            if cd_species_activity is not None:
-                active = cd_species_activity.text == "active"
-                if active:
-                    cd_species.attrib["id"] = f"{cd_species.get('id')}_active"
+            active = (
+                cd_species_activity is not None and cd_species_activity.text == "active"
+            )
             if model_element_cls is None:
                 # Degraded species — no model peer; track ids so reactant /
                 # product / modifier creation can detect references to them.
@@ -1264,11 +1265,11 @@ class CellDesignerReader(Reader):
                         model_element,
                         source_id=cd_species.get("id"),
                     )
-                reading_context.xml_id_to_model_element[cd_species.get("id")] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    cd_species.get("id"), model_element
                 )
-                reading_context.xml_id_to_model_element[cd_species_alias.get("id")] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    cd_species_alias.get("id"), model_element
                 )
             if reading_context.layout is not None:
                 layout_element = object_from_builder(layout_element)
@@ -1645,8 +1646,8 @@ class CellDesignerReader(Reader):
                     super_model_element.reactants,
                     func=lambda new, old: new.id_ < old.id_,
                 )
-                reading_context.xml_id_to_model_element[model_element.id_] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    model_element.id_, model_element
                 )
         else:
             model_element = None
@@ -1688,8 +1689,8 @@ class CellDesignerReader(Reader):
                     super_model_element.reactants,
                     func=lambda new, old: new.id_ < old.id_,
                 )
-                reading_context.xml_id_to_model_element[model_element.id_] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    model_element.id_, model_element
                 )
         else:
             model_element = None
@@ -1731,8 +1732,8 @@ class CellDesignerReader(Reader):
                     super_model_element.products,
                     func=lambda new, old: new.id_ < old.id_,
                 )
-                reading_context.xml_id_to_model_element[model_element.id_] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    model_element.id_, model_element
                 )
         else:
             model_element = None
@@ -1774,8 +1775,8 @@ class CellDesignerReader(Reader):
                     super_model_element.products,
                     func=lambda new, old: new.id_ < old.id_,
                 )
-                reading_context.xml_id_to_model_element[model_element.id_] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    model_element.id_, model_element
                 )
         else:
             model_element = None
@@ -1820,9 +1821,11 @@ class CellDesignerReader(Reader):
             )
             if reading_context.model is not None:
                 if not has_boolean_input:
-                    source_model_element = reading_context.xml_id_to_model_element[
-                        cd_reaction_modification.get("aliases")
-                    ]
+                    source_model_element = (
+                        reading_context.xml_id_to_model_element.get_one(
+                            cd_reaction_modification.get("aliases")
+                        )
+                    )
                 model_element = _reading_model.make_modifier(
                     reading_context,
                     model_element_cls,
@@ -1835,8 +1838,8 @@ class CellDesignerReader(Reader):
                     super_model_element.modifiers,
                     func=lambda new, old: new.id_ < old.id_,
                 )
-                reading_context.xml_id_to_model_element[model_element.id_] = (
-                    model_element
+                reading_context.xml_id_to_model_element.add(
+                    model_element.id_, model_element
                 )
             else:
                 model_element = None
@@ -1900,9 +1903,9 @@ class CellDesignerReader(Reader):
                 input_model_element = None
                 logic_arc = None
                 if reading_context.model is not None:
-                    source_model_element = reading_context.xml_id_to_model_element[
-                        cd_input_id
-                    ]
+                    source_model_element = (
+                        reading_context.xml_id_to_model_element.get_one(cd_input_id)
+                    )
                     input_model_element = _reading_model.make_logic_gate_input(
                         reading_context, source_model_element
                     )
@@ -1989,12 +1992,14 @@ class CellDesignerReader(Reader):
                 )
             if reading_context.model is not None:
                 if not has_boolean_input:
-                    source_model_element = reading_context.xml_id_to_model_element[
-                        cd_base_reactant.get("alias")
-                    ]
-                target_model_element = reading_context.xml_id_to_model_element[
+                    source_model_element = (
+                        reading_context.xml_id_to_model_element.get_one(
+                            cd_base_reactant.get("alias")
+                        )
+                    )
+                target_model_element = reading_context.xml_id_to_model_element.get_one(
                     cd_base_product.get("alias")
-                ]
+                )
                 model_element = _reading_model.make_modulation(
                     reading_context,
                     cd_reaction,

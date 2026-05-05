@@ -70,7 +70,9 @@ def set_label(model_element, sbgnml_element):
 def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element):
     sbgnml_compartment_ref = sbgnml_element.get("compartmentRef")
     if sbgnml_compartment_ref is not None:
-        model_element.compartment = sbgnml_id_to_model_element[sbgnml_compartment_ref]
+        model_element.compartment = sbgnml_id_to_model_element.get_one(
+            sbgnml_compartment_ref
+        )
 
 
 def set_stoichiometry(model_element, sbgnml_stoichiometry):
@@ -293,7 +295,9 @@ def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
         model_element_cls = momapy.sbgn.pd.TagReference
     model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
-    target_model_element = reading_context.xml_id_to_model_element[sbgnml_target_id]
+    target_model_element = reading_context.xml_id_to_model_element.get_one(
+        sbgnml_target_id
+    )
     model_element.element = target_model_element
     model_element = momapy.builder.object_from_builder(model_element)
     return model_element
@@ -344,7 +348,9 @@ def make_reactant(reading_context, sbgnml_consumption_arc):
     )
     model_element = momapy.builder.new_builder_object(momapy.sbgn.pd.Reactant)
     model_element.id_ = f"{sbgnml_consumption_arc.get('id')}_model"
-    source_model_element = reading_context.xml_id_to_model_element[sbgnml_source_id]
+    source_model_element = reading_context.xml_id_to_model_element.get_one(
+        sbgnml_source_id
+    )
     model_element.element = source_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = momapy.builder.object_from_builder(model_element)
@@ -398,7 +404,9 @@ def make_product(
         model_element_cls = momapy.sbgn.pd.Product
     model_element = momapy.builder.new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_production_arc.get('id')}_model"
-    target_model_element = reading_context.xml_id_to_model_element[sbgnml_target_id]
+    target_model_element = reading_context.xml_id_to_model_element.get_one(
+        sbgnml_target_id
+    )
     model_element.element = target_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = momapy.builder.object_from_builder(model_element)

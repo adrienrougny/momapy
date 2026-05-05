@@ -318,7 +318,7 @@ class TestSBGNSourceIdAnnotationsAndNotes:
         union of per-source annotations/notes across source ids that
         bind to it."""
         (erk,) = tuple(result.obj.model.entity_pools)
-        source_ids = result.source_id_to_model_element.inverse[erk]
+        source_ids = result.source_id_to_model_element.inverse[id(erk)]
         assert set(source_ids) == {"glyphA", "glyphB"}
         union_annots = set()
         union_notes = set()

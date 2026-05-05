@@ -298,22 +298,23 @@ def make_species(
     if reading_context.model is None or model_element_cls is None:
         return None
     model_element = momapy.builder.new_builder_object(model_element_cls)
-    model_element.id_ = cd_species.get("id")
+    species_xml_id = cd_species.get("id")
+    model_element.id_ = f"{species_xml_id}_active" if active else species_xml_id
     model_element.name = name
     model_element.metaid = cd_species.get("metaid")
     cd_compartment_id = cd_species.get("compartment")
     if cd_compartment_id is not None:
-        compartment_model_element = reading_context.xml_id_to_model_element[
+        compartment_model_element = reading_context.xml_id_to_model_element.get_one(
             cd_compartment_id
-        ]
+        )
         model_element.compartment = compartment_model_element
     cd_species_template = get_template_from_species(
         cd_species, reading_context.xml_id_to_xml_element
     )
     if cd_species_template is not None:
-        model_element.template = reading_context.xml_id_to_model_element[
+        model_element.template = reading_context.xml_id_to_model_element.get_one(
             cd_species_template.get("id")
-        ]
+        )
     model_element.homomultimer = homomultimer
     model_element.hypothetical = hypothetical
     model_element.active = active
@@ -336,9 +337,9 @@ def make_species_modification(
     if reading_context.model is None:
         return None
     model_element = momapy.builder.new_builder_object(Modification)
-    modification_residue_model_element = reading_context.xml_id_to_model_element[
-        cd_modification_residue_id
-    ]
+    modification_residue_model_element = (
+        reading_context.xml_id_to_model_element.get_one(cd_modification_residue_id)
+    )
     model_element.residue = modification_residue_model_element
     model_element.state = modification_state
     return model_element
@@ -409,9 +410,9 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = reading_context.xml_id_to_model_element[
+    species_model_element = reading_context.xml_id_to_model_element.get_one(
         cd_base_reactant.get("alias")
-    ]
+    )
     model_element.referred_species = species_model_element
     return model_element
 
@@ -444,9 +445,9 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = reading_context.xml_id_to_model_element[
+    species_model_element = reading_context.xml_id_to_model_element.get_one(
         cd_reactant_link.get("alias")
-    ]
+    )
     model_element.referred_species = species_model_element
     return model_element
 
@@ -480,9 +481,9 @@ def make_product_from_base(reading_context, cd_base_product, cd_reaction):
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = reading_context.xml_id_to_model_element[
+    species_model_element = reading_context.xml_id_to_model_element.get_one(
         cd_base_product.get("alias")
-    ]
+    )
     model_element.referred_species = species_model_element
     return model_element
 
@@ -515,9 +516,9 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
             break
     if model_element.id_ is None:
         model_element.id_ = f"{cd_reaction.get('id')}_{cd_species_id}"
-    species_model_element = reading_context.xml_id_to_model_element[
+    species_model_element = reading_context.xml_id_to_model_element.get_one(
         cd_product_link.get("alias")
-    ]
+    )
     model_element.referred_species = species_model_element
     return model_element
 

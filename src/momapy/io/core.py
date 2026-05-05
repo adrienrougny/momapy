@@ -144,10 +144,16 @@ class ReaderResult(IOResult):
             Contains all model and layout elements regardless of
             source ID provenance.
         source_id_to_model_element: Mapping from source file IDs
-            (e.g. XML attributes) to model elements.  Only contains
-            IDs that exist verbatim in the source file.  Writers can
-            use the ``.inverse`` property to recover original source
-            IDs for roundtrip fidelity.
+            (e.g. XML attributes) to the **set** of model elements
+            named by that ID.  Only contains IDs that exist verbatim
+            in the source file.  One source ID may name several model
+            elements — for example a CellDesigner ``species/@id`` can
+            point at both the active and inactive variants of the
+            same species.  Use ``.get_one(id_)`` for the common 1-to-1
+            case (raises if more than one element shares the ID),
+            ``.get_all(id_)`` to recover the full set, or the
+            ``.inverse`` property (``id(element) -> frozenset[str]``)
+            to find every source ID that named a given model element.
         source_id_to_layout_element: Mapping from source file IDs
             (e.g. XML attributes) to layout elements.  Same
             constraints as ``source_id_to_model_element``.
@@ -170,7 +176,7 @@ class ReaderResult(IOResult):
     element_to_annotations: frozendict.frozendict | None = None
     element_to_notes: frozendict.frozendict | None = None
     id_to_element: frozendict.frozendict | None = None
-    source_id_to_model_element: momapy.utils.FrozenSurjectionDict | None = None
+    source_id_to_model_element: momapy.utils.FrozenIdentityMultiDict | None = None
     source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None = None
     source_id_to_annotations: frozendict.frozendict | None = None
     source_id_to_notes: frozendict.frozendict | None = None

@@ -165,3 +165,74 @@ def test_make_uuid4_as_str():
     assert isinstance(uuid2, str)
     assert uuid1 != uuid2
     assert len(uuid1) == 36  # Standard UUID string length
+
+
+class TestIdentityMultiDict:
+    def test_add_and_get_one(self):
+        d = momapy.utils.IdentityMultiDict()
+        a = object()
+        d.add("x", a)
+        assert d.get_one("x") is a
+        assert d.get_all("x") == frozenset({a})
+        assert d.inverse[id(a)] == frozenset({"x"})
+
+    def test_get_one_collision_raises(self):
+        d = momapy.utils.IdentityMultiDict()
+        a, b = object(), object()
+        d.add("x", a)
+        d.add("x", b)
+        import pytest
+
+        with pytest.raises(ValueError):
+            d.get_one("x")
+        assert d.get_all("x") == frozenset({a, b})
+
+    def test_replace_value(self):
+        d = momapy.utils.IdentityMultiDict()
+        a, b, c = object(), object(), object()
+        d.add("x", a)
+        d.add("y", a)
+        d.add("z", b)
+        d.replace_value(a, c)
+        assert d.get_one("x") is c
+        assert d.get_one("y") is c
+        assert d.get_one("z") is b
+        assert d.inverse[id(c)] == frozenset({"x", "y"})
+        assert id(a) not in d.inverse
+
+    def test_replace_value_chained(self):
+        """Two evictions under the same key collapse to a single survivor."""
+        d = momapy.utils.IdentityMultiDict()
+        a, b, c = object(), object(), object()
+        d.add("k", a)
+        d.replace_value(a, b)
+        d.replace_value(b, c)
+        assert d.get_one("k") is c
+        assert d.inverse[id(c)] == frozenset({"k"})
+
+    def test_remove(self):
+        d = momapy.utils.IdentityMultiDict()
+        a, b = object(), object()
+        d.add("x", a)
+        d.add("x", b)
+        d.remove("x", a)
+        assert d.get_all("x") == frozenset({b})
+        assert id(a) not in d.inverse
+
+
+class TestFrozenIdentityMultiDict:
+    def test_construct_from_mapping(self):
+        a, b = object(), object()
+        d = momapy.utils.FrozenIdentityMultiDict({"x": [a, b], "y": [a]})
+        assert d.get_all("x") == frozenset({a, b})
+        assert d.get_one("y") is a
+        assert d.inverse[id(a)] == frozenset({"x", "y"})
+        assert d.inverse[id(b)] == frozenset({"x"})
+
+    def test_get_one_collision_raises(self):
+        a, b = object(), object()
+        d = momapy.utils.FrozenIdentityMultiDict({"x": [a, b]})
+        import pytest
+
+        with pytest.raises(ValueError):
+            d.get_one("x")

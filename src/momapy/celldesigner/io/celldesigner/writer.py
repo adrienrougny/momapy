@@ -4420,7 +4420,16 @@ class CellDesignerWriter(Writer):
         if obj.model is not None:
 
             def _collect(species):
-                species_id = _strip_active(species)
+                species_id = None
+                if source_id_to_model_element is not None:
+                    keys = source_id_to_model_element.inverse.get(id(species))
+                    if keys:
+                        # Prefer the shortest source id (the raw species/@id
+                        # rather than any speciesAlias/@id co-registered
+                        # under the same model element).
+                        species_id = min(keys, key=len)
+                if species_id is None:
+                    species_id = _strip_active(species)
                 if id(species) not in species_to_id:
                     species_to_id[id(species)] = species_id
                 if isinstance(species, Complex):
