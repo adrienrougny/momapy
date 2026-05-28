@@ -164,3 +164,84 @@ class TestNestedComplexAliasChaining:
         )
         assert len(nested_aliases) == 1
         assert nested_aliases[0].get("complexSpeciesAlias") == outer_layout.id_
+
+
+class TestSubunitToComplexUsesIdentity:
+    """Writer's ``subunit_to_complex`` index must key by identity.
+
+    Model species use ``compare=False`` on ``id_``, so two distinct
+    species objects can be content-equal. The writer's
+    ``subunit_to_complex`` walk records, for each subunit reference,
+    the ancestor complex it lives under. Lookups against this index
+    must answer "is *this exact* species object a subunit?" — an
+    identity question — not the looser "is some content-equal species
+    a subunit?". A plain ``dict`` conflates the two and silently drops
+    the top-level alias for any species content-equal to (but distinct
+    from) a kept complex's subunit.
+    """
+
+    def test_top_level_alias_emitted_when_content_equal_to_subunit(
+        self, neuro_map, tmp_path
+    ):
+        target_complex, target_subunit, _ = (
+            _find_complex_with_non_complex_subunit(neuro_map)
+        )
+        duplicate_species = dataclasses.replace(
+            target_subunit, id_="DUPLICATE_TOP_LEVEL"
+        )
+        assert duplicate_species == target_subunit
+        assert duplicate_species is not target_subunit
+
+        subunit_identities: set[int] = set()
+        for sp in neuro_map.model.species:
+            if isinstance(sp, Complex):
+                for sub in sp.subunits:
+                    subunit_identities.add(id(sub))
+        chosen = None
+        for sp in neuro_map.model.species:
+            if isinstance(sp, Complex):
+                continue
+            if id(sp) in subunit_identities:
+                continue
+            layouts = [
+                key
+                for key in neuro_map.layout_model_mapping.inverse.get(id(sp), ())
+                if not isinstance(key, frozenset)
+            ]
+            if layouts:
+                chosen = (sp, layouts[0])
+                break
+        if chosen is None:
+            pytest.skip("no non-subunit top-level species with singleton layout")
+        _existing_top_species, existing_top_layout = chosen
+
+        cache: dict = {}
+        map_builder = momapy.builder.builder_from_object(
+            neuro_map, object_to_builder=cache
+        )
+        existing_top_layout_builder = cache[id(existing_top_layout)]
+        duplicate_builder = momapy.builder.builder_from_object(duplicate_species)
+        map_builder.model.species.add(duplicate_builder)
+        map_builder.layout_model_mapping[existing_top_layout_builder] = (
+            duplicate_builder
+        )
+        new_map = momapy.builder.object_from_builder(map_builder)
+
+        in_model_species = [
+            sp for sp in new_map.model.species if sp == duplicate_species
+        ]
+        assert in_model_species, (
+            "duplicate must be visible to the writer's model.species iteration"
+        )
+
+        out_file = tmp_path / "content_equal_duplicate.xml"
+        momapy.io.core.write(new_map, out_file, writer="celldesigner")
+        tree = lxml.etree.parse(str(out_file))
+        aliases = tree.getroot().findall(
+            f".//{{{_CD_NS}}}speciesAlias[@id='{existing_top_layout.id_}']"
+        )
+        assert len(aliases) == 1, (
+            "writer must emit a speciesAlias for the top-level species's "
+            "layout even though its model species is content-equal to a "
+            "subunit of a kept complex"
+        )

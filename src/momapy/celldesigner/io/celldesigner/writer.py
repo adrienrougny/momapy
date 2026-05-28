@@ -209,7 +209,15 @@ class _DegradedEntry:
 
 @dataclasses.dataclass
 class CellDesignerWritingContext(WritingContext):
-    """Shared state for the writer."""
+    """Shared state for the writer.
+
+    ``subunit_to_complex`` is keyed by ``id(species)`` because model
+    species use ``compare=False`` on ``id_`` — two distinct species
+    objects can be content-equal, and this index answers an identity
+    question ("is *this* exact species a subunit of some complex?").
+    The map being written holds strong references to every species for
+    the duration of ``write()``, so ``id()`` addresses cannot be reused.
+    """
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
     used_metaids: set = dataclasses.field(default_factory=set)
@@ -1330,7 +1338,7 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
     for species in writing_context.map_.model.species:
         if isinstance(species, Complex):
             continue
-        if species in writing_context.subunit_to_complex:
+        if id(species) in writing_context.subunit_to_complex:
             continue
         for layout_key in _get_layouts(writing_context, species):
             if isinstance(layout_key, frozenset):
@@ -1826,7 +1834,7 @@ def _make_celldesigner_list_of_species(writing_context):
         writing_context.map_.model.species, key=lambda s: s.id_ or ""
     ):
         # Skip subunits — they are only in listOfIncludedSpecies
-        if species in writing_context.subunit_to_complex:
+        if id(species) in writing_context.subunit_to_complex:
             continue
         species_id = _get_species_id(species, writing_context)
         if species_id in seen_ids:
@@ -2357,7 +2365,7 @@ def _make_celldesigner_reaction(
                     if target_model is not base_species:
                         continue
                 sbml_species = writing_context.subunit_to_complex.get(
-                    base_species, base_species
+                    id(base_species), base_species
                 )
                 alias_id = (
                     layout_element_item.target.id_ if layout_element_item.target else ""
@@ -2456,7 +2464,7 @@ def _make_celldesigner_reaction(
                     if target_model is not base_species:
                         continue
                 sbml_species = writing_context.subunit_to_complex.get(
-                    base_species, base_species
+                    id(base_species), base_species
                 )
                 alias_id = (
                     layout_element_item.target.id_ if layout_element_item.target else ""
@@ -2549,7 +2557,7 @@ def _make_celldesigner_reaction(
                 for inp in sorted(species.inputs, key=lambda s: s.id_ or ""):
                     input_species = inp.element
                     sbml_inp = writing_context.subunit_to_complex.get(
-                        input_species, input_species
+                        id(input_species), input_species
                     )
                     alias_layout = (
                         _find_layout_for_species_in_frozenset(
@@ -2581,7 +2589,7 @@ def _make_celldesigner_reaction(
                     modifier_species_reference.append(modifier_reference_annotation)
                     list_of_modifiers.append(modifier_species_reference)
                 continue
-            sbml_species = writing_context.subunit_to_complex.get(species, species)
+            sbml_species = writing_context.subunit_to_complex.get(id(species), species)
             alias_layout = (
                 _find_layout_for_species_in_frozenset(
                     writing_context, species, frozenset_mapping
@@ -2630,7 +2638,7 @@ def _make_sbml_document_species_reference(
 ):
     """Build an SBML speciesReference element."""
     species = participant.referred_species
-    sbml_species = writing_context.subunit_to_complex.get(species, species)
+    sbml_species = writing_context.subunit_to_complex.get(id(species), species)
     if reaction is not None:
         alias_layout = _find_layout_for_participant(
             writing_context,
@@ -2684,7 +2692,7 @@ def _make_sbml_document_species_reference_from_layout(writing_context, arc_layou
     alias_layout = arc_layout.target
     alias_id = alias_layout.id_ if alias_layout else ""
     species = _mapping(writing_context).get_mapping(alias_layout)
-    sbml_species = writing_context.subunit_to_complex.get(species, species)
+    sbml_species = writing_context.subunit_to_complex.get(id(species), species)
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
     arc_model = _mapping(writing_context).get_mapping(arc_layout)
     if arc_model is not None and hasattr(arc_model, "id_"):
@@ -3671,7 +3679,9 @@ def _make_celldesigner_gate_modifications(
     input_alias_ids = []
     for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
         input_species = inp.element
-        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
+        sbml_inp = writing_context.subunit_to_complex.get(
+            id(input_species), input_species
+        )
         input_species_ids.append(_get_species_id(sbml_inp, writing_context))
         # Try LogicArcLayout first (correct alias for multi-alias species)
         alias_layout = None
@@ -3744,7 +3754,9 @@ def _make_celldesigner_gate_modifications(
     # Per-input entries
     for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_ or "")):
         input_species = inp.element
-        sbml_inp = writing_context.subunit_to_complex.get(input_species, input_species)
+        sbml_inp = writing_context.subunit_to_complex.get(
+            id(input_species), input_species
+        )
         inp_attrs = {
             "type": modifier_type,
             "modifiers": _get_species_id(sbml_inp, writing_context),
@@ -3960,7 +3972,7 @@ def _make_celldesigner_modulation_reaction(
 
     # SBML listOfReactants (use complex ID for subunits)
     sbml_source = (
-        writing_context.subunit_to_complex.get(source, source) if source else source
+        writing_context.subunit_to_complex.get(id(source), source) if source else source
     )
     list_of_reactants = _make_lxml_element("listOfReactants")
     species_reference = _make_lxml_element(
@@ -3983,7 +3995,7 @@ def _make_celldesigner_modulation_reaction(
 
     # SBML listOfProducts (use complex ID for subunits)
     sbml_target = (
-        writing_context.subunit_to_complex.get(target, target) if target else target
+        writing_context.subunit_to_complex.get(id(target), target) if target else target
     )
     list_of_products = _make_lxml_element("listOfProducts")
     pr = _make_lxml_element(
@@ -4111,7 +4123,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     # baseReactants (gate inputs)
     base_reactants_element = _make_celldesigner_element("baseReactants")
     for inp, inp_layout in input_layouts:
-        sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+        sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
         alias_id = inp_layout.id_ if inp_layout else ""
         base_reactant = _make_celldesigner_element(
             "baseReactant",
@@ -4144,7 +4156,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     # baseProducts (target)
     base_products_element = _make_celldesigner_element("baseProducts")
     sbml_target = (
-        writing_context.subunit_to_complex.get(target, target) if target else target
+        writing_context.subunit_to_complex.get(id(target), target) if target else target
     )
     base_product = _make_celldesigner_element(
         "baseProduct",
@@ -4258,7 +4270,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
 
     # Per-input entries
     for inp, inp_layout in input_layouts:
-        sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+        sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
         alias_id = inp_layout.id_ if inp_layout else ""
         inp_member = _make_celldesigner_element(
             "GateMember",
@@ -4330,7 +4342,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     # SBML listOfReactants (gate inputs)
     list_of_reactants = _make_lxml_element("listOfReactants")
     for inp, inp_layout in input_layouts:
-        sbml_inp = writing_context.subunit_to_complex.get(inp, inp)
+        sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
         alias_id = inp_layout.id_ if inp_layout else ""
         species_reference = _make_lxml_element(
             "speciesReference",
@@ -4415,7 +4427,7 @@ class CellDesignerWriter(Writer):
         if element_to_notes is None:
             element_to_notes = {}
 
-        subunit_to_complex = {}
+        subunit_to_complex: dict = {}
         species_to_id = {}
         if obj.model is not None:
 
@@ -4438,9 +4450,9 @@ class CellDesignerWriter(Writer):
                         # If the parent is itself a subunit, its entry
                         # was already set (parent before children).
                         ancestor = species
-                        while ancestor in subunit_to_complex:
-                            ancestor = subunit_to_complex[ancestor]
-                        subunit_to_complex[sub] = ancestor
+                        while id(ancestor) in subunit_to_complex:
+                            ancestor = subunit_to_complex[id(ancestor)]
+                        subunit_to_complex[id(sub)] = ancestor
                         _collect(sub)
 
             for species in obj.model.species:
