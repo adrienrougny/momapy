@@ -1703,10 +1703,13 @@ def _make_celldesigner_list_of_proteins(writing_context):
 def _find_residue_angle(writing_context, template, residue):
     """Find the CellDesigner angle for a modification residue from layout data.
 
-    Matches ModificationLayout children to residues by comparing the
-    layout text label with the residue name. When the residue has no
-    name, matches against unnamed ModificationLayouts. Searches both
-    top-level species and subunits of complexes.
+    CellDesigner stores the badge angle on the (shared) template, while
+    momapy keeps it implicit in each ``ModificationLayout``'s position.
+    We recover it by finding a species that uses this template and
+    carries a ``Modification`` for this residue, looking up that
+    modification's layout through the layout-model mapping, and
+    computing the angle of the badge relative to its containing node.
+    Searches both top-level species and subunits of complexes.
 
     Args:
         writing_context: The writing context.
@@ -1716,39 +1719,32 @@ def _find_residue_angle(writing_context, template, residue):
     Returns:
         The CellDesigner angle as a string.
     """
+    mapping = _mapping(writing_context)
     all_species = list(writing_context.map_.model.species)
     for species in writing_context.map_.model.species:
         subunits = getattr(species, "subunits", None)
         if subunits:
             all_species.extend(_collect_subunits(species))
     for species in all_species:
-        tmpl = getattr(species, "template", None)
-        if tmpl is not template:
+        if getattr(species, "template", None) is not template:
             continue
-        for layout_key in _get_layouts(writing_context, species):
-            if isinstance(layout_key, frozenset):
+        for modification in getattr(species, "modifications", None) or ():
+            if modification.residue is not residue:
                 continue
-            if not isinstance(layout_key, CellDesignerNode):
+            # The modification's layout(s) are registered in the mapping;
+            # find the one living under one of the species' alias nodes
+            # and measure its angle relative to that node.
+            modification_layouts = set(
+                mapping.get_child_layout_elements(modification, species)
+            )
+            if not modification_layouts:
                 continue
-            children = getattr(layout_key, "layout_elements", None)
-            if not children:
-                continue
-            # Build a mapping from XML residue id to layout child
-            xml_residue_id = _strip_template_prefix(residue, template)
-            suffix = "_layout"
-            for child in children:
-                if not isinstance(child, ModificationLayout):
+            for layout_key in _get_layouts(writing_context, species):
+                if not isinstance(layout_key, CellDesignerNode):
                     continue
-                # Match by residue id encoded in the layout id, which the
-                # reader keys on the alias:
-                # layout id = f"{alias_id}_{xml_residue_id}_layout".
-                # Match only the trailing residue segment; the alias prefix
-                # varies and must not be assumed equal to the species id.
-                if not child.id_.endswith(suffix):
-                    continue
-                core = child.id_[: -len(suffix)]
-                if core.endswith(f"_{xml_residue_id}"):
-                    return str(compute_cd_angle(child.position, layout_key))
+                for child in layout_key.layout_elements or ():
+                    if child in modification_layouts:
+                        return str(compute_cd_angle(child.position, layout_key))
     return "0.0"
 
 
