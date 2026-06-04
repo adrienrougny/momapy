@@ -21,6 +21,64 @@ import momapy.sbgn.io.sbgnml._writing_classification
 
 
 # ---------------------------------------------------------------------------
+# Id projection
+# ---------------------------------------------------------------------------
+
+
+def _reserve_source_xml_ids(writing_context):
+    """Reserve grammar-valid source ids before any projection (phase 1).
+
+    For every layout element that carries a source id, reserve that id
+    verbatim in ``element_to_xml_id`` (and mark it used) when it is
+    already a valid NCName.  Reserving up front, *without* deduplication,
+    preserves round-trip fidelity and lets several elements that share a
+    source id keep sharing the emitted id.  Must run before any id is
+    emitted.
+
+    Args:
+        writing_context: The current writing context.
+    """
+    source_map = writing_context.source_id_to_layout_element
+    if source_map is None:
+        return
+    element_id_to_source_ids = {}
+    for source_id, layout_element in source_map.items():
+        if not source_id:
+            continue
+        element_id_to_source_ids.setdefault(id(layout_element), set()).add(source_id)
+    for element_id, source_ids in element_id_to_source_ids.items():
+        chosen = min(source_ids, key=lambda source_id: (len(source_id), source_id))
+        if momapy.sbgn.io.sbgnml._writing.ensure_ncname(chosen) == chosen:
+            writing_context.element_to_xml_id[element_id] = chosen
+            writing_context.used_xml_ids.add(chosen)
+
+
+def _get_xml_id(writing_context, element):
+    """Return the unique, valid NCName id to emit for ``element`` (phase 2).
+
+    Hits the phase-1 memo first (source ids reserved verbatim); on a
+    miss, projects ``id_`` to NCName, makes it unique, and memoises so
+    every definition and reference of the element agree.  This single
+    chokepoint is what enforces id uniqueness and consistency.
+
+    Args:
+        writing_context: The current writing context.
+        element: Any map element with an ``id_`` (layout element or map).
+
+    Returns:
+        The XML id string to emit.
+    """
+    element_id = id(element)
+    existing = writing_context.element_to_xml_id.get(element_id)
+    if existing is not None:
+        return existing
+    projected = momapy.sbgn.io.sbgnml._writing.ensure_ncname(element.id_)
+    final = momapy.io.utils.make_unique_xml_id(projected, writing_context.used_xml_ids)
+    writing_context.element_to_xml_id[element_id] = final
+    return final
+
+
+# ---------------------------------------------------------------------------
 # Helpers for layout lookup
 # ---------------------------------------------------------------------------
 
@@ -114,9 +172,7 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
     Returns:
         The lxml ``<glyph>`` element.
     """
-    sbgnml_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        layout_element, writing_context.source_id_to_layout_element
-    )
+    sbgnml_id = _get_xml_id(writing_context, layout_element)
     sbgnml_class = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
         type(layout_element)
     ]
@@ -137,9 +193,8 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
                 writing_context, compartment
             )
             if compartment_layout_elements:
-                compartment_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-                    compartment_layout_elements[0],
-                    writing_context.source_id_to_layout_element,
+                compartment_id = _get_xml_id(
+                    writing_context, compartment_layout_elements[0]
                 )
                 attributes["compartmentRef"] = compartment_id
     sbgnml_glyph = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
@@ -186,20 +241,14 @@ def _make_sbgnml_arc_element(writing_context, arc_layout):
     Returns:
         The lxml ``<arc>`` element.
     """
-    sbgnml_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout, writing_context.source_id_to_layout_element
-    )
+    sbgnml_id = _get_xml_id(writing_context, arc_layout)
     sbgnml_class = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
         type(arc_layout)
     ]
     attributes = {"id": sbgnml_id, "class": sbgnml_class}
     points = arc_layout.points()
-    sbgnml_source_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout.source, writing_context.source_id_to_layout_element
-    )
-    sbgnml_target_id = momapy.sbgn.io.sbgnml._writing.get_sbgnml_id(
-        arc_layout.target, writing_context.source_id_to_layout_element
-    )
+    sbgnml_source_id = _get_xml_id(writing_context, arc_layout.source)
+    sbgnml_target_id = _get_xml_id(writing_context, arc_layout.target)
     if isinstance(
         arc_layout,
         momapy.sbgn.io.sbgnml._writing_classification.REVERSED_ARC_TYPES,
@@ -526,10 +575,11 @@ def make_sbgnml_map(writing_context):
         The lxml ``<map>`` element.
     """
     map_ = writing_context.map_
+    _reserve_source_xml_ids(writing_context)
     language = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
         type(map_)
     ]
-    id_ = map_.id_
+    id_ = _get_xml_id(writing_context, map_)
     attributes = {"id": id_, "language": language}
     sbgnml_map = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
         "map", attributes=attributes

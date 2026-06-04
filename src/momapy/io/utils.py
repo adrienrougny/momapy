@@ -41,6 +41,58 @@ class WritingContext:
     layout element has at most one source id)."""
     with_annotations: bool
     with_notes: bool
+    element_to_xml_id: dict = dataclasses.field(default_factory=dict)
+    """Memo of the unique, format-valid XML id assigned to each element,
+    keyed by ``id(element)``.  Seeded with grammar-valid source ids in
+    the phase-1 reservation pass (``_reserve_source_xml_ids``) and
+    filled lazily for the rest in each format's ``_get_xml_id``.
+    Identity-keyed for the same reason the format memos are: model
+    elements use ``compare=False`` on ``id_``, so two content-equal
+    objects must stay distinct."""
+    used_xml_ids: set = dataclasses.field(default_factory=set)
+    """Set of XML id strings already emitted in this document.  Drives
+    ``make_unique_xml_id``'s collision suffixing.  Document-global:
+    stricter than SBML's per-namespace SId rule, but always valid."""
+    candidate_to_xml_id: dict = dataclasses.field(default_factory=dict)
+    """Maps a raw candidate id (an element's ``id_``, or a source id) to
+    the emitted XML id it resolved to.  Elements that share a raw
+    candidate are the same logical reference and must emit the same id —
+    e.g. CellDesigner registers several distinct objects for one included
+    species, all carrying the same ``id_``.  Only *distinct* candidates
+    that happen to project to the same grammar-valid string get suffixed
+    apart by ``make_unique_xml_id``; a repeated candidate returns its
+    earlier result, preserving the pre-projection writers' behaviour of
+    emitting ``id_`` verbatim."""
+
+
+def make_unique_xml_id(candidate: str, used_xml_ids: set) -> str:
+    """Return a unique id derived from ``candidate`` and record it.
+
+    Returns ``candidate`` if it is free, else ``candidate_1`` /
+    ``candidate_2`` / ... until an unused string is found.  The result is
+    added to ``used_xml_ids``.
+
+    This is internal to each format's ``_get_xml_id``.  Never call it
+    from an emission site with a raw candidate string: an element whose
+    id was already reserved in the phase-1 pass (e.g. a metaid) is in
+    ``used_xml_ids``, so a second call would bump it to ``_1``.  Emission
+    must go through ``_get_xml_id``, which checks the element memo first.
+
+    Args:
+        candidate: The desired id (already projected to the format
+            grammar by the caller).
+        used_xml_ids: The set of ids already taken; mutated in place.
+
+    Returns:
+        A unique id string not previously in ``used_xml_ids``.
+    """
+    result = candidate
+    counter = 1
+    while result in used_xml_ids:
+        result = f"{candidate}_{counter}"
+        counter += 1
+    used_xml_ids.add(result)
+    return result
 
 
 @dataclasses.dataclass

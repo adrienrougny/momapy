@@ -1,5 +1,7 @@
 """Pure helper functions for SBGN-ML XML element construction."""
 
+import re
+
 import lxml.etree
 
 import momapy.sbml.io.sbml._qualifiers
@@ -10,6 +12,9 @@ NSMAP = {
     "bqmodel": "http://biomodels.net/model-qualifiers/",
     "bqbiol": "http://biomodels.net/biology-qualifiers/",
 }
+
+_NCNAME_INVALID_CHAR_RE = re.compile(r"[^A-Za-z0-9_.\-]")
+_NCNAME_INVALID_START_RE = re.compile(r"^[^A-Za-z_]")
 
 
 def make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=None):
@@ -27,25 +32,27 @@ def make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=Non
     return lxml_element
 
 
-def get_sbgnml_id(map_element, source_id_to_layout_element):
-    """Get the SBGN-ML ID for a layout element.
+def ensure_ncname(id_str):
+    """Ensure a string conforms to XML NCName syntax (``xs:ID`` for SBGN-ML).
 
-    Uses the inverse of source_id_to_layout_element to recover the
-    original XML ID.  Falls back to the element's momapy ``id_``.
+    NCName starts with a letter or underscore, then allows letters,
+    digits, hyphens, underscores, and periods (no colon).  Invalid
+    characters are replaced with underscores, and a leading invalid
+    character is prefixed with an underscore.  Idempotent on an
+    already-valid NCName, so reserved source ids pass through unchanged.
 
     Args:
-        map_element: The layout element to look up.
-        source_id_to_layout_element: A FrozenSurjectionDict mapping
-            source IDs to layout elements, or None.
+        id_str: The raw id string.
 
     Returns:
-        The source XML ID, or the element's ``id_`` as fallback.
+        A valid NCName string, or empty string if input is None or empty.
     """
-    if source_id_to_layout_element is not None:
-        sbgnml_ids = source_id_to_layout_element.inverse.get(map_element)
-        if sbgnml_ids is not None:
-            return sbgnml_ids[0]
-    return map_element.id_
+    if not id_str:
+        return ""
+    result = _NCNAME_INVALID_CHAR_RE.sub("_", id_str)
+    if _NCNAME_INVALID_START_RE.match(result):
+        result = "_" + result
+    return result
 
 
 def make_sbgnml_bbox_from_node(node):

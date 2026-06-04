@@ -143,8 +143,6 @@ def _make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0):
 
 
 _SBML_SID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_]")
-_XML_ID_INVALID_CHAR_RE = re.compile(r"[^a-zA-Z0-9_\-\.:]")
-_XML_ID_INVALID_START_RE = re.compile(r"^[^a-zA-Z_:]")
 
 _CD_NAMESPACE = _CD_NAMESPACE
 
@@ -219,27 +217,6 @@ _MODIFICATION_STATE_TO_CD = {
 }
 
 
-def get_cd_species_id(species):
-    """Get the CellDesigner XML species ID.
-
-    The reader appends ``_active`` suffix(es) to IDs for active species
-    aliases.  This function strips all such trailing suffixes so the
-    written ID matches the original CellDesigner XML.
-
-    Args:
-        species: A species model element, or None.
-
-    Returns:
-        The species ID as it should appear in CellDesigner XML.
-    """
-    if species is None:
-        return ""
-    id_str = species.id_ or ""
-    while id_str.endswith("_active"):
-        id_str = id_str[: -len("_active")]
-    return ensure_sbml_sid(id_str)
-
-
 def ensure_sbml_sid(id_str):
     """Ensure a string conforms to SBML SId syntax.
 
@@ -257,28 +234,6 @@ def ensure_sbml_sid(id_str):
         return ""
     result = _SBML_SID_INVALID_CHAR_RE.sub("_", id_str)
     if result[0].isdigit():
-        result = "_" + result
-    return result
-
-
-def ensure_xml_id(id_str):
-    """Ensure a string conforms to XML ID syntax.
-
-    XML 1.0 ID: starts with a letter, underscore, or colon, then
-    allows letters, digits, hyphens, underscores, periods, and colons.
-    Invalid characters are replaced with underscores, and a leading
-    invalid character is prefixed with an underscore.
-
-    Args:
-        id_str: The raw ID string.
-
-    Returns:
-        A valid XML ID string, or empty string if input is None or empty.
-    """
-    if not id_str:
-        return ""
-    result = _XML_ID_INVALID_CHAR_RE.sub("_", id_str)
-    if _XML_ID_INVALID_START_RE.match(result):
         result = "_" + result
     return result
 

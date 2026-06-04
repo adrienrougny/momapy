@@ -10,7 +10,7 @@ import lxml.etree
 from momapy.drawing import NoneValue, NoneValueType
 from momapy.geometry import get_transformation_for_frame
 from momapy.io.core import Writer, WriterResult
-from momapy.io.utils import WritingContext
+from momapy.io.utils import WritingContext, make_unique_xml_id
 from momapy.utils import check_parent_dir_exists
 from momapy.celldesigner.io.celldesigner import _writing
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
@@ -25,6 +25,7 @@ from momapy.celldesigner.io.celldesigner._writing import (
     color_to_cd_hex,
     compute_cd_angle,
     encode_name,
+    ensure_sbml_sid,
     node_to_bounds_attrs,
 )
 from momapy.celldesigner.elements import CellDesignerNode
@@ -217,11 +218,13 @@ class CellDesignerWritingContext(WritingContext):
     question ("is *this* exact species a subunit of some complex?").
     The map being written holds strong references to every species for
     the duration of ``write()``, so ``id()`` addresses cannot be reused.
+
+    The unique-id machinery (``element_to_xml_id``, ``used_xml_ids``)
+    lives on the base ``WritingContext``; the former species-id memo and
+    metaid set are subsumed by it.
     """
 
     subunit_to_complex: dict = dataclasses.field(default_factory=dict)
-    used_metaids: set = dataclasses.field(default_factory=set)
-    species_to_id: dict = dataclasses.field(default_factory=dict)
     degraded_entries: list = dataclasses.field(default_factory=list)
 
 
@@ -257,10 +260,12 @@ _encode_name = encode_name
 
 
 def _strip_active(species):
-    """Get the CellDesigner XML species ID (strips _active suffixes).
+    """Raw species id derivation: strip the reader's ``_active`` suffixes.
 
-    This is the raw ID derivation, without context-aware canonicalization.
-    Used only during bootstrap (building species_to_id).
+    The reader appends ``_active`` to the model ``id_`` of active species
+    aliases.  This recovers the underlying species id.  It is the
+    phase-2 candidate derivation for a from-scratch species (a
+    round-tripped species keeps its reserved source id instead).
     """
     if species is None:
         return ""
@@ -270,20 +275,127 @@ def _strip_active(species):
     return id_str
 
 
-def _get_species_id(species, writing_context=None):
-    """Get the canonical species ID for a model species.
+def _reserve_source_xml_ids(writing_context):
+    """Reserve grammar-valid source ids before any projection (phase 1).
 
-    When writing_context is provided, uses the species_to_id mapping built from the
-    model tree so that all references to the same model object use a
-    consistent ID. Falls back to stripping _active suffixes.
+    For every model and layout element that carries a source id, reserve
+    that id verbatim in ``element_to_xml_id`` (and mark it used) when it
+    is already a valid SId.  Reservation is done *without* deduplication,
+    so round-trips are byte-identical and several elements that share a
+    source id (e.g. CellDesigner active/inactive species, both named
+    ``s1``) keep sharing the emitted id.  Must run before any id is
+    emitted.
+
+    Args:
+        writing_context: The current writing context.
+    """
+    model_map = writing_context.source_id_to_model_element
+    if model_map is not None:
+        for element_id, source_ids in model_map.inverse.items():
+            chosen = min(source_ids, key=lambda source_id: (len(source_id), source_id))
+            if chosen and ensure_sbml_sid(chosen) == chosen:
+                writing_context.element_to_xml_id[element_id] = chosen
+                writing_context.used_xml_ids.add(chosen)
+                writing_context.candidate_to_xml_id[chosen] = chosen
+    layout_map = writing_context.source_id_to_layout_element
+    if layout_map is not None:
+        element_id_to_source_ids = {}
+        for source_id, layout_element in layout_map.items():
+            if not source_id:
+                continue
+            element_id_to_source_ids.setdefault(id(layout_element), set()).add(
+                source_id
+            )
+        for element_id, source_ids in element_id_to_source_ids.items():
+            chosen = min(source_ids, key=lambda source_id: (len(source_id), source_id))
+            if ensure_sbml_sid(chosen) == chosen:
+                writing_context.element_to_xml_id[element_id] = chosen
+                writing_context.used_xml_ids.add(chosen)
+                writing_context.candidate_to_xml_id[chosen] = chosen
+
+
+def _get_xml_id(writing_context, element, candidate=None, share=True, memoize=True):
+    """Return the valid SId to emit for ``element`` (phase 2).
+
+    Resolution order: the per-object memo (a phase-1 reservation or an
+    earlier call), then — when ``share`` — the per-candidate memo (so an
+    emission matches a reserved source id by *string* even if it is keyed
+    by a different object, e.g. a reaction emitted via its layout glyph
+    whose source id was reserved on the reaction model), then projection
+    of ``candidate`` to the SBML SId grammar made unique.  This single
+    chokepoint is what enforces id consistency — every id-emitting site
+    must go through it (never a bare ``make_unique_xml_id``, which would
+    re-suffix a reserved source id).
+
+    Args:
+        writing_context: The current writing context.
+        element: The element to emit an id for (keyed by ``id(element)``).
+        candidate: Optional raw id to project instead of ``element.id_``
+            (e.g. the ``_active``-stripped species id, or a participant's
+            preferred metaid).  Ignored on a memo hit.
+        share: When ``True`` (default), elements with the same
+            ``candidate`` emit the *same* id — they name one entity (an
+            SId, referenced from many sites; CellDesigner also holds
+            several distinct model objects for one included species).
+            Pass ``False`` for ``metaid``, an ``xsd:ID`` that must differ
+            across the several XML elements that may serialize one
+            participant.
+        memoize: When ``True`` (default), the assigned id is stored so the
+            same object always re-emits it.  Pass ``False`` for ``metaid``
+            so each call re-uniquifies; a phase-1 reservation is still
+            honoured (the object memo is read), so round-tripped source
+            metaids stay verbatim.
+
+    Returns:
+        The XML id string to emit.
+    """
+    element_id = id(element)
+    existing = writing_context.element_to_xml_id.get(element_id)
+    if existing is not None:
+        return existing
+    if candidate is None:
+        candidate = element.id_ or ""
+    if share:
+        shared = writing_context.candidate_to_xml_id.get(candidate)
+        if shared is not None:
+            if memoize:
+                writing_context.element_to_xml_id[element_id] = shared
+            return shared
+    final = make_unique_xml_id(ensure_sbml_sid(candidate), writing_context.used_xml_ids)
+    if share:
+        writing_context.candidate_to_xml_id[candidate] = final
+    if memoize:
+        writing_context.element_to_xml_id[element_id] = final
+    return final
+
+
+def _get_species_id(species, writing_context):
+    """Canonical SBML species id for a model species.
+
+    Thin wrapper over ``_get_xml_id`` with ``share=True``: a round-tripped
+    species returns its reserved source id; a from-scratch one returns
+    its ``_active``-stripped ``id_`` projected to an SId.  Sharing makes
+    the several distinct model objects CellDesigner holds for one
+    included species emit a single species id, so the included-species
+    dedup (``seen_ids``) collapses them to one ``<species>``.
     """
     if species is None:
         return ""
-    if writing_context is not None:
-        canonical = writing_context.species_to_id.get(id(species))
-        if canonical is not None:
-            return canonical
-    return _strip_active(species)
+    return _get_xml_id(
+        writing_context, species, candidate=_strip_active(species), share=True
+    )
+
+
+def _alias_id(writing_context, alias_layout):
+    """XML id to emit for a reference to an alias layout element.
+
+    Routes through ``_get_xml_id`` so the reference matches the alias
+    definition (``<speciesAlias id=...>`` etc.); returns ``""`` when the
+    alias layout is missing, preserving the writer's prior behaviour.
+    """
+    if alias_layout is None:
+        return ""
+    return _get_xml_id(writing_context, alias_layout)
 
 
 _color_hex = color_to_cd_hex
@@ -316,28 +428,19 @@ def _get_line_attributes(layout, include_type=False):
     return attrs
 
 
-def _unique_metaid(writing_context, candidate):
-    """Return a unique metaid string that is a valid XML ID."""
-    # XML ID must start with a letter or underscore
-    if candidate and not candidate[0].isalpha() and candidate[0] != "_":
-        candidate = f"_{candidate}"
-    result = candidate
-    counter = 1
-    while result in writing_context.used_metaids:
-        result = f"{candidate}_{counter}"
-        counter += 1
-    writing_context.used_metaids.add(result)
-    return result
-
-
 def _mapping(writing_context):
     """Shortcut to access layout_model_mapping."""
     return writing_context.map_.layout_model_mapping
 
 
-def _degraded_species_id(degraded_layout):
-    """Synthetic SBML species id for a degraded layout glyph."""
-    return f"degraded_{degraded_layout.id_}"
+def _degraded_species_id(writing_context, degraded_layout):
+    """Synthetic SBML species id for a degraded layout glyph.
+
+    Derived (class (d)) from the glyph's *projected* alias id, so the
+    degraded species id and its alias id stay consistent and valid even
+    for a from-scratch (UUID) layout.
+    """
+    return f"degraded_{_get_xml_id(writing_context, degraded_layout)}"
 
 
 def _is_degraded_layout(layout_element):
@@ -850,7 +953,11 @@ def _build_make_sbml_element(writing_context):
 
 
 def _make_celldesigner_model(writing_context):
-    model_id = writing_context.map_.id_ or "untitled"
+    model_id = _get_xml_id(
+        writing_context,
+        writing_context.map_,
+        candidate=writing_context.map_.id_ or "untitled",
+    )
     model = _make_lxml_element("model", attrs={"metaid": model_id, "id": model_id})
     # notes
     notes_element = _build_sbml_notes(writing_context, writing_context.map_)
@@ -996,8 +1103,8 @@ def _make_celldesigner_list_of_compartment_aliases(writing_context):
                 alias = _make_celldesigner_element(
                     "compartmentAlias",
                     attrs={
-                        "id": layout_key.id_,
-                        "compartment": comp.id_,
+                        "id": _get_xml_id(writing_context, layout_key),
+                        "compartment": _get_xml_id(writing_context, comp),
                     },
                 )
                 class_name = _compartment_class_name(layout_key)
@@ -1168,7 +1275,7 @@ def _make_celldesigner_species_identity(writing_context, species):
     template = getattr(species, "template", None)
     if template is not None:
         tag = _template_ref_tag(template)
-        ref_id = template.id_
+        ref_id = _get_xml_id(writing_context, template, share=True)
         identity.append(_make_celldesigner_element(tag, text=ref_id))
     identity.append(
         _make_celldesigner_element("name", text=_encode_name(species.name) or "")
@@ -1289,7 +1396,7 @@ def _collect_complex_aliases(
             )
             if isinstance(layout, ComplexLayout) and layout in siblings
         ]
-        parent_alias_id = parent_layout.id_
+        parent_alias_id = _alias_id(writing_context, parent_layout)
     for target_layout in target_layouts:
         if complex_alias_list is not None:
             complex_alias_list.append(
@@ -1374,9 +1481,9 @@ def _make_celldesigner_list_of_species_aliases(writing_context):
 
 
 def _make_celldesigner_degraded_alias(writing_context, degraded_layout):
-    species_id = _degraded_species_id(degraded_layout)
+    species_id = _degraded_species_id(writing_context, degraded_layout)
     attrs = {
-        "id": degraded_layout.id_,
+        "id": _get_xml_id(writing_context, degraded_layout),
         "species": species_id,
     }
     alias = _make_celldesigner_element("speciesAlias", attrs=attrs)
@@ -1463,7 +1570,7 @@ def _find_compartment_alias_id(writing_context, species_layout):
                     area = bbox.width * bbox.height
                     if area < best_area:
                         best_area = area
-                        best_id = layout_key.id_
+                        best_id = _get_xml_id(writing_context, layout_key)
     return best_id
 
 
@@ -1471,7 +1578,7 @@ def _make_celldesigner_alias(
     writing_context, layout, model, tag, complex_alias_id=None
 ):
     attrs = {
-        "id": layout.id_,
+        "id": _get_xml_id(writing_context, layout),
         "species": _get_species_id(model, writing_context),
     }
     if complex_alias_id is not None:
@@ -1572,7 +1679,7 @@ def _make_celldesigner_list_of_proteins(writing_context):
         elif isinstance(tmpl, TruncatedProteinTemplate):
             protein_type = "TRUNCATED"
         attrs = {
-            "id": tmpl.id_,
+            "id": _get_xml_id(writing_context, tmpl, share=True),
             "name": _encode_name(tmpl.name) or "",
             "type": protein_type,
         }
@@ -1676,7 +1783,7 @@ def _make_celldesigner_list_of_genes(writing_context):
             "gene",
             attrs={
                 "type": "GENE",
-                "id": tmpl.id_,
+                "id": _get_xml_id(writing_context, tmpl, share=True),
                 "name": _encode_name(tmpl.name) or "",
             },
         )
@@ -1697,7 +1804,7 @@ def _make_celldesigner_list_of_rnas(writing_context):
             "RNA",
             attrs={
                 "type": "RNA",
-                "id": tmpl.id_,
+                "id": _get_xml_id(writing_context, tmpl, share=True),
                 "name": _encode_name(tmpl.name) or "",
             },
         )
@@ -1718,7 +1825,7 @@ def _make_celldesigner_list_of_antisense_rnas(writing_context):
             "antisenseRNA",
             attrs={
                 "type": "ANTISENSE_RNA",
-                "id": tmpl.id_,
+                "id": _get_xml_id(writing_context, tmpl, share=True),
                 "name": _encode_name(tmpl.name) or "",
             },
         )
@@ -1780,9 +1887,10 @@ def _make_celldesigner_list_of_compartments(writing_context):
         writing_context.map_.model.compartments, key=lambda c: c.id_ or ""
     ):
         comp_name = _encode_name(comp.name)
+        comp_id = _get_xml_id(writing_context, comp)
         attrs = {
-            "id": comp.id_,
-            "metaid": comp.id_,
+            "id": comp_id,
+            "metaid": comp_id,
             "size": "1",
             "units": "volume",
         }
@@ -1790,7 +1898,7 @@ def _make_celldesigner_list_of_compartments(writing_context):
             attrs["name"] = comp_name
         outside = getattr(comp, "outside", None)
         if outside is not None:
-            attrs["outside"] = outside.id_
+            attrs["outside"] = _get_xml_id(writing_context, outside)
         compartment_element = _make_lxml_element("compartment", attrs=attrs)
         notes_element = _build_sbml_notes(writing_context, comp)
         if notes_element is not None:
@@ -1820,7 +1928,12 @@ def _append_compartment_annotation(writing_context, compartment_element, compart
     if comp_name:
         extension.append(_make_celldesigner_element("name", text=comp_name))
     annotation.append(extension)
-    _append_rdf_to_annotation(writing_context, annotation, compartment, compartment.id_)
+    _append_rdf_to_annotation(
+        writing_context,
+        annotation,
+        compartment,
+        _get_xml_id(writing_context, compartment),
+    )
     compartment_element.append(annotation)
 
 
@@ -1854,7 +1967,7 @@ def _make_celldesigner_list_of_species(writing_context):
 
 
 def _make_sbml_document_degraded_species(writing_context, degraded_layout):
-    species_id = _degraded_species_id(degraded_layout)
+    species_id = _degraded_species_id(writing_context, degraded_layout)
     attrs = {
         "metaid": species_id,
         "id": species_id,
@@ -1881,7 +1994,7 @@ def _make_sbml_document_degraded_species(writing_context, degraded_layout):
 def _make_sbml_document_species(writing_context, species):
     species_id = _get_species_id(species, writing_context)
     comp = getattr(species, "compartment", None)
-    comp_id = comp.id_ if comp is not None else "default"
+    comp_id = _get_xml_id(writing_context, comp) if comp is not None else "default"
     attrs = {
         "metaid": species_id,
         "id": species_id,
@@ -1917,13 +2030,31 @@ def _make_sbml_document_species(writing_context, species):
     return species_element
 
 
+def _reaction_xml_id(writing_context, reaction):
+    """XML id a reaction is emitted with, computed as the ``<reaction>``
+    definition does: from the reaction's layout (stripping ``_layout``)
+    when available, else from the reaction model.  Used so references to
+    a reaction (e.g. a species' ``catalyzed`` list) match its definition.
+    """
+    for layout_key in _get_layouts(writing_context, reaction):
+        if isinstance(layout_key, frozenset):
+            reaction_layout = _get_reaction_layout(layout_key)
+            if reaction_layout is not None:
+                return _get_xml_id(
+                    writing_context,
+                    reaction_layout,
+                    candidate=reaction_layout.id_.removesuffix("_layout"),
+                )
+    return _get_xml_id(writing_context, reaction)
+
+
 def _find_catalyzed_reactions(writing_context, species):
     """Find reactions catalyzed by this species."""
     result = []
     for reaction in writing_context.map_.model.reactions:
         for modifier in reaction.modifiers:
             if isinstance(modifier, Catalyzer) and modifier.referred_species is species:
-                result.append(reaction.id_)
+                result.append(_reaction_xml_id(writing_context, reaction))
     return sorted(result)
 
 
@@ -1977,9 +2108,13 @@ def _make_celldesigner_reaction(
     # Derive the XML id from the layout when available (supports
     # multiple visual copies of the same reaction).
     if reaction_layout is not None:
-        xml_id = reaction_layout.id_.removesuffix("_layout")
+        xml_id = _get_xml_id(
+            writing_context,
+            reaction_layout,
+            candidate=reaction_layout.id_.removesuffix("_layout"),
+        )
     else:
-        xml_id = reaction.id_
+        xml_id = _get_xml_id(writing_context, reaction)
     attrs = {
         "metaid": xml_id,
         "id": xml_id,
@@ -2367,9 +2502,7 @@ def _make_celldesigner_reaction(
                 sbml_species = writing_context.subunit_to_complex.get(
                     id(base_species), base_species
                 )
-                alias_id = (
-                    layout_element_item.target.id_ if layout_element_item.target else ""
-                )
+                alias_id = _alias_id(writing_context, layout_element_item.target)
                 species_reference = _make_lxml_element(
                     "speciesReference",
                     attrs={"species": _get_species_id(sbml_species, writing_context)},
@@ -2466,9 +2599,7 @@ def _make_celldesigner_reaction(
                 sbml_species = writing_context.subunit_to_complex.get(
                     id(base_species), base_species
                 )
-                alias_id = (
-                    layout_element_item.target.id_ if layout_element_item.target else ""
-                )
+                alias_id = _alias_id(writing_context, layout_element_item.target)
                 species_reference = _make_lxml_element(
                     "speciesReference",
                     attrs={"species": _get_species_id(sbml_species, writing_context)},
@@ -2573,7 +2704,7 @@ def _make_celldesigner_reaction(
                             if isinstance(layout_key, CellDesignerNode):
                                 alias_layout = layout_key
                                 break
-                    alias_id = alias_layout.id_ if alias_layout else ""
+                    alias_id = _alias_id(writing_context, alias_layout)
                     modifier_species_reference = _make_lxml_element(
                         "modifierSpeciesReference",
                         attrs={"species": _get_species_id(sbml_inp, writing_context)},
@@ -2597,13 +2728,17 @@ def _make_celldesigner_reaction(
                 if frozenset_mapping
                 else None
             )
-            alias_id = alias_layout.id_ if alias_layout else ""
+            alias_id = _alias_id(writing_context, alias_layout)
             modifier_reference_attributes = {
                 "species": _get_species_id(sbml_species, writing_context)
             }
             if modifier.metaid is not None:
-                modifier_reference_attributes["metaid"] = _unique_metaid(
-                    writing_context, modifier.metaid
+                modifier_reference_attributes["metaid"] = _get_xml_id(
+                    writing_context,
+                    modifier,
+                    candidate=modifier.metaid,
+                    share=False,
+                    memoize=False,
                 )
             modifier_species_reference = _make_lxml_element(
                 "modifierSpeciesReference", attrs=modifier_reference_attributes
@@ -2656,13 +2791,19 @@ def _make_sbml_document_species_reference(
             if frozenset_mapping
             else None
         )
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
     # Write the participant id_ as metaid so the reader can recover it.
     # The reader prefers metaid over composite ids for reactant/product ids.
     participant_metaid = participant.metaid or participant.id_
     if participant_metaid:
-        sr_attrs["metaid"] = _unique_metaid(writing_context, participant_metaid)
+        sr_attrs["metaid"] = _get_xml_id(
+            writing_context,
+            participant,
+            candidate=participant_metaid,
+            share=False,
+            memoize=False,
+        )
     if participant.stoichiometry is not None:
         sr_attrs["stoichiometry"] = str(participant.stoichiometry)
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
@@ -2690,7 +2831,7 @@ def _make_sbml_document_species_reference_from_layout(writing_context, arc_layou
         The lxml speciesReference element.
     """
     alias_layout = arc_layout.target
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     species = _mapping(writing_context).get_mapping(alias_layout)
     sbml_species = writing_context.subunit_to_complex.get(id(species), species)
     sr_attrs = {"species": _get_species_id(sbml_species, writing_context)}
@@ -2698,7 +2839,13 @@ def _make_sbml_document_species_reference_from_layout(writing_context, arc_layou
     if arc_model is not None and hasattr(arc_model, "id_"):
         participant_metaid = arc_model.metaid or arc_model.id_
         if participant_metaid:
-            sr_attrs["metaid"] = _unique_metaid(writing_context, participant_metaid)
+            sr_attrs["metaid"] = _get_xml_id(
+                writing_context,
+                arc_model,
+                candidate=participant_metaid,
+                share=False,
+                memoize=False,
+            )
     species_reference = _make_lxml_element("speciesReference", attrs=sr_attrs)
     species_reference_annotation = _make_lxml_element("annotation")
     species_reference_extension = _make_celldesigner_element("extension")
@@ -2714,7 +2861,7 @@ def _make_celldesigner_base_participant_from_layout(
     writing_context, species, alias_layout, tag, reaction_layout, is_start
 ):
     """Build a baseReactant/baseProduct from a known alias layout."""
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     elem = _make_celldesigner_element(
         tag,
         attrs={
@@ -2763,7 +2910,7 @@ def _make_celldesigner_base_participant(
             if frozenset_mapping
             else None
         )
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     elem = _make_celldesigner_element(
         tag,
         attrs={
@@ -2789,12 +2936,12 @@ def _make_celldesigner_degraded_participant_link(
 ):
     """Build a reactantLink/productLink for a degraded link arc."""
     writing = _writing
-    species_id = _degraded_species_id(degraded_layout)
+    species_id = _degraded_species_id(writing_context, degraded_layout)
     link = _make_celldesigner_element(
         tag,
         attrs={
             attr_name: species_id,
-            "alias": degraded_layout.id_,
+            "alias": _get_xml_id(writing_context, degraded_layout),
         },
     )
     is_reactant = tag == "reactantLink"
@@ -2841,14 +2988,16 @@ def _make_celldesigner_degraded_participant_link(
 
 def _make_sbml_document_degraded_species_reference(writing_context, degraded_layout):
     """Build a speciesReference for a degraded layout (no model peer)."""
-    species_id = _degraded_species_id(degraded_layout)
+    species_id = _degraded_species_id(writing_context, degraded_layout)
     species_reference = _make_lxml_element(
         "speciesReference", attrs={"species": species_id}
     )
     species_reference_annotation = _make_lxml_element("annotation")
     species_reference_extension = _make_celldesigner_element("extension")
     species_reference_extension.append(
-        _make_celldesigner_element("alias", text=degraded_layout.id_)
+        _make_celldesigner_element(
+            "alias", text=_get_xml_id(writing_context, degraded_layout)
+        )
     )
     species_reference_annotation.append(species_reference_extension)
     species_reference.append(species_reference_annotation)
@@ -2862,8 +3011,8 @@ def _make_celldesigner_degraded_base_participant(
     elem = _make_celldesigner_element(
         tag,
         attrs={
-            "species": _degraded_species_id(degraded_layout),
-            "alias": degraded_layout.id_,
+            "species": _degraded_species_id(writing_context, degraded_layout),
+            "alias": _get_xml_id(writing_context, degraded_layout),
         },
     )
     if reaction_layout is not None:
@@ -3380,7 +3529,7 @@ def _make_celldesigner_participant_link(
             if frozenset_mapping
             else None
         )
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     link = _make_celldesigner_element(
         tag,
         attrs={
@@ -3479,7 +3628,7 @@ def _make_celldesigner_participant_link_from_layout(
     """
     writing = _writing
     alias_layout = arc_layout.target
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     species = _mapping(writing_context).get_mapping(alias_layout)
     link = _make_celldesigner_element(
         tag,
@@ -3556,7 +3705,7 @@ def _make_celldesigner_modification(
         if frozenset_mapping
         else None
     )
-    alias_id = alias_layout.id_ if alias_layout else ""
+    alias_id = _alias_id(writing_context, alias_layout)
     modifier_type = _CLASS_TO_MODIFIER_TYPE.get(type(modifier), "CATALYSIS")
     # Find modifier arc layout and compute edit points
     edit_points = []
@@ -3706,7 +3855,7 @@ def _make_celldesigner_gate_modifications(
                 if isinstance(layout_key, CellDesignerNode):
                     alias_layout = layout_key
                     break
-        input_alias_ids.append(alias_layout.id_ if alias_layout else "")
+        input_alias_ids.append(_alias_id(writing_context, alias_layout))
     gate_edit_points = ""
     if gate_layout is not None:
         pos = gate_layout.position
@@ -3835,9 +3984,13 @@ def _make_celldesigner_modulation_reaction(
 
     # Derive XML id from layout when available
     if modulation_layout is not None:
-        xml_id = modulation_layout.id_.removesuffix("_layout")
+        xml_id = _get_xml_id(
+            writing_context,
+            modulation_layout,
+            candidate=modulation_layout.id_.removesuffix("_layout"),
+        )
     else:
-        xml_id = modulation.id_
+        xml_id = _get_xml_id(writing_context, modulation)
     attrs = {
         "metaid": xml_id,
         "id": xml_id,
@@ -3866,8 +4019,8 @@ def _make_celldesigner_modulation_reaction(
                 target_layout = layout_key
                 break
 
-    source_alias = source_layout.id_ if source_layout else ""
-    target_alias = target_layout.id_ if target_layout else ""
+    source_alias = _alias_id(writing_context, source_layout)
+    target_alias = _alias_id(writing_context, target_layout)
     source_id = _get_species_id(source, writing_context) if source else ""
     target_id = _get_species_id(target, writing_context) if target else ""
 
@@ -4039,9 +4192,10 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     # Determine the modification type from the modulation type
     modifier_type = _modulation_reaction_type(modulation)
 
+    modulation_id = _get_xml_id(writing_context, modulation)
     attrs = {
-        "metaid": modulation.id_,
-        "id": modulation.id_,
+        "metaid": modulation_id,
+        "id": modulation_id,
         "reversible": "false",
     }
     reaction_element = _make_lxml_element("reaction", attrs=attrs)
@@ -4110,7 +4264,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     if gate_layout is not None:
         gate_edit_points = f"{gate_layout.position.x},{gate_layout.position.y}"
 
-    target_alias = target_layout.id_ if target_layout else ""
+    target_alias = _alias_id(writing_context, target_layout)
     target_id = _get_species_id(target, writing_context) if target else ""
 
     # CD extension
@@ -4124,7 +4278,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     base_reactants_element = _make_celldesigner_element("baseReactants")
     for inp, inp_layout in input_layouts:
         sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
-        alias_id = inp_layout.id_ if inp_layout else ""
+        alias_id = _alias_id(writing_context, inp_layout)
         base_reactant = _make_celldesigner_element(
             "baseReactant",
             attrs={
@@ -4237,7 +4391,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
 
     # listOfGateMember
     gate_member_list = _make_celldesigner_element("listOfGateMember")
-    input_alias_ids = [il.id_ if il else "" for _, il in input_layouts]
+    input_alias_ids = [_alias_id(writing_context, il) for _, il in input_layouts]
     # Gate entry
     gate_attrs = {
         "type": gate_type,
@@ -4271,7 +4425,7 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     # Per-input entries
     for inp, inp_layout in input_layouts:
         sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
-        alias_id = inp_layout.id_ if inp_layout else ""
+        alias_id = _alias_id(writing_context, inp_layout)
         inp_member = _make_celldesigner_element(
             "GateMember",
             attrs={
@@ -4336,14 +4490,19 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
     )
 
     annotation.append(extension)
-    _append_rdf_to_annotation(writing_context, annotation, modulation, modulation.id_)
+    _append_rdf_to_annotation(
+        writing_context,
+        annotation,
+        modulation,
+        _get_xml_id(writing_context, modulation),
+    )
     reaction_element.append(annotation)
 
     # SBML listOfReactants (gate inputs)
     list_of_reactants = _make_lxml_element("listOfReactants")
     for inp, inp_layout in input_layouts:
         sbml_inp = writing_context.subunit_to_complex.get(id(inp), inp)
-        alias_id = inp_layout.id_ if inp_layout else ""
+        alias_id = _alias_id(writing_context, inp_layout)
         species_reference = _make_lxml_element(
             "speciesReference",
             attrs={
@@ -4428,22 +4587,9 @@ class CellDesignerWriter(Writer):
             element_to_notes = {}
 
         subunit_to_complex: dict = {}
-        species_to_id = {}
         if obj.model is not None:
 
             def _collect(species):
-                species_id = None
-                if source_id_to_model_element is not None:
-                    keys = source_id_to_model_element.inverse.get(id(species))
-                    if keys:
-                        # Prefer the shortest source id (the raw species/@id
-                        # rather than any speciesAlias/@id co-registered
-                        # under the same model element).
-                        species_id = min(keys, key=len)
-                if species_id is None:
-                    species_id = _strip_active(species)
-                if id(species) not in species_to_id:
-                    species_to_id[id(species)] = species_id
                 if isinstance(species, Complex):
                     for sub in species.subunits:
                         # Map to top-level ancestor, not immediate parent.
@@ -4467,8 +4613,11 @@ class CellDesignerWriter(Writer):
             with_annotations=with_annotations,
             with_notes=with_notes,
             subunit_to_complex=subunit_to_complex,
-            species_to_id=species_to_id,
         )
+        # Phase 1: reserve all grammar-valid source ids before any
+        # emission, so a from-scratch id can never steal a source id's
+        # name and round-tripped ids are preserved verbatim.
+        _reserve_source_xml_ids(writing_context)
         if obj.model is not None and obj.layout is not None:
             writing_context.degraded_entries = _collect_degraded_entries(
                 writing_context
