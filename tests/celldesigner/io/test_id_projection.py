@@ -13,6 +13,8 @@ import pytest
 import momapy.io.core
 import momapy.celldesigner.io.celldesigner._writing as cd_writing
 import momapy.celldesigner.io.celldesigner.writer as cd_writer
+from momapy.celldesigner.layout import ModificationLayout
+from momapy.celldesigner.layout import StructuralStateLayout
 
 _SID = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 _TEST_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -129,3 +131,51 @@ class TestRoundTripIds:
         )
         for ref in re.findall(r'\bspecies="([^"]*)"', text):
             assert ref in defined, f"species={ref!r} does not resolve"
+
+
+def _walk_layout_elements(layout_element):
+    """Yield a layout element and all of its descendants."""
+    yield layout_element
+    for child in getattr(layout_element, "layout_elements", None) or []:
+        yield from _walk_layout_elements(child)
+
+
+class TestModificationLayoutIdUniqueness:
+    """Modification / structural-state layout ids must be unique even when
+    one species appears under several aliases.
+
+    The reader keys these child layout ids on the alias (the layout
+    element), not the model species id: a species-id-based prefix would
+    collide when the same species is reused across complexes/aliases.
+    """
+
+    @pytest.mark.parametrize("filename", _cd_files())
+    def test_modification_layout_ids_are_unique(self, filename):
+        result = momapy.io.core.read(os.path.join(_CD_MAPS_DIR, filename))
+        layout = result.obj.layout
+        if layout is None:
+            pytest.skip("map has no layout")
+        modification_ids = []
+        structural_state_ids = []
+        for top in layout.layout_elements:
+            for element in _walk_layout_elements(top):
+                if isinstance(element, ModificationLayout):
+                    modification_ids.append(element.id_)
+                elif isinstance(element, StructuralStateLayout):
+                    structural_state_ids.append(element.id_)
+        modification_dups = [
+            id_
+            for id_, count in collections.Counter(modification_ids).items()
+            if count > 1
+        ]
+        structural_state_dups = [
+            id_
+            for id_, count in collections.Counter(structural_state_ids).items()
+            if count > 1
+        ]
+        assert not modification_dups, (
+            f"duplicate modification layout ids: {modification_dups[:8]}"
+        )
+        assert not structural_state_dups, (
+            f"duplicate structural-state layout ids: {structural_state_dups[:8]}"
+        )

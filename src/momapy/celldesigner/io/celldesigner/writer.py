@@ -1734,19 +1734,21 @@ def _find_residue_angle(writing_context, template, residue):
             if not children:
                 continue
             # Build a mapping from XML residue id to layout child
-            species_id = _get_species_id(species, writing_context)
+            xml_residue_id = _strip_template_prefix(residue, template)
+            suffix = "_layout"
             for child in children:
                 if not isinstance(child, ModificationLayout):
                     continue
-                # Match by residue id encoded in the layout id:
-                # layout id = f"{species_id}_{xml_residue_id}_layout"
-                prefix = f"{species_id}_"
-                suffix = "_layout"
-                if child.id_.startswith(prefix) and child.id_.endswith(suffix):
-                    layout_residue_id = child.id_[len(prefix) : -len(suffix)]
-                    xml_residue_id = _strip_template_prefix(residue, template)
-                    if layout_residue_id == xml_residue_id:
-                        return str(compute_cd_angle(child.position, layout_key))
+                # Match by residue id encoded in the layout id, which the
+                # reader keys on the alias:
+                # layout id = f"{alias_id}_{xml_residue_id}_layout".
+                # Match only the trailing residue segment; the alias prefix
+                # varies and must not be assumed equal to the species id.
+                if not child.id_.endswith(suffix):
+                    continue
+                core = child.id_[: -len(suffix)]
+                if core.endswith(f"_{xml_residue_id}"):
+                    return str(compute_cd_angle(child.position, layout_key))
     return "0.0"
 
 

@@ -33,11 +33,14 @@ Element-specific patterns:
 - **Modification**: model ``id_`` =
   ``f"{species/@id}_{modification/@residue}"``,
   layout ``id_`` =
-  ``f"{species/@id}_{modification/@residue}_layout"``.
+  ``f"{speciesAlias/@id}_{modification/@residue}_layout"``.
+  The layout id is keyed on the alias, not the species, so it stays
+  unique when one species appears under several aliases.
 - **StructuralState**: model ``id_`` =
   ``f"{species/@id}_{structuralState/@structuralState}"``,
   layout ``id_`` =
-  ``f"{species/@id}_{structuralState/@structuralState}_layout"``.
+  ``f"{speciesAlias/@id}_{structuralState/@structuralState}_layout"``.
+  Keyed on the alias for the same reason as Modification.
   Spaces in the value are replaced with ``_``.
 - **Reactant / Product**: model ``id_`` =
   ``speciesReference/@metaid`` (or
@@ -1347,7 +1350,14 @@ class CellDesignerReader(Reader):
                     modification_state,
                     super_layout_element,
                 )
-                layout_element.id_ = f"{cd_species_modification_id}_layout"
+                # Key the layout id on the alias (the layout element), not
+                # the model species id: the same species can appear under
+                # several aliases, so a species-id-based prefix would collide
+                # across those aliases.  This mirrors the parent species
+                # layout, whose id_ is the alias id.
+                layout_element.id_ = (
+                    f"{super_layout_element.id_}_{cd_residue_id}_layout"
+                )
                 layout_element = object_from_builder(layout_element)
                 super_layout_element.layout_elements.append(layout_element)
             else:
@@ -1381,7 +1391,13 @@ class CellDesignerReader(Reader):
             layout_element = _reading_layout.make_species_structural_state(
                 reading_context, cd_species_structural_state, super_layout_element
             )
-            layout_element.id_ = f"{cd_structural_state_id}_layout"
+            # Key the layout id on the alias (the layout element), not the
+            # model species id, so it stays unique when one species appears
+            # under several aliases — consistent with the parent species
+            # layout and the modification layout above.
+            layout_element.id_ = (
+                f"{super_layout_element.id_}_{cd_structural_state_value}_layout"
+            )
             layout_element = object_from_builder(layout_element)
             super_layout_element.layout_elements.append(layout_element)
         else:
