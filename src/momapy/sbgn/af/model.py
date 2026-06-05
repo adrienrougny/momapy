@@ -1,7 +1,6 @@
 """Model classes for SBGN Activity Flow (AF) maps."""
 
 import dataclasses
-import sys
 import typing
 
 from momapy.sbgn.elements import (
@@ -154,7 +153,7 @@ class LogicalOperatorInput(SBGNRole):
 
     element: typing.Union[
         BiologicalActivity,
-        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
+        typing.ForwardRef("LogicalOperator", module=__name__),
     ]
 
 

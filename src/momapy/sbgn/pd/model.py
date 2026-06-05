@@ -1,7 +1,6 @@
 """Model classes for SBGN Process Description (PD) maps."""
 
 import dataclasses
-import sys
 import typing
 
 from momapy.sbgn.elements import (
@@ -352,7 +351,7 @@ class LogicalOperatorInput(SBGNRole):
 
     element: typing.Union[
         EntityPool,
-        typing.ForwardRef("LogicalOperator", module=sys.modules[__name__]),
+        typing.ForwardRef("LogicalOperator", module=__name__),
     ] = dataclasses.field(
         metadata={"description": "The element of the logical operator input"}
     )
