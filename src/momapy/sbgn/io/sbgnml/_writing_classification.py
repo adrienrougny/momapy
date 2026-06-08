@@ -62,12 +62,12 @@ CLASS_TO_SBGNML_CLASS = {
     momapy.sbgn.af.CompartmentLayout: "compartment",
     momapy.sbgn.af.SubmapLayout: "submap",
     momapy.sbgn.af.BiologicalActivityLayout: "biological activity",
-    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unspecified entity",
-    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "macromolecule",
-    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "simple chemical",
-    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "nucleic acid feature",
-    momapy.sbgn.af.ComplexUnitOfInformationLayout: "complex",
-    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "perturbation",
+    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unit of information",
+    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "unit of information",
+    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "unit of information",
+    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "unit of information",
+    momapy.sbgn.af.ComplexUnitOfInformationLayout: "unit of information",
+    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "unit of information",
     momapy.sbgn.af.PhenotypeLayout: "phenotype",
     momapy.sbgn.af.AndOperatorLayout: "and",
     momapy.sbgn.af.OrOperatorLayout: "or",
@@ -81,6 +81,18 @@ CLASS_TO_SBGNML_CLASS = {
     momapy.sbgn.af.TagLayout: "tag",
     momapy.sbgn.af.LogicArcLayout: "logic arc",
     momapy.sbgn.af.EquivalenceArcLayout: "equivalence arc",
+}
+
+# AF units of information are encoded as ``class="unit of information"`` glyphs
+# carrying an ``<entity name="..."/>`` child that names the entity type. This maps
+# each AF unit-of-information layout class to the entity name the reader expects.
+CLASS_TO_SBGNML_ENTITY_NAME = {
+    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unspecified entity",
+    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "macromolecule",
+    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "simple chemical",
+    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "nucleic acid feature",
+    momapy.sbgn.af.ComplexUnitOfInformationLayout: "complex",
+    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "perturbation",
 }
 
 DIRECTION_TO_SBGNML_ORIENTATION = {

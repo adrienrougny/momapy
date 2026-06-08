@@ -200,6 +200,14 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
     sbgnml_glyph = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
         "glyph", attributes=attributes
     )
+    entity_name = (
+        momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_ENTITY_NAME.get(
+            type(layout_element)
+        )
+    )
+    if entity_name is not None:
+        sbgnml_entity = momapy.sbgn.io.sbgnml._writing.make_sbgnml_entity(entity_name)
+        sbgnml_glyph.append(sbgnml_entity)
     sbgnml_bbox = momapy.sbgn.io.sbgnml._writing.make_sbgnml_bbox_from_node(
         layout_element
     )

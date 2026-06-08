@@ -94,6 +94,18 @@ def make_sbgnml_state(text_layout):
     return make_lxml_element("state", attributes=attributes)
 
 
+def make_sbgnml_entity(name):
+    """Create an ``<entity>`` element naming an AF unit-of-information type.
+
+    Args:
+        name: The entity name (e.g. ``"macromolecule"``).
+
+    Returns:
+        The lxml ``<entity>`` element.
+    """
+    return make_lxml_element("entity", attributes={"name": name})
+
+
 def make_sbgnml_port(point, port_id):
     attributes = {"id": port_id, "x": str(point.x), "y": str(point.y)}
     return make_lxml_element("port", attributes=attributes)
