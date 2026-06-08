@@ -42,7 +42,7 @@ class SBGNAFLayout(SBGNLayout):
 class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Class for unit of information layouts"""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
 
     def _make_shape(self):
@@ -57,7 +57,7 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
 class UnspecifiedEntityUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for unspecified entity units of information."""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
 
     def _make_shape(self):
@@ -79,9 +79,9 @@ class SimpleChemicalUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for macromolecule units of information."""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = 3.0
 
     def _make_shape(self):
         return momapy.sbgn.pd.layout.MacromoleculeLayout._make_shape(self)
@@ -91,7 +91,7 @@ class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for nucleic acid feature units of information."""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
     rounded_corners: float = 5.0
 
@@ -103,9 +103,9 @@ class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for complex units of information."""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
-    cut_corners: float = 5.0
+    cut_corners: float = 3.0
 
     def _make_shape(self):
         return momapy.sbgn.pd.layout.ComplexLayout._make_shape(self)
@@ -115,7 +115,7 @@ class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 class PerturbationUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for perturbation units of information."""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
     angle: float = 70.0
 
