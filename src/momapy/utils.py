@@ -609,3 +609,190 @@ def check_parent_dir_exists(file_path: str | os.PathLike) -> None:
     parent_dir = os.path.dirname(os.path.abspath(os.fspath(file_path)))
     if not os.path.isdir(parent_dir):
         raise FileNotFoundError(f"parent directory does not exist: {parent_dir}")
+
+
+def display(
+    obj,
+    markers=None,
+    xsep: float = 20.0,
+    ysep: float = 20.0,
+    scale: float = 1.0,
+    style_sheet=None,
+):
+    """Render maps, layout elements, or files as an inline SVG in a notebook.
+
+    Renders one or more objects to a single SVG and displays it using
+    IPython, fitting all objects into a common bounding box with a margin.
+
+    This is a notebook helper: it requires IPython (install with
+    `pip install momapy[notebook]`). It is imported lazily so momapy keeps
+    no hard dependency on IPython/Jupyter.
+
+    Args:
+        obj: A single object or an iterable of objects to display. Each object
+            may be a `momapy.core.Map`, a `momapy.core.LayoutElement`, or a
+            path (`str`) to a map file to read.
+        markers: An optional `momapy.geometry.Point` or iterable of points to
+            draw as red cross markers. Defaults to `None`.
+        xsep: Horizontal margin around the rendered content. Defaults to `20.0`.
+        ysep: Vertical margin around the rendered content. Defaults to `20.0`.
+        scale: Scale factor applied to the rendered SVG. Defaults to `1.0`.
+        style_sheet: An optional `momapy.styling.StyleSheet` (or path to a CSS
+            file) applied to the layout elements before rendering. Defaults to
+            `None`.
+
+    Raises:
+        ImportError: If IPython is not installed.
+        ValueError: If an object has an unsupported type.
+    """
+    import collections.abc
+    import functools
+    import operator
+
+    try:
+        import IPython.display
+    except ImportError as error:
+        raise ImportError(
+            "display() requires IPython. Install it with "
+            "'pip install momapy[notebook]'."
+        ) from error
+
+    import momapy.builder
+    import momapy.coloring
+    import momapy.core
+    import momapy.drawing
+    import momapy.geometry
+    import momapy.io.core
+    import momapy.meta.nodes
+    import momapy.positioning
+    import momapy.rendering.svg_native
+    import momapy.styling
+
+    if markers is None:
+        markers = []
+    if isinstance(style_sheet, str):
+        style_sheet = momapy.styling.StyleSheet.from_file(style_sheet)
+    if not isinstance(obj, collections.abc.Iterable) or isinstance(
+        obj, (str, bytes, bytearray)
+    ):
+        obj = [obj]
+    layout_elements = []
+    for element in obj:
+        if isinstance(element, str):
+            layout_element = momapy.io.core.read(element, return_type="layout").obj
+        elif isinstance(element, momapy.core.Map):
+            layout_element = element.layout
+        elif isinstance(element, momapy.core.LayoutElement):
+            layout_element = element
+        else:
+            raise ValueError(f"unsupported type {type(element)}")
+        layout_elements.append(layout_element)
+    bboxes = []
+    if style_sheet is not None:
+        layout_elements = [
+            momapy.styling.apply_style_sheet(layout_element, style_sheet)
+            for layout_element in layout_elements
+        ]
+    for layout_element in layout_elements:
+        bbox = layout_element.bbox()
+        if (
+            layout_element.group_transform is not None
+            and layout_element.group_transform != momapy.drawing.NoneValue
+        ):
+            total_transformation = functools.reduce(
+                operator.mul, layout_element.group_transform
+            )
+            bbox = momapy.positioning.fit(
+                [
+                    bbox.north_west().transformed(total_transformation),
+                    bbox.north_east().transformed(total_transformation),
+                    bbox.south_west().transformed(total_transformation),
+                    bbox.south_east().transformed(total_transformation),
+                ]
+            )
+        bboxes.append(bbox)
+    bbox = momapy.positioning.fit(bboxes)
+    min_x = bbox.x - bbox.width / 2 - xsep
+    min_y = bbox.y - bbox.height / 2 - ysep
+    max_x = bbox.x + bbox.width / 2 - min_x + xsep
+    max_y = bbox.y + bbox.height / 2 - min_y + ysep
+    translation = momapy.geometry.Translation(-min_x, -min_y)
+    final_layout_elements = []
+    for layout_element in layout_elements:
+        layout_element_builder = momapy.builder.builder_from_object(layout_element)
+        if layout_element.group_transform is None:
+            layout_element_builder.group_transform = []
+        layout_element_builder.group_transform.insert(0, translation)
+        final_layout_elements.append(
+            momapy.builder.object_from_builder(layout_element_builder)
+        )
+    cp_builder_cls = momapy.builder.get_or_make_builder_cls(
+        momapy.meta.nodes.CrossPoint
+    )
+    if isinstance(markers, momapy.geometry.Point):
+        markers = [markers]
+    for marker in markers:
+        position = marker
+        cp_builder = cp_builder_cls(
+            width=12.0,
+            height=12.0,
+            stroke_width=1.5,
+            stroke=momapy.coloring.red,
+            position=position,
+        )
+        final_layout_elements.append(momapy.builder.object_from_builder(cp_builder))
+    width = max_x
+    height = max_y
+    renderer = momapy.rendering.svg_native.SVGNativeRenderer(
+        svg=momapy.rendering.svg_native.SVGElement(
+            name="svg",
+            attributes={
+                "xmlns": "http://www.w3.org/2000/svg",
+                "viewBox": f"0 0 {width} {height}",
+                "width": width * scale,
+                "height": height * scale,
+            },
+        )
+    )
+    renderer.begin_session()
+    for layout_element in final_layout_elements:
+        renderer.render_layout_element(layout_element)
+    renderer.end_session()
+    svg_string = str(renderer.svg)
+    IPython.display.display(IPython.display.SVG(data=svg_string))
+
+
+def print_source(obj) -> None:
+    """Display the syntax-highlighted source of an object in a notebook.
+
+    This is a notebook helper: it requires IPython and pygments (install with
+    `pip install momapy[notebook]`). Both are imported lazily so momapy keeps
+    no hard dependency on them.
+
+    Args:
+        obj: Any object whose source can be retrieved with `inspect.getsource`
+            (e.g. a function, class, or module).
+
+    Raises:
+        ImportError: If IPython or pygments is not installed.
+    """
+    import inspect
+
+    try:
+        import IPython.display
+        import pygments
+        import pygments.formatters
+        import pygments.lexers
+    except ImportError as error:
+        raise ImportError(
+            "print_source() requires IPython and pygments. Install them with "
+            "'pip install momapy[notebook]'."
+        ) from error
+
+    code = inspect.getsource(obj)
+    formatter = pygments.formatters.HtmlFormatter(full=True, style="friendly")
+    IPython.display.display(
+        IPython.display.HTML(
+            pygments.highlight(code, pygments.lexers.PythonLexer(), formatter)
+        )
+    )

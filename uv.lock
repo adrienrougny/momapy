@@ -1593,13 +1593,21 @@ dependencies = [
 
 [package.optional-dependencies]
 all = [
+    { name = "ipython", version = "8.38.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "ipython", version = "9.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pycairo" },
+    { name = "pygments" },
     { name = "pygobject" },
     { name = "skia-python" },
 ]
 cairo = [
     { name = "pycairo" },
     { name = "pygobject" },
+]
+notebook = [
+    { name = "ipython", version = "8.38.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "ipython", version = "9.9.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "pygments" },
 ]
 skia = [
     { name = "skia-python" },
@@ -1629,10 +1637,14 @@ test = [
 requires-dist = [
     { name = "colorama", specifier = ">=0.4.6" },
     { name = "frozendict", specifier = ">=2.3.10" },
+    { name = "ipython", marker = "extra == 'all'" },
+    { name = "ipython", marker = "extra == 'notebook'" },
     { name = "lxml", specifier = ">=5.3.2" },
     { name = "numpy", specifier = ">=1.26.2" },
     { name = "pycairo", marker = "extra == 'all'", specifier = ">=1.29.0" },
     { name = "pycairo", marker = "extra == 'cairo'", specifier = ">=1.29.0" },
+    { name = "pygments", marker = "extra == 'all'" },
+    { name = "pygments", marker = "extra == 'notebook'" },
     { name = "pygobject", marker = "extra == 'all'", specifier = ">=3.54.5" },
     { name = "pygobject", marker = "extra == 'cairo'", specifier = ">=3.54.5" },
     { name = "pyparsing", specifier = ">=3.1.1" },
@@ -1641,7 +1653,7 @@ requires-dist = [
     { name = "typing-extensions", specifier = ">=4.15.0" },
     { name = "uharfbuzz", specifier = ">=0.53.0" },
 ]
-provides-extras = ["all", "cairo", "skia"]
+provides-extras = ["all", "cairo", "notebook", "skia"]
 
 [package.metadata.requires-dev]
 dev = [

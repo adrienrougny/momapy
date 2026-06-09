@@ -33,7 +33,8 @@ Issues = "https://github.com/adrienrougny/momapy/issues"
 [project.optional-dependencies]
 skia = ["skia-python>=138.0"]
 cairo = ["pycairo>=1.29.0", "pygobject>=3.54.5"]
-all = ["momapy[cairo, skia]"]
+notebook = ["ipython", "pygments"]
+all = ["momapy[cairo, skia, notebook]"]
 
 [dependency-groups]
 dev = [

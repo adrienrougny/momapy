@@ -1,14 +1,4 @@
-import collections
-import copy
-import functools
-import inspect
-import operator
-
-import IPython.display
 import numpy
-import pygments
-import pygments.formatters
-import pygments.lexers
 
 from momapy import positioning
 from momapy.builder import (
@@ -22,17 +12,12 @@ from momapy.builder import (
 from momapy.coloring import red
 from momapy.core import (
     Arc,
-    LayoutElement,
-    Map,
     Node,
     SingleHeadedArc,
     TextLayout,
 )
-from momapy.drawing import NoneValue
-from momapy.geometry import Point, Segment, Translation
-from momapy.io import read
+from momapy.geometry import Point, Segment
 from momapy.meta.nodes import CrossPoint
-from momapy.rendering.svg_native import SVGElement, SVGNativeRenderer
 from momapy.sbgn.pd import (
     ComplexLayout,
     ComplexMultimerLayout,
@@ -46,101 +31,10 @@ from momapy.sbgn.pd import (
     StateVariableLayout,
     UnitOfInformationLayout,
 )
-from momapy.styling import StyleSheet, apply_style_sheet
+from momapy.utils import display, print_source  # noqa: F401
 
 
 TextLayoutBuilder = get_or_make_builder_cls(TextLayout)
-
-
-def display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None):
-    if markers is None:
-        markers = []
-    if isinstance(style_sheet, str):
-        style_sheet = StyleSheet.from_file(style_sheet)
-    if not isinstance(obj, collections.abc.Iterable) or isinstance(
-        obj, (str, bytes, bytearray)
-    ):
-        obj = [obj]
-    layout_elements = []
-    for element in obj:
-        if isinstance(element, str):
-            layout_element = read(element, return_type="layout").obj
-        elif isinstance(element, Map):
-            layout_element = element.layout
-        elif isinstance(element, LayoutElement):
-            layout_element = element
-        else:
-            raise ValueError(f"unsupported type {type(element)}")
-        layout_elements.append(layout_element)
-    bboxes = []
-    if style_sheet is not None:
-        layout_elements = [
-            apply_style_sheet(layout_element, style_sheet)
-            for layout_element in layout_elements
-        ]
-    for layout_element in layout_elements:
-        bbox = layout_element.bbox()
-        if (
-            layout_element.group_transform is not None
-            and layout_element.group_transform != NoneValue
-        ):
-            total_transformation = functools.reduce(
-                operator.mul, layout_element.group_transform
-            )
-            bbox = positioning.fit(
-                [
-                    bbox.north_west().transformed(total_transformation),
-                    bbox.north_east().transformed(total_transformation),
-                    bbox.south_west().transformed(total_transformation),
-                    bbox.south_east().transformed(total_transformation),
-                ]
-            )
-        bboxes.append(bbox)
-    bbox = positioning.fit(bboxes)
-    min_x = bbox.x - bbox.width / 2 - xsep
-    min_y = bbox.y - bbox.height / 2 - ysep
-    max_x = bbox.x + bbox.width / 2 - min_x + xsep
-    max_y = bbox.y + bbox.height / 2 - min_y + ysep
-    translation = Translation(-min_x, -min_y)
-    final_layout_elements = []
-    for layout_element in layout_elements:
-        layout_element_builder = builder_from_object(layout_element)
-        if layout_element.group_transform is None:
-            layout_element_builder.group_transform = []
-        layout_element_builder.group_transform.insert(0, translation)
-        final_layout_elements.append(object_from_builder(layout_element_builder))
-    cp_builder_cls = get_or_make_builder_cls(CrossPoint)
-    if isinstance(markers, Point):
-        markers = [markers]
-    for marker in markers:
-        position = marker
-        cp_builder = cp_builder_cls(
-            width=12.0,
-            height=12.0,
-            stroke_width=1.5,
-            stroke=red,
-            position=position,
-        )
-        final_layout_elements.append(object_from_builder(cp_builder))
-    width = max_x
-    height = max_y
-    renderer = SVGNativeRenderer(
-        svg=SVGElement(
-            name="svg",
-            attributes={
-                "xmlns": "http://www.w3.org/2000/svg",
-                "viewBox": f"0 0 {width} {height}",
-                "width": width * scale,
-                "height": height * scale,
-            },
-        )
-    )
-    renderer.begin_session()
-    for layout_element in final_layout_elements:
-        renderer.render_layout_element(layout_element)
-    renderer.end_session()
-    svg_string = str(renderer.svg)
-    IPython.display.display(IPython.display.SVG(data=svg_string))
 
 
 def make_toy_node(
@@ -447,13 +341,3 @@ def production_toy():
         True,
     )
     return m
-
-
-def print_source(obj):
-    code = inspect.getsource(obj)
-    formatter = pygments.formatters.HtmlFormatter(full=True, style="friendly")
-    IPython.display.display(
-        IPython.display.HTML(
-            pygments.highlight(code, pygments.lexers.PythonLexer(), formatter)
-        )
-    )
