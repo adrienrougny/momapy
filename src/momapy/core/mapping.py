@@ -185,19 +185,20 @@ class LayoutModelMappingBuilder(
         self,
         layout_element: "momapy.core.elements.LayoutElement",
         model_element: "momapy.core.elements.ModelElement",
-        replace: bool = False,
         anchor: "momapy.core.elements.LayoutElement | None" = None,
     ):
         """Add a layout-element to model-element entry to the mapping.
+
+        The mapping is many-to-one: several layout elements may map to the
+        same model element, so adding a new entry for a model element that is
+        already mapped simply registers an additional layout key — existing
+        keys are kept.
 
         Args:
             layout_element: The layout element (or frozenset of layout
                 elements) to use as the key.
             model_element: The model element to associate with the layout
                 element.
-            replace: When ``True`` and a mapping for ``model_element``
-                already exists, the existing layout elements are re-mapped
-                before adding the new entry.
             anchor: When ``layout_element`` is a frozenset and this argument
                 is provided, registers ``anchor`` as the anchor of the
                 frozenset key. This allows ``get_mapping(anchor)`` to resolve
@@ -206,12 +207,6 @@ class LayoutModelMappingBuilder(
                 logical operator that is both the anchor of its own gate
                 frozenset and a participant in a modulation frozenset).
         """
-        if replace:
-            existing_layout_elements = self.get_mapping(model_element)
-            if existing_layout_elements is not None:
-                for existing_layout_element in existing_layout_elements:
-                    del self[existing_layout_element]
-                    self[existing_layout_element] = model_element
         self[layout_element] = model_element
         if anchor is not None:
             self._singleton_to_key[anchor] = layout_element

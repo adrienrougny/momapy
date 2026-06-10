@@ -908,7 +908,7 @@ class CellDesignerReader(Reader):
                 layout_element = None
             if reading_context.model is not None and reading_context.layout is not None:
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         return model_element, layout_element
 
@@ -1295,10 +1295,9 @@ class CellDesignerReader(Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_layout_element,
                         auxiliary_model_element,
-                        replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         return model_element, layout_element
 
@@ -1621,7 +1620,6 @@ class CellDesignerReader(Reader):
                 reading_context.layout_model_mapping.add_mapping(
                     frozenset(expanded),
                     model_element,
-                    replace=True,
                     anchor=layout_element,
                 )
                 for (
@@ -1633,7 +1631,6 @@ class CellDesignerReader(Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
                         participant_model_element,
-                        replace=True,
                     )
         return model_element, layout_element
 
@@ -1944,7 +1941,6 @@ class CellDesignerReader(Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         logic_arc,
                         input_model_element,
-                        replace=True,
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
@@ -1956,7 +1952,7 @@ class CellDesignerReader(Reader):
                 )
             if model_element is not None and layout_element is not None:
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         return model_element, layout_element
 
@@ -2093,7 +2089,6 @@ class CellDesignerReader(Reader):
                     | source_layout_elements
                     | target_layout_elements,
                     model_element,
-                    replace=True,
                     anchor=layout_element,
                 )
         return model_element, layout_element

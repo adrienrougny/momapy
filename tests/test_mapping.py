@@ -76,12 +76,12 @@ class TestAddMapping:
         builder.add_mapping(le3, me2)
         assert le3 not in builder._singleton_to_key
 
-    def test_replace_remaps_existing(self):
+    def test_multiple_layouts_for_same_model_kept(self):
         builder = momapy.core.mapping.LayoutModelMappingBuilder()
         le1, le2, me1 = _le("le1"), _le("le2"), _me()
         builder.add_mapping(le1, me1)
-        builder.add_mapping(le2, me1, replace=True)
-        # After replace, le1 still maps to me1 (re-mapped) and le2 also maps
+        builder.add_mapping(le2, me1)
+        # The mapping is many-to-one: both layouts map to the same model.
         assert builder[le1] is me1
         assert builder[le2] is me1
 

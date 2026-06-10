@@ -502,10 +502,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
                         auxiliary_unit_model_element,
-                        replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         else:
             model_element = None
@@ -553,7 +552,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 ] = layout_element
             if model_element is not None and layout_element is not None:
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         else:
             model_element = None
@@ -720,7 +719,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
                         auxiliary_unit_model_element,
-                        replace=True,
                     )
         else:
             model_element = None
@@ -812,10 +810,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         auxiliary_unit_layout_element,
                         auxiliary_unit_model_element,
-                        replace=True,
                     )
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         else:
             model_element = None
@@ -1010,7 +1007,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         terminal_layout_el,
                         terminal_model_el,
-                        replace=True,
                     )
                 for (
                     ref_model,
@@ -1020,7 +1016,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         ref_layout,
                         ref_model,
-                        replace=True,
                     )
                 for (
                     terminal_model_el,
@@ -1049,11 +1044,10 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         frozenset(frozenset_elements),
                         terminal_model_el,
-                        replace=True,
                         anchor=terminal_layout_el,
                     )
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         else:
             model_element = None
@@ -1127,11 +1121,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         reference_layout_element,
                         reference_model_element,
-                        replace=True,
                     )
-                reading_context.layout_model_mapping.add_mapping(
-                    tag_layout, tag_model, replace=True
-                )
+                reading_context.layout_model_mapping.add_mapping(tag_layout, tag_model)
                 if reference_map_elements:
                     frozenset_elements = {tag_layout}
                     for _, reference_layout_element in reference_map_elements:
@@ -1148,7 +1139,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         frozenset(frozenset_elements),
                         tag_model,
-                        replace=True,
                         anchor=tag_layout,
                     )
         else:
@@ -1189,7 +1179,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 )
             if model_element is not None and layout_element is not None:
                 reading_context.layout_model_mapping.add_mapping(
-                    layout_element, model_element, replace=True
+                    layout_element, model_element
                 )
         else:
             model_element = None
@@ -1286,7 +1276,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         ]
                     ),
                     model_element,
-                    replace=True,
                     anchor=layout_element,
                 )
                 for (
@@ -1298,7 +1287,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         participant_layout_element,
                         participant_model_element,
-                        replace=True,
                     )
         else:
             model_element = None
@@ -1494,7 +1482,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         ]
                     ),  # TODO: add whole logical function tree?
                     model_element,
-                    replace=True,
                     anchor=layout_element,
                 )
                 for (
@@ -1504,7 +1491,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     reading_context.layout_model_mapping.add_mapping(
                         input_layout_element,
                         input_model_element,
-                        replace=True,
                     )
         else:
             model_element = None
@@ -1668,7 +1654,6 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     | source_layout_elements
                     | target_layout_elements,
                     model_element,
-                    replace=True,
                     anchor=layout_element,
                 )
         else:
