@@ -7,14 +7,10 @@ import momapy.meta.arcs
 import momapy.meta.shapes
 import momapy.sbgn.pd.layout
 
-from momapy.coloring import Color
 from momapy.core.elements import Direction
 from momapy.drawing import (
-    DEFAULT_FONT_FAMILY,
     LineTo,
     MoveTo,
-    NoneValue,
-    NoneValueType,
     Path,
 )
 from momapy.geometry import Point

@@ -3,7 +3,6 @@
 Functions for constructing momapy model objects from SBML XML data.
 """
 
-import frozendict
 import lxml.etree
 
 import momapy.builder

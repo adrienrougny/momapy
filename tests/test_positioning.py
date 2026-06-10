@@ -1,6 +1,5 @@
 """Tests for momapy.positioning module."""
 
-import pytest
 import momapy.positioning
 import momapy.geometry
 

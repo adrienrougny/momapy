@@ -1,7 +1,5 @@
 """Tests for the momapy.sbgn subpackage."""
 
-import pytest
-
 
 class TestSBGNCoreModule:
     """Tests for SBGN subpackage imports and basic functionality."""

@@ -14,7 +14,7 @@ import typing
 from momapy.core.elements import Direction
 from momapy.core.layout import Layout, Shape, TextLayout
 from momapy.geometry import Point, Rotation, Transformation, get_normalized_angle
-from momapy.coloring import Color, black, gray, white
+from momapy.coloring import Color, black, white
 from momapy.drawing import (
     ClosePath,
     DEFAULT_FONT_FAMILY,
@@ -49,7 +49,6 @@ from momapy.meta.arcs import (
     StraightBarb,
     Triangle as MetaArcsTriangle,
 )
-import momapy.sbgn
 from momapy.sbgn.pd import MacromoleculeMultimerLayout
 
 from momapy.celldesigner.elements import (

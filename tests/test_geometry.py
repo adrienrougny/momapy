@@ -146,13 +146,6 @@ class TestLine:
         intercept = line.intercept()
         assert intercept == round(intercept, momapy.geometry.ROUNDING)
 
-    def test_line_slope_vertical(self):
-        """Test line slope for vertical line is NaN."""
-        p1 = momapy.geometry.Point(5.0, 0.0)
-        p2 = momapy.geometry.Point(5.0, 10.0)
-        line = momapy.geometry.Line(p1, p2)
-        assert math.isnan(line.slope())
-
 
 class TestSegment:
     """Tests for Segment class."""

@@ -183,8 +183,8 @@ class TestSubunitToComplexUsesIdentity:
     def test_top_level_alias_emitted_when_content_equal_to_subunit(
         self, neuro_map, tmp_path
     ):
-        target_complex, target_subunit, _ = (
-            _find_complex_with_non_complex_subunit(neuro_map)
+        target_complex, target_subunit, _ = _find_complex_with_non_complex_subunit(
+            neuro_map
         )
         duplicate_species = dataclasses.replace(
             target_subunit, id_="DUPLICATE_TOP_LEVEL"

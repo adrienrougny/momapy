@@ -1,6 +1,5 @@
 """Tests for momapy.monitoring module."""
 
-import pytest
 import dataclasses
 import momapy.monitoring
 

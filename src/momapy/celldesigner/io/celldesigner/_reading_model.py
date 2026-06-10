@@ -5,8 +5,6 @@ argument, checks whether ``reading_context.model`` is ``None``, and
 returns ``None`` early when no model is being built.
 """
 
-import frozendict
-
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_notes,
     get_products,
@@ -18,7 +16,6 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 )
 
 from momapy.sbml.io.sbml._model import make_annotations, make_notes
-from momapy.sbml.io.sbml._qualifiers import QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER
 import momapy.builder
 from momapy.celldesigner.map import CellDesignerMap
 from momapy.celldesigner.model import CellDesignerModel

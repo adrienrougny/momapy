@@ -1372,10 +1372,10 @@ class EllipticalArc(GeometryObject):
         fs = self.sweep_flag
         x1p = math.cos(sigma) * ((x1 - x2) / 2) + math.sin(sigma) * ((y1 - y2) / 2)
         y1p = -math.sin(sigma) * ((x1 - x2) / 2) + math.cos(sigma) * ((y1 - y2) / 2)
-        l = x1p**2 / rx**2 + y1p**2 / ry**2
-        if l > 1:
-            rx = math.sqrt(l) * rx
-            ry = math.sqrt(l) * ry
+        radii_correction = x1p**2 / rx**2 + y1p**2 / ry**2
+        if radii_correction > 1:
+            rx = math.sqrt(radii_correction) * rx
+            ry = math.sqrt(radii_correction) * ry
         r = rx**2 * ry**2 - rx**2 * y1p**2 - ry**2 * x1p**2
         if r < 0:
             r = 0

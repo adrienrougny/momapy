@@ -1,6 +1,5 @@
 """Tests for momapy.celldesigner core modules."""
 
-import pytest
 from momapy.celldesigner.model import CellDesignerModel
 
 
@@ -37,7 +36,6 @@ class TestCellDesignerModel:
 
     def test_model_creation(self):
         """Test creating a CellDesigner model."""
-        import momapy.celldesigner.model
 
         # CellDesigner models are complex; just test we can import and instantiate
         model = CellDesignerModel()
@@ -45,7 +43,6 @@ class TestCellDesignerModel:
 
     def test_model_has_expected_attributes(self):
         """Test that CellDesigner model has expected attributes."""
-        import momapy.celldesigner.model
 
         model = CellDesignerModel()
 

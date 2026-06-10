@@ -1,6 +1,5 @@
 """Tests for momapy.io.core module."""
 
-import pytest
 import momapy.io
 import momapy.io.core
 

@@ -13,7 +13,6 @@ the layout alone, without mutating ``model.species``.
 import os
 
 import lxml.etree
-import pytest
 
 import momapy.io.core
 from momapy.celldesigner.layout import DegradedActiveLayout, DegradedLayout

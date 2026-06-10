@@ -1,6 +1,5 @@
 """Tests for momapy.styling module."""
 
-import pytest
 import momapy.styling
 import momapy.coloring
 import momapy.core.layout

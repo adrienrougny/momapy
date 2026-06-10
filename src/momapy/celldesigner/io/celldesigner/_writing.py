@@ -9,7 +9,6 @@ import re
 
 import lxml.etree
 
-from momapy.coloring import Color
 from momapy.geometry import Point, Rotation, get_transformation_for_frame
 from momapy.sbml.io.sbml._qualifiers import QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE
 from momapy.celldesigner.io.celldesigner._reading_parsing import (

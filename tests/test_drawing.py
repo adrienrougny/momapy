@@ -1,6 +1,5 @@
 """Tests for momapy.drawing module."""
 
-import pytest
 import momapy.drawing
 import momapy.coloring
 

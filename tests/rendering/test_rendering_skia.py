@@ -2,7 +2,6 @@
 
 import pytest
 import os
-import momapy.rendering.core
 
 pytestmark = pytest.mark.slow
 

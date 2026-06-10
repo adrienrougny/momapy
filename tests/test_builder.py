@@ -1,6 +1,5 @@
 """Tests for momapy.builder module."""
 
-import pytest
 import dataclasses
 import momapy.builder
 

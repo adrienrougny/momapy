@@ -1,7 +1,6 @@
 """Tests for momapy.core module."""
 
 import dataclasses
-import math
 import pytest
 import momapy.core
 import momapy.core.elements

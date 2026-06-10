@@ -3,7 +3,6 @@
 import dataclasses
 
 import os
-import tempfile
 import pathlib
 
 import pytest
@@ -55,11 +54,11 @@ def test_demo_notebook(tmp_path):
         momapy.utils.pretty_print(m.layout)
         momapy.utils.pretty_print(m.layout.drawing_elements())
 
-        for l in m.layout.layout_elements:
+        for layout_element in m.layout.layout_elements:
             break
-        momapy.utils.pretty_print(l)
+        momapy.utils.pretty_print(layout_element)
 
-        e = m.layout_model_mapping.get_mapping(l)
+        e = m.layout_model_mapping.get_mapping(layout_element)
         momapy.utils.pretty_print(e)
 
         # Equality section
@@ -98,16 +97,16 @@ def test_demo_notebook(tmp_path):
         r = momapy.io.core.read(demo_dir / "phospho1.sbgn")
         m = r.obj
 
-        for l in m.layout.layout_elements:
+        for layout_element in m.layout.layout_elements:
             break
 
         try:
-            l.stroke_width = 3.0
+            layout_element.stroke_width = 3.0
             assert False, "Should have raised an error"
         except Exception:
             pass  # Expected
 
-        lb = momapy.builder.builder_from_object(l)
+        lb = momapy.builder.builder_from_object(layout_element)
         momapy.utils.pretty_print(lb)
 
         lb.stroke_width = 3.0
@@ -173,10 +172,10 @@ def test_demo_notebook(tmp_path):
         r = momapy.io.core.read(demo_dir / "phospho1.sbgn")
         m = r.obj
 
-        for l in m.layout.layout_elements:
+        for layout_element in m.layout.layout_elements:
             break
 
-        border_elements = l._border_drawing_elements()
+        border_elements = layout_element._border_drawing_elements()
         momapy.utils.pretty_print(border_elements)
 
         # Anchors

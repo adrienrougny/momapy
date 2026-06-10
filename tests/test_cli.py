@@ -2,8 +2,6 @@
 
 import json
 import os
-import pathlib
-import tempfile
 from unittest import mock
 
 import pytest

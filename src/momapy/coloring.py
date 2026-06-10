@@ -27,7 +27,6 @@ Examples:
 """
 
 import dataclasses
-import typing
 import typing_extensions
 
 
