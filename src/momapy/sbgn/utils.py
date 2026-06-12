@@ -16,6 +16,19 @@ import momapy.sbgn.af
 import momapy.core.layout
 
 
+_AUXILIARY_UNIT_LAYOUT_CLASSES = (
+    momapy.sbgn.pd.StateVariableLayout,
+    momapy.sbgn.pd.UnitOfInformationLayout,
+    momapy.sbgn.af.UnitOfInformationLayout,
+    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
+    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
+    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
+    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
+    momapy.sbgn.af.ComplexUnitOfInformationLayout,
+    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+)
+
+
 def set_compartments_to_fit_content(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
     xsep: float = 0,
@@ -479,17 +492,7 @@ def set_auxiliary_units_to_borders(
     def _rec_set_auxiliary_units_to_borders(layout_element):
         for child in layout_element.children():
             if momapy.builder.isinstance_or_builder(
-                child,
-                (
-                    momapy.sbgn.pd.StateVariableLayout,
-                    momapy.sbgn.pd.UnitOfInformationLayout,
-                    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
-                    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
-                    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
-                    momapy.sbgn.af.ComplexUnitOfInformationLayout,
-                    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
-                    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
-                ),
+                child, _AUXILIARY_UNIT_LAYOUT_CLASSES
             ):
                 position = layout_element.own_border(child.position)
                 child.position = position
@@ -528,17 +531,7 @@ def set_auxiliary_units_label_font_size(
     def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
         for child in layout_element.children():
             if momapy.builder.isinstance_or_builder(
-                child,
-                (
-                    momapy.sbgn.pd.StateVariableLayout,
-                    momapy.sbgn.pd.UnitOfInformationLayout,
-                    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
-                    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
-                    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
-                    momapy.sbgn.af.ComplexUnitOfInformationLayout,
-                    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
-                    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
-                ),
+                child, _AUXILIARY_UNIT_LAYOUT_CLASSES
             ):
                 if child.label is not None:
                     child.label.font_size = font_size
@@ -588,11 +581,11 @@ def set_layout_to_fit_content(
 def tidy(
     map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
     auxiliary_units_omit_width: bool = False,
-    auxiliary_units_omit_height: bool = False,
+    auxiliary_units_omit_height: bool = True,
     nodes_xsep: float = 4,
     nodes_ysep: float = 4,
-    auxiliary_units_xsep: float = 2,
-    auxiliary_units_ysep: float = 2,
+    auxiliary_units_xsep: float = 1,
+    auxiliary_units_ysep: float = 1,
     complexes_xsep: float = 10,
     complexes_ysep: float = 10,
     compartments_xsep: float = 25,
@@ -610,7 +603,10 @@ def tidy(
         map_: An SBGN map or map builder. If a builder is given,
             it is modified in place.
         auxiliary_units_omit_width: Do not adjust auxiliary unit widths.
-        auxiliary_units_omit_height: Do not adjust auxiliary unit heights.
+            Defaults to False.
+        auxiliary_units_omit_height: Do not adjust auxiliary unit heights,
+            so units only ever grow in width to fit their label and keep
+            their default height. Defaults to True.
         nodes_xsep: Horizontal padding for node sizing. Defaults to 4.
         nodes_ysep: Vertical padding for node sizing. Defaults to 4.
         auxiliary_units_xsep: Horizontal padding for auxiliary units.
@@ -639,10 +635,8 @@ def tidy(
         xsep=nodes_xsep,
         ysep=nodes_ysep,
         exclude=[
-            momapy.sbgn.pd.StateVariableLayout,
-            momapy.sbgn.pd.UnitOfInformationLayout,
+            *_AUXILIARY_UNIT_LAYOUT_CLASSES,
             momapy.sbgn.pd.ComplexLayout,
-            momapy.sbgn.af.UnitOfInformationLayout,
         ],
         snap_arcs=True,
     )
@@ -653,11 +647,7 @@ def tidy(
         ysep=auxiliary_units_ysep,
         omit_width=auxiliary_units_omit_width,
         omit_height=auxiliary_units_omit_height,
-        restrict_to=[
-            momapy.sbgn.pd.StateVariableLayout,
-            momapy.sbgn.pd.UnitOfInformationLayout,
-            momapy.sbgn.af.UnitOfInformationLayout,
-        ],
+        restrict_to=list(_AUXILIARY_UNIT_LAYOUT_CLASSES),
         snap_arcs=True,
     )
     if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):

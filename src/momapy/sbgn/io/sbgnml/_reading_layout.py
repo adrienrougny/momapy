@@ -17,7 +17,7 @@ import momapy.sbgn.io.sbgnml._reading_parsing
 
 _DEFAULT_FONT_FAMILY = momapy.drawing.DEFAULT_FONT_FAMILY
 _DEFAULT_FONT_SIZE = 11.0
-_DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 9.0
+_DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 8.0
 _DEFAULT_FONT_FILL = momapy.coloring.black
 
 

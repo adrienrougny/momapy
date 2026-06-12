@@ -53,7 +53,7 @@ class StateVariableLayout(_SimpleMixin, SBGNNode):
 class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Class for unit of information layouts"""
 
-    width: float = 12.0
+    width: float = 18.0
     height: float = 12.0
 
     def _make_shape(self):

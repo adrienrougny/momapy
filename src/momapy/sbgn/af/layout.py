@@ -89,7 +89,7 @@ class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
     width: float = 18.0
     height: float = 12.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = 3.0
 
     def _make_shape(self):
         return momapy.sbgn.pd.layout.NucleicAcidFeatureLayout._make_shape(self)
