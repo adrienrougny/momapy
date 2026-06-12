@@ -11,21 +11,14 @@ Available shapes:
     - Stadium: Rounded rectangles
     - Hexagon: Regular hexagons with configurable orientation
     - TurnedHexagon: Rotated hexagons
+    - Parallelogram: Parallelograms with configurable angle
+    - CrossPoint: Crossing-point shapes
     - Triangle: Triangles with configurable orientation
     - Diamond: Diamond/rhombus shapes
-    - Parallelogram: Parallelograms with configurable angle
-    - RectangleWithSlantedSides: Rectangles with slanted sides
-    - Pentagon: Pentagon shapes
-    - HexagonWithSlantedSides: Hexagons with slanted sides
-    - Barrel: Barrel/cylinder shapes
-    - BottomRectangleHalfCircle: Composite bottom-rectangle half-circle shape
-    - CutRectangle: Rectangles with cut corners
-    - TriangleRectangle: Combined triangle and rectangle shapes
-    - StadiumWithNotch: Stadium shapes with notches
-    - TurnedStadiumWithNotch: Rotated stadium shapes with notches
-    - RoundedRectangle: Fully rounded rectangles
-    - DefaultShape: Default rectangular shape
-    - Line: Simple line shapes
+    - Bar: Bar or line shapes
+    - ArcBarb: Arc-barb (curved barb) shapes
+    - StraightBarb: Straight-barb shapes
+    - To: Arrow-tip ("to") shapes
 
 Examples:
     ```python

@@ -10,10 +10,14 @@ Available node types:
     - Stadium: Stadium-shaped (rounded rectangle) nodes
     - Hexagon: Hexagonal nodes
     - TurnedHexagon: Rotated hexagonal nodes
+    - Parallelogram: Parallelogram-shaped nodes
+    - CrossPoint: Crossing-point nodes
     - Triangle: Triangular nodes
     - Diamond: Diamond-shaped nodes
-    - Parallelogram: Parallelogram-shaped nodes
     - Bar: Bar or line-shaped nodes
+    - ArcBarb: Arc-barb (curved barb) nodes
+    - StraightBarb: Straight-barb nodes
+    - To: Arrow-tip ("to") nodes
 
 Examples:
     ```python

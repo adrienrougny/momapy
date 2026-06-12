@@ -384,6 +384,7 @@ Write implementation plans to `./plans/` as markdown files. Use descriptive file
 - Mark slow tests with `@pytest.mark.slow`
 - Use conventional commits
 - Break the API when needed — we are still in a 0.X version
+- Keep `API_REFERENCE.md` in sync — when you add, rename, remove, or re-signature a public class, function, field, or re-export (including public `make_*` I/O functions), update its entry in `API_REFERENCE.md` (and any "Available …" module docstring) as part of the same change
 
 **DON'T:**
 

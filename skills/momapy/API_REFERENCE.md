@@ -29,13 +29,13 @@ Classes:
 - `Map(MapElement)` — `model`, `layout`, `layout_model_mapping`; `is_submap(other) -> bool`, `get_mapping(map_element)`.
 
 ### `src/momapy/core/mapping.py`
-- `LayoutModelMapping(FrozenSurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`. Carries `_singleton_to_key: FrozenSurjectionDict` mapping each frozenset anchor to its frozenset key.
-- `LayoutModelMappingBuilder(SurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, replace=False, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
+- `LayoutModelMapping(FrozenIdentitySurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`. Carries `_singleton_to_key: FrozenSurjectionDict` mapping each frozenset anchor to its frozenset key.
+- `LayoutModelMappingBuilder(IdentitySurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
 
 ### `src/momapy/core/layout.py`
 - `TextLayout(LayoutElement)` — `text`, `position`, font styling, `fill`/`stroke`, alignment, `transform`.
 - `Shape(LayoutElement)` — abstract geometric shape.
-- `GroupLayout(LayoutElement)` — `elements: tuple[LayoutElement]`, `transform`, `group_transform`.
+- `GroupLayout(LayoutElement)` — `layout_elements: tuple[LayoutElement]`, plus `group_*` styling fields (`group_fill`, `group_stroke`, `group_font_*`, …) and `group_transform`.
 - `Node(GroupLayout)` — `position`, `width`, `height`, `fill`, `stroke`, `stroke_width`, `filter`; anchors `north/south/east/west/center() -> Point`.
 - `Arc(GroupLayout)` — `segments: tuple[Segment|Curve|Arc]`, line styling.
 - `SingleHeadedArc(Arc)` / `DoubleHeadedArc(Arc)` — add arrowhead classes.
@@ -50,21 +50,22 @@ Classes: `GeometryObject(ABC)`, `Point`, `Line`, `Segment`, `QuadraticBezierCurv
 
 Key `Point` methods: `__add__/sub/mul/truediv`, `to_matrix() -> ndarray`, `to_tuple() -> tuple[float, float]`, `get_intersection_with_line(line) -> list[Point]`, `get_angle_to_horizontal() -> float`, `transformed(transformation)`, `reversed()`, `round(ndigits=None)`, `bbox()`, `isnan()`, `from_tuple(t) -> Self`.
 
-Key `Bbox` methods: `center()`, `bbox()`, `contains_point(point)`, `intersects_bbox(bbox)`, `union(other)`, `from_points(points)`.
+Key `Bbox` members: constructed as `Bbox(position: Point, width, height)`; `center()`, `size() -> tuple[float, float]`, `anchor_point(anchor_name)`, `isnan()`, and the compass anchors (`north/south/east/west`, `north_east`, …). Classmethods: `around_points(points: Iterable[Point]) -> Bbox`, `union(bboxes: list[Bbox]) -> Bbox`. (There is no `bbox()`, `contains_point()`, `intersects_bbox()`, or `from_points()`.)
 
 Constants: `ROUNDING=4`, `ROUNDING_TOLERANCE`, `ZERO_TOLERANCE=1e-12`, `PARAMETER_TOLERANCE=1e-10`, `CONVERGENCE_TOLERANCE=1e-8`.
 
 ### `src/momapy/drawing.py`
-Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
+Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
 
-Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`.
+Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point`.
 
 ### `src/momapy/builder.py`
 - `Builder(ABC, Monitored)` — `build(builder_to_object=None)`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`.
 - `get_or_make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_namespace=None) -> type[Builder]`
-- `object_from_builder(obj, builder_to_object=None) -> Any`
+- `has_builder_cls(cls) -> bool`, `get_builder_cls(cls) -> type[Builder]`
+- `object_from_builder(builder, builder_to_object=None) -> Any`
 - `builder_from_object(obj, omit_keys=True, object_to_builder=None) -> Builder`
-- `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`
+- `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`, `super_or_builder(type_, obj) -> type`
 - `new_builder_object(cls, *args, **kwargs) -> Builder`
 - `register_builder_cls(builder_cls)`
 
@@ -78,11 +79,12 @@ Purpose: CSS-like style sheets.
 - `Selector(ABC)` and concrete subclasses: `TypeSelector`, `ClassSelector`, `IdSelector`, `ChildSelector`, `DescendantSelector`, `OrSelector`, `CompoundSelector`, `NotSelector`.
 - `combine_style_sheets(style_sheets) -> StyleSheet`
 - `apply_style_collection(layout_element, style_collection, strict=True)`
-- `apply_style_sheet(map_or_layout, style_sheet, strict=True)`
-- `get_stylable_attributes(cls) -> list[str]`
+- `apply_style_sheet(map_or_layout_element, style_sheet, strict=True, ancestors=None)`
+- `get_stylable_attributes(layout_element_or_class, presentation_only=False) -> list[str]`
 
 ### `src/momapy/coloring.py`
-- `Color` — `red`, `green`, `blue`, `alpha=1.0`; `__or__(alpha)`, `to_rgba/to_rgb/to_hex/to_hexa`, `with_alpha`, `from_rgba/from_rgb/from_hex/from_hexa`. Plus ~150 named module-level constants.
+- `Color` — `red`, `green`, `blue`, `alpha=1.0`; `__or__(alpha)`, `to_rgba/to_rgb/to_hex/to_hexa`, `with_alpha`, `from_rgba/from_rgb/from_hex/from_hexa`. Plus 144 named module-level constants.
+- `list_colors() -> list[tuple[str, Color]]`, `print_colors() -> None`, `has_color(color_name: str) -> bool`.
 
 ### `src/momapy/positioning.py`
 - `right_of/left_of/above_of/below_of(obj, distance: float) -> Point`
@@ -102,10 +104,14 @@ Purpose: CSS-like style sheets.
 ### `src/momapy/utils.py`
 - `SurjectionDict(dict)` — inverse via `.inverse`.
 - `IdentitySurjectionDict(dict)` — inverse by `id()`.
-- `FrozenSurjectionDict(frozendict.frozendict)` — immutable variant.
+- `IdentityMultiDict` — multi-valued dict keyed by `id()`.
+- `FrozenIdentityMultiDict(frozendict.frozendict)` — immutable identity multi-dict.
+- `FrozenSurjectionDict(frozendict.frozendict)`, `FrozenIdentitySurjectionDict(frozendict.frozendict)` — immutable surjection variants.
 - `pretty_print(obj, max_depth=0, exclude_cls=None)`
+- `get_element_from_collection(element, collection)`, `get_or_return_element_from_collection(element, collection)`, `add_or_replace_element_in_set(element, set_, func=None, cache=None)`
 - `make_uuid4_as_str() -> str`
-- `cached_dataclass_eq(self, other) -> bool`
+- `check_parent_dir_exists(file_path: str | os.PathLike) -> None`
+- `display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None)`, `print_source(obj) -> None` — optional-notebook-dependency helpers.
 
 ### `src/momapy/monitoring.py`
 - `Event(ABC)` (has `obj`), `ChangedEvent(Event)`, `SetEvent(Event)`; `Monitored` mixin.
@@ -129,7 +135,7 @@ Purpose: CSS-like style sheets.
 Purpose: reader/writer base classes + dispatch.
 
 - `IOResult` — base class for I/O results.
-- `ReaderResult(IOResult)` — `obj`, `element_to_annotations`, `element_to_notes`, `id_to_element`, `source_id_to_model_element`, `source_id_to_layout_element`, `file_path`.
+- `ReaderResult(IOResult)` — 9 fields: `obj`, `element_to_annotations`, `element_to_notes`, `id_to_element`, `source_id_to_model_element` (`FrozenIdentityMultiDict | None`), `source_id_to_layout_element` (`FrozenSurjectionDict | None`), `source_id_to_annotations`, `source_id_to_notes`, `file_path`.
 - `WriterResult(IOResult)` — `obj`, `file_path`.
 - `Reader(ABC)` — `read(file_path, **options) -> ReaderResult`, `check_file(file_path) -> bool`.
 - `Writer(ABC)` — `write(obj, file_path, **options) -> WriterResult`.
@@ -137,10 +143,11 @@ Purpose: reader/writer base classes + dispatch.
 ### `src/momapy/io/utils.py`
 Purpose: reader-side helpers; shared base contexts.
 
-- `ReadingContext` — base context with `xml_root`, `map_key`, `model`, `layout`, `xml_id_to_model_element`, `xml_id_to_layout_element`, `layout_model_mapping`, `element_to_annotations`, `element_to_notes`, `with_annotations`, `with_notes`, `model_element_cache`, `model_element_remap`, `evicted_elements`.
-- `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `with_annotations`, `with_notes`.
-- `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenSurjectionDict|None, FrozenSurjectionDict|None)` — builds the three `ReaderResult` dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
-- `register_model_element(reading_context, element, collection, source_id=None)` and related remap helpers.
+- `ReadingContext` — base context with `xml_root`, `map_key`, `model`, `layout`, `xml_id_to_model_element` (`IdentityMultiDict`), `xml_id_to_layout_element`, `xml_id_to_xml_element`, `element_to_annotations`, `element_to_notes`, `source_id_to_annotations`, `source_id_to_notes`, `layout_model_mapping`, `with_annotations`, `with_notes`, `model_element_cache`, `model_element_remap`, `evicted_elements`.
+- `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `with_annotations`, `with_notes`, `element_to_xml_id`, `used_xml_ids`, `candidate_to_xml_id`.
+- `make_unique_xml_id(candidate, used_xml_ids) -> str`
+- `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenIdentityMultiDict|None, FrozenSurjectionDict|None)` — builds the `ReaderResult` id dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
+- `register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
 
 ### `src/momapy/io/pickle.py`
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
@@ -160,13 +167,13 @@ Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `moma
 ## Meta shapes (`src/momapy/meta/`)
 
 ### `src/momapy/meta/nodes.py`
-Generic node classes (all extend `Node`): `Rectangle`, `Ellipse`, `Stadium`, `Hexagon`, `TurnedHexagon`, `Parallelogram`, `CrossPoint`, `Triangle`, `Diamond`, `Bar`. Configurable corner radii on rectangles; `direction`/`angle` fields on directional shapes.
+Generic node classes (all extend `Node`): `Rectangle`, `Ellipse`, `Stadium`, `Hexagon`, `TurnedHexagon`, `Parallelogram`, `CrossPoint`, `Triangle`, `Diamond`, `Bar`, `ArcBarb`, `StraightBarb`, `To`. Configurable corner radii on rectangles; `direction`/`angle` fields on directional shapes.
 
 ### `src/momapy/meta/arcs.py`
-Generic arc classes. Single-headed: `PolyLine` (no head), `Triangle`, `ReversedTriangle`, `Rectangle`, `Ellipse`, `Diamond`, `Bar`, `Circle`. Double-headed: `DoubleTriangle`, `DoubleTriangleNoStraight`, `DoubleTriangleBar`.
+Generic arc classes. Single-headed (extend `SingleHeadedArc`): `PolyLine` (no head), `Triangle`, `ReversedTriangle`, `Rectangle`, `Ellipse`, `Diamond`, `Bar`, `ArcBarb`, `StraightBarb`, `To`. Double-headed (extend `DoubleHeadedArc`): `DoubleTriangle`.
 
 ### `src/momapy/meta/shapes.py`
-Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ellipse`, `Stadium`, `Hexagon`, `TurnedHexagon`, `Triangle`, `Diamond`, `Parallelogram`, `RectangleWithSlantedSides`, `Pentagon`, `HexagonWithSlantedSides`, `Barrel`, plus several specialized shapes.
+Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ellipse`, `Stadium`, `Hexagon`, `TurnedHexagon`, `Parallelogram`, `CrossPoint`, `Triangle`, `Diamond`, `Bar`, `ArcBarb`, `StraightBarb`, `To`.
 
 ---
 
@@ -174,14 +181,14 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 
 ### `src/momapy/rendering/__init__.py`
 - `get_renderer(name) -> type[Renderer]`, `list_renderers() -> list[str]`, `register_renderer(name, renderer_cls)`, `register_lazy_renderer(name, import_path)`. Registry: `renderer_registry`.
-- `render_layout_element(element, file_path, format=None, renderer=None, style_sheet=None, to_top_left=False)`
-- `render_layout_elements(elements, file_path, format=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
-- `render_map(map, file_path, format=None, renderer=None, style_sheet=None, to_top_left=False)`
-- `render_maps(maps, file_path, format=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
+- `render_layout_element(layout_element, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
+- `render_layout_elements(layout_elements, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
+- `render_map(map_, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
+- `render_maps(maps, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
 
 ### `src/momapy/rendering/core.py`
-- `Renderer(ABC)` — class attr `supported_formats: list[str]`; `render_layout_element(element, file_path, format=None)`, `render(layout_element)`.
-- `StatefulRenderer(Renderer, ABC)` — `begin_session()`, `end_session()`, `render_layout_element(element)`.
+- `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. Concrete backends declare `supported_formats: ClassVar[list[str]]` (not on `Renderer` itself).
+- `StatefulRenderer(Renderer)` — adds state-management helpers: `save()`/`restore()`, `self_save()`/`self_restore()`, `get_current_state()`, `get_current_value(attr_name)`, `get_initial_value(attr_name)`, `set_current_value(attr_name, attr_value)`, `set_current_state(state)`, `set_current_state_from_drawing_element(drawing_element)`.
 
 ### `src/momapy/rendering/cairo.py`
 - `CairoRenderer(StatefulRenderer)` — formats: pdf, svg, png, ps. Requires pycairo/PyGObject. `from_file(file_path, width, height, format)`.
@@ -191,7 +198,8 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 
 ### `src/momapy/rendering/svg_native.py`
 - `SVGElement` — manual SVG DOM; `to_string(indent=0)`, `add_element(element)`.
-- `SVGNativeRenderer(Renderer)` — format: svg. `render(layout_element) -> str`.
+- `SVGNativeRenderer(Renderer)` — `supported_formats = ["svg"]`; `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`, classmethod `from_file(output_file, width, height, format_, config=None) -> Self`.
+- `SVGNativeCompatRenderer(SVGNativeRenderer)` — compatibility variant registered as `"svg-native-compat"`.
 
 ---
 
@@ -222,15 +230,15 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 
 ### `src/momapy/sbgn/utils.py`
 Functions (all accept `SBGNMap | Builder`, return same):
-- `set_compartments_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_complexes_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_submaps_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_nodes_to_fit_labels(map_, xsep=0, ysep=0, omit_width=False, omit_height=False, restrict_to=None, exclude=None)`
+- `set_compartments_to_fit_content(map_, xsep=0, ysep=0, *, snap_arcs=False)`
+- `set_complexes_to_fit_content(map_, xsep=0, ysep=0, *, snap_arcs=False)`
+- `set_submaps_to_fit_content(map_, xsep=0, ysep=0, *, snap_arcs=False)`
+- `set_nodes_to_fit_labels(map_, xsep=0, ysep=0, omit_width=False, omit_height=False, restrict_to=None, exclude=None, *, snap_arcs=False)`
 - `set_arcs_to_borders(map_)`
-- `set_auxiliary_units_to_borders(map_)`
+- `set_auxiliary_units_to_borders(map_, *, snap_arcs=False)`
 - `set_auxiliary_units_label_font_size(map_, font_size)`
 - `set_layout_to_fit_content(map_, xsep=0, ysep=0)`
-- `tidy(map_, auxiliary_units_omit_width=False, auxiliary_units_omit_height=False, nodes_xsep=4, nodes_ysep=4, auxiliary_units_xsep=2, auxiliary_units_ysep=2, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0)`
+- `tidy(map_, auxiliary_units_omit_width=False, auxiliary_units_omit_height=True, nodes_xsep=4, nodes_ysep=4, auxiliary_units_xsep=1, auxiliary_units_ysep=1, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0)`
 - `sbgned_tidy(map_)`, `newt_tidy(map_)` — preset parameters.
 - `get_info(map_: SBGNMap) -> dict`
 
@@ -247,11 +255,11 @@ Purpose: SBGN-PD model classes.
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `state_variables`, `units_of_information`.
 - **Entity pools**: `EntityPool(SBGNModelElement)` (`compartment`); subclasses `EmptySet`, `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex` (+ `subunits`), `Multimer(Complex)` (+ `cardinality`) and the four multimer variants.
 - **Flux roles**: `FluxRole(SBGNRole)` — `element: EntityPool`, `stoichiometry`; `Reactant`, `Product`.
-- **Processes**: `Process(SBGNModelElement)` (`reactants`, `products`); `StoichiometricProcess` → `GenericProcess`, `UncertainProcess`, `OmittedProcess`; `GenericProcess` → `Association`, `Dissociation`; `Phenotype(Process)`.
+- **Processes**: `Process(SBGNModelElement)` (`reactants`, `products`); `StoichiometricProcess` (adds `reversible`, `has_external_source`, `has_external_sink`) → `GenericProcess`, `UncertainProcess`, `OmittedProcess`; `GenericProcess` → `Association`, `Dissociation`; `Phenotype(Process)`.
 - **Logical operators**: `LogicalOperator(SBGNModelElement)` (`inputs: frozenset[LogicalOperatorInput]`) → `OrOperator`, `AndOperator`, `NotOperator`. `LogicalOperatorInput(SBGNRole)` — `element: EntityPool | Compartment | LogicalOperator`.
-- **Equivalence operators**: `EquivalenceOperator` (`inputs`, `outputs`), `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`.
+- **Equivalence operators**: `EquivalenceOperator` (`inputs`, `output`), `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`.
 - **Modulations**: `Modulation(SBGNModelElement)` (`source`, `target`) → `Inhibition`, `Stimulation`. `Stimulation` → `Catalysis`, `NecessaryStimulation`.
-- **Tags/terminals/submaps**: `Tag(SBGNAuxiliaryUnit)` (`label`, `reference_target`), `TagReference(SBGNRole)`, `Terminal(SBGNAuxiliaryUnit)`, `TerminalReference(SBGNRole)`, `Submap(SBGNModelElement)` (`label`, `terminals`).
+- **Tags/terminals/submaps**: `Tag(SBGNModelElement)` (`label`, `reference`), `TagReference(SBGNRole)`, `Terminal(SBGNAuxiliaryUnit)` (`label`, `reference`), `TerminalReference(SBGNRole)`, `Submap(SBGNModelElement)` (`label`, `terminals`).
 - **Model**: `SBGNPDModel(SBGNModel)` — `compartments`, `entity_pools`, `processes`, `modulations`, `logical_operators`, `equivalence_operators`, `submaps`, `tags`.
 
 ### `src/momapy/sbgn/pd/layout.py`
@@ -269,13 +277,13 @@ Purpose: SBGN-AF model classes.
 - **Units of information**: `UnitOfInformation(SBGNModelElement)` (`label`) plus AF-specific subclasses: `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`.
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `units_of_information`.
 - **Activities**: `Activity(SBGNModelElement)` — `label`, `compartment`; `BiologicalActivity` (+ `units_of_information`), `Phenotype`.
-- **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `element: Activity | LogicalOperator`.
+- **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `element: BiologicalActivity | LogicalOperator`.
 - **Influences**: `Influence(SBGNModelElement)` (`source`, `target: Activity`) → `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`.
-- **Tags/terminals/submaps**: same shape as PD, AF-specific classes.
+- **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNModelElement)` both use field `refers_to` (AF `Terminal` extends `SBGNModelElement`, unlike PD `Terminal` which extends `SBGNAuxiliaryUnit`); plus `Submap` and the reference roles.
 - **Model**: `SBGNAFModel(SBGNModel)` — `compartments`, `activities`, `influences`, `logical_operators`, `submaps`, `tags`.
 
 ### `src/momapy/sbgn/af/layout.py`
-- `SBGNAFLayout(SBGNLayout)`; activity layouts (with `_ConnectorsMixin`), `DelayOperatorLayout`, unit-of-information layouts, influence arc layouts (unknown/positive/negative/necessary stimulation), logic and equivalence arc layouts.
+- `SBGNAFLayout(SBGNLayout)`; activity layouts, operator layouts (with `_ConnectorsMixin`) incl. `DelayOperatorLayout`, unit-of-information layouts, influence arc layouts (unknown/positive/negative/necessary stimulation), logic and equivalence arc layouts.
 
 ### `src/momapy/sbgn/af/map.py`
 - `SBGNAFMap(SBGNMap)` — combines `SBGNAFModel` and `SBGNAFLayout`.
@@ -286,8 +294,9 @@ Purpose: SBGN-AF model classes.
 - Registered as `sbgnml-0.2` (`SBGNML0_2Reader`) and `sbgnml-0.3` / `sbgnml` (`SBGNML0_3Reader`).
 
 ### `src/momapy/sbgn/io/sbgnml/writer.py`
-- `SBGNML0_3Writer(Writer)` — registered as `sbgnml-0.3` and `sbgnml`.
-- `_get_layout_elements(writing_context, model_element)`, `_get_frozenset_keys(writing_context, model_element)`, `_get_child_layout_element(writing_context, child_model, parent_model)`.
+- `_SBGNMLWriter(Writer)` — base class holding the `write()` classmethod and the XML-id helpers (`_reserve_source_xml_ids`, `_get_xml_id`).
+- `SBGNML0_3Writer(_SBGNMLWriter)` — registered as `sbgnml-0.3` and `sbgnml`.
+- Module-level `make_sbgnml_map(writing_context)` plus private builders `_get_layout_elements`, `_get_frozenset_keys`, `_get_child_layout_element`, `_make_sbgnml_glyph`, `_make_sbgnml_arc_element`.
 
 ### `src/momapy/sbgn/io/sbgnml/_reading_model.py` (`make_*` public contract)
 - `make_annotations_from_element(sbgnml_element)`, `make_notes_from_element(sbgnml_element)`, `make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element)`
@@ -319,20 +328,21 @@ Purpose: SBGN-AF model classes.
 
 ### `src/momapy/sbgn/io/sbgnml/_reading_classification.py`
 - `KEY_TO_MODULE: dict` — `"PROCESS_DESCRIPTION"` → `momapy.sbgn.pd`, `"ACTIVITY_FLOW"` → `momapy.sbgn.af`.
-- `KEY_TO_CLASS: dict[tuple|str, tuple[type, type]]` — ~100 entries like `("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE") -> (Macromolecule, MacromoleculeLayout)`.
+- `KEY_TO_CLASS: dict[tuple|str, tuple[type, type]]` — ~70 entries like `("PROCESS_DESCRIPTION", "GLYPH", "MACROMOLECULE") -> (Macromolecule, MacromoleculeLayout)`.
 - `get_glyph_key(sbgnml_glyph, map_key)`, `get_subglyph_key(sbgnml_subglyph, map_key)`, `get_arc_key(sbgnml_arc, map_key)`, `get_model_and_layout_classes(key)`, `get_module(map_key)`, `get_module_from_object(obj)`.
 
 ### `src/momapy/sbgn/io/sbgnml/_writing.py`
 - `NSMAP: dict` — SBGN/RDF/BioModels XML namespaces.
 - `make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=None)`
-- `get_sbgnml_id(map_element, source_id_to_layout_element) -> str`
+- `ensure_ncname(id_str) -> str` — coerces an id to XML NCName (`xs:ID`) syntax. (Replaces the removed `get_sbgnml_id`; XML-id assignment now lives in `writer.py` private helpers.)
 - `make_sbgnml_bbox_from_node(node)`, `make_sbgnml_bbox_from_text_layout(text_layout)`
-- `make_sbgnml_label(text_layout)`, `make_sbgnml_state(text_layout)`
+- `make_sbgnml_label(text_layout)`, `make_sbgnml_state(text_layout)`, `make_sbgnml_entity(...)`
 - `make_sbgnml_port(point, port_id)`, `make_sbgnml_points(points)`
 - `make_sbgnml_annotation(annotations, sbgnml_id)`, `add_annotations_and_notes(writing_context, sbgnml_element, model_element)`
 
 ### `src/momapy/sbgn/io/sbgnml/_writing_classification.py`
-- `CLASS_TO_SBGNML_CLASS: dict` — ~85 entries mapping momapy layout classes to SBGN-ML class-attribute strings.
+- `CLASS_TO_SBGNML_CLASS: dict` — 72 entries mapping momapy layout classes to SBGN-ML class-attribute strings.
+- `CLASS_TO_SBGNML_ENTITY_NAME: dict` — momapy model classes → SBGN-ML entity-name strings (for AF units of information).
 - `DIRECTION_TO_SBGNML_ORIENTATION: dict` — `Direction` enum → orientation string.
 - `REVERSED_ARC_TYPES: tuple` — `ConsumptionLayout`, `LogicArcLayout` (PD + AF), `EquivalenceArcLayout` (reversed during serialization).
 
@@ -383,10 +393,10 @@ Purpose: CellDesigner layout classes.
 Functions (accept `CellDesignerMap | Builder`, return same):
 - `highlight_layout_elements(map_, layout_elements)`
 - `set_layout_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_nodes_to_fit_labels(map_, xsep=0, ysep=0, omit_width=False, omit_height=False, restrict_to=None, exclude=None)`
-- `set_compartments_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_complexes_to_fit_content(map_, xsep=0, ysep=0)`
-- `set_modifications_to_borders(map_)`
+- `set_nodes_to_fit_labels(map_, xsep=0, ysep=0, omit_width=False, omit_height=False, restrict_to=None, exclude=None, *, snap_arcs=False)`
+- `set_compartments_to_fit_content(map_, xsep=0, ysep=0, *, snap_arcs=False)`
+- `set_complexes_to_fit_content(map_, xsep=0, ysep=0, *, snap_arcs=False)`
+- `set_modifications_to_borders(map_, *, snap_arcs=False)`
 - `set_modifications_label_font_size(map_, font_size)`
 - `set_arcs_to_borders(map_)`
 - `straighten_arcs(map_, angle_tolerance=5.0)`
@@ -394,13 +404,13 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `get_info(map_) -> dict`
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
-- `CellDesignerReadingContext(ReadingContext)` — adds `cd_compartments`, `cd_compartment_aliases`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, plus `real_model_source_ids` / `real_layout_source_ids` for split ID tracking.
+- `CellDesignerReadingContext(ReadingContext)` — adds `cd_complex_alias_id_to_cd_included_species_ids`, `cd_compartment_aliases`, `cd_compartments`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, `real_model_source_ids` / `real_layout_source_ids` (split ID tracking), `canvas_width`, `canvas_height`, `cd_degraded_alias_ids`, `cd_degraded_species_ids`.
 - `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
 - Internal: `_KEY_TO_CLASS` (tuple keys → model/layout class pairs).
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
-- `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `used_metaids`, `species_to_id`.
-- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None)`.
+- `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
+- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, with_annotations=True, with_notes=True, **options)`.
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`
@@ -409,15 +419,15 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_species_template(reading_context, cd_species_template, model_element_cls)`
 - `make_modification_residue(reading_context, cd_modification_residue, super_cd_element, order)`
 - `make_region(reading_context, cd_region, model_element_cls, super_cd_element, order)`
-- `make_species(reading_context, cd_species, model_element_cls)`
-- `make_species_modification(reading_context, cd_species_modification)`
+- `make_species(reading_context, cd_species, model_element_cls, name, homomultimer, hypothetical, active)`
+- `make_species_modification(reading_context, modification_state, cd_modification_residue_id)`
 - `make_species_structural_state(reading_context, cd_species_structural_state)`
 - `make_reaction(reading_context, cd_reaction, model_element_cls)`
 - `make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction)` / `make_reactant_from_link(...)`
 - `make_product_from_base(...)` / `make_product_from_link(...)`
 - `make_modifier(reading_context, model_element_cls, source_model_element, metaid)`
 - `make_logic_gate(reading_context, model_element_cls)`, `make_logic_gate_input(reading_context, input_model_element)`
-- `make_modulation(reading_context, model_element_cls)`
+- `make_modulation(reading_context, cd_reaction, model_element_cls, source_model_element, target_model_element)`
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_layout.py` (`make_*`)
 - `make_empty_layout(cd_element)`, `set_layout_size_and_position(reading_context, cd_model)`

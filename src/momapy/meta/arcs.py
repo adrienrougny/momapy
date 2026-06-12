@@ -5,18 +5,20 @@ meta.shapes module. These arcs can be used directly in map layouts to
 connect nodes with various arrowhead styles.
 
 Available arc types:
+    Single-headed (one arrowhead):
     - PolyLine: Straight lines without arrowheads
     - Triangle: Lines with triangular arrowheads
     - ReversedTriangle: Lines with reversed triangular arrowheads
-    - Diamond: Lines with diamond-shaped arrowheads
-    - ReversedDiamond: Lines with reversed diamond arrowheads
-    - Bar: Lines with bar-shaped arrowheads
     - Rectangle: Lines with rectangular arrowheads
-    - Circle: Lines with circular arrowheads
-    - DoubleTriangle: Lines with double triangular arrowheads
-    - DoubleTriangleNoStraight: Lines with double triangular arrowheads (angled)
     - Ellipse: Lines with elliptical arrowheads
-    - DoubleTriangleBar: Lines with double triangle and bar arrowheads
+    - Diamond: Lines with diamond-shaped arrowheads
+    - Bar: Lines with bar-shaped arrowheads
+    - ArcBarb: Lines with an arc-barb arrowhead
+    - StraightBarb: Lines with a straight-barb arrowhead
+    - To: Lines with an arrow-tip ("to") arrowhead
+
+    Double-headed (two arrowheads):
+    - DoubleTriangle: Lines with double triangular arrowheads
 
 Examples:
     ```python
