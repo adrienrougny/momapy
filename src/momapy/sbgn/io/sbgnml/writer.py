@@ -632,7 +632,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         with_render_information: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-    ) -> None:
+    ) -> momapy.io.core.WriterResult:
         """Write an SBGN map to an SBGN-ML file.
 
         Args:
@@ -647,6 +647,9 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             with_render_information: Ignored (kept for API compat).
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
+
+        Returns:
+            WriterResult containing the written object and file path.
         """
         momapy.utils.check_parent_dir_exists(file_path)
         if element_to_annotations is None:
@@ -673,6 +676,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                     sbgnml_sbgn, pretty_print=True, xml_declaration=True
                 ).decode()
             )
+        return momapy.io.core.WriterResult(obj=obj, file_path=file_path)
 
 
 class SBGNML0_3Writer(_SBGNMLWriter):

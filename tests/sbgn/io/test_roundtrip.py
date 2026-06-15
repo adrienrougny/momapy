@@ -48,6 +48,19 @@ class TestSBGNRoundTrip:
         map2 = result2.obj
         assert map1 == map2
 
+    @pytest.mark.parametrize("filename", SBGN_FILES[:1])
+    def test_write_returns_writer_result(self, filename, temp_dir):
+        """The SBGN-ML writer returns a WriterResult with the file path."""
+        input_file = os.path.join(SBGN_MAPS_DIR, filename)
+        if not os.path.exists(input_file):
+            pytest.skip(f"SBGN file {filename} not found")
+        map_ = momapy.io.core.read(input_file).obj
+        output_file = os.path.join(temp_dir, f"output_{filename}")
+        result = momapy.io.core.write(map_, output_file, writer="sbgnml-0.3")
+        assert isinstance(result, momapy.io.core.WriterResult)
+        assert result.file_path == output_file
+        assert result.obj is map_
+
 
 # One biological activity per AF unit-of-information entity type. Each unit of
 # information is encoded the spec-correct way: class="unit of information" with
