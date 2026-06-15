@@ -102,11 +102,14 @@ Purpose: CSS-like style sheets.
 - `set_cross_hv_of/set_cross_vh_of(obj1, obj2, obj3, anchor=None)`
 
 ### `src/momapy/utils.py`
-- `SurjectionDict(dict)` — inverse via `.inverse`.
-- `IdentitySurjectionDict(dict)` — inverse by `id()`.
-- `IdentityMultiDict` — multi-valued dict keyed by `id()`.
-- `FrozenIdentityMultiDict(frozendict.frozendict)` — immutable identity multi-dict.
-- `FrozenSurjectionDict(frozendict.frozendict)`, `FrozenIdentitySurjectionDict(frozendict.frozendict)` — immutable surjection variants.
+- Mapping family — six dict-like classes, each a forward mapping plus a value→keys `.inverse` index returning `frozendict[K, frozenset[key]]` (`K` = the value for equality variants, `id(value)` for identity variants; buckets always `frozenset`). Frozen classes precompute `.inverse` (O(1)); mutable classes return a fresh snapshot on each access.
+- `_freeze_inverse(inverse) -> frozendict` — module-private: snapshots a `{key: set}` index as `frozendict[key, frozenset]`; single source of truth for the family's `.inverse` shape.
+- `SurjectionDict(dict)` — mutable, equality-keyed surjection; `.inverse` snapshot.
+- `IdentitySurjectionDict(dict)` — mutable surjection, inverse keyed by `id()`; `.inverse` snapshot.
+- `FrozenSurjectionDict(frozendict.frozendict)` — immutable equality-keyed surjection; `.inverse` precomputed O(1).
+- `FrozenIdentitySurjectionDict(frozendict.frozendict)` — immutable surjection, inverse keyed by `id()`; `.inverse` precomputed O(1).
+- `IdentityMultiDict(mapping=None)` — mutable, identity-keyed n-to-m multidict; a read-only `Mapping[str, frozenset]` (`[]`/`.get`/`.keys`/`.items`/`.values`) plus `add(key, value)`/`remove(key, value)`/`replace_value(old, new)` mutators and `.inverse` (snapshot). Not a `dict` subclass: `d[k]=v` raises. `mapping` seeds it from a `str -> Iterable` mapping.
+- `FrozenIdentityMultiDict(frozendict.frozendict, mapping=None)` — immutable identity multidict; already a `Mapping[str, frozenset]` via `frozendict`, plus `.inverse` (precomputed O(1)). `mapping` is a `str -> Iterable` mapping.
 - `pretty_print(obj, max_depth=0, exclude_cls=None)`
 - `get_element_from_collection(element, collection)`, `get_or_return_element_from_collection(element, collection)`, `add_or_replace_element_in_set(element, set_, func=None, cache=None)`
 - `make_uuid4_as_str() -> str`

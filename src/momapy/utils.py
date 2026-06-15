@@ -1,7 +1,36 @@
 """Utility classes and functions for momapy.
 
-This module provides general-purpose utilities including bidirectional mappings,
-pretty printing for dataclasses, and collection manipulation helpers.
+This module provides general-purpose utilities including bidirectional
+mappings, pretty printing for dataclasses, and collection manipulation
+helpers.
+
+Mapping family
+--------------
+
+Six dict-like classes form a uniform family. Every one is a forward
+mapping that also maintains a value->keys ``.inverse`` index, exposed as a
+``frozendict[K, frozenset[key]]`` (``K`` is the value for equality
+variants, ``id(value)`` for identity variants; buckets are always
+``frozenset``). Frozen classes precompute the inverse once and return it
+in O(1); mutable classes return a fresh snapshot built on each access, so
+it is safe to read while the mapping is mutated.
+
+================================  ========  ==============  ===================
+Class                             Mutable?  Inverse keying  Forward cardinality
+================================  ========  ==============  ===================
+``SurjectionDict``                yes       value (``==``)  one value per key
+``IdentitySurjectionDict``        yes       ``id(value)``   one value per key
+``FrozenSurjectionDict``          no        value (``==``)  one value per key
+``FrozenIdentitySurjectionDict``  no        ``id(value)``   one value per key
+``IdentityMultiDict``             yes       ``id(value)``   many values per key
+``FrozenIdentityMultiDict``       no        ``id(value)``   many values per key
+================================  ========  ==============  ===================
+
+The surjections subclass ``dict`` / ``frozendict`` directly. The
+multidicts expose the same read surface -- a ``Mapping[str, frozenset]``
+(``[]`` / ``.get`` / ``.keys`` / ``.items`` / ``.values``) plus
+``.inverse`` -- with the mutable one adding ``add`` / ``remove`` /
+``replace_value``. There is no equality-keyed multidict variant (unused).
 """
 
 import collections.abc
@@ -16,11 +45,31 @@ import frozendict
 import momapy
 
 
-class SurjectionDict(dict):
-    """A dictionary that maintains an inverse mapping from values to keys.
+def _freeze_inverse(inverse) -> frozendict.frozendict:
+    """Snapshot a ``{key: set}`` index as ``frozendict[key, frozenset]``.
 
-    A surjection (onto mapping) where each value maps back to one or more keys.
-    The inverse is automatically maintained as the dict is modified.
+    Single source of truth for the family's ``.inverse`` shape, so the six
+    mapping classes cannot drift apart again.
+
+    Args:
+        inverse: A mapping from each inverse key to a ``set`` (or any
+            iterable) of forward keys.
+
+    Returns:
+        A ``frozendict`` mapping each key to a ``frozenset`` of forward
+        keys, decoupled from the source buckets.
+    """
+    return frozendict.frozendict(
+        {key: frozenset(bucket) for key, bucket in inverse.items()}
+    )
+
+
+class SurjectionDict(dict):
+    """A mutable, equality-keyed surjection with a value->keys inverse.
+
+    A surjection (onto mapping) where each value maps back to one or more
+    keys. The inverse is maintained incrementally as the dict is modified
+    and exposed as a ``frozendict[value, frozenset[key]]`` snapshot.
 
     Note:
         Code adapted from https://stackoverflow.com/a/21894086 by Basj.
@@ -36,44 +85,54 @@ class SurjectionDict(dict):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._inverse = {}
+        self._inverse: dict = {}
         for key, value in self.items():
-            self._inverse.setdefault(value, []).append(key)
+            self._inverse.setdefault(value, set()).add(key)
 
     def __setitem__(self, key, value):
         if key in self:
-            self._inverse[self[key]].remove(key)
-        super(SurjectionDict, self).__setitem__(key, value)
-        self._inverse.setdefault(value, []).append(key)
+            old_value = self[key]
+            self._inverse[old_value].discard(key)
+            if not self._inverse[old_value]:
+                del self._inverse[old_value]
+        super().__setitem__(key, value)
+        self._inverse.setdefault(value, set()).add(key)
 
     def __delitem__(self, key):
         value = self[key]  # throws expected KeyError if key not in self
         super().__delitem__(key)
         # we know key was in self, hence value is expected to be in self.inverse
-        self._inverse[value].remove(key)
+        self._inverse[value].discard(key)
         if not self._inverse[value]:
             del self._inverse[value]
 
     @property
     def inverse(self) -> frozendict.frozendict:
-        """Get the inverse mapping from values to keys.
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. This is a
+        fresh **snapshot** built on each access from the internally
+        maintained index, so it is safe to read while the mapping is
+        mutated.
 
         Returns:
-            A frozendict mapping each value to a list of keys that map to it.
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
         """
-        return frozendict.frozendict(self._inverse)
+        return _freeze_inverse(self._inverse)
 
 
 class IdentitySurjectionDict(dict):
-    """A dictionary with an identity-based inverse mapping.
+    """A mutable dict with an identity-keyed value->keys inverse.
 
-    Like SurjectionDict, but the inverse uses object identity (id())
-    instead of equality.  This allows O(1) lookup of all keys whose
-    value is a specific object, even when multiple distinct objects
-    compare equal.
+    Like ``SurjectionDict``, but the inverse is keyed by ``id(value)``
+    instead of by value equality. This allows looking up all keys whose
+    value is a specific object even when several distinct objects compare
+    equal.
 
-    The forward dict uses normal equality for key lookup.  The inverse
-    is safe from id() address reuse because the forward dict holds a
+    The forward dict uses normal equality for key lookup. The inverse is
+    safe from ``id()`` address reuse because the forward dict holds a
     reference to each value, keeping it alive.
 
     Examples:
@@ -83,8 +142,8 @@ class IdentitySurjectionDict(dict):
         d['x'] = a
         d['y'] = a
         d['z'] = b
-        d.inverse[id(a)]  # {'x', 'y'}
-        d.inverse[id(b)]  # {'z'}
+        d.inverse[id(a)]  # frozenset({'x', 'y'})
+        d.inverse[id(b)]  # frozenset({'z'})
         ```
     """
 
@@ -115,45 +174,63 @@ class IdentitySurjectionDict(dict):
                 del self._identity_inverse[value_identity]
 
     @property
-    def inverse(self) -> dict[int, set]:
-        """Get the identity-based inverse mapping.
+    def inverse(self) -> frozendict.frozendict:
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. This is a
+        fresh **snapshot** built on each access from the internally
+        maintained index, so it is safe to read while the mapping is
+        mutated.
 
         Returns:
-            A dict mapping id(value) to the set of keys that point
-            to that value by identity.
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
         """
-        return self._identity_inverse
+        return _freeze_inverse(self._identity_inverse)
 
 
-class IdentityMultiDict:
-    """An identity-keyed multidict for n-to-m string -> object mappings.
+class IdentityMultiDict(collections.abc.Mapping):
+    """A mutable, identity-keyed multidict for n-to-m ``str`` -> object maps.
 
-    Forward: ``dict[str, set[object]]`` — a key may name several values.
-    Inverse: ``dict[int, set[str]]`` keyed by ``id(value)``.
+    Forward: ``dict[str, set[object]]`` -- a key may name several values.
+    Inverse: ``frozendict[int, frozenset[str]]`` keyed by ``id(value)``.
+
+    The class is a read-only ``Mapping[str, frozenset]`` on the forward
+    side (``[]`` / ``.get`` / ``.keys`` / ``.items`` / ``.values`` all
+    yield ``frozenset`` buckets) plus the ``add`` / ``remove`` /
+    ``replace_value`` mutators and the ``.inverse`` index.
+
+    It deliberately does **not** subclass ``dict``, so an accidental
+    ``d[key] = value`` write (which would replace the whole bucket with a
+    single object) raises instead of silently corrupting state.
 
     The forward dict holds references to every value, so the
     identity-keyed inverse is safe from ``id()`` address reuse for the
     lifetime of the multidict.
 
-    The class deliberately does **not** subclass ``dict`` so that
-    accidental ``d[key] = value`` writes (which would replace the whole
-    set with a single object) raise instead of silently corrupting
-    state.  Use ``add`` / ``remove`` / ``replace_value`` to mutate.
+    Args:
+        mapping: An optional initial ``str`` -> ``Iterable[object]``
+            mapping to seed the multidict from. Defaults to ``None``
+            (empty).
 
     Examples:
         ```python
-        d = IdentityMultiDict()
         a, b = object(), object()
-        d.add('x', a)
-        d.add('x', b)
-        d.get_all('x')      # frozenset({a, b})
-        d.inverse[id(a)]    # frozenset({'x'})
+        d = IdentityMultiDict({'x': [a, b]})
+        d['x']            # frozenset({a, b})
+        d.add('y', a)
+        d.inverse[id(a)]  # frozenset({'x', 'y'})
         ```
     """
 
-    def __init__(self):
+    def __init__(self, mapping=None):
         self._forward: dict[str, set] = {}
         self._inverse: dict[int, set[str]] = {}
+        if mapping is not None:
+            for key, values in mapping.items():
+                for value in values:
+                    self.add(key, value)
 
     def add(self, key: str, value: object) -> None:
         """Register ``value`` under ``key``.  Idempotent on identity."""
@@ -214,28 +291,13 @@ class IdentityMultiDict:
                 bucket.add(new)
             self._inverse.setdefault(id(new), set()).add(key)
 
-    def get_one(self, key: str, default=None):
-        """Return the single value for ``key`` or ``default``.
+    def __getitem__(self, key: str) -> frozenset:
+        """Return the ``frozenset`` of values registered under ``key``.
 
         Raises:
-            ValueError: If ``key`` is registered with more than one value.
+            KeyError: If ``key`` is not present.
         """
-        bucket = self._forward.get(key)
-        if bucket is None:
-            return default
-        if len(bucket) != 1:
-            raise ValueError(f"key {key!r} has {len(bucket)} values; use get_all")
-        return next(iter(bucket))
-
-    def get_all(self, key: str) -> frozenset:
-        """Return the frozenset of values registered under ``key``."""
-        bucket = self._forward.get(key)
-        if bucket is None:
-            return frozenset()
-        return frozenset(bucket)
-
-    def __contains__(self, key: str) -> bool:
-        return key in self._forward
+        return frozenset(self._forward[key])
 
     def __iter__(self):
         return iter(self._forward)
@@ -243,40 +305,46 @@ class IdentityMultiDict:
     def __len__(self) -> int:
         return len(self._forward)
 
-    def keys(self):
-        return self._forward.keys()
-
-    def items(self):
-        """Iterate ``(key, frozenset_of_values)`` pairs."""
-        for key, bucket in self._forward.items():
-            yield key, frozenset(bucket)
-
-    def items_flat(self):
-        """Iterate one ``(key, value)`` pair per value member of each key."""
-        for key, bucket in self._forward.items():
-            for value in bucket:
-                yield key, value
-
     @property
-    def inverse(self) -> dict[int, frozenset[str]]:
-        """Identity-keyed inverse: ``id(value) -> frozenset[str]``."""
-        return {value_id: frozenset(keys) for value_id, keys in self._inverse.items()}
+    def inverse(self) -> frozendict.frozendict:
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. This is a
+        fresh **snapshot** built on each access from the internally
+        maintained index, so it is safe to read while the mapping is
+        mutated.
+
+        Returns:
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
+        """
+        return _freeze_inverse(self._inverse)
 
 
 class FrozenIdentityMultiDict(frozendict.frozendict):
-    """An immutable identity-keyed multidict.
+    """An immutable, identity-keyed multidict.
 
-    Forward: ``frozendict[str, frozenset[object]]``.  Inverse:
-    ``dict[int, frozenset[str]]`` keyed by ``id(value)``.
+    Forward: ``frozendict[str, frozenset[object]]`` -- already a read-only
+    ``Mapping[str, frozenset]`` (``[]`` / ``.get`` / ``.items`` /
+    ``.values`` yield ``frozenset`` buckets). Inverse:
+    ``frozendict[int, frozenset[str]]`` keyed by ``id(value)``, precomputed
+    once at construction.
 
-    Constructed from any mapping ``str -> Iterable[object]``.
+    The forward dict holds references to every value, so the
+    identity-keyed inverse is safe from ``id()`` address reuse for the
+    lifetime of the multidict.
+
+    Args:
+        mapping: An optional ``str`` -> ``Iterable[object]`` mapping to
+            build from. Defaults to ``None`` (empty).
 
     Examples:
         ```python
         a, b = object(), object()
         d = FrozenIdentityMultiDict({'x': [a, b], 'y': [a]})
-        d.get_all('x')      # frozenset({a, b})
-        d.inverse[id(a)]    # frozenset({'x', 'y'})
+        d['x']            # frozenset({a, b})
+        d.inverse[id(a)]  # frozenset({'x', 'y'})
         ```
     """
 
@@ -292,49 +360,29 @@ class FrozenIdentityMultiDict(frozendict.frozendict):
         for key, bucket in self.items():
             for value in bucket:
                 inverse.setdefault(id(value), set()).add(key)
-        object.__setattr__(
-            self,
-            "_identity_inverse",
-            {value_id: frozenset(keys) for value_id, keys in inverse.items()},
-        )
-
-    def get_one(self, key: str, default=None):
-        """Return the single value for ``key`` or ``default``.
-
-        Raises:
-            ValueError: If ``key`` has more than one value.
-        """
-        bucket = self.get(key)
-        if bucket is None:
-            return default
-        if len(bucket) != 1:
-            raise ValueError(f"key {key!r} has {len(bucket)} values; use get_all")
-        return next(iter(bucket))
-
-    def get_all(self, key: str) -> frozenset:
-        """Return the frozenset of values registered under ``key``."""
-        bucket = self.get(key)
-        if bucket is None:
-            return frozenset()
-        return bucket
-
-    def items_flat(self):
-        """Iterate one ``(key, value)`` pair per value member of each key."""
-        for key, bucket in self.items():
-            for value in bucket:
-                yield key, value
+        object.__setattr__(self, "_identity_inverse", _freeze_inverse(inverse))
 
     @property
-    def inverse(self) -> dict[int, frozenset[str]]:
-        """Identity-keyed inverse: ``id(value) -> frozenset[str]``."""
+    def inverse(self) -> frozendict.frozendict:
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. It is
+        **precomputed once at construction** and returned in O(1).
+
+        Returns:
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
+        """
         return self._identity_inverse
 
 
 class FrozenSurjectionDict(frozendict.frozendict):
-    """An immutable version of SurjectionDict.
+    """An immutable, equality-keyed surjection with a value->keys inverse.
 
-    A frozen dictionary that maintains an inverse mapping from values to keys.
-    The inverse is computed once at initialization and cannot be modified.
+    A frozen dict that precomputes its inverse mapping from values to keys
+    once at construction. The inverse is exposed as a
+    ``frozendict[value, frozenset[key]]`` and cannot be modified.
 
     Examples:
         ```python
@@ -344,39 +392,44 @@ class FrozenSurjectionDict(frozendict.frozendict):
     """
 
     def __init__(self, *args, **kwargs):
-        inverse = {}
+        inverse: dict = {}
         for key, value in self.items():
-            inverse.setdefault(value, []).append(key)
-        object.__setattr__(self, "_inverse", frozendict.frozendict(inverse))
+            inverse.setdefault(value, set()).add(key)
+        object.__setattr__(self, "_inverse", _freeze_inverse(inverse))
 
     @property
     def inverse(self) -> frozendict.frozendict:
-        """Get the inverse mapping from values to keys.
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. It is
+        **precomputed once at construction** and returned in O(1).
 
         Returns:
-            A frozendict mapping each value to a list of keys that map to it.
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
         """
         return self._inverse
 
 
 class FrozenIdentitySurjectionDict(frozendict.frozendict):
-    """An immutable version of IdentitySurjectionDict.
+    """An immutable dict with an identity-keyed value->keys inverse.
 
-    A frozen dictionary whose inverse is keyed by ``id(value)``, not by
-    value equality.  The forward dict still uses normal ``frozendict``
-    semantics (``==`` on keys); only the value-side index is
-    identity-keyed.
+    A frozen dict whose inverse is keyed by ``id(value)`` rather than by
+    value equality, precomputed once at construction. The forward dict
+    keeps normal ``frozendict`` (``==`` on keys) semantics; only the
+    value-side index is identity-keyed.
 
     The inverse is safe from ``id()`` address reuse because the forward
-    dict holds a reference to each value, keeping it alive for the
-    lifetime of the dict.
+    dict holds a reference to each value, keeping it alive for the lifetime
+    of the dict.
 
     Examples:
         ```python
         a, b = object(), object()
         d = FrozenIdentitySurjectionDict({'x': a, 'y': a, 'z': b})
-        d.inverse[id(a)]  # {'x', 'y'}
-        d.inverse[id(b)]  # {'z'}
+        d.inverse[id(a)]  # frozenset({'x', 'y'})
+        d.inverse[id(b)]  # frozenset({'z'})
         ```
     """
 
@@ -384,15 +437,19 @@ class FrozenIdentitySurjectionDict(frozendict.frozendict):
         inverse: dict[int, set] = {}
         for key, value in self.items():
             inverse.setdefault(id(value), set()).add(key)
-        object.__setattr__(self, "_identity_inverse", inverse)
+        object.__setattr__(self, "_identity_inverse", _freeze_inverse(inverse))
 
     @property
-    def inverse(self) -> dict[int, set]:
-        """Get the identity-based inverse mapping.
+    def inverse(self) -> frozendict.frozendict:
+        """Return the value->keys inverse as a ``frozendict[K, frozenset]``.
+
+        ``K`` is the value (equality variants) or ``id(value)`` (identity
+        variants); each bucket is a ``frozenset`` of forward keys. It is
+        **precomputed once at construction** and returned in O(1).
 
         Returns:
-            A dict mapping ``id(value)`` to the set of keys that point
-            to that value by identity.
+            A ``frozendict`` mapping each value (or ``id(value)``) to the
+            ``frozenset`` of keys that map to it.
         """
         return self._identity_inverse
 

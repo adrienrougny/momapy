@@ -1513,8 +1513,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 sbgnml_source_id
             ]
             sbgnml_source_id = sbgnml_source_element.get("id")
-            source_model_element = reading_context.xml_id_to_model_element.get_one(
-                sbgnml_source_id
+            source_model_element = next(
+                iter(reading_context.xml_id_to_model_element.get(sbgnml_source_id, ())),
+                None,
             )
             source_layout_element = reading_context.xml_id_to_layout_element.get(
                 sbgnml_source_id
@@ -1576,11 +1577,21 @@ class _SBGNMLReader(momapy.io.core.Reader):
             sbgnml_source_id = sbgnml_source_element.get("id")
             sbgnml_target_id = sbgnml_modulation.get("target")
             if reading_context.model is not None:
-                source_model_element = reading_context.xml_id_to_model_element.get_one(
-                    sbgnml_source_id
+                source_model_element = next(
+                    iter(
+                        reading_context.xml_id_to_model_element.get(
+                            sbgnml_source_id, ()
+                        )
+                    ),
+                    None,
                 )
-                target_model_element = reading_context.xml_id_to_model_element.get_one(
-                    sbgnml_target_id
+                target_model_element = next(
+                    iter(
+                        reading_context.xml_id_to_model_element.get(
+                            sbgnml_target_id, ()
+                        )
+                    ),
+                    None,
                 )
                 model_element = momapy.sbgn.io.sbgnml._reading_model.make_modulation(
                     reading_context,

@@ -1,6 +1,7 @@
 """Tests for momapy.utils module."""
 
 import pytest
+import frozendict
 import momapy.utils
 
 
@@ -168,24 +169,45 @@ def test_make_uuid4_as_str():
 
 
 class TestIdentityMultiDict:
-    def test_add_and_get_one(self):
+    def test_empty_construction(self):
+        d = momapy.utils.IdentityMultiDict()
+        assert len(d) == 0
+        assert dict(d.inverse) == {}
+
+    def test_construct_from_mapping(self):
+        a, b = object(), object()
+        d = momapy.utils.IdentityMultiDict({"x": [a, b], "y": [a]})
+        assert d["x"] == frozenset({a, b})
+        assert d["y"] == frozenset({a})
+        assert d.inverse[id(a)] == frozenset({"x", "y"})
+        assert d.inverse[id(b)] == frozenset({"x"})
+
+    def test_add_and_mapping_access(self):
         d = momapy.utils.IdentityMultiDict()
         a = object()
         d.add("x", a)
-        assert d.get_one("x") is a
-        assert d.get_all("x") == frozenset({a})
+        assert d["x"] == frozenset({a})
+        assert d.get("x", frozenset()) == frozenset({a})
+        assert d.get("missing", frozenset()) == frozenset()
         assert d.inverse[id(a)] == frozenset({"x"})
 
-    def test_get_one_collision_raises(self):
+    def test_getitem_missing_raises(self):
+        d = momapy.utils.IdentityMultiDict()
+        with pytest.raises(KeyError):
+            d["missing"]
+
+    def test_setitem_raises(self):
+        """``d[k] = v`` must raise: the corruption guard holds (not a dict)."""
+        d = momapy.utils.IdentityMultiDict()
+        with pytest.raises(TypeError):
+            d["x"] = object()
+
+    def test_add_multiple_values(self):
         d = momapy.utils.IdentityMultiDict()
         a, b = object(), object()
         d.add("x", a)
         d.add("x", b)
-        import pytest
-
-        with pytest.raises(ValueError):
-            d.get_one("x")
-        assert d.get_all("x") == frozenset({a, b})
+        assert d["x"] == frozenset({a, b})
 
     def test_replace_value(self):
         d = momapy.utils.IdentityMultiDict()
@@ -194,9 +216,9 @@ class TestIdentityMultiDict:
         d.add("y", a)
         d.add("z", b)
         d.replace_value(a, c)
-        assert d.get_one("x") is c
-        assert d.get_one("y") is c
-        assert d.get_one("z") is b
+        assert d["x"] == frozenset({c})
+        assert d["y"] == frozenset({c})
+        assert d["z"] == frozenset({b})
         assert d.inverse[id(c)] == frozenset({"x", "y"})
         assert id(a) not in d.inverse
 
@@ -207,7 +229,7 @@ class TestIdentityMultiDict:
         d.add("k", a)
         d.replace_value(a, b)
         d.replace_value(b, c)
-        assert d.get_one("k") is c
+        assert d["k"] == frozenset({c})
         assert d.inverse[id(c)] == frozenset({"k"})
 
     def test_remove(self):
@@ -216,23 +238,130 @@ class TestIdentityMultiDict:
         d.add("x", a)
         d.add("x", b)
         d.remove("x", a)
-        assert d.get_all("x") == frozenset({b})
+        assert d["x"] == frozenset({b})
         assert id(a) not in d.inverse
+
+    def test_contains_and_iter(self):
+        a = object()
+        d = momapy.utils.IdentityMultiDict({"x": [a]})
+        assert "x" in d
+        assert "y" not in d
+        assert set(d) == {"x"}
+        assert set(d.keys()) == {"x"}
 
 
 class TestFrozenIdentityMultiDict:
     def test_construct_from_mapping(self):
         a, b = object(), object()
         d = momapy.utils.FrozenIdentityMultiDict({"x": [a, b], "y": [a]})
-        assert d.get_all("x") == frozenset({a, b})
-        assert d.get_one("y") is a
+        assert d["x"] == frozenset({a, b})
+        assert d.get("y", frozenset()) == frozenset({a})
         assert d.inverse[id(a)] == frozenset({"x", "y"})
         assert d.inverse[id(b)] == frozenset({"x"})
 
-    def test_get_one_collision_raises(self):
+    def test_empty_construction(self):
+        d = momapy.utils.FrozenIdentityMultiDict()
+        assert len(d) == 0
+        assert dict(d.inverse) == {}
+
+    def test_values_and_items(self):
         a, b = object(), object()
         d = momapy.utils.FrozenIdentityMultiDict({"x": [a, b]})
-        import pytest
+        assert list(d.values()) == [frozenset({a, b})]
+        assert dict(d.items()) == {"x": frozenset({a, b})}
 
-        with pytest.raises(ValueError):
-            d.get_one("x")
+
+def _all_family_instances():
+    """One constructed instance of each of the six mapping classes."""
+    shared = object()
+    return [
+        momapy.utils.SurjectionDict({"a": 1, "b": 1, "c": 2}),
+        momapy.utils.IdentitySurjectionDict({"a": shared, "b": shared}),
+        momapy.utils.FrozenSurjectionDict({"a": 1, "b": 1, "c": 2}),
+        momapy.utils.FrozenIdentitySurjectionDict({"a": shared, "b": shared}),
+        momapy.utils.IdentityMultiDict({"a": [shared], "b": [shared]}),
+        momapy.utils.FrozenIdentityMultiDict({"a": [shared], "b": [shared]}),
+    ]
+
+
+class TestInverseFamilyInvariants:
+    """Cross-family invariants on the uniform ``.inverse`` contract."""
+
+    def test_inverse_is_frozendict_of_frozensets(self):
+        for d in _all_family_instances():
+            inverse = d.inverse
+            assert isinstance(inverse, frozendict.frozendict)
+            for bucket in inverse.values():
+                assert isinstance(bucket, frozenset)
+
+    def test_frozen_inverse_is_immutable(self):
+        shared = object()
+        frozen_instances = [
+            momapy.utils.FrozenSurjectionDict({"a": 1, "b": 1}),
+            momapy.utils.FrozenIdentitySurjectionDict({"a": shared, "b": shared}),
+            momapy.utils.FrozenIdentityMultiDict({"a": [shared]}),
+        ]
+        for d in frozen_instances:
+            inverse = d.inverse
+            some_key = next(iter(inverse))
+            with pytest.raises(TypeError):
+                inverse[some_key] = "x"
+            bucket = inverse[some_key]
+            assert not hasattr(bucket, "add")
+
+    def test_frozen_identity_surjection_inverse_no_leak(self):
+        """Regression: the returned inverse must not expose live state.
+
+        ``LayoutModelMapping`` is a ``FrozenIdentitySurjectionDict``; a
+        caller mutating a bucket or deleting a key from ``.inverse`` must
+        not corrupt the frozen object's index.
+        """
+        a = object()
+        d = momapy.utils.FrozenIdentitySurjectionDict({"x": a, "y": a})
+        bucket = d.inverse[id(a)]
+        assert bucket == frozenset({"x", "y"})
+        with pytest.raises(AttributeError):
+            bucket.add("z")
+        assert d.inverse[id(a)] == frozenset({"x", "y"})
+
+    def test_mutable_surjection_inverse_is_snapshot(self):
+        d = momapy.utils.SurjectionDict({"a": 1})
+        snapshot = d.inverse
+        d["b"] = 1
+        assert snapshot[1] == frozenset({"a"})
+        assert d.inverse[1] == frozenset({"a", "b"})
+
+    def test_mutable_identity_multidict_inverse_is_snapshot(self):
+        a = object()
+        d = momapy.utils.IdentityMultiDict({"a": [a]})
+        snapshot = d.inverse
+        d.add("b", a)
+        assert snapshot[id(a)] == frozenset({"a"})
+        assert d.inverse[id(a)] == frozenset({"a", "b"})
+
+    def test_surjection_set_bucket_no_duplicate(self):
+        d = momapy.utils.SurjectionDict()
+        d["a"] = 1
+        d["a"] = 1
+        assert d.inverse[1] == frozenset({"a"})
+
+    def test_surjection_emptied_bucket_dropped(self):
+        """Re-pointing the last key off a value drops the emptied bucket."""
+        d = momapy.utils.SurjectionDict({"a": 1})
+        d["a"] = 2
+        assert 1 not in d.inverse
+        assert d.inverse[2] == frozenset({"a"})
+
+    def test_multidict_read_mapping_parity(self):
+        a, b = object(), object()
+        data = {"x": [a, b], "y": [a]}
+        mutable = momapy.utils.IdentityMultiDict(data)
+        frozen = momapy.utils.FrozenIdentityMultiDict(data)
+        for key in ("x", "y"):
+            assert mutable[key] == frozen[key]
+            assert mutable.get(key, frozenset()) == frozen.get(key, frozenset())
+        assert set(mutable.keys()) == set(frozen.keys())
+        assert set(mutable.values()) == set(frozen.values())
+        assert dict(mutable.items()) == dict(frozen.items())
+        assert mutable.get("missing", frozenset()) == frozenset()
+        assert frozen.get("missing", frozenset()) == frozenset()

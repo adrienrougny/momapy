@@ -885,8 +885,13 @@ class CellDesignerReader(Reader):
                 # we make and add the model element from the cd compartment
                 # the cd element is an alias of, if it has not already been made
                 # while being outside another one
-                model_element = reading_context.xml_id_to_model_element.get_one(
-                    cd_compartment.get("id")
+                model_element = next(
+                    iter(
+                        reading_context.xml_id_to_model_element.get(
+                            cd_compartment.get("id"), ()
+                        )
+                    ),
+                    None,
                 )
                 if model_element is None:
                     model_element, _ = cls._make_and_add_compartment(
@@ -923,8 +928,13 @@ class CellDesignerReader(Reader):
                 reading_context, cd_compartment
             )
             if cd_compartment.get("outside") is not None:
-                outside_model_element = reading_context.xml_id_to_model_element.get_one(
-                    cd_compartment.get("outside")
+                outside_model_element = next(
+                    iter(
+                        reading_context.xml_id_to_model_element.get(
+                            cd_compartment.get("outside"), ()
+                        )
+                    ),
+                    None,
                 )
                 # if outside is not already made, we make it
                 if outside_model_element is None:
@@ -1834,10 +1844,13 @@ class CellDesignerReader(Reader):
             )
             if reading_context.model is not None:
                 if not has_boolean_input:
-                    source_model_element = (
-                        reading_context.xml_id_to_model_element.get_one(
-                            cd_reaction_modification.get("aliases")
-                        )
+                    source_model_element = next(
+                        iter(
+                            reading_context.xml_id_to_model_element.get(
+                                cd_reaction_modification.get("aliases"), ()
+                            )
+                        ),
+                        None,
                     )
                 model_element = _reading_model.make_modifier(
                     reading_context,
@@ -1916,8 +1929,11 @@ class CellDesignerReader(Reader):
                 input_model_element = None
                 logic_arc = None
                 if reading_context.model is not None:
-                    source_model_element = (
-                        reading_context.xml_id_to_model_element.get_one(cd_input_id)
+                    source_model_element = next(
+                        iter(
+                            reading_context.xml_id_to_model_element.get(cd_input_id, ())
+                        ),
+                        None,
                     )
                     input_model_element = _reading_model.make_logic_gate_input(
                         reading_context, source_model_element
@@ -2004,13 +2020,21 @@ class CellDesignerReader(Reader):
                 )
             if reading_context.model is not None:
                 if not has_boolean_input:
-                    source_model_element = (
-                        reading_context.xml_id_to_model_element.get_one(
-                            cd_base_reactant.get("alias")
-                        )
+                    source_model_element = next(
+                        iter(
+                            reading_context.xml_id_to_model_element.get(
+                                cd_base_reactant.get("alias"), ()
+                            )
+                        ),
+                        None,
                     )
-                target_model_element = reading_context.xml_id_to_model_element.get_one(
-                    cd_base_product.get("alias")
+                target_model_element = next(
+                    iter(
+                        reading_context.xml_id_to_model_element.get(
+                            cd_base_product.get("alias"), ()
+                        )
+                    ),
+                    None,
                 )
                 model_element = _reading_model.make_modulation(
                     reading_context,

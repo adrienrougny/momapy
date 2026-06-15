@@ -149,11 +149,11 @@ class ReaderResult(IOResult):
             in the source file.  One source ID may name several model
             elements — for example a CellDesigner ``species/@id`` can
             point at both the active and inactive variants of the
-            same species.  Use ``.get_one(id_)`` for the common 1-to-1
-            case (raises if more than one element shares the ID),
-            ``.get_all(id_)`` to recover the full set, or the
-            ``.inverse`` property (``id(element) -> frozenset[str]``)
-            to find every source ID that named a given model element.
+            same species.  This is a ``Mapping[str, frozenset[ModelElement]]``:
+            use ``.get(id_, frozenset())`` to recover the model elements
+            named by an ID, or the ``.inverse`` property
+            (``id(element) -> frozenset[str]``) to find every source ID
+            that named a given model element.
         source_id_to_layout_element: Mapping from source file IDs
             (e.g. XML attributes) to layout elements.  Same
             constraints as ``source_id_to_model_element``.

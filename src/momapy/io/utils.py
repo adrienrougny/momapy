@@ -33,8 +33,9 @@ class WritingContext:
     source_id_to_model_element: momapy.utils.FrozenIdentityMultiDict | None
     """N-to-m source id -> model element mapping; one source id may name
     several model elements (e.g. CellDesigner active/inactive species).
-    Use ``get_one`` for the 1-to-1 case, ``get_all`` for the n-to-m
-    case, or ``inverse`` to recover the source ids of a model element."""
+    A ``Mapping[str, frozenset[ModelElement]]``: use
+    ``source_id_to_model_element.get(id_, frozenset())`` for the values and
+    ``.inverse`` to recover the source ids of a model element."""
     source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
     """1-to-1 source id -> layout element mapping.  Layout elements are
     not subject to the same n-to-m driver as model elements (every
@@ -212,18 +213,19 @@ def build_id_mappings(
         ] = {}
         for (
             source_id,
-            registered_element,
-        ) in reading_context.xml_id_to_model_element.items_flat():
+            bucket,
+        ) in reading_context.xml_id_to_model_element.items():
             if (
                 real_model_source_ids is not None
                 and source_id not in real_model_source_ids
             ):
                 continue
-            frozen_element = id_to_element.get(registered_element.id_)
-            if frozen_element is not None:
-                source_id_to_model_element_set.setdefault(source_id, set()).add(
-                    frozen_element
-                )
+            for registered_element in bucket:
+                frozen_element = id_to_element.get(registered_element.id_)
+                if frozen_element is not None:
+                    source_id_to_model_element_set.setdefault(source_id, set()).add(
+                        frozen_element
+                    )
         source_id_to_model_element = momapy.utils.FrozenIdentityMultiDict(
             source_id_to_model_element_set
         )
