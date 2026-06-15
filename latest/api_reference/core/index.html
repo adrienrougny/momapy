@@ -2514,7 +2514,7 @@
               </div>
             </td>
             <td>
-                  <code>&#39;d0cf2705-42e9-44a5-bbe8-002f4eedd48e&#39;</code>
+                  <code>&#39;63c2fe5b-b30e-4524-ac5e-5c0c96f77b17&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -4414,7 +4414,7 @@ The returned drawing elements are a group drawing element formed of the self dra
               </div>
             </td>
             <td>
-                  <code>&#39;88345127-d73e-4419-91a4-80ca59ceb0ad&#39;</code>
+                  <code>&#39;c1e6eb4e-3476-45bf-a293-957546f1c54f&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -7227,7 +7227,7 @@ The drawing elements of a group layout is a group drawing element formed of its 
               </div>
             </td>
             <td>
-                  <code>&#39;7aa0b601-6a2a-4c8c-b1cc-ca264d876a20&#39;</code>
+                  <code>&#39;bff89c7c-d043-4177-a049-dadd1fbb2af9&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -8504,7 +8504,7 @@ The returned drawing elements are a group drawing element formed of the self dra
               </div>
             </td>
             <td>
-                  <code>&#39;01070413-e5fc-4584-b69c-d747c014c52e&#39;</code>
+                  <code>&#39;98f85b8a-6314-4be7-ab64-86f0ec4a6235&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -8749,7 +8749,7 @@ The returned drawing elements are a group drawing element formed of the self dra
               </div>
             </td>
             <td>
-                  <code>&lt;momapy.drawing.NoneValueType object at 0x7f64232a5d30&gt;</code>
+                  <code>&lt;momapy.drawing.NoneValueType object at 0x7fbb77c5cec0&gt;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -11353,7 +11353,7 @@ When there are multiple intersection points, the one closest to the given point 
               </div>
             </td>
             <td>
-                  <code>&#39;d8834a5f-75a7-4d5e-9bd1-08dd62e8ea46&#39;</code>
+                  <code>&#39;e81d8907-9464-404d-b1fc-9df487456a4a&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -12119,11 +12119,11 @@ the per-model-element catalogue of key shapes and anchors.</p>
       property
    (momapy.core.LayoutModelMapping.inverse)" href="#momapy.core.LayoutModelMapping.inverse">inverse</a></code></td>
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Get the identity-based inverse mapping.</p>
+                <p>Return the value-&gt;keys inverse as a <code>frozendict[K, frozenset]</code>.</p>
               </div>
             </td>
           </tr>
@@ -12498,12 +12498,15 @@ cross-pollute the result for the sibling instance.</p>
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inverse</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="int">int</span></span><span class="p">,</span> <span class="n"><span title="set">set</span></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inverse</span><span class="p">:</span> <span class="n"><span title="frozendict.frozendict">frozendict</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Get the identity-based inverse mapping.</p>
+        <p>Return the value-&gt;keys inverse as a <code>frozendict[K, frozenset]</code>.</p>
+<p><code>K</code> is the value (equality variants) or <code>id(value)</code> (identity
+variants); each bucket is a <code>frozenset</code> of forward keys. It is
+<strong>precomputed once at construction</strong> and returned in O(1).</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -12517,21 +12520,21 @@ cross-pollute the result for the sibling instance.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A dict mapping <code>id(value)</code> to the set of keys that point</p>
+                <p>A <code>frozendict</code> mapping each value (or <code>id(value)</code>) to the</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>to that value by identity.</p>
+                <p><code>frozenset</code> of keys that map to it.</p>
               </div>
             </td>
           </tr>
@@ -12710,11 +12713,11 @@ cross-pollute the result for the sibling instance.</p>
       property
    (momapy.core.LayoutModelMappingBuilder.inverse)" href="#momapy.core.LayoutModelMappingBuilder.inverse">inverse</a></code></td>
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Get the identity-based inverse mapping.</p>
+                <p>Return the value-&gt;keys inverse as a <code>frozendict[K, frozenset]</code>.</p>
               </div>
             </td>
           </tr>
@@ -12763,31 +12766,31 @@ cross-pollute the result for the sibling instance.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/core/mapping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-246">246</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
 <span class="normal"><a href="#__codelineno-0-247">247</a></span>
 <span class="normal"><a href="#__codelineno-0-248">248</a></span>
 <span class="normal"><a href="#__codelineno-0-249">249</a></span>
 <span class="normal"><a href="#__codelineno-0-250">250</a></span>
 <span class="normal"><a href="#__codelineno-0-251">251</a></span>
 <span class="normal"><a href="#__codelineno-0-252">252</a></span>
-<span class="normal"><a href="#__codelineno-0-253">253</a></span>
-<span class="normal"><a href="#__codelineno-0-254">254</a></span>
-<span class="normal"><a href="#__codelineno-0-255">255</a></span>
-<span class="normal"><a href="#__codelineno-0-256">256</a></span>
-<span class="normal"><a href="#__codelineno-0-257">257</a></span>
-<span class="normal"><a href="#__codelineno-0-258">258</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pickle hook that preserves `_singleton_to_key` across round-trips.</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>
-</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a><span class="sd">    The default `dict`-subclass pickle emits SETITEMS before BUILD, so</span>
-</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a><span class="sd">    `IdentitySurjectionDict.__setitem__` fires before</span>
-</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a><span class="sd">    `_identity_inverse` exists and crashes. Routing through</span>
-</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a><span class="sd">    `__init__` fixes both that and the `_singleton_to_key` loss.</span>
-</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-254"><a id="__codelineno-0-254" name="__codelineno-0-254"></a>    <span class="k">return</span> <span class="p">(</span>
-</span><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a>        <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a>        <span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">),),</span>
-</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>        <span class="p">{</span><span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="p">)},</span>
-</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-253">253</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pickle hook that preserves `_singleton_to_key` across round-trips.</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>
+</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="sd">    The default `dict`-subclass pickle emits SETITEMS before BUILD, so</span>
+</span><span id="__span-0-245"><a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="sd">    `IdentitySurjectionDict.__setitem__` fires before</span>
+</span><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="sd">    `_identity_inverse` exists and crashes. Routing through</span>
+</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="sd">    `__init__` fixes both that and the `_singleton_to_key` loss.</span>
+</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-249"><a id="__codelineno-0-249" name="__codelineno-0-249"></a>    <span class="k">return</span> <span class="p">(</span>
+</span><span id="__span-0-250"><a id="__codelineno-0-250" name="__codelineno-0-250"></a>        <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+</span><span id="__span-0-251"><a id="__codelineno-0-251" name="__codelineno-0-251"></a>        <span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">),),</span>
+</span><span id="__span-0-252"><a id="__codelineno-0-252" name="__codelineno-0-252"></a>        <span class="p">{</span><span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="p">)},</span>
+</span><span id="__span-0-253"><a id="__codelineno-0-253" name="__codelineno-0-253"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -12817,11 +12820,11 @@ cross-pollute the result for the sibling instance.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/core/mapping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-260">260</a></span>
-<span class="normal"><a href="#__codelineno-0-261">261</a></span>
-<span class="normal"><a href="#__codelineno-0-262">262</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore `_singleton_to_key` after `__reduce__`-driven unpickle.&quot;&quot;&quot;</span>
-</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">SurjectionDict</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">])</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-255">255</a></span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span>
+<span class="normal"><a href="#__codelineno-0-257">257</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-255"><a id="__codelineno-0-255" name="__codelineno-0-255"></a><span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+</span><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore `_singleton_to_key` after `__reduce__`-driven unpickle.&quot;&quot;&quot;</span>
+</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">SurjectionDict</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">])</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -12851,7 +12854,7 @@ cross-pollute the result for the sibling instance.</p>
 
   
       dataclass
-   (momapy.core.elements.ModelElement)" href="#momapy.core.ModelElement">ModelElement</a></span><span class="p">,</span> <span class="n">replace</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LayoutElement
+   (momapy.core.elements.ModelElement)" href="#momapy.core.ModelElement">ModelElement</a></span><span class="p">,</span> <span class="n">anchor</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            LayoutElement
 
 
   
@@ -12862,6 +12865,10 @@ cross-pollute the result for the sibling instance.</p>
     <div class="doc doc-contents ">
 
         <p>Add a layout-element to model-element entry to the mapping.</p>
+<p>The mapping is many-to-one: several layout elements may map to the
+same model element, so adding a new entry for a model element that is
+already mapped simply registers an additional layout key — existing
+keys are kept.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -12917,24 +12924,6 @@ element.</p>
             </td>
             <td>
                 <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>replace</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>When <code>True</code> and a mapping for <code>model_element</code>
-already exists, the existing layout elements are re-mapped
-before adding the new entry.</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -12998,45 +12987,35 @@ frozenset and a participant in a modulation frozenset).</p>
 <span class="normal"><a href="#__codelineno-0-209">209</a></span>
 <span class="normal"><a href="#__codelineno-0-210">210</a></span>
 <span class="normal"><a href="#__codelineno-0-211">211</a></span>
-<span class="normal"><a href="#__codelineno-0-212">212</a></span>
-<span class="normal"><a href="#__codelineno-0-213">213</a></span>
-<span class="normal"><a href="#__codelineno-0-214">214</a></span>
-<span class="normal"><a href="#__codelineno-0-215">215</a></span>
-<span class="normal"><a href="#__codelineno-0-216">216</a></span>
-<span class="normal"><a href="#__codelineno-0-217">217</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_mapping</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_mapping</span><span class="p">(</span>
 </span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="bp">self</span><span class="p">,</span>
 </span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">layout_element</span><span class="p">:</span> <span class="s2">&quot;momapy.core.elements.LayoutElement&quot;</span><span class="p">,</span>
 </span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">model_element</span><span class="p">:</span> <span class="s2">&quot;momapy.core.elements.ModelElement&quot;</span><span class="p">,</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">replace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="n">anchor</span><span class="p">:</span> <span class="s2">&quot;momapy.core.elements.LayoutElement | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="p">):</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a layout-element to model-element entry to the mapping.</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="sd">        layout_element: The layout element (or frozenset of layout</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a><span class="sd">            elements) to use as the key.</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="sd">        model_element: The model element to associate with the layout</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">            element.</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">        replace: When ``True`` and a mapping for ``model_element``</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">            already exists, the existing layout elements are re-mapped</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">            before adding the new entry.</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">        anchor: When ``layout_element`` is a frozenset and this argument</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">            is provided, registers ``anchor`` as the anchor of the</span>
-</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">            frozenset key. This allows ``get_mapping(anchor)`` to resolve</span>
-</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">            to the model element stored under the frozenset key, even when</span>
-</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">            the same element participates in other frozensets (e.g. a</span>
-</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">            logical operator that is both the anchor of its own gate</span>
-</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">            frozenset and a participant in a modulation frozenset).</span>
-</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a>    <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
-</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>        <span class="n">existing_layout_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">model_element</span><span class="p">)</span>
-</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>        <span class="k">if</span> <span class="n">existing_layout_elements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>            <span class="k">for</span> <span class="n">existing_layout_element</span> <span class="ow">in</span> <span class="n">existing_layout_elements</span><span class="p">:</span>
-</span><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a>                <span class="k">del</span> <span class="bp">self</span><span class="p">[</span><span class="n">existing_layout_element</span><span class="p">]</span>
-</span><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a>                <span class="bp">self</span><span class="p">[</span><span class="n">existing_layout_element</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_element</span>
-</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a>    <span class="bp">self</span><span class="p">[</span><span class="n">layout_element</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_element</span>
-</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a>    <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="p">[</span><span class="n">anchor</span><span class="p">]</span> <span class="o">=</span> <span class="n">layout_element</span>
+</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="n">anchor</span><span class="p">:</span> <span class="s2">&quot;momapy.core.elements.LayoutElement | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="p">):</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add a layout-element to model-element entry to the mapping.</span>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">    The mapping is many-to-one: several layout elements may map to the</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="sd">    same model element, so adding a new entry for a model element that is</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="sd">    already mapped simply registers an additional layout key — existing</span>
+</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a><span class="sd">    keys are kept.</span>
+</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">    Args:</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">        layout_element: The layout element (or frozenset of layout</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">            elements) to use as the key.</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">        model_element: The model element to associate with the layout</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a><span class="sd">            element.</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a><span class="sd">        anchor: When ``layout_element`` is a frozenset and this argument</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="sd">            is provided, registers ``anchor`` as the anchor of the</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="sd">            frozenset key. This allows ``get_mapping(anchor)`` to resolve</span>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a><span class="sd">            to the model element stored under the frozenset key, even when</span>
+</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a><span class="sd">            the same element participates in other frozensets (e.g. a</span>
+</span><span id="__span-0-207"><a id="__codelineno-0-207" name="__codelineno-0-207"></a><span class="sd">            logical operator that is both the anchor of its own gate</span>
+</span><span id="__span-0-208"><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="sd">            frozenset and a participant in a modulation frozenset).</span>
+</span><span id="__span-0-209"><a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-210"><a id="__codelineno-0-210" name="__codelineno-0-210"></a>    <span class="bp">self</span><span class="p">[</span><span class="n">layout_element</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_element</span>
+</span><span id="__span-0-211"><a id="__codelineno-0-211" name="__codelineno-0-211"></a>    <span class="k">if</span> <span class="n">anchor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-212"><a id="__codelineno-0-212" name="__codelineno-0-212"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="p">[</span><span class="n">anchor</span><span class="p">]</span> <span class="o">=</span> <span class="n">layout_element</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -13121,7 +13100,12 @@ objects for handling circular references.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/core/mapping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-219">219</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
 <span class="normal"><a href="#__codelineno-0-220">220</a></span>
 <span class="normal"><a href="#__codelineno-0-221">221</a></span>
 <span class="normal"><a href="#__codelineno-0-222">222</a></span>
@@ -13141,37 +13125,32 @@ objects for handling circular references.</p>
 <span class="normal"><a href="#__codelineno-0-236">236</a></span>
 <span class="normal"><a href="#__codelineno-0-237">237</a></span>
 <span class="normal"><a href="#__codelineno-0-238">238</a></span>
-<span class="normal"><a href="#__codelineno-0-239">239</a></span>
-<span class="normal"><a href="#__codelineno-0-240">240</a></span>
-<span class="normal"><a href="#__codelineno-0-241">241</a></span>
-<span class="normal"><a href="#__codelineno-0-242">242</a></span>
-<span class="normal"><a href="#__codelineno-0-243">243</a></span>
-<span class="normal"><a href="#__codelineno-0-244">244</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span>
-</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>    <span class="n">builder_to_object</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a><span class="p">):</span>
-</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>    <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls_to_build</span><span class="p">(</span>
-</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>        <span class="p">{</span>
-</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>            <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
-</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>            <span class="p">):</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>                <span class="n">value</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>            <span class="p">)</span>
-</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>        <span class="p">}</span>
-</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a>    <span class="p">)</span>
-</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a>    <span class="n">singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">FrozenSurjectionDict</span><span class="p">(</span>
-</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>        <span class="p">{</span>
-</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>            <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
-</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>                <span class="n">singleton</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
-</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a>            <span class="p">):</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
-</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
-</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>            <span class="p">)</span>
-</span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a>            <span class="k">for</span> <span class="n">singleton</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a>        <span class="p">}</span>
-</span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a>    <span class="p">)</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">,</span> <span class="n">singleton_to_key</span><span class="p">)</span>
-</span><span id="__span-0-244"><a id="__codelineno-0-244" name="__codelineno-0-244"></a>    <span class="k">return</span> <span class="n">mapping</span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-214"><a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span>
+</span><span id="__span-0-215"><a id="__codelineno-0-215" name="__codelineno-0-215"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-216"><a id="__codelineno-0-216" name="__codelineno-0-216"></a>    <span class="n">builder_to_object</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-217"><a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="p">):</span>
+</span><span id="__span-0-218"><a id="__codelineno-0-218" name="__codelineno-0-218"></a>    <span class="n">mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls_to_build</span><span class="p">(</span>
+</span><span id="__span-0-219"><a id="__codelineno-0-219" name="__codelineno-0-219"></a>        <span class="p">{</span>
+</span><span id="__span-0-220"><a id="__codelineno-0-220" name="__codelineno-0-220"></a>            <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
+</span><span id="__span-0-221"><a id="__codelineno-0-221" name="__codelineno-0-221"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
+</span><span id="__span-0-222"><a id="__codelineno-0-222" name="__codelineno-0-222"></a>            <span class="p">):</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
+</span><span id="__span-0-223"><a id="__codelineno-0-223" name="__codelineno-0-223"></a>                <span class="n">value</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
+</span><span id="__span-0-224"><a id="__codelineno-0-224" name="__codelineno-0-224"></a>            <span class="p">)</span>
+</span><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a>            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>        <span class="p">}</span>
+</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="p">)</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="n">singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">FrozenSurjectionDict</span><span class="p">(</span>
+</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="p">{</span>
+</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>            <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
+</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>                <span class="n">singleton</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
+</span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a>            <span class="p">):</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">object_from_builder</span><span class="p">(</span>
+</span><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">builder_to_object</span><span class="o">=</span><span class="n">builder_to_object</span>
+</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>            <span class="p">)</span>
+</span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a>            <span class="k">for</span> <span class="n">singleton</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>        <span class="p">}</span>
+</span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a>    <span class="p">)</span>
+</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a>    <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="s2">&quot;_singleton_to_key&quot;</span><span class="p">,</span> <span class="n">singleton_to_key</span><span class="p">)</span>
+</span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>    <span class="k">return</span> <span class="n">mapping</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -13303,7 +13282,12 @@ for handling circular references.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/momapy/core/mapping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-264">264</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-259">259</a></span>
+<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+<span class="normal"><a href="#__codelineno-0-261">261</a></span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
 <span class="normal"><a href="#__codelineno-0-265">265</a></span>
 <span class="normal"><a href="#__codelineno-0-266">266</a></span>
 <span class="normal"><a href="#__codelineno-0-267">267</a></span>
@@ -13348,62 +13332,57 @@ for handling circular references.</p>
 <span class="normal"><a href="#__codelineno-0-306">306</a></span>
 <span class="normal"><a href="#__codelineno-0-307">307</a></span>
 <span class="normal"><a href="#__codelineno-0-308">308</a></span>
-<span class="normal"><a href="#__codelineno-0-309">309</a></span>
-<span class="normal"><a href="#__codelineno-0-310">310</a></span>
-<span class="normal"><a href="#__codelineno-0-311">311</a></span>
-<span class="normal"><a href="#__codelineno-0-312">312</a></span>
-<span class="normal"><a href="#__codelineno-0-313">313</a></span>
-<span class="normal"><a href="#__codelineno-0-314">314</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_object</span><span class="p">(</span>
-</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>    <span class="n">obj</span><span class="p">,</span>
-</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>    <span class="n">omit_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>    <span class="n">object_to_builder</span><span class="p">:</span> <span class="s2">&quot;dict[int, momapy.builder.Builder] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing_extensions</span><span class="o">.</span><span class="n">Self</span><span class="p">:</span>
-</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>    <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">):</span>
-</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>                <span class="p">[</span>
-</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a>                    <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>                        <span class="n">element</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a>                    <span class="p">)</span>
-</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a>                    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">key</span>
-</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a>                <span class="p">]</span>
-</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>            <span class="p">)</span>
-</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a>            <span class="p">)</span>
-</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a>        <span class="n">new_value</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a>            <span class="n">value</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a>        <span class="p">)</span>
-</span><span id="__span-0-289"><a id="__codelineno-0-289" name="__codelineno-0-289"></a>        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-</span><span id="__span-0-290"><a id="__codelineno-0-290" name="__codelineno-0-290"></a>            <span class="p">(</span>
-</span><span id="__span-0-291"><a id="__codelineno-0-291" name="__codelineno-0-291"></a>                <span class="n">new_key</span><span class="p">,</span>
-</span><span id="__span-0-292"><a id="__codelineno-0-292" name="__codelineno-0-292"></a>                <span class="n">new_value</span><span class="p">,</span>
-</span><span id="__span-0-293"><a id="__codelineno-0-293" name="__codelineno-0-293"></a>            <span class="p">)</span>
-</span><span id="__span-0-294"><a id="__codelineno-0-294" name="__codelineno-0-294"></a>        <span class="p">)</span>
-</span><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a>    <span class="n">builder</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
-</span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>    <span class="n">singleton_to_key_items</span> <span class="o">=</span> <span class="p">{}</span>
-</span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a>    <span class="k">for</span> <span class="n">singleton</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-</span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a>        <span class="n">new_singleton</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-299"><a id="__codelineno-0-299" name="__codelineno-0-299"></a>            <span class="n">singleton</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a>        <span class="p">)</span>
-</span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">):</span>
-</span><span id="__span-0-302"><a id="__codelineno-0-302" name="__codelineno-0-302"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-</span><span id="__span-0-303"><a id="__codelineno-0-303" name="__codelineno-0-303"></a>                <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-304"><a id="__codelineno-0-304" name="__codelineno-0-304"></a>                    <span class="n">element</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-305"><a id="__codelineno-0-305" name="__codelineno-0-305"></a>                <span class="p">)</span>
-</span><span id="__span-0-306"><a id="__codelineno-0-306" name="__codelineno-0-306"></a>                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">key</span>
-</span><span id="__span-0-307"><a id="__codelineno-0-307" name="__codelineno-0-307"></a>            <span class="p">)</span>
-</span><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
-</span><span id="__span-0-310"><a id="__codelineno-0-310" name="__codelineno-0-310"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
-</span><span id="__span-0-311"><a id="__codelineno-0-311" name="__codelineno-0-311"></a>            <span class="p">)</span>
-</span><span id="__span-0-312"><a id="__codelineno-0-312" name="__codelineno-0-312"></a>        <span class="n">singleton_to_key_items</span><span class="p">[</span><span class="n">new_singleton</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_key</span>
-</span><span id="__span-0-313"><a id="__codelineno-0-313" name="__codelineno-0-313"></a>    <span class="n">builder</span><span class="o">.</span><span class="n">_singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">SurjectionDict</span><span class="p">(</span><span class="n">singleton_to_key_items</span><span class="p">)</span>
-</span><span id="__span-0-314"><a id="__codelineno-0-314" name="__codelineno-0-314"></a>    <span class="k">return</span> <span class="n">builder</span>
+<span class="normal"><a href="#__codelineno-0-309">309</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_object</span><span class="p">(</span>
+</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="n">obj</span><span class="p">,</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>    <span class="n">omit_keys</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>    <span class="n">object_to_builder</span><span class="p">:</span> <span class="s2">&quot;dict[int, momapy.builder.Builder] | None&quot;</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing_extensions</span><span class="o">.</span><span class="n">Self</span><span class="p">:</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="__span-0-267"><a id="__codelineno-0-267" name="__codelineno-0-267"></a>    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-0-268"><a id="__codelineno-0-268" name="__codelineno-0-268"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">):</span>
+</span><span id="__span-0-269"><a id="__codelineno-0-269" name="__codelineno-0-269"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+</span><span id="__span-0-270"><a id="__codelineno-0-270" name="__codelineno-0-270"></a>                <span class="p">[</span>
+</span><span id="__span-0-271"><a id="__codelineno-0-271" name="__codelineno-0-271"></a>                    <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-272"><a id="__codelineno-0-272" name="__codelineno-0-272"></a>                        <span class="n">element</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-273"><a id="__codelineno-0-273" name="__codelineno-0-273"></a>                    <span class="p">)</span>
+</span><span id="__span-0-274"><a id="__codelineno-0-274" name="__codelineno-0-274"></a>                    <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">key</span>
+</span><span id="__span-0-275"><a id="__codelineno-0-275" name="__codelineno-0-275"></a>                <span class="p">]</span>
+</span><span id="__span-0-276"><a id="__codelineno-0-276" name="__codelineno-0-276"></a>            <span class="p">)</span>
+</span><span id="__span-0-277"><a id="__codelineno-0-277" name="__codelineno-0-277"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-278"><a id="__codelineno-0-278" name="__codelineno-0-278"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-279"><a id="__codelineno-0-279" name="__codelineno-0-279"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-280"><a id="__codelineno-0-280" name="__codelineno-0-280"></a>            <span class="p">)</span>
+</span><span id="__span-0-281"><a id="__codelineno-0-281" name="__codelineno-0-281"></a>        <span class="n">new_value</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-282"><a id="__codelineno-0-282" name="__codelineno-0-282"></a>            <span class="n">value</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-283"><a id="__codelineno-0-283" name="__codelineno-0-283"></a>        <span class="p">)</span>
+</span><span id="__span-0-284"><a id="__codelineno-0-284" name="__codelineno-0-284"></a>        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+</span><span id="__span-0-285"><a id="__codelineno-0-285" name="__codelineno-0-285"></a>            <span class="p">(</span>
+</span><span id="__span-0-286"><a id="__codelineno-0-286" name="__codelineno-0-286"></a>                <span class="n">new_key</span><span class="p">,</span>
+</span><span id="__span-0-287"><a id="__codelineno-0-287" name="__codelineno-0-287"></a>                <span class="n">new_value</span><span class="p">,</span>
+</span><span id="__span-0-288"><a id="__codelineno-0-288" name="__codelineno-0-288"></a>            <span class="p">)</span>
+</span><span id="__span-0-289"><a id="__codelineno-0-289" name="__codelineno-0-289"></a>        <span class="p">)</span>
+</span><span id="__span-0-290"><a id="__codelineno-0-290" name="__codelineno-0-290"></a>    <span class="n">builder</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+</span><span id="__span-0-291"><a id="__codelineno-0-291" name="__codelineno-0-291"></a>    <span class="n">singleton_to_key_items</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="__span-0-292"><a id="__codelineno-0-292" name="__codelineno-0-292"></a>    <span class="k">for</span> <span class="n">singleton</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">_singleton_to_key</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span><span id="__span-0-293"><a id="__codelineno-0-293" name="__codelineno-0-293"></a>        <span class="n">new_singleton</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-294"><a id="__codelineno-0-294" name="__codelineno-0-294"></a>            <span class="n">singleton</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-295"><a id="__codelineno-0-295" name="__codelineno-0-295"></a>        <span class="p">)</span>
+</span><span id="__span-0-296"><a id="__codelineno-0-296" name="__codelineno-0-296"></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">):</span>
+</span><span id="__span-0-297"><a id="__codelineno-0-297" name="__codelineno-0-297"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+</span><span id="__span-0-298"><a id="__codelineno-0-298" name="__codelineno-0-298"></a>                <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-299"><a id="__codelineno-0-299" name="__codelineno-0-299"></a>                    <span class="n">element</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-300"><a id="__codelineno-0-300" name="__codelineno-0-300"></a>                <span class="p">)</span>
+</span><span id="__span-0-301"><a id="__codelineno-0-301" name="__codelineno-0-301"></a>                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">key</span>
+</span><span id="__span-0-302"><a id="__codelineno-0-302" name="__codelineno-0-302"></a>            <span class="p">)</span>
+</span><span id="__span-0-303"><a id="__codelineno-0-303" name="__codelineno-0-303"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-304"><a id="__codelineno-0-304" name="__codelineno-0-304"></a>            <span class="n">new_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">builder_from_object</span><span class="p">(</span>
+</span><span id="__span-0-305"><a id="__codelineno-0-305" name="__codelineno-0-305"></a>                <span class="n">key</span><span class="p">,</span> <span class="n">object_to_builder</span><span class="o">=</span><span class="n">object_to_builder</span>
+</span><span id="__span-0-306"><a id="__codelineno-0-306" name="__codelineno-0-306"></a>            <span class="p">)</span>
+</span><span id="__span-0-307"><a id="__codelineno-0-307" name="__codelineno-0-307"></a>        <span class="n">singleton_to_key_items</span><span class="p">[</span><span class="n">new_singleton</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_key</span>
+</span><span id="__span-0-308"><a id="__codelineno-0-308" name="__codelineno-0-308"></a>    <span class="n">builder</span><span class="o">.</span><span class="n">_singleton_to_key</span> <span class="o">=</span> <span class="n">momapy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">SurjectionDict</span><span class="p">(</span><span class="n">singleton_to_key_items</span><span class="p">)</span>
+</span><span id="__span-0-309"><a id="__codelineno-0-309" name="__codelineno-0-309"></a>    <span class="k">return</span> <span class="n">builder</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -13511,12 +13490,17 @@ for handling circular references.</p>
   </span>
 
 </h4>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inverse</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">[</span><span class="n"><span title="int">int</span></span><span class="p">,</span> <span class="n"><span title="set">set</span></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">inverse</span><span class="p">:</span> <span class="n"><span title="frozendict.frozendict">frozendict</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Get the identity-based inverse mapping.</p>
+        <p>Return the value-&gt;keys inverse as a <code>frozendict[K, frozenset]</code>.</p>
+<p><code>K</code> is the value (equality variants) or <code>id(value)</code> (identity
+variants); each bucket is a <code>frozenset</code> of forward keys. This is a
+fresh <strong>snapshot</strong> built on each access from the internally
+maintained index, so it is safe to read while the mapping is
+mutated.</p>
 
 
     <p><span class="doc-section-title">Returns:</span></p>
@@ -13530,21 +13514,21 @@ for handling circular references.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A dict mapping id(value) to the set of keys that point</p>
+                <p>A <code>frozendict</code> mapping each value (or <code>id(value)</code>) to the</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="dict">dict</span>[<span title="int">int</span>, <span title="set">set</span>]</code>
+                  <code><span title="frozendict.frozendict">frozendict</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>to that value by identity.</p>
+                <p><code>frozenset</code> of keys that map to it.</p>
               </div>
             </td>
           </tr>
@@ -13636,7 +13620,7 @@ for handling circular references.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;03f16576-35fc-4709-bc5b-2238d9ce9755&#39;</code>
+                  <code>&#39;d018442c-588f-4dbd-a443-554f94d859e4&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -13910,7 +13894,7 @@ for handling circular references.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;4af5ebad-1e07-4e33-b5ad-093269da5670&#39;</code>
+                  <code>&#39;80fa1f1b-0355-4257-974e-3ee4610660a0&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -14005,7 +13989,7 @@ for handling circular references.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;6995b356-b6d8-47f9-8ecf-c5d1f1f5a880&#39;</code>
+                  <code>&#39;9196abff-a12a-4707-8164-1854e13007d0&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -14232,7 +14216,7 @@ The <code>Model</code> itself is not a <code>ModelElement</code> and is not incl
               </div>
             </td>
             <td>
-                  <code>&#39;55d0404e-3ab8-482b-bab6-24feadd5ea07&#39;</code>
+                  <code>&#39;e7e6386f-1b45-4a51-a65c-6921950c66d1&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -14513,7 +14497,7 @@ containers, deduplicating by object identity.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;37b9bba7-35c8-44a2-909c-94d0edb79d01&#39;</code>
+                  <code>&#39;db146d86-03f6-4514-a4de-c41b241e8c50&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -17257,7 +17241,7 @@ It has no children.</p>
               </div>
             </td>
             <td>
-                  <code>&#39;3e0bf6c5-455c-42ab-82a5-e7625277c251&#39;</code>
+                  <code>&#39;58a4bc28-cb22-4b22-964d-549465b3d163&#39;</code>
             </td>
           </tr>
       </tbody>
@@ -18033,7 +18017,7 @@ A shape has no children, so return an empty list</p>
               </div>
             </td>
             <td>
-                  <code>&#39;8b2db409-defc-47d4-acc9-f09ba3ff3796&#39;</code>
+                  <code>&#39;e31262ef-3134-4686-b7db-3f7b0feae07a&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -20437,7 +20421,7 @@ The returned drawing elements are a group drawing element formed of the self dra
               </div>
             </td>
             <td>
-                  <code>&#39;dc21be13-f0a2-4b4d-9387-97767268db99&#39;</code>
+                  <code>&#39;e351bfae-4c89-40b4-802d-de64756b4ee9&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
