@@ -78,7 +78,7 @@ def _detect_renderer(format_: str) -> str:
     for candidate in ["svg-native", "skia", "cairo"]:
         try:
             renderer_cls = get_renderer(candidate)
-            if format_ in renderer_cls.supported_formats:
+            if format_ in getattr(renderer_cls, "supported_formats", []):
                 return candidate
         except (ValueError, ImportError, ModuleNotFoundError):
             continue
@@ -194,6 +194,11 @@ def render_layout_elements(
         return layout_elements, max_x, max_y
 
     renderer_cls = get_renderer(renderer)
+    if not issubclass(renderer_cls, SupportsFileOutput):
+        raise ValueError(
+            f"Renderer '{renderer}' cannot render to a file: it does not "
+            "support file output (no from_file capability)."
+        )
     if not multi_pages:
         prepared_layout_elements, max_x, max_y = _prepare_layout_elements(
             layout_elements, style_sheet, to_top_left
@@ -306,7 +311,16 @@ def render_maps(
 
 @dataclasses.dataclass
 class Renderer(abc.ABC):
-    """Base class for renderers"""
+    """Base class for renderers.
+
+    The abstract contract is the six render-session methods only
+    (``begin_session``, ``end_session``, ``new_page``, ``render_map``,
+    ``render_layout_element``, ``render_drawing_element``). File output is a
+    separate capability provided by the :class:`SupportsFileOutput` mixin, not a
+    base-class obligation: a renderer that does not target a file (in-memory
+    surface, interactive canvas, null/test renderer) subclasses ``Renderer``
+    directly and has neither ``from_file`` nor ``supported_formats``.
+    """
 
     initial_values: typing.ClassVar[dict] = {
         "font_family": momapy.drawing.DEFAULT_FONT_FAMILY,
@@ -384,6 +398,48 @@ class Renderer(abc.ABC):
         else:
             new_font_weight = 900
         return new_font_weight
+
+
+class SupportsFileOutput(abc.ABC):
+    """Mixin declaring the file-output capability of a renderer.
+
+    Mix into a :class:`Renderer` subclass to declare that it can build from and
+    write to a file. This is the capability required by the file-output entry
+    points (:func:`render_map`, :func:`render_maps`,
+    :func:`render_layout_element`, :func:`render_layout_elements`); it is a
+    *capability*, not an identity — a renderer mixing it in may still support
+    other output targets (a live canvas, an in-memory surface) through its own
+    constructors. Renderers with no file output simply do not mix it in.
+
+    Implementers must declare :attr:`supported_formats` and implement
+    :meth:`from_file`.
+    """
+
+    supported_formats: typing.ClassVar[list[str]] = []
+
+    @classmethod
+    @abc.abstractmethod
+    def from_file(
+        cls,
+        file_path: str | os.PathLike,
+        width: float,
+        height: float,
+        format_: str | None = None,
+        config: dict | None = None,
+    ) -> "Renderer":
+        """Build a renderer that writes its output to ``file_path``.
+
+        Args:
+            file_path: The output file path.
+            width: The width of the canvas.
+            height: The height of the canvas.
+            format_: The output format. Backends may default it.
+            config: Optional backend-specific configuration dictionary.
+
+        Returns:
+            A new renderer instance writing to ``file_path``.
+        """
+        ...
 
 
 @dataclasses.dataclass

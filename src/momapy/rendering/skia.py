@@ -22,7 +22,10 @@ import momapy.utils
 
 
 @dataclasses.dataclass(kw_only=True)
-class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
+class SkiaRenderer(
+    momapy.rendering.core.StatefulRenderer,
+    momapy.rendering.core.SupportsFileOutput,
+):
     """Renderer implementation using the Skia graphics library.
 
     This renderer supports multiple output formats including PDF, SVG, PNG,
@@ -117,6 +120,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         width: float,
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
+        config: dict | None = None,
     ) -> typing_extensions.Self:
         """Create a SkiaRenderer instance from a file path.
 
@@ -125,6 +129,7 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
             width: The width of the canvas
             height: The height of the canvas
             format_: The output format (pdf, svg, png, jpeg, or webp)
+            config: Optional configuration dictionary
 
         Returns:
             A new SkiaRenderer instance
@@ -140,7 +145,8 @@ class SkiaRenderer(momapy.rendering.core.StatefulRenderer):
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         momapy.utils.check_parent_dir_exists(file_path)
-        config = {}
+        if config is None:
+            config = {}
         canvas = None
         if format_ == "pdf":
             stream = skia.FILEWStream(file_path)

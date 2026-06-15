@@ -190,18 +190,19 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 - `render_maps(maps, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
 
 ### `src/momapy/rendering/core.py`
-- `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. Concrete backends declare `supported_formats: ClassVar[list[str]]` (not on `Renderer` itself).
+- `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. File output is **not** on this contract; non-file renderers subclass `Renderer` directly.
+- `SupportsFileOutput(ABC)` — mixin declaring the file-output *capability* (not an identity — a renderer mixing it in may also target live canvases/in-memory surfaces): `supported_formats: ClassVar[list[str]]` + abstract classmethod `from_file(file_path, width, height, format_=None, config=None) -> Renderer`. Mix into a `Renderer` subclass. The file-output entry points require it; `render_layout_elements` raises `ValueError` for a renderer that does not mix it in.
 - `StatefulRenderer(Renderer)` — adds state-management helpers: `save()`/`restore()`, `self_save()`/`self_restore()`, `get_current_state()`, `get_current_value(attr_name)`, `get_initial_value(attr_name)`, `set_current_value(attr_name, attr_value)`, `set_current_state(state)`, `set_current_state_from_drawing_element(drawing_element)`.
 
 ### `src/momapy/rendering/cairo.py`
-- `CairoRenderer(StatefulRenderer)` — formats: pdf, svg, png, ps. Requires pycairo/PyGObject. `from_file(file_path, width, height, format)`.
+- `CairoRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, ps. Requires pycairo/PyGObject. `from_file(file_path, width, height, format_="pdf", config=None)`.
 
 ### `src/momapy/rendering/skia.py`
-- `SkiaRenderer(StatefulRenderer)` — formats: pdf, svg, png, jpeg, webp. Requires skia-python. `from_file(file_path, width, height, format)`.
+- `SkiaRenderer(StatefulRenderer, SupportsFileOutput)` — formats: pdf, svg, png, jpeg, webp. Requires skia-python. `from_file(file_path, width, height, format_="pdf", config=None)`.
 
 ### `src/momapy/rendering/svg_native.py`
 - `SVGElement` — manual SVG DOM; `to_string(indent=0)`, `add_element(element)`.
-- `SVGNativeRenderer(Renderer)` — `supported_formats = ["svg"]`; `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`, classmethod `from_file(output_file, width, height, format_, config=None) -> Self`.
+- `SVGNativeRenderer(Renderer, SupportsFileOutput)` — `supported_formats = ["svg"]`; `begin_session()`, `end_session()`, `new_page(width, height)`, `render_map(map_)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`, classmethod `from_file(file_path, width, height, format_="svg", config=None) -> Self`.
 - `SVGNativeCompatRenderer(SVGNativeRenderer)` — compatibility variant registered as `"svg-native-compat"`.
 
 ---

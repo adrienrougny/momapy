@@ -1327,7 +1327,9 @@ def run(args):
                 if list_subcommand == "renderers":
                     try:
                         renderer_cls = momapy.rendering.get_renderer(name)
-                        formats = ", ".join(renderer_cls.supported_formats)
+                        formats = ", ".join(
+                            getattr(renderer_cls, "supported_formats", [])
+                        )
                         line = f"{name} (formats: {formats})"
                     except (ImportError, ModuleNotFoundError):
                         line = f"{name} (not installed)"

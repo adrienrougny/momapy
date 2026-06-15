@@ -35,7 +35,10 @@ import momapy.utils
 
 
 @dataclasses.dataclass(kw_only=True)
-class CairoRenderer(momapy.rendering.core.StatefulRenderer):
+class CairoRenderer(
+    momapy.rendering.core.StatefulRenderer,
+    momapy.rendering.core.SupportsFileOutput,
+):
     """Renderer implementation using the Cairo graphics library.
 
     This renderer supports multiple output formats including PDF, SVG, PNG,
@@ -108,6 +111,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         width: float,
         height: float,
         format_: typing.Literal["pdf", "svg", "png", "ps"] = "pdf",
+        config: dict | None = None,
     ) -> typing_extensions.Self:
         """Create a CairoRenderer instance from a file path.
 
@@ -116,6 +120,7 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
             width: The width of the canvas
             height: The height of the canvas
             format_: The output format (pdf, svg, png, or ps)
+            config: Optional configuration dictionary
 
         Returns:
             A new CairoRenderer instance
@@ -131,7 +136,8 @@ class CairoRenderer(momapy.rendering.core.StatefulRenderer):
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         momapy.utils.check_parent_dir_exists(file_path)
-        config = {}
+        if config is None:
+            config = {}
         if format_ == "pdf":
             surface = cairo.PDFSurface(file_path, width, height)
         elif format_ == "ps":

@@ -87,7 +87,9 @@ class SVGElement(object):
 
 
 @dataclasses.dataclass
-class SVGNativeRenderer(momapy.rendering.core.Renderer):
+class SVGNativeRenderer(
+    momapy.rendering.core.Renderer, momapy.rendering.core.SupportsFileOutput
+):
     """Renderer implementation for generating native SVG output.
 
     This renderer creates SVG markup directly without external dependencies.
@@ -200,16 +202,16 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
     @classmethod
     def from_file(
         cls,
-        output_file: str | os.PathLike,
+        file_path: str | os.PathLike,
         width: float,
         height: float,
-        format_: typing.Literal["svg"],
+        format_: typing.Literal["svg"] = "svg",
         config: dict | None = None,
     ) -> typing_extensions.Self:
         """Create an SVGNativeRenderer instance from a file path.
 
         Args:
-            output_file: The output file path
+            file_path: The output file path
             width: The width of the SVG canvas
             height: The height of the SVG canvas
             format_: The output format (must be "svg")
@@ -228,10 +230,10 @@ class SVGNativeRenderer(momapy.rendering.core.Renderer):
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
-        momapy.utils.check_parent_dir_exists(output_file)
+        momapy.utils.check_parent_dir_exists(file_path)
         if config is None:
             config = {}
-        config["output_file"] = output_file
+        config["output_file"] = file_path
         config["width"] = width
         config["height"] = height
         config["format"] = format_

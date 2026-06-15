@@ -1,5 +1,7 @@
 """Tests for momapy.rendering.core module."""
 
+import pytest
+
 import momapy.rendering
 import momapy.rendering.core
 
@@ -38,3 +40,57 @@ def test_render_layout_elements_exists():
     """Test that render_layout_elements function exists."""
     assert hasattr(momapy.rendering.core, "render_layout_elements")
     assert callable(momapy.rendering.core.render_layout_elements)
+
+
+def test_renderer_base_has_no_file_capability():
+    """File output is not part of the base Renderer contract."""
+    assert not hasattr(momapy.rendering.core.Renderer, "supported_formats")
+    assert not hasattr(momapy.rendering.core.Renderer, "from_file")
+
+
+def test_supports_file_output_mixin_for_svg_native():
+    """The svg-native backend mixes in SupportsFileOutput with declared formats."""
+    renderer_cls = momapy.rendering.core.get_renderer("svg-native")
+    assert issubclass(renderer_cls, momapy.rendering.core.SupportsFileOutput)
+    assert issubclass(renderer_cls, momapy.rendering.core.Renderer)
+    assert renderer_cls.supported_formats
+
+
+def test_render_layout_elements_rejects_non_file_renderer(sample_map, temp_dir):
+    """A renderer without from_file raises a clear error on file output."""
+    import os
+
+    class NonFileRenderer(momapy.rendering.core.Renderer):
+        supported_formats = ["svg"]
+
+        def begin_session(self):
+            pass
+
+        def end_session(self):
+            pass
+
+        def new_page(self, width, height):
+            pass
+
+        def render_map(self, map_):
+            pass
+
+        def render_layout_element(self, layout_element):
+            pass
+
+        def render_drawing_element(self, drawing_element):
+            pass
+
+    momapy.rendering.register_renderer("test_non_file_renderer", NonFileRenderer)
+    try:
+        output_file = os.path.join(temp_dir, "out.svg")
+        with pytest.raises(ValueError, match="from_file"):
+            momapy.rendering.core.render_layout_element(
+                sample_map.layout,
+                output_file,
+                format_="svg",
+                renderer="test_non_file_renderer",
+            )
+    finally:
+        loaded = momapy.rendering.renderer_registry._loaded_plugins
+        loaded.pop("test_non_file_renderer", None)
