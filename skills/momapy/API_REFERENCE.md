@@ -158,12 +158,17 @@ Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `moma
 
 ## Plugins (`src/momapy/plugins/`)
 
+### `src/momapy/plugins/__init__.py`
+- Re-exports `PluginRegistry`; `__all__ = ["PluginRegistry"]`.
+
 ### `src/momapy/plugins/core.py`
 - `PluginRegistry(Generic[T])` — `register(name, plugin)`, `register_lazy(name, import_path)`, `get(name) -> T|None`, `is_available(name) -> bool`, `list_available() -> list[str]` (sorted, for display), `list_available_in_registration_order() -> list[str]` (registration order; used by `read()` auto-detection so a more specific reader registered first wins), `list_loaded() -> list[str]`.
 
 ---
 
 ## Meta shapes (`src/momapy/meta/`)
+
+`src/momapy/meta/__init__.py` intentionally re-exports nothing (no `__all__`): the submodules share many overlapping names, so classes are accessed via their submodule, e.g. `momapy.meta.shapes.Rectangle`.
 
 ### `src/momapy/meta/nodes.py`
 Generic node classes (all extend `Node`): `Rectangle`, `Ellipse`, `Stadium`, `Hexagon`, `TurnedHexagon`, `Parallelogram`, `CrossPoint`, `Triangle`, `Diamond`, `Bar`, `ArcBarb`, `StraightBarb`, `To`. Configurable corner radii on rectangles; `direction`/`angle` fields on directional shapes.

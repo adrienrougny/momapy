@@ -29,6 +29,20 @@ import inspect
 
 import frozendict
 
+__all__ = [
+    "Builder",
+    "builder_from_object",
+    "get_builder_cls",
+    "get_or_make_builder_cls",
+    "has_builder_cls",
+    "isinstance_or_builder",
+    "issubclass_or_builder",
+    "new_builder_object",
+    "object_from_builder",
+    "register_builder_cls",
+    "super_or_builder",
+]
+
 
 class Builder(abc.ABC):
     """Abstract base class for builder objects.
