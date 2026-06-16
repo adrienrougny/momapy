@@ -39,26 +39,27 @@ mkdocs serve
 
 ```
 src/momapy/
-├── core.py           # Base classes: Map, Model, Layout, LayoutElement, Arc, etc.
+├── core/             # Base classes (package): Map, Model, Layout, LayoutElement, Arc, etc.
 ├── geometry.py       # Point, Bbox, Vector, path operations
 ├── drawing.py        # Drawing primitives: Path, Rectangle, Ellipse, Text, Group
 ├── builder.py        # Builder pattern for modifying frozen dataclasses
-├── styling.py        # CSS-like stylesheet parsing and application
+├── styling/          # CSS-like stylesheet parsing and application (package)
 ├── coloring.py       # Color definitions and management
 ├── positioning.py    # Layout positioning algorithms
-├── cli.py            # CLI entry point (render, export subcommands)
+├── cli.py            # CLI entry point (render, export, info, list, tidy, style, visualize)
 ├── utils.py          # SurjectionDict, pretty_print, helpers
-├── meta/             # Generic shapes (Rectangle, Ellipse, Polygon, arcs)
+├── meta/             # Generic shapes, nodes, and arcs (Rectangle, Ellipse, Triangle, …)
 ├── sbgn/
-│   ├── core.py       # Base SBGN classes
-│   ├── pd.py         # SBGN Process Description glyphs (largest module)
-│   ├── af.py         # SBGN Activity Flow glyphs
+│   ├── elements.py, layout.py, map.py, model.py  # Base SBGN classes
+│   ├── pd/           # SBGN Process Description glyphs (package, largest module)
+│   ├── af/           # SBGN Activity Flow glyphs (package)
 │   ├── utils.py      # SBGN utilities (tidying, fitting)
 │   └── io/sbgnml/    # SBGN-ML I/O (see I/O Architecture below)
 │       ├── reader.py, _reading_model.py, _reading_layout.py, ...
 │       └── writer.py, _writing.py, _writing_classification.py
 ├── celldesigner/     # CellDesigner format support (same I/O module structure)
 ├── sbml/             # SBML support
+├── transform/        # Map conversions (e.g. CellDesigner → SBGN-PD)
 ├── rendering/        # Backends: svg_native, skia, cairo
 ├── io/core.py        # Reader/Writer base classes, ReaderResult, WriterResult
 └── plugins/core.py   # Plugin registry with lazy loading
@@ -292,7 +293,7 @@ Every value in the mapping is a plain model element — there are no tuple value
 - Logical operators / boolean logic gates: **frozenset** key (operator layout + logic arcs + input targets) → operator model
 - Modulations: **frozenset** key (modulation arc + source frozenset + target frozenset) → modulation model. Uses `_singleton_to_key` to resolve source/target frozensets.
 - Tag/terminal with references: **frozenset** key (tag/terminal layout + reference arcs + referenced entity layouts) → tag/terminal model
-- Each frozenset has exactly one **anchor** registered in `_singleton_to_key` (a `SurjectionDict`, so `inverse` gives frozenset → anchor in O(1))
+- Each frozenset has exactly one **anchor** registered in `_singleton_to_key` (a `FrozenSurjectionDict` in the frozen `LayoutModelMapping`, a `SurjectionDict` in the mutable `LayoutModelMappingBuilder`, so `inverse` gives frozenset → anchor in O(1))
 
 `LayoutModelMapping.get_child_layout_elements(child_model_element, parent_model_element)` is the single helper used to look up the layout elements representing a child under a given parent. It computes the intersection of two sets:
 
