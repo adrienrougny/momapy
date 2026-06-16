@@ -605,11 +605,12 @@ class DrawingElement(abc.ABC):
         bboxes = [p.bbox() for p in primitives]
         return momapy.geometry.Bbox.union(bboxes)
 
-    def get_filter_region(self) -> momapy.geometry.Bbox:
+    def get_filter_region(self) -> momapy.geometry.Bbox | None:
         """Get the filter region.
 
         Returns:
-            The filter region bbox.
+            The filter region bbox, or `None` when the element has no
+            filter (`filter` is `None` or `NoneValue`).
         """
         if self.filter is None or self.filter is NoneValue:
             return None
