@@ -3,6 +3,11 @@
 This package provides tools for reading, writing, manipulating, and rendering
 molecular maps, with support for various formats including SBGN-ML and CellDesigner.
 
+The top level deliberately re-exports nothing but `__version__`: the public API
+is reached through the subpackages (e.g. `from momapy.io import read`,
+`from momapy.core import Map`), each of which declares its own `__all__`. There
+is no flat `momapy.*` namespace of the whole API by design.
+
 Examples:
     ```python
     from momapy.io import read
