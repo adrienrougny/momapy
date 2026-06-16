@@ -1,5 +1,7 @@
 """Tests for momapy.styling module."""
 
+import os
+
 import momapy.styling
 import momapy.coloring
 import momapy.core.layout
@@ -59,6 +61,34 @@ def test_style_sheet_from_string():
     except Exception:
         # Parser might not be fully configured, that's okay for minimal test
         pass
+
+
+def test_style_sheet_from_file_import_keeps_own_rules(tmp_path):
+    """@import must merge the imported rules with the file's own rules."""
+    base = tmp_path / "base.css"
+    base.write_text("Rectangle { fill: red; }\n")
+    main = tmp_path / "main.css"
+    main.write_text('@import "base.css";\nEllipse { fill: blue; }\n')
+    style_sheet = momapy.styling.StyleSheet.from_file(str(main))
+    selectors = {str(selector) for selector in style_sheet.keys()}
+    assert any("Rectangle" in selector for selector in selectors)
+    assert any("Ellipse" in selector for selector in selectors)
+
+
+def test_style_sheet_from_string_resolves_import(tmp_path):
+    """from_string must resolve @import (relative to the cwd) and merge."""
+    base = tmp_path / "base.css"
+    base.write_text("Rectangle { fill: red; }\n")
+    css = '@import "base.css";\nEllipse { fill: blue; }\n'
+    cwd = os.getcwd()
+    os.chdir(tmp_path)
+    try:
+        style_sheet = momapy.styling.StyleSheet.from_string(css)
+    finally:
+        os.chdir(cwd)
+    selectors = {str(selector) for selector in style_sheet.keys()}
+    assert any("Rectangle" in selector for selector in selectors)
+    assert any("Ellipse" in selector for selector in selectors)
 
 
 def test_combine_style_sheets():

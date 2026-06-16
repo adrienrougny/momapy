@@ -35,6 +35,9 @@ def get_renderer(name: str) -> type["Renderer"]:
 
     Raises:
         ValueError: If no renderer with that name exists.
+        ImportError: If the renderer is registered but its backend module
+            cannot be imported (e.g. an optional dependency such as
+            skia-python or pycairo is not installed).
     """
     renderer = renderer_registry.get(name)
     if renderer is None:

@@ -1457,7 +1457,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Tool for working with molecular maps.",
     )
-    subparsers = parser.add_subparsers(dest="subcommand")
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
     render_parser = subparsers.add_parser(
         "render",
         description="Render a map (SBGN-ML or CellDesigner) to an output image file. If no format is specified, will base the format on the extension of the output file path. If no renderer is specified, will take the most appropriate renderer.",
@@ -1576,6 +1576,7 @@ def main():
     )
     list_subparsers = list_parser.add_subparsers(
         dest="list_subcommand",
+        required=True,
     )
     list_subparsers.add_parser(
         "readers",
@@ -1619,6 +1620,7 @@ def main():
     )
     tidy_subparsers = tidy_parser.add_subparsers(
         dest="tidy_operation",
+        required=True,
     )
     _tidy_operations = {
         "all": "Apply all tidying operations (fit nodes, decorations, complexes, compartments, arcs, layout).",

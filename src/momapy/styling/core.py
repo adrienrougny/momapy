@@ -92,6 +92,10 @@ class StyleSheet(dict):
     def from_string(cls, s: str) -> "StyleSheet":
         """Parse and return a StyleSheet from a CSS string.
 
+        Relative ``@import`` paths inside the string are resolved against
+        the current working directory (a string has no file location);
+        absolute ``@import`` paths are resolved as-is.
+
         Args:
             s: CSS string to parse.
 
@@ -107,7 +111,8 @@ class StyleSheet(dict):
             ss = StyleSheet.from_string(css)
             ```
         """
-        style_sheet = _css_document.parse_string(s, parse_all=True)[0]
+        doc_parser = _make_document_parser(pathlib.Path.cwd())
+        style_sheet = doc_parser.parse_string(s, parse_all=True)[0]
         return style_sheet
 
     @classmethod
@@ -673,7 +678,6 @@ _css_selector = (
 )
 _css_rule = _css_selector + _css_style_collection
 _css_style_sheet = pyparsing.Group(_css_rule[1, ...])
-_css_document = _css_import_statement[...] + _css_style_sheet[...]
 
 
 @_css_unset_value.set_parse_action
@@ -751,7 +755,16 @@ def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
 
     import_stmt = _css_import_statement.copy()
     import_stmt.set_parse_action(_resolve_import)
-    return import_stmt[...] + _css_style_sheet[...]
+    document = import_stmt[...] + _css_style_sheet[...]
+
+    def _combine(results):
+        style_sheets = [
+            style_sheet for style_sheet in results if style_sheet is not None
+        ]
+        return combine_style_sheets(style_sheets)
+
+    document.set_parse_action(_combine)
+    return document
 
 
 @_css_attribute_name.set_parse_action
@@ -828,12 +841,6 @@ def _resolve_css_rule(results):
 @_css_style_sheet.set_parse_action
 def _resolve_css_style_sheet(results):
     return StyleSheet(dict(list(results[0])))
-
-
-@_css_document.set_parse_action
-def _resolve_css_document(results):
-    style_sheets = [style_sheet for style_sheet in results if style_sheet is not None]
-    return combine_style_sheets(style_sheets)
 
 
 def _is_presentation_attribute(field_name: str) -> bool:

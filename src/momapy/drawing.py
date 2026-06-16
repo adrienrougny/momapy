@@ -483,6 +483,9 @@ def get_initial_value(attr_name: str) -> typing.Any:
 
     Returns:
         The initial value.
+
+    Raises:
+        KeyError: If `attr_name` is not a known presentation attribute.
     """
     attr_value = PRESENTATION_ATTRIBUTES[attr_name]["initial"]
     if attr_value is None:

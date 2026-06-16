@@ -37,6 +37,8 @@ def get_reader(name: str) -> type["Reader"]:
 
     Raises:
         ValueError: If no reader with that name exists.
+        ImportError: If the reader is registered but its module cannot be
+            imported (e.g. a missing optional dependency).
     """
     reader = reader_registry.get(name)
     if reader is None:
@@ -87,6 +89,8 @@ def get_writer(name: str) -> type["Writer"]:
 
     Raises:
         ValueError: If no writer with that name exists.
+        ImportError: If the writer is registered but its module cannot be
+            imported (e.g. a missing optional dependency).
     """
     writer = writer_registry.get(name)
     if writer is None:
