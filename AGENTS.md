@@ -216,7 +216,6 @@ result = read("map.sbgn")
 map_ = result.obj
 model = map_.model
 layout = map_.layout
-# result.exceptions contains any parse errors
 ```
 
 Every `LayoutElement` (frozen dataclass) must implement:
