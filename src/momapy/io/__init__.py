@@ -67,3 +67,5 @@ for name, import_path in [
     ("pickle", "momapy.io.pickle:PickleWriter"),
 ]:
     register_lazy_writer(name, import_path)
+
+del name, import_path

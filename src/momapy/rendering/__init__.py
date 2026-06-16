@@ -42,3 +42,5 @@ for name, import_path in [
     ("cairo", "momapy.rendering.cairo:CairoRenderer"),
 ]:
     register_lazy_renderer(name, import_path)
+
+del name, import_path
