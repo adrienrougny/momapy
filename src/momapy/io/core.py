@@ -155,8 +155,15 @@ class ReaderResult(IOResult):
             (``id(element) -> frozenset[str]``) to find every source ID
             that named a given model element.
         source_id_to_layout_element: Mapping from source file IDs
-            (e.g. XML attributes) to layout elements.  Same
-            constraints as ``source_id_to_model_element``.
+            (e.g. XML attributes) to layout elements.  Only contains
+            IDs that exist verbatim in the source file.  Unlike
+            ``source_id_to_model_element``, this is a
+            ``Mapping[str, LayoutElement]``: each source ID names a
+            **single** layout element.  Use ``[id_]`` / ``.get(id_)``
+            to recover the layout element named by an ID, or the
+            ``.inverse`` property — an equality-keyed (not ``id()``-keyed)
+            ``LayoutElement -> frozenset[str]`` — to find every source ID
+            that named a given layout element.
         source_id_to_annotations: Mapping from source file IDs to the
             RDF/MIRIAM annotations attached to that specific source
             element.  Parallel to ``element_to_annotations`` but
