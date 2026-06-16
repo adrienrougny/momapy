@@ -138,7 +138,7 @@ class Color(object):
             color.to_rgb()
             ```
         """
-        width = int(rgb_range[1] - rgb_range[0])
+        width = rgb_range[1] - rgb_range[0]
         red = rgb_range[0] + (self.red / 255) * width
         green = rgb_range[0] + (self.green / 255) * width
         blue = rgb_range[0] + (self.blue / 255) * width
