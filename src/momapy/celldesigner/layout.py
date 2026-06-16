@@ -6,7 +6,7 @@ logic gates), arc layouts (reactions, modulations), and reaction node
 decorations.
 
 Each layout class is named after the model class it draws, with a ``Layout``
-suffix appended (e.g. model ``GenericProtein`` → layout
+suffix appended (e.g. model ``GenericProtein`` gives layout
 ``GenericProteinLayout``). The active-state variants keep the model name and
 insert ``Active`` before the suffix (e.g. ``GenericProteinActiveLayout``).
 """

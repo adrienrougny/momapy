@@ -54,8 +54,8 @@ class ModelElement(MapElement):
     def descendants(self) -> list["ModelElement"]:
         """Return every `ModelElement` reachable from `self`, excluding `self`.
 
-        This reflectively walks the dataclass field-graph — i.e. *reference
-        reachability* — across scalar `ModelElement` fields and
+        This reflectively walks the dataclass field-graph (i.e. *reference
+        reachability*) across scalar `ModelElement` fields and
         `frozenset`/`tuple` containers, deduplicating by object identity. A
         model element referenced by several parents therefore appears once.
 
@@ -135,15 +135,15 @@ class LayoutElement(MapElement, abc.ABC):
     def descendants(self) -> list["LayoutElement"]:
         """Return the descendants of the layout element.
 
-        This walks the explicit `children()` tree — i.e. visual
-        *containment* — depth-first, returning every layout element in the
+        This walks the explicit `children()` tree (i.e. visual
+        *containment*) depth-first, returning every layout element in the
         contained subtree (without `self`).
 
         Note the deliberate contrast with
         [`ModelElement.descendants`][momapy.core.elements.ModelElement.descendants]
         and [`Model.descendants`][momapy.core.model.Model.descendants],
-        which reflectively walk the dataclass field-graph — i.e. *reference
-        reachability* — and deduplicate by object identity. A model element
+        which reflectively walk the dataclass field-graph (i.e. *reference
+        reachability*) and deduplicate by object identity. A model element
         referenced by several parents therefore appears once across the
         model graph, whereas layout descendants are strictly the contained
         subtree and a layout element contained under two parents is reached

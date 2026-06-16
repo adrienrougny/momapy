@@ -1,7 +1,8 @@
 """Layout classes for SBGN Process Description (PD) maps.
 
 Each layout class is named after the model class it draws, with a ``Layout``
-suffix appended (e.g. model ``Macromolecule`` → layout ``MacromoleculeLayout``).
+suffix appended (e.g. model ``Macromolecule`` gives layout
+``MacromoleculeLayout``).
 """
 
 import dataclasses

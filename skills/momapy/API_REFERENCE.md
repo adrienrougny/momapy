@@ -415,7 +415,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
-- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, with_annotations=True, with_notes=True, **options)`.
+- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring).
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`

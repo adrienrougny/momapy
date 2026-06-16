@@ -366,7 +366,7 @@ class Renderer(abc.ABC):
         needs. Subclasses may override it if a backend requires
         map-specific handling, but they are not obliged to. The file
         pipeline (:func:`render_map`/:func:`render_maps`) does not call this
-        method — it renders each page through :meth:`render_layout_element`.
+        method; it renders each page through :meth:`render_layout_element`.
 
         Args:
             map_: The map to render.

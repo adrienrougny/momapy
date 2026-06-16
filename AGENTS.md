@@ -152,9 +152,9 @@ modified = builder.build()
 - Always use full words for variable names (e.g., `direction_x` not `dx`, `length` not `len`)
 - **`Layout` suffix**: a layout element class is named after the model class it
   draws, with a `Layout` suffix appended. The model class carries the bare
-  concept name; the layout class adds `Layout` (e.g. model `Macromolecule` →
-  layout `MacromoleculeLayout`, model `Compartment` → layout `CompartmentLayout`,
-  model `AndOperator` → layout `AndOperatorLayout`). This holds across SBGN-PD,
+  concept name; the layout class adds `Layout` (e.g. model `Macromolecule` gives
+  layout `MacromoleculeLayout`, model `Compartment` gives `CompartmentLayout`,
+  model `AndOperator` gives `AndOperatorLayout`). This holds across SBGN-PD,
   SBGN-AF, and CellDesigner. The generic, format-agnostic layout primitives in
   `momapy.core` (`TextLayout`, `GroupLayout`, `Layout`) also carry the suffix;
   the bare `Node`/`Arc` base classes are the exception.

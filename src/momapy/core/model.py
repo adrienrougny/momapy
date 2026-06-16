@@ -25,8 +25,8 @@ class Model(MapElement, abc.ABC):
     def descendants(self) -> list[ModelElement]:
         """Return every `ModelElement` reachable from this `Model`.
 
-        This reflectively walks the dataclass field-graph — i.e. *reference
-        reachability* — across scalar `ModelElement` fields and
+        This reflectively walks the dataclass field-graph (i.e. *reference
+        reachability*) across scalar `ModelElement` fields and
         `frozenset`/`tuple` containers of the `Model`, deduplicating by
         object identity. The `Model` itself is not a `ModelElement` and is
         not included.

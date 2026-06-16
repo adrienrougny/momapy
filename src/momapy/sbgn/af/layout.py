@@ -1,7 +1,7 @@
 """Layout classes for SBGN Activity Flow (AF) maps.
 
 Each layout class is named after the model class it draws, with a ``Layout``
-suffix appended (e.g. model ``BiologicalActivity`` → layout
+suffix appended (e.g. model ``BiologicalActivity`` gives layout
 ``BiologicalActivityLayout``).
 """
 

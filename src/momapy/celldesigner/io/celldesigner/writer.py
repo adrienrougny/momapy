@@ -4543,7 +4543,15 @@ def _make_celldesigner_gate_modulation_reaction(writing_context, modulation):
 
 
 class CellDesignerWriter(Writer):
-    """CellDesigner XML writer (model-first approach)."""
+    """CellDesigner XML writer (model-first approach).
+
+    **Round-trip caveat.** CellDesigner encodes link geometry as anchor
+    ids, edit points, angles, and line directions, whereas momapy stores
+    resolved coordinates. On write this encoding is re-derived from those
+    coordinates (see `compute_cd_angle` and the anchor/edit-point helpers),
+    so a read/write round-trip produces *equivalent* link geometry rather
+    than the exact encoding found in the source file.
+    """
 
     @classmethod
     def write(
