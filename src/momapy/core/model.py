@@ -11,7 +11,15 @@ class Model(MapElement, abc.ABC):
     """Abstract base class for models"""
 
     @abc.abstractmethod
-    def is_submodel(self, other) -> bool:
+    def is_submodel(self, other: "Model") -> bool:
+        """Return whether this model is a submodel of another model.
+
+        Args:
+            other: The model to test against.
+
+        Returns:
+            `True` if this model is a submodel of `other`.
+        """
         pass
 
     def descendants(self) -> list[ModelElement]:

@@ -1401,6 +1401,7 @@ class DoubleHeadedArc(Arc):
     def end_arrowhead_drawing_elements(
         self,
     ) -> list[momapy.drawing.DrawingElement]:
+        """Return the drawing elements of the double-headed arc end arrowhead"""
         drawing_elements = self._end_arrowhead_border_drawing_elements()
         group = momapy.drawing.Group(
             class_=f"{type(self).__name__}_end_arrowhead",

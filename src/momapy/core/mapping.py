@@ -153,6 +153,19 @@ class LayoutModelMappingBuilder(
         self,
         map_element: "momapy.core.elements.MapElement",
     ):
+        """Return the element(s) mapped to the given map element.
+
+        If `map_element` is a key (a layout element or frozenset of layout
+        elements), returns the model element it maps to. If it is a model
+        element, returns the list of layout keys mapped to it.
+
+        Args:
+            map_element: The layout or model element to look up.
+
+        Returns:
+            The mapped model element, the list of mapped layout keys, or
+            `None` if the element is not in the mapping.
+        """
         if map_element in self:
             return self[map_element]
         result = self.inverse.get(id(map_element))
@@ -215,6 +228,16 @@ class LayoutModelMappingBuilder(
         self,
         builder_to_object: dict[int, typing.Any] | None = None,
     ):
+        """Build a frozen `LayoutModelMapping` from this builder.
+
+        Args:
+            builder_to_object: Optional cache mapping builder `id()` to
+                already-built objects, to preserve shared references.
+
+        Returns:
+            A frozen `LayoutModelMapping` with all keys and values built
+            from their builders.
+        """
         mapping = self._cls_to_build(
             {
                 momapy.builder.object_from_builder(
@@ -263,6 +286,17 @@ class LayoutModelMappingBuilder(
         omit_keys: bool = True,
         object_to_builder: "dict[int, momapy.builder.Builder] | None" = None,
     ) -> typing_extensions.Self:
+        """Build a `LayoutModelMappingBuilder` from a frozen mapping.
+
+        Args:
+            obj: The frozen `LayoutModelMapping` to convert.
+            omit_keys: Unused (kept for signature compatibility).
+            object_to_builder: Optional cache mapping object `id()` to
+                already-created builders, to preserve shared references.
+
+        Returns:
+            A `LayoutModelMappingBuilder` mirroring `obj`.
+        """
         items = []
         for key, value in obj.items():
             if isinstance(key, frozenset):

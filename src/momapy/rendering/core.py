@@ -335,33 +335,54 @@ class Renderer(abc.ABC):
     }
 
     @abc.abstractmethod
-    def begin_session(self):
-        """Begin a session"""
+    def begin_session(self) -> None:
+        """Begin a rendering session."""
         pass
 
     @abc.abstractmethod
-    def end_session(self):
-        """End a session"""
+    def end_session(self) -> None:
+        """End the current rendering session."""
         pass
 
     @abc.abstractmethod
-    def new_page(self, width, height):
-        """Make a new page"""
+    def new_page(self, width: float, height: float) -> None:
+        """Start a new page.
+
+        Args:
+            width: Width of the page.
+            height: Height of the page.
+        """
         pass
 
     @abc.abstractmethod
-    def render_map(self, map_: momapy.core.map.Map):
-        """Render a map"""
+    def render_map(self, map_: momapy.core.map.Map) -> None:
+        """Render a map.
+
+        Args:
+            map_: The map to render.
+        """
         pass
 
     @abc.abstractmethod
-    def render_layout_element(self, layout_element: momapy.core.elements.LayoutElement):
-        """Render a layout element"""
+    def render_layout_element(
+        self, layout_element: momapy.core.elements.LayoutElement
+    ) -> None:
+        """Render a layout element.
+
+        Args:
+            layout_element: The layout element to render.
+        """
         pass
 
     @abc.abstractmethod
-    def render_drawing_element(self, drawing_element: momapy.drawing.DrawingElement):
-        """Render a drawing element"""
+    def render_drawing_element(
+        self, drawing_element: momapy.drawing.DrawingElement
+    ) -> None:
+        """Render a drawing element.
+
+        Args:
+            drawing_element: The drawing element to render.
+        """
         pass
 
     @classmethod
@@ -452,11 +473,11 @@ class StatefulRenderer(Renderer):
     _current_state: dict = dataclasses.field(default_factory=dict)
     _states: list[dict] = dataclasses.field(default_factory=list)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._initialize_current_state()
 
     @abc.abstractmethod
-    def self_save(self):
+    def self_save(self) -> None:
         """Save the internal state of the renderer.
 
         This method must be implemented by subclasses to save any internal
@@ -465,7 +486,7 @@ class StatefulRenderer(Renderer):
         pass
 
     @abc.abstractmethod
-    def self_restore(self):
+    def self_restore(self) -> None:
         """Restore the internal state of the renderer.
 
         This method must be implemented by subclasses to restore any internal
@@ -491,12 +512,12 @@ class StatefulRenderer(Renderer):
         state = self._make_initial_current_state()
         self.set_current_state(state)
 
-    def save(self):
+    def save(self) -> None:
         """Save the current state"""
         self._states.append(copy.deepcopy(self.get_current_state()))
         self.self_save()
 
-    def restore(self):
+    def restore(self) -> None:
         """Set the current state to the last saved state"""
         if len(self._states) > 0:
             state = self._states.pop()
@@ -523,7 +544,7 @@ class StatefulRenderer(Renderer):
         """Return the current state"""
         return self._current_state
 
-    def set_current_value(self, attr_name: str, attr_value: typing.Any):
+    def set_current_value(self, attr_name: str, attr_value: typing.Any) -> None:
         """Set the current value for an attribute"""
         if attr_value is None:
             attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
@@ -551,7 +572,7 @@ class StatefulRenderer(Renderer):
         if attr_value is not None:
             self._current_state[attr_name] = attr_value
 
-    def set_current_state(self, state: dict):
+    def set_current_state(self, state: dict) -> None:
         """Set the current state to the given state"""
         for attr_name, attr_value in state.items():
             self.set_current_value(attr_name, attr_value)
