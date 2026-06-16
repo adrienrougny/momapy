@@ -29,10 +29,8 @@ import inspect
 
 import frozendict
 
-import momapy.monitoring
 
-
-class Builder(abc.ABC, momapy.monitoring.Monitored):
+class Builder(abc.ABC):
     """Abstract base class for builder objects.
 
     Builder classes are automatically generated from dataclasses to provide

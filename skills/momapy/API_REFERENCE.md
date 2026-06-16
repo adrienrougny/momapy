@@ -116,10 +116,6 @@ Purpose: CSS-like style sheets.
 - `check_parent_dir_exists(file_path: str | os.PathLike) -> None`
 - `display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None)`, `print_source(obj) -> None` — optional-notebook-dependency helpers.
 
-### `src/momapy/monitoring.py`
-- `Event(ABC)` (has `obj`), `ChangedEvent(Event)`, `SetEvent(Event)`; `Monitored` mixin.
-- `register_event(obj, event_cls, callback, attr_name=None)`, `trigger_event(event)`, `on_change(obj, callback, attr_name=None)`, `on_set(obj, callback, attr_name=None)`.
-
 ### `src/momapy/cli.py`
 - `main()` dispatches subcommands: `render`, `export`, `list`, `info`, `visualize`, `tidy`, `style`.
 - Built-in presets registry `_BUILTIN_PRESETS` (cs_default, sbgned, newt, ...).
