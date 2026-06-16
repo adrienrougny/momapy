@@ -444,7 +444,7 @@ class SkiaRenderer(
     def _add_transform_from_drawing_element(self, drawing_element):
         if (
             drawing_element.transform is not None
-            and drawing_element.transform != momapy.drawing.NoneValue
+            and drawing_element.transform is not momapy.drawing.NoneValue
         ):
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
@@ -475,10 +475,10 @@ class SkiaRenderer(
 
     def _render_path(self, path):
         skia_path = self._make_skia_path(path)
-        if self.get_current_value("fill") != momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
-        if self.get_current_value("stroke") != momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
@@ -521,7 +521,7 @@ class SkiaRenderer(
                     font_size,
                 )
             ] = skia_font
-        if self.get_current_value("fill") != momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -530,7 +530,7 @@ class SkiaRenderer(
                 font=skia_font,
                 paint=skia_paint,
             )
-        if self.get_current_value("stroke") != momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -547,10 +547,10 @@ class SkiaRenderer(
             ellipse.x + ellipse.rx,
             ellipse.y + ellipse.ry,
         )
-        if self.get_current_value("fill") != momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
-        if self.get_current_value("stroke") != momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
 
@@ -561,7 +561,7 @@ class SkiaRenderer(
             rectangle.x + rectangle.width,
             rectangle.y + rectangle.height,
         )
-        if self.get_current_value("fill") != momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,
@@ -569,7 +569,7 @@ class SkiaRenderer(
                 ry=rectangle.ry,
                 paint=skia_paint,
             )
-        if self.get_current_value("stroke") != momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,

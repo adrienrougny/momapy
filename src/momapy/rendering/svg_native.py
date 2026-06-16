@@ -342,7 +342,7 @@ class SVGNativeRenderer(
         for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
             attr_value = getattr(drawing_element, attr_name)
             if attr_value is not None:
-                if attr_value == momapy.drawing.NoneValue:
+                if attr_value is momapy.drawing.NoneValue:
                     attr_value = "none"
                 else:
                     if attr_name == "stroke" or attr_name == "fill":

@@ -245,12 +245,12 @@ class CairoRenderer(
         stroke_dasharray = self.get_current_value("stroke_dasharray")
         stroke_dashoffset = self.get_current_value("stroke_dashoffset")
 
-        if stroke != momapy.drawing.NoneValue:
+        if stroke is not momapy.drawing.NoneValue:
             self.context.set_line_width(stroke_width)
             self.context.set_source_rgba(*stroke.to_rgba(rgba_range=(0.0, 1.0)))
             if (
                 stroke_dasharray is not None
-                and stroke_dasharray != momapy.drawing.NoneValue
+                and stroke_dasharray is not momapy.drawing.NoneValue
             ):
                 self.context.set_dash(stroke_dasharray, stroke_dashoffset or 0)
             else:
@@ -260,14 +260,14 @@ class CairoRenderer(
 
     def _make_fill_paint(self):
         fill = self.get_current_value("fill")
-        if fill != momapy.drawing.NoneValue:
+        if fill is not momapy.drawing.NoneValue:
             self.context.set_source_rgba(*fill.to_rgba(rgba_range=(0.0, 1.0)))
             return True
         return False
 
     def _stroke_and_fill(self):
         has_fill = self._make_fill_paint()
-        has_stroke = self.get_current_value("stroke") != momapy.drawing.NoneValue
+        has_stroke = self.get_current_value("stroke") is not momapy.drawing.NoneValue
 
         if has_fill:
             if has_stroke:
@@ -282,7 +282,7 @@ class CairoRenderer(
     def _add_transform_from_drawing_element(self, drawing_element):
         if (
             drawing_element.transform is not None
-            and drawing_element.transform != momapy.drawing.NoneValue
+            and drawing_element.transform is not momapy.drawing.NoneValue
         ):
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
