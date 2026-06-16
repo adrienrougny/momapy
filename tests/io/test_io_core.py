@@ -1,7 +1,24 @@
 """Tests for momapy.io.core module."""
 
+import os
+
 import momapy.io
 import momapy.io.core
+
+_MAPS_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
+_CELLDESIGNER_FILE = os.path.join(
+    _MAPS_DIR, "celldesigner", "maps", "external_flux.xml"
+)
+_PLAIN_SBML_FILE = os.path.join(_MAPS_DIR, "sbml", "models", "BIOMD0000000595_url.xml")
+
+
+def _detect_reader_name(file_path):
+    """Replicate ``read()``'s auto-detection without parsing the file."""
+    names = momapy.io.reader_registry.list_available_in_registration_order()
+    for name in names:
+        if momapy.io.core.get_reader(name).check_file(file_path):
+            return name
+    return None
 
 
 def test_reader_registry_exists():
@@ -88,3 +105,29 @@ def test_write_function_exists():
     """Test that write function exists."""
     assert hasattr(momapy.io.core, "write")
     assert callable(momapy.io.core.write)
+
+
+def test_reader_registration_order_celldesigner_before_sbml():
+    """CellDesigner must be registered (hence checked) before SBML."""
+    order = momapy.io.reader_registry.list_available_in_registration_order()
+    assert "celldesigner" in order
+    assert "sbml" in order
+    assert order.index("celldesigner") < order.index("sbml")
+
+
+def test_sbml_check_file_accepts_celldesigner():
+    """A CellDesigner file is also SBML, so both readers accept it."""
+    sbml_reader = momapy.io.core.get_reader("sbml")
+    celldesigner_reader = momapy.io.core.get_reader("celldesigner")
+    assert celldesigner_reader.check_file(_CELLDESIGNER_FILE) is True
+    assert sbml_reader.check_file(_CELLDESIGNER_FILE) is True
+
+
+def test_read_autodetects_celldesigner_for_cd_file():
+    """Auto-detection picks CellDesigner for a CD file (registration order)."""
+    assert _detect_reader_name(_CELLDESIGNER_FILE) == "celldesigner"
+
+
+def test_read_autodetects_sbml_for_plain_sbml_file():
+    """Auto-detection picks SBML for a plain (non-CD) SBML file."""
+    assert _detect_reader_name(_PLAIN_SBML_FILE) == "sbml"

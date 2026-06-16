@@ -48,7 +48,18 @@ class PluginRegistry(typing.Generic[T]):
         self._entry_point_group = entry_point_group
         self._lazy_plugins: dict[str, str] = {}
         self._loaded_plugins: dict[str, T] = {}
+        self._registration_order: list[str] = []
         self._entry_points_loaded = False
+
+    def _track_registration(self, name: str) -> None:
+        """Record `name` in registration order (idempotent).
+
+        Registration order is tracked separately from `_lazy_plugins` /
+        `_loaded_plugins` because loading a lazy plugin moves it between
+        those dicts, scrambling any order derived from them.
+        """
+        if name not in self._registration_order:
+            self._registration_order.append(name)
 
     def register(self, name: str, plugin: T) -> None:
         """Register a plugin class directly.
@@ -65,6 +76,7 @@ class PluginRegistry(typing.Generic[T]):
             ```
         """
         self._loaded_plugins[name] = plugin
+        self._track_registration(name)
 
     def register_lazy(self, name: str, import_path: str) -> None:
         """Register a plugin for lazy loading.
@@ -89,6 +101,7 @@ class PluginRegistry(typing.Generic[T]):
                 f'Expected format: "module.path:ClassName"'
             )
         self._lazy_plugins[name] = import_path
+        self._track_registration(name)
 
     def get(self, name: str) -> T | None:
         """Get a plugin by name, loading it if necessary.
@@ -152,6 +165,34 @@ class PluginRegistry(typing.Generic[T]):
         names = set(self._loaded_plugins.keys()) | set(self._lazy_plugins.keys())
         return sorted(names)
 
+    def list_available_in_registration_order(self) -> list[str]:
+        """List all available plugin names in registration order.
+
+        Unlike `list_available` (which is sorted, for display), this
+        preserves the order in which plugins were registered. Callers
+        that depend on precedence — e.g. file-format auto-detection,
+        where a more specific reader must be checked before a more
+        general one — should iterate this list.
+
+        Returns:
+            List of all registered plugin names, earliest-registered
+            first.
+
+        Examples:
+            ```python
+            registry.list_available_in_registration_order()
+            ```
+        """
+        if not self._entry_points_loaded:
+            self._load_entry_points()
+
+        available = set(self._loaded_plugins.keys()) | set(self._lazy_plugins.keys())
+        ordered = [name for name in self._registration_order if name in available]
+        # Defensive: surface any available name that was never tracked
+        # (should not happen) so it is never silently dropped.
+        remaining = sorted(available - set(ordered))
+        return ordered + remaining
+
     def list_loaded(self) -> list[str]:
         """List plugins that have been loaded into memory.
 
@@ -202,3 +243,4 @@ class PluginRegistry(typing.Generic[T]):
                 and entry_point.name not in self._loaded_plugins
             ):
                 self._lazy_plugins[entry_point.name] = entry_point.value
+                self._track_registration(entry_point.name)

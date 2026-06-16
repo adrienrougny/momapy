@@ -45,6 +45,11 @@ __all__ = [
 ]
 
 
+# Registration order is significant: `read()` auto-detection checks readers
+# in this order and uses the first whose `check_file` accepts the file. A more
+# specific reader must come before a more general one it specializes. In
+# particular a CellDesigner file is also a valid SBML file, so "celldesigner"
+# must be registered before "sbml".
 for name, import_path in [
     ("sbgnml", "momapy.sbgn.io.sbgnml.reader:SBGNML0_3Reader"),
     ("sbgnml-0.2", "momapy.sbgn.io.sbgnml.reader:SBGNML0_2Reader"),

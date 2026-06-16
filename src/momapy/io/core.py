@@ -210,9 +210,12 @@ def read(
 ) -> ReaderResult:
     """Read a map file.
 
-    If reader is specified, uses that reader. Otherwise, checks all registered
-    readers to find one that supports the file format using their check_file
-    method. Uses the first matching reader found.
+    If reader is specified, uses that reader. Otherwise, checks registered
+    readers in registration order and uses the first whose check_file method
+    accepts the file. Registration order matters: a more specific reader must
+    be registered before a more general one it specializes. For example a
+    CellDesigner file is also a valid SBML file, so the CellDesigner reader is
+    registered (and therefore checked) before the SBML reader.
 
     Args:
         file_path: Path of the file to read.
@@ -237,7 +240,7 @@ def read(
         reader_cls = get_reader(reader)
     else:
         reader_cls = None
-        for name in reader_registry.list_available():
+        for name in reader_registry.list_available_in_registration_order():
             candidate_cls = get_reader(name)
             if candidate_cls.check_file(file_path):
                 reader_cls = candidate_cls

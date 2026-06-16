@@ -159,7 +159,7 @@ Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `moma
 ## Plugins (`src/momapy/plugins/`)
 
 ### `src/momapy/plugins/core.py`
-- `PluginRegistry(Generic[T])` — `register(name, plugin)`, `register_lazy(name, import_path)`, `get(name) -> T|None`, `is_available(name) -> bool`, `list_available() -> list[str]`, `list_loaded() -> list[str]`.
+- `PluginRegistry(Generic[T])` — `register(name, plugin)`, `register_lazy(name, import_path)`, `get(name) -> T|None`, `is_available(name) -> bool`, `list_available() -> list[str]` (sorted, for display), `list_available_in_registration_order() -> list[str]` (registration order; used by `read()` auto-detection so a more specific reader registered first wins), `list_loaded() -> list[str]`.
 
 ---
 
