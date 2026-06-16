@@ -230,6 +230,16 @@ Every `LayoutElement` (frozen dataclass) must implement:
 
 Readers and writers for each format (SBGN-ML, CellDesigner) follow a shared architecture.
 
+### Public surface
+
+The public I/O surface is exactly: `read`/`write`, `Reader`/`Writer`, the
+`get_*`/`list_*`/`register_*` registry functions, the context dataclasses
+(`ReadingContext`/`WritingContext`), and `ReaderResult`/`WriterResult`. The
+`make_*` functions in the `_reading_*`/`_writing_*`/`reader.py`/`writer.py`
+modules are **internal helpers**, not part of the public contract — they are
+inventoried in `API_REFERENCE.md` for maintainer orientation only and may change
+without a deprecation cycle.
+
 ### Module structure
 
 Each format lives in its own subpackage (e.g. `sbgn/io/sbgnml/`, `celldesigner/io/celldesigner/`) with:
@@ -384,7 +394,7 @@ Write implementation plans to `./plans/` as markdown files. Use descriptive file
 - Mark slow tests with `@pytest.mark.slow`
 - Use conventional commits
 - Break the API when needed — we are still in a 0.X version
-- Keep `API_REFERENCE.md` in sync — when you add, rename, remove, or re-signature a public class, function, field, or re-export (including public `make_*` I/O functions), update its entry in `API_REFERENCE.md` (and any "Available …" module docstring) as part of the same change
+- Keep `API_REFERENCE.md` in sync — when you add, rename, remove, or re-signature a public class, function, field, or re-export (or one of the internal `make_*` I/O helpers it inventories), update its entry in `API_REFERENCE.md` (and any "Available …" module docstring) as part of the same change
 
 **DON'T:**
 

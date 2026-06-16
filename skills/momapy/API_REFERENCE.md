@@ -2,9 +2,9 @@
 
 Condensed module-by-module inventory of public classes and function signatures for fast orientation in future Claude Code sessions. Pairs with `CLAUDE.md` (which covers architecture, conventions, and I/O patterns); this file covers the *surface*.
 
-**Scope**: every Python source file under `src/momapy/`. Private helpers (`_reading_*`, `_writing_*`) are included because CLAUDE.md marks their `make_*` functions as the module's public contract. Large glyph/shape families are summarized rather than enumerated exhaustively.
+**Scope**: every Python source file under `src/momapy/`. Private helpers (`_reading_*`, `_writing_*`) are included because their `make_*` functions are inventoried here for maintainer orientation — they are internal helpers, not part of the public I/O contract. Large glyph/shape families are summarized rather than enumerated exhaustively.
 
-**When this drifts**: regenerate by launching three Explore agents in parallel (one for `core/` + top-level + `meta/` + `rendering/` + `io/` + `plugins/`, one for `sbgn/*`, one for `celldesigner/*` + `sbml/*`), asking each for signatures as-written in this same Markdown format. Include `make_*` private helpers — they are the public contract of the `_reading_*`/`_writing_*` modules per CLAUDE.md. Expect drift on every substantive refactor of `core/`, `io/`, or a format subtree.
+**When this drifts**: regenerate by launching three Explore agents in parallel (one for `core/` + top-level + `meta/` + `rendering/` + `io/` + `plugins/`, one for `sbgn/*`, one for `celldesigner/*` + `sbml/*`), asking each for signatures as-written in this same Markdown format. Include `make_*` private helpers — they are internal helpers of the `_reading_*`/`_writing_*` modules, inventoried here for maintainer orientation. Expect drift on every substantive refactor of `core/`, `io/`, or a format subtree.
 
 ---
 
@@ -298,7 +298,7 @@ Purpose: SBGN-AF model classes.
 - `SBGNML0_3Writer(_SBGNMLWriter)` — registered as `sbgnml-0.3` and `sbgnml`.
 - Module-level `make_sbgnml_map(writing_context)` plus private builders `_get_layout_elements`, `_get_frozenset_keys`, `_get_child_layout_element`, `_make_sbgnml_glyph`, `_make_sbgnml_arc_element`.
 
-### `src/momapy/sbgn/io/sbgnml/_reading_model.py` (`make_*` public contract)
+### `src/momapy/sbgn/io/sbgnml/_reading_model.py` (`make_*` internal helpers)
 - `make_annotations_from_element(sbgnml_element)`, `make_notes_from_element(sbgnml_element)`, `make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element)`
 - `set_label(model_element, sbgnml_element)`, `set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element)`, `set_stoichiometry(model_element, sbgnml_stoichiometry)`
 - `make_compartment(reading_context, sbgnml_compartment)`
@@ -504,5 +504,5 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Frozen dataclasses everywhere**: mutate only via builders (`builder_from_object` → change → `build()`).
 - **`Model` is a `MapElement`, never a `ModelElement`** in any format. `model.descendants()` traverses the `Model` directly by field walking, and the `Model` itself is excluded from its own element set.
 - **Equality on elements**: structural (all fields except `id_`, `metaid`); dedup during read relies on it.
-- **I/O `make_*` functions** are the public contract of `_reading_*` / `_writing_*` modules despite the underscore filenames.
+- **I/O `make_*` functions** are internal helpers of the `_reading_*` / `_writing_*` modules (underscore filenames), inventoried here for maintainer orientation — not part of the public I/O contract (which is `read`/`write`, `Reader`/`Writer`, `get_*`/`list_*`/`register_*`, the context dataclasses, and `ReaderResult`/`WriterResult`).
 - **ReaderResult public dicts**: `id_to_element`, `source_id_to_model_element`, `source_id_to_layout_element` — the SBGN and CellDesigner readers populate both `source_id_to_*` dicts; the split ensures alias ids appear only on the layout side and SBML ids only on the model side for CellDesigner (via `real_model_source_ids` / `real_layout_source_ids` in `build_id_mappings`).
