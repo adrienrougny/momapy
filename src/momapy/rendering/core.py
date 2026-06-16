@@ -316,9 +316,12 @@ def render_maps(
 class Renderer(abc.ABC):
     """Base class for renderers.
 
-    The abstract contract is the six render-session methods only
-    (``begin_session``, ``end_session``, ``new_page``, ``render_map``,
-    ``render_layout_element``, ``render_drawing_element``). File output is a
+    The abstract contract is the five render-session methods only
+    (``begin_session``, ``end_session``, ``new_page``,
+    ``render_layout_element``, ``render_drawing_element``). ``render_map`` is
+    a concrete convenience method (it renders ``map_.layout`` via
+    ``render_layout_element``), so backends need not implement it. File
+    output is a
     separate capability provided by the :class:`SupportsFileOutput` mixin, not a
     base-class obligation: a renderer that does not target a file (in-memory
     surface, interactive canvas, null/test renderer) subclasses ``Renderer``
@@ -354,14 +357,21 @@ class Renderer(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
     def render_map(self, map_: momapy.core.map.Map) -> None:
         """Render a map.
+
+        This is a convenience method, **not** part of the abstract
+        contract: the default implementation renders the map's layout via
+        :meth:`render_layout_element`, which is what every built-in backend
+        needs. Subclasses may override it if a backend requires
+        map-specific handling, but they are not obliged to. The file
+        pipeline (:func:`render_map`/:func:`render_maps`) does not call this
+        method — it renders each page through :meth:`render_layout_element`.
 
         Args:
             map_: The map to render.
         """
-        pass
+        self.render_layout_element(map_.layout)
 
     @abc.abstractmethod
     def render_layout_element(

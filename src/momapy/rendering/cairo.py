@@ -193,14 +193,6 @@ class CairoRenderer(
             surface = self.context.get_target()
             surface.set_size(width, height)
 
-    def render_map(self, map_):
-        """Render a map to the output.
-
-        Args:
-            map_: The map to render
-        """
-        self.render_layout_element(map_.layout)
-
     def render_layout_element(self, layout_element):
         """Render a layout element to the output.
 

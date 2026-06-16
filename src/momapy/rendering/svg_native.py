@@ -9,7 +9,6 @@ import xml.sax.saxutils
 import typing_extensions
 
 import momapy.core.elements
-import momapy.core.map
 import momapy.drawing
 import momapy.geometry
 import momapy.rendering.core
@@ -279,14 +278,6 @@ class SVGNativeRenderer(
             SVG format does not support multiple pages. This method is a no-op.
         """
         pass
-
-    def render_map(self, map_: momapy.core.map.Map) -> None:
-        """Render a map to the output.
-
-        Args:
-            map_: The map to render
-        """
-        self.render_layout_element(map_.layout)
 
     def render_layout_element(
         self, layout_element: momapy.core.elements.LayoutElement

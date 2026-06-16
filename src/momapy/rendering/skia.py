@@ -220,14 +220,6 @@ class SkiaRenderer(
             canvas = self._config["document"].beginPage(width, height)
             self.canvas = canvas
 
-    def render_map(self, map_: momapy.core.map.Map) -> None:
-        """Render a map to the output.
-
-        Args:
-            map_: The map to render
-        """
-        self.render_layout_element(map_.layout)
-
     def render_layout_element(
         self, layout_element: momapy.core.elements.LayoutElement
     ) -> None:
