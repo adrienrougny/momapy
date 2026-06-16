@@ -80,12 +80,6 @@ import sys
 import tempfile
 import webbrowser
 
-import momapy.celldesigner.utils
-import momapy.sbgn.af
-import momapy.sbgn
-import momapy.sbgn.pd
-import momapy.sbgn.utils
-from momapy.celldesigner.map import CellDesignerMap
 from momapy.celldesigner.layout import (
     ComplexActiveLayout,
     ComplexLayout,
@@ -94,6 +88,52 @@ from momapy.celldesigner.layout import (
     RectangleCompartmentLayout,
     StructuralStateLayout,
 )
+from momapy.celldesigner.map import CellDesignerMap
+from momapy.celldesigner.utils import get_info as get_info_celldesigner
+from momapy.celldesigner.utils import (
+    set_arcs_to_borders as set_arcs_to_borders_celldesigner,
+)
+from momapy.celldesigner.utils import (
+    set_complexes_to_fit_content as set_complexes_to_fit_content_celldesigner,
+)
+from momapy.celldesigner.utils import (
+    set_compartments_to_fit_content as set_compartments_to_fit_content_celldesigner,
+)
+from momapy.celldesigner.utils import (
+    set_layout_to_fit_content as set_layout_to_fit_content_celldesigner,
+)
+from momapy.celldesigner.utils import set_modifications_to_borders
+from momapy.celldesigner.utils import (
+    set_nodes_to_fit_labels as set_nodes_to_fit_labels_celldesigner,
+)
+from momapy.celldesigner.utils import straighten_arcs
+from momapy.celldesigner.utils import tidy as tidy_celldesigner
+from momapy.sbgn import SBGNMap
+from momapy.sbgn.af import CompartmentLayout as CompartmentLayoutAf
+from momapy.sbgn.af import UnitOfInformationLayout as UnitOfInformationLayoutAf
+from momapy.sbgn.pd import CompartmentLayout as CompartmentLayoutPd
+from momapy.sbgn.pd import ComplexLayout as ComplexLayoutPd
+from momapy.sbgn.pd import StateVariableLayout as StateVariableLayoutPd
+from momapy.sbgn.pd import UnitOfInformationLayout as UnitOfInformationLayoutPd
+from momapy.sbgn.utils import get_info as get_info_sbgn
+from momapy.sbgn.utils import set_arcs_to_borders as set_arcs_to_borders_sbgn
+from momapy.sbgn.utils import set_auxiliary_units_to_borders
+from momapy.sbgn.utils import (
+    set_compartments_to_fit_content as set_compartments_to_fit_content_sbgn,
+)
+from momapy.sbgn.utils import (
+    set_complexes_to_fit_content as set_complexes_to_fit_content_sbgn,
+)
+from momapy.sbgn.utils import (
+    set_layout_to_fit_content as set_layout_to_fit_content_sbgn,
+)
+from momapy.sbgn.utils import (
+    set_nodes_to_fit_labels as set_nodes_to_fit_labels_sbgn,
+)
+from momapy.sbgn.utils import (
+    set_submaps_to_fit_content as set_submaps_to_fit_content_sbgn,
+)
+from momapy.sbgn.utils import tidy as tidy_sbgn
 
 
 _BUILTIN_PRESETS = {
@@ -151,16 +191,15 @@ def _translate_layout_element(layout_element, translation_x, translation_y):
         translation_x: The horizontal translation amount.
         translation_y: The vertical translation amount.
     """
-    import momapy.core.layout
-    import momapy.geometry
+    from momapy.geometry import Point
 
     if hasattr(layout_element, "position"):
-        layout_element.position = momapy.geometry.Point(
+        layout_element.position = Point(
             layout_element.position.x + translation_x,
             layout_element.position.y + translation_y,
         )
     if hasattr(layout_element, "label") and layout_element.label is not None:
-        layout_element.label.position = momapy.geometry.Point(
+        layout_element.label.position = Point(
             layout_element.label.position.x + translation_x,
             layout_element.label.position.y + translation_y,
         )
@@ -177,7 +216,7 @@ def _translate_layout_element(layout_element, translation_x, translation_y):
             ]:
                 if hasattr(segment, attribute_name):
                     point = getattr(segment, attribute_name)
-                    new_point_attributes[attribute_name] = momapy.geometry.Point(
+                    new_point_attributes[attribute_name] = Point(
                         point.x + translation_x,
                         point.y + translation_y,
                     )
@@ -200,16 +239,17 @@ def _move_map_to_top_left(map_):
     Returns:
         A new map with all layout positions translated to the top left.
     """
-    import momapy.builder
+    from momapy.builder import builder_from_object
+    from momapy.builder import object_from_builder
 
     bbox = map_.layout.bbox()
     min_x = bbox.x - bbox.width / 2
     min_y = bbox.y - bbox.height / 2
     if min_x == 0 and min_y == 0:
         return map_
-    map_builder = momapy.builder.builder_from_object(map_)
+    map_builder = builder_from_object(map_)
     _translate_layout_element(map_builder.layout, -min_x, -min_y)
-    return momapy.builder.object_from_builder(map_builder)
+    return object_from_builder(map_builder)
 
 
 def _infer_writer(map_):
@@ -226,7 +266,7 @@ def _infer_writer(map_):
     """
     if isinstance(map_, CellDesignerMap):
         return "celldesigner"
-    elif isinstance(map_, momapy.sbgn.SBGNMap):
+    elif isinstance(map_, SBGNMap):
         return "sbgnml"
     else:
         raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
@@ -247,7 +287,7 @@ def _run_tidy_operation(map_, args):
     """
     operation = args.tidy_operation
     is_celldesigner = isinstance(map_, CellDesignerMap)
-    is_sbgn = isinstance(map_, momapy.sbgn.SBGNMap)
+    is_sbgn = isinstance(map_, SBGNMap)
     if not is_celldesigner and not is_sbgn:
         raise ValueError(f"unsupported map type for tidy: {type(map_).__name__}")
     _default_sep = {
@@ -268,21 +308,21 @@ def _run_tidy_operation(map_, args):
     snap_arcs = not getattr(args, "no_snap_arcs", False)
     if operation == "all":
         if is_celldesigner:
-            return momapy.celldesigner.utils.tidy(
+            return tidy_celldesigner(
                 map_,
                 nodes_xsep=xsep,
                 nodes_ysep=ysep,
                 arcs_angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
         else:
-            return momapy.sbgn.utils.tidy(map_, nodes_xsep=xsep, nodes_ysep=ysep)
+            return tidy_sbgn(map_, nodes_xsep=xsep, nodes_ysep=ysep)
     elif operation == "fit-species":
         if not is_celldesigner:
             raise ValueError(
                 "fit-species is only supported for CellDesigner maps; "
                 "use fit-epns for SBGN maps"
             )
-        return momapy.celldesigner.utils.set_nodes_to_fit_labels(
+        return set_nodes_to_fit_labels_celldesigner(
             map_,
             xsep=xsep,
             ysep=ysep,
@@ -302,24 +342,24 @@ def _run_tidy_operation(map_, args):
                 "fit-epns is only supported for SBGN maps; "
                 "use fit-species for CellDesigner maps"
             )
-        return momapy.sbgn.utils.set_nodes_to_fit_labels(
+        return set_nodes_to_fit_labels_sbgn(
             map_,
             xsep=xsep,
             ysep=ysep,
             exclude=[
-                momapy.sbgn.pd.StateVariableLayout,
-                momapy.sbgn.pd.UnitOfInformationLayout,
-                momapy.sbgn.pd.ComplexLayout,
-                momapy.sbgn.pd.CompartmentLayout,
-                momapy.sbgn.af.UnitOfInformationLayout,
-                momapy.sbgn.af.CompartmentLayout,
+                StateVariableLayoutPd,
+                UnitOfInformationLayoutPd,
+                ComplexLayoutPd,
+                CompartmentLayoutPd,
+                UnitOfInformationLayoutAf,
+                CompartmentLayoutAf,
             ],
             snap_arcs=snap_arcs,
         )
     elif operation == "fit-auxiliary":
         if is_celldesigner:
-            map_ = momapy.celldesigner.utils.set_modifications_to_borders(map_)
-            return momapy.celldesigner.utils.set_nodes_to_fit_labels(
+            map_ = set_modifications_to_borders(map_)
+            return set_nodes_to_fit_labels_celldesigner(
                 map_,
                 xsep=xsep,
                 ysep=ysep,
@@ -330,60 +370,56 @@ def _run_tidy_operation(map_, args):
                 snap_arcs=snap_arcs,
             )
         else:
-            map_ = momapy.sbgn.utils.set_auxiliary_units_to_borders(map_)
-            return momapy.sbgn.utils.set_nodes_to_fit_labels(
+            map_ = set_auxiliary_units_to_borders(map_)
+            return set_nodes_to_fit_labels_sbgn(
                 map_,
                 xsep=xsep,
                 ysep=ysep,
                 restrict_to=[
-                    momapy.sbgn.pd.StateVariableLayout,
-                    momapy.sbgn.pd.UnitOfInformationLayout,
-                    momapy.sbgn.af.UnitOfInformationLayout,
+                    StateVariableLayoutPd,
+                    UnitOfInformationLayoutPd,
+                    UnitOfInformationLayoutAf,
                 ],
                 snap_arcs=snap_arcs,
             )
     elif operation == "fit-complexes":
         if is_celldesigner:
-            return momapy.celldesigner.utils.set_complexes_to_fit_content(
+            return set_complexes_to_fit_content_celldesigner(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
-            return momapy.sbgn.utils.set_complexes_to_fit_content(
+            return set_complexes_to_fit_content_sbgn(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
     elif operation == "fit-compartments":
         if is_celldesigner:
-            return momapy.celldesigner.utils.set_compartments_to_fit_content(
+            return set_compartments_to_fit_content_celldesigner(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
-            return momapy.sbgn.utils.set_compartments_to_fit_content(
+            return set_compartments_to_fit_content_sbgn(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
     elif operation == "fit-submaps":
         if is_sbgn:
-            return momapy.sbgn.utils.set_submaps_to_fit_content(
+            return set_submaps_to_fit_content_sbgn(
                 map_, xsep=xsep, ysep=ysep, snap_arcs=True
             )
         else:
             raise ValueError("fit-submaps is only supported for SBGN maps")
     elif operation == "fit-layout":
         if is_celldesigner:
-            return momapy.celldesigner.utils.set_layout_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
-            )
+            return set_layout_to_fit_content_celldesigner(map_, xsep=xsep, ysep=ysep)
         else:
-            return momapy.sbgn.utils.set_layout_to_fit_content(
-                map_, xsep=xsep, ysep=ysep
-            )
+            return set_layout_to_fit_content_sbgn(map_, xsep=xsep, ysep=ysep)
     elif operation == "snap-arcs":
         if is_celldesigner:
-            return momapy.celldesigner.utils.set_arcs_to_borders(map_)
+            return set_arcs_to_borders_celldesigner(map_)
         else:
-            return momapy.sbgn.utils.set_arcs_to_borders(map_)
+            return set_arcs_to_borders_sbgn(map_)
     elif operation == "straighten-arcs":
         if is_celldesigner:
-            return momapy.celldesigner.utils.straighten_arcs(
+            return straighten_arcs(
                 map_,
                 angle_tolerance=getattr(args, "angle_tolerance", 5.0),
             )
@@ -408,10 +444,10 @@ def _read_input(input_file_path):
     Returns:
         A ``ReaderResult`` containing the parsed map and metadata.
     """
-    import momapy.io.core
+    from momapy.io.core import read
 
     if input_file_path is not None:
-        return momapy.io.core.read(input_file_path)
+        return read(input_file_path)
     if sys.stdin.isatty():
         print(
             "error: no input file and stdin is not a pipe",
@@ -426,7 +462,7 @@ def _read_input(input_file_path):
             sys.exit(1)
         temporary_file.write(data)
         temporary_file.close()
-        return momapy.io.core.read(temporary_file.name)
+        return read(temporary_file.name)
     finally:
         os.remove(temporary_file.name)
 
@@ -439,13 +475,13 @@ def _write_xml_to_stdout(map_, writer):
         writer: The writer name to use (e.g. ``"sbgnml"``,
             ``"celldesigner"``).
     """
-    import momapy.io.core
+    from momapy.io.core import write
 
     temporary_file = tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False)
     temporary_file_path = temporary_file.name
     temporary_file.close()
     try:
-        momapy.io.core.write(map_, temporary_file_path, writer=writer)
+        write(map_, temporary_file_path, writer=writer)
         with open(temporary_file_path, "r") as file_handle:
             sys.stdout.write(file_handle.read())
     finally:
@@ -467,11 +503,11 @@ def _write_output(map_, reader_result, output_file_path):
         output_file_path: Path to the output file, or ``None`` for
             stdout.
     """
-    import momapy.io.core
+    from momapy.io.core import write
 
     writer = _infer_writer(map_)
     if output_file_path:
-        momapy.io.core.write(
+        write(
             map_,
             output_file_path,
             writer=writer,
@@ -555,7 +591,8 @@ def _extract_element_metadata(
         A dictionary mapping element IDs to metadata dicts with keys
         ``type``, ``label``, ``model_id``, and ``parent_id``.
     """
-    import momapy.core.layout
+    from momapy.core.layout import Node
+    from momapy.core.layout import TextLayout
 
     if layout_id_to_model_id is None:
         layout_id_to_model_id = {}
@@ -563,12 +600,9 @@ def _extract_element_metadata(
     element_id = str(layout_element.id_)
     element_type = type(layout_element).__name__
     label_text = None
-    if (
-        isinstance(layout_element, momapy.core.layout.Node)
-        and layout_element.label is not None
-    ):
+    if isinstance(layout_element, Node) and layout_element.label is not None:
         label_text = layout_element.label.text
-    elif isinstance(layout_element, momapy.core.layout.TextLayout):
+    elif isinstance(layout_element, TextLayout):
         label_text = layout_element.text
     model_id = layout_id_to_model_id.get(element_id)
     metadata[element_id] = {
@@ -604,55 +638,58 @@ def _render_svg_string(layout_element, style_sheet=None, to_top_left=False):
     Returns:
         The SVG markup as a string.
     """
-    import momapy.builder
-    import momapy.geometry
-    import momapy.rendering.svg_native
-    import momapy.styling
+    from momapy.builder import builder_from_object
+    from momapy.geometry import Translation
+    from momapy.rendering.svg_native import SVGElement
+    from momapy.rendering.svg_native import SVGNativeRenderer
+    from momapy.styling import StyleSheet
+    from momapy.styling import apply_style_sheet
+    from momapy.styling import combine_style_sheets
 
     bbox = layout_element.bbox()
     maximum_x = bbox.x + bbox.width / 2
     maximum_y = bbox.y + bbox.height / 2
     if style_sheet is not None or to_top_left:
-        layout_element = momapy.builder.builder_from_object(layout_element)
+        layout_element = builder_from_object(layout_element)
         if style_sheet is not None:
             if (
                 not isinstance(style_sheet, collections.abc.Collection)
                 or isinstance(style_sheet, str)
-                or isinstance(style_sheet, momapy.styling.StyleSheet)
+                or isinstance(style_sheet, StyleSheet)
             ):
                 style_sheets = [style_sheet]
             else:
                 style_sheets = list(style_sheet)
             style_sheets = [
                 (
-                    momapy.styling.StyleSheet.from_file(single_style_sheet)
-                    if not isinstance(single_style_sheet, momapy.styling.StyleSheet)
+                    StyleSheet.from_file(single_style_sheet)
+                    if not isinstance(single_style_sheet, StyleSheet)
                     else single_style_sheet
                 )
                 for single_style_sheet in style_sheets
             ]
-            combined_style_sheet = momapy.styling.combine_style_sheets(style_sheets)
-            momapy.styling.apply_style_sheet(layout_element, combined_style_sheet)
+            combined_style_sheet = combine_style_sheets(style_sheets)
+            apply_style_sheet(layout_element, combined_style_sheet)
         if to_top_left:
             min_x = bbox.x - bbox.width / 2
             min_y = bbox.y - bbox.height / 2
             maximum_x -= min_x
             maximum_y -= min_y
-            translation = momapy.geometry.Translation(-min_x, -min_y)
+            translation = Translation(-min_x, -min_y)
             for attribute_name in ["group_transform", "transform"]:
                 if hasattr(layout_element, attribute_name):
                     if getattr(layout_element, attribute_name) is None:
                         setattr(layout_element, attribute_name, [])
                     getattr(layout_element, attribute_name).append(translation)
                     break
-    svg_element = momapy.rendering.svg_native.SVGElement(
+    svg_element = SVGElement(
         name="svg",
         attributes={
             "xmlns": "http://www.w3.org/2000/svg",
             "viewBox": f"0 0 {maximum_x} {maximum_y}",
         },
     )
-    renderer = momapy.rendering.svg_native.SVGNativeRenderer(
+    renderer = SVGNativeRenderer(
         svg=svg_element,
         config={},
     )
@@ -1210,21 +1247,22 @@ def run(args):
         ```
     """
     if args.subcommand == "render":
-        import momapy.builder
-        import momapy.io.core
-        import momapy.rendering
-        import momapy.rendering.core
-        import momapy.styling
+        from momapy.builder import builder_from_object
+        from momapy.builder import object_from_builder
+        from momapy.rendering.core import render_layout_elements
+        from momapy.styling import StyleSheet
+        from momapy.styling import apply_style_sheet
+        from momapy.styling import combine_style_sheets
 
         format_ = args.format
         renderer = args.renderer
         if args.style_sheet_file_path:
             style_sheets = [
-                momapy.styling.StyleSheet.from_file(style_sheet_file_path)
+                StyleSheet.from_file(style_sheet_file_path)
                 for style_sheet_file_path in args.style_sheet_file_path
             ]
             if len(style_sheets) > 1:
-                style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+                style_sheet = combine_style_sheets(style_sheets)
             else:
                 style_sheet = style_sheets[0]
         else:
@@ -1234,17 +1272,17 @@ def run(args):
         for input_file_path in input_file_paths:
             map_ = _read_input(input_file_path).obj
             if style_sheet is not None:
-                map_builder = momapy.builder.builder_from_object(map_)
-                momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
-                map_ = momapy.builder.object_from_builder(map_builder)
+                map_builder = builder_from_object(map_)
+                apply_style_sheet(map_builder.layout, style_sheet)
+                map_ = object_from_builder(map_builder)
             if args.tidy:
                 if isinstance(map_, CellDesignerMap):
-                    map_ = momapy.celldesigner.utils.tidy(map_)
-                elif isinstance(map_, momapy.sbgn.SBGNMap):
-                    map_ = momapy.sbgn.utils.tidy(map_)
+                    map_ = tidy_celldesigner(map_)
+                elif isinstance(map_, SBGNMap):
+                    map_ = tidy_sbgn(map_)
             layout = map_.layout
             layouts.append(layout)
-        momapy.rendering.core.render_layout_elements(
+        render_layout_elements(
             layout_elements=layouts,
             file_path=args.output_file_path,
             format_=format_,
@@ -1253,41 +1291,40 @@ def run(args):
             multi_pages=args.multi_pages,
         )
     elif args.subcommand == "export":
-        import momapy.builder
-        import momapy.io.core
-        import momapy.styling
+        from momapy.builder import builder_from_object
+        from momapy.styling import StyleSheet
+        from momapy.styling import apply_style_sheet
+        from momapy.styling import combine_style_sheets
 
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         if args.style_sheet_file_path:
             style_sheets = [
-                momapy.styling.StyleSheet.from_file(style_sheet_file_path)
+                StyleSheet.from_file(style_sheet_file_path)
                 for style_sheet_file_path in args.style_sheet_file_path
             ]
             if len(style_sheets) > 1:
-                style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+                style_sheet = combine_style_sheets(style_sheets)
             else:
                 style_sheet = style_sheets[0]
-            map_builder = momapy.builder.builder_from_object(map_)
-            momapy.styling.apply_style_sheet(map_builder, style_sheet)
+            map_builder = builder_from_object(map_)
+            apply_style_sheet(map_builder, style_sheet)
             map_ = map_builder.build()
         if args.tidy:
             if isinstance(map_, CellDesignerMap):
-                map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.SBGNMap):
-                map_ = momapy.sbgn.utils.tidy(map_)
+                map_ = tidy_celldesigner(map_)
+            elif isinstance(map_, SBGNMap):
+                map_ = tidy_sbgn(map_)
         if args.to_top_left:
             map_ = _move_map_to_top_left(map_)
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "info":
-        import momapy.io.core
-
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         if isinstance(map_, CellDesignerMap):
-            info = momapy.celldesigner.utils.get_info(map_)
-        elif isinstance(map_, momapy.sbgn.SBGNMap):
-            info = momapy.sbgn.utils.get_info(map_)
+            info = get_info_celldesigner(map_)
+        elif isinstance(map_, SBGNMap):
+            info = get_info_sbgn(map_)
         else:
             raise ValueError(f"unsupported map type: {type(map_).__name__}")
         info["file"] = str(args.input_file_path) if args.input_file_path else "<stdin>"
@@ -1318,15 +1355,17 @@ def run(args):
     elif args.subcommand == "list":
         list_subcommand = args.list_subcommand
         if list_subcommand in ("readers", "writers", "renderers"):
-            import momapy.io
-            import momapy.rendering
+            from momapy.io import list_readers
+            from momapy.io import list_writers
+            from momapy.rendering import get_renderer
+            from momapy.rendering import list_renderers
 
             if list_subcommand == "readers":
-                names = momapy.io.list_readers()
+                names = list_readers()
             elif list_subcommand == "writers":
-                names = momapy.io.list_writers()
+                names = list_writers()
             else:
-                names = momapy.rendering.list_renderers()
+                names = list_renderers()
             if not names:
                 print(f"No {list_subcommand} available.")
                 return
@@ -1334,7 +1373,7 @@ def run(args):
                 line = name
                 if list_subcommand == "renderers":
                     try:
-                        renderer_cls = momapy.rendering.get_renderer(name)
+                        renderer_cls = get_renderer(name)
                         formats = ", ".join(
                             getattr(renderer_cls, "supported_formats", [])
                         )
@@ -1343,18 +1382,18 @@ def run(args):
                         line = f"{name} (not installed)"
                 print(line)
         elif list_subcommand == "colors":
-            import momapy.coloring
+            from momapy.coloring import print_colors
 
-            momapy.coloring.print_colors()
+            print_colors()
         elif list_subcommand == "styles":
             for name in sorted(_BUILTIN_PRESETS):
                 description = _BUILTIN_PRESETS[name][0]
                 print(f"{name:<25s}{description}")
         elif list_subcommand == "attributes":
-            import momapy.styling
+            from momapy.styling import get_stylable_attributes
 
             try:
-                attributes = momapy.styling.get_stylable_attributes(
+                attributes = get_stylable_attributes(
                     args.class_path,
                     presentation_only=args.presentation_only,
                 )
@@ -1364,16 +1403,15 @@ def run(args):
             for attribute in attributes:
                 print(attribute)
     elif args.subcommand == "tidy":
-        import momapy.io.core
-
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         map_ = _run_tidy_operation(map_, args)
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "style":
-        import momapy.builder
-        import momapy.io.core
-        import momapy.styling
+        from momapy.builder import builder_from_object
+        from momapy.styling import StyleSheet
+        from momapy.styling import apply_style_sheet
+        from momapy.styling import combine_style_sheets
 
         style_sources = getattr(args, "style_sources", None) or []
         if not style_sources:
@@ -1396,40 +1434,44 @@ def run(args):
                 module = importlib.import_module(module_name)
                 style_sheets.append(getattr(module, attribute_name))
             else:
-                style_sheets.append(momapy.styling.StyleSheet.from_file(value))
+                style_sheets.append(StyleSheet.from_file(value))
         if len(style_sheets) > 1:
-            style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+            style_sheet = combine_style_sheets(style_sheets)
         else:
             style_sheet = style_sheets[0]
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
-        map_builder = momapy.builder.builder_from_object(map_)
-        momapy.styling.apply_style_sheet(map_builder, style_sheet)
+        map_builder = builder_from_object(map_)
+        apply_style_sheet(map_builder, style_sheet)
         map_ = map_builder.build()
         _write_output(map_, reader_result, args.output_file_path)
     elif args.subcommand == "visualize":
-        import momapy.styling
+        from momapy.builder import builder_from_object
+        from momapy.builder import object_from_builder
+        from momapy.styling import StyleSheet
+        from momapy.styling import apply_style_sheet
+        from momapy.styling import combine_style_sheets
 
         reader_result = _read_input(args.input_file_path)
         map_ = reader_result.obj
         style_sheet = None
         if args.style_sheet_file_path:
             style_sheets = [
-                momapy.styling.StyleSheet.from_file(style_sheet_file_path)
+                StyleSheet.from_file(style_sheet_file_path)
                 for style_sheet_file_path in args.style_sheet_file_path
             ]
             if len(style_sheets) > 1:
-                style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+                style_sheet = combine_style_sheets(style_sheets)
             else:
                 style_sheet = style_sheets[0]
-            map_builder = momapy.builder.builder_from_object(map_)
-            momapy.styling.apply_style_sheet(map_builder.layout, style_sheet)
-            map_ = momapy.builder.object_from_builder(map_builder)
+            map_builder = builder_from_object(map_)
+            apply_style_sheet(map_builder.layout, style_sheet)
+            map_ = object_from_builder(map_builder)
         if args.tidy:
             if isinstance(map_, CellDesignerMap):
-                map_ = momapy.celldesigner.utils.tidy(map_)
-            elif isinstance(map_, momapy.sbgn.SBGNMap):
-                map_ = momapy.sbgn.utils.tidy(map_)
+                map_ = tidy_celldesigner(map_)
+            elif isinstance(map_, SBGNMap):
+                map_ = tidy_sbgn(map_)
         _visualize_map(
             map_=map_,
             input_file_path=args.input_file_path,

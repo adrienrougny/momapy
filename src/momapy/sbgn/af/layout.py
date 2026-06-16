@@ -8,10 +8,6 @@ suffix appended (e.g. model ``BiologicalActivity`` gives layout
 import dataclasses
 import typing
 
-import momapy.meta.arcs
-import momapy.meta.shapes
-import momapy.sbgn.pd.layout
-
 from momapy.core.elements import Direction
 from momapy.drawing import (
     LineTo,
@@ -19,6 +15,28 @@ from momapy.drawing import (
     Path,
 )
 from momapy.geometry import Point
+from momapy.meta.arcs import Bar as BarArc
+from momapy.meta.arcs import Diamond as DiamondArc
+from momapy.meta.arcs import PolyLine as PolyLineArc
+from momapy.meta.arcs import Triangle as TriangleArc
+from momapy.meta.shapes import Ellipse as EllipseShape
+from momapy.meta.shapes import Rectangle as RectangleShape
+from momapy.meta.shapes import Triangle as TriangleShape
+from momapy.sbgn.pd.layout import CompartmentLayout as PDCompartmentLayout
+from momapy.sbgn.pd.layout import ComplexLayout as PDComplexLayout
+from momapy.sbgn.pd.layout import MacromoleculeLayout as PDMacromoleculeLayout
+from momapy.sbgn.pd.layout import (
+    NucleicAcidFeatureLayout as PDNucleicAcidFeatureLayout,
+)
+from momapy.sbgn.pd.layout import PerturbingAgentLayout as PDPerturbingAgentLayout
+from momapy.sbgn.pd.layout import PhenotypeLayout as PDPhenotypeLayout
+from momapy.sbgn.pd.layout import SimpleChemicalLayout as PDSimpleChemicalLayout
+from momapy.sbgn.pd.layout import SubmapLayout as PDSubmapLayout
+from momapy.sbgn.pd.layout import TagLayout as PDTagLayout
+from momapy.sbgn.pd.layout import TerminalLayout as PDTerminalLayout
+from momapy.sbgn.pd.layout import (
+    UnspecifiedEntityLayout as PDUnspecifiedEntityLayout,
+)
 from momapy.sbgn.elements import (
     SBGNNode,
     SBGNSingleHeadedArc,
@@ -47,7 +65,7 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     height: float = 12.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Rectangle(
+        return RectangleShape(
             position=self.position,
             width=self.width,
             height=self.height,
@@ -62,7 +80,7 @@ class UnspecifiedEntityUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     height: float = 12.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.UnspecifiedEntityLayout._make_shape(self)
+        return PDUnspecifiedEntityLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -73,7 +91,7 @@ class SimpleChemicalUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     height: float = 12.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.SimpleChemicalLayout._make_shape(self)
+        return PDSimpleChemicalLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -85,7 +103,7 @@ class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     rounded_corners: float = 3.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.MacromoleculeLayout._make_shape(self)
+        return PDMacromoleculeLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -97,7 +115,7 @@ class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     rounded_corners: float = 3.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.NucleicAcidFeatureLayout._make_shape(self)
+        return PDNucleicAcidFeatureLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -109,7 +127,7 @@ class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     cut_corners: float = 3.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.ComplexLayout._make_shape(self)
+        return PDComplexLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -121,7 +139,7 @@ class PerturbationUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     angle: float = 70.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.PerturbingAgentLayout._make_shape(self)
+        return PDPerturbingAgentLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -134,7 +152,7 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
     angle: float = 70.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.TerminalLayout._make_shape(self)
+        return PDTerminalLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -147,7 +165,7 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
     border_stroke_width: float | None = 3.25
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.CompartmentLayout._make_shape(self)
+        return PDCompartmentLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -159,7 +177,7 @@ class SubmapLayout(_SimpleMixin, SBGNNode):
     border_stroke_width: float | None = 2.25
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.SubmapLayout._make_shape(self)
+        return PDSubmapLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -170,7 +188,7 @@ class BiologicalActivityLayout(_SimpleMixin, SBGNNode):
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Rectangle(
+        return RectangleShape(
             position=self.position, width=self.width, height=self.height
         )
 
@@ -184,7 +202,7 @@ class PhenotypeLayout(_SimpleMixin, SBGNNode):
     angle: float = 70.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.PhenotypeLayout._make_shape(self)
+        return PDPhenotypeLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -202,7 +220,7 @@ class AndOperatorLayout(
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Ellipse(
+        return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
 
@@ -222,7 +240,7 @@ class OrOperatorLayout(
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Ellipse(
+        return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
 
@@ -242,7 +260,7 @@ class NotOperatorLayout(
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Ellipse(
+        return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
 
@@ -262,13 +280,13 @@ class DelayOperatorLayout(
     height: float = 30.0
 
     def _make_shape(self):
-        return momapy.meta.shapes.Ellipse(
+        return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class TagLayout(momapy.sbgn.pd.layout.TagLayout):
+class TagLayout(PDTagLayout):
     """Layout for tags."""
 
     width: float = 35.0
@@ -277,7 +295,7 @@ class TagLayout(momapy.sbgn.pd.layout.TagLayout):
     angle: float = 70.0
 
     def _make_shape(self):
-        return momapy.sbgn.pd.layout.TagLayout._make_shape(self)
+        return PDTagLayout._make_shape(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -288,7 +306,7 @@ class UnknownInfluenceLayout(SBGNSingleHeadedArc):
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Diamond._arrowhead_border_drawing_elements(self)
+        return DiamondArc._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -299,7 +317,7 @@ class PositiveInfluenceLayout(SBGNSingleHeadedArc):
     arrowhead_width: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Triangle._arrowhead_border_drawing_elements(self)
+        return TriangleArc._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -322,7 +340,7 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
             LineTo(Point(self.arrowhead_sep, 0)),
         ]
         sep = Path(actions=actions)
-        triangle = momapy.meta.shapes.Triangle(
+        triangle = TriangleShape(
             position=Point(self.arrowhead_sep + self.arrowhead_triangle_width / 2, 0),
             width=self.arrowhead_triangle_width,
             height=self.arrowhead_triangle_height,
@@ -338,7 +356,7 @@ class NegativeInfluenceLayout(SBGNSingleHeadedArc):
     arrowhead_height: float = 10.0
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.Bar._arrowhead_border_drawing_elements(self)
+        return BarArc._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -346,7 +364,7 @@ class LogicArcLayout(SBGNSingleHeadedArc):
     """Layout for logic arcs."""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
+        return PolyLineArc._arrowhead_border_drawing_elements(self)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -354,4 +372,4 @@ class EquivalenceArcLayout(SBGNSingleHeadedArc):
     """Layout for equivalence arcs."""
 
     def _arrowhead_border_drawing_elements(self):
-        return momapy.meta.arcs.PolyLine._arrowhead_border_drawing_elements(self)
+        return PolyLineArc._arrowhead_border_drawing_elements(self)

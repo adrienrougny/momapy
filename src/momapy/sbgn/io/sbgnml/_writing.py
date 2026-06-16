@@ -4,7 +4,9 @@ import re
 
 import lxml.etree
 
-import momapy.sbml.io.sbml._qualifiers
+from momapy.sbml.io.sbml._qualifiers import (
+    QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE,
+)
 
 NSMAP = {
     None: "http://sbgn.org/libsbgn/0.3",
@@ -143,11 +145,7 @@ def make_sbgnml_annotation(annotations, sbgnml_id):
     )
     sbgnml_rdf.append(sbgnml_description)
     for annotation in annotations:
-        namespace, tag = (
-            momapy.sbml.io.sbml._qualifiers.QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[
-                annotation.qualifier
-            ]
-        )
+        namespace, tag = QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE[annotation.qualifier]
         sbgnml_bq = make_lxml_element(tag=tag, namespace=namespace)
         sbgnml_description.append(sbgnml_bq)
         sbgnml_bag = make_lxml_element(tag="Bag", namespace=NSMAP["rdf"])

@@ -4,16 +4,32 @@ import abc
 import dataclasses
 import typing
 
-import momapy.builder
-import momapy.coloring
-import momapy.core.elements
-import momapy.core.layout
-import momapy.drawing
-import momapy.geometry
+from momapy.builder import issubclass_or_builder
+from momapy.coloring import Color
+from momapy.coloring import black
+from momapy.coloring import white
+from momapy.core.elements import Direction
+from momapy.core.elements import ModelElement
+from momapy.core.layout import DoubleHeadedArc
+from momapy.core.layout import Node
+from momapy.core.layout import SingleHeadedArc
+from momapy.core.layout import TextLayout
+from momapy.drawing import DEFAULT_FONT_FAMILY
+from momapy.drawing import Filter
+from momapy.drawing import FontStyle
+from momapy.drawing import FontWeight
+from momapy.drawing import Group
+from momapy.drawing import LineTo
+from momapy.drawing import MoveTo
+from momapy.drawing import NoneValue
+from momapy.drawing import NoneValueType
+from momapy.drawing import Path
+from momapy.geometry import Point
+from momapy.geometry import Transformation
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class SBGNModelElement(momapy.core.elements.ModelElement):
+class SBGNModelElement(ModelElement):
     """Base class for all SBGN model elements.
 
     Provides the foundation for SBGN-specific model components.
@@ -47,7 +63,7 @@ class SBGNRole(SBGNModelElement):
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNNode(momapy.core.layout.Node):
+class SBGNNode(Node):
     """Base class for SBGN nodes (glyphs).
 
     SBGN nodes represent biological entities such as macromolecules,
@@ -60,16 +76,12 @@ class SBGNNode(momapy.core.layout.Node):
 
     Examples:
         ```python
-        node = SBGNNode(position=momapy.geometry.Point(100, 100))
+        node = SBGNNode(position=Point(100, 100))
         ```
     """
 
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    fill: NoneValueType | Color | None = white
+    stroke: NoneValueType | Color | None = black
     stroke_width: float | None = 1.25
 
     def _border_drawing_elements(self):
@@ -82,7 +94,7 @@ class SBGNNode(momapy.core.layout.Node):
         done_bases = []
         for base in type(self).__mro__:
             if (
-                momapy.builder.issubclass_or_builder(base, _SBGNMixin)
+                issubclass_or_builder(base, _SBGNMixin)
                 and base is not type(self)
                 and not any([issubclass(done_base, base) for done_base in done_bases])
             ):
@@ -92,7 +104,7 @@ class SBGNNode(momapy.core.layout.Node):
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNSingleHeadedArc(momapy.core.layout.SingleHeadedArc):
+class SBGNSingleHeadedArc(SingleHeadedArc):
     """Base class for SBGN arcs with a single arrowhead.
 
     Single-headed arcs represent directional relationships in SBGN,
@@ -107,24 +119,16 @@ class SBGNSingleHeadedArc(momapy.core.layout.SingleHeadedArc):
         path_stroke_width: Width of the arc path.
     """
 
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    arrowhead_fill: NoneValueType | Color | None = white
+    arrowhead_stroke: NoneValueType | Color | None = black
     arrowhead_stroke_width: float | None = 1.25
-    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_fill: NoneValueType | Color | None = NoneValue
+    path_stroke: NoneValueType | Color | None = black
     path_stroke_width: float | None = 1.25
 
 
 @dataclasses.dataclass(frozen=True)
-class SBGNDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
+class SBGNDoubleHeadedArc(DoubleHeadedArc):
     """Base class for SBGN arcs with arrowheads at both ends.
 
     Double-headed arcs represent reversible or bidirectional
@@ -142,26 +146,14 @@ class SBGNDoubleHeadedArc(momapy.core.layout.DoubleHeadedArc):
         start_arrowhead_stroke_width: Width of the start arrowhead border.
     """
 
-    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
-    end_arrowhead_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.black
+    end_arrowhead_fill: NoneValueType | Color | None = white
+    end_arrowhead_stroke: NoneValueType | Color | None = black
     end_arrowhead_stroke_width: float | None = 1.25
-    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.black
-    )
+    path_fill: NoneValueType | Color | None = NoneValue
+    path_stroke: NoneValueType | Color | None = black
     path_stroke_width: float | None = 1.25
-    start_arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.white
-    start_arrowhead_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = momapy.coloring.black
+    start_arrowhead_fill: NoneValueType | Color | None = white
+    start_arrowhead_stroke: NoneValueType | Color | None = black
     start_arrowhead_stroke_width: float | None = 1.25
 
 
@@ -201,150 +193,112 @@ class _ConnectorsMixin(_SBGNMixin):
         right_connector_length: Length of the right connector.
     """
 
-    direction: momapy.core.elements.Direction = (
-        momapy.core.elements.Direction.HORIZONTAL
-    )
+    direction: Direction = Direction.HORIZONTAL
     left_to_right: bool = True
     left_connector_length: float = 10.0
     right_connector_length: float = 10.0
-    left_connector_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = None
+    left_connector_stroke: NoneValueType | Color | None = None
     left_connector_stroke_width: float | None = None
-    left_connector_stroke_dasharray: (
-        momapy.drawing.NoneValueType | tuple[float] | None
-    ) = None
+    left_connector_stroke_dasharray: NoneValueType | tuple[float] | None = None
     left_connector_stroke_dashoffset: float | None = None
-    left_connector_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        None
-    )
-    left_connector_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = None
-    left_connector_filter: (
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ) = None
-    right_connector_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = None
+    left_connector_fill: NoneValueType | Color | None = None
+    left_connector_transform: NoneValueType | tuple[Transformation] | None = None
+    left_connector_filter: NoneValueType | Filter | None = None
+    right_connector_stroke: NoneValueType | Color | None = None
     right_connector_stroke_width: float | None = None
-    right_connector_stroke_dasharray: (
-        momapy.drawing.NoneValueType | tuple[float] | None
-    ) = None
+    right_connector_stroke_dasharray: NoneValueType | tuple[float] | None = None
     right_connector_stroke_dashoffset: float | None = None
-    right_connector_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = None
-    right_connector_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = None
-    right_connector_filter: (
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ) = None
+    right_connector_fill: NoneValueType | Color | None = None
+    right_connector_transform: NoneValueType | tuple[Transformation] | None = None
+    right_connector_filter: NoneValueType | Filter | None = None
 
-    def left_connector_base(self) -> momapy.geometry.Point:
+    def left_connector_base(self) -> Point:
         """Get the base point of the left connector.
 
         Returns:
             Point where the left connector attaches to the shape.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x, self.y - self.height / 2)
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y - self.height / 2)
         else:
-            return momapy.geometry.Point(self.x - self.width / 2, self.y)
+            return Point(self.x - self.width / 2, self.y)
 
-    def right_connector_base(self) -> momapy.geometry.Point:
+    def right_connector_base(self) -> Point:
         """Get the base point of the right connector.
 
         Returns:
             Point where the right connector attaches to the shape.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x, self.y + self.height / 2)
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y + self.height / 2)
         else:
-            return momapy.geometry.Point(self.x + self.width / 2, self.y)
+            return Point(self.x + self.width / 2, self.y)
 
-    def left_connector_tip(self) -> momapy.geometry.Point:
+    def left_connector_tip(self) -> Point:
         """Get the tip point of the left connector.
 
         Returns:
             Point at the end of the left connector line.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y - self.height / 2 - self.left_connector_length
-            )
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y - self.height / 2 - self.left_connector_length)
         else:
-            return momapy.geometry.Point(
-                self.x - self.width / 2 - self.left_connector_length, self.y
-            )
+            return Point(self.x - self.width / 2 - self.left_connector_length, self.y)
 
-    def right_connector_tip(self) -> momapy.geometry.Point:
+    def right_connector_tip(self) -> Point:
         """Get the tip point of the right connector.
 
         Returns:
             Point at the end of the right connector line.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y + self.height / 2 + self.right_connector_length
-            )
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y + self.height / 2 + self.right_connector_length)
         else:
-            return momapy.geometry.Point(
-                self.x + self.width / 2 + self.right_connector_length, self.y
-            )
+            return Point(self.x + self.width / 2 + self.right_connector_length, self.y)
 
-    def west(self) -> momapy.geometry.Point:
+    def west(self) -> Point:
         """Get the west (left) anchor point.
 
         Returns:
             Point on the west side of the element.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x - self.width / 2, self.y)
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x - self.width / 2, self.y)
         else:
-            return momapy.geometry.Point(
-                self.x - self.width / 2 - self.left_connector_length, self.y
-            )
+            return Point(self.x - self.width / 2 - self.left_connector_length, self.y)
 
-    def south(self) -> momapy.geometry.Point:
+    def south(self) -> Point:
         """Get the south (bottom) anchor point.
 
         Returns:
             Point on the south side of the element.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y + self.height / 2 + self.right_connector_length
-            )
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y + self.height / 2 + self.right_connector_length)
         else:
-            return momapy.geometry.Point(self.x, self.y + self.height / 2)
+            return Point(self.x, self.y + self.height / 2)
 
-    def east(self) -> momapy.geometry.Point:
+    def east(self) -> Point:
         """Get the east (right) anchor point.
 
         Returns:
             Point on the east side of the element.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(self.x + self.width / 2, self.y)
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x + self.width / 2, self.y)
         else:
-            return momapy.geometry.Point(
-                self.x + self.width / 2 + self.right_connector_length, self.y
-            )
+            return Point(self.x + self.width / 2 + self.right_connector_length, self.y)
 
-    def north(self) -> momapy.geometry.Point:
+    def north(self) -> Point:
         """Get the north (top) anchor point.
 
         Returns:
             Point on the north side of the element.
         """
-        if self.direction == momapy.core.elements.Direction.VERTICAL:
-            return momapy.geometry.Point(
-                self.x, self.y - self.height / 2 - self.left_connector_length
-            )
+        if self.direction == Direction.VERTICAL:
+            return Point(self.x, self.y - self.height / 2 - self.left_connector_length)
         else:
-            return momapy.geometry.Point(self.x, self.y - self.height / 2)
+            return Point(self.x, self.y - self.height / 2)
 
     @classmethod
     def _mixin_drawing_elements(cls, obj):
@@ -356,33 +310,25 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             List of drawing elements for the connector lines.
         """
-        if obj.direction == momapy.core.elements.Direction.VERTICAL:
+        if obj.direction == Direction.VERTICAL:
             left_actions = [
-                momapy.drawing.MoveTo(obj.left_connector_base()),
-                momapy.drawing.LineTo(
-                    obj.left_connector_base() - (0, obj.left_connector_length)
-                ),
+                MoveTo(obj.left_connector_base()),
+                LineTo(obj.left_connector_base() - (0, obj.left_connector_length)),
             ]
             right_actions = [
-                momapy.drawing.MoveTo(obj.right_connector_base()),
-                momapy.drawing.LineTo(
-                    obj.right_connector_base() + (0, obj.right_connector_length)
-                ),
+                MoveTo(obj.right_connector_base()),
+                LineTo(obj.right_connector_base() + (0, obj.right_connector_length)),
             ]
         else:
             left_actions = [
-                momapy.drawing.MoveTo(obj.left_connector_base()),
-                momapy.drawing.LineTo(
-                    obj.left_connector_base() - (obj.left_connector_length, 0)
-                ),
+                MoveTo(obj.left_connector_base()),
+                LineTo(obj.left_connector_base() - (obj.left_connector_length, 0)),
             ]
             right_actions = [
-                momapy.drawing.MoveTo(obj.right_connector_base()),
-                momapy.drawing.LineTo(
-                    obj.right_connector_base() + (obj.right_connector_length, 0)
-                ),
+                MoveTo(obj.right_connector_base()),
+                LineTo(obj.right_connector_base() + (obj.right_connector_length, 0)),
             ]
-        path_left = momapy.drawing.Path(
+        path_left = Path(
             stroke=obj.left_connector_stroke,
             stroke_width=obj.left_connector_stroke_width,
             stroke_dasharray=obj.left_connector_stroke_dasharray,
@@ -392,7 +338,7 @@ class _ConnectorsMixin(_SBGNMixin):
             filter=obj.left_connector_filter,
             actions=left_actions,
         )
-        path_right = momapy.drawing.Path(
+        path_right = Path(
             stroke=obj.right_connector_stroke,
             stroke_width=obj.right_connector_stroke_width,
             stroke_dasharray=obj.right_connector_stroke_dasharray,
@@ -452,24 +398,13 @@ class _MultiMixin(_SBGNMixin):
 
     _n: typing.ClassVar[int] = 2
     offset: float = 3.0
-    subunits_stroke: (
-        tuple[momapy.drawing.NoneValueType | momapy.coloring.Color] | None
-    ) = None
-    subunits_stroke_width: tuple[momapy.drawing.NoneValueType | float] | None = None
-    subunits_stroke_dasharray: (
-        tuple[momapy.drawing.NoneValueType | tuple[float]] | None
-    ) = None
+    subunits_stroke: tuple[NoneValueType | Color] | None = None
+    subunits_stroke_width: tuple[NoneValueType | float] | None = None
+    subunits_stroke_dasharray: tuple[NoneValueType | tuple[float]] | None = None
     subunits_stroke_dashoffset: tuple[float] | None = None
-    subunits_fill: (
-        tuple[momapy.drawing.NoneValueType | momapy.coloring.Color] | None
-    ) = None
-    subunits_transform: (
-        tuple[momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation]]
-        | None
-    ) = None
-    subunits_filter: (
-        tuple[momapy.drawing.NoneValueType | momapy.drawing.Filter] | None
-    ) = None
+    subunits_fill: tuple[NoneValueType | Color] | None = None
+    subunits_transform: tuple[NoneValueType | tuple[Transformation]] | None = None
+    subunits_filter: tuple[NoneValueType | Filter] | None = None
 
     @abc.abstractmethod
     def _make_subunit_shape(
@@ -523,11 +458,11 @@ class _MultiMixin(_SBGNMixin):
                     kwargs[f"{attr_name}"] = attr_value[i]
             subunit_shape = obj._make_subunit_shape(position, width, height)
             kwargs["elements"] = subunit_shape.drawing_elements()
-            group = momapy.drawing.Group(**kwargs)
+            group = Group(**kwargs)
             drawing_elements.append(group)
         return drawing_elements
 
-    def label_center(self) -> momapy.geometry.Point:
+    def label_center(self) -> Point:
         """Get the center position for the node label.
 
         Returns:
@@ -565,15 +500,11 @@ class _TextMixin(_SBGNMixin):
 
     _font_size_func: typing.ClassVar[typing.Callable]
     text: str = ""
-    font_family: str = momapy.drawing.DEFAULT_FONT_FAMILY
-    font_fill: momapy.coloring.Color | momapy.drawing.NoneValueType = (
-        momapy.coloring.black
-    )
-    font_stroke: momapy.coloring.Color | momapy.drawing.NoneValueType = (
-        momapy.drawing.NoneValue
-    )
-    font_style: momapy.drawing.FontStyle = momapy.drawing.FontStyle.NORMAL
-    font_weight: momapy.drawing.FontWeight | float = momapy.drawing.FontWeight.NORMAL
+    font_family: str = DEFAULT_FONT_FAMILY
+    font_fill: Color | NoneValueType = black
+    font_stroke: Color | NoneValueType = NoneValue
+    font_style: FontStyle = FontStyle.NORMAL
+    font_weight: FontWeight | float = FontWeight.NORMAL
 
     def _make_text_layout(self):
         """Create a text layout for the label.
@@ -581,7 +512,7 @@ class _TextMixin(_SBGNMixin):
         Returns:
             TextLayout object configured for this node's label.
         """
-        text_layout = momapy.core.layout.TextLayout(
+        text_layout = TextLayout(
             text=self.text,
             position=self.label_center(),
             font_family=self.font_family,

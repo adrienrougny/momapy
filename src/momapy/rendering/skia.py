@@ -15,16 +15,44 @@ except ModuleNotFoundError as e:
         f"Or install momapy with skia support: pip install momapy[skia]"
     ) from e
 
-import momapy.drawing
-import momapy.geometry
-import momapy.rendering.core
-import momapy.utils
+from momapy.drawing import ClosePath
+from momapy.drawing import CompositeEffect
+from momapy.drawing import CompositionOperator
+from momapy.drawing import CurveTo
+from momapy.drawing import DrawingElement
+from momapy.drawing import DropShadowEffect
+from momapy.drawing import EdgeMode
+from momapy.drawing import Ellipse
+from momapy.drawing import EllipticalArc
+from momapy.drawing import FilterEffectInput
+from momapy.drawing import FloodEffect
+from momapy.drawing import FontStyle
+from momapy.drawing import GaussianBlurEffect
+from momapy.drawing import Group
+from momapy.drawing import LineTo
+from momapy.drawing import MoveTo
+from momapy.drawing import NoneValue
+from momapy.drawing import OffsetEffect
+from momapy.drawing import Path
+from momapy.drawing import QuadraticCurveTo
+from momapy.drawing import Rectangle
+from momapy.drawing import Text
+from momapy.geometry import MatrixTransformation
+from momapy.geometry import Point
+from momapy.geometry import Rotation
+from momapy.geometry import Scaling
+from momapy.geometry import Translation
+from momapy.rendering.core import StatefulRenderer
+from momapy.rendering.core import SupportsFileOutput
+from momapy.utils import check_parent_dir_exists
+from momapy.builder import Builder
+from momapy.core.elements import LayoutElement
 
 
 @dataclasses.dataclass(kw_only=True)
 class SkiaRenderer(
-    momapy.rendering.core.StatefulRenderer,
-    momapy.rendering.core.SupportsFileOutput,
+    StatefulRenderer,
+    SupportsFileOutput,
 ):
     """Renderer implementation using the Skia graphics library.
 
@@ -42,7 +70,7 @@ class SkiaRenderer(
 
         # Create a layout element to render
         node = Rectangle(
-            position=momapy.geometry.Point(100, 100),
+            position=Point(100, 100),
             width=200,
             height=100
         )
@@ -63,50 +91,50 @@ class SkiaRenderer(
         "webp",
     ]
     _de_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.Group: "_render_group",
-        momapy.drawing.Path: "_render_path",
-        momapy.drawing.Text: "_render_text",
-        momapy.drawing.Ellipse: "_render_ellipse",
-        momapy.drawing.Rectangle: "_render_rectangle",
+        Group: "_render_group",
+        Path: "_render_path",
+        Text: "_render_text",
+        Ellipse: "_render_ellipse",
+        Rectangle: "_render_rectangle",
     }
     _pa_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.MoveTo: "_add_move_to",
-        momapy.drawing.LineTo: "_add_line_to",
-        momapy.drawing.CurveTo: "_add_curve_to",
-        momapy.drawing.QuadraticCurveTo: "_add_quadratic_curve_to",
-        momapy.drawing.ClosePath: "_add_close_path",
-        momapy.drawing.EllipticalArc: "_add_elliptical_arc",
+        MoveTo: "_add_move_to",
+        LineTo: "_add_line_to",
+        CurveTo: "_add_curve_to",
+        QuadraticCurveTo: "_add_quadratic_curve_to",
+        ClosePath: "_add_close_path",
+        EllipticalArc: "_add_elliptical_arc",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.geometry.Translation: "_add_translation",
-        momapy.geometry.Rotation: "_add_rotation",
-        momapy.geometry.Scaling: "_add_scaling",
-        momapy.geometry.MatrixTransformation: "_add_matrix_transformation",
+        Translation: "_add_translation",
+        Rotation: "_add_rotation",
+        Scaling: "_add_scaling",
+        MatrixTransformation: "_add_matrix_transformation",
     }
     _fe_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.DropShadowEffect: "_make_drop_shadow_effect",
-        momapy.drawing.CompositeEffect: "_make_composite_effect",
-        momapy.drawing.GaussianBlurEffect: "_make_gaussian_blur_effect",
-        momapy.drawing.OffsetEffect: "_make_offset_effect",
-        momapy.drawing.FloodEffect: "_make_flood_effect",
+        DropShadowEffect: "_make_drop_shadow_effect",
+        CompositeEffect: "_make_composite_effect",
+        GaussianBlurEffect: "_make_gaussian_blur_effect",
+        OffsetEffect: "_make_offset_effect",
+        FloodEffect: "_make_flood_effect",
     }
     _fe_composite_comp_op_blendmode_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.CompositionOperator.OVER: skia.BlendMode.kSrcOver,
-        momapy.drawing.CompositionOperator.IN: skia.BlendMode.kSrcIn,
-        momapy.drawing.CompositionOperator.OUT: skia.BlendMode.kSrcOut,
-        momapy.drawing.CompositionOperator.ATOP: skia.BlendMode.kSrcATop,
-        momapy.drawing.CompositionOperator.XOR: skia.BlendMode.kXor,
-        momapy.drawing.CompositionOperator.LIGHTER: skia.BlendMode.kLighten,
+        CompositionOperator.OVER: skia.BlendMode.kSrcOver,
+        CompositionOperator.IN: skia.BlendMode.kSrcIn,
+        CompositionOperator.OUT: skia.BlendMode.kSrcOut,
+        CompositionOperator.ATOP: skia.BlendMode.kSrcATop,
+        CompositionOperator.XOR: skia.BlendMode.kXor,
+        CompositionOperator.LIGHTER: skia.BlendMode.kLighten,
     }
     _fe_gaussian_blur_edgemode_tilemode_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.EdgeMode.WRAP: skia.TileMode.kMirror,
-        momapy.drawing.EdgeMode.DUPLICATE: skia.TileMode.kClamp,
+        EdgeMode.WRAP: skia.TileMode.kMirror,
+        EdgeMode.DUPLICATE: skia.TileMode.kClamp,
         None: skia.TileMode.kDecal,
     }
     _te_font_style_slant_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,
-        momapy.drawing.FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
-        momapy.drawing.FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
+        FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,
+        FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
+        FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
     }
     canvas: skia.Canvas = dataclasses.field(metadata={"description": "A skia canvas"})
     _config: dict = dataclasses.field(default_factory=dict)
@@ -144,7 +172,7 @@ class SkiaRenderer(
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
-        momapy.utils.check_parent_dir_exists(file_path)
+        check_parent_dir_exists(file_path)
         if config is None:
             config = {}
         canvas = None
@@ -220,9 +248,7 @@ class SkiaRenderer(
             canvas = self._config["document"].beginPage(width, height)
             self.canvas = canvas
 
-    def render_layout_element(
-        self, layout_element: momapy.core.elements.LayoutElement
-    ) -> None:
+    def render_layout_element(self, layout_element: LayoutElement) -> None:
         """Render a layout element to the output.
 
         Args:
@@ -232,9 +258,7 @@ class SkiaRenderer(
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
-    def render_drawing_element(
-        self, drawing_element: momapy.drawing.DrawingElement
-    ) -> None:
+    def render_drawing_element(self, drawing_element: DrawingElement) -> None:
         """Render a drawing element to the output.
 
         Args:
@@ -247,11 +271,11 @@ class SkiaRenderer(
         self.set_current_state_from_drawing_element(drawing_element)
         self._add_transform_from_drawing_element(drawing_element)
         class_ = type(drawing_element)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
         filter = self.get_current_value("filter")
-        if filter is not momapy.drawing.NoneValue:
+        if filter is not NoneValue:
             bbox = drawing_element.bbox()
             saved_canvas = self.canvas
             recorder = skia.PictureRecorder()
@@ -292,7 +316,7 @@ class SkiaRenderer(
         self.canvas.restore()
 
     def _make_stroke_paint(self):
-        if self.get_current_value("stroke_dasharray") is not momapy.drawing.NoneValue:
+        if self.get_current_value("stroke_dasharray") is not NoneValue:
             skia_path_effect = skia.DashPathEffect.Make(
                 list(self.get_current_value("stroke_dasharray")),
                 self.get_current_value("stroke_dashoffset"),
@@ -324,7 +348,7 @@ class SkiaRenderer(
         dskia_filters = {}
         for filter_effect in filter_.effects:
             class_ = type(filter_effect)
-            if issubclass(class_, momapy.builder.Builder):
+            if issubclass(class_, Builder):
                 class_ = class_._cls_to_build
             fe_func = getattr(self, self._fe_class_func_mapping[class_])
             skia_filter = fe_func(filter_effect, filter_region, dskia_filters)
@@ -343,7 +367,7 @@ class SkiaRenderer(
         return crop_rect
 
     def _make_input_filter_from_reference(self, dskia_filters, filter_reference):
-        if isinstance(filter_reference, momapy.drawing.FilterEffectInput):
+        if isinstance(filter_reference, FilterEffectInput):
             return None  # all SVG options default to source bitmap in skia
         in_skia_filter = dskia_filters.get(filter_reference)
         if in_skia_filter is None:  # if no reference or bad reference
@@ -374,7 +398,7 @@ class SkiaRenderer(
         in2_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in2
         )
-        if filter_effect.operator == momapy.drawing.CompositionOperator.ARITHMETIC:
+        if filter_effect.operator == CompositionOperator.ARITHMETIC:
             return skia.ImageFilters.Arithmetic(
                 k1=filter_effect.k1,
                 k2=filter_effect.k2,
@@ -444,14 +468,14 @@ class SkiaRenderer(
     def _add_transform_from_drawing_element(self, drawing_element):
         if (
             drawing_element.transform is not None
-            and drawing_element.transform is not momapy.drawing.NoneValue
+            and drawing_element.transform is not NoneValue
         ):
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
 
     def _add_transformation(self, transformation):
         class_ = type(transformation)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
@@ -462,7 +486,7 @@ class SkiaRenderer(
 
     def _add_path_action_to_skia_path(self, skia_path, path_action):
         class_ = type(path_action)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         pa_func = getattr(self, self._pa_class_func_mapping[class_])
         pa_func(skia_path, path_action)
@@ -475,10 +499,10 @@ class SkiaRenderer(
 
     def _render_path(self, path):
         skia_path = self._make_skia_path(path)
-        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
-        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
@@ -521,7 +545,7 @@ class SkiaRenderer(
                     font_size,
                 )
             ] = skia_font
-        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -530,7 +554,7 @@ class SkiaRenderer(
                 font=skia_font,
                 paint=skia_paint,
             )
-        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawString(
                 text=text.text,
@@ -547,10 +571,10 @@ class SkiaRenderer(
             ellipse.x + ellipse.rx,
             ellipse.y + ellipse.ry,
         )
-        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
-        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
 
@@ -561,7 +585,7 @@ class SkiaRenderer(
             rectangle.x + rectangle.width,
             rectangle.y + rectangle.height,
         )
-        if self.get_current_value("fill") is not momapy.drawing.NoneValue:
+        if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,
@@ -569,7 +593,7 @@ class SkiaRenderer(
                 ry=rectangle.ry,
                 paint=skia_paint,
             )
-        if self.get_current_value("stroke") is not momapy.drawing.NoneValue:
+        if self.get_current_value("stroke") is not NoneValue:
             skia_paint = self._make_stroke_paint()
             self.canvas.drawRoundRect(
                 rect=skia_rect,
@@ -596,9 +620,7 @@ class SkiaRenderer(
 
     def _add_quadratic_curve_to(self, skia_path, quadratic_curve_to):
         skia_current_point = skia_path.getPoint(skia_path.countPoints() - 1)
-        current_point = momapy.geometry.Point(
-            skia_current_point.fX, skia_current_point.fY
-        )
+        current_point = Point(skia_current_point.fX, skia_current_point.fY)
         curve_to = quadratic_curve_to.to_curve_to(current_point)
         self._add_curve_to(skia_path, curve_to)
 

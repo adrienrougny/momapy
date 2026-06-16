@@ -21,23 +21,17 @@ of the stylesheets above and are not exposed as Python attributes.
 
 import pathlib
 
-import momapy.styling
+from momapy.styling import StyleSheet
 
-cs_default = momapy.styling.StyleSheet.from_file(
-    pathlib.Path(__file__).with_name("cs_default.css")
-)
+cs_default = StyleSheet.from_file(pathlib.Path(__file__).with_name("cs_default.css"))
 """Default colorscheme style sheet"""
-cs_black_and_white = momapy.styling.StyleSheet.from_file(
+cs_black_and_white = StyleSheet.from_file(
     pathlib.Path(__file__).with_name("cs_black_and_white.css")
 )
 """Black and white colorscheme style sheet"""
-sbgned = momapy.styling.StyleSheet.from_file(
-    pathlib.Path(__file__).with_name("sbgned.css")
-)
+sbgned = StyleSheet.from_file(pathlib.Path(__file__).with_name("sbgned.css"))
 """SBGN-ED style sheet"""
-newt = momapy.styling.StyleSheet.from_file(pathlib.Path(__file__).with_name("newt.css"))
+newt = StyleSheet.from_file(pathlib.Path(__file__).with_name("newt.css"))
 """Newt style sheet"""
-fs_shadows = momapy.styling.StyleSheet.from_file(
-    pathlib.Path(__file__).with_name("fs_shadows.css")
-)
+fs_shadows = StyleSheet.from_file(pathlib.Path(__file__).with_name("fs_shadows.css"))
 """Shadows style sheet"""

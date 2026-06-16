@@ -48,9 +48,21 @@ import typing_extensions
 import collections.abc
 import platform
 
-import momapy.geometry
-import momapy.coloring
-import momapy.utils
+from momapy.coloring import black
+from momapy.coloring import Color
+from momapy.geometry import Bbox
+from momapy.geometry import CubicBezierCurve
+from momapy.geometry import EllipticalArc as GeometryEllipticalArc
+from momapy.geometry import get_primitives_anchor_point
+from momapy.geometry import get_primitives_angle
+from momapy.geometry import get_primitives_border
+from momapy.geometry import Line
+from momapy.geometry import Point
+from momapy.geometry import QuadraticBezierCurve
+from momapy.geometry import ROUNDING
+from momapy.geometry import Segment
+from momapy.geometry import Transformation
+from momapy.utils import make_uuid4_as_str
 
 __all__ = [
     "ClosePath",
@@ -151,8 +163,8 @@ class DropShadowEffect(FilterEffect):
         default=1.0,
         metadata={"description": "The flood opacity of the shadow"},
     )
-    flood_color: momapy.coloring.Color = dataclasses.field(
-        default=momapy.coloring.black,
+    flood_color: Color = dataclasses.field(
+        default=black,
         metadata={"description": "The color of the shadow"},
     )
 
@@ -163,7 +175,7 @@ class DropShadowEffect(FilterEffect):
             List of equivalent filter effects.
         """
         flood_effect = FloodEffect(
-            result=momapy.utils.make_uuid4_as_str(),
+            result=make_uuid4_as_str(),
             flood_opacity=self.flood_opacity,
             flood_color=self.flood_color,
         )
@@ -171,18 +183,18 @@ class DropShadowEffect(FilterEffect):
             in_=flood_effect.result,
             in2=FilterEffectInput.SOURCE_GRAPHIC,
             operator=CompositionOperator.IN,
-            result=momapy.utils.make_uuid4_as_str(),
+            result=make_uuid4_as_str(),
         )
         gaussian_blur_effect = GaussianBlurEffect(
             in_=composite_effect1.result,
             std_deviation=self.std_deviation,
-            result=momapy.utils.make_uuid4_as_str(),
+            result=make_uuid4_as_str(),
         )
         offset_effect = OffsetEffect(
             in_=gaussian_blur_effect.result,
             dx=self.dx,
             dy=self.dy,
-            result=momapy.utils.make_uuid4_as_str(),
+            result=make_uuid4_as_str(),
         )
         composite_effect2 = CompositeEffect(
             in_=FilterEffectInput.SOURCE_GRAPHIC,
@@ -278,8 +290,8 @@ class FloodEffect(FilterEffect):
         flood_opacity: Opacity of the flood.
     """
 
-    flood_color: momapy.coloring.Color = dataclasses.field(
-        default=momapy.coloring.black,
+    flood_color: Color = dataclasses.field(
+        default=black,
         metadata={"description": "The color of the flood effect"},
     )
     flood_opacity: float = dataclasses.field(
@@ -349,7 +361,7 @@ class Filter(object):
     id_: str = dataclasses.field(
         hash=False,
         compare=False,
-        default_factory=momapy.utils.make_uuid4_as_str,
+        default_factory=make_uuid4_as_str,
     )
     filter_units: FilterUnits = FilterUnits.OBJECT_BOUNDING_BOX
     effects: tuple[FilterEffect] = dataclasses.field(default_factory=tuple)
@@ -407,7 +419,7 @@ class FillRule(enum.Enum):
 
 PRESENTATION_ATTRIBUTES = {
     "fill": {
-        "initial": momapy.coloring.black,
+        "initial": black,
         "inherited": True,
     },
     "fill_rule": {
@@ -519,7 +531,7 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The class name of the drawing element"},
     )
-    fill: NoneValueType | momapy.coloring.Color | None = dataclasses.field(
+    fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The fill color of the drawing element"},
     )
@@ -550,7 +562,7 @@ class DrawingElement(abc.ABC):
     id_: str | None = dataclasses.field(
         default=None, metadata={"description": "The id of the drawing element"}
     )
-    stroke: NoneValueType | momapy.coloring.Color | None = dataclasses.field(
+    stroke: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke color of the drawing element"},
     )
@@ -570,21 +582,16 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The text anchor of the drawing element"},
     )
-    transform: NoneValueType | tuple[momapy.geometry.Transformation] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The transform of the drawing element"},
-        )
+    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The transform of the drawing element"},
     )
 
     @abc.abstractmethod
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -593,7 +600,7 @@ class DrawingElement(abc.ABC):
         """
         pass
 
-    def bbox(self) -> momapy.geometry.Bbox:
+    def bbox(self) -> Bbox:
         """Get the bounding box.
 
         Returns:
@@ -601,11 +608,11 @@ class DrawingElement(abc.ABC):
         """
         primitives = self.to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
+            return Bbox(Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
-        return momapy.geometry.Bbox.union(bboxes)
+        return Bbox.union(bboxes)
 
-    def get_filter_region(self) -> momapy.geometry.Bbox | None:
+    def get_filter_region(self) -> Bbox | None:
         """Get the filter region.
 
         Returns:
@@ -637,14 +644,14 @@ class DrawingElement(abc.ABC):
             else:
                 sheight = float(self.filter.height.rstrip("%")) / 100
             height = bbox.height * sheight
-            filter_region = momapy.geometry.Bbox(
-                momapy.geometry.Point(px + width / 2, py + height / 2),
+            filter_region = Bbox(
+                Point(px + width / 2, py + height / 2),
                 width,
                 height,
             )
         else:
-            filter_region = momapy.geometry.Bbox(
-                momapy.geometry.Point(
+            filter_region = Bbox(
+                Point(
                     self.filter.x + self.filter.width / 2,
                     self.filter.y + self.filter.height / 2,
                 ),
@@ -666,7 +673,7 @@ class Text(DrawingElement):
     text: str = dataclasses.field(
         metadata={"description": "The value of the text element"}
     )
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The position of the text element"}
     )
 
@@ -680,9 +687,7 @@ class Text(DrawingElement):
         """Y coordinate of the text position."""
         return self.point.y
 
-    def transformed(
-        self, transformation: momapy.geometry.Transformation
-    ) -> typing_extensions.Self:
+    def transformed(self, transformation: Transformation) -> typing_extensions.Self:
         """Apply a transformation.
 
         Args:
@@ -696,10 +701,7 @@ class Text(DrawingElement):
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -724,9 +726,7 @@ class Group(DrawingElement):
         metadata={"description": "The elements of the group element"},
     )
 
-    def transformed(
-        self, transformation: momapy.geometry.Transformation
-    ) -> typing_extensions.Self:
+    def transformed(self, transformation: Transformation) -> typing_extensions.Self:
         """Apply a transformation to all elements.
 
         Args:
@@ -743,10 +743,7 @@ class Group(DrawingElement):
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -771,7 +768,7 @@ class MoveTo(PathAction):
         point: The point to move to.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the move to action"}
     )
 
@@ -787,8 +784,8 @@ class MoveTo(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> "MoveTo":
         """Apply a transformation.
 
@@ -810,7 +807,7 @@ class LineTo(PathAction):
         point: The end point.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the line to action"}
     )
 
@@ -826,8 +823,8 @@ class LineTo(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> typing_extensions.Self:
         """Apply a transformation.
 
@@ -840,9 +837,7 @@ class LineTo(PathAction):
         """
         return LineTo(self.point.transformed(transformation))
 
-    def to_geometry(
-        self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.Segment:
+    def to_geometry(self, current_point: Point) -> Segment:
         """Convert to a segment.
 
         Args:
@@ -851,7 +846,7 @@ class LineTo(PathAction):
         Returns:
             A Segment from current_point to self.point.
         """
-        return momapy.geometry.Segment(current_point, self.point)
+        return Segment(current_point, self.point)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -867,7 +862,7 @@ class EllipticalArc(PathAction):
         sweep_flag: Sweep flag.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the elliptical arc action"}
     )
     rx: float = dataclasses.field(
@@ -898,8 +893,8 @@ class EllipticalArc(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> "EllipticalArc":
         """Apply a transformation.
 
@@ -910,22 +905,22 @@ class EllipticalArc(PathAction):
         Returns:
             A new EllipticalArc with transformed parameters.
         """
-        east = momapy.geometry.Point(
+        east = Point(
             math.cos(self.x_axis_rotation) * self.rx,
             math.sin(self.x_axis_rotation) * self.rx,
         )
-        north = momapy.geometry.Point(
+        north = Point(
             math.cos(self.x_axis_rotation) * self.ry,
             math.sin(self.x_axis_rotation) * self.ry,
         )
-        new_center = momapy.geometry.Point(0, 0).transformed(transformation)
+        new_center = Point(0, 0).transformed(transformation)
         new_east = east.transformed(transformation)
         new_north = north.transformed(transformation)
-        new_rx = momapy.geometry.Segment(new_center, new_east).length()
-        new_ry = momapy.geometry.Segment(new_center, new_north).length()
+        new_rx = Segment(new_center, new_east).length()
+        new_ry = Segment(new_center, new_north).length()
         new_end_point = self.point.transformed(transformation)
         new_x_axis_rotation = math.degrees(
-            momapy.geometry.Line(new_center, new_east).get_angle_to_horizontal()
+            Line(new_center, new_east).get_angle_to_horizontal()
         )
         return EllipticalArc(
             new_end_point,
@@ -936,9 +931,7 @@ class EllipticalArc(PathAction):
             self.sweep_flag,
         )
 
-    def to_geometry(
-        self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.EllipticalArc:
+    def to_geometry(self, current_point: Point) -> GeometryEllipticalArc:
         """Convert to geometry.
 
         Args:
@@ -947,7 +940,7 @@ class EllipticalArc(PathAction):
         Returns:
             An EllipticalArc geometry.
         """
-        return momapy.geometry.EllipticalArc(
+        return GeometryEllipticalArc(
             current_point,
             self.point,
             self.rx,
@@ -968,13 +961,13 @@ class CurveTo(PathAction):
         control_point2: Second control point.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the curve to action"}
     )
-    control_point1: momapy.geometry.Point = dataclasses.field(
+    control_point1: Point = dataclasses.field(
         metadata={"description": "The first control point of the curve to action"}
     )
-    control_point2: momapy.geometry.Point = dataclasses.field(
+    control_point2: Point = dataclasses.field(
         metadata={"description": "The second control point of the curve to action"}
     )
 
@@ -990,8 +983,8 @@ class CurveTo(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> "CurveTo":
         """Apply a transformation.
 
@@ -1008,9 +1001,7 @@ class CurveTo(PathAction):
             self.control_point2.transformed(transformation),
         )
 
-    def to_geometry(
-        self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.CubicBezierCurve:
+    def to_geometry(self, current_point: Point) -> CubicBezierCurve:
         """Convert to CubicBezierCurve geometry.
 
         Args:
@@ -1019,7 +1010,7 @@ class CurveTo(PathAction):
         Returns:
             A CubicBezierCurve.
         """
-        return momapy.geometry.CubicBezierCurve(
+        return CubicBezierCurve(
             current_point,
             self.point,
             self.control_point1,
@@ -1036,10 +1027,10 @@ class QuadraticCurveTo(PathAction):
         control_point: Control point.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the quadratic curve to action"}
     )
-    control_point: momapy.geometry.Point = dataclasses.field(
+    control_point: Point = dataclasses.field(
         metadata={"description": "The control point of the quadratic curve to action"}
     )
 
@@ -1055,8 +1046,8 @@ class QuadraticCurveTo(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> "QuadraticCurveTo":
         """Apply a transformation.
 
@@ -1072,7 +1063,7 @@ class QuadraticCurveTo(PathAction):
             self.control_point.transformed(transformation),
         )
 
-    def to_curve_to(self, current_point: momapy.geometry.Point) -> CurveTo:
+    def to_curve_to(self, current_point: Point) -> CurveTo:
         """Convert to cubic CurveTo.
 
         Args:
@@ -1087,9 +1078,7 @@ class QuadraticCurveTo(PathAction):
         control_point2 = p2 + (self.control_point - p2) * (2 / 3)
         return CurveTo(p2, control_point1, control_point2)
 
-    def to_geometry(
-        self, current_point: momapy.geometry.Point
-    ) -> momapy.geometry.QuadraticBezierCurve:
+    def to_geometry(self, current_point: Point) -> QuadraticBezierCurve:
         """Convert to QuadraticBezierCurve geometry.
 
         Args:
@@ -1098,7 +1087,7 @@ class QuadraticCurveTo(PathAction):
         Returns:
             A QuadraticBezierCurve.
         """
-        return momapy.geometry.QuadraticBezierCurve(
+        return QuadraticBezierCurve(
             current_point,
             self.point,
             self.control_point,
@@ -1111,8 +1100,8 @@ class ClosePath(PathAction):
 
     def transformed(
         self,
-        transformation: momapy.geometry.Transformation,
-        current_point: momapy.geometry.Point,
+        transformation: Transformation,
+        current_point: Point,
     ) -> "ClosePath":
         """Apply a transformation.
 
@@ -1139,9 +1128,7 @@ class Path(DrawingElement):
         metadata={"description": "The actions of the path"},
     )
 
-    def transformed(
-        self, transformation: momapy.geometry.Transformation
-    ) -> typing_extensions.Self:
+    def transformed(self, transformation: Transformation) -> typing_extensions.Self:
         """Apply a transformation to all actions.
 
         Args:
@@ -1164,10 +1151,7 @@ class Path(DrawingElement):
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -1176,7 +1160,7 @@ class Path(DrawingElement):
             or EllipticalArc objects.
         """
         primitives = []
-        current_point = momapy.geometry.Point(0, 0)
+        current_point = Point(0, 0)
         initial_point = current_point
         for action in self.actions:
             if isinstance(action, MoveTo):
@@ -1187,9 +1171,7 @@ class Path(DrawingElement):
                     current_point.x != initial_point.x
                     or current_point.y != initial_point.y
                 ):
-                    primitives.append(
-                        momapy.geometry.Segment(current_point, initial_point)
-                    )
+                    primitives.append(Segment(current_point, initial_point))
                 current_point = initial_point
             else:
                 primitives.append(action.to_geometry(current_point))
@@ -1207,7 +1189,7 @@ class Ellipse(DrawingElement):
         ry: Y-radius.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the ellipse"}
     )
     rx: float = dataclasses.field(
@@ -1218,8 +1200,8 @@ class Ellipse(DrawingElement):
     )
 
     def __post_init__(self):
-        object.__setattr__(self, "rx", round(self.rx, momapy.geometry.ROUNDING))
-        object.__setattr__(self, "ry", round(self.ry, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "rx", round(self.rx, ROUNDING))
+        object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
     @property
     def x(self):
@@ -1259,7 +1241,7 @@ class Ellipse(DrawingElement):
         )
         return path
 
-    def transformed(self, transformation: momapy.geometry.Transformation) -> Path:
+    def transformed(self, transformation: Transformation) -> Path:
         """Apply a transformation.
 
         Args:
@@ -1274,10 +1256,7 @@ class Ellipse(DrawingElement):
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -1299,7 +1278,7 @@ class Rectangle(DrawingElement):
         ry: Y-radius for rounded corners.
     """
 
-    point: momapy.geometry.Point = dataclasses.field(
+    point: Point = dataclasses.field(
         metadata={"description": "The point of the rectangle"}
     )
     width: float = dataclasses.field(
@@ -1316,10 +1295,10 @@ class Rectangle(DrawingElement):
     )
 
     def __post_init__(self):
-        object.__setattr__(self, "width", round(self.width, momapy.geometry.ROUNDING))
-        object.__setattr__(self, "height", round(self.height, momapy.geometry.ROUNDING))
-        object.__setattr__(self, "rx", round(self.rx, momapy.geometry.ROUNDING))
-        object.__setattr__(self, "ry", round(self.ry, momapy.geometry.ROUNDING))
+        object.__setattr__(self, "width", round(self.width, ROUNDING))
+        object.__setattr__(self, "height", round(self.height, ROUNDING))
+        object.__setattr__(self, "rx", round(self.rx, ROUNDING))
+        object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
     @property
     def x(self):
@@ -1344,18 +1323,16 @@ class Rectangle(DrawingElement):
         width = self.width
         height = self.height
         actions = [
-            MoveTo(momapy.geometry.Point(x + rx, y)),
-            LineTo(momapy.geometry.Point(x + width - rx, y)),
+            MoveTo(Point(x + rx, y)),
+            LineTo(Point(x + width - rx, y)),
         ]
         if rx > 0 and ry > 0:
-            actions.append(
-                EllipticalArc(momapy.geometry.Point(x + width, y + ry), rx, ry, 0, 0, 1)
-            )
-        actions.append(LineTo(momapy.geometry.Point(x + width, y + height - ry)))
+            actions.append(EllipticalArc(Point(x + width, y + ry), rx, ry, 0, 0, 1))
+        actions.append(LineTo(Point(x + width, y + height - ry)))
         if rx > 0 and ry > 0:
             actions.append(
                 EllipticalArc(
-                    momapy.geometry.Point(x + width - rx, y + height),
+                    Point(x + width - rx, y + height),
                     rx,
                     ry,
                     0,
@@ -1363,18 +1340,12 @@ class Rectangle(DrawingElement):
                     1,
                 )
             )
-        actions.append(LineTo(momapy.geometry.Point(x + rx, y + height)))
+        actions.append(LineTo(Point(x + rx, y + height)))
         if rx > 0 and ry > 0:
-            actions.append(
-                EllipticalArc(
-                    momapy.geometry.Point(x, y + height - ry), rx, ry, 0, 0, 1
-                )
-            )
-        actions.append(LineTo(momapy.geometry.Point(x, y + ry)))
+            actions.append(EllipticalArc(Point(x, y + height - ry), rx, ry, 0, 0, 1))
+        actions.append(LineTo(Point(x, y + ry)))
         if rx > 0 and ry > 0:
-            actions.append(
-                EllipticalArc(momapy.geometry.Point(x + rx, y), rx, ry, 0, 0, 1)
-            )
+            actions.append(EllipticalArc(Point(x + rx, y), rx, ry, 0, 0, 1))
         actions.append(ClosePath())
         path = Path(
             stroke_width=self.stroke_width,
@@ -1386,7 +1357,7 @@ class Rectangle(DrawingElement):
         )
         return path
 
-    def transformed(self, transformation: momapy.geometry.Transformation) -> Path:
+    def transformed(self, transformation: Transformation) -> Path:
         """Apply a transformation.
 
         Args:
@@ -1401,10 +1372,7 @@ class Rectangle(DrawingElement):
     def to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Convert to a list of geometry primitives.
 
@@ -1416,12 +1384,7 @@ class Rectangle(DrawingElement):
 
 def drawing_elements_to_geometry(
     drawing_elements: collections.abc.Sequence[DrawingElement],
-) -> list[
-    momapy.geometry.Segment
-    | momapy.geometry.QuadraticBezierCurve
-    | momapy.geometry.CubicBezierCurve
-    | momapy.geometry.EllipticalArc
-]:
+) -> list[Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc]:
     """Convert drawing elements to geometry primitives.
 
     Args:
@@ -1438,9 +1401,9 @@ def drawing_elements_to_geometry(
 
 def get_drawing_elements_border(
     drawing_elements: collections.abc.Sequence[DrawingElement],
-    point: momapy.geometry.Point,
-    center: momapy.geometry.Point | None = None,
-) -> momapy.geometry.Point | None:
+    point: Point,
+    center: Point | None = None,
+) -> Point | None:
     """Get border point in a direction from center.
 
     Args:
@@ -1452,17 +1415,15 @@ def get_drawing_elements_border(
         The border point or None.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_primitives_border(
-        primitives=primitives, point=point, center=center
-    )
+    return get_primitives_border(primitives=primitives, point=point, center=center)
 
 
 def get_drawing_elements_angle(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     angle: float,
     unit: str = "degrees",
-    center: momapy.geometry.Point | None = None,
-) -> momapy.geometry.Point | None:
+    center: Point | None = None,
+) -> Point | None:
     """Get border point at an angle from center.
 
     Args:
@@ -1475,14 +1436,14 @@ def get_drawing_elements_angle(
         The border point or None.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_primitives_angle(
+    return get_primitives_angle(
         primitives=primitives, angle=angle, unit=unit, center=center
     )
 
 
 def get_drawing_elements_bbox(
     drawing_elements: collections.abc.Sequence[DrawingElement],
-) -> momapy.geometry.Bbox:
+) -> Bbox:
     """Get bounding box of drawing elements.
 
     Args:
@@ -1493,14 +1454,14 @@ def get_drawing_elements_bbox(
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
     bboxes = [p.bbox() for p in primitives]
-    return momapy.geometry.Bbox.union(bboxes)
+    return Bbox.union(bboxes)
 
 
 def get_drawing_elements_anchor_point(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     anchor_point: str,
-    center: momapy.geometry.Point | None = None,
-) -> momapy.geometry.Point:
+    center: Point | None = None,
+) -> Point:
     """Get anchor point of drawing elements.
 
     Args:
@@ -1512,6 +1473,6 @@ def get_drawing_elements_anchor_point(
         The anchor point.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
-    return momapy.geometry.get_primitives_anchor_point(
+    return get_primitives_anchor_point(
         primitives=primitives, anchor_point=anchor_point, center=center
     )

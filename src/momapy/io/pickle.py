@@ -10,11 +10,16 @@ import os
 import pickle
 import typing
 
-import momapy.builder
-import momapy.core.elements
-import momapy.core.map
-import momapy.io.core
-import momapy.utils
+from momapy.builder import builder_from_object
+from momapy.builder import object_from_builder
+from momapy.core.elements import LayoutElement
+from momapy.core.elements import ModelElement
+from momapy.core.map import Map
+from momapy.io.core import Reader
+from momapy.io.core import ReaderResult
+from momapy.io.core import Writer
+from momapy.io.core import WriterResult
+from momapy.utils import check_parent_dir_exists
 
 
 def _filter_mapping_by_classes(mapping, include_classes=None, exclude_classes=None):
@@ -57,7 +62,7 @@ def _filter_annotation_mappings(
         )
 
 
-class PickleReader(momapy.io.core.Reader):
+class PickleReader(Reader):
     """Reader for pickled maps."""
 
     @classmethod
@@ -80,7 +85,7 @@ class PickleReader(momapy.io.core.Reader):
         with_annotations: bool = True,
         with_notes: bool = True,
         **options: typing.Any,
-    ) -> momapy.io.core.ReaderResult:
+    ) -> ReaderResult:
         """Load a pickled `ReaderResult` and project it per the flags."""
         with open(file_path, "rb") as f:
             reader_result = pickle.load(f)
@@ -93,41 +98,41 @@ class PickleReader(momapy.io.core.Reader):
             obj = obj.model
             _filter_annotation_mappings(
                 reader_result,
-                include_classes=[momapy.core.elements.ModelElement],
+                include_classes=[ModelElement],
             )
         elif return_type == "layout":
             obj = obj.layout
             _filter_annotation_mappings(
                 reader_result,
-                include_classes=[momapy.core.elements.LayoutElement],
+                include_classes=[LayoutElement],
             )
         elif not with_model or not with_layout:
-            map_builder = momapy.builder.builder_from_object(obj)
+            map_builder = builder_from_object(obj)
             if not with_model:
                 map_builder.model = None
                 _filter_annotation_mappings(
                     reader_result,
-                    exclude_classes=[momapy.core.elements.ModelElement],
+                    exclude_classes=[ModelElement],
                 )
             if not with_layout:
                 map_builder.layout = None
                 _filter_annotation_mappings(
                     reader_result,
-                    exclude_classes=[momapy.core.elements.LayoutElement],
+                    exclude_classes=[LayoutElement],
                 )
             map_builder.layout_model_mapping = None
-            obj = momapy.builder.object_from_builder(map_builder)
+            obj = object_from_builder(map_builder)
         reader_result.obj = obj
         return reader_result
 
 
-class PickleWriter(momapy.io.core.Writer):
+class PickleWriter(Writer):
     """Writer for pickled maps."""
 
     @classmethod
     def write(
         cls,
-        obj: momapy.core.map.Map,
+        obj: Map,
         file_path: str | os.PathLike,
         element_to_annotations=None,
         element_to_notes=None,
@@ -135,10 +140,10 @@ class PickleWriter(momapy.io.core.Writer):
         source_id_to_model_element=None,
         source_id_to_layout_element=None,
         **options: typing.Any,
-    ) -> momapy.io.core.WriterResult:
+    ) -> WriterResult:
         """Pickle a `ReaderResult` holding `obj` and its side-tables."""
-        momapy.utils.check_parent_dir_exists(file_path)
-        reader_result = momapy.io.core.ReaderResult(
+        check_parent_dir_exists(file_path)
+        reader_result = ReaderResult(
             obj=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,
@@ -149,4 +154,4 @@ class PickleWriter(momapy.io.core.Writer):
         )
         with open(file_path, "wb") as f:
             pickle.dump(reader_result, f)
-        return momapy.io.core.WriterResult(obj=obj, file_path=file_path)
+        return WriterResult(obj=obj, file_path=file_path)

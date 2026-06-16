@@ -8,11 +8,42 @@ import xml.sax.saxutils
 
 import typing_extensions
 
-import momapy.core.elements
-import momapy.drawing
-import momapy.geometry
-import momapy.rendering.core
-import momapy.utils
+from momapy.core.elements import LayoutElement
+from momapy.drawing import ClosePath
+from momapy.drawing import CompositeEffect
+from momapy.drawing import CompositionOperator
+from momapy.drawing import CurveTo
+from momapy.drawing import DrawingElement
+from momapy.drawing import DropShadowEffect
+from momapy.drawing import EdgeMode
+from momapy.drawing import Ellipse
+from momapy.drawing import EllipticalArc
+from momapy.drawing import FillRule
+from momapy.drawing import FilterEffectInput
+from momapy.drawing import FilterUnits
+from momapy.drawing import FloodEffect
+from momapy.drawing import FontStyle
+from momapy.drawing import FontWeight
+from momapy.drawing import GaussianBlurEffect
+from momapy.drawing import Group
+from momapy.drawing import LineTo
+from momapy.drawing import MoveTo
+from momapy.drawing import NoneValue
+from momapy.drawing import OffsetEffect
+from momapy.drawing import Path
+from momapy.drawing import PRESENTATION_ATTRIBUTES
+from momapy.drawing import QuadraticCurveTo
+from momapy.drawing import Rectangle
+from momapy.drawing import Text
+from momapy.drawing import TextAnchor
+from momapy.geometry import MatrixTransformation
+from momapy.geometry import Rotation
+from momapy.geometry import Scaling
+from momapy.geometry import Translation
+from momapy.rendering.core import Renderer
+from momapy.rendering.core import SupportsFileOutput
+from momapy.utils import check_parent_dir_exists
+from momapy.builder import Builder
 
 
 @dataclasses.dataclass
@@ -86,9 +117,7 @@ class SVGElement(object):
 
 
 @dataclasses.dataclass
-class SVGNativeRenderer(
-    momapy.rendering.core.Renderer, momapy.rendering.core.SupportsFileOutput
-):
+class SVGNativeRenderer(Renderer, SupportsFileOutput):
     """Renderer implementation for generating native SVG output.
 
     This renderer creates SVG markup directly without external dependencies.
@@ -120,78 +149,78 @@ class SVGNativeRenderer(
 
     supported_formats: typing.ClassVar[list[str]] = ["svg"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.Group: "_make_group_element",
-        momapy.drawing.Path: "_make_path_element",
-        momapy.drawing.Text: "_make_text_element",
-        momapy.drawing.Ellipse: "_make_ellipse_element",
-        momapy.drawing.Rectangle: "_make_rectangle_element",
+        Group: "_make_group_element",
+        Path: "_make_path_element",
+        Text: "_make_text_element",
+        Ellipse: "_make_ellipse_element",
+        Rectangle: "_make_rectangle_element",
     }
     _pa_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.MoveTo: "_make_move_to_value",
-        momapy.drawing.LineTo: "_make_line_to_value",
-        momapy.drawing.CurveTo: "_make_curve_to_value",
-        momapy.drawing.QuadraticCurveTo: "_make_quadratic_curve_to_value",
-        momapy.drawing.ClosePath: "_make_close_value",
-        momapy.drawing.EllipticalArc: "_make_elliptical_arc_value",
+        MoveTo: "_make_move_to_value",
+        LineTo: "_make_line_to_value",
+        CurveTo: "_make_curve_to_value",
+        QuadraticCurveTo: "_make_quadratic_curve_to_value",
+        ClosePath: "_make_close_value",
+        EllipticalArc: "_make_elliptical_arc_value",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.geometry.Translation: "_make_translation_value",
-        momapy.geometry.Rotation: "_make_rotation_value",
-        momapy.geometry.Scaling: "_make_scaling_value",
-        momapy.geometry.MatrixTransformation: "_make_matrix_transformation_value",
+        Translation: "_make_translation_value",
+        Rotation: "_make_rotation_value",
+        Scaling: "_make_scaling_value",
+        MatrixTransformation: "_make_matrix_transformation_value",
     }
     _fe_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.DropShadowEffect: "_make_drop_shadow_effect_element",
-        momapy.drawing.CompositeEffect: "_make_composite_effect_element",
-        momapy.drawing.GaussianBlurEffect: "_make_gaussian_blur_effect_element",
-        momapy.drawing.OffsetEffect: "_make_offset_effect_element",
-        momapy.drawing.FloodEffect: "_make_flood_effect_element",
+        DropShadowEffect: "_make_drop_shadow_effect_element",
+        CompositeEffect: "_make_composite_effect_element",
+        GaussianBlurEffect: "_make_gaussian_blur_effect_element",
+        OffsetEffect: "_make_offset_effect_element",
+        FloodEffect: "_make_flood_effect_element",
     }
     _fe_composite_comp_op_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.CompositionOperator.OVER: "over",
-        momapy.drawing.CompositionOperator.IN: "in",
-        momapy.drawing.CompositionOperator.OUT: "out",
-        momapy.drawing.CompositionOperator.ATOP: "atop",
-        momapy.drawing.CompositionOperator.XOR: "xor",
-        momapy.drawing.CompositionOperator.LIGHTER: "lighter",
-        momapy.drawing.CompositionOperator.ARITHMETIC: "arithmetic",
+        CompositionOperator.OVER: "over",
+        CompositionOperator.IN: "in",
+        CompositionOperator.OUT: "out",
+        CompositionOperator.ATOP: "atop",
+        CompositionOperator.XOR: "xor",
+        CompositionOperator.LIGHTER: "lighter",
+        CompositionOperator.ARITHMETIC: "arithmetic",
     }
     _fe_gaussian_blur_edgemode_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.EdgeMode.WRAP: "wrap",
-        momapy.drawing.EdgeMode.DUPLICATE: "duplicate",
-        momapy.drawing.NoneValue: "none",
+        EdgeMode.WRAP: "wrap",
+        EdgeMode.DUPLICATE: "duplicate",
+        NoneValue: "none",
     }
     _fe_filter_unit_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FilterUnits.USER_SPACE_ON_USE: "UserSpaceOnUse",
-        momapy.drawing.FilterUnits.OBJECT_BOUNDING_BOX: "objectBoundingBox",
+        FilterUnits.USER_SPACE_ON_USE: "UserSpaceOnUse",
+        FilterUnits.OBJECT_BOUNDING_BOX: "objectBoundingBox",
     }
     _fe_input_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FilterEffectInput.SOURCE_GRAPHIC: "SourceGraphic",
-        momapy.drawing.FilterEffectInput.SOURCE_ALPHA: "SourceAlpha",
-        momapy.drawing.FilterEffectInput.BACKGROUND_IMAGE: "BackgroundImage",
-        momapy.drawing.FilterEffectInput.BACKGROUND_ALPHA: "BackgroundAlpha",
-        momapy.drawing.FilterEffectInput.FILL_PAINT: "FillPaint",
-        momapy.drawing.FilterEffectInput.STROKE_PAINT: "StrokePaint",
+        FilterEffectInput.SOURCE_GRAPHIC: "SourceGraphic",
+        FilterEffectInput.SOURCE_ALPHA: "SourceAlpha",
+        FilterEffectInput.BACKGROUND_IMAGE: "BackgroundImage",
+        FilterEffectInput.BACKGROUND_ALPHA: "BackgroundAlpha",
+        FilterEffectInput.FILL_PAINT: "FillPaint",
+        FilterEffectInput.STROKE_PAINT: "StrokePaint",
     }
     _te_font_style_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontStyle.NORMAL: "normal",
-        momapy.drawing.FontStyle.ITALIC: "italic",
-        momapy.drawing.FontStyle.OBLIQUE: "oblique",
+        FontStyle.NORMAL: "normal",
+        FontStyle.ITALIC: "italic",
+        FontStyle.OBLIQUE: "oblique",
     }
     _te_font_weight_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontWeight.NORMAL: "normal",
-        momapy.drawing.FontWeight.BOLD: "bold",
-        momapy.drawing.FontWeight.BOLDER: "bolder",
-        momapy.drawing.FontWeight.LIGHTER: "lighter",
+        FontWeight.NORMAL: "normal",
+        FontWeight.BOLD: "bold",
+        FontWeight.BOLDER: "bolder",
+        FontWeight.LIGHTER: "lighter",
     }
     _te_text_anchor_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.TextAnchor.START: "start",
-        momapy.drawing.TextAnchor.MIDDLE: "middle",
-        momapy.drawing.TextAnchor.END: "end",
+        TextAnchor.START: "start",
+        TextAnchor.MIDDLE: "middle",
+        TextAnchor.END: "end",
     }
     _de_fill_rule_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FillRule.NONZERO: "nonzero",
-        momapy.drawing.FillRule.EVENODD: "evenodd",
+        FillRule.NONZERO: "nonzero",
+        FillRule.EVENODD: "evenodd",
     }
 
     svg: SVGElement
@@ -229,7 +258,7 @@ class SVGNativeRenderer(
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
-        momapy.utils.check_parent_dir_exists(file_path)
+        check_parent_dir_exists(file_path)
         if config is None:
             config = {}
         config["output_file"] = file_path
@@ -279,9 +308,7 @@ class SVGNativeRenderer(
         """
         pass
 
-    def render_layout_element(
-        self, layout_element: momapy.core.elements.LayoutElement
-    ) -> None:
+    def render_layout_element(self, layout_element: LayoutElement) -> None:
         """Render a layout element to the output.
 
         Args:
@@ -291,9 +318,7 @@ class SVGNativeRenderer(
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
-    def render_drawing_element(
-        self, drawing_element: momapy.drawing.DrawingElement
-    ) -> None:
+    def render_drawing_element(self, drawing_element: DrawingElement) -> None:
         """Render a drawing element to the output.
 
         Args:
@@ -322,7 +347,7 @@ class SVGNativeRenderer(
 
     def _make_transformation_value(self, transformation):
         class_ = type(transformation)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
@@ -339,10 +364,10 @@ class SVGNativeRenderer(
 
     def _make_drawing_element_presentation_attributes(self, drawing_element):
         attributes = {}
-        for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+        for attr_name in PRESENTATION_ATTRIBUTES:
             attr_value = getattr(drawing_element, attr_name)
             if attr_value is not None:
-                if attr_value is momapy.drawing.NoneValue:
+                if attr_value is NoneValue:
                     attr_value = "none"
                 else:
                     if attr_name == "stroke" or attr_name == "fill":
@@ -359,7 +384,7 @@ class SVGNativeRenderer(
                     elif attr_name == "font_style":
                         attr_value = self._te_font_style_value_mapping[attr_value]
                     elif attr_name == "font_weight":
-                        if isinstance(attr_value, momapy.drawing.FontWeight):
+                        if isinstance(attr_value, FontWeight):
                             attr_value = self._te_font_weight_value_mapping[attr_value]
                     elif attr_name == "text_anchor":
                         attr_value = self._te_text_anchor_value_mapping[attr_value]
@@ -396,7 +421,7 @@ class SVGNativeRenderer(
 
     def _make_filter_effect_element(self, filter_effect):
         class_ = type(filter_effect)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         fe_func = getattr(self, self._fe_class_func_mapping[class_])
         element = fe_func(filter_effect)
@@ -421,18 +446,18 @@ class SVGNativeRenderer(
     def _make_composite_effect_element(self, filter_effect):
         name = "feComposite"
         attributes = {}
-        if isinstance(filter_effect.in_, momapy.drawing.FilterEffectInput):
+        if isinstance(filter_effect.in_, FilterEffectInput):
             attributes["in"] = self._fe_input_value_mapping[filter_effect.in_]
         else:
             attributes["in"] = filter_effect.in_
-        if isinstance(filter_effect.in2, momapy.drawing.FilterEffectInput):
+        if isinstance(filter_effect.in2, FilterEffectInput):
             attributes["in2"] = self._fe_input_value_mapping[filter_effect.in2]
         else:
             attributes["in2"] = filter_effect.in2
         attributes["operator"] = self._fe_composite_comp_op_value_mapping[
             filter_effect.operator
         ]
-        if filter_effect.operator == momapy.drawing.CompositionOperator.ARITHMETIC:
+        if filter_effect.operator == CompositionOperator.ARITHMETIC:
             attributes["k1"] = str(filter_effect.k1)
             attributes["k2"] = str(filter_effect.k2)
             attributes["k3"] = str(filter_effect.k3)
@@ -461,7 +486,7 @@ class SVGNativeRenderer(
     def _make_gaussian_blur_effect_element(self, filter_effect):
         name = "feGaussianBlur"
         attributes = {}
-        if isinstance(filter_effect.in_, momapy.drawing.FilterEffectInput):
+        if isinstance(filter_effect.in_, FilterEffectInput):
             attributes["in"] = self._fe_input_value_mapping[filter_effect.in_]
         else:
             attributes["in"] = filter_effect.in_
@@ -493,7 +518,7 @@ class SVGNativeRenderer(
 
     def _make_drawing_element_element(self, drawing_element):
         class_ = type(drawing_element)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
         element = de_func(drawing_element)
@@ -517,7 +542,7 @@ class SVGNativeRenderer(
 
     def _make_path_action_value(self, path_action):
         class_ = type(path_action)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         pa_func = getattr(self, self._pa_class_func_mapping[class_])
         value = pa_func(path_action)

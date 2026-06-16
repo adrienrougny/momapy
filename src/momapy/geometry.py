@@ -35,7 +35,7 @@ import copy
 
 import numpy
 
-import momapy.builder
+from momapy.builder import isinstance_or_builder
 
 __all__ = [
     "Bbox",
@@ -97,12 +97,12 @@ class Point(GeometryObject):
         object.__setattr__(self, "y", round(self.y, ROUNDING))
 
     def __add__(self, xy):
-        if momapy.builder.isinstance_or_builder(xy, Point):
+        if isinstance_or_builder(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x + xy[0], self.y + xy[1])
 
     def __sub__(self, xy):
-        if momapy.builder.isinstance_or_builder(xy, Point):
+        if isinstance_or_builder(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x - xy[0], self.y - xy[1])
 

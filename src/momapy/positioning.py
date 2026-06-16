@@ -16,11 +16,16 @@ Examples:
 
 import collections.abc
 
-import momapy.core
-import momapy.core.elements
-import momapy.core.layout
-import momapy.geometry
-import momapy.builder
+from momapy.builder import Builder
+from momapy.builder import isinstance_or_builder
+from momapy.core.elements import LayoutElement
+from momapy.core.layout import DoubleHeadedArc
+from momapy.core.layout import Node
+from momapy.core.layout import SingleHeadedArc
+from momapy.geometry import Bbox
+from momapy.geometry import Point
+from momapy.geometry import Rotation
+from momapy.geometry import Segment
 
 __all__ = [
     "above_left_of",
@@ -54,14 +59,9 @@ __all__ = [
 
 
 def right_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance: float,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point to the right of the given object at the specified distance.
 
     Args:
@@ -77,13 +77,13 @@ def right_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(0, 0)
+        point = Point(0, 0)
         right_of(point, 10)
         ```
     """
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -91,14 +91,9 @@ def right_of(
 
 
 def left_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance: float,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point to the left of the given object at the specified distance.
 
     Args:
@@ -114,13 +109,13 @@ def left_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(10, 0)
+        point = Point(10, 0)
         left_of(point, 5)
         ```
     """
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -128,14 +123,9 @@ def left_of(
 
 
 def above_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance: float,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point above the given object at the specified distance.
 
     Args:
@@ -151,13 +141,13 @@ def above_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(0, 10)
+        point = Point(0, 10)
         above_of(point, 5)
         ```
     """
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.north()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -165,14 +155,9 @@ def above_of(
 
 
 def below_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance: float,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point below the given object at the specified distance.
 
     Args:
@@ -188,13 +173,13 @@ def below_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(0, 0)
+        point = Point(0, 0)
         below_of(point, 10)
         ```
     """
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.south()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -202,15 +187,10 @@ def below_of(
 
 
 def above_left_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point above and to the left of the given object.
 
     Args:
@@ -228,15 +208,15 @@ def above_left_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(10, 10)
+        point = Point(10, 10)
         above_left_of(point, 5)
         ```
     """
     if distance2 is None:
         distance2 = distance1
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.north_west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -244,15 +224,10 @@ def above_left_of(
 
 
 def above_right_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point above and to the right of the given object.
 
     Args:
@@ -270,15 +245,15 @@ def above_right_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(0, 10)
+        point = Point(0, 10)
         above_right_of(point, 5, 10)
         ```
     """
     if distance2 is None:
         distance2 = distance1
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.north_east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -286,15 +261,10 @@ def above_right_of(
 
 
 def below_left_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point below and to the left of the given object.
 
     Args:
@@ -312,15 +282,15 @@ def below_left_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(10, 0)
+        point = Point(10, 0)
         below_left_of(point, 5)
         ```
     """
     if distance2 is None:
         distance2 = distance1
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.south_west()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -328,15 +298,10 @@ def below_left_of(
 
 
 def below_right_of(
-    obj: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
-) -> momapy.geometry.Point:
+) -> Point:
     """Return a point below and to the right of the given object.
 
     Args:
@@ -354,15 +319,15 @@ def below_right_of(
 
     Examples:
         ```python
-        point = momapy.geometry.Point(0, 0)
+        point = Point(0, 0)
         below_right_of(point, 5, 10)
         ```
     """
     if distance2 is None:
         distance2 = distance1
-    if momapy.builder.isinstance_or_builder(obj, momapy.geometry.Point):
+    if isinstance_or_builder(obj, Point):
         source_point = obj
-    elif momapy.builder.isinstance_or_builder(obj, momapy.core.layout.Node):
+    elif isinstance_or_builder(obj, Node):
         source_point = obj.south_east()
     else:
         raise TypeError(f"{type(obj).__name__} not supported")
@@ -370,15 +335,10 @@ def below_right_of(
 
 
 def fit(
-    elements: collections.abc.Collection[
-        momapy.core.elements.LayoutElement
-        | momapy.geometry.Bbox
-        | momapy.geometry.Point
-        | momapy.builder.Builder
-    ],
+    elements: collections.abc.Collection[LayoutElement | Bbox | Point | Builder],
     xsep: float = 0,
     ysep: float = 0,
-) -> momapy.geometry.Bbox:
+) -> Bbox:
     """Compute a bounding box that fits the given elements with optional margins.
 
     Args:
@@ -396,7 +356,7 @@ def fit(
 
     Examples:
         ```python
-        points = [momapy.geometry.Point(0, 0), momapy.geometry.Point(10, 10)]
+        points = [Point(0, 0), Point(10, 10)]
         bbox = fit(points, xsep=2, ysep=2)
         print(bbox.position)
         ```
@@ -405,22 +365,20 @@ def fit(
         raise ValueError("elements must contain at least one element")
     points = []
     for element in elements:
-        if momapy.builder.isinstance_or_builder(element, momapy.geometry.Point):
+        if isinstance_or_builder(element, Point):
             points.append(element)
-        elif momapy.builder.isinstance_or_builder(element, momapy.geometry.Bbox):
+        elif isinstance_or_builder(element, Bbox):
             points.append(element.north_west())
             points.append(element.south_east())
-        elif momapy.builder.isinstance_or_builder(
-            element, momapy.core.elements.LayoutElement
-        ):
+        elif isinstance_or_builder(element, LayoutElement):
             bbox = element.bbox()
             points.append(bbox.north_west())
             points.append(bbox.south_east())
         else:
             raise TypeError(f"{type(element)} not supported")
-    bbox = momapy.geometry.Bbox.around_points(points)
+    bbox = Bbox.around_points(points)
     if xsep or ysep:
-        bbox = momapy.geometry.Bbox(
+        bbox = Bbox(
             bbox.position,
             bbox.width + 2 * xsep,
             bbox.height + 2 * ysep,
@@ -429,19 +387,9 @@ def fit(
 
 
 def mid_of(
-    obj1: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-) -> momapy.geometry.Point:
+    obj1: (Point | Bbox | Node | Builder),
+    obj2: (Point | Bbox | Node | Builder),
+) -> Point:
     """Return the midpoint between two objects.
 
     Args:
@@ -454,37 +402,23 @@ def mid_of(
 
     Examples:
         ```python
-        p1 = momapy.geometry.Point(0, 0)
-        p2 = momapy.geometry.Point(10, 10)
+        p1 = Point(0, 0)
+        p2 = Point(10, 10)
         mid_of(p1, p2)
         ```
     """
-    if momapy.builder.isinstance_or_builder(
-        obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj1, (Bbox, Node)):
         obj1 = obj1.center()
-    if momapy.builder.isinstance_or_builder(
-        obj2, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj2, (Bbox, Node)):
         obj2 = obj2.center()
-    segment = momapy.geometry.Segment(obj1, obj2)
+    segment = Segment(obj1, obj2)
     return segment.get_position_at_fraction(0.5)
 
 
 def cross_vh_of(
-    obj1: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-) -> momapy.geometry.Point:
+    obj1: (Point | Bbox | Node | Builder),
+    obj2: (Point | Bbox | Node | Builder),
+) -> Point:
     """Return the point at the vertical cross of obj1 and horizontal cross of obj2.
 
     Creates a point using obj1's x-coordinate and obj2's y-coordinate.
@@ -500,38 +434,24 @@ def cross_vh_of(
 
     Examples:
         ```python
-        p1 = momapy.geometry.Point(5, 0)
-        p2 = momapy.geometry.Point(0, 10)
+        p1 = Point(5, 0)
+        p2 = Point(0, 10)
         cross_vh_of(p1, p2)
         ```
     """
-    if momapy.builder.isinstance_or_builder(
-        obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj1, (Bbox, Node)):
         obj1 = obj1.center()
-    if momapy.builder.isinstance_or_builder(
-        obj2, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj2, (Bbox, Node)):
         obj2 = obj2.center()
     x = obj1.x
     y = obj2.y
-    return momapy.geometry.Point(x, y)
+    return Point(x, y)
 
 
 def cross_hv_of(
-    obj1: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-) -> momapy.geometry.Point:
+    obj1: (Point | Bbox | Node | Builder),
+    obj2: (Point | Bbox | Node | Builder),
+) -> Point:
     """Return the point at the horizontal cross of obj1 and vertical cross of obj2.
 
     Creates a point using obj1's y-coordinate and obj2's x-coordinate.
@@ -547,30 +467,24 @@ def cross_hv_of(
 
     Examples:
         ```python
-        p1 = momapy.geometry.Point(0, 5)
-        p2 = momapy.geometry.Point(10, 0)
+        p1 = Point(0, 5)
+        p2 = Point(10, 0)
         cross_hv_of(p1, p2)
         ```
     """
-    if momapy.builder.isinstance_or_builder(
-        obj1, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj1, (Bbox, Node)):
         obj1 = obj1.center()
-    if momapy.builder.isinstance_or_builder(
-        obj2, (momapy.geometry.Bbox, momapy.core.layout.Node)
-    ):
+    if isinstance_or_builder(obj2, (Bbox, Node)):
         obj2 = obj2.center()
     y = obj1.y
     x = obj2.x
-    return momapy.geometry.Point(x, y)
+    return Point(x, y)
 
 
 def fraction_of(
-    arc_layout_element: (
-        momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc
-    ),
+    arc_layout_element: (SingleHeadedArc | DoubleHeadedArc),
     fraction: float,
-) -> tuple[momapy.geometry.Point, float]:
+) -> tuple[Point, float]:
     """Return the position and angle at a given fraction along an arc.
 
     Args:
@@ -593,8 +507,8 @@ def fraction_of(
 
 
 def set_position(
-    obj: momapy.builder.Builder,
-    position: momapy.geometry.Point | momapy.builder.Builder,
+    obj: Builder,
+    position: Point | Builder,
     anchor: str | None = None,
 ):
     """Set the position of a builder object.
@@ -608,8 +522,8 @@ def set_position(
 
     Examples:
         ```python
-        builder = momapy.builder.get_or_make_builder_cls(MyNode)()
-        set_position(builder, momapy.geometry.Point(100, 100), anchor="center")
+        builder = get_or_make_builder_cls(MyNode)()
+        set_position(builder, Point(100, 100), anchor="center")
         ```
     """
     obj.position = position
@@ -619,13 +533,8 @@ def set_position(
 
 
 def set_right_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
 ):
@@ -642,13 +551,8 @@ def set_right_of(
 
 
 def set_left_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
 ):
@@ -665,13 +569,8 @@ def set_left_of(
 
 
 def set_above_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
 ):
@@ -688,13 +587,8 @@ def set_above_of(
 
 
 def set_below_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
 ):
@@ -711,13 +605,8 @@ def set_below_of(
 
 
 def set_above_left_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
@@ -736,13 +625,8 @@ def set_above_left_of(
 
 
 def set_above_right_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
@@ -761,13 +645,8 @@ def set_above_right_of(
 
 
 def set_below_left_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
@@ -786,13 +665,8 @@ def set_below_left_of(
 
 
 def set_below_right_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | LayoutElement | Builder),
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
@@ -811,13 +685,8 @@ def set_below_right_of(
 
 
 def set_fit(
-    obj: momapy.builder.Builder,
-    elements: collections.abc.Collection[
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ],
+    obj: Builder,
+    elements: collections.abc.Collection[Point | Bbox | LayoutElement | Builder],
     xsep: float = 0,
     ysep: float = 0,
     anchor: str | None = None,
@@ -838,10 +707,8 @@ def set_fit(
 
 
 def set_fraction_of(
-    obj: momapy.builder.Builder,
-    arc_layout_element: (
-        momapy.core.layout.SingleHeadedArc | momapy.core.layout.DoubleHeadedArc
-    ),
+    obj: Builder,
+    arc_layout_element: (SingleHeadedArc | DoubleHeadedArc),
     fraction: float,
     anchor: str | None = None,
 ):
@@ -854,25 +721,15 @@ def set_fraction_of(
         anchor: Optional anchor name on obj to align with the calculated position.
     """
     position, angle = fraction_of(arc_layout_element, fraction)
-    rotation = momapy.geometry.Rotation(angle, position)
+    rotation = Rotation(angle, position)
     set_position(obj, position, anchor)
     obj.transform = [rotation]
 
 
 def set_mid_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj3: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | Node | Builder),
+    obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
 ):
     """Set obj1's position to the midpoint between obj2 and obj3.
@@ -888,19 +745,9 @@ def set_mid_of(
 
 
 def set_cross_hv_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj3: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | Node | Builder),
+    obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
 ):
     """Set obj1's position at the horizontal-vertical cross of obj2 and obj3.
@@ -918,19 +765,9 @@ def set_cross_hv_of(
 
 
 def set_cross_vh_of(
-    obj1: momapy.builder.Builder,
-    obj2: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
-    obj3: (
-        momapy.geometry.Point
-        | momapy.geometry.Bbox
-        | momapy.core.layout.Node
-        | momapy.builder.Builder
-    ),
+    obj1: Builder,
+    obj2: (Point | Bbox | Node | Builder),
+    obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
 ):
     """Set obj1's position at the vertical-horizontal cross of obj2 and obj3.

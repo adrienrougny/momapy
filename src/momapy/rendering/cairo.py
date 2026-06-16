@@ -28,16 +28,35 @@ except ModuleNotFoundError as e:
         f"Or install momapy with cairo support: pip install momapy[cairo]"
     ) from e
 
-import momapy.drawing
-import momapy.geometry
-import momapy.rendering.core
-import momapy.utils
+from momapy.drawing import ClosePath
+from momapy.drawing import CurveTo
+from momapy.drawing import Ellipse
+from momapy.drawing import EllipticalArc as EllipticalArcDrawing
+from momapy.drawing import FontStyle
+from momapy.drawing import Group
+from momapy.drawing import LineTo
+from momapy.drawing import MoveTo
+from momapy.drawing import NoneValue
+from momapy.drawing import Path
+from momapy.drawing import QuadraticCurveTo
+from momapy.drawing import Rectangle
+from momapy.drawing import Text
+from momapy.geometry import EllipticalArc as EllipticalArcGeometry
+from momapy.geometry import MatrixTransformation
+from momapy.geometry import Point
+from momapy.geometry import Rotation
+from momapy.geometry import Scaling
+from momapy.geometry import Translation
+from momapy.rendering.core import StatefulRenderer
+from momapy.rendering.core import SupportsFileOutput
+from momapy.utils import check_parent_dir_exists
+from momapy.builder import Builder
 
 
 @dataclasses.dataclass(kw_only=True)
 class CairoRenderer(
-    momapy.rendering.core.StatefulRenderer,
-    momapy.rendering.core.SupportsFileOutput,
+    StatefulRenderer,
+    SupportsFileOutput,
 ):
     """Renderer implementation using the Cairo graphics library.
 
@@ -58,7 +77,7 @@ class CairoRenderer(
 
         # Create a layout element to render
         node = Rectangle(
-            position=momapy.geometry.Point(100, 100),
+            position=Point(100, 100),
             width=200,
             height=100
         )
@@ -73,30 +92,30 @@ class CairoRenderer(
 
     supported_formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
     _de_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.Group: "_render_group",
-        momapy.drawing.Path: "_render_path",
-        momapy.drawing.Text: "_render_text",
-        momapy.drawing.Ellipse: "_render_ellipse",
-        momapy.drawing.Rectangle: "_render_rectangle",
+        Group: "_render_group",
+        Path: "_render_path",
+        Text: "_render_text",
+        Ellipse: "_render_ellipse",
+        Rectangle: "_render_rectangle",
     }
     _pa_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.MoveTo: "_add_move_to",
-        momapy.drawing.LineTo: "_add_line_to",
-        momapy.drawing.CurveTo: "_add_curve_to",
-        momapy.drawing.QuadraticCurveTo: "_add_quadratic_curve_to",
-        momapy.drawing.ClosePath: "_add_close_path",
-        momapy.drawing.EllipticalArc: "_add_elliptical_arc",
+        MoveTo: "_add_move_to",
+        LineTo: "_add_line_to",
+        CurveTo: "_add_curve_to",
+        QuadraticCurveTo: "_add_quadratic_curve_to",
+        ClosePath: "_add_close_path",
+        EllipticalArcDrawing: "_add_elliptical_arc",
     }
     _tr_class_func_mapping: typing.ClassVar[dict] = {
-        momapy.geometry.Translation: "_add_translation",
-        momapy.geometry.Rotation: "_add_rotation",
-        momapy.geometry.Scaling: "_add_scaling",
-        momapy.geometry.MatrixTransformation: "_add_matrix_transformation",
+        Translation: "_add_translation",
+        Rotation: "_add_rotation",
+        Scaling: "_add_scaling",
+        MatrixTransformation: "_add_matrix_transformation",
     }
     _te_font_style_slant_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontStyle.NORMAL: gi.repository.Pango.Style.NORMAL,
-        momapy.drawing.FontStyle.ITALIC: gi.repository.Pango.Style.ITALIC,
-        momapy.drawing.FontStyle.OBLIQUE: gi.repository.Pango.Style.OBLIQUE,
+        FontStyle.NORMAL: gi.repository.Pango.Style.NORMAL,
+        FontStyle.ITALIC: gi.repository.Pango.Style.ITALIC,
+        FontStyle.OBLIQUE: gi.repository.Pango.Style.OBLIQUE,
     }
     context: cairo.Context = dataclasses.field(
         metadata={"description": "A cairo context"}
@@ -135,7 +154,7 @@ class CairoRenderer(
         """
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
-        momapy.utils.check_parent_dir_exists(file_path)
+        check_parent_dir_exists(file_path)
         if config is None:
             config = {}
         if format_ == "pdf":
@@ -216,7 +235,7 @@ class CairoRenderer(
         self.set_current_state_from_drawing_element(drawing_element)
         self._add_transform_from_drawing_element(drawing_element)
         class_ = type(drawing_element)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         de_func = getattr(self, self._de_class_func_mapping[class_])
         de_func(drawing_element)
@@ -245,13 +264,10 @@ class CairoRenderer(
         stroke_dasharray = self.get_current_value("stroke_dasharray")
         stroke_dashoffset = self.get_current_value("stroke_dashoffset")
 
-        if stroke is not momapy.drawing.NoneValue:
+        if stroke is not NoneValue:
             self.context.set_line_width(stroke_width)
             self.context.set_source_rgba(*stroke.to_rgba(rgba_range=(0.0, 1.0)))
-            if (
-                stroke_dasharray is not None
-                and stroke_dasharray is not momapy.drawing.NoneValue
-            ):
+            if stroke_dasharray is not None and stroke_dasharray is not NoneValue:
                 self.context.set_dash(stroke_dasharray, stroke_dashoffset or 0)
             else:
                 self.context.set_dash([])
@@ -260,14 +276,14 @@ class CairoRenderer(
 
     def _make_fill_paint(self):
         fill = self.get_current_value("fill")
-        if fill is not momapy.drawing.NoneValue:
+        if fill is not NoneValue:
             self.context.set_source_rgba(*fill.to_rgba(rgba_range=(0.0, 1.0)))
             return True
         return False
 
     def _stroke_and_fill(self):
         has_fill = self._make_fill_paint()
-        has_stroke = self.get_current_value("stroke") is not momapy.drawing.NoneValue
+        has_stroke = self.get_current_value("stroke") is not NoneValue
 
         if has_fill:
             if has_stroke:
@@ -282,14 +298,14 @@ class CairoRenderer(
     def _add_transform_from_drawing_element(self, drawing_element):
         if (
             drawing_element.transform is not None
-            and drawing_element.transform is not momapy.drawing.NoneValue
+            and drawing_element.transform is not NoneValue
         ):
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
 
     def _add_transformation(self, transformation):
         class_ = type(transformation)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
@@ -300,7 +316,7 @@ class CairoRenderer(
 
     def _add_path_action_to_context(self, path_action):
         class_ = type(path_action)
-        if issubclass(class_, momapy.builder.Builder):
+        if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         pa_func = getattr(self, self._pa_class_func_mapping[class_])
         pa_func(path_action)
@@ -382,9 +398,7 @@ class CairoRenderer(
 
     def _add_quadratic_curve_to(self, quadratic_curve_to):
         cairo_current_point = self.context.get_current_point()
-        current_point = momapy.geometry.Point(
-            cairo_current_point[0], cairo_current_point[1]
-        )
+        current_point = Point(cairo_current_point[0], cairo_current_point[1])
         curve_to = quadratic_curve_to.to_curve_to(current_point)
         self._add_curve_to(curve_to)
 
@@ -393,9 +407,9 @@ class CairoRenderer(
 
     def _add_elliptical_arc(self, elliptical_arc):
         current_point = self.context.get_current_point()
-        p1 = momapy.geometry.Point(current_point[0], current_point[1])
+        p1 = Point(current_point[0], current_point[1])
 
-        obj = momapy.geometry.EllipticalArc(
+        obj = EllipticalArcGeometry(
             p1=p1,
             p2=elliptical_arc.point,
             rx=elliptical_arc.rx,

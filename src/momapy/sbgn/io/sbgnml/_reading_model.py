@@ -5,27 +5,36 @@ argument, checks whether ``reading_context.model`` is ``None``, and
 returns ``None`` early when no model is being built.
 """
 
-import momapy.builder
-import momapy.core.elements
-import momapy.io.utils
-import momapy.sbgn.pd
-import momapy.sbgn.io.sbgnml._reading_classification
-import momapy.sbgn.io.sbgnml._reading_parsing
-import momapy.sbml.io.sbml._model
-import momapy.sbml.io.sbml._parsing
-import momapy.sbml.io.sbml._qualifiers
+from momapy.builder import new_builder_object
+from momapy.builder import object_from_builder
+from momapy.core.elements import Direction
+from momapy.sbgn.pd import LogicalOperatorInput
+from momapy.sbgn.pd import Product
+from momapy.sbgn.pd import Reactant
+from momapy.sbgn.pd import StateVariable
+from momapy.sbgn.pd import Tag
+from momapy.sbgn.pd import TagReference
+from momapy.sbgn.pd import Terminal
+from momapy.sbgn.pd import TerminalReference
+from momapy.sbgn.io.sbgnml._reading_classification import get_module_from_object
+from momapy.sbgn.io.sbgnml._reading_parsing import get_notes
+from momapy.sbgn.io.sbgnml._reading_parsing import get_rdf
+from momapy.sbgn.io.sbgnml._reading_parsing import get_stoichiometry
+from momapy.sbgn.io.sbgnml._reading_parsing import is_process_reversible
+from momapy.sbml.io.sbml._model import make_annotations
+from momapy.sbml.io.sbml._model import make_notes
 
 
 def make_annotations_from_element(sbgnml_element):
-    sbgnml_rdf = momapy.sbgn.io.sbgnml._reading_parsing.get_rdf(sbgnml_element)
+    sbgnml_rdf = get_rdf(sbgnml_element)
     if sbgnml_rdf is None:
         return []
-    return momapy.sbml.io.sbml._model.make_annotations(sbgnml_rdf)
+    return make_annotations(sbgnml_rdf)
 
 
 def make_notes_from_element(sbgnml_element):
-    sbgnml_notes = momapy.sbgn.io.sbgnml._reading_parsing.get_notes(sbgnml_element)
-    return momapy.sbml.io.sbml._model.make_notes(sbgnml_notes)
+    sbgnml_notes = get_notes(sbgnml_element)
+    return make_notes(sbgnml_notes)
 
 
 def make_and_add_annotations_and_notes(
@@ -102,10 +111,8 @@ def make_compartment(reading_context, sbgnml_compartment):
     """
     if reading_context.model is None:
         return None
-    module = momapy.sbgn.io.sbgnml._reading_classification.get_module_from_object(
-        reading_context.model
-    )
-    model_element = momapy.builder.new_builder_object(module.Compartment)
+    module = get_module_from_object(reading_context.model)
+    model_element = new_builder_object(module.Compartment)
     model_element.id_ = f"{sbgnml_compartment.get('id')}_model"
     set_label(model_element, sbgnml_compartment)
     return model_element
@@ -129,7 +136,7 @@ def make_entity_pool_or_subunit(
     """
     if reading_context.model is None or model_element_cls is None:
         return None
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_entity_pool_or_subunit.get('id')}_model"
     set_compartment(
         model_element,
@@ -153,7 +160,7 @@ def make_activity(reading_context, sbgnml_activity, model_element_cls):
     """
     if reading_context.model is None:
         return None
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_activity.get('id')}_model"
     set_compartment(
         model_element,
@@ -190,12 +197,12 @@ def make_state_variable(reading_context, sbgnml_state_variable, order=None):
             value = None
         sbgnml_variable = sbgnml_state.get("variable")
         variable = sbgnml_variable
-    model_element = momapy.builder.new_builder_object(momapy.sbgn.pd.StateVariable)
+    model_element = new_builder_object(StateVariable)
     model_element.id_ = f"{sbgnml_id}_model"
     model_element.value = value
     model_element.variable = variable
     model_element.order = order
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -216,14 +223,14 @@ def make_unit_of_information(
         return None
     sbgnml_label = getattr(sbgnml_unit_of_information, "label", None)
     sbgnml_id = sbgnml_unit_of_information.get("id")
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
     if sbgnml_label is not None:
         split_label = sbgnml_label.get("text").split(":")
         model_element.value = split_label[-1]
         if len(split_label) > 1:
             model_element.prefix = split_label[0]
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -241,7 +248,7 @@ def make_submap(reading_context, sbgnml_submap, model_element_cls):
     if reading_context.model is None:
         return None
     sbgnml_id = sbgnml_submap.get("id")
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
     set_label(model_element, sbgnml_submap)
     return model_element
@@ -262,10 +269,10 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
         return None
     sbgnml_id = sbgnml_terminal_or_tag.get("id")
     if is_terminal:
-        model_element_cls = momapy.sbgn.pd.Terminal
+        model_element_cls = Terminal
     else:
-        model_element_cls = momapy.sbgn.pd.Tag
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+        model_element_cls = Tag
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
     set_label(model_element, sbgnml_terminal_or_tag)
     return model_element
@@ -290,16 +297,16 @@ def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
     # from the reference to the referred node.
     sbgnml_target_id = sbgnml_equivalence_arc.get("source")
     if is_terminal:
-        model_element_cls = momapy.sbgn.pd.TerminalReference
+        model_element_cls = TerminalReference
     else:
-        model_element_cls = momapy.sbgn.pd.TagReference
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+        model_element_cls = TagReference
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
     target_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_target_id, ())), None
     )
     model_element.element = target_model_element
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -317,12 +324,10 @@ def make_stoichiometric_process(reading_context, sbgnml_process, model_element_c
     if reading_context.model is None:
         return None
     sbgnml_id = sbgnml_process.get("id")
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
-    model_element.reversible = (
-        momapy.sbgn.io.sbgnml._reading_parsing.is_process_reversible(
-            sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
-        )
+    model_element.reversible = is_process_reversible(
+        sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
     )
     return model_element
 
@@ -343,17 +348,15 @@ def make_reactant(reading_context, sbgnml_consumption_arc):
     sbgnml_source_id = sbgnml_consumption_arc.get("source")
     if sbgnml_source_id in reading_context.empty_set_xml_ids:
         return None
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
-        sbgnml_consumption_arc
-    )
-    model_element = momapy.builder.new_builder_object(momapy.sbgn.pd.Reactant)
+    sbgnml_stoichiometry = get_stoichiometry(sbgnml_consumption_arc)
+    model_element = new_builder_object(Reactant)
     model_element.id_ = f"{sbgnml_consumption_arc.get('id')}_model"
     source_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_source_id, ())), None
     )
     model_element.element = source_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -382,34 +385,32 @@ def make_product(
     sbgnml_target_id = sbgnml_production_arc.get("target")
     if sbgnml_target_id in reading_context.empty_set_xml_ids:
         return None
-    sbgnml_stoichiometry = momapy.sbgn.io.sbgnml._reading_parsing.get_stoichiometry(
-        sbgnml_production_arc
-    )
+    sbgnml_stoichiometry = get_stoichiometry(sbgnml_production_arc)
     if super_model_element.reversible:
-        if process_direction == momapy.core.elements.Direction.HORIZONTAL:
+        if process_direction == Direction.HORIZONTAL:
             if float(sbgnml_production_arc.start.get("x")) > float(
                 super_sbgnml_element.bbox.get("x")
             ):  # RIGHT
-                model_element_cls = momapy.sbgn.pd.Product
+                model_element_cls = Product
             else:
-                model_element_cls = momapy.sbgn.pd.Reactant  # LEFT
+                model_element_cls = Reactant  # LEFT
         else:
             if float(sbgnml_production_arc.start.get("y")) > float(
                 super_sbgnml_element.bbox.get("y")
             ):  # TOP
-                model_element_cls = momapy.sbgn.pd.Product
+                model_element_cls = Product
             else:
-                model_element_cls = momapy.sbgn.pd.Reactant  # BOTTOM
+                model_element_cls = Reactant  # BOTTOM
     else:
-        model_element_cls = momapy.sbgn.pd.Product
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+        model_element_cls = Product
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_production_arc.get('id')}_model"
     target_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_target_id, ())), None
     )
     model_element.element = target_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -427,7 +428,7 @@ def make_logical_operator(reading_context, sbgnml_logical_operator, model_elemen
     if reading_context.model is None:
         return None
     sbgnml_id = sbgnml_logical_operator.get("id")
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_id}_model"
     return model_element
 
@@ -447,12 +448,10 @@ def make_logical_operator_input(
     """
     if reading_context.model is None:
         return None
-    model_element = momapy.builder.new_builder_object(
-        momapy.sbgn.pd.LogicalOperatorInput
-    )
+    model_element = new_builder_object(LogicalOperatorInput)
     model_element.id_ = f"{sbgnml_logic_arc.get('id')}_model"
     model_element.element = source_model_element
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element
 
 
@@ -477,9 +476,9 @@ def make_modulation(
     """
     if reading_context.model is None:
         return None
-    model_element = momapy.builder.new_builder_object(model_element_cls)
+    model_element = new_builder_object(model_element_cls)
     model_element.id_ = f"{sbgnml_modulation.get('id')}_model"
     model_element.source = source_model_element
     model_element.target = target_model_element
-    model_element = momapy.builder.object_from_builder(model_element)
+    model_element = object_from_builder(model_element)
     return model_element

@@ -9,16 +9,42 @@ import typing
 
 import lxml.etree
 
-import momapy.core.elements
-import momapy.core.layout
-import momapy.io.core
-import momapy.io.utils
-import momapy.utils
-import momapy.sbgn
-import momapy.sbgn.pd
-import momapy.sbgn.af
-import momapy.sbgn.io.sbgnml._writing
-import momapy.sbgn.io.sbgnml._writing_classification
+from momapy.core.layout import DoubleHeadedArc
+from momapy.core.layout import Node
+from momapy.core.layout import SingleHeadedArc
+from momapy.io.core import Writer
+from momapy.io.core import WriterResult
+from momapy.io.utils import WritingContext
+from momapy.io.utils import make_unique_xml_id
+from momapy.utils import check_parent_dir_exists
+from momapy.sbgn import SBGNMap
+from momapy.sbgn.pd import ConsumptionLayout
+from momapy.sbgn.pd import EmptySetLayout
+from momapy.sbgn.pd import EntityPool
+from momapy.sbgn.pd import LogicArcLayout as PDLogicArcLayout
+from momapy.sbgn.pd import Phenotype
+from momapy.sbgn.pd import ProductionLayout
+from momapy.sbgn.pd import SBGNPDModel
+from momapy.sbgn.pd import StateVariableLayout
+from momapy.sbgn.pd import StoichiometricProcess
+from momapy.sbgn.af import Activity
+from momapy.sbgn.af import LogicArcLayout as AFLogicArcLayout
+from momapy.sbgn.io.sbgnml._writing import NSMAP
+from momapy.sbgn.io.sbgnml._writing import add_annotations_and_notes
+from momapy.sbgn.io.sbgnml._writing import ensure_ncname
+from momapy.sbgn.io.sbgnml._writing import make_lxml_element
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_bbox_from_node
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_entity
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_label
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_points
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_port
+from momapy.sbgn.io.sbgnml._writing import make_sbgnml_state
+from momapy.sbgn.io.sbgnml._writing_classification import CLASS_TO_SBGNML_CLASS
+from momapy.sbgn.io.sbgnml._writing_classification import CLASS_TO_SBGNML_ENTITY_NAME
+from momapy.sbgn.io.sbgnml._writing_classification import (
+    DIRECTION_TO_SBGNML_ORIENTATION,
+)
+from momapy.sbgn.io.sbgnml._writing_classification import REVERSED_ARC_TYPES
 
 
 # ---------------------------------------------------------------------------
@@ -49,7 +75,7 @@ def _reserve_source_xml_ids(writing_context):
         element_id_to_source_ids.setdefault(id(layout_element), set()).add(source_id)
     for element_id, source_ids in element_id_to_source_ids.items():
         chosen = min(source_ids, key=lambda source_id: (len(source_id), source_id))
-        if momapy.sbgn.io.sbgnml._writing.ensure_ncname(chosen) == chosen:
+        if ensure_ncname(chosen) == chosen:
             writing_context.element_to_xml_id[element_id] = chosen
             writing_context.used_xml_ids.add(chosen)
 
@@ -73,8 +99,8 @@ def _get_xml_id(writing_context, element):
     existing = writing_context.element_to_xml_id.get(element_id)
     if existing is not None:
         return existing
-    projected = momapy.sbgn.io.sbgnml._writing.ensure_ncname(element.id_)
-    final = momapy.io.utils.make_unique_xml_id(projected, writing_context.used_xml_ids)
+    projected = ensure_ncname(element.id_)
+    final = make_unique_xml_id(projected, writing_context.used_xml_ids)
     writing_context.element_to_xml_id[element_id] = final
     return final
 
@@ -174,19 +200,15 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
         The lxml ``<glyph>`` element.
     """
     sbgnml_id = _get_xml_id(writing_context, layout_element)
-    sbgnml_class = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
-        type(layout_element)
-    ]
+    sbgnml_class = CLASS_TO_SBGNML_CLASS[type(layout_element)]
     attributes = {"id": sbgnml_id, "class": sbgnml_class}
     direction = getattr(layout_element, "direction", None)
     if direction is not None:
-        sbgnml_orientation = momapy.sbgn.io.sbgnml._writing_classification.DIRECTION_TO_SBGNML_ORIENTATION[
-            direction
-        ]
+        sbgnml_orientation = DIRECTION_TO_SBGNML_ORIENTATION[direction]
         attributes["orientation"] = sbgnml_orientation
     if model_element is not None and isinstance(
         model_element,
-        (momapy.sbgn.pd.EntityPool, momapy.sbgn.af.Activity),
+        (EntityPool, Activity),
     ):
         compartment = model_element.compartment
         if compartment is not None:
@@ -198,31 +220,19 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
                     writing_context, compartment_layout_elements[0]
                 )
                 attributes["compartmentRef"] = compartment_id
-    sbgnml_glyph = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
-        "glyph", attributes=attributes
-    )
-    entity_name = (
-        momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_ENTITY_NAME.get(
-            type(layout_element)
-        )
-    )
+    sbgnml_glyph = make_lxml_element("glyph", attributes=attributes)
+    entity_name = CLASS_TO_SBGNML_ENTITY_NAME.get(type(layout_element))
     if entity_name is not None:
-        sbgnml_entity = momapy.sbgn.io.sbgnml._writing.make_sbgnml_entity(entity_name)
+        sbgnml_entity = make_sbgnml_entity(entity_name)
         sbgnml_glyph.append(sbgnml_entity)
-    sbgnml_bbox = momapy.sbgn.io.sbgnml._writing.make_sbgnml_bbox_from_node(
-        layout_element
-    )
+    sbgnml_bbox = make_sbgnml_bbox_from_node(layout_element)
     sbgnml_glyph.append(sbgnml_bbox)
     if layout_element.label is not None:
-        if isinstance(layout_element, momapy.sbgn.pd.StateVariableLayout):
-            sbgnml_state = momapy.sbgn.io.sbgnml._writing.make_sbgnml_state(
-                layout_element.label
-            )
+        if isinstance(layout_element, StateVariableLayout):
+            sbgnml_state = make_sbgnml_state(layout_element.label)
             sbgnml_glyph.append(sbgnml_state)
         else:
-            sbgnml_label = momapy.sbgn.io.sbgnml._writing.make_sbgnml_label(
-                layout_element.label
-            )
+            sbgnml_label = make_sbgnml_label(layout_element.label)
             sbgnml_glyph.append(sbgnml_label)
     for side, attr in [
         ("left", "left_connector_tip"),
@@ -230,9 +240,7 @@ def _make_sbgnml_glyph(writing_context, layout_element, model_element=None):
     ]:
         if hasattr(layout_element, attr):
             connector_tip = getattr(layout_element, attr)()
-            sbgnml_port = momapy.sbgn.io.sbgnml._writing.make_sbgnml_port(
-                connector_tip, port_id=f"{sbgnml_id}_{side}"
-            )
+            sbgnml_port = make_sbgnml_port(connector_tip, port_id=f"{sbgnml_id}_{side}")
             sbgnml_glyph.append(sbgnml_port)
     return sbgnml_glyph
 
@@ -251,16 +259,14 @@ def _make_sbgnml_arc_element(writing_context, arc_layout):
         The lxml ``<arc>`` element.
     """
     sbgnml_id = _get_xml_id(writing_context, arc_layout)
-    sbgnml_class = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
-        type(arc_layout)
-    ]
+    sbgnml_class = CLASS_TO_SBGNML_CLASS[type(arc_layout)]
     attributes = {"id": sbgnml_id, "class": sbgnml_class}
     points = arc_layout.points()
     sbgnml_source_id = _get_xml_id(writing_context, arc_layout.source)
     sbgnml_target_id = _get_xml_id(writing_context, arc_layout.target)
     if isinstance(
         arc_layout,
-        momapy.sbgn.io.sbgnml._writing_classification.REVERSED_ARC_TYPES,
+        REVERSED_ARC_TYPES,
     ):
         attributes["source"] = sbgnml_target_id
         attributes["target"] = sbgnml_source_id
@@ -268,10 +274,8 @@ def _make_sbgnml_arc_element(writing_context, arc_layout):
     else:
         attributes["source"] = sbgnml_source_id
         attributes["target"] = sbgnml_target_id
-    sbgnml_arc = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
-        "arc", attributes=attributes
-    )
-    sbgnml_points = momapy.sbgn.io.sbgnml._writing.make_sbgnml_points(points)
+    sbgnml_arc = make_lxml_element("arc", attributes=attributes)
+    sbgnml_points = make_sbgnml_points(points)
     for sbgnml_point in sbgnml_points:
         sbgnml_arc.append(sbgnml_point)
     return sbgnml_arc
@@ -294,7 +298,7 @@ def _make_sbgnml_child_glyphs(writing_context, layout_element, model_element):
     """
     child_glyphs = []
     for child_layout in layout_element.layout_elements:
-        if isinstance(child_layout, momapy.core.layout.Node):
+        if isinstance(child_layout, Node):
             child_glyph = _make_sbgnml_glyph(
                 writing_context, child_layout, model_element=None
             )
@@ -329,7 +333,7 @@ def _collect_model_elements(writing_context):
     """
     layout_to_xml = {}
     model = writing_context.map_.model
-    is_pd = isinstance(model, momapy.sbgn.pd.SBGNPDModel)
+    is_pd = isinstance(model, SBGNPDModel)
 
     def _register(layout_el, sbgnml_el):
         layout_to_xml.setdefault(layout_el, []).append(sbgnml_el)
@@ -344,9 +348,7 @@ def _collect_model_elements(writing_context):
                 writing_context, layout_el, compartment
             ):
                 sbgnml_glyph.append(child_glyph)
-            momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                writing_context, sbgnml_glyph, compartment
-            )
+            add_annotations_and_notes(writing_context, sbgnml_glyph, compartment)
             _register(layout_el, sbgnml_glyph)
 
     # 2. Entity pools (PD) or Activities (AF)
@@ -360,9 +362,7 @@ def _collect_model_elements(writing_context):
                     writing_context, layout_el, entity_pool
                 ):
                     sbgnml_glyph.append(child_glyph)
-                momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                    writing_context, sbgnml_glyph, entity_pool
-                )
+                add_annotations_and_notes(writing_context, sbgnml_glyph, entity_pool)
                 _register(layout_el, sbgnml_glyph)
         # 2b. Empty sets — no model element. Driven by the
         # has_external_source / has_external_sink flags on processes:
@@ -370,13 +370,13 @@ def _collect_model_elements(writing_context):
         # and emit a glyph for it.
         seen_empty_set_layouts = set()
         for process in model.processes:
-            if not isinstance(process, momapy.sbgn.pd.StoichiometricProcess):
+            if not isinstance(process, StoichiometricProcess):
                 continue
             if not (process.has_external_source or process.has_external_sink):
                 continue
             for frozenset_key in _get_frozenset_keys(writing_context, process):
                 for item in frozenset_key:
-                    if isinstance(item, momapy.sbgn.pd.EmptySetLayout):
+                    if isinstance(item, EmptySetLayout):
                         if item in seen_empty_set_layouts:
                             continue
                         seen_empty_set_layouts.add(item)
@@ -394,9 +394,7 @@ def _collect_model_elements(writing_context):
                     writing_context, layout_el, activity
                 ):
                     sbgnml_glyph.append(child_glyph)
-                momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                    writing_context, sbgnml_glyph, activity
-                )
+                add_annotations_and_notes(writing_context, sbgnml_glyph, activity)
                 _register(layout_el, sbgnml_glyph)
 
     # 3. Logical operators (with logic arcs)
@@ -409,13 +407,13 @@ def _collect_model_elements(writing_context):
                 if isinstance(
                     item,
                     (
-                        momapy.sbgn.pd.LogicArcLayout,
-                        momapy.sbgn.af.LogicArcLayout,
+                        PDLogicArcLayout,
+                        AFLogicArcLayout,
                     ),
                 ):
                     arc_layouts.append(item)
                 elif (
-                    isinstance(item, momapy.core.layout.Node)
+                    isinstance(item, Node)
                     and singleton_to_key.get(item) == frozenset_key
                 ):
                     operator_layout = item
@@ -426,9 +424,7 @@ def _collect_model_elements(writing_context):
                 operator_layout,
                 model_element=logical_operator,
             )
-            momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                writing_context, sbgnml_glyph, logical_operator
-            )
+            add_annotations_and_notes(writing_context, sbgnml_glyph, logical_operator)
             _register(operator_layout, sbgnml_glyph)
             for arc_layout in arc_layouts:
                 sbgnml_arc = _make_sbgnml_arc_element(writing_context, arc_layout)
@@ -444,9 +440,7 @@ def _collect_model_elements(writing_context):
                 writing_context, layout_el, submap
             ):
                 sbgnml_glyph.append(child_glyph)
-            momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                writing_context, sbgnml_glyph, submap
-            )
+            add_annotations_and_notes(writing_context, sbgnml_glyph, submap)
             _register(layout_el, sbgnml_glyph)
         if hasattr(submap, "terminals"):
             for terminal in submap.terminals:
@@ -457,8 +451,8 @@ def _collect_model_elements(writing_context):
                     if reference_layout is not None and isinstance(
                         reference_layout,
                         (
-                            momapy.core.layout.SingleHeadedArc,
-                            momapy.core.layout.DoubleHeadedArc,
+                            SingleHeadedArc,
+                            DoubleHeadedArc,
                         ),
                     ):
                         sbgnml_arc = _make_sbgnml_arc_element(
@@ -476,9 +470,7 @@ def _collect_model_elements(writing_context):
                 writing_context, layout_el, tag
             ):
                 sbgnml_glyph.append(child_glyph)
-            momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                writing_context, sbgnml_glyph, tag
-            )
+            add_annotations_and_notes(writing_context, sbgnml_glyph, tag)
             _register(layout_el, sbgnml_glyph)
         if hasattr(tag, "reference") and tag.reference is not None:
             reference_layout = _get_child_layout_element(
@@ -487,8 +479,8 @@ def _collect_model_elements(writing_context):
             if reference_layout is not None and isinstance(
                 reference_layout,
                 (
-                    momapy.core.layout.SingleHeadedArc,
-                    momapy.core.layout.DoubleHeadedArc,
+                    SingleHeadedArc,
+                    DoubleHeadedArc,
                 ),
             ):
                 sbgnml_arc = _make_sbgnml_arc_element(writing_context, reference_layout)
@@ -497,7 +489,7 @@ def _collect_model_elements(writing_context):
     # 6. Processes
     if is_pd:
         for process in model.processes:
-            if isinstance(process, momapy.sbgn.pd.Phenotype):
+            if isinstance(process, Phenotype):
                 for layout_el in _get_layout_elements(writing_context, process):
                     sbgnml_glyph = _make_sbgnml_glyph(
                         writing_context, layout_el, model_element=process
@@ -506,11 +498,9 @@ def _collect_model_elements(writing_context):
                         writing_context, layout_el, process
                     ):
                         sbgnml_glyph.append(child_glyph)
-                    momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                        writing_context, sbgnml_glyph, process
-                    )
+                    add_annotations_and_notes(writing_context, sbgnml_glyph, process)
                     _register(layout_el, sbgnml_glyph)
-            elif isinstance(process, momapy.sbgn.pd.StoichiometricProcess):
+            elif isinstance(process, StoichiometricProcess):
                 for frozenset_key in _get_frozenset_keys(writing_context, process):
                     process_layout = None
                     arc_layouts = []
@@ -518,13 +508,13 @@ def _collect_model_elements(writing_context):
                         if isinstance(
                             item,
                             (
-                                momapy.sbgn.pd.ConsumptionLayout,
-                                momapy.sbgn.pd.ProductionLayout,
+                                ConsumptionLayout,
+                                ProductionLayout,
                             ),
                         ):
                             arc_layouts.append(item)
                         elif (
-                            isinstance(item, momapy.core.layout.Node)
+                            isinstance(item, Node)
                             and singleton_to_key.get(item) == frozenset_key
                         ):
                             process_layout = item
@@ -539,9 +529,7 @@ def _collect_model_elements(writing_context):
                         writing_context, process_layout, process
                     ):
                         sbgnml_glyph.append(child_glyph)
-                    momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                        writing_context, sbgnml_glyph, process
-                    )
+                    add_annotations_and_notes(writing_context, sbgnml_glyph, process)
                     _register(process_layout, sbgnml_glyph)
                     for arc_layout in arc_layouts:
                         sbgnml_arc = _make_sbgnml_arc_element(
@@ -561,9 +549,7 @@ def _collect_model_elements(writing_context):
             if arc_layout is None:
                 continue
             sbgnml_arc = _make_sbgnml_arc_element(writing_context, arc_layout)
-            momapy.sbgn.io.sbgnml._writing.add_annotations_and_notes(
-                writing_context, sbgnml_arc, modulation
-            )
+            add_annotations_and_notes(writing_context, sbgnml_arc, modulation)
             _register(arc_layout, sbgnml_arc)
 
     return layout_to_xml
@@ -585,15 +571,11 @@ def make_sbgnml_map(writing_context):
     """
     map_ = writing_context.map_
     _reserve_source_xml_ids(writing_context)
-    language = momapy.sbgn.io.sbgnml._writing_classification.CLASS_TO_SBGNML_CLASS[
-        type(map_)
-    ]
+    language = CLASS_TO_SBGNML_CLASS[type(map_)]
     id_ = _get_xml_id(writing_context, map_)
     attributes = {"id": id_, "language": language}
-    sbgnml_map = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
-        "map", attributes=attributes
-    )
-    sbgnml_bbox = momapy.sbgn.io.sbgnml._writing.make_sbgnml_bbox_from_node(map_.layout)
+    sbgnml_map = make_lxml_element("map", attributes=attributes)
+    sbgnml_bbox = make_sbgnml_bbox_from_node(map_.layout)
     sbgnml_map.append(sbgnml_bbox)
 
     # Phase 1: model-first serialization
@@ -614,7 +596,7 @@ def make_sbgnml_map(writing_context):
 # ---------------------------------------------------------------------------
 
 
-class _SBGNMLWriter(momapy.io.core.Writer):
+class _SBGNMLWriter(Writer):
     """Base SBGN-ML writer.
 
     All serialization logic lives in module-level functions.  This class
@@ -624,7 +606,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
     @classmethod
     def write(
         cls,
-        obj: momapy.sbgn.SBGNMap,
+        obj: SBGNMap,
         file_path: str | os.PathLike,
         element_to_annotations: dict | None = None,
         element_to_notes: dict | None = None,
@@ -633,7 +615,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         with_annotations: bool = True,
         with_notes: bool = True,
         **options: typing.Any,
-    ) -> momapy.io.core.WriterResult:
+    ) -> WriterResult:
         """Write an SBGN map to an SBGN-ML file.
 
         Args:
@@ -652,12 +634,12 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         Returns:
             WriterResult containing the written object and file path.
         """
-        momapy.utils.check_parent_dir_exists(file_path)
+        check_parent_dir_exists(file_path)
         if element_to_annotations is None:
             element_to_annotations = {}
         if element_to_notes is None:
             element_to_notes = {}
-        writing_context = momapy.io.utils.WritingContext(
+        writing_context = WritingContext(
             map_=obj,
             element_to_annotations=element_to_annotations,
             element_to_notes=element_to_notes,
@@ -666,9 +648,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
             with_annotations=with_annotations,
             with_notes=with_notes,
         )
-        sbgnml_sbgn = momapy.sbgn.io.sbgnml._writing.make_lxml_element(
-            "sbgn", nsmap=momapy.sbgn.io.sbgnml._writing.NSMAP
-        )
+        sbgnml_sbgn = make_lxml_element("sbgn", nsmap=NSMAP)
         sbgnml_map = make_sbgnml_map(writing_context)
         sbgnml_sbgn.append(sbgnml_map)
         with open(file_path, "w", encoding="utf-8") as f:
@@ -677,7 +657,7 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                     sbgnml_sbgn, pretty_print=True, xml_declaration=True
                 ).decode()
             )
-        return momapy.io.core.WriterResult(obj=obj, file_path=file_path)
+        return WriterResult(obj=obj, file_path=file_path)
 
 
 class SBGNML0_3Writer(_SBGNMLWriter):

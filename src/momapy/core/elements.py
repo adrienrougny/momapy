@@ -4,9 +4,15 @@ import abc
 import dataclasses
 import typing_extensions
 import enum
-import momapy.drawing
-import momapy.geometry
-import momapy.utils
+from momapy.drawing import drawing_elements_to_geometry
+from momapy.drawing import DrawingElement
+from momapy.geometry import Bbox
+from momapy.geometry import CubicBezierCurve
+from momapy.geometry import EllipticalArc
+from momapy.geometry import Point
+from momapy.geometry import QuadraticBezierCurve
+from momapy.geometry import Segment
+from momapy.utils import make_uuid4_as_str
 
 
 class Direction(enum.Enum):
@@ -37,7 +43,7 @@ class MapElement:
     id_: str = dataclasses.field(
         hash=False,
         compare=False,
-        default_factory=momapy.utils.make_uuid4_as_str,
+        default_factory=make_uuid4_as_str,
         metadata={
             "description": """The id of the map element. This id is purely for the user to keep track
     of the element, it does not need to be unique and is not part of the
@@ -113,12 +119,12 @@ class LayoutElement(MapElement, abc.ABC):
     """Abstract base class for layout elements"""
 
     @abc.abstractmethod
-    def bbox(self) -> momapy.geometry.Bbox:
+    def bbox(self) -> Bbox:
         """Compute and return the bounding box of the layout element"""
         pass
 
     @abc.abstractmethod
-    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def drawing_elements(self) -> list[DrawingElement]:
         """Return the drawing elements of the layout element"""
         pass
 
@@ -185,15 +191,10 @@ class LayoutElement(MapElement, abc.ABC):
 
     def to_geometry(
         self,
-    ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
-    ]:
+    ) -> list[Segment | QuadraticBezierCurve | CubicBezierCurve | EllipticalArc]:
         """Return a list of geometry primitives from the drawing elements."""
-        return momapy.drawing.drawing_elements_to_geometry(self.drawing_elements())
+        return drawing_elements_to_geometry(self.drawing_elements())
 
-    def anchor_point(self, anchor_name: str) -> momapy.geometry.Point:
+    def anchor_point(self, anchor_name: str) -> Point:
         """Return an anchor point of the layout element"""
         return getattr(self, anchor_name)()

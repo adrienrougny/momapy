@@ -13,12 +13,20 @@ import pyparsing
 import copy
 
 
-import momapy.builder
 import momapy.coloring
-import momapy.drawing
-import momapy.core
-import momapy.core.elements
-import momapy.core.map
+
+from momapy.builder import Builder
+from momapy.builder import builder_from_object
+from momapy.builder import get_or_make_builder_cls
+from momapy.builder import isinstance_or_builder
+from momapy.builder import object_from_builder
+from momapy.coloring import has_color
+from momapy.core.elements import LayoutElement
+from momapy.core.map import Map
+from momapy.drawing import DropShadowEffect
+from momapy.drawing import Filter
+from momapy.drawing import NoneValue
+from momapy.drawing import PRESENTATION_ATTRIBUTES
 
 
 class StyleCollection(dict):
@@ -153,10 +161,10 @@ def combine_style_sheets(
 
 
 def apply_style_collection(
-    layout_element: (momapy.core.elements.LayoutElement | momapy.builder.Builder),
+    layout_element: (LayoutElement | Builder),
     style_collection: StyleCollection,
     strict: bool = True,
-) -> momapy.core.elements.LayoutElement | momapy.builder.Builder:
+) -> LayoutElement | Builder:
     """Apply a StyleCollection to a layout element.
 
     Args:
@@ -171,8 +179,8 @@ def apply_style_collection(
     Raises:
         AttributeError: If strict=True and an attribute doesn't exist on the element.
     """
-    if not isinstance(layout_element, momapy.builder.Builder):
-        layout_element = momapy.builder.builder_from_object(layout_element)
+    if not isinstance(layout_element, Builder):
+        layout_element = builder_from_object(layout_element)
         is_builder = False
     else:
         is_builder = True
@@ -186,21 +194,15 @@ def apply_style_collection(
                 )
     if is_builder:
         return layout_element
-    return momapy.builder.object_from_builder(layout_element)
+    return object_from_builder(layout_element)
 
 
 def apply_style_sheet(
-    map_or_layout_element: (
-        momapy.core.map.Map
-        | momapy.core.elements.LayoutElement
-        | momapy.builder.Builder
-    ),
+    map_or_layout_element: (Map | LayoutElement | Builder),
     style_sheet: StyleSheet,
     strict: bool = True,
-    ancestors: collections.abc.Collection[
-        momapy.core.elements.LayoutElement | momapy.builder.Builder
-    ] = None,
-) -> momapy.core.map.Map | momapy.core.elements.LayoutElement | momapy.builder.Builder:
+    ancestors: collections.abc.Collection[LayoutElement | Builder] = None,
+) -> Map | LayoutElement | Builder:
     """Apply a StyleSheet to a layout element or map layout recursively.
 
     Args:
@@ -212,14 +214,12 @@ def apply_style_sheet(
     Returns:
         The modified map, layout element, or builder.
     """
-    if not isinstance(map_or_layout_element, momapy.builder.Builder):
-        map_or_layout_element = momapy.builder.builder_from_object(
-            map_or_layout_element
-        )
+    if not isinstance(map_or_layout_element, Builder):
+        map_or_layout_element = builder_from_object(map_or_layout_element)
         is_builder = False
     else:
         is_builder = True
-    if momapy.builder.isinstance_or_builder(map_or_layout_element, momapy.core.map.Map):
+    if isinstance_or_builder(map_or_layout_element, Map):
         layout_element = map_or_layout_element.layout
     else:
         layout_element = map_or_layout_element
@@ -243,7 +243,7 @@ def apply_style_sheet(
             )
     if is_builder:
         return map_or_layout_element
-    return momapy.builder.object_from_builder(map_or_layout_element)
+    return object_from_builder(map_or_layout_element)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -257,10 +257,8 @@ class Selector(object):
     @abc.abstractmethod
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the layout element matches this selector.
 
@@ -294,10 +292,8 @@ class TypeSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the object's class name matches exactly.
 
@@ -335,10 +331,8 @@ class ClassSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the object is an instance of the specified class.
 
@@ -374,10 +368,8 @@ class IdSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the object has the specified id.
 
@@ -415,10 +407,8 @@ class ChildSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the object is a direct child matching the criteria.
 
@@ -461,10 +451,8 @@ class DescendantSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if the object is a descendant matching the criteria.
 
@@ -506,10 +494,8 @@ class OrSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if any selector in the tuple matches.
 
@@ -543,10 +529,8 @@ class CompoundSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if all selectors in the tuple match.
 
@@ -580,10 +564,8 @@ class NotSelector(Selector):
 
     def select(
         self,
-        obj: momapy.core.elements.LayoutElement | momapy.builder.Builder,
-        ancestors: collections.abc.Collection[
-            momapy.core.elements.LayoutElement | momapy.builder.Builder
-        ],
+        obj: LayoutElement | Builder,
+        ancestors: collections.abc.Collection[LayoutElement | Builder],
     ) -> bool:
         """Check if none of the selectors in the tuple match.
 
@@ -687,7 +669,7 @@ def _resolve_css_unset_value(results):
 
 @_css_none_value.set_parse_action
 def _resolve_css_none_value(results):
-    return momapy.drawing.NoneValue
+    return NoneValue
 
 
 @_css_float_value.set_parse_action
@@ -707,25 +689,21 @@ def _resolve_css_int_value(results):
 
 @_css_color_name_value.set_parse_action
 def _resolve_css_color_name_value(results):
-    if not momapy.coloring.has_color(results[0]):
+    if not has_color(results[0]):
         raise ValueError(f"{results[0]} is not a valid color name")
     return getattr(momapy.coloring, results[0])
 
 
 @_css_drop_shadow_filter_value.set_parse_action
 def _resolve_css_drop_shadow_filter_value(results):
-    filter_effect = momapy.builder.get_or_make_builder_cls(
-        momapy.drawing.DropShadowEffect
-    )(
+    filter_effect = get_or_make_builder_cls(DropShadowEffect)(
         dx=results[1],
         dy=results[3],
         std_deviation=results[5],
         flood_opacity=results[7],
         flood_color=results[9],
     )
-    filter = momapy.builder.get_or_make_builder_cls(momapy.drawing.Filter)(
-        effects=[filter_effect]
-    )
+    filter = get_or_make_builder_cls(Filter)(effects=[filter_effect])
     return filter
 
 
@@ -848,7 +826,7 @@ def _is_presentation_attribute(field_name: str) -> bool:
 
     A field is considered a presentation attribute if its name — or its
     name after stripping an arbitrary prefix — matches an entry in
-    ``momapy.drawing.PRESENTATION_ATTRIBUTES``.  This handles prefixed
+    ``PRESENTATION_ATTRIBUTES``.  This handles prefixed
     variants such as ``group_fill``, ``reaction_node_stroke``, or
     ``end_arrowhead_width`` without requiring an explicit prefix list.
 
@@ -858,14 +836,14 @@ def _is_presentation_attribute(field_name: str) -> bool:
     Returns:
         True if the field is a presentation attribute.
     """
-    for attribute_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+    for attribute_name in PRESENTATION_ATTRIBUTES:
         if field_name == attribute_name or field_name.endswith(f"_{attribute_name}"):
             return True
     return False
 
 
 def get_stylable_attributes(
-    layout_element_or_class: momapy.core.elements.LayoutElement | type,
+    layout_element_or_class: LayoutElement | type,
     presentation_only: bool = False,
 ) -> list[str]:
     """Return the CSS-style names of stylable attributes of a layout element.
@@ -893,7 +871,7 @@ def get_stylable_attributes(
         layout_element_class = type(layout_element_or_class)
     if not (
         dataclasses.is_dataclass(layout_element_class)
-        and issubclass(layout_element_class, momapy.core.elements.LayoutElement)
+        and issubclass(layout_element_class, LayoutElement)
     ):
         raise TypeError(
             f"Expected a LayoutElement class or instance, got {layout_element_class}"

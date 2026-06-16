@@ -8,34 +8,75 @@ adjusting arc endpoints, and applying various layout optimizations.
 import collections
 import collections.abc
 
-import momapy.positioning
-import momapy.builder
-import momapy.sbgn
-import momapy.sbgn.pd
-import momapy.sbgn.af
-import momapy.core.layout
+from momapy.positioning import fit
+from momapy.positioning import set_fit
+from momapy.positioning import set_position
+from momapy.builder import Builder
+from momapy.builder import builder_from_object
+from momapy.builder import isinstance_or_builder
+from momapy.builder import object_from_builder
+from momapy.sbgn import SBGNMap
+from momapy.core.layout import Node
+from momapy.sbgn.pd import AndOperatorLayout as PDAndOperatorLayout
+from momapy.sbgn.pd import CatalysisLayout
+from momapy.sbgn.pd import Complex
+from momapy.sbgn.pd import ComplexLayout
+from momapy.sbgn.pd import ConsumptionLayout
+from momapy.sbgn.pd import EquivalenceArcLayout as PDEquivalenceArcLayout
+from momapy.sbgn.pd import EquivalenceOperatorLayout
+from momapy.sbgn.pd import InhibitionLayout
+from momapy.sbgn.pd import LogicArcLayout as PDLogicArcLayout
+from momapy.sbgn.pd import ModulationLayout
+from momapy.sbgn.pd import NecessaryStimulationLayout as PDNecessaryStimulationLayout
+from momapy.sbgn.pd import NotOperatorLayout as PDNotOperatorLayout
+from momapy.sbgn.pd import OrOperatorLayout as PDOrOperatorLayout
+from momapy.sbgn.pd import Product
+from momapy.sbgn.pd import ProductionLayout
+from momapy.sbgn.pd import SBGNPDMap
+from momapy.sbgn.pd import SBGNPDModel
+from momapy.sbgn.pd import StateVariableLayout
+from momapy.sbgn.pd import StimulationLayout
+from momapy.sbgn.pd import UnitOfInformationLayout as PDUnitOfInformationLayout
+from momapy.sbgn.af import AndOperatorLayout as AFAndOperatorLayout
+from momapy.sbgn.af import ComplexUnitOfInformationLayout
+from momapy.sbgn.af import DelayOperatorLayout
+from momapy.sbgn.af import EquivalenceArcLayout as AFEquivalenceArcLayout
+from momapy.sbgn.af import LogicArcLayout as AFLogicArcLayout
+from momapy.sbgn.af import MacromoleculeUnitOfInformationLayout
+from momapy.sbgn.af import NecessaryStimulationLayout as AFNecessaryStimulationLayout
+from momapy.sbgn.af import NegativeInfluenceLayout
+from momapy.sbgn.af import NotOperatorLayout as AFNotOperatorLayout
+from momapy.sbgn.af import NucleicAcidFeatureUnitOfInformationLayout
+from momapy.sbgn.af import OrOperatorLayout as AFOrOperatorLayout
+from momapy.sbgn.af import PerturbationUnitOfInformationLayout
+from momapy.sbgn.af import PositiveInfluenceLayout
+from momapy.sbgn.af import SBGNAFModel
+from momapy.sbgn.af import SimpleChemicalUnitOfInformationLayout
+from momapy.sbgn.af import UnitOfInformationLayout as AFUnitOfInformationLayout
+from momapy.sbgn.af import UnknownInfluenceLayout
+from momapy.sbgn.af import UnspecifiedEntityUnitOfInformationLayout
 
 
 _AUXILIARY_UNIT_LAYOUT_CLASSES = (
-    momapy.sbgn.pd.StateVariableLayout,
-    momapy.sbgn.pd.UnitOfInformationLayout,
-    momapy.sbgn.af.UnitOfInformationLayout,
-    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout,
-    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout,
-    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout,
-    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout,
-    momapy.sbgn.af.ComplexUnitOfInformationLayout,
-    momapy.sbgn.af.PerturbationUnitOfInformationLayout,
+    StateVariableLayout,
+    PDUnitOfInformationLayout,
+    AFUnitOfInformationLayout,
+    UnspecifiedEntityUnitOfInformationLayout,
+    SimpleChemicalUnitOfInformationLayout,
+    MacromoleculeUnitOfInformationLayout,
+    NucleicAcidFeatureUnitOfInformationLayout,
+    ComplexUnitOfInformationLayout,
+    PerturbationUnitOfInformationLayout,
 )
 
 
 def set_compartments_to_fit_content(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
     *,
     snap_arcs: bool = False,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Resize compartments to fit their content.
 
     Adjusts compartment dimensions to tightly enclose their contained
@@ -53,13 +94,13 @@ def set_compartments_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     compartment_entities_mapping = collections.defaultdict(list)
     model = map_builder.model
-    if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
+    if isinstance_or_builder(map_builder, SBGNPDMap):
         for entity_pool in model.entity_pools:
             compartment = entity_pool.compartment
             if compartment is not None:
@@ -75,7 +116,7 @@ def set_compartments_to_fit_content(
             for entity in compartment_entities_mapping[compartment]:
                 for entity_layout in map_builder.get_mapping(entity):
                     elements.append(entity_layout)
-            momapy.positioning.set_fit(compartment_layout, elements, xsep, ysep)
+            set_fit(compartment_layout, elements, xsep, ysep)
             if compartment_layout.label is not None:
                 compartment_layout.label.position = compartment_layout.south() - (
                     0.0,
@@ -83,18 +124,18 @@ def set_compartments_to_fit_content(
                 )
     if snap_arcs:
         set_arcs_to_borders(map_builder)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_complexes_to_fit_content(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
     *,
     snap_arcs: bool = False,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Resize complexes to fit their subunits.
 
     Adjusts complex dimensions to tightly enclose their contained subunits.
@@ -111,12 +152,12 @@ def set_complexes_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     for entity_pool in map_builder.model.entity_pools:
-        if momapy.builder.isinstance_or_builder(entity_pool, momapy.sbgn.pd.Complex):
+        if isinstance_or_builder(entity_pool, Complex):
             for complex_layout in map_builder.get_mapping(entity_pool):
                 elements = []
                 for subunit in entity_pool.subunits:
@@ -129,23 +170,23 @@ def set_complexes_to_fit_content(
                         if subunit_layout in complex_layout.layout_elements:
                             elements.append(subunit_layout)
                 if elements:
-                    momapy.positioning.set_fit(complex_layout, elements, xsep, ysep)
+                    set_fit(complex_layout, elements, xsep, ysep)
                     if complex_layout.label is not None:
                         complex_layout.label.position = complex_layout.position
     if snap_arcs:
         set_arcs_to_borders(map_builder)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_submaps_to_fit_content(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
     *,
     snap_arcs: bool = False,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Resize submaps to fit their terminals.
 
     Adjusts submap dimensions to tightly enclose their terminal elements.
@@ -162,8 +203,8 @@ def set_submaps_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     for submap in map_builder.model.submaps:
@@ -179,7 +220,7 @@ def set_submaps_to_fit_content(
                     if terminal_layout in submap_layout.layout_elements:
                         elements.append(terminal_layout.childless())
             if elements:
-                bbox = momapy.positioning.fit(elements, xsep, ysep)
+                bbox = fit(elements, xsep, ysep)
                 if bbox.width > submap_layout.width:
                     submap_layout.width = bbox.width
                 if bbox.height > submap_layout.height:
@@ -188,13 +229,13 @@ def set_submaps_to_fit_content(
                     submap_layout.label.position = submap_layout.position
     if snap_arcs:
         set_arcs_to_borders(map_builder)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_nodes_to_fit_labels(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
     omit_width: bool = False,
@@ -203,7 +244,7 @@ def set_nodes_to_fit_labels(
     exclude: collections.abc.Sequence[type] | None = None,
     *,
     snap_arcs: bool = False,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Resize nodes to fit their labels.
 
     Adjusts node dimensions to accommodate label text.
@@ -224,14 +265,14 @@ def set_nodes_to_fit_labels(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     if restrict_to is None:
         restrict_to = []
     if not restrict_to:
-        restrict_to = [momapy.core.layout.Node]
+        restrict_to = [Node]
     if exclude is None:
         exclude = []
     exclude = tuple(exclude)
@@ -239,31 +280,29 @@ def set_nodes_to_fit_labels(
     if not (omit_width and omit_height):
         for layout_element in map_builder.layout.descendants():
             if (
-                momapy.builder.isinstance_or_builder(layout_element, restrict_to)
-                and not momapy.builder.isinstance_or_builder(layout_element, exclude)
+                isinstance_or_builder(layout_element, restrict_to)
+                and not isinstance_or_builder(layout_element, exclude)
                 and hasattr(layout_element, "label")
                 and layout_element.label is not None
             ):
-                bbox = momapy.positioning.fit([layout_element.label.bbox()], xsep, ysep)
+                bbox = fit([layout_element.label.bbox()], xsep, ysep)
                 if not omit_width:
                     if bbox.width > layout_element.width:
                         layout_element.width = bbox.width
                 if not omit_height:
                     if bbox.height > layout_element.height:
                         layout_element.height = bbox.height
-                momapy.positioning.set_position(
-                    layout_element, bbox.position, anchor="label_center"
-                )
+                set_position(layout_element, bbox.position, anchor="label_center")
     if snap_arcs:
         set_arcs_to_borders(map_builder)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_arcs_to_borders(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+    map_: SBGNMap | Builder,
+) -> SBGNMap | Builder:
     """Adjust arc endpoints to node borders.
 
     Updates arc start and end points to connect at the borders of
@@ -316,22 +355,16 @@ def set_arcs_to_borders(
             end_point = target.border(end_reference_point)
             if end_point is None:
                 end_point = target.center()
-        arc_layout_element.segments[0].p1 = momapy.builder.builder_from_object(
-            start_point
-        )
-        arc_layout_element.segments[-1].p2 = momapy.builder.builder_from_object(
-            end_point
-        )
+        arc_layout_element.segments[0].p1 = builder_from_object(start_point)
+        arc_layout_element.segments[-1].p2 = builder_from_object(end_point)
 
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     for layout_element in map_builder.layout.layout_elements:
         # Flux arcs - Consumption
-        if momapy.builder.isinstance_or_builder(
-            layout_element, momapy.sbgn.pd.ConsumptionLayout
-        ):
+        if isinstance_or_builder(layout_element, ConsumptionLayout):
             source = layout_element.source
             if source.left_to_right:
                 source_type = "left"
@@ -345,12 +378,10 @@ def set_arcs_to_borders(
                 "border",
             )
         # Flux arcs - Production
-        elif momapy.builder.isinstance_or_builder(
-            layout_element, momapy.sbgn.pd.ProductionLayout
-        ):
+        elif isinstance_or_builder(layout_element, ProductionLayout):
             source = layout_element.source
             product = map_builder.get_mapping(layout_element)
-            if momapy.builder.isinstance_or_builder(product, momapy.sbgn.pd.Product):
+            if isinstance_or_builder(product, Product):
                 if source.left_to_right:
                     source_type = "right"
                 else:
@@ -368,11 +399,11 @@ def set_arcs_to_borders(
                 "border",
             )
         # Logic arcs
-        elif momapy.builder.isinstance_or_builder(
+        elif isinstance_or_builder(
             layout_element,
             (
-                momapy.sbgn.pd.LogicArcLayout,
-                momapy.sbgn.af.LogicArcLayout,
+                PDLogicArcLayout,
+                AFLogicArcLayout,
             ),
         ):
             source = layout_element.source
@@ -381,17 +412,17 @@ def set_arcs_to_borders(
                 source_type = "left"
             else:
                 source_type = "right"
-            if momapy.builder.isinstance_or_builder(
+            if isinstance_or_builder(
                 target,
                 (
-                    momapy.sbgn.pd.AndOperatorLayout,
-                    momapy.sbgn.pd.OrOperatorLayout,
-                    momapy.sbgn.pd.NotOperatorLayout,
-                    momapy.sbgn.af.AndOperatorLayout,
-                    momapy.sbgn.af.OrOperatorLayout,
-                    momapy.sbgn.af.NotOperatorLayout,
-                    momapy.sbgn.af.DelayOperatorLayout,
-                    momapy.sbgn.pd.EquivalenceOperatorLayout,
+                    PDAndOperatorLayout,
+                    PDOrOperatorLayout,
+                    PDNotOperatorLayout,
+                    AFAndOperatorLayout,
+                    AFOrOperatorLayout,
+                    AFNotOperatorLayout,
+                    DelayOperatorLayout,
+                    EquivalenceOperatorLayout,
                 ),
             ):
                 if target.left_to_right:
@@ -408,11 +439,11 @@ def set_arcs_to_borders(
                 target_type,
             )
         # Equivalence arcs
-        elif momapy.builder.isinstance_or_builder(
+        elif isinstance_or_builder(
             layout_element,
             (
-                momapy.sbgn.pd.EquivalenceArcLayout,
-                momapy.sbgn.af.EquivalenceArcLayout,
+                PDEquivalenceArcLayout,
+                AFEquivalenceArcLayout,
             ),
         ):
             _set_arc_to_borders(
@@ -423,31 +454,31 @@ def set_arcs_to_borders(
                 "border",
             )
         # Modulations
-        elif momapy.builder.isinstance_or_builder(
+        elif isinstance_or_builder(
             layout_element,
             (
-                momapy.sbgn.pd.ModulationLayout,
-                momapy.sbgn.pd.StimulationLayout,
-                momapy.sbgn.pd.CatalysisLayout,
-                momapy.sbgn.pd.NecessaryStimulationLayout,
-                momapy.sbgn.pd.InhibitionLayout,
-                momapy.sbgn.af.UnknownInfluenceLayout,
-                momapy.sbgn.af.PositiveInfluenceLayout,
-                momapy.sbgn.af.NecessaryStimulationLayout,
-                momapy.sbgn.af.NegativeInfluenceLayout,
+                ModulationLayout,
+                StimulationLayout,
+                CatalysisLayout,
+                PDNecessaryStimulationLayout,
+                InhibitionLayout,
+                UnknownInfluenceLayout,
+                PositiveInfluenceLayout,
+                AFNecessaryStimulationLayout,
+                NegativeInfluenceLayout,
             ),
         ):
             source = layout_element.source
-            if momapy.builder.isinstance_or_builder(
+            if isinstance_or_builder(
                 source,
                 (
-                    momapy.sbgn.pd.AndOperatorLayout,
-                    momapy.sbgn.pd.OrOperatorLayout,
-                    momapy.sbgn.pd.NotOperatorLayout,
-                    momapy.sbgn.af.AndOperatorLayout,
-                    momapy.sbgn.af.OrOperatorLayout,
-                    momapy.sbgn.af.NotOperatorLayout,
-                    momapy.sbgn.af.DelayOperatorLayout,
+                    PDAndOperatorLayout,
+                    PDOrOperatorLayout,
+                    PDNotOperatorLayout,
+                    AFAndOperatorLayout,
+                    AFOrOperatorLayout,
+                    AFNotOperatorLayout,
+                    DelayOperatorLayout,
                 ),
             ):
                 if source.left_to_right:
@@ -463,16 +494,16 @@ def set_arcs_to_borders(
                 layout_element.target,
                 "border",
             )
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_auxiliary_units_to_borders(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     *,
     snap_arcs: bool = False,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Position auxiliary units at node borders.
 
     Moves state variables and units of information to the borders
@@ -491,31 +522,29 @@ def set_auxiliary_units_to_borders(
 
     def _rec_set_auxiliary_units_to_borders(layout_element):
         for child in layout_element.children():
-            if momapy.builder.isinstance_or_builder(
-                child, _AUXILIARY_UNIT_LAYOUT_CLASSES
-            ):
+            if isinstance_or_builder(child, _AUXILIARY_UNIT_LAYOUT_CLASSES):
                 position = layout_element.own_border(child.position)
                 child.position = position
                 if child.label is not None:
                     child.label.position = position
             _rec_set_auxiliary_units_to_borders(child)
 
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     _rec_set_auxiliary_units_to_borders(map_builder.layout)
     if snap_arcs:
         set_arcs_to_borders(map_builder)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_auxiliary_units_label_font_size(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     font_size: float,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Set font size for auxiliary unit labels.
 
     Args:
@@ -530,28 +559,26 @@ def set_auxiliary_units_label_font_size(
 
     def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
         for child in layout_element.children():
-            if momapy.builder.isinstance_or_builder(
-                child, _AUXILIARY_UNIT_LAYOUT_CLASSES
-            ):
+            if isinstance_or_builder(child, _AUXILIARY_UNIT_LAYOUT_CLASSES):
                 if child.label is not None:
                     child.label.font_size = font_size
             _rec_set_auxiliary_units_label_font_size(child, font_size)
 
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     _rec_set_auxiliary_units_label_font_size(map_builder.layout, font_size)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def set_layout_to_fit_content(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Resize layout to fit all elements.
 
     Adjusts the layout dimensions to contain all layout elements.
@@ -566,20 +593,18 @@ def set_layout_to_fit_content(
         The modified map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
-    momapy.positioning.set_fit(
-        map_builder.layout, map_builder.layout.layout_elements, xsep, ysep
-    )
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    set_fit(map_builder.layout, map_builder.layout.layout_elements, xsep, ysep)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def tidy(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
+    map_: SBGNMap | Builder,
     auxiliary_units_omit_width: bool = False,
     auxiliary_units_omit_height: bool = True,
     nodes_xsep: float = 4,
@@ -592,7 +617,7 @@ def tidy(
     compartments_ysep: float = 25,
     layout_xsep: float = 0,
     layout_ysep: float = 0,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+) -> SBGNMap | Builder:
     """Apply comprehensive layout tidying to an SBGN map.
 
     Performs multiple layout optimization steps including fitting nodes to
@@ -626,8 +651,8 @@ def tidy(
         The tidied map or map builder. If a frozen map was given,
             a new map is returned.
     """
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        map_builder = momapy.builder.builder_from_object(map_)
+    if isinstance(map_, SBGNMap):
+        map_builder = builder_from_object(map_)
     else:
         map_builder = map_
     set_nodes_to_fit_labels(
@@ -636,7 +661,7 @@ def tidy(
         ysep=nodes_ysep,
         exclude=[
             *_AUXILIARY_UNIT_LAYOUT_CLASSES,
-            momapy.sbgn.pd.ComplexLayout,
+            ComplexLayout,
         ],
         snap_arcs=True,
     )
@@ -650,7 +675,7 @@ def tidy(
         restrict_to=list(_AUXILIARY_UNIT_LAYOUT_CLASSES),
         snap_arcs=True,
     )
-    if momapy.builder.isinstance_or_builder(map_builder, momapy.sbgn.pd.SBGNPDMap):
+    if isinstance_or_builder(map_builder, SBGNPDMap):
         set_complexes_to_fit_content(
             map_builder, complexes_xsep, complexes_ysep, snap_arcs=True
         )
@@ -659,14 +684,14 @@ def tidy(
         map_builder, compartments_xsep, compartments_ysep, snap_arcs=True
     )
     set_layout_to_fit_content(map_builder, layout_xsep, layout_ysep)
-    if isinstance(map_, momapy.sbgn.SBGNMap):
-        return momapy.builder.object_from_builder(map_builder)
+    if isinstance(map_, SBGNMap):
+        return object_from_builder(map_builder)
     return map_builder
 
 
 def sbgned_tidy(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+    map_: SBGNMap | Builder,
+) -> SBGNMap | Builder:
     """Apply SBGN-ED style tidying to an SBGN map.
 
     Uses preset parameters matching the SBGN-ED tool layout.
@@ -697,8 +722,8 @@ def sbgned_tidy(
 
 
 def newt_tidy(
-    map_: momapy.sbgn.SBGNMap | momapy.builder.Builder,
-) -> momapy.sbgn.SBGNMap | momapy.builder.Builder:
+    map_: SBGNMap | Builder,
+) -> SBGNMap | Builder:
     """Apply Newt style tidying to an SBGN map.
 
     Uses preset parameters matching the Newt tool layout.
@@ -728,7 +753,7 @@ def newt_tidy(
     )
 
 
-def get_info(map_: momapy.sbgn.SBGNMap) -> dict:
+def get_info(map_: SBGNMap) -> dict:
     """Get a summary of the contents of an SBGN map.
 
     Returns a dictionary with the map type, model element counts,
@@ -745,7 +770,7 @@ def get_info(map_: momapy.sbgn.SBGNMap) -> dict:
     """
     model = map_.model
     layout = map_.layout
-    if isinstance(model, momapy.sbgn.pd.SBGNPDModel):
+    if isinstance(model, SBGNPDModel):
         map_type = "SBGN Process Description"
         model_info = {
             "compartments": len(model.compartments),
@@ -757,7 +782,7 @@ def get_info(map_: momapy.sbgn.SBGNMap) -> dict:
             "submaps": len(model.submaps),
             "tags": len(model.tags),
         }
-    elif isinstance(model, momapy.sbgn.af.SBGNAFModel):
+    elif isinstance(model, SBGNAFModel):
         map_type = "SBGN Activity Flow"
         model_info = {
             "compartments": len(model.compartments),

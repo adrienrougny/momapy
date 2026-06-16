@@ -6,7 +6,8 @@ import dataclasses
 
 import uharfbuzz
 
-import momapy.drawing
+from momapy.drawing import FontStyle
+from momapy.drawing import FontWeight
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -19,18 +20,18 @@ class _FontEntry:
     is_italic: bool
 
 
-_FONT_WEIGHT_MAP: dict[momapy.drawing.FontWeight, int] = {
-    momapy.drawing.FontWeight.NORMAL: 400,
-    momapy.drawing.FontWeight.BOLD: 700,
-    momapy.drawing.FontWeight.BOLDER: 800,
-    momapy.drawing.FontWeight.LIGHTER: 300,
+_FONT_WEIGHT_MAP: dict[FontWeight, int] = {
+    FontWeight.NORMAL: 400,
+    FontWeight.BOLD: 700,
+    FontWeight.BOLDER: 800,
+    FontWeight.LIGHTER: 300,
 }
 
 _FONT_EXTENSIONS = frozenset({".ttf", ".otf", ".ttc"})
 
 _font_cache: list[_FontEntry] | None = None
 _query_cache: dict[
-    tuple[str, momapy.drawing.FontWeight | int, momapy.drawing.FontStyle],
+    tuple[str, FontWeight | int, FontStyle],
     str | None,
 ] = {}
 
@@ -177,8 +178,8 @@ def _score_font(
 
 def find_font(
     family: str,
-    weight: momapy.drawing.FontWeight | int,
-    style: momapy.drawing.FontStyle,
+    weight: FontWeight | int,
+    style: FontStyle,
 ) -> str | None:
     """Find the best matching font file path.
 
@@ -198,11 +199,11 @@ def find_font(
     if not font_cache:
         _query_cache[cache_key] = None
         return None
-    if isinstance(weight, momapy.drawing.FontWeight):
+    if isinstance(weight, FontWeight):
         weight = _FONT_WEIGHT_MAP[weight]
     want_italic = style in (
-        momapy.drawing.FontStyle.ITALIC,
-        momapy.drawing.FontStyle.OBLIQUE,
+        FontStyle.ITALIC,
+        FontStyle.OBLIQUE,
     )
     family_lower = family.lower()
     best_font_entry = min(

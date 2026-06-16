@@ -30,30 +30,132 @@ import frozendict
 import lxml.objectify
 import lxml.etree
 
-import momapy.geometry
-import momapy.utils
-import momapy.core
-import momapy.core.mapping
-import momapy.core.elements
-import momapy.core.layout
-import momapy.io.core
-import momapy.io.utils
-import momapy.coloring
-import momapy.positioning
-import momapy.builder
-import momapy.drawing
-import momapy.styling
-import momapy.sbgn
 import momapy.sbgn.pd
-import momapy.sbgn.af
-import momapy.sbgn.io.sbgnml._reading_classification
-import momapy.sbgn.io.sbgnml._reading_parsing
-import momapy.sbgn.io.sbgnml._reading_model
-import momapy.sbgn.io.sbgnml._reading_layout
+
+from momapy.utils import IdentityMultiDict
+from momapy.core.mapping import LayoutModelMappingBuilder
+from momapy.core.elements import Direction
+from momapy.core.layout import TextLayout
+from momapy.io.core import Reader
+from momapy.io.core import ReaderResult
+from momapy.io.utils import ReadingContext
+from momapy.io.utils import apply_remap_to_layout_model_mapping
+from momapy.io.utils import build_id_mappings
+from momapy.io.utils import register_model_element
+from momapy.coloring import Color
+from momapy.positioning import set_fit
+from momapy.builder import get_or_make_builder_cls
+from momapy.builder import isinstance_or_builder
+from momapy.builder import object_from_builder
+from momapy.styling import ChildSelector
+from momapy.styling import IdSelector
+from momapy.styling import OrSelector
+from momapy.styling import StyleCollection
+from momapy.styling import StyleSheet
+from momapy.styling import TypeSelector
+from momapy.sbgn import SBGNNode
+from momapy.sbgn.pd import EntityPool
+from momapy.sbgn.pd import Modulation
+from momapy.sbgn.pd import Phenotype
+from momapy.sbgn.pd import StoichiometricProcess
+from momapy.sbgn.pd import Tag
+from momapy.sbgn.af import Activity
+from momapy.sbgn.af import Influence
+from momapy.sbgn.io.sbgnml._reading_classification import KEY_TO_CLASS
+from momapy.sbgn.io.sbgnml._reading_classification import get_arc_key
+from momapy.sbgn.io.sbgnml._reading_classification import get_glyph_key
+from momapy.sbgn.io.sbgnml._reading_classification import get_module
+from momapy.sbgn.io.sbgnml._reading_classification import get_subglyph_key
+from momapy.sbgn.io.sbgnml._reading_parsing import get_arcs
+from momapy.sbgn.io.sbgnml._reading_parsing import get_consumption_and_production_arcs
+from momapy.sbgn.io.sbgnml._reading_parsing import get_equivalence_arcs
+from momapy.sbgn.io.sbgnml._reading_parsing import get_glyphs
+from momapy.sbgn.io.sbgnml._reading_parsing import get_glyphs_recursively
+from momapy.sbgn.io.sbgnml._reading_parsing import get_logic_arcs
+from momapy.sbgn.io.sbgnml._reading_parsing import get_ports
+from momapy.sbgn.io.sbgnml._reading_parsing import get_process_direction
+from momapy.sbgn.io.sbgnml._reading_parsing import get_state_variables
+from momapy.sbgn.io.sbgnml._reading_parsing import get_subunits
+from momapy.sbgn.io.sbgnml._reading_parsing import get_terminals
+from momapy.sbgn.io.sbgnml._reading_parsing import get_units_of_information
+from momapy.sbgn.io.sbgnml._reading_parsing import has_undefined_variable
+from momapy.sbgn.io.sbgnml._reading_parsing import transform_class
+from momapy.sbgn.io.sbgnml._reading_model import make_activity as model_make_activity
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_and_add_annotations_and_notes as model_make_and_add_annotations_and_notes,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_compartment as model_make_compartment,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_entity_pool_or_subunit as model_make_entity_pool_or_subunit,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_logical_operator as model_make_logical_operator,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_logical_operator_input as model_make_logical_operator_input,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_modulation as model_make_modulation,
+)
+from momapy.sbgn.io.sbgnml._reading_model import make_product as model_make_product
+from momapy.sbgn.io.sbgnml._reading_model import make_reactant as model_make_reactant
+from momapy.sbgn.io.sbgnml._reading_model import make_reference as model_make_reference
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_state_variable as model_make_state_variable,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_stoichiometric_process as model_make_stoichiometric_process,
+)
+from momapy.sbgn.io.sbgnml._reading_model import make_submap as model_make_submap
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_terminal_or_tag as model_make_terminal_or_tag,
+)
+from momapy.sbgn.io.sbgnml._reading_model import (
+    make_unit_of_information as model_make_unit_of_information,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import make_activity as layout_make_activity
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_compartment as layout_make_compartment,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_entity_pool_or_subunit as layout_make_entity_pool_or_subunit,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_logical_operator as layout_make_logical_operator,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_logical_operator_input as layout_make_logical_operator_input,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_modulation as layout_make_modulation,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import make_product as layout_make_product
+from momapy.sbgn.io.sbgnml._reading_layout import make_reactant as layout_make_reactant
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_reference as layout_make_reference,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_state_variable as layout_make_state_variable,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_stoichiometric_process as layout_make_stoichiometric_process,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import make_submap as layout_make_submap
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_terminal_or_tag as layout_make_terminal_or_tag,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    make_unit_of_information as layout_make_unit_of_information,
+)
+from momapy.sbgn.io.sbgnml._reading_layout import (
+    set_position_and_size as layout_set_position_and_size,
+)
 
 
 @dataclasses.dataclass
-class SBGNMLReadingContext(momapy.io.utils.ReadingContext):
+class SBGNMLReadingContext(ReadingContext):
     """SBGN-specific reading context."""
 
     sbgnml_compartments: list = dataclasses.field(default_factory=list)
@@ -69,7 +171,7 @@ class SBGNMLReadingContext(momapy.io.utils.ReadingContext):
     empty_set_xml_ids: set = dataclasses.field(default_factory=set)
 
 
-class _SBGNMLReader(momapy.io.core.Reader):
+class _SBGNMLReader(Reader):
     @classmethod
     def read(
         cls,
@@ -82,7 +184,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         xsep: float = 0,
         ysep: float = 0,
         **options: typing.Any,
-    ) -> momapy.io.core.ReaderResult:
+    ) -> ReaderResult:
         """Read an SBGN-ML file and return a reader result object"""
 
         sbgnml_document = lxml.objectify.parse(file_path)
@@ -106,7 +208,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             xsep=xsep,
             ysep=ysep,
         )
-        result = momapy.io.core.ReaderResult(
+        result = ReaderResult(
             obj=obj,
             element_to_notes=notes,
             element_to_annotations=annotations,
@@ -130,22 +232,16 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_map = reading_context.xml_root
         map_key = reading_context.map_key
         reading_context.sbgnml_glyph_id_to_sbgnml_arcs = collections.defaultdict(list)
-        module = momapy.sbgn.io.sbgnml._reading_classification.get_module(map_key)
-        for sbgnml_glyph in momapy.sbgn.io.sbgnml._reading_parsing.get_glyphs(
-            sbgnml_map
-        ):
+        module = get_module(map_key)
+        for sbgnml_glyph in get_glyphs(sbgnml_map):
             reading_context.xml_id_to_xml_element[sbgnml_glyph.get("id")] = sbgnml_glyph
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_glyph, map_key
-            )
-            model_element_cls, _ = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
+            key = get_glyph_key(sbgnml_glyph, map_key)
+            model_element_cls, _ = KEY_TO_CLASS[key]
             if model_element_cls is None:
                 # Empty-set / source-and-sink glyphs have no model peer
                 # but live in the entity-pool slot of the XML layout.
                 reading_context.sbgnml_entity_pools.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.pd.EntityPool):
+            elif issubclass(model_element_cls, EntityPool):
                 reading_context.sbgnml_entity_pools.append(sbgnml_glyph)
             elif issubclass(
                 model_element_cls,
@@ -162,29 +258,23 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 module.Submap,
             ):
                 reading_context.sbgnml_submaps.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.pd.StoichiometricProcess):
+            elif issubclass(model_element_cls, StoichiometricProcess):
                 reading_context.sbgnml_stoichiometric_processes.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.pd.Phenotype):
+            elif issubclass(model_element_cls, Phenotype):
                 reading_context.sbgnml_phenotypes.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.af.Activity):
+            elif issubclass(model_element_cls, Activity):
                 reading_context.sbgnml_activities.append(sbgnml_glyph)
-            elif issubclass(model_element_cls, momapy.sbgn.pd.Tag):
+            elif issubclass(model_element_cls, Tag):
                 reading_context.sbgnml_tags.append(sbgnml_glyph)
-            for (
-                sbgnml_subglyph
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_glyphs_recursively(
-                sbgnml_glyph
-            ):
+            for sbgnml_subglyph in get_glyphs_recursively(sbgnml_glyph):
                 reading_context.xml_id_to_xml_element[sbgnml_subglyph.get("id")] = (
                     sbgnml_subglyph
                 )
-            for sbgnml_port in momapy.sbgn.io.sbgnml._reading_parsing.get_ports(
-                sbgnml_glyph
-            ):
+            for sbgnml_port in get_ports(sbgnml_glyph):
                 reading_context.xml_id_to_xml_element[sbgnml_port.get("id")] = (
                     sbgnml_glyph
                 )
-        for sbgnml_arc in momapy.sbgn.io.sbgnml._reading_parsing.get_arcs(sbgnml_map):
+        for sbgnml_arc in get_arcs(sbgnml_map):
             reading_context.xml_id_to_xml_element[sbgnml_arc.get("id")] = sbgnml_arc
             sbgnml_source = reading_context.xml_id_to_xml_element[
                 sbgnml_arc.get("source")
@@ -198,20 +288,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
             reading_context.sbgnml_glyph_id_to_sbgnml_arcs[
                 sbgnml_target.get("id")
             ].append(sbgnml_arc)
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_arc_key(
-                sbgnml_arc, map_key
-            )
-            model_element_cls, _ = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
+            key = get_arc_key(sbgnml_arc, map_key)
+            model_element_cls, _ = KEY_TO_CLASS[key]
             if issubclass(
                 model_element_cls,
-                (momapy.sbgn.pd.Modulation, momapy.sbgn.af.Influence),
+                (Modulation, Influence),
             ):
                 reading_context.sbgnml_modulations.append(sbgnml_arc)
-            for sbgnml_subglyph in momapy.sbgn.io.sbgnml._reading_parsing.get_glyphs(
-                sbgnml_arc
-            ):
+            for sbgnml_subglyph in get_glyphs(sbgnml_arc):
                 reading_context.xml_id_to_xml_element[sbgnml_subglyph.get("id")] = (
                     sbgnml_subglyph
                 )
@@ -219,7 +303,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
     @classmethod
     def _get_map_classes(cls, sbgnml_map):
         key = cls._get_map_key(sbgnml_map)
-        classes = momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS.get(key)
+        classes = KEY_TO_CLASS.get(key)
         if classes is None:
             if key == "ENTITY_RELATIONSHIP":
                 raise NotImplementedError(
@@ -231,19 +315,19 @@ class _SBGNMLReader(momapy.io.core.Reader):
     @classmethod
     def _make_empty_map(cls, sbgnml_map):
         map_cls, _, _ = cls._get_map_classes(sbgnml_map)
-        builder_cls = momapy.builder.get_or_make_builder_cls(map_cls)
+        builder_cls = get_or_make_builder_cls(map_cls)
         return builder_cls()
 
     @classmethod
     def _make_empty_model(cls, sbgnml_map):
         _, model_cls, _ = cls._get_map_classes(sbgnml_map)
-        builder_cls = momapy.builder.get_or_make_builder_cls(model_cls)
+        builder_cls = get_or_make_builder_cls(model_cls)
         return builder_cls()
 
     @classmethod
     def _make_empty_layout(cls, sbgnml_map):
         _, _, layout_cls = cls._get_map_classes(sbgnml_map)
-        builder_cls = momapy.builder.get_or_make_builder_cls(layout_cls)
+        builder_cls = get_or_make_builder_cls(layout_cls)
         return builder_cls()
 
     @classmethod
@@ -268,7 +352,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
             layout = None
         if model is not None or layout is not None:
             if model is not None and layout is not None:
-                layout_model_mapping = momapy.core.mapping.LayoutModelMappingBuilder()
+                layout_model_mapping = LayoutModelMappingBuilder()
             else:
                 layout_model_mapping = None
             reading_context = SBGNMLReadingContext(
@@ -276,7 +360,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 map_key=cls._get_map_key(sbgnml_map),
                 model=model,
                 layout=layout,
-                xml_id_to_model_element=momapy.utils.IdentityMultiDict(),
+                xml_id_to_model_element=IdentityMultiDict(),
                 xml_id_to_layout_element={},
                 element_to_annotations=collections.defaultdict(set),
                 element_to_notes=collections.defaultdict(set),
@@ -344,17 +428,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 reading_context.model_element_remap
                 and reading_context.layout_model_mapping is not None
             ):
-                momapy.io.utils.apply_remap_to_layout_model_mapping(reading_context)
+                apply_remap_to_layout_model_mapping(reading_context)
             if layout is not None:
                 sbgnml_bbox = getattr(sbgnml_map, "bbox", None)
                 if sbgnml_bbox is not None:
-                    momapy.sbgn.io.sbgnml._reading_layout.set_position_and_size(
-                        layout, sbgnml_map
-                    )
+                    layout_set_position_and_size(layout, sbgnml_map)
                 else:
-                    momapy.positioning.set_fit(
-                        layout, layout.layout_elements, xsep=xsep, ysep=ysep
-                    )
+                    set_fit(layout, layout.layout_elements, xsep=xsep, ysep=ysep)
         sbgnml_map_id = sbgnml_map.get("id")
         if sbgnml_map_id is not None:
             if model is not None:
@@ -362,16 +442,16 @@ class _SBGNMLReader(momapy.io.core.Reader):
             if layout is not None:
                 layout.id_ = f"{sbgnml_map_id}_layout"
         if return_type == "model":
-            obj = momapy.builder.object_from_builder(model)
+            obj = object_from_builder(model)
             # we add the annotations and notes from the map to the model
-            momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+            model_make_and_add_annotations_and_notes(
                 reading_context,
                 sbgnml_map,
                 obj,
                 source_id=sbgnml_map_id,
             )
         elif return_type == "layout":
-            obj = momapy.builder.object_from_builder(layout)
+            obj = object_from_builder(layout)
         elif return_type == "map":
             map_ = cls._make_empty_map(sbgnml_map)
             if sbgnml_map_id is not None:
@@ -379,8 +459,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
             map_.model = model
             map_.layout = layout
             map_.layout_model_mapping = reading_context.layout_model_mapping
-            obj = momapy.builder.object_from_builder(map_)
-            momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+            obj = object_from_builder(map_)
+            model_make_and_add_annotations_and_notes(
                 reading_context,
                 sbgnml_map,
                 obj,
@@ -412,7 +492,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         )
         if model is not None or layout is not None:
             id_to_element, source_id_to_model_element, source_id_to_layout_element = (
-                momapy.io.utils.build_id_mappings(
+                build_id_mappings(
                     reading_context=reading_context,
                     obj=obj,
                 )
@@ -439,16 +519,12 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_compartment,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_compartment(
-                reading_context, sbgnml_compartment
-            )
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_compartment(
+            model_element = model_make_compartment(reading_context, sbgnml_compartment)
+            layout_element = layout_make_compartment(
                 reading_context, sbgnml_compartment
             )
             auxiliary_units_map_elements = []
-            for (
-                sbgnml_unit_of_information
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_units_of_information(
+            for sbgnml_unit_of_information in get_units_of_information(
                 sbgnml_compartment
             ):
                 (
@@ -476,21 +552,21 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
+                model_element = object_from_builder(model_element)
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.compartments,
                     sbgnml_compartment.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_compartment,
                     model_element,
                     source_id=sbgnml_compartment.get("id"),
                 )
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[
                     sbgnml_compartment.get("id")
@@ -519,12 +595,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_entity_pool,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_entity_pool, reading_context.map_key
-            )
-            model_element_cls, _ = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
+            key = get_glyph_key(sbgnml_entity_pool, reading_context.map_key)
+            model_element_cls, _ = KEY_TO_CLASS[key]
             if model_element_cls is None:
                 reading_context.empty_set_xml_ids.add(sbgnml_entity_pool.get("id"))
             model_element, layout_element = cls._make_entity_pool_or_subunit(
@@ -534,13 +606,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = momapy.io.utils.register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.entity_pools,
                     sbgnml_entity_pool.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_entity_pool,
                     model_element,
@@ -573,36 +645,26 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 super_model_element is not None or super_layout_element is not None
             )
             if is_subunit:
-                key = momapy.sbgn.io.sbgnml._reading_classification.get_subglyph_key(
+                key = get_subglyph_key(
                     sbgnml_entity_pool_or_subunit, reading_context.map_key
                 )
             else:
-                key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
+                key = get_glyph_key(
                     sbgnml_entity_pool_or_subunit, reading_context.map_key
                 )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_entity_pool_or_subunit(
+                reading_context, sbgnml_entity_pool_or_subunit, model_element_cls
             )
-            model_element = (
-                momapy.sbgn.io.sbgnml._reading_model.make_entity_pool_or_subunit(
-                    reading_context, sbgnml_entity_pool_or_subunit, model_element_cls
-                )
-            )
-            layout_element = (
-                momapy.sbgn.io.sbgnml._reading_layout.make_entity_pool_or_subunit(
-                    reading_context, sbgnml_entity_pool_or_subunit, layout_element_cls
-                )
+            layout_element = layout_make_entity_pool_or_subunit(
+                reading_context, sbgnml_entity_pool_or_subunit, layout_element_cls
             )
             auxiliary_units_map_elements = []
             n_undefined_state_variables = 0
-            for (
-                sbgnml_state_variable
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_state_variables(
+            for sbgnml_state_variable in get_state_variables(
                 sbgnml_entity_pool_or_subunit
             ):
-                if momapy.sbgn.io.sbgnml._reading_parsing.has_undefined_variable(
-                    sbgnml_state_variable
-                ):
+                if has_undefined_variable(sbgnml_state_variable):
                     n_undefined_state_variables += 1
                     order = n_undefined_state_variables
                 else:
@@ -635,9 +697,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                             state_variable_layout_element,
                         )
                     )
-            for (
-                sbgnml_unit_of_information
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_units_of_information(
+            for sbgnml_unit_of_information in get_units_of_information(
                 sbgnml_entity_pool_or_subunit
             ):
                 (
@@ -672,9 +732,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                             unit_of_information_layout_element,
                         )
                     )
-            for sbgnml_subunit in momapy.sbgn.io.sbgnml._reading_parsing.get_subunits(
-                sbgnml_entity_pool_or_subunit
-            ):
+            for sbgnml_subunit in get_subunits(sbgnml_entity_pool_or_subunit):
                 (
                     subunit_model_element,
                     subunit_layout_element,
@@ -690,7 +748,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         sbgnml_subunit.get("id"),
                         subunit_model_element,
                     )
-                    momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                    model_make_and_add_annotations_and_notes(
                         reading_context,
                         sbgnml_subunit,
                         subunit_model_element,
@@ -709,9 +767,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
+                model_element = object_from_builder(model_element)
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
             if model_element is not None and layout_element is not None:
                 for (
                     auxiliary_unit_model_element,
@@ -733,24 +791,16 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_activity,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_activity, reading_context.map_key
-            )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_activity(
+            key = get_glyph_key(sbgnml_activity, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_activity(
                 reading_context, sbgnml_activity, model_element_cls
             )
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_activity(
+            layout_element = layout_make_activity(
                 reading_context, sbgnml_activity, layout_element_cls
             )
             auxiliary_units_map_elements = []
-            for (
-                sbgnml_unit_of_information
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_units_of_information(
-                sbgnml_activity
-            ):
+            for sbgnml_unit_of_information in get_units_of_information(sbgnml_activity):
                 (
                     unit_of_information_model_element,
                     unit_of_information_layout_element,
@@ -784,21 +834,21 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
+                model_element = object_from_builder(model_element)
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.activities,
                     sbgnml_activity.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_activity,
                     model_element,
                     source_id=sbgnml_activity.get("id"),
                 )
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[sbgnml_activity.get("id")] = (
                     layout_element
@@ -830,7 +880,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         order=None,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_state_variable(
+            model_element = model_make_state_variable(
                 reading_context, sbgnml_state_variable, order=order
             )
             sbgnml_state = getattr(sbgnml_state_variable, "state", None)
@@ -842,7 +892,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 sbgnml_variable = sbgnml_state.get("variable")
                 if sbgnml_variable is not None:
                     text += f"@{sbgnml_variable}"
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_state_variable(
+            layout_element = layout_make_state_variable(
                 reading_context, sbgnml_state_variable, text=text
             )
         else:
@@ -859,21 +909,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
         super_layout_element,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_subglyph_key(
-                sbgnml_unit_of_information, reading_context.map_key
+            key = get_subglyph_key(sbgnml_unit_of_information, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_unit_of_information(
+                reading_context, sbgnml_unit_of_information, model_element_cls
             )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
-            model_element = (
-                momapy.sbgn.io.sbgnml._reading_model.make_unit_of_information(
-                    reading_context, sbgnml_unit_of_information, model_element_cls
-                )
-            )
-            layout_element = (
-                momapy.sbgn.io.sbgnml._reading_layout.make_unit_of_information(
-                    reading_context, sbgnml_unit_of_information, layout_element_cls
-                )
+            layout_element = layout_make_unit_of_information(
+                reading_context, sbgnml_unit_of_information, layout_element_cls
             )
         else:
             model_element = None
@@ -887,55 +929,37 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_submap,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_submap, reading_context.map_key
-            )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_submap(
+            key = get_glyph_key(sbgnml_submap, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_submap(
                 reading_context, sbgnml_submap, model_element_cls
             )
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_submap(
+            layout_element = layout_make_submap(
                 reading_context, sbgnml_submap, layout_element_cls
             )
             terminal_map_elements = []
             reference_map_elements = []
-            for sbgnml_terminal in momapy.sbgn.io.sbgnml._reading_parsing.get_terminals(
-                sbgnml_submap
-            ):
-                terminal_model = (
-                    momapy.sbgn.io.sbgnml._reading_model.make_terminal_or_tag(
-                        reading_context, sbgnml_terminal, is_terminal=True
-                    )
+            for sbgnml_terminal in get_terminals(sbgnml_submap):
+                terminal_model = model_make_terminal_or_tag(
+                    reading_context, sbgnml_terminal, is_terminal=True
                 )
-                terminal_layout = (
-                    momapy.sbgn.io.sbgnml._reading_layout.make_terminal_or_tag(
-                        reading_context, sbgnml_terminal, is_terminal=True
-                    )
+                terminal_layout = layout_make_terminal_or_tag(
+                    reading_context, sbgnml_terminal, is_terminal=True
                 )
                 # Freeze terminal layout before creating references
                 # (references need it as source)
                 if terminal_layout is not None:
-                    terminal_layout = momapy.builder.object_from_builder(
-                        terminal_layout
-                    )
-                for (
-                    sbgnml_equivalence_arc
-                ) in momapy.sbgn.io.sbgnml._reading_parsing.get_equivalence_arcs(
+                    terminal_layout = object_from_builder(terminal_layout)
+                for sbgnml_equivalence_arc in get_equivalence_arcs(
                     sbgnml_terminal,
                     reading_context.xml_id_to_xml_element,
                     reading_context.sbgnml_glyph_id_to_sbgnml_arcs,
                 ):
-                    reference_model = (
-                        momapy.sbgn.io.sbgnml._reading_model.make_reference(
-                            reading_context, sbgnml_equivalence_arc, is_terminal=True
-                        )
+                    reference_model = model_make_reference(
+                        reading_context, sbgnml_equivalence_arc, is_terminal=True
                     )
-                    reference_layout = (
-                        momapy.sbgn.io.sbgnml._reading_layout.make_reference(
-                            reading_context, sbgnml_equivalence_arc, terminal_layout
-                        )
+                    reference_layout = layout_make_reference(
+                        reading_context, sbgnml_equivalence_arc, terminal_layout
                     )
                     sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
                     if terminal_model is not None:
@@ -960,7 +984,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                 sbgnml_terminal_id = sbgnml_terminal.get("id")
                 if terminal_model is not None:
-                    terminal_model = momapy.builder.object_from_builder(terminal_model)
+                    terminal_model = object_from_builder(terminal_model)
                     model_element.terminals.add(terminal_model)
                     reading_context.xml_id_to_model_element.add(
                         sbgnml_terminal_id,
@@ -980,21 +1004,21 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         )
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
+                model_element = object_from_builder(model_element)
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.submaps,
                     sbgnml_submap.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_submap,
                     model_element,
                     source_id=sbgnml_submap.get("id"),
                 )
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[sbgnml_submap.get("id")] = (
                     layout_element
@@ -1062,28 +1086,26 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_tag,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            tag_model = momapy.sbgn.io.sbgnml._reading_model.make_terminal_or_tag(
+            tag_model = model_make_terminal_or_tag(
                 reading_context, sbgnml_tag, is_terminal=False
             )
-            tag_layout = momapy.sbgn.io.sbgnml._reading_layout.make_terminal_or_tag(
+            tag_layout = layout_make_terminal_or_tag(
                 reading_context, sbgnml_tag, is_terminal=False
             )
             # Freeze tag layout before creating references
             # (references need it as source)
             if tag_layout is not None:
-                tag_layout = momapy.builder.object_from_builder(tag_layout)
+                tag_layout = object_from_builder(tag_layout)
             reference_map_elements = []
-            for (
-                sbgnml_equivalence_arc
-            ) in momapy.sbgn.io.sbgnml._reading_parsing.get_equivalence_arcs(
+            for sbgnml_equivalence_arc in get_equivalence_arcs(
                 sbgnml_tag,
                 reading_context.xml_id_to_xml_element,
                 reading_context.sbgnml_glyph_id_to_sbgnml_arcs,
             ):
-                reference_model = momapy.sbgn.io.sbgnml._reading_model.make_reference(
+                reference_model = model_make_reference(
                     reading_context, sbgnml_equivalence_arc, is_terminal=False
                 )
-                reference_layout = momapy.sbgn.io.sbgnml._reading_layout.make_reference(
+                reference_layout = layout_make_reference(
                     reading_context, sbgnml_equivalence_arc, tag_layout
                 )
                 sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
@@ -1102,8 +1124,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 if reference_model is not None and reference_layout is not None:
                     reference_map_elements.append((reference_model, reference_layout))
             if tag_model is not None:
-                tag_model = momapy.builder.object_from_builder(tag_model)
-                tag_model = momapy.io.utils.register_model_element(
+                tag_model = object_from_builder(tag_model)
+                tag_model = register_model_element(
                     reading_context,
                     tag_model,
                     reading_context.model.tags,
@@ -1161,13 +1183,13 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = momapy.io.utils.register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
                     sbgnml_phenotype.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_phenotype,
                     model_element,
@@ -1194,31 +1216,23 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_process,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_process, reading_context.map_key
+            key = get_glyph_key(sbgnml_process, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_stoichiometric_process(
+                reading_context, sbgnml_process, model_element_cls
             )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
-            model_element = (
-                momapy.sbgn.io.sbgnml._reading_model.make_stoichiometric_process(
-                    reading_context, sbgnml_process, model_element_cls
-                )
-            )
-            layout_element = (
-                momapy.sbgn.io.sbgnml._reading_layout.make_stoichiometric_process(
-                    reading_context, sbgnml_process, layout_element_cls
-                )
+            layout_element = layout_make_stoichiometric_process(
+                reading_context, sbgnml_process, layout_element_cls
             )
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[sbgnml_process.get("id")] = (
                     layout_element
                 )
             participant_map_elements = []
             sbgnml_consumption_arcs, sbgnml_production_arcs = (
-                momapy.sbgn.io.sbgnml._reading_parsing.get_consumption_and_production_arcs(
+                get_consumption_and_production_arcs(
                     sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
                 )
             )
@@ -1250,14 +1264,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         (product_model_element, product_layout_element)
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
+                model_element = object_from_builder(model_element)
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
                     sbgnml_process.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_process,
                     model_element,
@@ -1303,10 +1317,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
         super_layout_element,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_reactant(
-                reading_context, sbgnml_consumption_arc
-            )
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_reactant(
+            model_element = model_make_reactant(reading_context, sbgnml_consumption_arc)
+            layout_element = layout_make_reactant(
                 reading_context, sbgnml_consumption_arc, super_layout_element
             )
             sbgnml_consumption_arc_id = sbgnml_consumption_arc.get("id")
@@ -1342,19 +1354,17 @@ class _SBGNMLReader(momapy.io.core.Reader):
         super_sbgnml_element,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            process_direction = (
-                momapy.sbgn.io.sbgnml._reading_parsing.get_process_direction(
-                    super_sbgnml_element, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
-                )
+            process_direction = get_process_direction(
+                super_sbgnml_element, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
             )
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_product(
+            model_element = model_make_product(
                 reading_context,
                 sbgnml_production_arc,
                 super_model_element,
                 super_sbgnml_element,
                 process_direction,
             )
-            layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_product(
+            layout_element = layout_make_product(
                 reading_context, sbgnml_production_arc, super_layout_element
             )
             sbgnml_production_arc_id = sbgnml_production_arc.get("id")
@@ -1402,7 +1412,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         if not super_model_element.reversible:
             super_model_element.has_external_sink = True
             return
-        if process_direction == momapy.core.elements.Direction.HORIZONTAL:
+        if process_direction == Direction.HORIZONTAL:
             on_product_side = float(sbgnml_production_arc.start.get("x")) > float(
                 super_sbgnml_element.bbox.get("x")
             )
@@ -1422,28 +1432,22 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_logical_operator,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_glyph_key(
-                sbgnml_logical_operator, reading_context.map_key
-            )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
-            model_element = momapy.sbgn.io.sbgnml._reading_model.make_logical_operator(
+            key = get_glyph_key(sbgnml_logical_operator, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
+            model_element = model_make_logical_operator(
                 reading_context, sbgnml_logical_operator, model_element_cls
             )
-            layout_element = (
-                momapy.sbgn.io.sbgnml._reading_layout.make_logical_operator(
-                    reading_context, sbgnml_logical_operator, layout_element_cls
-                )
+            layout_element = layout_make_logical_operator(
+                reading_context, sbgnml_logical_operator, layout_element_cls
             )
             if layout_element is not None:
-                layout_element = momapy.builder.object_from_builder(layout_element)
+                layout_element = object_from_builder(layout_element)
                 reading_context.layout.layout_elements.append(layout_element)
                 reading_context.xml_id_to_layout_element[
                     sbgnml_logical_operator.get("id")
                 ] = layout_element
             input_map_elements = []
-            sbgnml_logic_arcs = momapy.sbgn.io.sbgnml._reading_parsing.get_logic_arcs(
+            sbgnml_logic_arcs = get_logic_arcs(
                 sbgnml_operator=sbgnml_logical_operator,
                 sbgnml_id_to_sbgnml_element=reading_context.xml_id_to_xml_element,
                 sbgnml_glyph_id_to_sbgnml_arcs=reading_context.sbgnml_glyph_id_to_sbgnml_arcs,
@@ -1462,8 +1466,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         (input_model_element, input_layout_element)
                     )
             if model_element is not None:
-                model_element = momapy.builder.object_from_builder(model_element)
-                model_element = momapy.io.utils.register_model_element(
+                model_element = object_from_builder(model_element)
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.logical_operators,
@@ -1528,18 +1532,14 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         sbgnml_logical_operator=sbgnml_source_element,
                     )
                 )
-            model_element = (
-                momapy.sbgn.io.sbgnml._reading_model.make_logical_operator_input(
-                    reading_context, sbgnml_logic_arc, source_model_element
-                )
+            model_element = model_make_logical_operator_input(
+                reading_context, sbgnml_logic_arc, source_model_element
             )
-            layout_element = (
-                momapy.sbgn.io.sbgnml._reading_layout.make_logical_operator_input(
-                    reading_context,
-                    sbgnml_logic_arc,
-                    source_layout_element,
-                    super_layout_element,
-                )
+            layout_element = layout_make_logical_operator_input(
+                reading_context,
+                sbgnml_logic_arc,
+                source_layout_element,
+                super_layout_element,
             )
             sbgnml_logic_arc_id = sbgnml_logic_arc.get("id")
             if model_element is not None:
@@ -1565,12 +1565,8 @@ class _SBGNMLReader(momapy.io.core.Reader):
         sbgnml_modulation,
     ):
         if reading_context.model is not None or reading_context.layout is not None:
-            key = momapy.sbgn.io.sbgnml._reading_classification.get_arc_key(
-                sbgnml_modulation, reading_context.map_key
-            )
-            model_element_cls, layout_element_cls = (
-                momapy.sbgn.io.sbgnml._reading_classification.KEY_TO_CLASS[key]
-            )
+            key = get_arc_key(sbgnml_modulation, reading_context.map_key)
+            model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
             sbgnml_source_id = sbgnml_modulation.get("source")
             sbgnml_source_element = reading_context.xml_id_to_xml_element[
                 sbgnml_source_id
@@ -1594,27 +1590,24 @@ class _SBGNMLReader(momapy.io.core.Reader):
                     ),
                     None,
                 )
-                model_element = momapy.sbgn.io.sbgnml._reading_model.make_modulation(
+                model_element = model_make_modulation(
                     reading_context,
                     sbgnml_modulation,
                     model_element_cls,
                     source_model_element,
                     target_model_element,
                 )
-                model_element = momapy.io.utils.register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     (
                         reading_context.model.modulations
-                        if momapy.sbgn.io.sbgnml._reading_classification.get_module(
-                            reading_context.map_key
-                        )
-                        == momapy.sbgn.pd
+                        if get_module(reading_context.map_key) == momapy.sbgn.pd
                         else reading_context.model.influences
                     ),
                     sbgnml_modulation.get("id"),
                 )
-                momapy.sbgn.io.sbgnml._reading_model.make_and_add_annotations_and_notes(
+                model_make_and_add_annotations_and_notes(
                     reading_context,
                     sbgnml_modulation,
                     model_element,
@@ -1629,7 +1622,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 target_layout_element = reading_context.xml_id_to_layout_element[
                     sbgnml_target_id
                 ]
-                layout_element = momapy.sbgn.io.sbgnml._reading_layout.make_modulation(
+                layout_element = layout_make_modulation(
                     reading_context,
                     sbgnml_modulation,
                     layout_element_cls,
@@ -1677,11 +1670,11 @@ class _SBGNMLReader(momapy.io.core.Reader):
     def _make_style_sheet(
         cls, layout, sbgnml_render_information, sbgnml_id_to_layout_element
     ):
-        style_sheet = momapy.styling.StyleSheet()
+        style_sheet = StyleSheet()
         if sbgnml_render_information.background_color is not None:
-            style_collection = momapy.styling.StyleCollection()
-            layout_selector = momapy.styling.IdSelector(layout.id_)
-            style_collection["fill"] = momapy.coloring.Color.from_hexa(
+            style_collection = StyleCollection()
+            layout_selector = IdSelector(layout.id_)
+            style_collection["fill"] = Color.from_hexa(
                 sbgnml_render_information.background_color
             )
             style_sheet[layout_selector] = style_collection
@@ -1692,9 +1685,9 @@ class _SBGNMLReader(momapy.io.core.Reader):
             ) in sbgnml_render_information.list_of_color_definitions.color_definition:
                 color_hex = color_definition.value
                 if len(color_hex) < 8:
-                    color = momapy.coloring.Color.from_hex(color_hex)
+                    color = Color.from_hex(color_hex)
                 else:
-                    color = momapy.coloring.Color.from_hexa(color_hex)
+                    color = Color.from_hexa(color_hex)
                 d_colors[color_definition.id] = color
         if sbgnml_render_information.list_of_styles is not None:
             for style in sbgnml_render_information.list_of_styles.style:
@@ -1703,43 +1696,36 @@ class _SBGNMLReader(momapy.io.core.Reader):
                 for id_ in style.id_list.split(" "):
                     layout_element = sbgnml_id_to_layout_element.get(id_)
                     if layout_element is not None:
-                        if momapy.builder.isinstance_or_builder(
-                            layout_element, momapy.sbgn.SBGNNode
-                        ):
+                        if isinstance_or_builder(layout_element, SBGNNode):
                             node_ids.append(id_)
                         else:
                             arc_ids.append(id_)
                 if node_ids:
-                    node_style_collection = momapy.styling.StyleCollection()
+                    node_style_collection = StyleCollection()
                     for attr in ["fill", "stroke"]:
                         color_str = getattr(style.g, attr)
                         if color_str is not None:
                             color = d_colors.get(color_str)
                             if color is None:
-                                color = momapy.coloring.Color.from_hex(color_str)
+                                color = Color.from_hex(color_str)
                             node_style_collection[attr] = color
                     for attr in ["stroke_width"]:
                         value = getattr(style.g, attr)
                         if value is not None:
                             node_style_collection[attr] = value
                     if node_style_collection:
-                        node_selector = momapy.styling.OrSelector(
-                            tuple(
-                                [
-                                    momapy.styling.IdSelector(node_id)
-                                    for node_id in node_ids
-                                ]
-                            )
+                        node_selector = OrSelector(
+                            tuple([IdSelector(node_id) for node_id in node_ids])
                         )
                         style_sheet[node_selector] = node_style_collection
                 if arc_ids:
-                    arc_style_collection = momapy.styling.StyleCollection()
+                    arc_style_collection = StyleCollection()
                     for attr in ["fill", "stroke"]:
                         color_str = getattr(style.g, attr)
                         if color_str is not None:
                             color = d_colors.get(color_str)
                             if color is None:
-                                color = momapy.coloring.Color.from_hex(color_str)
+                                color = Color.from_hex(color_str)
                             if attr == "stroke":
                                 arc_style_collection[f"path_{attr}"] = color
                             arc_style_collection[f"arrowhead_{attr}"] = color
@@ -1749,11 +1735,11 @@ class _SBGNMLReader(momapy.io.core.Reader):
                             arc_style_collection[f"path_{attr}"] = value
                             arc_style_collection[f"arrowhead_{attr}"] = value
                     if arc_style_collection:
-                        arc_selector = momapy.styling.OrSelector(
-                            tuple([momapy.styling.IdSelector(id) for id in arc_ids])
+                        arc_selector = OrSelector(
+                            tuple([IdSelector(id) for id in arc_ids])
                         )
                         style_sheet[arc_selector] = arc_style_collection
-                label_style_collection = momapy.styling.StyleCollection()
+                label_style_collection = StyleCollection()
                 for attr in ["font_size", "font_family"]:
                     value = getattr(style.g, attr)
                     if value is not None:
@@ -1765,23 +1751,19 @@ class _SBGNMLReader(momapy.io.core.Reader):
                         if color is None:
                             if color_str == "#000":
                                 color_str = "#000000"
-                            color = momapy.coloring.Color.from_hex(color_str)
+                            color = Color.from_hex(color_str)
                         label_style_collection["fill"] = color
                 if label_style_collection:
                     if node_ids:
-                        node_label_selector = momapy.styling.ChildSelector(
+                        node_label_selector = ChildSelector(
                             node_selector,
-                            momapy.styling.TypeSelector(
-                                momapy.core.layout.TextLayout.__name__
-                            ),
+                            TypeSelector(TextLayout.__name__),
                         )
                         style_sheet[node_label_selector] = label_style_collection
                     if arc_ids:
-                        arc_label_selector = momapy.styling.ChildSelector(
+                        arc_label_selector = ChildSelector(
                             arc_selector,
-                            momapy.styling.TypeSelector(
-                                momapy.core.layout.TextLayout.__name__
-                            ),
+                            TypeSelector(TextLayout.__name__),
                         )
                         style_sheet[arc_label_selector] = label_style_collection
         return style_sheet
@@ -1792,9 +1774,7 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
     @classmethod
     def _get_map_key(cls, sbgnml_map):
-        key = momapy.sbgn.io.sbgnml._reading_parsing.transform_class(
-            sbgnml_map.get("language")
-        )
+        key = transform_class(sbgnml_map.get("language"))
         return key
 
     @classmethod

@@ -18,12 +18,13 @@ import typing
 
 import frozendict
 
-import momapy.plugins.core
-import momapy.utils
+from momapy.plugins.core import PluginRegistry
+from momapy.utils import FrozenIdentityMultiDict
+from momapy.utils import FrozenSurjectionDict
 
 
-reader_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.readers")
-writer_registry = momapy.plugins.core.PluginRegistry(entry_point_group="momapy.writers")
+reader_registry = PluginRegistry(entry_point_group="momapy.readers")
+writer_registry = PluginRegistry(entry_point_group="momapy.writers")
 
 
 def get_reader(name: str) -> type["Reader"]:
@@ -187,8 +188,8 @@ class ReaderResult(IOResult):
     element_to_annotations: frozendict.frozendict | None = None
     element_to_notes: frozendict.frozendict | None = None
     id_to_element: frozendict.frozendict | None = None
-    source_id_to_model_element: momapy.utils.FrozenIdentityMultiDict | None = None
-    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None = None
+    source_id_to_model_element: FrozenIdentityMultiDict | None = None
+    source_id_to_layout_element: FrozenSurjectionDict | None = None
     source_id_to_annotations: frozendict.frozendict | None = None
     source_id_to_notes: frozendict.frozendict | None = None
     file_path: str | os.PathLike | None = None

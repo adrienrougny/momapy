@@ -2,9 +2,10 @@
 
 import dataclasses
 
-import momapy.coloring
-import momapy.drawing
+from momapy.coloring import Color
+from momapy.coloring import white
 from momapy.core.layout import Layout
+from momapy.drawing import NoneValueType
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -23,6 +24,4 @@ class SBGNLayout(Layout):
         ```
     """
 
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.coloring.white
-    )
+    fill: NoneValueType | Color | None = white

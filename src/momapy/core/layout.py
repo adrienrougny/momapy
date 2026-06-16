@@ -13,10 +13,40 @@ import uharfbuzz
 from momapy.core.elements import HAlignment, LayoutElement, VAlignment
 from momapy.core.fonts import find_font
 
-import momapy.drawing
-import momapy.geometry
-import momapy.coloring
-import momapy.builder
+from momapy.builder import isinstance_or_builder
+from momapy.coloring import Color
+from momapy.drawing import ClosePath
+from momapy.drawing import CurveTo
+from momapy.drawing import drawing_elements_to_geometry
+from momapy.drawing import DrawingElement
+from momapy.drawing import EllipticalArc as DrawingEllipticalArc
+from momapy.drawing import FillRule
+from momapy.drawing import Filter
+from momapy.drawing import FontStyle
+from momapy.drawing import FontWeight
+from momapy.drawing import get_drawing_elements_angle
+from momapy.drawing import get_drawing_elements_bbox
+from momapy.drawing import get_drawing_elements_border
+from momapy.drawing import get_initial_value
+from momapy.drawing import Group
+from momapy.drawing import LineTo
+from momapy.drawing import MoveTo
+from momapy.drawing import NoneValue
+from momapy.drawing import NoneValueType
+from momapy.drawing import Path
+from momapy.drawing import QuadraticCurveTo
+from momapy.drawing import Text
+from momapy.drawing import TextAnchor
+from momapy.geometry import Bbox
+from momapy.geometry import CubicBezierCurve
+from momapy.geometry import EllipticalArc as GeometryEllipticalArc
+from momapy.geometry import Line
+from momapy.geometry import Point
+from momapy.geometry import QuadraticBezierCurve
+from momapy.geometry import Rotation
+from momapy.geometry import Segment
+from momapy.geometry import Transformation
+from momapy.geometry import Translation
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -27,22 +57,22 @@ class TextLayout(LayoutElement):
         metadata={"description": "The text of the text layout"}
     )
     font_family: str = dataclasses.field(
-        default=momapy.drawing.get_initial_value("font_family"),
+        default=get_initial_value("font_family"),
         metadata={"description": "The font family of the text layout"},
     )
     font_size: float = dataclasses.field(
-        default=momapy.drawing.get_initial_value("font_size"),
+        default=get_initial_value("font_size"),
         metadata={"description": "The font size of the text layout"},
     )
-    font_style: momapy.drawing.FontStyle = dataclasses.field(
-        default=momapy.drawing.get_initial_value("font_style"),
+    font_style: FontStyle = dataclasses.field(
+        default=get_initial_value("font_style"),
         metadata={"description": "The font style of the text layout"},
     )
-    font_weight: momapy.drawing.FontWeight | int = dataclasses.field(
-        default=momapy.drawing.get_initial_value("font_weight"),
+    font_weight: FontWeight | int = dataclasses.field(
+        default=get_initial_value("font_weight"),
         metadata={"description": "The font weight of the text layout"},
     )
-    position: momapy.geometry.Point = dataclasses.field(
+    position: Point = dataclasses.field(
         metadata={"description": "The position of the text layout"}
     )
     width: float | None = dataclasses.field(
@@ -63,31 +93,23 @@ class TextLayout(LayoutElement):
         default=False,
         metadata={"description": "Whether to justify the text or not"},
     )
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The text fill color of the text layout"},
-        )
+    fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text fill color of the text layout"},
     )
-    filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The filter of the text layout"},
-        )
+    filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The filter of the text layout"},
     )  # should be a tuple of filters to follow SVG (to be implemented)
-    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The text stroke color of the text layout"},
-        )
+    stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text stroke color of the text layout"},
     )
-    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The text stroke dasharray of the text layout"},
-        )
+    stroke_dasharray: NoneValueType | tuple[float] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The text stroke dasharray of the text layout"},
     )
-    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The text stroke dashoffset of the text layout"},
     )
@@ -95,13 +117,11 @@ class TextLayout(LayoutElement):
         default=None,
         metadata={"description": "The text stroke width of the text layout"},
     )
-    text_anchor: momapy.drawing.TextAnchor | None = dataclasses.field(
+    text_anchor: TextAnchor | None = dataclasses.field(
         default=None,
         metadata={"description": "The text anchor of the text layout"},
     )
-    transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None,
         metadata={"description": "The transform of the text layout"},
     )
@@ -187,21 +207,21 @@ class TextLayout(LayoutElement):
                 )
             else:
                 y = self.position.y - text_height / 2 + font_ascent + i * font_height
-            position = momapy.geometry.Point(x, y)
+            position = Point(x, y)
             line_positions.append((line, position, line_width))
         return line_positions
 
-    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def drawing_elements(self) -> list[DrawingElement]:
         """Return the drawing elements of the text layout"""
         drawing_elements = []
         lines_positions = self._get_line_positions()
         for line, position, _ in lines_positions:
-            text = momapy.drawing.Text(
+            text = Text(
                 text=line,
                 point=position,
             )
             drawing_elements.append(text)
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}",
             elements=tuple(drawing_elements),
             id_=f"{self.id_}",
@@ -220,7 +240,7 @@ class TextLayout(LayoutElement):
         )
         return [group]
 
-    def bbox(self) -> momapy.geometry.Bbox:
+    def bbox(self) -> Bbox:
         """Compute and return the bounding box of the layout element"""
         line_positions = self._get_line_positions()
         font_file_path = self._get_font_file_path(
@@ -241,8 +261,8 @@ class TextLayout(LayoutElement):
             if end_x > max_x:
                 max_x = end_x
             max_y = position.y + font_descent
-        return momapy.geometry.Bbox(
-            momapy.geometry.Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
+        return Bbox(
+            Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
             max_x - min_x,
             max_y - min_y,
         )
@@ -258,67 +278,67 @@ class TextLayout(LayoutElement):
         """
         return copy.deepcopy(self)
 
-    def north_west(self) -> momapy.geometry.Point:
+    def north_west(self) -> Point:
         """Return the north west anchor of the text layout"""
         return self.bbox().north_west()
 
-    def north_north_west(self) -> momapy.geometry.Point:
+    def north_north_west(self) -> Point:
         """Return the north north west anchor of the text layout"""
         return self.bbox().north_north_west()
 
-    def north(self) -> momapy.geometry.Point:
+    def north(self) -> Point:
         """Return the north anchor of the text layout"""
         return self.bbox().north()
 
-    def north_north_east(self) -> momapy.geometry.Point:
+    def north_north_east(self) -> Point:
         """Return the north north east anchor of the text layout"""
         return self.bbox().north_north_east()
 
-    def north_east(self) -> momapy.geometry.Point:
+    def north_east(self) -> Point:
         """Return the north east anchor of the text layout"""
         return self.bbox().north_east()
 
-    def east_north_east(self) -> momapy.geometry.Point:
+    def east_north_east(self) -> Point:
         """Return the east north east anchor of the text layout"""
         return self.bbox().east_north_east()
 
-    def east(self) -> momapy.geometry.Point:
+    def east(self) -> Point:
         """Return the east anchor of the text layout"""
         return self.bbox().east()
 
-    def east_south_east(self) -> momapy.geometry.Point:
+    def east_south_east(self) -> Point:
         """Return the east south east anchor of the text layout"""
         return self.bbox().east_south_east()
 
-    def south_east(self) -> momapy.geometry.Point:
+    def south_east(self) -> Point:
         """Return the south east anchor of the text layout"""
         return self.bbox().south_east()
 
-    def south_south_east(self) -> momapy.geometry.Point:
+    def south_south_east(self) -> Point:
         """Return the south south east anchor of the text layout"""
         return self.bbox().south_south_east()
 
-    def south(self) -> momapy.geometry.Point:
+    def south(self) -> Point:
         """Return the south anchor of the text layout"""
         return self.bbox().south()
 
-    def south_south_west(self) -> momapy.geometry.Point:
+    def south_south_west(self) -> Point:
         """Return the south south west anchor of the text layout"""
         return self.bbox().south_south_west()
 
-    def south_west(self) -> momapy.geometry.Point:
+    def south_west(self) -> Point:
         """Return the south west anchor of the text layout"""
         return self.bbox().south_west()
 
-    def west_south_west(self) -> momapy.geometry.Point:
+    def west_south_west(self) -> Point:
         """Return the west south west anchor of the text layout"""
         return self.bbox().west_south_west()
 
-    def west(self) -> momapy.geometry.Point:
+    def west(self) -> Point:
         """Return the west anchor of the text layout"""
         return self.bbox().west()
 
-    def west_north_west(self) -> momapy.geometry.Point:
+    def west_north_west(self) -> Point:
         """Return the west north west anchor of the text layout"""
         return self.bbox().west_north_west()
 
@@ -338,13 +358,13 @@ class Shape(LayoutElement):
         A shape has no children, so return an empty list"""
         return []
 
-    def bbox(self) -> momapy.geometry.Bbox:
+    def bbox(self) -> Bbox:
         """Compute and return the bounding box of the shape"""
         primitives = self.to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
+            return Bbox(Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
-        return momapy.geometry.Bbox.union(bboxes)
+        return Bbox.union(bboxes)
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -360,21 +380,17 @@ class GroupLayout(LayoutElement):
             "description": "The sub-layout elements of the group layout. These are part of the children of the group layout"
         },
     )
-    group_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The fill color of the group layout"},
-        )
+    group_fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The fill color of the group layout"},
     )
-    group_fill_rule: momapy.drawing.FillRule | None = dataclasses.field(
+    group_fill_rule: FillRule | None = dataclasses.field(
         default=None,
         metadata={"description": "The fill rule of the group layout"},
     )
-    group_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The filter of the group layout"},
-        )
+    group_filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The filter of the group layout"},
     )  # should be a tuple of filters to follow SVG (to be implemented)
     group_font_family: str | None = dataclasses.field(
         default=None,
@@ -384,43 +400,37 @@ class GroupLayout(LayoutElement):
         default=None,
         metadata={"description": "The font size of the group layout"},
     )
-    group_font_style: momapy.drawing.FontStyle | None = dataclasses.field(
+    group_font_style: FontStyle | None = dataclasses.field(
         default=None,
         metadata={"description": "The font style of the group layout"},
     )
-    group_font_weight: momapy.drawing.FontWeight | float | None = dataclasses.field(
+    group_font_weight: FontWeight | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The font weight of the group layout"},
     )
-    group_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke color of the group layout"},
-        )
+    group_stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke color of the group layout"},
     )
-    group_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
+    group_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The stroke dasharray of the group layout"},
         )
     )
-    group_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke dashoffset of the group layout"},
-        )
+    group_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke dashoffset of the group layout"},
     )
-    group_stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    group_stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke width of the group layout"},
     )
-    group_text_anchor: momapy.drawing.TextAnchor | None = dataclasses.field(
+    group_text_anchor: TextAnchor | None = dataclasses.field(
         default=None,
         metadata={"description": "The text anchor of the group layout"},
     )
-    group_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    group_transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None,
         metadata={"description": "The transform of the group layout"},
     )
@@ -428,23 +438,20 @@ class GroupLayout(LayoutElement):
     def own_to_geometry(
         self,
     ) -> list[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ]:
         """Return a list of geometry primitives from the self drawing elements."""
-        return momapy.drawing.drawing_elements_to_geometry(self.drawing_elements())
+        return drawing_elements_to_geometry(self.drawing_elements())
 
-    def own_bbox(self) -> momapy.geometry.Bbox:
+    def own_bbox(self) -> Bbox:
         """Compute and return the bounding box of the self drawing element of the group layout"""
         primitives = self.own_to_geometry()
         if not primitives:
-            return momapy.geometry.Bbox(momapy.geometry.Point(0, 0), 0, 0)
+            return Bbox(Point(0, 0), 0, 0)
         bboxes = [p.bbox() for p in primitives]
-        return momapy.geometry.Bbox.union(bboxes)
+        return Bbox.union(bboxes)
 
-    def bbox(self) -> momapy.geometry.Bbox:
+    def bbox(self) -> Bbox:
         """Compute and return the bounding box of the group layout element"""
         own_bbox = self.own_bbox()
         bboxes = [child.bbox() for child in self.children()]
@@ -461,15 +468,15 @@ class GroupLayout(LayoutElement):
                 max_x = bbox.south_east().x
             if bbox.south_east().y > max_y:
                 max_y = bbox.south_east().y
-        bbox = momapy.geometry.Bbox(
-            momapy.geometry.Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
+        bbox = Bbox(
+            Point(min_x / 2 + max_x / 2, min_y / 2 + max_y / 2),
             max_x - min_x,
             max_y - min_y,
         )
         return bbox
 
     @abc.abstractmethod
-    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[DrawingElement]:
         """Return the self drawing elements of the group layout"""
         pass
 
@@ -478,7 +485,7 @@ class GroupLayout(LayoutElement):
         """Return the self children of the group layout"""
         pass
 
-    def drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def drawing_elements(self) -> list[DrawingElement]:
         """Return the drawing elements of the group layout.
         The returned drawing elements are a group drawing element formed of the self drawing elements of the group layout and the drawing elements of its children
         """
@@ -486,7 +493,7 @@ class GroupLayout(LayoutElement):
         for child in self.children():
             if child is not None:
                 drawing_elements += child.drawing_elements()
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}",
             elements=tuple(drawing_elements),
             id_=f"{self.id_}",
@@ -517,16 +524,12 @@ class GroupLayout(LayoutElement):
 class Node(GroupLayout):
     """Class for nodes. A node is a layout element with a `position`, a `width`, a `height` and an optional `label`."""
 
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The fill color of the node"},
-        )
+    fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The fill color of the node"},
     )
-    filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None, metadata={"description": "The filter of the node"}
-        )
+    filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None, metadata={"description": "The filter of the node"}
     )
     height: float = dataclasses.field(
         metadata={"description": "The height of the node"}
@@ -534,31 +537,25 @@ class Node(GroupLayout):
     label: TextLayout | None = dataclasses.field(
         default=None, metadata={"description": "The label of the node"}
     )
-    position: momapy.geometry.Point = dataclasses.field(
+    position: Point = dataclasses.field(
         metadata={"description": "The position of the node"}
     )
-    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke color of the node"},
-        )
+    stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke color of the node"},
     )
-    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke dasharray of the node"},
-        )
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke dasharray of the node"},
     )
-    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the node"},
     )
-    stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the node"}
     )
-    transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None, metadata={"description": "The transform of the node"}
     )
     width: float = dataclasses.field(
@@ -576,13 +573,13 @@ class Node(GroupLayout):
         return self.position.y
 
     @abc.abstractmethod
-    def _border_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         pass
 
-    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[DrawingElement]:
         """Return the node's own drawing elements"""
         drawing_elements = self._border_drawing_elements()
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
@@ -606,141 +603,117 @@ class Node(GroupLayout):
         """Return the size of the node"""
         return (self.width, self.height)
 
-    def north_west(self) -> momapy.geometry.Point:
+    def north_west(self) -> Point:
         """Return the north west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() - (self.width / 2, self.height / 2)
-        )
+        line = Line(self.center(), self.center() - (self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def north_north_west(self) -> momapy.geometry.Point:
+    def north_north_west(self) -> Point:
         """Return the north north west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() - (self.width / 4, self.height / 2)
-        )
+        line = Line(self.center(), self.center() - (self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def north(self) -> momapy.geometry.Point:
+    def north(self) -> Point:
         """Return the north anchor of the node"""
         return self.own_angle(90)
 
-    def north_north_east(self) -> momapy.geometry.Point:
+    def north_north_east(self) -> Point:
         """Return the north north east anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 4, -self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (self.width / 4, -self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def north_east(self) -> momapy.geometry.Point:
+    def north_east(self) -> Point:
         """Return the north east anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 2, -self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (self.width / 2, -self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def east_north_east(self) -> momapy.geometry.Point:
+    def east_north_east(self) -> Point:
         """Return the east north east anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 2, -self.height / 4)
-        )
+        line = Line(self.center(), self.center() + (self.width / 2, -self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def east(self) -> momapy.geometry.Point:
+    def east(self) -> Point:
         """Return the east anchor of the node"""
         return self.own_angle(0)
 
-    def east_south_east(self) -> momapy.geometry.Point:
+    def east_south_east(self) -> Point:
         """Return the east south east west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 2, self.height / 4)
-        )
+        line = Line(self.center(), self.center() + (self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def south_east(self) -> momapy.geometry.Point:
+    def south_east(self) -> Point:
         """Return the south east anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 2, self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def south_south_east(self) -> momapy.geometry.Point:
+    def south_south_east(self) -> Point:
         """Return the south south east anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (self.width / 4, self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def south(self) -> momapy.geometry.Point:
+    def south(self) -> Point:
         """Return the south anchor of the node"""
         return self.own_angle(270)
 
-    def south_south_west(self) -> momapy.geometry.Point:
+    def south_south_west(self) -> Point:
         """Return the south south west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (-self.width / 4, self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (-self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def south_west(self) -> momapy.geometry.Point:
+    def south_west(self) -> Point:
         """Return the south west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (-self.width / 2, self.height / 2)
-        )
+        line = Line(self.center(), self.center() + (-self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def west_south_west(self) -> momapy.geometry.Point:
+    def west_south_west(self) -> Point:
         """Return the west south west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() + (-self.width / 2, self.height / 4)
-        )
+        line = Line(self.center(), self.center() + (-self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def west(self) -> momapy.geometry.Point:
+    def west(self) -> Point:
         """Return the west anchor of the node"""
         return self.own_angle(180)
 
-    def west_north_west(self) -> momapy.geometry.Point:
+    def west_north_west(self) -> Point:
         """Return the west north west anchor of the node"""
-        line = momapy.geometry.Line(
-            self.center(), self.center() - (self.width / 2, self.height / 4)
-        )
+        line = Line(self.center(), self.center() - (self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
-    def center(self) -> momapy.geometry.Point:
+    def center(self) -> Point:
         """Return the center anchor of the node"""
         return self.position
 
-    def label_center(self) -> momapy.geometry.Point:
+    def label_center(self) -> Point:
         """Return the label center anchor of the node"""
         return self.position
 
-    def own_border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
+    def own_border(self, point: Point) -> Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line formed of the center anchor point of the node and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
-        return momapy.drawing.get_drawing_elements_border(
+        return get_drawing_elements_border(
             drawing_elements=self.own_drawing_elements(),
             point=point,
             center=self.center(),
         )
 
-    def border(self, point: momapy.geometry.Point) -> momapy.geometry.Point | None:
+    def border(self, point: Point) -> Point | None:
         """Return the point on the border of the node that intersects the drawing elements of the node with the line formed of the center anchor point of the node and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
-        return momapy.drawing.get_drawing_elements_border(
+        return get_drawing_elements_border(
             drawing_elements=self.drawing_elements(),
             point=point,
             center=self.center(),
@@ -750,9 +723,9 @@ class Node(GroupLayout):
         self,
         angle: float,
         unit: typing.Literal["degrees", "radians"] = "degrees",
-    ) -> momapy.geometry.Point | None:
+    ) -> Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line passing through the center anchor point of the node and at a given angle from the horizontal."""
-        return momapy.drawing.get_drawing_elements_angle(
+        return get_drawing_elements_angle(
             drawing_elements=self.own_drawing_elements(),
             angle=angle,
             unit=unit,
@@ -763,9 +736,9 @@ class Node(GroupLayout):
         self,
         angle: float,
         unit: typing.Literal["degrees", "radians"] = "degrees",
-    ) -> momapy.geometry.Point | None:
+    ) -> Point | None:
         """Return the point on the border of the node that intersects the drawing elements of the node with the line passing through the center anchor point of the node and at a given angle from the horizontal."""
-        return momapy.drawing.get_drawing_elements_angle(
+        return get_drawing_elements_angle(
             drawing_elements=self.drawing_elements(),
             angle=angle,
             unit=unit,
@@ -785,79 +758,56 @@ class Arc(GroupLayout):
         default=0.0,
         metadata={"description": "The length the end of the arc will be shorten by"},
     )
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None, metadata={"description": "The fill color of the arc"}
-        )
+    fill: NoneValueType | Color | None = dataclasses.field(
+        default=None, metadata={"description": "The fill color of the arc"}
     )
-    filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The fill filter of the arc"},
-        )
+    filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The fill filter of the arc"},
     )
-    path_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The path fill color of the arc"},
-        )
+    path_fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path fill color of the arc"},
     )
-    path_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None, metadata={"description": "The path filter of the arc"}
-        )
+    path_filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None, metadata={"description": "The path filter of the arc"}
     )
-    path_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The path stroke color of the arc"},
-        )
+    path_stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path stroke color of the arc"},
     )
-    path_stroke_dasharray: momapy.drawing.NoneValueType | tuple[float, ...] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The path stroke dasharray of the arc"},
-        )
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path stroke dasharray of the arc"},
     )
-    path_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The path stroke dashoffset of the arc"},
-        )
+    path_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The path stroke dashoffset of the arc"},
     )
     path_stroke_width: float | None = dataclasses.field(
         default=None,
         metadata={"description": "The path stroke width of the arc"},
     )
-    path_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    path_transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None, metadata={"description": "The path transform of the arc"}
     )
-    stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke color of the arc"},
-        )
+    stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke color of the arc"},
     )
-    stroke_dasharray: momapy.drawing.NoneValueType | tuple[float] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The stroke dasharray of the arc"},
-        )
+    stroke_dasharray: NoneValueType | tuple[float] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The stroke dasharray of the arc"},
     )
-    stroke_dashoffset: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dashoffset of the arc"},
     )
-    stroke_width: momapy.drawing.NoneValueType | float | None = dataclasses.field(
+    stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the arc"}
     )
     segments: tuple[
-        momapy.geometry.Segment
-        | momapy.geometry.QuadraticBezierCurve
-        | momapy.geometry.CubicBezierCurve
-        | momapy.geometry.EllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
     ] = dataclasses.field(
         default_factory=tuple,
         metadata={"description": "The path segments of the arc"},
@@ -872,9 +822,7 @@ class Arc(GroupLayout):
     target: LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The target of the arc"}
     )
-    transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None, metadata={"description": "The transform of the arc"}
     )
 
@@ -882,7 +830,7 @@ class Arc(GroupLayout):
         """Return the self children of the arc"""
         return []
 
-    def points(self) -> list[momapy.geometry.Point]:
+    def points(self) -> list[Point]:
         """Return the points of the arc path"""
         points = []
         for segment in self.segments:
@@ -894,11 +842,11 @@ class Arc(GroupLayout):
         """Return the total length of the arc path"""
         return sum([segment.length() for segment in self.segments])
 
-    def start_point(self) -> momapy.geometry.Point:
+    def start_point(self) -> Point:
         """Return the starting point of the arc"""
         return self.points()[0]
 
-    def end_point(self) -> momapy.geometry.Point:
+    def end_point(self) -> Point:
         """Return the ending point of the arc"""
         return self.points()[-1]
 
@@ -906,7 +854,7 @@ class Arc(GroupLayout):
         """Return a copy of the arc with no children"""
         return dataclasses.replace(self, layout_elements=tuple([]))
 
-    def fraction(self, fraction: float) -> tuple[momapy.geometry.Point, float]:
+    def fraction(self, fraction: float) -> tuple[Point, float]:
         """Return the position and angle on the arc at a given fraction (of the total arc length)"""
         current_length = 0
         length_to_reach = fraction * self.length()
@@ -921,26 +869,18 @@ class Arc(GroupLayout):
 
     @classmethod
     def _make_path_action_from_segment(cls, segment):
-        if momapy.builder.isinstance_or_builder(segment, momapy.geometry.Segment):
-            path_action = momapy.drawing.LineTo(segment.p2)
-        elif momapy.builder.isinstance_or_builder(
-            segment, momapy.geometry.CubicBezierCurve
-        ):
-            path_action = momapy.drawing.CurveTo(
+        if isinstance_or_builder(segment, Segment):
+            path_action = LineTo(segment.p2)
+        elif isinstance_or_builder(segment, CubicBezierCurve):
+            path_action = CurveTo(
                 segment.p2,
                 segment.control_point1,
                 segment.control_point2,
             )
-        elif momapy.builder.isinstance_or_builder(
-            segment, momapy.geometry.QuadraticBezierCurve
-        ):
-            path_action = momapy.drawing.QuadraticCurveTo(
-                segment.p2, segment.control_point
-            )
-        elif momapy.builder.isinstance_or_builder(
-            segment, momapy.geometry.EllipticalArc
-        ):
-            path_action = momapy.drawing.EllipticalArc(
+        elif isinstance_or_builder(segment, QuadraticBezierCurve):
+            path_action = QuadraticCurveTo(segment.p2, segment.control_point)
+        elif isinstance_or_builder(segment, GeometryEllipticalArc):
+            path_action = DrawingEllipticalArc(
                 segment.p2,
                 segment.rx,
                 segment.ry,
@@ -955,59 +895,47 @@ class Arc(GroupLayout):
 class SingleHeadedArc(Arc):
     """Base class for single-headed arcs. A single-headed arc is formed of a path and a unique arrowhead at its end"""
 
-    arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The arrowhead fill color of the arc"},
-        )
-    )
-    arrowhead_filter: momapy.drawing.NoneValueType | momapy.drawing.Filter | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The arrowhead filter of the arc"},
-        )
-    )
-    arrowhead_stroke: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The arrowhead stroke color of the arc"},
-        )
-    )
-    arrowhead_stroke_dasharray: (
-        momapy.drawing.NoneValueType | tuple[float, ...] | None
-    ) = dataclasses.field(
+    arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
-        metadata={"description": "The arrowhead stroke dasharray of the arc"},
+        metadata={"description": "The arrowhead fill color of the arc"},
     )
-    arrowhead_stroke_dashoffset: momapy.drawing.NoneValueType | float | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The arrowhead stroke dashoffset of the arc"},
-        )
-    )
-    arrowhead_stroke_width: momapy.drawing.NoneValueType | float | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The arrowhead stroke width of the arc"},
-        )
-    )
-    arrowhead_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
+    arrowhead_filter: NoneValueType | Filter | None = dataclasses.field(
         default=None,
-        metadata={"description": "The arrowhead transform of the arc"},
+        metadata={"description": "The arrowhead filter of the arc"},
+    )
+    arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The arrowhead stroke color of the arc"},
+    )
+    arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The arrowhead stroke dasharray of the arc"},
+        )
+    )
+    arrowhead_stroke_dashoffset: NoneValueType | float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The arrowhead stroke dashoffset of the arc"},
+    )
+    arrowhead_stroke_width: NoneValueType | float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The arrowhead stroke width of the arc"},
+    )
+    arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The arrowhead transform of the arc"},
+        )
     )
 
     def arrowhead_length(self) -> float:
         """Return the length of the single-headed arc arrowhead"""
-        bbox = momapy.drawing.get_drawing_elements_bbox(
-            self._arrowhead_border_drawing_elements()
-        )
+        bbox = get_drawing_elements_bbox(self._arrowhead_border_drawing_elements())
         if math.isnan(bbox.width):
             return 0.0
         return bbox.east().x
 
-    def arrowhead_tip(self) -> momapy.geometry.Point:
+    def arrowhead_tip(self) -> Point:
         """Return the arrowhead tip anchor point of the single-headed arc"""
         segment = self.segments[-1]
         segment_length = segment.length()
@@ -1016,7 +944,7 @@ class SingleHeadedArc(Arc):
         fraction = 1 - self.end_shorten / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def arrowhead_base(self) -> momapy.geometry.Point:
+    def arrowhead_base(self) -> Point:
         """Return the arrowhead base anchor point of the single-headed arc"""
         arrowhead_length = self.arrowhead_length()
         segment = self.segments[-1]
@@ -1026,20 +954,16 @@ class SingleHeadedArc(Arc):
         fraction = 1 - (arrowhead_length + self.end_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def arrowhead_bbox(self) -> momapy.geometry.Bbox:
+    def arrowhead_bbox(self) -> Bbox:
         """Return the bounding box of the single-headed arc arrowhead"""
-        return momapy.drawing.get_drawing_elements_bbox(
-            self.arrowhead_drawing_elements()
-        )
+        return get_drawing_elements_bbox(self.arrowhead_drawing_elements())
 
-    def arrowhead_border(self, point) -> momapy.geometry.Point:
+    def arrowhead_border(self, point) -> Point:
         """Return the point at the intersection of the drawing elements of the single-headed arc arrowhead and the line going through the center of these drawing elements and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
 
-        point = momapy.drawing.get_drawing_elements_border(
-            self.arrowhead_drawing_elements(), point
-        )
+        point = get_drawing_elements_border(self.arrowhead_drawing_elements(), point)
         if point is None:
             return self.arrowhead_tip()
         return point
@@ -1047,7 +971,7 @@ class SingleHeadedArc(Arc):
     @abc.abstractmethod
     def _arrowhead_border_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         pass
 
     def _get_arrowhead_transformation(self):
@@ -1057,24 +981,24 @@ class SingleHeadedArc(Arc):
         if arrowhead_length == 0:
             end_point = last_segment.p2
             end_angle = last_segment.get_angle_at_fraction(1.0)
-            p1 = momapy.geometry.Point(
+            p1 = Point(
                 end_point.x - math.cos(end_angle),
                 end_point.y - math.sin(end_angle),
             )
-            line = momapy.geometry.Line(p1, end_point)
+            line = Line(p1, end_point)
         else:
-            line = momapy.geometry.Line(arrowhead_base, last_segment.p2)
+            line = Line(arrowhead_base, last_segment.p2)
         angle = line.get_angle_to_horizontal()
-        translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
-        rotation = momapy.geometry.Rotation(angle, arrowhead_base)
+        translation = Translation(arrowhead_base.x, arrowhead_base.y)
+        rotation = Rotation(angle, arrowhead_base)
         return rotation * translation
 
     def arrowhead_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         """Return the drawing elements of the single-headed arc arrowhead"""
         drawing_elements = self._arrowhead_border_drawing_elements()
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}_arrowhead",
             elements=tuple(drawing_elements),
             fill=self.arrowhead_fill,
@@ -1090,7 +1014,7 @@ class SingleHeadedArc(Arc):
         group = group.transformed(transformation)
         return [group]
 
-    def path_drawing_elements(self) -> list[momapy.drawing.Path]:
+    def path_drawing_elements(self) -> list[Path]:
         """Return the drawing elements of the single-headed arc path"""
         arrowhead_length = self.arrowhead_length()
         if len(self.segments) == 1:
@@ -1100,7 +1024,7 @@ class SingleHeadedArc(Arc):
                 .shortened(self.end_shorten + arrowhead_length, "end")
             )
             actions = [
-                momapy.drawing.MoveTo(segment.p1),
+                MoveTo(segment.p1),
                 self._make_path_action_from_segment(segment),
             ]
         else:
@@ -1109,14 +1033,14 @@ class SingleHeadedArc(Arc):
                 self.end_shorten + arrowhead_length, "end"
             )
             actions = [
-                momapy.drawing.MoveTo(first_segment.p1),
+                MoveTo(first_segment.p1),
                 self._make_path_action_from_segment(first_segment),
             ]
             for segment in self.segments[1:-1]:
                 action = self._make_path_action_from_segment(segment)
                 actions.append(action)
             actions.append(self._make_path_action_from_segment(last_segment))
-        path = momapy.drawing.Path(
+        path = Path(
             actions=tuple(actions),
             class_=f"{type(self).__name__}_path",
             fill=self.path_fill,
@@ -1130,12 +1054,12 @@ class SingleHeadedArc(Arc):
         )
         return [path]
 
-    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[DrawingElement]:
         """Return the self drawing elements of the single-headed arc"""
         drawing_elements = (
             self.path_drawing_elements() + self.arrowhead_drawing_elements()
         )
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}_own",
             elements=tuple(drawing_elements),
             fill=self.fill,
@@ -1154,21 +1078,15 @@ class SingleHeadedArc(Arc):
 class DoubleHeadedArc(Arc):
     """Base class for double-headed arcs. A double-headed arc is formed of a path and two arrowheads, on at the beginning of the path and one at its end"""
 
-    end_arrowhead_fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "The end arrowhead fill color of the arc"},
-        )
+    end_arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The end arrowhead fill color of the arc"},
     )
-    end_arrowhead_filter: (
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ) = dataclasses.field(
+    end_arrowhead_filter: NoneValueType | Filter | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead filter of the arc"},
     )
-    end_arrowhead_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = dataclasses.field(
+    end_arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The end arrowhead stroke color of the arc"},
     )
@@ -1184,27 +1102,21 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The end arrowhead stroke width of the arc"},
     )
-    end_arrowhead_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
-        default=None,
-        metadata={"description": "The end arrowhead transform of the arc"},
+    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The end arrowhead transform of the arc"},
+        )
     )
-    start_arrowhead_fill: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = dataclasses.field(
+    start_arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead fill color of the arc"},
     )
-    start_arrowhead_filter: (
-        momapy.drawing.NoneValueType | momapy.drawing.Filter | None
-    ) = dataclasses.field(
+    start_arrowhead_filter: NoneValueType | Filter | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead filter of the arc"},
     )
-    start_arrowhead_stroke: (
-        momapy.drawing.NoneValueType | momapy.coloring.Color | None
-    ) = dataclasses.field(
+    start_arrowhead_stroke: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The start arrowhead stroke color of the arc"},
     )
@@ -1220,56 +1132,54 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The start arrowhead stroke width of the arc"},
     )
-    start_arrowhead_transform: (
-        momapy.drawing.NoneValueType | tuple[momapy.geometry.Transformation] | None
-    ) = dataclasses.field(
-        default=None,
-        metadata={"description": "The start arrowhead transform of the arc"},
+    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The start arrowhead transform of the arc"},
+        )
     )
 
     def start_arrowhead_length(self) -> float:
         """Return the length of the double-headed arc start arrowhead"""
-        bbox = momapy.drawing.get_drawing_elements_bbox(
+        bbox = get_drawing_elements_bbox(
             self._start_arrowhead_border_drawing_elements()
         )
         if math.isnan(bbox.width):
             return 0.0
         return abs(bbox.west().x)
 
-    def start_arrowhead_tip(self) -> momapy.geometry.Point:
+    def start_arrowhead_tip(self) -> Point:
         """Return the tip anchor point of the double-headed arc start arrowhead"""
         segment = self.segments[0]
-        segment = momapy.geometry.Segment(segment.p2, segment.p1)
+        segment = Segment(segment.p2, segment.p1)
         segment_length = segment.length()
         if segment_length == 0:
             return segment.p2
         fraction = 1 - self.start_shorten / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def start_arrowhead_base(self) -> momapy.geometry.Point:
+    def start_arrowhead_base(self) -> Point:
         """Return the base anchor point of the double-headed arc start arrowhead"""
         arrowhead_length = self.start_arrowhead_length()
         if arrowhead_length == 0:
             return self.start_point()
         segment = self.segments[0]
-        segment = momapy.geometry.Segment(segment.p2, segment.p1)
+        segment = Segment(segment.p2, segment.p1)
         segment_length = segment.length()
         if segment_length == 0:
             return self.start_arrowhead_tip() + (arrowhead_length, 0)
         fraction = 1 - (arrowhead_length + self.start_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def start_arrowhead_bbox(self) -> momapy.geometry.Bbox:
+    def start_arrowhead_bbox(self) -> Bbox:
         """Return the bounding box of the double-headed arc start arrowhead"""
-        return momapy.drawing.get_drawing_elements_bbox(
-            self.start_arrowhead_drawing_elements()
-        )
+        return get_drawing_elements_bbox(self.start_arrowhead_drawing_elements())
 
-    def start_arrowhead_border(self, point) -> momapy.geometry.Point:
+    def start_arrowhead_border(self, point) -> Point:
         """Return the point at the intersection of the drawing elements of the double-headed arc start arrowhead and the line going through the center of these drawing elements and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
-        point = momapy.drawing.get_drawing_elements_border(
+        point = get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
         )
         if point is None:
@@ -1278,14 +1188,12 @@ class DoubleHeadedArc(Arc):
 
     def end_arrowhead_length(self) -> float:
         """Return the length of the double-headed arc end arrowhead"""
-        bbox = momapy.drawing.get_drawing_elements_bbox(
-            self._end_arrowhead_border_drawing_elements()
-        )
+        bbox = get_drawing_elements_bbox(self._end_arrowhead_border_drawing_elements())
         if math.isnan(bbox.width):
             return 0.0
         return bbox.east().x
 
-    def end_arrowhead_tip(self) -> momapy.geometry.Point:
+    def end_arrowhead_tip(self) -> Point:
         """Return the tip anchor point of the double-headed arc end arrowhead"""
         segment = self.segments[-1]
         segment_length = segment.length()
@@ -1294,7 +1202,7 @@ class DoubleHeadedArc(Arc):
         fraction = 1 - self.end_shorten / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def end_arrowhead_base(self) -> momapy.geometry.Point:
+    def end_arrowhead_base(self) -> Point:
         """Return the base anchor point of the double-headed arc end arrowhead"""
         arrowhead_length = self.end_arrowhead_length()
         if arrowhead_length == 0:
@@ -1308,16 +1216,14 @@ class DoubleHeadedArc(Arc):
 
     def end_arrowhead_bbox(self):
         """Return the bounding box of the double-headed arc start arrowhead"""
-        return momapy.drawing.get_drawing_elements_bbox(
-            self.end_arrowhead_drawing_elements()
-        )
+        return get_drawing_elements_bbox(self.end_arrowhead_drawing_elements())
 
     def end_arrowhead_border(self, point):
         """Return the point at the intersection of the drawing elements of the double-headed arc end arrowhead and the line going through the center of these drawing elements and the given point.
         When there are multiple intersection points, the one closest to the given point is returned
         """
 
-        point = momapy.drawing.get_drawing_elements_border(
+        point = get_drawing_elements_border(
             self.end_arrowhead_drawing_elements(), point
         )
         if point is None:
@@ -1327,14 +1233,14 @@ class DoubleHeadedArc(Arc):
     @abc.abstractmethod
     def _start_arrowhead_border_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         # base of the arrow if at (0, 0), and the direction to the left
         pass
 
     @abc.abstractmethod
     def _end_arrowhead_border_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         # base of the arrow if at (0, 0), and the direction to the right
         pass
 
@@ -1345,25 +1251,25 @@ class DoubleHeadedArc(Arc):
         if arrowhead_length == 0:
             start_point = segment.p1
             start_angle = segment.get_angle_at_fraction(0.0)
-            p1 = momapy.geometry.Point(
+            p1 = Point(
                 start_point.x + math.cos(start_angle),
                 start_point.y + math.sin(start_angle),
             )
-            line = momapy.geometry.Line(p1, start_point)
+            line = Line(p1, start_point)
         else:
-            line = momapy.geometry.Line(arrowhead_base, segment.p1)
+            line = Line(arrowhead_base, segment.p1)
         angle = line.get_angle_to_horizontal()
         angle += math.pi
-        translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
-        rotation = momapy.geometry.Rotation(angle, arrowhead_base)
+        translation = Translation(arrowhead_base.x, arrowhead_base.y)
+        rotation = Rotation(angle, arrowhead_base)
         return rotation * translation
 
     def start_arrowhead_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         """Return the drawing elements of the double-headed arc start arrowhead"""
         drawing_elements = self._start_arrowhead_border_drawing_elements()
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}_start_arrowhead",
             elements=tuple(drawing_elements),
             id_=f"{self.id_}_start_arrowhead",
@@ -1386,24 +1292,24 @@ class DoubleHeadedArc(Arc):
         if arrowhead_length == 0:
             end_point = segment.p2
             end_angle = segment.get_angle_at_fraction(1.0)
-            p1 = momapy.geometry.Point(
+            p1 = Point(
                 end_point.x - math.cos(end_angle),
                 end_point.y - math.sin(end_angle),
             )
-            line = momapy.geometry.Line(p1, end_point)
+            line = Line(p1, end_point)
         else:
-            line = momapy.geometry.Line(arrowhead_base, segment.p2)
+            line = Line(arrowhead_base, segment.p2)
         angle = line.get_angle_to_horizontal()
-        translation = momapy.geometry.Translation(arrowhead_base.x, arrowhead_base.y)
-        rotation = momapy.geometry.Rotation(angle, arrowhead_base)
+        translation = Translation(arrowhead_base.x, arrowhead_base.y)
+        rotation = Rotation(angle, arrowhead_base)
         return rotation * translation
 
     def end_arrowhead_drawing_elements(
         self,
-    ) -> list[momapy.drawing.DrawingElement]:
+    ) -> list[DrawingElement]:
         """Return the drawing elements of the double-headed arc end arrowhead"""
         drawing_elements = self._end_arrowhead_border_drawing_elements()
-        group = momapy.drawing.Group(
+        group = Group(
             class_=f"{type(self).__name__}_end_arrowhead",
             elements=tuple(drawing_elements),
             fill=self.end_arrowhead_fill,
@@ -1419,7 +1325,7 @@ class DoubleHeadedArc(Arc):
         group = group.transformed(transformation)
         return [group]
 
-    def path_drawing_elements(self) -> list[momapy.drawing.Path]:
+    def path_drawing_elements(self) -> list[Path]:
         """Return the drawing elements of the double-headed arc path"""
         start_arrowhead_length = self.start_arrowhead_length()
         end_arrowhead_length = self.end_arrowhead_length()
@@ -1430,7 +1336,7 @@ class DoubleHeadedArc(Arc):
                 .shortened(self.end_shorten + end_arrowhead_length, "end")
             )
             actions = [
-                momapy.drawing.MoveTo(segment.p1),
+                MoveTo(segment.p1),
                 self._make_path_action_from_segment(segment),
             ]
         else:
@@ -1441,14 +1347,14 @@ class DoubleHeadedArc(Arc):
                 self.end_shorten + end_arrowhead_length, "end"
             )
             actions = [
-                momapy.drawing.MoveTo(first_segment.p1),
+                MoveTo(first_segment.p1),
                 self._make_path_action_from_segment(first_segment),
             ]
             for segment in self.segments[1:-1]:
                 action = self._make_path_action_from_segment(segment)
                 actions.append(action)
             actions.append(self._make_path_action_from_segment(last_segment))
-        path = momapy.drawing.Path(
+        path = Path(
             actions=tuple(actions),
             class_=f"{type(self).__name__}_path",
             fill=self.path_fill,
@@ -1462,7 +1368,7 @@ class DoubleHeadedArc(Arc):
         )
         return [path]
 
-    def own_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def own_drawing_elements(self) -> list[DrawingElement]:
         """Return the self drawing elements of the double-headed arc. These include the drawing elements of the arc path, the start arrowhead, and the end arrowhead"""
         drawing_elements = (
             self.path_drawing_elements()
@@ -1470,7 +1376,7 @@ class DoubleHeadedArc(Arc):
             + self.end_arrowhead_drawing_elements()
         )
 
-        group = momapy.drawing.Group(
+        group = Group(
             class_=type(self).__name__,
             elements=tuple(drawing_elements),
             id_=self.id_,
@@ -1489,19 +1395,17 @@ class DoubleHeadedArc(Arc):
 class Layout(Node):
     """Class for layouts"""
 
-    fill: momapy.drawing.NoneValueType | momapy.coloring.Color | None = (
-        momapy.drawing.NoneValue
-    )
+    fill: NoneValueType | Color | None = NoneValue
 
-    def _border_drawing_elements(self) -> list[momapy.drawing.DrawingElement]:
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
-            momapy.drawing.MoveTo(self.position - (self.width / 2, self.height / 2)),
-            momapy.drawing.LineTo(self.position + (self.width / 2, -self.height / 2)),
-            momapy.drawing.LineTo(self.position + (self.width / 2, self.height / 2)),
-            momapy.drawing.LineTo(self.position + (-self.width / 2, self.height / 2)),
-            momapy.drawing.ClosePath(),
+            MoveTo(self.position - (self.width / 2, self.height / 2)),
+            LineTo(self.position + (self.width / 2, -self.height / 2)),
+            LineTo(self.position + (self.width / 2, self.height / 2)),
+            LineTo(self.position + (-self.width / 2, self.height / 2)),
+            ClosePath(),
         ]
-        path = momapy.drawing.Path(actions=tuple(actions))
+        path = Path(actions=tuple(actions))
         return [path]
 
     def is_sublayout(self, other, flattened=False, unordered=False):

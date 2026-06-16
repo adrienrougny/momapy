@@ -5,8 +5,8 @@ No momapy object construction happens here: all functions work with lxml
 objectify trees and return raw Python / geometry values.
 """
 
-import momapy.core.elements
-import momapy.sbml.io.sbml._parsing
+from momapy.core.elements import Direction
+from momapy.sbml.io.sbml._parsing import _RDF_NAMESPACE
 
 
 def transform_class(sbgnml_class):
@@ -69,9 +69,7 @@ def get_rdf(sbgnml_element):
     annotation = get_annotation(sbgnml_element)
     if annotation is None:
         return None
-    return getattr(
-        annotation, f"{{{momapy.sbml.io.sbml._parsing._RDF_NAMESPACE}}}RDF", None
-    )
+    return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
 
 
 _SBGNML_STATE_VARIABLE_CLASSES = {"state variable"}
@@ -181,18 +179,18 @@ def get_process_direction(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
         ) >= float(sbgnml_process.bbox.get("x")) + float(
             sbgnml_process.bbox.get("w")
         ):  # LEFT OR RIGHT
-            return momapy.core.elements.Direction.HORIZONTAL
+            return Direction.HORIZONTAL
         else:
-            return momapy.core.elements.Direction.VERTICAL
-    return momapy.core.elements.Direction.VERTICAL  # default is vertical
+            return Direction.VERTICAL
+    return Direction.VERTICAL  # default is vertical
 
 
 def get_direction(sbgnml_element):
     sbgnml_orientation = sbgnml_element.get("orientation")
     if sbgnml_orientation is None:
-        return momapy.core.elements.Direction.RIGHT
+        return Direction.RIGHT
     orientation = transform_class(sbgnml_orientation)
-    return momapy.core.elements.Direction[orientation]
+    return Direction[orientation]
 
 
 def is_operator_left_to_right(
@@ -209,7 +207,7 @@ def is_operator_left_to_right(
         sbgnml_operator, sbgnml_glyph_id_to_sbgnml_arcs
     )
     for sbgnml_logic_arc in sbgnml_logic_arcs:
-        if operator_direction == momapy.core.elements.Direction.HORIZONTAL:
+        if operator_direction == Direction.HORIZONTAL:
             if float(sbgnml_logic_arc.end.get("x")) < float(
                 sbgnml_operator.bbox.get("x")
             ):
@@ -239,7 +237,7 @@ def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
         if not sbgnml_production_arcs:  # process is reversible
             return True  # defaults to left to right
         sbgnml_production_arc = sbgnml_production_arcs[0]
-        if process_direction == momapy.core.elements.Direction.HORIZONTAL:
+        if process_direction == Direction.HORIZONTAL:
             if float(sbgnml_production_arc.start.get("x")) >= float(
                 sbgnml_process.bbox.get("x")
             ):
@@ -254,7 +252,7 @@ def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
             return False
     if sbgnml_consumption_arcs:
         sbgnml_consumption_arc = sbgnml_consumption_arcs[0]
-        if process_direction == momapy.core.elements.Direction.HORIZONTAL:
+        if process_direction == Direction.HORIZONTAL:
             if float(sbgnml_consumption_arc.end.get("x")) <= float(
                 sbgnml_process.bbox.get("x")
             ):

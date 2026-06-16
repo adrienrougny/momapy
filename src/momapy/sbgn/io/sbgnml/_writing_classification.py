@@ -4,111 +4,207 @@ Maps momapy model/layout classes to SBGN-ML XML class attribute strings
 and direction/orientation values.
 """
 
-import momapy.core.elements
-import momapy.sbgn.pd
-import momapy.sbgn.af
+from momapy.core.elements import Direction
+from momapy.sbgn.pd import AndOperatorLayout as PDAndOperatorLayout
+from momapy.sbgn.pd import AssociationLayout as PDAssociationLayout
+from momapy.sbgn.pd import CatalysisLayout as PDCatalysisLayout
+from momapy.sbgn.pd import CompartmentLayout as PDCompartmentLayout
+from momapy.sbgn.pd import ComplexLayout as PDComplexLayout
+from momapy.sbgn.pd import ComplexMultimerLayout as PDComplexMultimerLayout
+from momapy.sbgn.pd import (
+    ComplexMultimerSubunitLayout as PDComplexMultimerSubunitLayout,
+)
+from momapy.sbgn.pd import ComplexSubunitLayout as PDComplexSubunitLayout
+from momapy.sbgn.pd import ConsumptionLayout as PDConsumptionLayout
+from momapy.sbgn.pd import DissociationLayout as PDDissociationLayout
+from momapy.sbgn.pd import EmptySetLayout as PDEmptySetLayout
+from momapy.sbgn.pd import EquivalenceArcLayout as PDEquivalenceArcLayout
+from momapy.sbgn.pd import EquivalenceOperatorLayout as PDEquivalenceOperatorLayout
+from momapy.sbgn.pd import GenericProcessLayout as PDGenericProcessLayout
+from momapy.sbgn.pd import InhibitionLayout as PDInhibitionLayout
+from momapy.sbgn.pd import LogicArcLayout as PDLogicArcLayout
+from momapy.sbgn.pd import MacromoleculeLayout as PDMacromoleculeLayout
+from momapy.sbgn.pd import MacromoleculeMultimerLayout as PDMacromoleculeMultimerLayout
+from momapy.sbgn.pd import (
+    MacromoleculeMultimerSubunitLayout as PDMacromoleculeMultimerSubunitLayout,
+)
+from momapy.sbgn.pd import MacromoleculeSubunitLayout as PDMacromoleculeSubunitLayout
+from momapy.sbgn.pd import ModulationLayout as PDModulationLayout
+from momapy.sbgn.pd import NecessaryStimulationLayout as PDNecessaryStimulationLayout
+from momapy.sbgn.pd import NotOperatorLayout as PDNotOperatorLayout
+from momapy.sbgn.pd import NucleicAcidFeatureLayout as PDNucleicAcidFeatureLayout
+from momapy.sbgn.pd import (
+    NucleicAcidFeatureMultimerLayout as PDNucleicAcidFeatureMultimerLayout,
+)
+from momapy.sbgn.pd import (
+    NucleicAcidFeatureMultimerSubunitLayout as PDNucleicAcidFeatureMultimerSubunitLayout,
+)
+from momapy.sbgn.pd import (
+    NucleicAcidFeatureSubunitLayout as PDNucleicAcidFeatureSubunitLayout,
+)
+from momapy.sbgn.pd import OmittedProcessLayout as PDOmittedProcessLayout
+from momapy.sbgn.pd import OrOperatorLayout as PDOrOperatorLayout
+from momapy.sbgn.pd import PerturbingAgentLayout as PDPerturbingAgentLayout
+from momapy.sbgn.pd import PhenotypeLayout as PDPhenotypeLayout
+from momapy.sbgn.pd import ProductionLayout as PDProductionLayout
+from momapy.sbgn.pd import SBGNPDLayout as PDSBGNPDLayout
+from momapy.sbgn.pd import SBGNPDMap as PDSBGNPDMap
+from momapy.sbgn.pd import SBGNPDModel as PDSBGNPDModel
+from momapy.sbgn.pd import SimpleChemicalLayout as PDSimpleChemicalLayout
+from momapy.sbgn.pd import (
+    SimpleChemicalMultimerLayout as PDSimpleChemicalMultimerLayout,
+)
+from momapy.sbgn.pd import (
+    SimpleChemicalMultimerSubunitLayout as PDSimpleChemicalMultimerSubunitLayout,
+)
+from momapy.sbgn.pd import SimpleChemicalSubunitLayout as PDSimpleChemicalSubunitLayout
+from momapy.sbgn.pd import StateVariableLayout as PDStateVariableLayout
+from momapy.sbgn.pd import StimulationLayout as PDStimulationLayout
+from momapy.sbgn.pd import SubmapLayout as PDSubmapLayout
+from momapy.sbgn.pd import TagLayout as PDTagLayout
+from momapy.sbgn.pd import TerminalLayout as PDTerminalLayout
+from momapy.sbgn.pd import UncertainProcessLayout as PDUncertainProcessLayout
+from momapy.sbgn.pd import UnitOfInformationLayout as PDUnitOfInformationLayout
+from momapy.sbgn.pd import UnspecifiedEntityLayout as PDUnspecifiedEntityLayout
+from momapy.sbgn.af import AndOperatorLayout as AFAndOperatorLayout
+from momapy.sbgn.af import BiologicalActivityLayout as AFBiologicalActivityLayout
+from momapy.sbgn.af import CompartmentLayout as AFCompartmentLayout
+from momapy.sbgn.af import (
+    ComplexUnitOfInformationLayout as AFComplexUnitOfInformationLayout,
+)
+from momapy.sbgn.af import DelayOperatorLayout as AFDelayOperatorLayout
+from momapy.sbgn.af import EquivalenceArcLayout as AFEquivalenceArcLayout
+from momapy.sbgn.af import LogicArcLayout as AFLogicArcLayout
+from momapy.sbgn.af import (
+    MacromoleculeUnitOfInformationLayout as AFMacromoleculeUnitOfInformationLayout,
+)
+from momapy.sbgn.af import NecessaryStimulationLayout as AFNecessaryStimulationLayout
+from momapy.sbgn.af import NegativeInfluenceLayout as AFNegativeInfluenceLayout
+from momapy.sbgn.af import NotOperatorLayout as AFNotOperatorLayout
+from momapy.sbgn.af import (
+    NucleicAcidFeatureUnitOfInformationLayout as AFNucleicAcidFeatureUnitOfInformationLayout,
+)
+from momapy.sbgn.af import OrOperatorLayout as AFOrOperatorLayout
+from momapy.sbgn.af import (
+    PerturbationUnitOfInformationLayout as AFPerturbationUnitOfInformationLayout,
+)
+from momapy.sbgn.af import PhenotypeLayout as AFPhenotypeLayout
+from momapy.sbgn.af import PositiveInfluenceLayout as AFPositiveInfluenceLayout
+from momapy.sbgn.af import SBGNAFLayout as AFSBGNAFLayout
+from momapy.sbgn.af import SBGNAFMap as AFSBGNAFMap
+from momapy.sbgn.af import SBGNAFModel as AFSBGNAFModel
+from momapy.sbgn.af import (
+    SimpleChemicalUnitOfInformationLayout as AFSimpleChemicalUnitOfInformationLayout,
+)
+from momapy.sbgn.af import SubmapLayout as AFSubmapLayout
+from momapy.sbgn.af import TagLayout as AFTagLayout
+from momapy.sbgn.af import TerminalLayout as AFTerminalLayout
+from momapy.sbgn.af import UnknownInfluenceLayout as AFUnknownInfluenceLayout
+from momapy.sbgn.af import (
+    UnspecifiedEntityUnitOfInformationLayout as AFUnspecifiedEntityUnitOfInformationLayout,
+)
 
 CLASS_TO_SBGNML_CLASS = {
-    momapy.sbgn.pd.SBGNPDMap: "process description",
-    momapy.sbgn.pd.SBGNPDModel: "process description",
-    momapy.sbgn.pd.SBGNPDLayout: "process description",
-    momapy.sbgn.af.SBGNAFMap: "activity flow",
-    momapy.sbgn.af.SBGNAFModel: "activity flow",
-    momapy.sbgn.af.SBGNAFLayout: "activity flow",
-    momapy.sbgn.pd.StateVariableLayout: "state variable",
-    momapy.sbgn.pd.UnitOfInformationLayout: "unit of information",
-    momapy.sbgn.pd.TerminalLayout: "terminal",
-    momapy.sbgn.pd.MacromoleculeSubunitLayout: "macromolecule",
-    momapy.sbgn.pd.SimpleChemicalSubunitLayout: "simple chemical",
-    momapy.sbgn.pd.NucleicAcidFeatureSubunitLayout: "nucleic acid feature",
-    momapy.sbgn.pd.ComplexSubunitLayout: "complex",
-    momapy.sbgn.pd.MacromoleculeMultimerSubunitLayout: "macromolecule multimer",
-    momapy.sbgn.pd.SimpleChemicalMultimerSubunitLayout: "simple chemical multimer",
-    momapy.sbgn.pd.NucleicAcidFeatureMultimerSubunitLayout: "nucleic acid feature multimer",
-    momapy.sbgn.pd.ComplexMultimerSubunitLayout: "complex multimer",
-    momapy.sbgn.pd.CompartmentLayout: "compartment",
-    momapy.sbgn.pd.SubmapLayout: "submap",
-    momapy.sbgn.pd.UnspecifiedEntityLayout: "unspecified entity",
-    momapy.sbgn.pd.MacromoleculeLayout: "macromolecule",
-    momapy.sbgn.pd.SimpleChemicalLayout: "simple chemical",
-    momapy.sbgn.pd.NucleicAcidFeatureLayout: "nucleic acid feature",
-    momapy.sbgn.pd.ComplexLayout: "complex",
-    momapy.sbgn.pd.MacromoleculeMultimerLayout: "macromolecule multimer",
-    momapy.sbgn.pd.SimpleChemicalMultimerLayout: "simple chemical multimer",
-    momapy.sbgn.pd.NucleicAcidFeatureMultimerLayout: "nucleic acid feature multimer",
-    momapy.sbgn.pd.ComplexMultimerLayout: "complex multimer",
-    momapy.sbgn.pd.PerturbingAgentLayout: "perturbing agent",
-    momapy.sbgn.pd.EmptySetLayout: "empty set",
-    momapy.sbgn.pd.TagLayout: "tag",
-    momapy.sbgn.pd.GenericProcessLayout: "process",
-    momapy.sbgn.pd.UncertainProcessLayout: "uncertain process",
-    momapy.sbgn.pd.OmittedProcessLayout: "omitted process",
-    momapy.sbgn.pd.AssociationLayout: "association",
-    momapy.sbgn.pd.DissociationLayout: "dissociation",
-    momapy.sbgn.pd.PhenotypeLayout: "phenotype",
-    momapy.sbgn.pd.AndOperatorLayout: "and",
-    momapy.sbgn.pd.OrOperatorLayout: "or",
-    momapy.sbgn.pd.NotOperatorLayout: "not",
-    momapy.sbgn.pd.EquivalenceOperatorLayout: "equivalence",
-    momapy.sbgn.pd.ConsumptionLayout: "consumption",
-    momapy.sbgn.pd.ProductionLayout: "production",
-    momapy.sbgn.pd.ModulationLayout: "modulation",
-    momapy.sbgn.pd.StimulationLayout: "stimulation",
-    momapy.sbgn.pd.CatalysisLayout: "catalysis",
-    momapy.sbgn.pd.NecessaryStimulationLayout: "necessary stimulation",
-    momapy.sbgn.pd.InhibitionLayout: "inhibition",
-    momapy.sbgn.pd.LogicArcLayout: "logic arc",
-    momapy.sbgn.pd.EquivalenceArcLayout: "equivalence arc",
-    momapy.sbgn.af.CompartmentLayout: "compartment",
-    momapy.sbgn.af.SubmapLayout: "submap",
-    momapy.sbgn.af.BiologicalActivityLayout: "biological activity",
-    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.ComplexUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "unit of information",
-    momapy.sbgn.af.PhenotypeLayout: "phenotype",
-    momapy.sbgn.af.AndOperatorLayout: "and",
-    momapy.sbgn.af.OrOperatorLayout: "or",
-    momapy.sbgn.af.NotOperatorLayout: "not",
-    momapy.sbgn.af.DelayOperatorLayout: "delay",
-    momapy.sbgn.af.UnknownInfluenceLayout: "unknown influence",
-    momapy.sbgn.af.PositiveInfluenceLayout: "positive influence",
-    momapy.sbgn.af.NecessaryStimulationLayout: "necessary stimulation",
-    momapy.sbgn.af.NegativeInfluenceLayout: "negative influence",
-    momapy.sbgn.af.TerminalLayout: "terminal",
-    momapy.sbgn.af.TagLayout: "tag",
-    momapy.sbgn.af.LogicArcLayout: "logic arc",
-    momapy.sbgn.af.EquivalenceArcLayout: "equivalence arc",
+    PDSBGNPDMap: "process description",
+    PDSBGNPDModel: "process description",
+    PDSBGNPDLayout: "process description",
+    AFSBGNAFMap: "activity flow",
+    AFSBGNAFModel: "activity flow",
+    AFSBGNAFLayout: "activity flow",
+    PDStateVariableLayout: "state variable",
+    PDUnitOfInformationLayout: "unit of information",
+    PDTerminalLayout: "terminal",
+    PDMacromoleculeSubunitLayout: "macromolecule",
+    PDSimpleChemicalSubunitLayout: "simple chemical",
+    PDNucleicAcidFeatureSubunitLayout: "nucleic acid feature",
+    PDComplexSubunitLayout: "complex",
+    PDMacromoleculeMultimerSubunitLayout: "macromolecule multimer",
+    PDSimpleChemicalMultimerSubunitLayout: "simple chemical multimer",
+    PDNucleicAcidFeatureMultimerSubunitLayout: "nucleic acid feature multimer",
+    PDComplexMultimerSubunitLayout: "complex multimer",
+    PDCompartmentLayout: "compartment",
+    PDSubmapLayout: "submap",
+    PDUnspecifiedEntityLayout: "unspecified entity",
+    PDMacromoleculeLayout: "macromolecule",
+    PDSimpleChemicalLayout: "simple chemical",
+    PDNucleicAcidFeatureLayout: "nucleic acid feature",
+    PDComplexLayout: "complex",
+    PDMacromoleculeMultimerLayout: "macromolecule multimer",
+    PDSimpleChemicalMultimerLayout: "simple chemical multimer",
+    PDNucleicAcidFeatureMultimerLayout: "nucleic acid feature multimer",
+    PDComplexMultimerLayout: "complex multimer",
+    PDPerturbingAgentLayout: "perturbing agent",
+    PDEmptySetLayout: "empty set",
+    PDTagLayout: "tag",
+    PDGenericProcessLayout: "process",
+    PDUncertainProcessLayout: "uncertain process",
+    PDOmittedProcessLayout: "omitted process",
+    PDAssociationLayout: "association",
+    PDDissociationLayout: "dissociation",
+    PDPhenotypeLayout: "phenotype",
+    PDAndOperatorLayout: "and",
+    PDOrOperatorLayout: "or",
+    PDNotOperatorLayout: "not",
+    PDEquivalenceOperatorLayout: "equivalence",
+    PDConsumptionLayout: "consumption",
+    PDProductionLayout: "production",
+    PDModulationLayout: "modulation",
+    PDStimulationLayout: "stimulation",
+    PDCatalysisLayout: "catalysis",
+    PDNecessaryStimulationLayout: "necessary stimulation",
+    PDInhibitionLayout: "inhibition",
+    PDLogicArcLayout: "logic arc",
+    PDEquivalenceArcLayout: "equivalence arc",
+    AFCompartmentLayout: "compartment",
+    AFSubmapLayout: "submap",
+    AFBiologicalActivityLayout: "biological activity",
+    AFUnspecifiedEntityUnitOfInformationLayout: "unit of information",
+    AFMacromoleculeUnitOfInformationLayout: "unit of information",
+    AFSimpleChemicalUnitOfInformationLayout: "unit of information",
+    AFNucleicAcidFeatureUnitOfInformationLayout: "unit of information",
+    AFComplexUnitOfInformationLayout: "unit of information",
+    AFPerturbationUnitOfInformationLayout: "unit of information",
+    AFPhenotypeLayout: "phenotype",
+    AFAndOperatorLayout: "and",
+    AFOrOperatorLayout: "or",
+    AFNotOperatorLayout: "not",
+    AFDelayOperatorLayout: "delay",
+    AFUnknownInfluenceLayout: "unknown influence",
+    AFPositiveInfluenceLayout: "positive influence",
+    AFNecessaryStimulationLayout: "necessary stimulation",
+    AFNegativeInfluenceLayout: "negative influence",
+    AFTerminalLayout: "terminal",
+    AFTagLayout: "tag",
+    AFLogicArcLayout: "logic arc",
+    AFEquivalenceArcLayout: "equivalence arc",
 }
 
 # AF units of information are encoded as ``class="unit of information"`` glyphs
 # carrying an ``<entity name="..."/>`` child that names the entity type. This maps
 # each AF unit-of-information layout class to the entity name the reader expects.
 CLASS_TO_SBGNML_ENTITY_NAME = {
-    momapy.sbgn.af.UnspecifiedEntityUnitOfInformationLayout: "unspecified entity",
-    momapy.sbgn.af.MacromoleculeUnitOfInformationLayout: "macromolecule",
-    momapy.sbgn.af.SimpleChemicalUnitOfInformationLayout: "simple chemical",
-    momapy.sbgn.af.NucleicAcidFeatureUnitOfInformationLayout: "nucleic acid feature",
-    momapy.sbgn.af.ComplexUnitOfInformationLayout: "complex",
-    momapy.sbgn.af.PerturbationUnitOfInformationLayout: "perturbation",
+    AFUnspecifiedEntityUnitOfInformationLayout: "unspecified entity",
+    AFMacromoleculeUnitOfInformationLayout: "macromolecule",
+    AFSimpleChemicalUnitOfInformationLayout: "simple chemical",
+    AFNucleicAcidFeatureUnitOfInformationLayout: "nucleic acid feature",
+    AFComplexUnitOfInformationLayout: "complex",
+    AFPerturbationUnitOfInformationLayout: "perturbation",
 }
 
 DIRECTION_TO_SBGNML_ORIENTATION = {
-    momapy.core.elements.Direction.HORIZONTAL: "horizontal",
-    momapy.core.elements.Direction.VERTICAL: "vertical",
-    momapy.core.elements.Direction.RIGHT: "right",
-    momapy.core.elements.Direction.LEFT: "left",
-    momapy.core.elements.Direction.DOWN: "down",
-    momapy.core.elements.Direction.UP: "up",
+    Direction.HORIZONTAL: "horizontal",
+    Direction.VERTICAL: "vertical",
+    Direction.RIGHT: "right",
+    Direction.LEFT: "left",
+    Direction.DOWN: "down",
+    Direction.UP: "up",
 }
 
 # Arc types whose direction is reversed in momapy compared to SBGN-ML.
 REVERSED_ARC_TYPES = (
-    momapy.sbgn.pd.ConsumptionLayout,
-    momapy.sbgn.pd.LogicArcLayout,
-    momapy.sbgn.af.LogicArcLayout,
-    momapy.sbgn.pd.EquivalenceArcLayout,
-    momapy.sbgn.af.EquivalenceArcLayout,
+    PDConsumptionLayout,
+    PDLogicArcLayout,
+    AFLogicArcLayout,
+    PDEquivalenceArcLayout,
+    AFEquivalenceArcLayout,
 )

@@ -10,11 +10,17 @@ import typing
 
 import frozendict
 
-import momapy.core.elements
-import momapy.core.layout
-import momapy.core.map
-import momapy.core.model
-import momapy.utils
+from momapy.core.elements import LayoutElement
+from momapy.core.elements import MapElement
+from momapy.core.elements import ModelElement
+from momapy.core.layout import Layout
+from momapy.core.map import Map
+from momapy.core.model import Model
+from momapy.utils import FrozenIdentityMultiDict
+from momapy.utils import FrozenSurjectionDict
+from momapy.utils import IdentityMultiDict
+from momapy.utils import IdentitySurjectionDict
+from momapy.utils import add_or_replace_element_in_set
 
 
 @dataclasses.dataclass
@@ -30,13 +36,13 @@ class WritingContext:
     map_: typing.Any
     element_to_annotations: dict
     element_to_notes: dict
-    source_id_to_model_element: momapy.utils.FrozenIdentityMultiDict | None
+    source_id_to_model_element: FrozenIdentityMultiDict | None
     """N-to-m source id -> model element mapping; one source id may name
     several model elements (e.g. CellDesigner active/inactive species).
     A ``Mapping[str, frozenset[ModelElement]]``: use
     ``source_id_to_model_element.get(id_, frozenset())`` for the values and
     ``.inverse`` to recover the source ids of a model element."""
-    source_id_to_layout_element: momapy.utils.FrozenSurjectionDict | None
+    source_id_to_layout_element: FrozenSurjectionDict | None
     """1-to-1 source id -> layout element mapping.  Layout elements are
     not subject to the same n-to-m driver as model elements (every
     layout element has at most one source id)."""
@@ -109,11 +115,11 @@ class ReadingContext:
     map_key: str | None = None
     model: typing.Any = None
     layout: typing.Any = None
-    xml_id_to_model_element: momapy.utils.IdentityMultiDict = dataclasses.field(
-        default_factory=momapy.utils.IdentityMultiDict
+    xml_id_to_model_element: IdentityMultiDict = dataclasses.field(
+        default_factory=IdentityMultiDict
     )
-    xml_id_to_layout_element: dict[str, momapy.core.elements.MapElement] = (
-        dataclasses.field(default_factory=dict)
+    xml_id_to_layout_element: dict[str, MapElement] = dataclasses.field(
+        default_factory=dict
     )
     xml_id_to_xml_element: dict = dataclasses.field(default_factory=dict)
     element_to_annotations: dict = dataclasses.field(default_factory=dict)
@@ -134,31 +140,29 @@ class ReadingContext:
     layout_model_mapping: typing.Any = None
     with_annotations: bool = True
     with_notes: bool = True
-    model_element_cache: dict[
-        momapy.core.elements.ModelElement, momapy.core.elements.ModelElement
-    ] = dataclasses.field(default_factory=dict)
-    model_element_remap: momapy.utils.IdentitySurjectionDict = dataclasses.field(
-        default_factory=momapy.utils.IdentitySurjectionDict
+    model_element_cache: dict[ModelElement, ModelElement] = dataclasses.field(
+        default_factory=dict
+    )
+    model_element_remap: IdentitySurjectionDict = dataclasses.field(
+        default_factory=IdentitySurjectionDict
     )
     """Maps id(evicted_object) -> surviving_object.  Uses
     IdentitySurjectionDict so chaining (finding all entries whose
     surviving element was itself evicted) is O(k) via inverse lookup."""
-    evicted_elements: dict[int, momapy.core.elements.ModelElement] = dataclasses.field(
-        default_factory=dict
-    )
+    evicted_elements: dict[int, ModelElement] = dataclasses.field(default_factory=dict)
     """Maps id(evicted_object) -> evicted_object.  Keeps evicted objects
     alive to prevent Python from reusing their memory address."""
 
 
 def build_id_mappings(
     reading_context: "ReadingContext",
-    obj: momapy.core.elements.MapElement,
+    obj: MapElement,
     real_model_source_ids: set[str] | None = None,
     real_layout_source_ids: set[str] | None = None,
 ) -> tuple[
     frozendict.frozendict,
-    momapy.utils.FrozenIdentityMultiDict | None,
-    momapy.utils.FrozenSurjectionDict | None,
+    FrozenIdentityMultiDict | None,
+    FrozenSurjectionDict | None,
 ]:
     """Build the three ID mapping dicts for a ReaderResult.
 
@@ -184,20 +188,20 @@ def build_id_mappings(
         A tuple of ``(id_to_element, source_id_to_model_element,
         source_id_to_layout_element)``.
     """
-    if isinstance(obj, momapy.core.map.Map):
+    if isinstance(obj, Map):
         model = obj.model
         layout = obj.layout
-    elif isinstance(obj, momapy.core.model.Model):
+    elif isinstance(obj, Model):
         model = obj
         layout = None
-    elif isinstance(obj, momapy.core.layout.Layout):
+    elif isinstance(obj, Layout):
         model = None
         layout = obj
     else:
         model = None
         layout = None
 
-    id_to_element: dict[str, momapy.core.elements.MapElement] = {}
+    id_to_element: dict[str, MapElement] = {}
     if model is not None:
         for element in model.descendants():
             id_to_element[element.id_] = element
@@ -208,9 +212,7 @@ def build_id_mappings(
     id_to_element[obj.id_] = obj
 
     if model is not None:
-        source_id_to_model_element_set: dict[
-            str, set[momapy.core.elements.ModelElement]
-        ] = {}
+        source_id_to_model_element_set: dict[str, set[ModelElement]] = {}
         for (
             source_id,
             bucket,
@@ -226,14 +228,14 @@ def build_id_mappings(
                     source_id_to_model_element_set.setdefault(source_id, set()).add(
                         frozen_element
                     )
-        source_id_to_model_element = momapy.utils.FrozenIdentityMultiDict(
+        source_id_to_model_element = FrozenIdentityMultiDict(
             source_id_to_model_element_set
         )
     else:
         source_id_to_model_element = None
 
     if layout is not None:
-        source_id_to_layout_element: dict[str, momapy.core.elements.LayoutElement] = {}
+        source_id_to_layout_element: dict[str, LayoutElement] = {}
         for (
             source_id,
             registered_element,
@@ -246,9 +248,7 @@ def build_id_mappings(
             frozen_element = id_to_element.get(registered_element.id_)
             if frozen_element is not None:
                 source_id_to_layout_element[source_id] = frozen_element
-        source_id_to_layout_element = momapy.utils.FrozenSurjectionDict(
-            source_id_to_layout_element
-        )
+        source_id_to_layout_element = FrozenSurjectionDict(source_id_to_layout_element)
     else:
         source_id_to_layout_element = None
 
@@ -261,8 +261,8 @@ def build_id_mappings(
 
 def remap_model_element(
     reading_context: ReadingContext,
-    evicted_element: momapy.core.elements.ModelElement,
-    surviving_element: momapy.core.elements.ModelElement,
+    evicted_element: ModelElement,
+    surviving_element: ModelElement,
 ) -> None:
     """Remap an evicted element and its children to the surviving ones.
 
@@ -326,9 +326,9 @@ def remap_model_element(
 
 
 def resolve_remap(
-    element: momapy.core.elements.ModelElement,
+    element: ModelElement,
     reading_context: ReadingContext,
-) -> momapy.core.elements.ModelElement:
+) -> ModelElement:
     """Return the surviving element if element was evicted, else element.
 
     Uses the evicted_elements dict to verify identity (prevents false
@@ -379,10 +379,10 @@ def apply_remap_to_layout_model_mapping(
 
 def register_model_element(
     reading_context: ReadingContext,
-    model_element: momapy.core.elements.ModelElement,
+    model_element: ModelElement,
     collection: set,
     id_: str,
-) -> momapy.core.elements.ModelElement:
+) -> ModelElement:
     """Register a model element with incremental deduplication.
 
     If an equal element already exists in the collection, keeps the
@@ -400,7 +400,7 @@ def register_model_element(
         registered one, whichever has the smallest id_).
     """
     existing_element = reading_context.model_element_cache.get(model_element)
-    surviving_element = momapy.utils.add_or_replace_element_in_set(
+    surviving_element = add_or_replace_element_in_set(
         model_element,
         collection,
         func=lambda new, old: new.id_ < old.id_,

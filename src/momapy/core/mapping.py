@@ -3,12 +3,20 @@
 import typing
 import typing_extensions
 
-import momapy.utils
-import momapy.builder
-import momapy.core.elements
+from momapy.builder import Builder
+from momapy.builder import builder_from_object
+from momapy.builder import object_from_builder
+from momapy.builder import register_builder_cls
+from momapy.core.elements import LayoutElement
+from momapy.core.elements import MapElement
+from momapy.core.elements import ModelElement
+from momapy.utils import FrozenIdentitySurjectionDict
+from momapy.utils import FrozenSurjectionDict
+from momapy.utils import IdentitySurjectionDict
+from momapy.utils import SurjectionDict
 
 
-class LayoutModelMapping(momapy.utils.FrozenIdentitySurjectionDict):
+class LayoutModelMapping(FrozenIdentitySurjectionDict):
     """Mapping between model elements and layout elements.
 
     A [Map][momapy.core.Map] can draw the same model element several
@@ -48,13 +56,13 @@ class LayoutModelMapping(momapy.utils.FrozenIdentitySurjectionDict):
         object.__setattr__(
             self,
             "_singleton_to_key",
-            momapy.utils.FrozenSurjectionDict(),
+            FrozenSurjectionDict(),
         )
 
     def get_mapping(
         self,
-        map_element: "momapy.core.elements.MapElement",
-    ) -> "momapy.core.elements.ModelElement | list[momapy.core.elements.LayoutElement]":
+        map_element: "MapElement",
+    ) -> "ModelElement | list[LayoutElement]":
         """Return the model element or layout elements mapped to `map_element`.
 
         Lookup order:
@@ -82,9 +90,9 @@ class LayoutModelMapping(momapy.utils.FrozenIdentitySurjectionDict):
 
     def get_child_layout_elements(
         self,
-        child_model_element: "momapy.core.elements.ModelElement",
-        parent_model_element: "momapy.core.elements.ModelElement",
-    ) -> "list[momapy.core.elements.LayoutElement]":
+        child_model_element: "ModelElement",
+        parent_model_element: "ModelElement",
+    ) -> "list[LayoutElement]":
         """Return the layout elements representing ``child_model_element`` under ``parent_model_element``.
 
         Computes the intersection of two sets:
@@ -136,22 +144,20 @@ class LayoutModelMapping(momapy.utils.FrozenIdentitySurjectionDict):
         object.__setattr__(
             self,
             "_singleton_to_key",
-            momapy.utils.FrozenSurjectionDict(state["_singleton_to_key"]),
+            FrozenSurjectionDict(state["_singleton_to_key"]),
         )
 
 
-class LayoutModelMappingBuilder(
-    momapy.utils.IdentitySurjectionDict, momapy.builder.Builder
-):
+class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._singleton_to_key = momapy.utils.SurjectionDict()
+        self._singleton_to_key = SurjectionDict()
 
     def get_mapping(
         self,
-        map_element: "momapy.core.elements.MapElement",
+        map_element: "MapElement",
     ):
         """Return the element(s) mapped to the given map element.
 
@@ -175,9 +181,9 @@ class LayoutModelMappingBuilder(
 
     def get_child_layout_elements(
         self,
-        child_model_element: "momapy.core.elements.ModelElement",
-        parent_model_element: "momapy.core.elements.ModelElement",
-    ) -> "list[momapy.core.elements.LayoutElement]":
+        child_model_element: "ModelElement",
+        parent_model_element: "ModelElement",
+    ) -> "list[LayoutElement]":
         """Return the layout elements representing ``child_model_element`` under ``parent_model_element``."""
         child_s2 = set()
         for key in self.inverse.get(id(child_model_element), ()):
@@ -196,9 +202,9 @@ class LayoutModelMappingBuilder(
 
     def add_mapping(
         self,
-        layout_element: "momapy.core.elements.LayoutElement",
-        model_element: "momapy.core.elements.ModelElement",
-        anchor: "momapy.core.elements.LayoutElement | None" = None,
+        layout_element: "LayoutElement",
+        model_element: "ModelElement",
+        anchor: "LayoutElement | None" = None,
     ):
         """Add a layout-element to model-element entry to the mapping.
 
@@ -240,21 +246,17 @@ class LayoutModelMappingBuilder(
         """
         mapping = self._cls_to_build(
             {
-                momapy.builder.object_from_builder(
+                object_from_builder(
                     key, builder_to_object=builder_to_object
-                ): momapy.builder.object_from_builder(
-                    value, builder_to_object=builder_to_object
-                )
+                ): object_from_builder(value, builder_to_object=builder_to_object)
                 for key, value in self.items()
             }
         )
-        singleton_to_key = momapy.utils.FrozenSurjectionDict(
+        singleton_to_key = FrozenSurjectionDict(
             {
-                momapy.builder.object_from_builder(
+                object_from_builder(
                     singleton, builder_to_object=builder_to_object
-                ): momapy.builder.object_from_builder(
-                    key, builder_to_object=builder_to_object
-                )
+                ): object_from_builder(key, builder_to_object=builder_to_object)
                 for singleton, key in self._singleton_to_key.items()
             }
         )
@@ -277,14 +279,14 @@ class LayoutModelMappingBuilder(
 
     def __setstate__(self, state):
         """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
-        self._singleton_to_key = momapy.utils.SurjectionDict(state["_singleton_to_key"])
+        self._singleton_to_key = SurjectionDict(state["_singleton_to_key"])
 
     @classmethod
     def from_object(
         cls,
         obj,
         omit_keys: bool = True,
-        object_to_builder: "dict[int, momapy.builder.Builder] | None" = None,
+        object_to_builder: "dict[int, Builder] | None" = None,
     ) -> typing_extensions.Self:
         """Build a `LayoutModelMappingBuilder` from a frozen mapping.
 
@@ -302,19 +304,15 @@ class LayoutModelMappingBuilder(
             if isinstance(key, frozenset):
                 new_key = frozenset(
                     [
-                        momapy.builder.builder_from_object(
+                        builder_from_object(
                             element, object_to_builder=object_to_builder
                         )
                         for element in key
                     ]
                 )
             else:
-                new_key = momapy.builder.builder_from_object(
-                    key, object_to_builder=object_to_builder
-                )
-            new_value = momapy.builder.builder_from_object(
-                value, object_to_builder=object_to_builder
-            )
+                new_key = builder_from_object(key, object_to_builder=object_to_builder)
+            new_value = builder_from_object(value, object_to_builder=object_to_builder)
             items.append(
                 (
                     new_key,
@@ -324,23 +322,19 @@ class LayoutModelMappingBuilder(
         builder = cls(items)
         singleton_to_key_items = {}
         for singleton, key in obj._singleton_to_key.items():
-            new_singleton = momapy.builder.builder_from_object(
+            new_singleton = builder_from_object(
                 singleton, object_to_builder=object_to_builder
             )
             if isinstance(key, frozenset):
                 new_key = frozenset(
-                    momapy.builder.builder_from_object(
-                        element, object_to_builder=object_to_builder
-                    )
+                    builder_from_object(element, object_to_builder=object_to_builder)
                     for element in key
                 )
             else:
-                new_key = momapy.builder.builder_from_object(
-                    key, object_to_builder=object_to_builder
-                )
+                new_key = builder_from_object(key, object_to_builder=object_to_builder)
             singleton_to_key_items[new_singleton] = new_key
-        builder._singleton_to_key = momapy.utils.SurjectionDict(singleton_to_key_items)
+        builder._singleton_to_key = SurjectionDict(singleton_to_key_items)
         return builder
 
 
-momapy.builder.register_builder_cls(LayoutModelMappingBuilder)
+register_builder_cls(LayoutModelMappingBuilder)

@@ -8,18 +8,24 @@ import collections.abc
 import os
 import pathlib
 
-import momapy.drawing
-import momapy.plugins.core
-import momapy.styling
-import momapy.positioning
-import momapy.geometry
-import momapy.builder
-import momapy.core
-import momapy.core.elements
-import momapy.core.map
+from momapy.drawing import DEFAULT_FONT_FAMILY
+from momapy.drawing import DrawingElement
+from momapy.drawing import FontWeight
+from momapy.drawing import INITIAL_VALUES
+from momapy.drawing import PRESENTATION_ATTRIBUTES
+from momapy.plugins.core import PluginRegistry
+from momapy.styling import StyleSheet
+from momapy.styling import apply_style_sheet
+from momapy.styling import combine_style_sheets
+from momapy.positioning import fit
+from momapy.geometry import Translation
+from momapy.builder import Builder
+from momapy.builder import builder_from_object
+from momapy.core.elements import LayoutElement
+from momapy.core.map import Map
 
 
-renderer_registry = momapy.plugins.core.PluginRegistry(
+renderer_registry = PluginRegistry(
     entry_point_group="momapy.renderers",
 )
 
@@ -89,11 +95,11 @@ def _detect_renderer(format_: str) -> str:
 
 
 def render_layout_element(
-    layout_element: momapy.core.elements.LayoutElement,
+    layout_element: LayoutElement,
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
-    style_sheet: momapy.styling.StyleSheet | None = None,
+    style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
 ):
     """Render a layout element to a file in the given format with the given registered renderer
@@ -117,11 +123,11 @@ def render_layout_element(
 
 
 def render_layout_elements(
-    layout_elements: collections.abc.Collection[momapy.core.elements.LayoutElement],
+    layout_elements: collections.abc.Collection[LayoutElement],
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
-    style_sheet: momapy.styling.StyleSheet | None = None,
+    style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
@@ -148,45 +154,43 @@ def render_layout_elements(
 
     def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
-        bbox = momapy.positioning.fit(bboxes)
+        bbox = fit(bboxes)
         max_x = bbox.x + bbox.width / 2
         max_y = bbox.y + bbox.height / 2
         if style_sheet is not None or to_top_left:
             new_layout_elements = []
             for layout_element in layout_elements:
-                if isinstance(layout_element, momapy.core.elements.LayoutElement):
-                    new_layout_elements.append(
-                        momapy.builder.builder_from_object(layout_element)
-                    )
-                elif isinstance(layout_element, momapy.builder.Builder):
+                if isinstance(layout_element, LayoutElement):
+                    new_layout_elements.append(builder_from_object(layout_element))
+                elif isinstance(layout_element, Builder):
                     new_layout_elements.append(copy.deepcopy(layout_element))
             layout_elements = new_layout_elements
         if style_sheet is not None:
             if (
                 not isinstance(style_sheet, collections.abc.Collection)
                 or isinstance(style_sheet, str)
-                or isinstance(style_sheet, momapy.styling.StyleSheet)
+                or isinstance(style_sheet, StyleSheet)
             ):
                 style_sheets = [style_sheet]
             else:
                 style_sheets = style_sheet
             style_sheets = [
                 (
-                    momapy.styling.StyleSheet.from_file(style_sheet)
-                    if not isinstance(style_sheet, momapy.styling.StyleSheet)
+                    StyleSheet.from_file(style_sheet)
+                    if not isinstance(style_sheet, StyleSheet)
                     else style_sheet
                 )
                 for style_sheet in style_sheets
             ]
-            style_sheet = momapy.styling.combine_style_sheets(style_sheets)
+            style_sheet = combine_style_sheets(style_sheets)
             for layout_element in layout_elements:
-                momapy.styling.apply_style_sheet(layout_element, style_sheet)
+                apply_style_sheet(layout_element, style_sheet)
         if to_top_left:
             min_x = bbox.x - bbox.width / 2
             min_y = bbox.y - bbox.height / 2
             max_x -= min_x
             max_y -= min_y
-            translation = momapy.geometry.Translation(-min_x, -min_y)
+            translation = Translation(-min_x, -min_y)
             for layout_element in layout_elements:
                 for attr_name in ["group_transform", "transform"]:
                     if hasattr(layout_element, attr_name):
@@ -232,11 +236,11 @@ def render_layout_elements(
 
 
 def render_map(
-    map_: momapy.core.map.Map,
+    map_: Map,
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
-    style_sheet: momapy.styling.StyleSheet | None = None,
+    style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
 ):
     """Render a map to a file in the given format with the given registered renderer.
@@ -266,11 +270,11 @@ def render_map(
 
 
 def render_maps(
-    maps: collections.abc.Collection[momapy.core.map.Map],
+    maps: collections.abc.Collection[Map],
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,
-    style_sheet: momapy.styling.StyleSheet | None = None,
+    style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
 ):
@@ -329,12 +333,12 @@ class Renderer(abc.ABC):
     """
 
     initial_values: typing.ClassVar[dict] = {
-        "font_family": momapy.drawing.DEFAULT_FONT_FAMILY,
-        "font_weight": momapy.drawing.FontWeight.NORMAL,
+        "font_family": DEFAULT_FONT_FAMILY,
+        "font_weight": FontWeight.NORMAL,
     }
     font_weight_value_mapping: typing.ClassVar[dict] = {
-        momapy.drawing.FontWeight.NORMAL: 400,
-        momapy.drawing.FontWeight.BOLD: 700,
+        FontWeight.NORMAL: 400,
+        FontWeight.BOLD: 700,
     }
 
     @abc.abstractmethod
@@ -357,7 +361,7 @@ class Renderer(abc.ABC):
         """
         pass
 
-    def render_map(self, map_: momapy.core.map.Map) -> None:
+    def render_map(self, map_: Map) -> None:
         """Render a map.
 
         This is a convenience method, **not** part of the abstract
@@ -374,9 +378,7 @@ class Renderer(abc.ABC):
         self.render_layout_element(map_.layout)
 
     @abc.abstractmethod
-    def render_layout_element(
-        self, layout_element: momapy.core.elements.LayoutElement
-    ) -> None:
+    def render_layout_element(self, layout_element: LayoutElement) -> None:
         """Render a layout element.
 
         Args:
@@ -385,9 +387,7 @@ class Renderer(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def render_drawing_element(
-        self, drawing_element: momapy.drawing.DrawingElement
-    ) -> None:
+    def render_drawing_element(self, drawing_element: DrawingElement) -> None:
         """Render a drawing element.
 
         Args:
@@ -396,15 +396,13 @@ class Renderer(abc.ABC):
         pass
 
     @classmethod
-    def get_lighter_font_weight(
-        cls, font_weight: momapy.drawing.FontWeight | float
-    ) -> float:
+    def get_lighter_font_weight(cls, font_weight: FontWeight | float) -> float:
         """Return the boldest font weight lighter than the given font weight"""
-        if isinstance(font_weight, momapy.drawing.FontWeight):
+        if isinstance(font_weight, FontWeight):
             font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
                 raise ValueError(
-                    f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
+                    f"font weight must be a float, {FontWeight.NORMAL}, or {FontWeight.BOLD}"
                 )
         if font_weight > 700:
             new_font_weight = 700
@@ -415,15 +413,13 @@ class Renderer(abc.ABC):
         return new_font_weight
 
     @classmethod
-    def get_bolder_font_weight(
-        cls, font_weight: momapy.drawing.FontWeight | float
-    ) -> float:
+    def get_bolder_font_weight(cls, font_weight: FontWeight | float) -> float:
         """Return the lightest font weight bolder than the given font weight"""
-        if isinstance(font_weight, momapy.drawing.FontWeight):
+        if isinstance(font_weight, FontWeight):
             font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
                 raise ValueError(
-                    f"font weight must be a float, {momapy.drawing.FontWeight.NORMAL}, or {momapy.drawing.FontWeight.BOLD}"
+                    f"font weight must be a float, {FontWeight.NORMAL}, or {FontWeight.BOLD}"
                 )
         if font_weight < 400:
             new_font_weight = 400
@@ -510,7 +506,7 @@ class StatefulRenderer(Renderer):
         for (
             attr_name,
             attr_d,
-        ) in momapy.drawing.PRESENTATION_ATTRIBUTES.items():
+        ) in PRESENTATION_ATTRIBUTES.items():
             if attr_name in cls.initial_values:
                 attr_value = cls.initial_values[attr_name]
             else:
@@ -540,10 +536,10 @@ class StatefulRenderer(Renderer):
         """Return the initial value for an attribute"""
         attr_value = self.initial_values.get(attr_name)
         if attr_value is None:
-            attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
+            attr_d = PRESENTATION_ATTRIBUTES[attr_name]
             attr_value = attr_d["initial"]
             if attr_value is None:
-                attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
+                attr_value = INITIAL_VALUES[attr_name]
         return attr_value
 
     def get_current_value(self, attr_name: str) -> typing.Any:
@@ -557,25 +553,22 @@ class StatefulRenderer(Renderer):
     def set_current_value(self, attr_name: str, attr_value: typing.Any) -> None:
         """Set the current value for an attribute"""
         if attr_value is None:
-            attr_d = momapy.drawing.PRESENTATION_ATTRIBUTES[attr_name]
+            attr_d = PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
                 attr_value = self.initial_values.get(attr_name)
                 if attr_value is None:
                     attr_value = attr_d["initial"]
                 if attr_value is None:
-                    attr_value = momapy.drawing.INITIAL_VALUES[attr_name]
+                    attr_value = INITIAL_VALUES[attr_name]
         if attr_name == "font_weight":
-            if isinstance(attr_value, momapy.drawing.FontWeight):
-                if (
-                    attr_value == momapy.drawing.FontWeight.NORMAL
-                    or attr_value == momapy.drawing.FontWeight.BOLD
-                ):
+            if isinstance(attr_value, FontWeight):
+                if attr_value == FontWeight.NORMAL or attr_value == FontWeight.BOLD:
                     attr_value = self.font_weight_value_mapping[attr_value]
-                elif attr_value == momapy.drawing.FontWeight.BOLDER:
+                elif attr_value == FontWeight.BOLDER:
                     attr_value = self.get_bolder_font_weight(
                         self.get_current_value("font_weight")
                     )
-                elif attr_value == momapy.drawing.FontWeight.LIGHTER:
+                elif attr_value == FontWeight.LIGHTER:
                     attr_value = self.get_lighter_font_weight(
                         self.get_current_value("font_weight")
                     )
@@ -597,13 +590,11 @@ class StatefulRenderer(Renderer):
             A dictionary mapping attribute names to their values
         """
         state = {}
-        for attr_name in momapy.drawing.PRESENTATION_ATTRIBUTES:
+        for attr_name in PRESENTATION_ATTRIBUTES:
             state[attr_name] = getattr(drawing_element, attr_name)
         return state
 
-    def set_current_state_from_drawing_element(
-        self, drawing_element: momapy.drawing.DrawingElement
-    ):
+    def set_current_state_from_drawing_element(self, drawing_element: DrawingElement):
         """Set the current state to a state given by a drawing element"""
         state = self._get_state_from_drawing_element(drawing_element)
         self.set_current_state(state)
