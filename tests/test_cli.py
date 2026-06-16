@@ -159,6 +159,26 @@ class TestCLIExportCommand:
         assert "<?xml" in content
         assert "<sbgn" in content
 
+    ANNOTATED_MAP_PATH = os.path.join(
+        os.path.dirname(__file__),
+        "sbgn",
+        "maps",
+        "pd",
+        "simple_annotated.sbgn",
+    )
+
+    def test_export_to_file_preserves_annotations(self, tmp_path):
+        """Annotations must survive an export to a file (B9)."""
+        output_file = tmp_path / "output.sbgn"
+        with mock.patch(
+            "sys.argv",
+            ["momapy", "export", self.ANNOTATED_MAP_PATH, "-o", str(output_file)],
+        ):
+            momapy.cli.main()
+        content = output_file.read_text()
+        assert "urn:miriam:uniprot:P28482" in content
+        assert "urn:miriam:pubmed:12345678" in content
+
 
 class TestCLIListCommand:
     """Tests for CLI list command."""

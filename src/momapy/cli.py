@@ -471,7 +471,15 @@ def _write_output(map_, reader_result, output_file_path):
 
     writer = _infer_writer(map_)
     if output_file_path:
-        momapy.io.core.write(map_, output_file_path, writer=writer)
+        momapy.io.core.write(
+            map_,
+            output_file_path,
+            writer=writer,
+            element_to_annotations=reader_result.element_to_annotations,
+            element_to_notes=reader_result.element_to_notes,
+            source_id_to_model_element=reader_result.source_id_to_model_element,
+            source_id_to_layout_element=reader_result.source_id_to_layout_element,
+        )
         return
     if not sys.stdout.isatty():
         updated_result = dataclasses.replace(reader_result, obj=map_)
