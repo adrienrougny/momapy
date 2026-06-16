@@ -54,8 +54,16 @@ class ModelElement(MapElement):
     def descendants(self) -> list["ModelElement"]:
         """Return every `ModelElement` reachable from `self`, excluding `self`.
 
-        Walks scalar `ModelElement` fields and `frozenset`/`tuple`
-        containers, deduplicating by object identity.
+        This reflectively walks the dataclass field-graph — i.e. *reference
+        reachability* — across scalar `ModelElement` fields and
+        `frozenset`/`tuple` containers, deduplicating by object identity. A
+        model element referenced by several parents therefore appears once.
+
+        Note the deliberate contrast with
+        [`LayoutElement.descendants`][momapy.core.elements.LayoutElement.descendants],
+        which instead walks the explicit `children()` tree (visual
+        *containment*): there a layout element contained under two parents is
+        reached through each, with no identity dedup.
 
         Returns:
             The list of reachable `ModelElement` instances in visit
@@ -125,7 +133,25 @@ class LayoutElement(MapElement, abc.ABC):
         pass
 
     def descendants(self) -> list["LayoutElement"]:
-        """Return the descendants of the layout element"""
+        """Return the descendants of the layout element.
+
+        This walks the explicit `children()` tree — i.e. visual
+        *containment* — depth-first, returning every layout element in the
+        contained subtree (without `self`).
+
+        Note the deliberate contrast with
+        [`ModelElement.descendants`][momapy.core.elements.ModelElement.descendants]
+        and [`Model.descendants`][momapy.core.model.Model.descendants],
+        which reflectively walk the dataclass field-graph — i.e. *reference
+        reachability* — and deduplicate by object identity. A model element
+        referenced by several parents therefore appears once across the
+        model graph, whereas layout descendants are strictly the contained
+        subtree and a layout element contained under two parents is reached
+        through each.
+
+        Returns:
+            The list of descendant layout elements in visit order.
+        """
         descendants = []
         for child in self.children():
             descendants.append(child)
