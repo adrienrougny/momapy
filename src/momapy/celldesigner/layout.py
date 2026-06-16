@@ -4,6 +4,11 @@ This module provides classes for representing the visual layout of a
 CellDesigner pathway, including node layouts (species, compartments,
 logic gates), arc layouts (reactions, modulations), and reaction node
 decorations.
+
+Each layout class is named after the model class it draws, with a ``Layout``
+suffix appended (e.g. model ``GenericProtein`` → layout
+``GenericProteinLayout``). The active-state variants keep the model name and
+insert ``Active`` before the suffix (e.g. ``GenericProteinActiveLayout``).
 """
 
 import dataclasses
