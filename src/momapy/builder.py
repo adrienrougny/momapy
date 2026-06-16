@@ -78,15 +78,12 @@ class Builder(abc.ABC):
     def from_object(
         cls,
         obj: typing.Any,
-        omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ) -> typing_extensions.Self:
         """Create a builder from an existing object.
 
         Args:
             obj: The object to convert to a builder.
-            omit_keys: Whether to skip converting dictionary keys to builders.
-                Defaults to True.
             object_to_builder: Optional cache mapping object ids to builders
                 for handling circular references.
 
@@ -173,7 +170,6 @@ def _make_builder_cls(
     def _builder_from_object(
         cls,
         obj,
-        omit_keys: bool = True,
         object_to_builder: dict[int, "Builder"] | None = None,
     ):
         if object_to_builder is not None:
@@ -187,7 +183,6 @@ def _make_builder_cls(
             attr_value = getattr(obj, field_.name)
             args[field_.name] = builder_from_object(
                 obj=attr_value,
-                omit_keys=omit_keys,
                 object_to_builder=object_to_builder,
             )
         builder = cls(**args)
@@ -370,7 +365,6 @@ def object_from_builder(
 
 def builder_from_object(
     obj: typing.Any,
-    omit_keys: bool = True,
     object_to_builder: dict[int, "Builder"] | None = None,
 ) -> Builder:
     """Convert an object (or collection of objects) to builder(s).
@@ -378,12 +372,11 @@ def builder_from_object(
     Recursively converts class instances to their corresponding builder objects.
     Handles collections (list, tuple, set, dict) and circular references.
     Immutable collection types are converted to their mutable counterparts:
-    tuple → list, frozenset → set, frozendict → dict.
+    tuple → list, frozenset → set, frozendict → dict. Dictionary keys are left
+    as-is (only values are converted to builders).
 
     Args:
         obj: An object instance, collection of objects, or any value.
-        omit_keys: Whether to skip converting dictionary keys to builders.
-            Defaults to True.
         object_to_builder: Optional cache mapping object ids to already-created
             builders for handling circular references.
 
@@ -414,7 +407,6 @@ def builder_from_object(
     if issubclass(cls, Builder):
         return cls.from_object(
             obj=obj,
-            omit_keys=omit_keys,
             object_to_builder=object_to_builder,
         )
     if isinstance(obj, (list, tuple, set, frozenset)):
@@ -423,7 +415,6 @@ def builder_from_object(
             [
                 builder_from_object(
                     obj=e,
-                    omit_keys=omit_keys,
                     object_to_builder=object_to_builder,
                 )
                 for e in obj
@@ -434,27 +425,11 @@ def builder_from_object(
         return builder_type(
             [
                 (
-                    (
-                        builder_from_object(
-                            obj=k,
-                            omit_keys=omit_keys,
-                            object_to_builder=object_to_builder,
-                        ),
-                        builder_from_object(
-                            obj=v,
-                            omit_keys=omit_keys,
-                            object_to_builder=object_to_builder,
-                        ),
-                    )
-                    if not omit_keys
-                    else (
-                        k,
-                        builder_from_object(
-                            obj=v,
-                            omit_keys=omit_keys,
-                            object_to_builder=object_to_builder,
-                        ),
-                    )
+                    k,
+                    builder_from_object(
+                        obj=v,
+                        object_to_builder=object_to_builder,
+                    ),
                 )
                 for k, v in obj.items()
             ]

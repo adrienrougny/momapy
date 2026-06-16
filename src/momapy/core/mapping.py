@@ -285,14 +285,12 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     def from_object(
         cls,
         obj,
-        omit_keys: bool = True,
         object_to_builder: "dict[int, Builder] | None" = None,
     ) -> typing_extensions.Self:
         """Build a `LayoutModelMappingBuilder` from a frozen mapping.
 
         Args:
             obj: The frozen `LayoutModelMapping` to convert.
-            omit_keys: Unused (kept for signature compatibility).
             object_to_builder: Optional cache mapping object `id()` to
                 already-created builders, to preserve shared references.
 

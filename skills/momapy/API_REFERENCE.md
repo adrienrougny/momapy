@@ -30,7 +30,7 @@ Classes:
 
 ### `src/momapy/core/mapping.py`
 - `LayoutModelMapping(FrozenIdentitySurjectionDict)` — immutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `is_submapping(other)`. Carries `_singleton_to_key: FrozenSurjectionDict` mapping each frozenset anchor to its frozenset key.
-- `LayoutModelMappingBuilder(IdentitySurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
+- `LayoutModelMappingBuilder(IdentitySurjectionDict, Builder)` — mutable; `get_mapping(map_element)`, `get_child_layout_elements(child_model_element, parent_model_element) -> list[LayoutElement]`, `add_mapping(layout_element, model_element, anchor=None)`, `build(builder_to_object=None) -> LayoutModelMapping`, `from_object(obj, object_to_builder=None) -> Self`. Carries `_singleton_to_key: SurjectionDict`.
 
 ### `src/momapy/core/layout.py`
 - `TextLayout(LayoutElement)` — `text`, `position`, font styling, `fill`/`stroke`, alignment, `transform`.
@@ -60,11 +60,11 @@ Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeE
 Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point`.
 
 ### `src/momapy/builder.py`
-- `Builder(ABC, Monitored)` — `build(builder_to_object=None)`, `from_object(obj, omit_keys=True, object_to_builder=None) -> Self`.
+- `Builder(ABC)` — `build(builder_to_object=None)`, `from_object(obj, object_to_builder=None) -> Self`.
 - `get_or_make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_namespace=None) -> type[Builder]`
 - `has_builder_cls(cls) -> bool`, `get_builder_cls(cls) -> type[Builder]`
 - `object_from_builder(builder, builder_to_object=None) -> Any`
-- `builder_from_object(obj, omit_keys=True, object_to_builder=None) -> Builder`
+- `builder_from_object(obj, object_to_builder=None) -> Builder`
 - `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`, `super_or_builder(type_, obj) -> type`
 - `new_builder_object(cls, *args, **kwargs) -> Builder`
 - `register_builder_cls(builder_cls)`
