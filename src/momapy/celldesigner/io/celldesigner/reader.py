@@ -689,6 +689,7 @@ class CellDesignerReader(Reader):
         with_layout=True,
         with_annotations=True,
         with_notes=True,
+        **options: typing.Any,
     ) -> ReaderResult:
         """Read a CellDesigner file and return a reader result object"""
         cd_document = lxml.objectify.parse(file_path)

@@ -151,8 +151,8 @@ Purpose: reader-side helpers; shared base contexts.
 ### `src/momapy/io/pickle.py`
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
 
-- `PickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
-- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None)`.
+- `PickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
+- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, id_to_element=None, source_id_to_model_element=None, source_id_to_layout_element=None, **options)`.
 
 ---
 
@@ -290,7 +290,7 @@ Purpose: SBGN-AF model classes.
 
 ### `src/momapy/sbgn/io/sbgnml/reader.py`
 - `SBGNMLReadingContext(ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
-- `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0)`.
+- `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0, **options)`.
 - Registered as `sbgnml-0.2` (`SBGNML0_2Reader`) and `sbgnml-0.3` / `sbgnml` (`SBGNML0_3Reader`).
 
 ### `src/momapy/sbgn/io/sbgnml/writer.py`
@@ -405,7 +405,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
 - `CellDesignerReadingContext(ReadingContext)` — adds `cd_complex_alias_id_to_cd_included_species_ids`, `cd_compartment_aliases`, `cd_compartments`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, `real_model_source_ids` / `real_layout_source_ids` (split ID tracking), `canvas_width`, `canvas_height`, `cd_degraded_alias_ids`, `cd_degraded_species_ids`.
-- `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True)`.
+- `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
 - Internal: `_KEY_TO_CLASS` (tuple keys → model/layout class pairs).
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
@@ -475,7 +475,7 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 
 ### `src/momapy/sbml/io/sbml/reader.py`
 - `ReadingContext` — `sbml_model`, `model`, `sbml_id_to_model_element`, `sbml_id_to_sbml_element`, `element_to_annotations`, `element_to_notes`, `map_element_to_ids`, `with_annotations`, `with_notes`.
-- `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, with_annotations=True, with_notes=True) -> ReaderResult`.
+- `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, with_annotations=True, with_notes=True, **options) -> ReaderResult`.
 
 ### `src/momapy/sbml/io/sbml/_model.py` (`make_*`)
 - `make_annotations(rdf) -> list[RDFAnnotation]`, `make_notes(notes_element) -> list[str]`

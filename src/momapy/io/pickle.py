@@ -79,6 +79,7 @@ class PickleReader(momapy.io.core.Reader):
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
+        **options: typing.Any,
     ) -> momapy.io.core.ReaderResult:
         """Load a pickled `ReaderResult` and project it per the flags."""
         with open(file_path, "rb") as f:
@@ -133,6 +134,7 @@ class PickleWriter(momapy.io.core.Writer):
         id_to_element=None,
         source_id_to_model_element=None,
         source_id_to_layout_element=None,
+        **options: typing.Any,
     ) -> momapy.io.core.WriterResult:
         """Pickle a `ReaderResult` holding `obj` and its side-tables."""
         momapy.utils.check_parent_dir_exists(file_path)

@@ -81,6 +81,7 @@ class _SBGNMLReader(momapy.io.core.Reader):
         with_notes: bool = True,
         xsep: float = 0,
         ysep: float = 0,
+        **options: typing.Any,
     ) -> momapy.io.core.ReaderResult:
         """Read an SBGN-ML file and return a reader result object"""
 

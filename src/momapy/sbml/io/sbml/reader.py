@@ -61,6 +61,7 @@ class SBMLReader(momapy.io.core.Reader):
         file_path: str | os.PathLike,
         with_annotations=True,
         with_notes=True,
+        **options: typing.Any,
     ) -> momapy.io.core.ReaderResult:
         sbml_document = lxml.objectify.parse(file_path)
         sbml = sbml_document.getroot()

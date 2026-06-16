@@ -5,6 +5,7 @@ looking up layout elements via layout_model_mapping.
 """
 
 import os
+import typing
 
 import lxml.etree
 
@@ -629,9 +630,9 @@ class _SBGNMLWriter(momapy.io.core.Writer):
         element_to_notes: dict | None = None,
         source_id_to_model_element: dict | None = None,
         source_id_to_layout_element: dict | None = None,
-        with_render_information: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
+        **options: typing.Any,
     ) -> momapy.io.core.WriterResult:
         """Write an SBGN map to an SBGN-ML file.
 
@@ -644,9 +645,9 @@ class _SBGNMLWriter(momapy.io.core.Writer):
                 element mapping from ReaderResult.
             source_id_to_layout_element: Optional source ID to layout
                 element mapping from ReaderResult.
-            with_render_information: Ignored (kept for API compat).
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
+            options: Additional options (accepted and ignored).
 
         Returns:
             WriterResult containing the written object and file path.
