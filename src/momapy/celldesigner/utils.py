@@ -299,7 +299,6 @@ def set_nodes_to_fit_labels(
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
     exclude: collections.abc.Sequence[type] | None = None,
-    *,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize nodes to fit their labels.
@@ -363,7 +362,6 @@ def set_compartments_to_fit_content(
     map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-    *,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize compartments to fit their content.
@@ -484,7 +482,6 @@ def set_complexes_to_fit_content(
     map_: CellDesignerMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-    *,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Resize complexes to fit their subunits.
@@ -544,7 +541,6 @@ def set_complexes_to_fit_content(
 
 def set_modifications_to_borders(
     map_: CellDesignerMap | Builder,
-    *,
     snap_arcs: bool = False,
 ) -> CellDesignerMap | Builder:
     """Position modifications and structural states at node borders.

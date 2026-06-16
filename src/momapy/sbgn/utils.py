@@ -74,7 +74,6 @@ def set_compartments_to_fit_content(
     map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-    *,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize compartments to fit their content.
@@ -133,7 +132,6 @@ def set_complexes_to_fit_content(
     map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-    *,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize complexes to fit their subunits.
@@ -184,7 +182,6 @@ def set_submaps_to_fit_content(
     map_: SBGNMap | Builder,
     xsep: float = 0,
     ysep: float = 0,
-    *,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize submaps to fit their terminals.
@@ -242,7 +239,6 @@ def set_nodes_to_fit_labels(
     omit_height: bool = False,
     restrict_to: collections.abc.Sequence[type] | None = None,
     exclude: collections.abc.Sequence[type] | None = None,
-    *,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Resize nodes to fit their labels.
@@ -501,7 +497,6 @@ def set_arcs_to_borders(
 
 def set_auxiliary_units_to_borders(
     map_: SBGNMap | Builder,
-    *,
     snap_arcs: bool = False,
 ) -> SBGNMap | Builder:
     """Position auxiliary units at node borders.
