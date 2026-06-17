@@ -256,7 +256,9 @@ def read(
     `return_type="map"`, `with_model=True`, `with_layout=True`,
     `with_annotations=True`, `with_notes=True`. Unknown keyword options are
     accepted and ignored. Some formats accept extra options (for example the
-    SBGN-ML reader's `xsep`/`ysep`).
+    SBGN-ML reader's `xsep`/`ysep`). A universal option may also be inert for a
+    given format: a layout-less format (SBML) ignores `with_layout`, since it
+    never produces a layout.
 
     Args:
         file_path: Path of the file to read.
