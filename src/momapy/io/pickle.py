@@ -138,6 +138,8 @@ class PickleWriter(Writer):
         element_to_notes=None,
         source_id_to_model_element=None,
         source_id_to_layout_element=None,
+        source_id_to_annotations=None,
+        source_id_to_notes=None,
         **options: typing.Any,
     ) -> WriterResult:
         """Pickle a `ReaderResult` holding `obj` and its side-tables."""
@@ -148,6 +150,8 @@ class PickleWriter(Writer):
             element_to_notes=element_to_notes,
             source_id_to_model_element=source_id_to_model_element,
             source_id_to_layout_element=source_id_to_layout_element,
+            source_id_to_annotations=source_id_to_annotations,
+            source_id_to_notes=source_id_to_notes,
             file_path=file_path,
         )
         with open(file_path, "wb") as f:

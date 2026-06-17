@@ -34,6 +34,8 @@ def _writing_context():
         element_to_notes={},
         source_id_to_model_element=None,
         source_id_to_layout_element=None,
+        source_id_to_annotations=None,
+        source_id_to_notes=None,
         with_annotations=True,
         with_notes=True,
     )

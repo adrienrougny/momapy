@@ -143,7 +143,7 @@ Purpose: reader/writer base classes + dispatch.
 Purpose: reader-side helpers; shared base contexts.
 
 - `ReadingContext` — base context with `xml_root`, `map_key`, `model`, `layout`, `xml_id_to_model_element` (`IdentityMultiDict`), `xml_id_to_layout_element`, `xml_id_to_xml_element`, `element_to_annotations`, `element_to_notes`, `source_id_to_annotations`, `source_id_to_notes`, `layout_model_mapping`, `with_annotations`, `with_notes`, `model_element_cache`, `model_element_remap`, `evicted_elements`.
-- `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `with_annotations`, `with_notes`, `element_to_xml_id`, `used_xml_ids`, `candidate_to_xml_id`.
+- `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `source_id_to_annotations`, `source_id_to_notes`, `with_annotations`, `with_notes`, `element_to_xml_id`, `used_xml_ids`, `candidate_to_xml_id`.
 - `make_unique_xml_id(candidate, used_xml_ids) -> str`
 - `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenIdentityMultiDict|None, FrozenSurjectionDict|None)` — builds the `ReaderResult` id dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
 - `_register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
@@ -152,7 +152,7 @@ Purpose: reader-side helpers; shared base contexts.
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
 
 - `PickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
-- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, **options)`.
+- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, **options)`.
 
 ---
 
@@ -417,7 +417,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 
 ### `src/momapy/celldesigner/io/celldesigner/writer.py`
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
-- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring).
+- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring).
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`

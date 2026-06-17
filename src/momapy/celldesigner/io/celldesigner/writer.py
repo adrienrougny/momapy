@@ -4562,6 +4562,8 @@ class CellDesignerWriter(Writer):
         element_to_notes: dict | None = None,
         source_id_to_model_element: dict | None = None,
         source_id_to_layout_element: dict | None = None,
+        source_id_to_annotations: dict | None = None,
+        source_id_to_notes: dict | None = None,
         with_annotations: bool = True,
         with_notes: bool = True,
         **options: typing.Any,
@@ -4577,6 +4579,10 @@ class CellDesignerWriter(Writer):
                 element mapping from ReaderResult.
             source_id_to_layout_element: Optional source ID to layout
                 element mapping from ReaderResult.
+            source_id_to_annotations: Optional per-source-id annotations
+                from ReaderResult.
+            source_id_to_notes: Optional per-source-id notes from
+                ReaderResult.
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
 
@@ -4613,6 +4619,8 @@ class CellDesignerWriter(Writer):
             element_to_notes=element_to_notes,
             source_id_to_model_element=source_id_to_model_element,
             source_id_to_layout_element=source_id_to_layout_element,
+            source_id_to_annotations=source_id_to_annotations,
+            source_id_to_notes=source_id_to_notes,
             with_annotations=with_annotations,
             with_notes=with_notes,
             subunit_to_complex=subunit_to_complex,

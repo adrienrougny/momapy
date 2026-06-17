@@ -51,6 +51,13 @@ class WritingContext:
     """1-to-1 source id -> layout element mapping.  Layout elements are
     not subject to the same n-to-m driver as model elements (every
     layout element has at most one source id)."""
+    source_id_to_annotations: dict | None
+    """Per-source-id annotations carried over from the `ReaderResult`,
+    keyed by the raw source id.  Parallel to ``element_to_annotations``
+    but preserves per-source granularity across reader deduplication."""
+    source_id_to_notes: dict | None
+    """Per-source-id notes carried over from the `ReaderResult`; see
+    ``source_id_to_annotations``."""
     with_annotations: bool
     with_notes: bool
     element_to_xml_id: dict = dataclasses.field(default_factory=dict)
