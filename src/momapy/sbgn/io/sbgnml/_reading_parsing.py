@@ -6,7 +6,7 @@ objectify trees and return raw Python / geometry values.
 """
 
 from momapy.core.elements import Direction
-from momapy.sbml.io.sbml._parsing import _RDF_NAMESPACE
+from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE
 
 
 def transform_class(sbgnml_class):

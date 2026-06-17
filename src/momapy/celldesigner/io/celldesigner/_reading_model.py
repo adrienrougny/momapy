@@ -15,7 +15,7 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     make_name,
 )
 
-from momapy.sbml.io.sbml._model import make_annotations, make_notes
+from momapy.sbml.io.sbml._reading_model import make_annotations, make_notes
 from momapy.builder import new_builder_object
 from momapy.celldesigner.map import CellDesignerMap
 from momapy.celldesigner.model import CellDesignerModel

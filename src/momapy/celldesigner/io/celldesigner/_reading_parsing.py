@@ -7,7 +7,7 @@ objectify trees and return raw Python / geometry values.
 
 import collections
 
-from momapy.sbml.io.sbml._parsing import _RDF_NAMESPACE, get_prefix_and_name
+from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE, get_prefix_and_name
 
 _CD_NAMESPACE = "http://www.sbml.org/2001/ns/celldesigner"
 

@@ -21,8 +21,8 @@ from momapy.sbgn.io.sbgnml._reading_parsing import get_notes
 from momapy.sbgn.io.sbgnml._reading_parsing import get_rdf
 from momapy.sbgn.io.sbgnml._reading_parsing import get_stoichiometry
 from momapy.sbgn.io.sbgnml._reading_parsing import is_process_reversible
-from momapy.sbml.io.sbml._model import make_annotations
-from momapy.sbml.io.sbml._model import make_notes
+from momapy.sbml.io.sbml._reading_model import make_annotations
+from momapy.sbml.io.sbml._reading_model import make_notes
 
 
 def make_annotations_from_element(sbgnml_element):
