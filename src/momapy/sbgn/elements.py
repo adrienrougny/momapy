@@ -1,4 +1,10 @@
-"""Abstract base classes and mixins for SBGN model and layout elements."""
+"""Abstract base classes and mixins for SBGN model and layout elements.
+
+NOTE: The base classes and ``_*Mixin`` classes here are internal and may change
+without a deprecation cycle. They are an internal composition protocol; the
+public value (anchors, fields) is already reachable on the concrete ``*Layout``
+and ``*Node`` classes, which is what you should subclass.
+"""
 
 import abc
 import dataclasses

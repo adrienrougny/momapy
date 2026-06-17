@@ -9,6 +9,11 @@ Each layout class is named after the model class it draws, with a ``Layout``
 suffix appended (e.g. model ``GenericProtein`` gives layout
 ``GenericProteinLayout``). The active-state variants keep the model name and
 insert ``Active`` before the suffix (e.g. ``GenericProteinActiveLayout``).
+
+NOTE: The base classes and ``_*Mixin`` classes here are internal and may change
+without a deprecation cycle. They are an internal composition protocol; the
+public value (anchors, fields) is already reachable on the concrete ``*Layout``
+classes, which is what you should subclass.
 """
 
 import dataclasses
