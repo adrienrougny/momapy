@@ -16,6 +16,7 @@ from momapy.io.core import get_writer as get_writer
 from momapy.io.core import list_readers as list_readers
 from momapy.io.core import list_writers as list_writers
 from momapy.io.core import read as read
+from momapy.io.core import Reader as Reader
 from momapy.io.core import reader_registry as reader_registry
 from momapy.io.core import ReaderResult as ReaderResult
 from momapy.io.core import register_lazy_reader as register_lazy_reader
@@ -23,6 +24,7 @@ from momapy.io.core import register_lazy_writer as register_lazy_writer
 from momapy.io.core import register_reader as register_reader
 from momapy.io.core import register_writer as register_writer
 from momapy.io.core import write as write
+from momapy.io.core import Writer as Writer
 from momapy.io.core import writer_registry as writer_registry
 from momapy.io.core import WriterResult as WriterResult
 
@@ -33,6 +35,7 @@ __all__ = [
     "list_readers",
     "list_writers",
     "read",
+    "Reader",
     "reader_registry",
     "ReaderResult",
     "register_lazy_reader",
@@ -40,6 +43,7 @@ __all__ = [
     "register_reader",
     "register_writer",
     "write",
+    "Writer",
     "writer_registry",
     "WriterResult",
 ]

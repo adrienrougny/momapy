@@ -23,6 +23,11 @@ from momapy.utils import IdentitySurjectionDict
 from momapy.utils import add_or_replace_element_in_set
 
 
+# Everything here (context dataclasses, ID-remapping helpers) is internal and
+# may change without a deprecation cycle; nothing is part of the public API.
+__all__ = []
+
+
 @dataclasses.dataclass
 class WritingContext:
     """Base writing context shared by all format-specific writers.
