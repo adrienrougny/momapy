@@ -152,7 +152,11 @@ def render_layout_elements(
     if renderer is None:
         renderer = _detect_renderer(format_)
 
-    def _prepare_layout_elements(layout_elements, style_sheet=None, to_top_left=False):
+    def _prepare_layout_elements(
+        layout_elements: list[LayoutElement],
+        style_sheet: typing.Any = None,
+        to_top_left: bool = False,
+    ) -> tuple[list[LayoutElement], float, float]:
         bboxes = [layout_element.bbox() for layout_element in layout_elements]
         bbox = fit(bboxes)
         max_x = bbox.x + bbox.width / 2

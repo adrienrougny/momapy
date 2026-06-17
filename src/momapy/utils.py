@@ -472,7 +472,13 @@ class FrozenIdentitySurjectionDict(frozendict.frozendict):
         return self._identity_inverse
 
 
-def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
+def pretty_print(
+    obj: typing.Any,
+    max_depth: int = 0,
+    exclude_cls: list[type] | None = None,
+    _depth: int = 0,
+    _indent: int = 0,
+) -> None:
     """Pretty print a dataclass or iterable object with colors.
 
     Recursively prints the structure of dataclasses and iterables with
@@ -706,13 +712,13 @@ def check_parent_dir_exists(file_path: str | os.PathLike) -> None:
 
 
 def display(
-    obj,
-    markers=None,
+    obj: typing.Any,
+    markers: typing.Any = None,
     xsep: float = 20.0,
     ysep: float = 20.0,
     scale: float = 1.0,
-    style_sheet=None,
-):
+    style_sheet: typing.Any = None,
+) -> None:
     """Render maps, layout elements, or files as an inline SVG in a notebook.
 
     Renders one or more objects to a single SVG and displays it using
