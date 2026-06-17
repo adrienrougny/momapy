@@ -146,7 +146,7 @@ Purpose: reader-side helpers; shared base contexts.
 - `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `with_annotations`, `with_notes`, `element_to_xml_id`, `used_xml_ids`, `candidate_to_xml_id`.
 - `make_unique_xml_id(candidate, used_xml_ids) -> str`
 - `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenIdentityMultiDict|None, FrozenSurjectionDict|None)` — builds the `ReaderResult` id dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
-- `register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
+- `_register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
 
 ### `src/momapy/io/pickle.py`
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
@@ -491,7 +491,7 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - `make_annotations(rdf) -> list[RDFAnnotation]`, `make_notes(notes_element) -> list[str]` (shared with SBGN-ML/CellDesigner readers)
 - `make_annotations_from_element(sbml_element)`, `make_notes_from_element(sbml_element)`
 - `make_and_add_annotations_and_notes(reading_context, sbml_element, model_element, source_id=None)`
-- `register_model_element(reading_context, model_element, collection, id_)` — id-based dedup + records in `reading_context.sbml_id_to_model_element`
+- `_register_model_element(reading_context, model_element, collection, id_)` — id-based dedup + records in `reading_context.sbml_id_to_model_element`
 - `make_compartment(reading_context, sbml_compartment)`
 - `make_species(reading_context, sbml_species)`
 - `make_reaction(reading_context, sbml_reaction)`

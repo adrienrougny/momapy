@@ -34,7 +34,7 @@ from momapy.sbml.io.sbml._reading_model import make_modifier_species_reference
 from momapy.sbml.io.sbml._reading_model import make_reaction
 from momapy.sbml.io.sbml._reading_model import make_species
 from momapy.sbml.io.sbml._reading_model import make_species_reference
-from momapy.sbml.io.sbml._reading_model import register_model_element
+from momapy.sbml.io.sbml._reading_model import _register_model_element
 
 
 @dataclasses.dataclass
@@ -206,7 +206,7 @@ class SBMLReader(Reader):
     def _make_and_add_compartment(cls, reading_context, sbml_compartment):
         model_element = make_compartment(reading_context, sbml_compartment)
         model_element = object_from_builder(model_element)
-        model_element = register_model_element(
+        model_element = _register_model_element(
             reading_context,
             model_element,
             reading_context.model.compartments,
@@ -221,7 +221,7 @@ class SBMLReader(Reader):
     def _make_and_add_species(cls, reading_context, sbml_species):
         model_element = make_species(reading_context, sbml_species)
         model_element = object_from_builder(model_element)
-        model_element = register_model_element(
+        model_element = _register_model_element(
             reading_context,
             model_element,
             reading_context.model.species,
@@ -240,7 +240,7 @@ class SBMLReader(Reader):
         for sbml_modifier in get_modifiers(sbml_reaction):
             cls._make_and_add_modifier(reading_context, sbml_modifier, model_element)
         model_element = object_from_builder(model_element)
-        model_element = register_model_element(
+        model_element = _register_model_element(
             reading_context,
             model_element,
             reading_context.model.reactions,

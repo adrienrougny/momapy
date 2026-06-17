@@ -118,7 +118,7 @@ def make_and_add_annotations_and_notes(
                 reading_context.source_id_to_notes[source_id].update(notes)
 
 
-def register_model_element(reading_context, model_element, collection, id_):
+def _register_model_element(reading_context, model_element, collection, id_):
     """Add a model element to a collection with id-based deduplication.
 
     If an equal element already exists in the collection, the one with the

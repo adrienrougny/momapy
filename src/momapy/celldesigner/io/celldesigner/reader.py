@@ -78,7 +78,7 @@ from momapy.io.utils import (
     ReadingContext,
     apply_remap_to_layout_model_mapping,
     build_id_mappings,
-    register_model_element,
+    _register_model_element,
 )
 from momapy.builder import object_from_builder
 from momapy.utils import IdentityMultiDict, add_or_replace_element_in_set
@@ -948,7 +948,7 @@ class CellDesignerReader(Reader):
                     )
                 model_element.outside = outside_model_element
             model_element = object_from_builder(model_element)
-            model_element = register_model_element(
+            model_element = _register_model_element(
                 reading_context,
                 model_element,
                 reading_context.model.compartments,
@@ -1022,7 +1022,7 @@ class CellDesignerReader(Reader):
                     order=order,
                 )
             model_element = object_from_builder(model_element)
-            model_element = register_model_element(
+            model_element = _register_model_element(
                 reading_context,
                 model_element,
                 reading_context.model.species_templates,
@@ -1243,7 +1243,7 @@ class CellDesignerReader(Reader):
             if reading_context.model is not None and model_element is not None:
                 model_element = object_from_builder(model_element)
                 if super_model_element is None:  # species case
-                    model_element = register_model_element(
+                    model_element = _register_model_element(
                         reading_context,
                         model_element,
                         reading_context.model.species,
@@ -1592,7 +1592,7 @@ class CellDesignerReader(Reader):
                     layout_elements_for_mapping.append(modifier_layout_element.source)
             if reading_context.model is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.reactions,
@@ -1961,7 +1961,7 @@ class CellDesignerReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.boolean_logic_gates,
@@ -2045,7 +2045,7 @@ class CellDesignerReader(Reader):
                     target_model_element,
                 )
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.modulations,

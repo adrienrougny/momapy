@@ -41,7 +41,7 @@ from momapy.io.core import ReaderResult
 from momapy.io.utils import ReadingContext
 from momapy.io.utils import apply_remap_to_layout_model_mapping
 from momapy.io.utils import build_id_mappings
-from momapy.io.utils import register_model_element
+from momapy.io.utils import _register_model_element
 from momapy.coloring import Color
 from momapy.positioning import set_fit
 from momapy.builder import get_or_make_builder_cls
@@ -553,7 +553,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.compartments,
@@ -606,7 +606,7 @@ class _SBGNMLReader(Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.entity_pools,
@@ -835,7 +835,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.activities,
@@ -1005,7 +1005,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.submaps,
@@ -1125,7 +1125,7 @@ class _SBGNMLReader(Reader):
                     reference_map_elements.append((reference_model, reference_layout))
             if tag_model is not None:
                 tag_model = object_from_builder(tag_model)
-                tag_model = register_model_element(
+                tag_model = _register_model_element(
                     reading_context,
                     tag_model,
                     reading_context.model.tags,
@@ -1183,7 +1183,7 @@ class _SBGNMLReader(Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
@@ -1265,7 +1265,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
@@ -1467,7 +1467,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.logical_operators,
@@ -1597,7 +1597,7 @@ class _SBGNMLReader(Reader):
                     source_model_element,
                     target_model_element,
                 )
-                model_element = register_model_element(
+                model_element = _register_model_element(
                     reading_context,
                     model_element,
                     (
