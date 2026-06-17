@@ -2401,7 +2401,6 @@ class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
     end_arrowhead_width: float = 15.0
     end_shorten: float = 2.0
-    reversible: bool = False
     start_arrowhead_fill: NoneValueType | Color | None = black
     start_arrowhead_filter: NoneValueType | Filter | None = None
     start_arrowhead_height: float = 8.0
