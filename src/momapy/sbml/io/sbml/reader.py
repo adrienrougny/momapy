@@ -125,8 +125,13 @@ class SBMLReader(Reader):
         )
         result = ReaderResult(
             obj=obj,
-            element_to_notes=notes,
             element_to_annotations=annotations,
+            element_to_notes=notes,
+            id_to_element=frozendict.frozendict(),
+            source_id_to_model_element=None,
+            source_id_to_layout_element=None,
+            source_id_to_annotations=None,
+            source_id_to_notes=None,
             file_path=file_path,
         )
         return result
