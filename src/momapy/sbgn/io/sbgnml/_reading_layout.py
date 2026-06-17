@@ -30,21 +30,18 @@ from momapy.sbgn.io.sbgnml._reading_parsing import get_sbgnml_points
 from momapy.sbgn.io.sbgnml._reading_parsing import get_stoichiometry
 from momapy.sbgn.io.sbgnml._reading_parsing import is_operator_left_to_right
 from momapy.sbgn.io.sbgnml._reading_parsing import is_process_left_to_right
-
-_DEFAULT_FONT_FAMILY = DEFAULT_FONT_FAMILY
-_DEFAULT_FONT_SIZE = 11.0
-_DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 8.0
-_DEFAULT_FONT_FILL = black
+from momapy.sbgn.layout import DEFAULT_AUXILIARY_UNIT_FONT_SIZE
+from momapy.sbgn.layout import DEFAULT_FONT_SIZE
 
 
-def make_text_layout(text, position, font_size=_DEFAULT_FONT_SIZE):
+def make_text_layout(text, position, font_size=DEFAULT_FONT_SIZE):
     if text is None:
         text = ""
     return TextLayout(
         text=text,
         font_size=font_size,
-        font_family=_DEFAULT_FONT_FAMILY,
-        fill=_DEFAULT_FONT_FILL,
+        font_family=DEFAULT_FONT_FAMILY,
+        fill=black,
         stroke=NoneValue,
         position=position,
         horizontal_alignment=HAlignment.CENTER,
@@ -206,7 +203,7 @@ def make_state_variable(reading_context, sbgnml_state_variable, text):
     layout_element.label = make_text_layout(
         text=text,
         position=layout_element.label_center(),
-        font_size=_DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
+        font_size=DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
     )
     layout_element = object_from_builder(layout_element)
     return layout_element
@@ -236,7 +233,7 @@ def make_unit_of_information(
         layout_element.label = make_text_layout(
             text=sbgnml_label.get("text"),
             position=layout_element.label_center(),
-            font_size=_DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
+            font_size=DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
         )
     layout_element = object_from_builder(layout_element)
     return layout_element

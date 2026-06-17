@@ -62,8 +62,8 @@ from momapy.celldesigner.layout import (
     UnknownPhysicalStimulationLayout,
     UnknownPositiveInfluenceLayout,
     UnknownTriggeringLayout,
-    _ACTIVE_XSEP,
-    _ACTIVE_YSEP,
+    DEFAULT_ACTIVE_XSEP,
+    DEFAULT_ACTIVE_YSEP,
 )
 
 
@@ -285,8 +285,8 @@ def _update_active_layout(layout_element):
             hasattr(child, "_cls_to_build")
             and child._cls_to_build.__name__.endswith("ActiveLayout")
         ):
-            child.width = layout_element.width + 2 * _ACTIVE_XSEP
-            child.height = layout_element.height + 2 * _ACTIVE_YSEP
+            child.width = layout_element.width + 2 * DEFAULT_ACTIVE_XSEP
+            child.height = layout_element.height + 2 * DEFAULT_ACTIVE_YSEP
             child.position = layout_element.position
             break
 

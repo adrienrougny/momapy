@@ -10,11 +10,17 @@ from momapy.sbgn.elements import SBGNModelElement as SBGNModelElement
 from momapy.sbgn.elements import SBGNNode as SBGNNode
 from momapy.sbgn.elements import SBGNRole as SBGNRole
 from momapy.sbgn.elements import SBGNSingleHeadedArc as SBGNSingleHeadedArc
+from momapy.sbgn.layout import (
+    DEFAULT_AUXILIARY_UNIT_FONT_SIZE as DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
+)
+from momapy.sbgn.layout import DEFAULT_FONT_SIZE as DEFAULT_FONT_SIZE
 from momapy.sbgn.layout import SBGNLayout as SBGNLayout
 from momapy.sbgn.map import SBGNMap as SBGNMap
 from momapy.sbgn.model import SBGNModel as SBGNModel
 
 __all__ = [
+    "DEFAULT_AUXILIARY_UNIT_FONT_SIZE",
+    "DEFAULT_FONT_SIZE",
     "SBGNAuxiliaryUnit",
     "SBGNDoubleHeadedArc",
     "SBGNLayout",

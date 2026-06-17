@@ -211,7 +211,7 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 ## SBGN (`src/momapy/sbgn/`)
 
 ### `src/momapy/sbgn/__init__.py`
-Re-exports: `SBGNAuxiliaryUnit`, `SBGNDoubleHeadedArc`, `SBGNLayout`, `SBGNMap`, `SBGNModel`, `SBGNModelElement`, `SBGNNode`, `SBGNRole`, `SBGNSingleHeadedArc`.
+Re-exports: `DEFAULT_AUXILIARY_UNIT_FONT_SIZE`, `DEFAULT_FONT_SIZE`, `SBGNAuxiliaryUnit`, `SBGNDoubleHeadedArc`, `SBGNLayout`, `SBGNMap`, `SBGNModel`, `SBGNModelElement`, `SBGNNode`, `SBGNRole`, `SBGNSingleHeadedArc`.
 
 ### `src/momapy/sbgn/elements.py`
 Purpose: shared SBGN bases and mixins for PD and AF.
@@ -229,6 +229,7 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 
 ### `src/momapy/sbgn/layout.py`
 - `SBGNLayout(Layout)` — abstract base; `fill: Color | None = white`.
+- Constants (reader defaults, re-exported from `momapy.sbgn`, `momapy.sbgn.pd`, `momapy.sbgn.af`): `DEFAULT_FONT_SIZE = 11.0` (glyph / entity-pool labels), `DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 8.0` (state variable & unit-of-information labels).
 
 ### `src/momapy/sbgn/map.py`
 - `SBGNMap(Map)` — abstract base; `model: SBGNModel`, `layout: SBGNLayout`.
@@ -251,7 +252,7 @@ Functions (all accept `SBGNMap | Builder`, return same):
 Module-level `StyleSheet` constants: `cs_default`, `cs_black_and_white`, `sbgned`, `newt`, `fs_shadows`.
 
 ### `src/momapy/sbgn/pd/__init__.py`
-Re-exports: auxiliary units (`StateVariable`, `UnitOfInformation`, `Subunit` family), `Compartment`, entity pools (`EntityPool`, `EmptySet`, `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex`, `Multimer` family), flux roles (`FluxRole`, `Reactant`, `Product`), logical operators (`LogicalOperator`, `OrOperator`, `AndOperator`, `NotOperator`, `LogicalOperatorInput`), equivalence operators (`EquivalenceOperator`, `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`), processes (`Process`, `StoichiometricProcess`, `GenericProcess`, `UncertainProcess`, `Association`, `Dissociation`, `OmittedProcess`, `Phenotype`), modulations (`Modulation`, `Inhibition`, `Stimulation`, `Catalysis`, `NecessaryStimulation`), tags/terminals/submaps (`Tag`, `TagReference`, `Terminal`, `TerminalReference`, `Submap`), `SBGNPDModel`, all `*Layout` variants, `SBGNPDMap`.
+Re-exports: default font-size constants (`DEFAULT_FONT_SIZE`, `DEFAULT_AUXILIARY_UNIT_FONT_SIZE`), auxiliary units (`StateVariable`, `UnitOfInformation`, `Subunit` family), `Compartment`, entity pools (`EntityPool`, `EmptySet`, `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex`, `Multimer` family), flux roles (`FluxRole`, `Reactant`, `Product`), logical operators (`LogicalOperator`, `OrOperator`, `AndOperator`, `NotOperator`, `LogicalOperatorInput`), equivalence operators (`EquivalenceOperator`, `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`), processes (`Process`, `StoichiometricProcess`, `GenericProcess`, `UncertainProcess`, `Association`, `Dissociation`, `OmittedProcess`, `Phenotype`), modulations (`Modulation`, `Inhibition`, `Stimulation`, `Catalysis`, `NecessaryStimulation`), tags/terminals/submaps (`Tag`, `TagReference`, `Terminal`, `TerminalReference`, `Submap`), `SBGNPDModel`, all `*Layout` variants, `SBGNPDMap`.
 
 ### `src/momapy/sbgn/pd/model.py`
 Purpose: SBGN-PD model classes.
@@ -274,7 +275,7 @@ Purpose: SBGN-PD model classes.
 - `SBGNPDMap(SBGNMap)` — combines `SBGNPDModel` and `SBGNPDLayout`.
 
 ### `src/momapy/sbgn/af/__init__.py`
-Re-exports: AF unit-of-information family (`UnitOfInformation`, `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`), `Compartment`, activities (`Activity`, `BiologicalActivity`, `Phenotype`), logical operators (`LogicalOperator`, `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`, `LogicalOperatorInput`), influences (`Influence`, `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`), tags/terminals/submaps, `SBGNAFModel`, layout classes, `SBGNAFMap`.
+Re-exports: default font-size constants (`DEFAULT_FONT_SIZE`, `DEFAULT_AUXILIARY_UNIT_FONT_SIZE`), AF unit-of-information family (`UnitOfInformation`, `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`), `Compartment`, activities (`Activity`, `BiologicalActivity`, `Phenotype`), logical operators (`LogicalOperator`, `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`, `LogicalOperatorInput`), influences (`Influence`, `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`), tags/terminals/submaps, `SBGNAFModel`, layout classes, `SBGNAFMap`.
 
 ### `src/momapy/sbgn/af/model.py`
 Purpose: SBGN-AF model classes.
@@ -356,7 +357,7 @@ Purpose: SBGN-AF model classes.
 ## CellDesigner (`src/momapy/celldesigner/`)
 
 ### `src/momapy/celldesigner/__init__.py`
-Re-exports: bases (`CellDesignerModelElement`, `CellDesignerNode`, `CellDesignerSingleHeadedArc`, `CellDesignerDoubleHeadedArc`, `CellDesignerLayout`, `CellDesignerMap`); modifications (`ModificationResidue`, `ModificationState`, `Modification`, `StructuralState`); regions (`Region`, `ModificationSite`, `CodingRegion`, `RegulatoryRegion`, `TranscriptionStartingSiteL`, `TranscriptionStartingSiteR`, `ProteinBindingDomain`); templates (`SpeciesTemplate`, `ProteinTemplate`, `GenericProteinTemplate`, `TruncatedProteinTemplate`, `ReceptorTemplate`, `IonChannelTemplate`, `GeneTemplate`, `RNATemplate`, `AntisenseRNATemplate`); compartment + species (`Compartment`, `Species`, `Protein`, `GenericProtein`, `TruncatedProtein`, `Receptor`, `IonChannel`, `Gene`, `RNA`, `AntisenseRNA`, `Phenotype`, `Ion`, `SimpleMolecule`, `Drug`, `Unknown`, `Complex`, `Degraded`); reaction participants (`Reactant`, `Product`); boolean logic (`BooleanLogicGateInput`, `BooleanLogicGate`, `AndGate`, `OrGate`, `NotGate`, `UnknownGate`); modulators (`KnownOrUnknownModulator`, `Modulator`, `UnknownModulator`, `Inhibitor`, `PhysicalStimulator`, `Catalyzer`, `Trigger`, `UnknownCatalyzer`, `UnknownInhibitor`); reactions (`Reaction`, `StateTransition`, `KnownTransitionOmitted`, `UnknownTransition`, `Transcription`, `Translation`, `Transport`, `HeterodimerAssociation`, `Dissociation`, `Truncation`); modulations (`KnownOrUnknownModulation`, `Modulation`, `Catalysis`, `Inhibition`, `PhysicalStimulation`, `Triggering`, `PositiveInfluence`, `NegativeInfluence`, `UnknownModulation`, `UnknownCatalysis`, `UnknownInhibition`, `UnknownPositiveInfluence`, `UnknownNegativeInfluence`, `UnknownPhysicalStimulation`, `UnknownTriggering`); `CellDesignerModel`; plus 50+ layout classes.
+Re-exports: default constants (`DEFAULT_FONT_SIZE`, `DEFAULT_MODIFICATION_FONT_SIZE`, `DEFAULT_ACTIVE_XSEP`, `DEFAULT_ACTIVE_YSEP`); bases (`CellDesignerModelElement`, `CellDesignerNode`, `CellDesignerSingleHeadedArc`, `CellDesignerDoubleHeadedArc`, `CellDesignerLayout`, `CellDesignerMap`); modifications (`ModificationResidue`, `ModificationState`, `Modification`, `StructuralState`); regions (`Region`, `ModificationSite`, `CodingRegion`, `RegulatoryRegion`, `TranscriptionStartingSiteL`, `TranscriptionStartingSiteR`, `ProteinBindingDomain`); templates (`SpeciesTemplate`, `ProteinTemplate`, `GenericProteinTemplate`, `TruncatedProteinTemplate`, `ReceptorTemplate`, `IonChannelTemplate`, `GeneTemplate`, `RNATemplate`, `AntisenseRNATemplate`); compartment + species (`Compartment`, `Species`, `Protein`, `GenericProtein`, `TruncatedProtein`, `Receptor`, `IonChannel`, `Gene`, `RNA`, `AntisenseRNA`, `Phenotype`, `Ion`, `SimpleMolecule`, `Drug`, `Unknown`, `Complex`, `Degraded`); reaction participants (`Reactant`, `Product`); boolean logic (`BooleanLogicGateInput`, `BooleanLogicGate`, `AndGate`, `OrGate`, `NotGate`, `UnknownGate`); modulators (`KnownOrUnknownModulator`, `Modulator`, `UnknownModulator`, `Inhibitor`, `PhysicalStimulator`, `Catalyzer`, `Trigger`, `UnknownCatalyzer`, `UnknownInhibitor`); reactions (`Reaction`, `StateTransition`, `KnownTransitionOmitted`, `UnknownTransition`, `Transcription`, `Translation`, `Transport`, `HeterodimerAssociation`, `Dissociation`, `Truncation`); modulations (`KnownOrUnknownModulation`, `Modulation`, `Catalysis`, `Inhibition`, `PhysicalStimulation`, `Triggering`, `PositiveInfluence`, `NegativeInfluence`, `UnknownModulation`, `UnknownCatalysis`, `UnknownInhibition`, `UnknownPositiveInfluence`, `UnknownNegativeInfluence`, `UnknownPhysicalStimulation`, `UnknownTriggering`); `CellDesignerModel`; plus 50+ layout classes.
 
 ### `src/momapy/celldesigner/elements.py`
 Purpose: base classes for CellDesigner layout and model.
@@ -384,6 +385,7 @@ Purpose: CellDesigner model classes.
 ### `src/momapy/celldesigner/layout.py`
 Purpose: CellDesigner layout classes.
 
+- **Constants** (reader/build defaults, re-exported from `momapy.celldesigner`): `DEFAULT_FONT_SIZE = 12.0` (species / node labels), `DEFAULT_MODIFICATION_FONT_SIZE = 9.0` (modifications / structural states), `DEFAULT_ACTIVE_XSEP = 4.0`, `DEFAULT_ACTIVE_YSEP = 4.0` (active-state border padding, used in the active-layout field defaults).
 - **Container**: `CellDesignerLayout(Layout)`.
 - **Species layouts** (each with active variant, all `_MultiNodeMixin, CellDesignerNode`): `GenericProteinLayout`, `IonChannelLayout`, `ComplexLayout`, `SimpleMoleculeLayout`, `IonLayout`, `UnknownLayout`, `DegradedLayout`, `GeneLayout`, `PhenotypeLayout`, `RNALayout`, `AntisenseRNALayout`, `TruncatedProteinLayout`, `ReceptorLayout`, `DrugLayout`.
 - **Compartments**: `OvalCompartmentLayout`, `RectangleCompartmentLayout`, `CornerCompartmentLayout`, `LineCompartmentLayout`; enums `CompartmentCorner`, `CompartmentSide`.

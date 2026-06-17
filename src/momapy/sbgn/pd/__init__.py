@@ -47,6 +47,10 @@ attach to, and the two boolean flags ``has_external_source`` and
 record which side of the process the empty set represents.
 """
 
+from momapy.sbgn.layout import (
+    DEFAULT_AUXILIARY_UNIT_FONT_SIZE as DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
+)
+from momapy.sbgn.layout import DEFAULT_FONT_SIZE as DEFAULT_FONT_SIZE
 from momapy.sbgn.pd.model import StateVariable as StateVariable
 from momapy.sbgn.pd.model import UnitOfInformation as UnitOfInformation
 from momapy.sbgn.pd.model import Subunit as Subunit
@@ -187,6 +191,8 @@ from momapy.sbgn.pd.layout import EquivalenceArcLayout as EquivalenceArcLayout
 from momapy.sbgn.pd.map import SBGNPDMap as SBGNPDMap
 
 __all__ = [
+    "DEFAULT_AUXILIARY_UNIT_FONT_SIZE",
+    "DEFAULT_FONT_SIZE",
     "StateVariable",
     "UnitOfInformation",
     "Subunit",

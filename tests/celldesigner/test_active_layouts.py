@@ -23,8 +23,8 @@ from momapy.celldesigner.layout import (
     GenericProteinLayout,
     SimpleMoleculeActiveLayout,
     SimpleMoleculeLayout,
-    _ACTIVE_XSEP,
-    _ACTIVE_YSEP,
+    DEFAULT_ACTIVE_XSEP,
+    DEFAULT_ACTIVE_YSEP,
 )
 
 
@@ -69,8 +69,8 @@ def _build_species_with_active_child(layout_cls, active_cls, width=60.0, height=
 
     active_builder = momapy.builder.new_builder_object(active_cls)
     active_builder.position = position
-    active_builder.width = width + _ACTIVE_XSEP * 2
-    active_builder.height = height + _ACTIVE_YSEP * 2
+    active_builder.width = width + DEFAULT_ACTIVE_XSEP * 2
+    active_builder.height = height + DEFAULT_ACTIVE_YSEP * 2
     active_builder.n = 1
 
     active_element = momapy.builder.object_from_builder(active_builder)
@@ -102,11 +102,13 @@ class TestActiveLayoutStructure:
         ids=[c[0].__name__ for c in _LAYOUT_PAIRS],
     )
     def test_active_child_dimensions(self, layout_cls, active_cls):
-        """The active child is wider/taller by 2 * _ACTIVE_XSEP/YSEP."""
+        """The active child is wider/taller by 2 * DEFAULT_ACTIVE_XSEP/YSEP."""
         node = _build_species_with_active_child(layout_cls, active_cls)
         active_child = node.layout_elements[0]
-        assert active_child.width == pytest.approx(node.width + _ACTIVE_XSEP * 2)
-        assert active_child.height == pytest.approx(node.height + _ACTIVE_YSEP * 2)
+        assert active_child.width == pytest.approx(node.width + DEFAULT_ACTIVE_XSEP * 2)
+        assert active_child.height == pytest.approx(
+            node.height + DEFAULT_ACTIVE_YSEP * 2
+        )
 
     @pytest.mark.parametrize(
         "layout_cls,active_cls",

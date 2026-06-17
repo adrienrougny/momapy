@@ -69,14 +69,11 @@ from momapy.celldesigner.layout import (
     TruncatedProteinLayout,
     UnknownActiveLayout,
     UnknownLayout,
-    _ACTIVE_XSEP,
-    _ACTIVE_YSEP,
+    DEFAULT_ACTIVE_XSEP,
+    DEFAULT_ACTIVE_YSEP,
+    DEFAULT_FONT_SIZE,
+    DEFAULT_MODIFICATION_FONT_SIZE,
 )
-
-_DEFAULT_FONT_FAMILY = DEFAULT_FONT_FAMILY
-_DEFAULT_FONT_SIZE = 12.0
-_DEFAULT_MODIFICATION_FONT_SIZE = 9.0
-_DEFAULT_FONT_FILL = black
 
 _LAYOUT_TO_ACTIVE_LAYOUT = {
     GenericProteinLayout: GenericProteinActiveLayout,
@@ -237,8 +234,8 @@ def make_species(
     text_layout = TextLayout(
         text=name,
         font_size=float(cd_species_alias.font.get("size")),
-        font_family=_DEFAULT_FONT_FAMILY,
-        fill=_DEFAULT_FONT_FILL,
+        font_family=DEFAULT_FONT_FAMILY,
+        fill=black,
         stroke=NoneValue,
         position=layout_element.label_center(),
     )
@@ -259,8 +256,8 @@ def make_species(
         active_cls = _LAYOUT_TO_ACTIVE_LAYOUT[layout_element_cls]
         active_element = new_builder_object(active_cls)
         active_element.position = layout_element.position
-        active_element.width = layout_element.width + _ACTIVE_XSEP * 2
-        active_element.height = layout_element.height + _ACTIVE_YSEP * 2
+        active_element.width = layout_element.width + DEFAULT_ACTIVE_XSEP * 2
+        active_element.height = layout_element.height + DEFAULT_ACTIVE_YSEP * 2
         active_element.n = homomultimer
         active_element = object_from_builder(active_element)
         layout_element.layout_elements.append(active_element)
@@ -311,9 +308,9 @@ def make_species_modification(
     text = modification_state.value if modification_state is not None else ""
     text_layout = TextLayout(
         text=text,
-        font_size=_DEFAULT_MODIFICATION_FONT_SIZE,
-        font_family=_DEFAULT_FONT_FAMILY,
-        fill=_DEFAULT_FONT_FILL,
+        font_size=DEFAULT_MODIFICATION_FONT_SIZE,
+        font_family=DEFAULT_FONT_FAMILY,
+        fill=black,
         stroke=NoneValue,
         position=layout_element.label_center(),
     )
@@ -322,13 +319,13 @@ def make_species_modification(
     if cd_modification_residue_name is not None:
         residue_text_layout = new_builder_object(TextLayout)
         residue_text_layout.text = cd_modification_residue_name
-        residue_text_layout.font_size = _DEFAULT_MODIFICATION_FONT_SIZE
-        residue_text_layout.font_family = _DEFAULT_FONT_FAMILY
-        residue_text_layout.fill = _DEFAULT_FONT_FILL
+        residue_text_layout.font_size = DEFAULT_MODIFICATION_FONT_SIZE
+        residue_text_layout.font_family = DEFAULT_FONT_FAMILY
+        residue_text_layout.fill = black
         residue_text_layout.stroke = NoneValue
         segment = Segment(layout_element.center(), super_layout_element.center())
         fraction = (
-            layout_element.height + _DEFAULT_MODIFICATION_FONT_SIZE
+            layout_element.height + DEFAULT_MODIFICATION_FONT_SIZE
         ) / segment.length()
         residue_text_layout.position = segment.get_position_at_fraction(fraction)
         residue_text_layout = object_from_builder(residue_text_layout)
@@ -356,9 +353,9 @@ def make_species_structural_state(
     text = cd_species_structural_state.get("structuralState")
     text_layout = TextLayout(
         text=text,
-        font_size=_DEFAULT_MODIFICATION_FONT_SIZE,
-        font_family=_DEFAULT_FONT_FAMILY,
-        fill=_DEFAULT_FONT_FILL,
+        font_size=DEFAULT_MODIFICATION_FONT_SIZE,
+        font_family=DEFAULT_FONT_FAMILY,
+        fill=black,
         stroke=NoneValue,
         position=layout_element.position,
     )
@@ -514,9 +511,9 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
     )
     text_layout = TextLayout(
         text=text,
-        font_size=_DEFAULT_FONT_SIZE,
-        font_family=_DEFAULT_FONT_FAMILY,
-        fill=_DEFAULT_FONT_FILL,
+        font_size=DEFAULT_FONT_SIZE,
+        font_family=DEFAULT_FONT_FAMILY,
+        fill=black,
         stroke=NoneValue,
         position=text_position,
     )

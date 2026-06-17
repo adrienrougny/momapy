@@ -73,8 +73,14 @@ class CellDesignerLayout(Layout):
     pass
 
 
-_ACTIVE_XSEP = 4.0
-_ACTIVE_YSEP = 4.0
+# Default label font sizes the CellDesigner reader injects when building layouts.
+# Exposed so that code building CellDesigner maps programmatically (rather than
+# reading a file) can reproduce momapy's default appearance.
+DEFAULT_FONT_SIZE = 12.0  # species / node labels
+DEFAULT_MODIFICATION_FONT_SIZE = 9.0  # modifications / structural states
+# Padding added around an active-state border relative to its base node.
+DEFAULT_ACTIVE_XSEP = 4.0
+DEFAULT_ACTIVE_YSEP = 4.0
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -97,8 +103,8 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
 class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for generic protein layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 40.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
     rounded_corners: float = 5.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -264,8 +270,8 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
 class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for ion channel layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 40.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
     rounded_corners: float = 5.0
     right_rectangle_width: float = 20.0
     fill: NoneValueType | Color | None = NoneValue
@@ -323,8 +329,8 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
 class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for complex layouts."""
 
-    width: float = 100.0 + _ACTIVE_XSEP * 2
-    height: float = 120.0 + _ACTIVE_YSEP * 2
+    width: float = 100.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 120.0 + DEFAULT_ACTIVE_YSEP * 2
     cut_corners: float = 6.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -370,8 +376,8 @@ class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
 class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for simple molecule layouts."""
 
-    width: float = 70.0 + _ACTIVE_XSEP * 2
-    height: float = 25.0 + _ACTIVE_YSEP * 2
+    width: float = 70.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -400,8 +406,8 @@ class IonLayout(_MultiNodeMixin, CellDesignerNode):
 class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for ion layouts."""
 
-    width: float = 35.0 + _ACTIVE_XSEP * 2
-    height: float = 35.0 + _ACTIVE_YSEP * 2
+    width: float = 35.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 35.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -431,8 +437,8 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
 class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for unknown species layouts."""
 
-    width: float = 60.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 60.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -477,8 +483,8 @@ class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
 class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for degraded layouts."""
 
-    width: float = 30.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 30.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -507,8 +513,8 @@ class GeneLayout(_MultiNodeMixin, CellDesignerNode):
 class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for gene layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 25.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
         4,
@@ -720,8 +726,8 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
 class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for phenotype layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     angle: float = 60.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -936,8 +942,8 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
 class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for RNA layouts."""
 
-    width: float = 90.0 + _ACTIVE_XSEP * 2
-    height: float = 25.0 + _ACTIVE_YSEP * 2
+    width: float = 90.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     angle: float = 45.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -1151,8 +1157,8 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
 class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for antisense RNA layouts."""
 
-    width: float = 90.0 + _ACTIVE_XSEP * 2
-    height: float = 25.0 + _ACTIVE_YSEP * 2
+    width: float = 90.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     angle: float = 45.0
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -1285,8 +1291,8 @@ class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
 class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for truncated protein layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 50.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 50.0 + DEFAULT_ACTIVE_YSEP * 2
     rounded_corners: float = 15.0
     vertical_truncation: float = 0.40
     horizontal_truncation: float = 0.20
@@ -1511,8 +1517,8 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
 class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for receptor layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 40.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 40.0 + DEFAULT_ACTIVE_YSEP * 2
     vertical_truncation: float = 0.10
     fill: NoneValueType | Color | None = NoneValue
     stroke_dasharray: NoneValueType | tuple[float] | None = (
@@ -1647,8 +1653,8 @@ class DrugLayout(_MultiNodeMixin, CellDesignerNode):
 class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
     """Active border for drug layouts."""
 
-    width: float = 80.0 + _ACTIVE_XSEP * 2
-    height: float = 30.0 + _ACTIVE_YSEP * 2
+    width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
+    height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     horizontal_proportion: float = 0.20
     sep: float = 4.0
     fill: NoneValueType | Color | None = NoneValue

@@ -10,6 +10,12 @@ from momapy.celldesigner.elements import (
 from momapy.celldesigner.elements import (
     CellDesignerDoubleHeadedArc as CellDesignerDoubleHeadedArc,
 )
+from momapy.celldesigner.layout import DEFAULT_ACTIVE_XSEP as DEFAULT_ACTIVE_XSEP
+from momapy.celldesigner.layout import DEFAULT_ACTIVE_YSEP as DEFAULT_ACTIVE_YSEP
+from momapy.celldesigner.layout import DEFAULT_FONT_SIZE as DEFAULT_FONT_SIZE
+from momapy.celldesigner.layout import (
+    DEFAULT_MODIFICATION_FONT_SIZE as DEFAULT_MODIFICATION_FONT_SIZE,
+)
 from momapy.celldesigner.layout import CellDesignerLayout as CellDesignerLayout
 from momapy.celldesigner.map import CellDesignerMap as CellDesignerMap
 
@@ -206,6 +212,10 @@ from momapy.celldesigner.layout import UnknownGateLayout as UnknownGateLayout
 from momapy.celldesigner.layout import LogicArcLayout as LogicArcLayout
 
 __all__ = [
+    "DEFAULT_ACTIVE_XSEP",
+    "DEFAULT_ACTIVE_YSEP",
+    "DEFAULT_FONT_SIZE",
+    "DEFAULT_MODIFICATION_FONT_SIZE",
     "CellDesignerModelElement",
     "CellDesignerNode",
     "CellDesignerSingleHeadedArc",

@@ -36,6 +36,10 @@ reference arcs) use a singleton key: [TagLayout][momapy.sbgn.af.TagLayout] or
 [TerminalLayout][momapy.sbgn.af.TerminalLayout].
 """
 
+from momapy.sbgn.layout import (
+    DEFAULT_AUXILIARY_UNIT_FONT_SIZE as DEFAULT_AUXILIARY_UNIT_FONT_SIZE,
+)
+from momapy.sbgn.layout import DEFAULT_FONT_SIZE as DEFAULT_FONT_SIZE
 from momapy.sbgn.af.model import UnitOfInformation as UnitOfInformation
 from momapy.sbgn.af.model import Compartment as Compartment
 from momapy.sbgn.af.model import (
@@ -117,6 +121,8 @@ from momapy.sbgn.af.layout import EquivalenceArcLayout as EquivalenceArcLayout
 from momapy.sbgn.af.map import SBGNAFMap as SBGNAFMap
 
 __all__ = [
+    "DEFAULT_AUXILIARY_UNIT_FONT_SIZE",
+    "DEFAULT_FONT_SIZE",
     "UnitOfInformation",
     "Compartment",
     "MacromoleculeUnitOfInformation",
