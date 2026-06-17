@@ -963,7 +963,7 @@ class _SBGNMLReader(Reader):
                     )
                     sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
                     if terminal_model is not None:
-                        terminal_model.reference = reference_model
+                        terminal_model.referred_element = reference_model
                     if reference_model is not None:
                         reading_context.xml_id_to_model_element.add(
                             sbgnml_equivalence_arc_id,
@@ -1110,7 +1110,7 @@ class _SBGNMLReader(Reader):
                 )
                 sbgnml_equivalence_arc_id = sbgnml_equivalence_arc.get("id")
                 if tag_model is not None:
-                    tag_model.reference = reference_model
+                    tag_model.referred_element = reference_model
                 if reference_model is not None:
                     reading_context.xml_id_to_model_element.add(
                         sbgnml_equivalence_arc_id,

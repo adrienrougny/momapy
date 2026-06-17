@@ -573,8 +573,9 @@ class Tag(SBGNModelElement):
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the tag"}
     )
-    reference: TagReference | None = dataclasses.field(
-        default=None, metadata={"description": "The reference of the tag"}
+    referred_element: TagReference | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The element referred to by the tag"},
     )
 
 
@@ -594,8 +595,9 @@ class Terminal(SBGNAuxiliaryUnit):
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the terminal"}
     )
-    reference: TerminalReference | None = dataclasses.field(
-        default=None, metadata={"description": "The reference of the terminal"}
+    referred_element: TerminalReference | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The element referred to by the terminal"},
     )
 
 

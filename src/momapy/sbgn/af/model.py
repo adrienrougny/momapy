@@ -297,11 +297,11 @@ class Terminal(SBGNModelElement):
 
     Attributes:
         label: The label of the terminal.
-        refers_to: Reference to the terminal target.
+        referred_element: The element referred to by the terminal.
     """
 
     label: str | None = None
-    refers_to: TerminalReference | None = None
+    referred_element: TerminalReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -312,11 +312,11 @@ class Tag(SBGNModelElement):
 
     Attributes:
         label: The label of the tag.
-        refers_to: Reference to the tagged element.
+        referred_element: The element referred to by the tag.
     """
 
     label: str | None = None
-    refers_to: TagReference | None = None
+    referred_element: TagReference | None = None
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)

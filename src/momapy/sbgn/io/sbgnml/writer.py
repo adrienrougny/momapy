@@ -444,9 +444,12 @@ def _collect_model_elements(writing_context):
             _register(layout_el, sbgnml_glyph)
         if hasattr(submap, "terminals"):
             for terminal in submap.terminals:
-                if hasattr(terminal, "reference") and terminal.reference is not None:
+                if (
+                    hasattr(terminal, "referred_element")
+                    and terminal.referred_element is not None
+                ):
                     reference_layout = _get_child_layout_element(
-                        writing_context, terminal.reference, terminal
+                        writing_context, terminal.referred_element, terminal
                     )
                     if reference_layout is not None and isinstance(
                         reference_layout,
@@ -472,9 +475,9 @@ def _collect_model_elements(writing_context):
                 sbgnml_glyph.append(child_glyph)
             add_annotations_and_notes(writing_context, sbgnml_glyph, tag)
             _register(layout_el, sbgnml_glyph)
-        if hasattr(tag, "reference") and tag.reference is not None:
+        if hasattr(tag, "referred_element") and tag.referred_element is not None:
             reference_layout = _get_child_layout_element(
-                writing_context, tag.reference, tag
+                writing_context, tag.referred_element, tag
             )
             if reference_layout is not None and isinstance(
                 reference_layout,

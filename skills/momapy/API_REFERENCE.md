@@ -265,7 +265,7 @@ Purpose: SBGN-PD model classes.
 - **Logical operators**: `LogicalOperator(SBGNModelElement)` (`inputs: frozenset[LogicalOperatorInput]`) → `OrOperator`, `AndOperator`, `NotOperator`. `LogicalOperatorInput(SBGNRole)` — `element: EntityPool | Compartment | LogicalOperator`.
 - **Equivalence operators**: `EquivalenceOperator` (`inputs`, `output`), `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`.
 - **Modulations**: `Modulation(SBGNModelElement)` (`source`, `target`) → `Inhibition`, `Stimulation`. `Stimulation` → `Catalysis`, `NecessaryStimulation`.
-- **Tags/terminals/submaps**: `Tag(SBGNModelElement)` (`label`, `reference`), `TagReference(SBGNRole)`, `Terminal(SBGNAuxiliaryUnit)` (`label`, `reference`), `TerminalReference(SBGNRole)`, `Submap(SBGNModelElement)` (`label`, `terminals`).
+- **Tags/terminals/submaps**: `Tag(SBGNModelElement)` (`label`, `referred_element`), `TagReference(SBGNRole)`, `Terminal(SBGNAuxiliaryUnit)` (`label`, `referred_element`), `TerminalReference(SBGNRole)`, `Submap(SBGNModelElement)` (`label`, `terminals`).
 - **Model**: `SBGNPDModel(SBGNModel)` — `compartments`, `entity_pools`, `processes`, `modulations`, `logical_operators`, `equivalence_operators`, `submaps`, `tags`.
 
 ### `src/momapy/sbgn/pd/layout.py`
@@ -285,7 +285,7 @@ Purpose: SBGN-AF model classes.
 - **Activities**: `Activity(SBGNModelElement)` — `label`, `compartment`; `BiologicalActivity` (+ `units_of_information`), `Phenotype`.
 - **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `element: BiologicalActivity | LogicalOperator`.
 - **Influences**: `Influence(SBGNModelElement)` (`source`, `target: Activity`) → `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`.
-- **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNModelElement)` both use field `refers_to` (AF `Terminal` extends `SBGNModelElement`, unlike PD `Terminal` which extends `SBGNAuxiliaryUnit`); plus `Submap` and the reference roles.
+- **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNModelElement)` both use field `referred_element` (AF `Terminal` extends `SBGNModelElement`, unlike PD `Terminal` which extends `SBGNAuxiliaryUnit`); plus `Submap` and the reference roles.
 - **Model**: `SBGNAFModel(SBGNModel)` — `compartments`, `activities`, `influences`, `logical_operators`, `submaps`, `tags`.
 
 ### `src/momapy/sbgn/af/layout.py`
