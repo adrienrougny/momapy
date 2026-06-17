@@ -534,7 +534,10 @@ class StatefulRenderer(Renderer):
             self.set_current_state(state)
             self.self_restore()
         else:
-            raise Exception("no state to be restored")
+            raise RuntimeError(
+                "restore() called with an empty state stack: no matching "
+                "save() to restore from"
+            )
 
     def get_initial_value(self, attr_name: str) -> typing.Any:
         """Return the initial value for an attribute"""
