@@ -693,7 +693,7 @@ class SBGNPDModel(SBGNModel):
 
         return _check_entities(self.entity_pools)
 
-    def is_submodel(self, other) -> bool:
+    def is_submodel(self, other: "SBGNPDModel") -> bool:
         """Return `true` if another given SBGN-PD model is a submodel of the SBGN-PD model, `false` otherwise"""
         return (
             self.entity_pools.issubset(other.entity_pools)
