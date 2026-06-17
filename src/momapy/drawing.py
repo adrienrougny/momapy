@@ -135,7 +135,7 @@ NoneValue = NoneValueType()
 """A singleton value for type `NoneValueType`."""
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, kw_only=True)
 class FilterEffect(abc.ABC):
     """Abstract base class for filter effects."""
 
