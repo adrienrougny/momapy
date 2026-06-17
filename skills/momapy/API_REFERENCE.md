@@ -152,7 +152,7 @@ Purpose: reader-side helpers; shared base contexts.
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
 
 - `PickleReader(Reader)` — `check_file`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
-- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, **options)`.
+- `PickleWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`.
 
 ---
 

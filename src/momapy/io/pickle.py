@@ -134,16 +134,47 @@ class PickleWriter(Writer):
         cls,
         obj: Map,
         file_path: str | os.PathLike,
-        element_to_annotations=None,
-        element_to_notes=None,
-        source_id_to_model_element=None,
-        source_id_to_layout_element=None,
-        source_id_to_annotations=None,
-        source_id_to_notes=None,
+        element_to_annotations: dict | None = None,
+        element_to_notes: dict | None = None,
+        source_id_to_model_element: dict | None = None,
+        source_id_to_layout_element: dict | None = None,
+        source_id_to_annotations: dict | None = None,
+        source_id_to_notes: dict | None = None,
+        with_annotations: bool = True,
+        with_notes: bool = True,
         **options: typing.Any,
     ) -> WriterResult:
-        """Pickle a `ReaderResult` holding `obj` and its side-tables."""
+        """Pickle a `ReaderResult` holding `obj` and its side-tables.
+
+        Args:
+            obj: The map to pickle.
+            file_path: Destination file path.
+            element_to_annotations: Optional per-element annotation dict.
+            element_to_notes: Optional per-element notes dict.
+            source_id_to_model_element: Optional source id to model
+                element mapping from a `ReaderResult`.
+            source_id_to_layout_element: Optional source id to layout
+                element mapping from a `ReaderResult`.
+            source_id_to_annotations: Optional per-source-id annotations
+                from a `ReaderResult`.
+            source_id_to_notes: Optional per-source-id notes from a
+                `ReaderResult`.
+            with_annotations: Whether to persist annotations. When False,
+                the annotation tables are dropped before pickling.
+            with_notes: Whether to persist notes. When False, the notes
+                tables are dropped before pickling.
+            options: Additional options (accepted and ignored).
+
+        Returns:
+            WriterResult containing the written object and file path.
+        """
         check_parent_dir_exists(file_path)
+        if not with_annotations:
+            element_to_annotations = None
+            source_id_to_annotations = None
+        if not with_notes:
+            element_to_notes = None
+            source_id_to_notes = None
         reader_result = ReaderResult(
             obj=obj,
             element_to_annotations=element_to_annotations,
