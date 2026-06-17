@@ -259,12 +259,13 @@ ride in the same signature.
 ### Public surface
 
 The public I/O surface is exactly: `read`/`write`, `Reader`/`Writer`, the
-`get_*`/`list_*`/`register_*` registry functions, the context dataclasses
-(`ReadingContext`/`WritingContext`), and `ReaderResult`/`WriterResult`. The
-`make_*` functions in the `_reading_*`/`_writing_*`/`reader.py`/`writer.py`
-modules are **internal helpers**, not part of the public contract — they are
-inventoried in `API_REFERENCE.md` for maintainer orientation only and may change
-without a deprecation cycle.
+`get_*`/`list_*`/`register_*` registry functions, and
+`ReaderResult`/`WriterResult`. The context dataclasses
+(`ReadingContext`/`WritingContext`) are **internal** (`momapy.io.utils.__all__`
+is empty), as are the `make_*` functions in the
+`_reading_*`/`_writing_*`/`reader.py`/`writer.py` modules — not part of the
+public contract, inventoried in `API_REFERENCE.md` for maintainer orientation
+only, and may change without a deprecation cycle.
 
 ### Module structure
 
