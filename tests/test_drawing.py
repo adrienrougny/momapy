@@ -22,6 +22,16 @@ def test_none_value_copy():
     assert nv1 is nv3
 
 
+def test_none_value_pickle():
+    """Test NoneValue stays the singleton across a pickle round-trip."""
+    import pickle
+
+    nv = momapy.drawing.NoneValue
+    for protocol in range(pickle.HIGHEST_PROTOCOL + 1):
+        restored = pickle.loads(pickle.dumps(nv, protocol=protocol))
+        assert restored is nv
+
+
 def test_none_value_equality():
     """Test NoneValue equality."""
     nv1 = momapy.drawing.NoneValue

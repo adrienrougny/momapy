@@ -119,6 +119,17 @@ class NoneValueType(object):
     def __hash__(self):
         return id(NoneValue)
 
+    def __reduce__(self):
+        """Pickle to the module-level `NoneValue` singleton.
+
+        Returning the global's name keeps the singleton stable across a
+        pickle round-trip; without it, unpickling builds a fresh
+        `NoneValueType` instance and `value is NoneValue` checks (used in the
+        renderers, writers, and core) silently fail. This mirrors
+        `__copy__`/`__deepcopy__`, which already return `self`.
+        """
+        return "NoneValue"
+
 
 NoneValue = NoneValueType()
 """A singleton value for type `NoneValueType`."""
