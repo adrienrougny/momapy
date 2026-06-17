@@ -56,6 +56,23 @@ from momapy.drawing import Path
 from momapy.drawing import Rectangle as RectangleDrawing
 
 
+__all__ = [
+    "Rectangle",
+    "Ellipse",
+    "Stadium",
+    "Hexagon",
+    "TurnedHexagon",
+    "Parallelogram",
+    "CrossPoint",
+    "Triangle",
+    "Diamond",
+    "Bar",
+    "ArcBarb",
+    "StraightBarb",
+    "To",
+]
+
+
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(Shape):
     """Class for rectangle shapes"""

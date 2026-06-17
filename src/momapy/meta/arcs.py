@@ -67,6 +67,21 @@ from momapy.meta.shapes import To as ToShape
 from momapy.meta.shapes import Triangle as TriangleShape
 
 
+__all__ = [
+    "PolyLine",
+    "Triangle",
+    "ReversedTriangle",
+    "Rectangle",
+    "Ellipse",
+    "Diamond",
+    "Bar",
+    "ArcBarb",
+    "StraightBarb",
+    "To",
+    "DoubleTriangle",
+]
+
+
 @dataclass(frozen=True, kw_only=True)
 class PolyLine(SingleHeadedArc):
     """Class for single-headed arcs with no arrowhead"""

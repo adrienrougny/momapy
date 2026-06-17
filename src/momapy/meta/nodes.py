@@ -59,6 +59,23 @@ from momapy.meta.shapes import Triangle as TriangleShape
 from momapy.meta.shapes import TurnedHexagon as TurnedHexagonShape
 
 
+__all__ = [
+    "Rectangle",
+    "Ellipse",
+    "Stadium",
+    "Hexagon",
+    "TurnedHexagon",
+    "Parallelogram",
+    "CrossPoint",
+    "Triangle",
+    "Diamond",
+    "Bar",
+    "ArcBarb",
+    "StraightBarb",
+    "To",
+]
+
+
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(Node):
     """Class for rectangle nodes"""

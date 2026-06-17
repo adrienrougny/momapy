@@ -7,3 +7,7 @@ each exist in all three), so a flat re-export would force renames. Access
 these classes via their submodule, e.g. ``momapy.meta.shapes.Rectangle``,
 ``momapy.meta.nodes.Rectangle``, ``momapy.meta.arcs.Triangle``.
 """
+
+# Intentionally empty: classes are public via their submodule (see docstring),
+# never re-exported from the package, to avoid name collisions.
+__all__ = []
