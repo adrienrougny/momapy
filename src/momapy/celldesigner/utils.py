@@ -8,6 +8,7 @@ to their content, adjusting arc endpoints, and highlighting layout elements.
 import collections
 import collections.abc
 import math
+import typing
 
 from momapy.builder import (
     Builder,
@@ -925,7 +926,23 @@ def tidy(
     return map_builder
 
 
-def get_info(map_: CellDesignerMap) -> dict:
+class MapLayoutInfo(typing.TypedDict):
+    """Layout dimensions returned in `MapInfo`."""
+
+    width: float
+    height: float
+    elements: int
+
+
+class MapInfo(typing.TypedDict):
+    """Summary of a CellDesigner map returned by `get_info`."""
+
+    map_type: str
+    model: dict[str, int]
+    layout: MapLayoutInfo
+
+
+def get_info(map_: CellDesignerMap) -> MapInfo:
     """Get a summary of the contents of a CellDesigner map.
 
     Returns a dictionary with the map type, model element counts,
@@ -935,7 +952,7 @@ def get_info(map_: CellDesignerMap) -> dict:
         map_: A CellDesigner map.
 
     Returns:
-        A dictionary with keys ``map_type``, ``model``, and ``layout``.
+        A `MapInfo` with keys ``map_type``, ``model``, and ``layout``.
     """
     model = map_.model
     layout = map_.layout

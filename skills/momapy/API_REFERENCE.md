@@ -246,7 +246,7 @@ Functions (all accept `SBGNMap | Builder`, return same):
 - `set_layout_to_fit_content(map_, xsep=0, ysep=0)`
 - `tidy(map_, auxiliary_units_omit_width=False, auxiliary_units_omit_height=True, nodes_xsep=4, nodes_ysep=4, auxiliary_units_xsep=1, auxiliary_units_ysep=1, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0)`
 - `sbgned_tidy(map_)`, `newt_tidy(map_)` — preset parameters.
-- `get_info(map_: SBGNMap) -> dict`
+- `get_info(map_: SBGNMap) -> MapInfo` (a `TypedDict` with `map_type: str`, `model: dict[str, int]`, `layout: MapLayoutInfo`)
 
 ### `src/momapy/sbgn/styling/__init__.py`
 Module-level `StyleSheet` constants: `cs_default`, `cs_black_and_white`, `sbgned`, `newt`, `fs_shadows`.
@@ -408,7 +408,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `set_arcs_to_borders(map_)`
 - `straighten_arcs(map_, angle_tolerance=5.0)`
 - `tidy(map_, modifications_omit_width=False, modifications_omit_height=False, nodes_xsep=4, nodes_ysep=4, modifications_xsep=2, modifications_ysep=2, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0, arcs_angle_tolerance=5.0)`
-- `get_info(map_) -> dict`
+- `get_info(map_: CellDesignerMap) -> MapInfo` (a `TypedDict` with `map_type: str`, `model: dict[str, int]`, `layout: MapLayoutInfo`)
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
 - `CellDesignerReadingContext(ReadingContext)` — adds `cd_complex_alias_id_to_cd_included_species_ids`, `cd_compartment_aliases`, `cd_compartments`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, `real_model_source_ids` / `real_layout_source_ids` (split ID tracking), `canvas_width`, `canvas_height`, `cd_degraded_alias_ids`, `cd_degraded_species_ids`.

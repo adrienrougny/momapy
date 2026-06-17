@@ -7,6 +7,7 @@ adjusting arc endpoints, and applying various layout optimizations.
 
 import collections
 import collections.abc
+import typing
 
 from momapy.positioning import fit
 from momapy.positioning import set_fit
@@ -748,7 +749,23 @@ def newt_tidy(
     )
 
 
-def get_info(map_: SBGNMap) -> dict:
+class MapLayoutInfo(typing.TypedDict):
+    """Layout dimensions returned in `MapInfo`."""
+
+    width: float
+    height: float
+    elements: int
+
+
+class MapInfo(typing.TypedDict):
+    """Summary of an SBGN map returned by `get_info`."""
+
+    map_type: str
+    model: dict[str, int]
+    layout: MapLayoutInfo
+
+
+def get_info(map_: SBGNMap) -> MapInfo:
     """Get a summary of the contents of an SBGN map.
 
     Returns a dictionary with the map type, model element counts,
@@ -758,7 +775,7 @@ def get_info(map_: SBGNMap) -> dict:
         map_: An SBGN map.
 
     Returns:
-        A dictionary with keys ``map_type``, ``model``, and ``layout``.
+        A `MapInfo` with keys ``map_type``, ``model``, and ``layout``.
 
     Raises:
         ValueError: If the model type is not recognized.
