@@ -11,5 +11,5 @@ from momapy.sbgn.pd.model import SBGNPDModel
 class SBGNPDMap(SBGNMap):
     """Class for SBGN-PD maps"""
 
-    model: SBGNPDModel
-    layout: SBGNPDLayout
+    model: SBGNPDModel | None = None
+    layout: SBGNPDLayout | None = None
