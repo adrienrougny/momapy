@@ -36,6 +36,7 @@ multidicts expose the same read surface -- a ``Mapping[str, frozenset]``
 import collections.abc
 import dataclasses
 import os
+import typing
 import uuid
 import types
 
@@ -556,8 +557,17 @@ def pretty_print(obj, max_depth=0, exclude_cls=None, _depth=0, _indent=0):
             )
 
 
-def get_element_from_collection(element, collection):
+_T = typing.TypeVar("_T")
+
+
+def get_element_from_collection(
+    element: _T, collection: collections.abc.Iterable[_T]
+) -> _T | None:
     """Find and return an element from a collection using equality.
+
+    Matching is by equality (``==``), not identity: the returned element
+    is the one already in ``collection`` that compares equal to
+    ``element``, which may be a distinct object.
 
     Args:
         element: The element to search for.
@@ -579,8 +589,12 @@ def get_element_from_collection(element, collection):
     return None
 
 
-def get_or_return_element_from_collection(element, collection):
+def get_or_return_element_from_collection(
+    element: _T, collection: collections.abc.Iterable[_T]
+) -> _T:
     """Get existing element from collection or return the input element.
+
+    Matching is by equality (``==``), not identity.
 
     Args:
         element: The element to search for.
@@ -603,12 +617,18 @@ def get_or_return_element_from_collection(element, collection):
     return element
 
 
-def add_or_replace_element_in_set(element, set_, func=None, cache=None):
+def add_or_replace_element_in_set(
+    element: _T,
+    set_: set[_T],
+    func: collections.abc.Callable[[_T, _T], bool] | None = None,
+    cache: dict[_T, _T] | None = None,
+) -> _T:
     """Add element to set or replace existing element based on condition.
 
-    If the element doesn't exist in the set, it is added. If it exists
-    and a comparison function is provided, the existing element may be
-    replaced if the function returns True.
+    Membership is tested by equality (``==``), not identity. If the
+    element doesn't exist in the set, it is added. If it exists and a
+    comparison function is provided, the existing element may be replaced
+    if the function returns True.
 
     Args:
         element: The element to add or replace with.
