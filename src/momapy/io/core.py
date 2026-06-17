@@ -411,7 +411,7 @@ class Writer(abc.ABC):
         cls,
         obj: typing.Any,
         file_path: str | os.PathLike,
-        **options,
+        **options: typing.Any,
     ) -> WriterResult:
         """Write an object to a file.
 
