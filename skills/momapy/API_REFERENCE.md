@@ -464,7 +464,10 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 ## SBML (`src/momapy/sbml/`)
 
 ### `src/momapy/sbml/__init__.py`
-Re-exports: `SBMLModelElement`, `BiomodelQualifier`, `BQBiol`, `BQModel`, `Compartment`, `ModifierSpeciesReference`, `RDFAnnotation`, `Reaction`, `SBML`, `SBMLModel`, `SimpleSpeciesReference`, `Species`, `SpeciesReference`.
+Re-exports: `SBMLModelElement`, `SBMLMap`, `BiomodelQualifier`, `BQBiol`, `BQModel`, `Compartment`, `ModifierSpeciesReference`, `RDFAnnotation`, `Reaction`, `SBML`, `SBMLModel`, `SimpleSpeciesReference`, `Species`, `SpeciesReference`.
+
+### `src/momapy/sbml/map.py`
+- `SBMLMap(Map)` — `model: SBMLModel | None = None`. Model only; SBML has no layout, so the inherited `layout` / `layout_model_mapping` are always `None`.
 
 ### `src/momapy/sbml/elements.py`
 - `SBMLModelElement(ModelElement)` — abstract; `name: str | None`, `sbo_term: str | None`, `metaid: str | None` (`compare=False, hash=False`). **(Formerly named `SBase`; renamed so that `Model` is never a `ModelElement` — see `tests/test_io_mappings.py`.)**
@@ -479,20 +482,21 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Root**: `SBML(SBMLModelElement)` — `xmlns`, `level=3`, `version=2`, `model: SBMLModel | None`.
 
 ### `src/momapy/sbml/io/sbml/reader.py`
-- `ReadingContext` — `sbml_model`, `model`, `sbml_id_to_model_element`, `sbml_id_to_sbml_element`, `element_to_annotations`, `element_to_notes`, `map_element_to_ids`, `with_annotations`, `with_notes`.
-- `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, with_annotations=True, with_notes=True, **options) -> ReaderResult`.
+- `SBMLReadingContext(momapy.io.utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution), `sbml_id_to_sbml_element`.
+- `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options) -> ReaderResult`. `return_type="map"` returns an `SBMLMap` (layout `None`), `"model"` returns the `SBMLModel`, `"layout"` raises `NotImplementedError`. Also `_make_empty_map`/`_make_empty_model` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/CellDesigner).
 
-### `src/momapy/sbml/io/sbml/_model.py` (`make_*`)
-- `make_annotations(rdf) -> list[RDFAnnotation]`, `make_notes(notes_element) -> list[str]`
+### `src/momapy/sbml/io/sbml/_reading_model.py` (`make_*` internal helpers)
+- `make_annotations(rdf) -> list[RDFAnnotation]`, `make_notes(notes_element) -> list[str]` (shared with SBGN-ML/CellDesigner readers)
 - `make_annotations_from_element(sbml_element)`, `make_notes_from_element(sbml_element)`
-- `make_empty_model(sbml_element)`
-- `make_compartment(sbml_compartment, model)`
-- `make_species(sbml_species, model, sbml_id_to_model_element)`
-- `make_reaction(sbml_reaction, model)`
-- `make_species_reference(sbml_species_reference, model, sbml_id_to_model_element)`
-- `make_modifier_species_reference(sbml_modifier_species_reference, model, sbml_id_to_model_element)`
+- `make_and_add_annotations_and_notes(reading_context, sbml_element, model_element, source_id=None)`
+- `register_model_element(reading_context, model_element, collection, id_)` — id-based dedup + records in `reading_context.sbml_id_to_model_element`
+- `make_compartment(reading_context, sbml_compartment)`
+- `make_species(reading_context, sbml_species)`
+- `make_reaction(reading_context, sbml_reaction)`
+- `make_species_reference(reading_context, sbml_species_reference)`
+- `make_modifier_species_reference(reading_context, sbml_modifier_species_reference)`
 
-### `src/momapy/sbml/io/sbml/_parsing.py`
+### `src/momapy/sbml/io/sbml/_reading_parsing.py`
 - `_RDF_NAMESPACE` constant.
 - `get_prefix_and_name(tag)`, `get_description(rdf)`, `get_bags(bq_element)`, `get_list_items(bag)`
 - `get_annotation(sbml_element)`, `get_species(sbml_model)`, `get_reactions(sbml_model)`, `get_compartments(sbml_model)`, `get_reactants(sbml_reaction)`, `get_products(sbml_reaction)`, `get_modifiers(sbml_reaction)`, `get_notes(sbml_element)`, `get_rdf(sbml_element)`

@@ -236,7 +236,25 @@ Every `LayoutElement` (frozen dataclass) must implement:
 
 ## I/O Architecture
 
-Readers and writers for each format (SBGN-ML, CellDesigner) follow a shared architecture.
+Readers and writers for each format (SBGN-ML, CellDesigner, SBML) follow a shared architecture.
+
+### `read()` return contract
+
+The shape of `read(...).obj` is governed by the universal `return_type` option,
+uniformly across **every** format:
+
+- `return_type="map"` (default) → a `Map`. This is the uniform default; a
+  layout-less format (SBML) returns a `Map` with `layout=None` /
+  `layout_model_mapping=None` (SBML's `SBMLMap`).
+- `return_type="model"` → the bare `Model`.
+- `return_type="layout"` → the `Layout`; a layout-less format (SBML) raises
+  `NotImplementedError`.
+
+Every concrete `read` accepts the same universal options — `return_type`,
+`with_model`, `with_layout`, `with_annotations`, `with_notes` (all typed,
+defaulting to `"map"`/`True`) — plus a trailing `**options` so unknown keywords
+are accepted and ignored. Format-specific extras (e.g. SBGN-ML's `xsep`/`ysep`)
+ride in the same signature.
 
 ### Public surface
 

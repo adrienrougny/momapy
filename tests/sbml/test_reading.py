@@ -2,6 +2,9 @@
 
 import pytest
 import os
+import momapy.core.map
+import momapy.io.core
+import momapy.sbml.map
 import momapy.sbml.model
 import momapy.sbml.io.sbml.reader
 import frozendict
@@ -26,20 +29,63 @@ class TestSBMLReading:
 
     @pytest.mark.parametrize("filename", SBML_FILES)
     def test_read_sbml_file(self, filename):
-        """Test that each SBML file can be read without error."""
+        """Test that each SBML file reads into an SBMLMap with no layout."""
         path = os.path.join(SBML_MODELS_DIR, filename)
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(path)
         assert result is not None
         assert result.obj is not None
-        assert isinstance(result.obj, momapy.sbml.model.SBMLModel)
+        assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
+        assert isinstance(result.obj.model, momapy.sbml.model.SBMLModel)
+        assert result.obj.layout is None
+        assert result.obj.layout_model_mapping is None
 
     @pytest.mark.parametrize("filename", SBML_FILES)
     def test_read_produces_model_with_content(self, filename):
         """Test that each SBML file produces a model with compartments/species/reactions."""
         path = os.path.join(SBML_MODELS_DIR, filename)
         result = momapy.sbml.io.sbml.reader.SBMLReader.read(path)
-        model = result.obj
+        model = result.obj.model
         assert len(model.compartments) > 0 or len(model.species) > 0
+
+    @pytest.mark.parametrize("filename", SBML_FILES)
+    def test_return_type_model(self, filename):
+        """return_type='model' returns the bare SBMLModel."""
+        path = os.path.join(SBML_MODELS_DIR, filename)
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(path, return_type="model")
+        assert isinstance(result.obj, momapy.sbml.model.SBMLModel)
+
+    @pytest.mark.parametrize("filename", SBML_FILES)
+    def test_return_type_map_without_model(self, filename):
+        """return_type='map' with with_model=False yields a map with model None."""
+        path = os.path.join(SBML_MODELS_DIR, filename)
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(path, with_model=False)
+        assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
+        assert result.obj.model is None
+
+    def test_return_type_layout_raises(self):
+        """return_type='layout' raises NotImplementedError (SBML has no layout)."""
+        if not SBML_FILES:
+            pytest.skip("No SBML test files found")
+        path = os.path.join(SBML_MODELS_DIR, SBML_FILES[0])
+        with pytest.raises(NotImplementedError):
+            momapy.sbml.io.sbml.reader.SBMLReader.read(path, return_type="layout")
+
+    def test_unknown_option_is_ignored(self):
+        """Unknown keyword options are accepted and ignored."""
+        if not SBML_FILES:
+            pytest.skip("No SBML test files found")
+        path = os.path.join(SBML_MODELS_DIR, SBML_FILES[0])
+        result = momapy.sbml.io.sbml.reader.SBMLReader.read(path, bogus_option=123)
+        assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
+
+    def test_read_via_dispatcher_returns_map(self):
+        """The generic read() dispatcher returns an SBMLMap for SBML files."""
+        if not SBML_FILES:
+            pytest.skip("No SBML test files found")
+        path = os.path.join(SBML_MODELS_DIR, SBML_FILES[0])
+        result = momapy.io.core.read(path)
+        assert isinstance(result.obj, momapy.core.map.Map)
+        assert isinstance(result.obj, momapy.sbml.map.SBMLMap)
 
 
 class TestSBMLReadOptionalParameters:
@@ -146,7 +192,7 @@ class TestSBMLAnnotationsContent:
         assert len(model_annots) > 0
 
     def test_annotations_span_multiple_element_types(self, result):
-        """Test that annotations cover compartments, species, reactions, and the model."""
+        """Test that annotations cover compartments, species, reactions, and the map."""
         types_with_annotations = {
             type(elem).__name__
             for elem, annots in result.element_to_annotations.items()
@@ -155,7 +201,9 @@ class TestSBMLAnnotationsContent:
         assert "Compartment" in types_with_annotations
         assert "Species" in types_with_annotations
         assert "Reaction" in types_with_annotations
-        assert "SBMLModel" in types_with_annotations
+        # Map-level annotations attach to the returned SBMLMap (default
+        # return_type="map"), not the SBMLModel.
+        assert "SBMLMap" in types_with_annotations
 
 
 class TestSBMLNotesContent:
@@ -221,4 +269,6 @@ class TestSBMLNotesContent:
             if notes
         }
         assert "Reaction" in types_with_notes
-        assert "SBMLModel" in types_with_notes
+        # Map-level notes attach to the returned SBMLMap (default
+        # return_type="map"), not the SBMLModel.
+        assert "SBMLMap" in types_with_notes
