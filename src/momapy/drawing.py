@@ -226,24 +226,24 @@ class DropShadowEffect(FilterEffect):
 class FilterEffectInput(enum.Enum):
     """Filter effect input types."""
 
-    SOURCE_GRAPHIC = 0
-    SOURCE_ALPHA = 1
-    BACKGROUND_IMAGE = 2
-    BACKGROUND_ALPHA = 3
-    FILL_PAINT = 4
-    STROKE_PAINT = 5
+    SOURCE_GRAPHIC = "SOURCE_GRAPHIC"
+    SOURCE_ALPHA = "SOURCE_ALPHA"
+    BACKGROUND_IMAGE = "BACKGROUND_IMAGE"
+    BACKGROUND_ALPHA = "BACKGROUND_ALPHA"
+    FILL_PAINT = "FILL_PAINT"
+    STROKE_PAINT = "STROKE_PAINT"
 
 
 class CompositionOperator(enum.Enum):
     """Composition operators for filter effects."""
 
-    OVER = 0
-    IN = 1
-    OUT = 2
-    ATOP = 3
-    XOR = 4
-    LIGHTER = 5
-    ARITHMETIC = 6
+    OVER = "OVER"
+    IN = "IN"
+    OUT = "OUT"
+    ATOP = "ATOP"
+    XOR = "XOR"
+    LIGHTER = "LIGHTER"
+    ARITHMETIC = "ARITHMETIC"
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -314,8 +314,8 @@ class FloodEffect(FilterEffect):
 class EdgeMode(enum.Enum):
     """Edge mode for blur effects."""
 
-    DUPLICATE = 0
-    WRAP = 1
+    DUPLICATE = "DUPLICATE"
+    WRAP = "WRAP"
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -351,8 +351,8 @@ class OffsetEffect(FilterEffect):
 class FilterUnits(enum.Enum):
     """Units for filter regions."""
 
-    USER_SPACE_ON_USE = 0
-    OBJECT_BOUNDING_BOX = 1
+    USER_SPACE_ON_USE = "USER_SPACE_ON_USE"
+    OBJECT_BOUNDING_BOX = "OBJECT_BOUNDING_BOX"
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
