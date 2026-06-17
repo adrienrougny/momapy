@@ -7,6 +7,7 @@ there is no writer. Do not rely on it for round-tripping SBML files.
 """
 
 from momapy.sbml.elements import SBMLModelElement as SBMLModelElement
+from momapy.sbml.map import SBMLMap as SBMLMap
 from momapy.sbml.model import BiomodelQualifier as BiomodelQualifier
 from momapy.sbml.model import BQBiol as BQBiol
 from momapy.sbml.model import BQModel as BQModel
@@ -22,6 +23,7 @@ from momapy.sbml.model import SpeciesReference as SpeciesReference
 
 __all__ = [
     "SBMLModelElement",
+    "SBMLMap",
     "BiomodelQualifier",
     "BQBiol",
     "BQModel",

@@ -41,5 +41,11 @@ class Map(MapElement):
         self,
         map_element: "MapElement",
     ):
-        """Return the layout elements mapped to the given model element"""
+        """Return the layout elements mapped to the given model element.
+
+        Returns `None` when the map has no `layout_model_mapping` (for
+        example a layout-less map such as one read from SBML).
+        """
+        if self.layout_model_mapping is None:
+            return None
         return self.layout_model_mapping.get_mapping(map_element)
