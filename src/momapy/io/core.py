@@ -222,11 +222,28 @@ def read(
     CellDesigner file is also a valid SBML file, so the CellDesigner reader is
     registered (and therefore checked) before the SBML reader.
 
+    Return contract: the shape of `result.obj` is governed by the universal
+    `return_type` option, uniformly across every format:
+
+    - `return_type="map"` (the default) returns a `Map`. This is the uniform
+      default for all formats; a layout-less format (SBML) returns a `Map`
+      with `layout=None` and `layout_model_mapping=None`.
+    - `return_type="model"` returns the bare `Model`.
+    - `return_type="layout"` returns the `Layout`; a layout-less format (SBML)
+      raises `NotImplementedError`.
+
+    Universal options accepted by every reader (with these defaults):
+    `return_type="map"`, `with_model=True`, `with_layout=True`,
+    `with_annotations=True`, `with_notes=True`. Unknown keyword options are
+    accepted and ignored. Some formats accept extra options (for example the
+    SBGN-ML reader's `xsep`/`ysep`).
+
     Args:
         file_path: Path of the file to read.
         reader: Name of registered reader to use (e.g., "sbgnml"). If None,
             auto-detects based on file format.
-        options: Additional options passed to the reader.
+        options: Additional options passed to the reader (see the universal
+            option set above, plus any format-specific options).
 
     Returns:
         ReaderResult containing the read object and metadata.
@@ -314,9 +331,24 @@ class Reader(abc.ABC):
     def read(cls, file_path: str | os.PathLike, **options: typing.Any) -> ReaderResult:
         """Read a file and return the result.
 
+        Concrete readers accept the universal option set with these names,
+        types, and defaults, plus a trailing `**options` so unknown keywords
+        are accepted and ignored:
+
+        - `return_type: Literal["map", "model", "layout"] = "map"` — the shape
+          of `result.obj`. `"map"` returns a `Map` (the uniform default for
+          every format), `"model"` returns the `Model`, `"layout"` returns the
+          `Layout`. A layout-less format (SBML) raises `NotImplementedError`
+          for `"layout"` and returns a `Map` with `layout=None` for `"map"`.
+        - `with_model: bool = True` — whether to build the model.
+        - `with_layout: bool = True` — whether to build the layout (no effect
+          on layout-less formats).
+        - `with_annotations: bool = True` — whether to read annotations.
+        - `with_notes: bool = True` — whether to read notes.
+
         Args:
             file_path: Path of the file to read.
-            options: Reader-specific options.
+            options: Reader-specific options (see the universal set above).
 
         Returns:
             ReaderResult containing the read object.

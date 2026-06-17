@@ -685,10 +685,10 @@ class CellDesignerReader(Reader):
         cls,
         file_path: str | os.PathLike,
         return_type: typing.Literal["map", "model", "layout"] = "map",
-        with_model=True,
-        with_layout=True,
-        with_annotations=True,
-        with_notes=True,
+        with_model: bool = True,
+        with_layout: bool = True,
+        with_annotations: bool = True,
+        with_notes: bool = True,
         **options: typing.Any,
     ) -> ReaderResult:
         """Read a CellDesigner file and return a reader result object"""
@@ -729,10 +729,10 @@ class CellDesignerReader(Reader):
         cls,
         cd_model,
         return_type: typing.Literal["map", "model", "layout"] = "map",
-        with_model=True,
-        with_layout=True,
-        with_annotations=True,
-        with_notes=True,
+        with_model: bool = True,
+        with_layout: bool = True,
+        with_annotations: bool = True,
+        with_notes: bool = True,
     ):
         if return_type == "model" or return_type == "map" and with_model:
             model = _reading_model.make_empty_model(cd_model)
