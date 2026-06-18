@@ -681,8 +681,16 @@ class CellDesignerReader(Reader):
                     real_model_ids.add(metaid)
 
     @classmethod
-    def check_file(cls, file_path: str | os.PathLike):
-        """Return `true` if the file is a CellDesigner file, `false` otherwise"""
+    def check_file(cls, file_path: str | os.PathLike) -> bool:
+        """Return `True` if the file is a CellDesigner file.
+
+        Args:
+            file_path: Path of the file to check.
+
+        Returns:
+            `True` if the file references the CellDesigner namespace, `False`
+            otherwise.
+        """
         try:
             with open(file_path) as f:
                 for line in f:
@@ -703,7 +711,27 @@ class CellDesignerReader(Reader):
         with_notes: bool = True,
         **options: typing.Any,
     ) -> ReaderResult:
-        """Read a CellDesigner file and return a reader result object"""
+        """Read a CellDesigner file and return a reader result object.
+
+        Args:
+            file_path: Path of the CellDesigner file to read.
+            return_type: Shape of `result.obj`: `"map"` (default) returns a
+                CellDesigner map, `"model"` returns the bare model, `"layout"`
+                returns the bare layout.
+            with_model: Whether to build the model. When `False` and
+                `return_type="map"`, the map's `model` is `None`. Defaults to
+                `True`.
+            with_layout: Whether to build the layout. When `False` and
+                `return_type="map"`, the map's `layout` is `None`. Defaults to
+                `True`.
+            with_annotations: Whether to read annotations. Defaults to `True`.
+            with_notes: Whether to read notes. Defaults to `True`.
+            options: Additional reader-specific options (ignored).
+
+        Returns:
+            A `ReaderResult` whose `obj` is a map, model, or layout depending
+            on `return_type`.
+        """
         cd_document = lxml.objectify.parse(file_path)
         cd_sbml = cd_document.getroot()
         (

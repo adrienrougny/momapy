@@ -67,7 +67,14 @@ class PickleReader(Reader):
 
     @classmethod
     def check_file(cls, file_path: str | os.PathLike) -> bool:
-        """Return True if `file_path` contains a valid pickle stream."""
+        """Return `True` if the file contains a valid pickle stream.
+
+        Args:
+            file_path: Path of the file to check.
+
+        Returns:
+            `True` if the file can be unpickled, `False` otherwise.
+        """
         with open(file_path, "rb") as f:
             try:
                 pickle.load(f)
@@ -86,7 +93,26 @@ class PickleReader(Reader):
         with_notes: bool = True,
         **options: typing.Any,
     ) -> ReaderResult:
-        """Load a pickled `ReaderResult` and project it per the flags."""
+        """Load a pickled `ReaderResult` and project it per the flags.
+
+        Args:
+            file_path: Path of the pickle file to read.
+            return_type: Shape of `result.obj`: `"map"` (default) returns the
+                pickled map, `"model"` returns its model, `"layout"` returns
+                its layout.
+            with_model: Whether to keep the model. When `False` and
+                `return_type="map"`, the map's `model` is set to `None`.
+                Defaults to `True`.
+            with_layout: Whether to keep the layout. When `False` and
+                `return_type="map"`, the map's `layout` is set to `None`.
+                Defaults to `True`.
+            with_annotations: Whether to keep annotations. Defaults to `True`.
+            with_notes: Whether to keep notes. Defaults to `True`.
+            options: Additional reader-specific options (ignored).
+
+        Returns:
+            The unpickled `ReaderResult`, projected per the flags.
+        """
         with open(file_path, "rb") as f:
             reader_result = pickle.load(f)
         if not with_annotations:

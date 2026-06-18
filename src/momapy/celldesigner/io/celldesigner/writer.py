@@ -4585,6 +4585,7 @@ class CellDesignerWriter(Writer):
                 ReaderResult.
             with_annotations: Whether to write annotations.
             with_notes: Whether to write notes.
+            options: Additional options (accepted and ignored).
 
         Returns:
             WriterResult.

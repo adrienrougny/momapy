@@ -205,8 +205,31 @@ class _SBGNMLReader(Reader):
         ysep: float = 0,
         **options: typing.Any,
     ) -> ReaderResult:
-        """Read an SBGN-ML file and return a reader result object"""
+        """Read an SBGN-ML file and return a reader result object.
 
+        Args:
+            file_path: Path of the SBGN-ML file to read.
+            return_type: Shape of `result.obj`: `"map"` (default) returns an
+                SBGN map, `"model"` returns the bare model, `"layout"` returns
+                the bare layout.
+            with_model: Whether to build the model. When `False` and
+                `return_type="map"`, the map's `model` is `None`. Defaults to
+                `True`.
+            with_layout: Whether to build the layout. When `False` and
+                `return_type="map"`, the map's `layout` is `None`. Defaults to
+                `True`.
+            with_annotations: Whether to read annotations. Defaults to `True`.
+            with_notes: Whether to read notes. Defaults to `True`.
+            xsep: Extra horizontal separation added around active nodes when
+                computing layout. Defaults to `0`.
+            ysep: Extra vertical separation added around active nodes when
+                computing layout. Defaults to `0`.
+            options: Additional reader-specific options (ignored).
+
+        Returns:
+            A `ReaderResult` whose `obj` is a map, model, or layout depending
+            on `return_type`.
+        """
         sbgnml_document = lxml.objectify.parse(file_path)
         sbgnml_sbgn = sbgnml_document.getroot()
         (
@@ -1798,8 +1821,16 @@ class SBGNML0_2Reader(_SBGNMLReader):
         return key
 
     @classmethod
-    def check_file(cls, file_path):
-        """Return `true` if the given file is an SBGN-ML 0.2 document, `false` otherwise"""
+    def check_file(cls, file_path: str | os.PathLike) -> bool:
+        """Return `True` if the file is an SBGN-ML 0.2 document.
+
+        Args:
+            file_path: Path of the file to check.
+
+        Returns:
+            `True` if the file references the SBGN-ML 0.2 namespace, `False`
+            otherwise.
+        """
         try:
             with open(file_path) as f:
                 for line in f:
@@ -1827,8 +1858,16 @@ class SBGNML0_3Reader(_SBGNMLReader):
             return SBGNML0_2Reader._get_map_key(sbgnml_map)
 
     @classmethod
-    def check_file(cls, file_path):
-        """Return `true` if the given file is an SBGN-ML 0.3 document, `false` otherwise"""
+    def check_file(cls, file_path: str | os.PathLike) -> bool:
+        """Return `True` if the file is an SBGN-ML 0.3 document.
+
+        Args:
+            file_path: Path of the file to check.
+
+        Returns:
+            `True` if the file references the SBGN-ML 0.3 namespace, `False`
+            otherwise.
+        """
         try:
             with open(file_path) as f:
                 for line in f:
