@@ -13,7 +13,18 @@ from momapy.sbgn.model import SBGNModel
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariable(SBGNAuxiliaryUnit):
-    """Class for state variables"""
+    """State variable of an entity pool.
+
+    State variables describe the state of a residue of an entity pool, such as
+    a phosphorylation site.
+
+    Attributes:
+        variable: The variable of the state variable.
+        value: The value of the state variable.
+        order: The order of the state variable. This is used to distinguish
+            between two or more state variables with undefined variable (i.e.,
+            set to `None`).
+    """
 
     variable: str | None = dataclasses.field(
         default=None, metadata={"description": "The variable of the state variable"}
@@ -31,7 +42,15 @@ class StateVariable(SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformation(SBGNAuxiliaryUnit):
-    """Class for units of information"""
+    """Unit of information of an entity pool or compartment.
+
+    Units of information provide additional, typically free-text, information
+    about the element they annotate.
+
+    Attributes:
+        value: The value of the unit of information.
+        prefix: The prefix of the unit of information.
+    """
 
     value: str = dataclasses.field(
         metadata={"description": "The value of the unit of information"},
@@ -44,7 +63,13 @@ class UnitOfInformation(SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Subunit(SBGNAuxiliaryUnit):
-    """Base class for subunits"""
+    """Subunit of a complex.
+
+    Subunits are the constituent entities that make up a complex.
+
+    Attributes:
+        label: The label of the subunit.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the subunit"}
@@ -53,14 +78,26 @@ class Subunit(SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntitySubunit(Subunit):
-    """Class for unspecified entity subunits"""
+    """Unspecified entity subunit of a complex.
+
+    Used when the class of the subunit entity is unknown or deliberately
+    abstract.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeSubunit(Subunit):
-    """Class for macromolecule subunits"""
+    """Macromolecule subunit of a complex.
+
+    Represents a macromolecule (protein, gene, RNA, etc.) acting as a subunit.
+
+    Attributes:
+        state_variables: The state variables of the macromolecule subunit.
+        units_of_information: The units of information of the macromolecule
+            subunit.
+    """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset,
@@ -76,7 +113,16 @@ class MacromoleculeSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureSubunit(Subunit):
-    """Class for nucleic acid feature subunits"""
+    """Nucleic acid feature subunit of a complex.
+
+    Represents a nucleic acid feature (gene, RNA, etc.) acting as a subunit.
+
+    Attributes:
+        state_variables: The state variables of the nucleic acid feature
+            subunit.
+        units_of_information: The units of information of the nucleic acid
+            feature subunit.
+    """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset,
@@ -94,7 +140,15 @@ class NucleicAcidFeatureSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalSubunit(Subunit):
-    """Class for simple chemical subunits"""
+    """Simple chemical subunit of a complex.
+
+    Represents a simple chemical (small molecule) acting as a subunit.
+
+    Attributes:
+        state_variables: The state variables of the simple chemical subunit.
+        units_of_information: The units of information of the simple chemical
+            subunit.
+    """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset,
@@ -110,7 +164,15 @@ class SimpleChemicalSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexSubunit(Subunit):
-    """Class for complex subunits"""
+    """Complex subunit of a complex.
+
+    Represents a complex acting as a subunit of another complex.
+
+    Attributes:
+        state_variables: The state variables of the complex subunit.
+        units_of_information: The units of information of the complex subunit.
+        subunits: The subunits of the complex subunit.
+    """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
         default_factory=frozenset,
@@ -128,7 +190,13 @@ class ComplexSubunit(Subunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MultimerSubunit(ComplexSubunit):
-    """Base class for multimer subunits"""
+    """Multimer subunit of a complex.
+
+    A multimer is an aggregate of identical entities, with a given cardinality.
+
+    Attributes:
+        cardinality: The cardinality of the multimer subunit.
+    """
 
     cardinality: int | None = dataclasses.field(
         default=None,
@@ -138,35 +206,56 @@ class MultimerSubunit(ComplexSubunit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimerSubunit(MultimerSubunit):
-    """Class for macromolecule multimer subunits"""
+    """Macromolecule multimer subunit of a complex.
+
+    A multimer of identical macromolecules acting as a subunit.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimerSubunit(MultimerSubunit):
-    """Class for nucleic acid feature multimer subunits"""
+    """Nucleic acid feature multimer subunit of a complex.
+
+    A multimer of identical nucleic acid features acting as a subunit.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimerSubunit(MultimerSubunit):
-    """Class for simple chemical multimer subunits"""
+    """Simple chemical multimer subunit of a complex.
+
+    A multimer of identical simple chemicals acting as a subunit.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimerSubunit(MultimerSubunit):
-    """Class for complex subunits"""
+    """Complex multimer subunit of a complex.
+
+    A multimer of identical complexes acting as a subunit.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Compartment(SBGNModelElement):
-    """Class for compartments"""
+    """Compartment in an SBGN-PD map.
+
+    Compartments represent distinct spatial regions in which entity pools are
+    located.
+
+    Attributes:
+        label: The label of the compartment.
+        state_variables: The state variables of the compartment.
+        units_of_information: The units of information of the compartment.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the compartment"}
@@ -183,7 +272,14 @@ class Compartment(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EntityPool(SBGNModelElement):
-    """Base class for entity pools"""
+    """Entity pool in an SBGN-PD map.
+
+    An entity pool is a population of entities that are considered equivalent
+    for the purpose of the map.
+
+    Attributes:
+        compartment: The compartment of the entity pool.
+    """
 
     compartment: Compartment | None = dataclasses.field(
         default=None, metadata={"description": "The compartment of the entity pool"}
@@ -192,7 +288,14 @@ class EntityPool(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbingAgent(EntityPool):
-    """Class for perturbing agents"""
+    """Perturbing agent entity pool.
+
+    Denotes an external influence (drug, stimulus, mutation) acting on the
+    system.
+
+    Attributes:
+        label: The label of the perturbing agent.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the perturbing agent"}
@@ -201,7 +304,13 @@ class PerturbingAgent(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntity(EntityPool):
-    """Class for unspecified entities"""
+    """Unspecified entity pool.
+
+    Used when the class of the entity is unknown or deliberately abstract.
+
+    Attributes:
+        label: The label of the unspecified entity.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the unspecified entity"}
@@ -210,7 +319,15 @@ class UnspecifiedEntity(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Macromolecule(EntityPool):
-    """Class for macromolecules"""
+    """Macromolecule entity pool.
+
+    Represents a macromolecule such as a protein, gene, or RNA.
+
+    Attributes:
+        label: The label of the macromolecule.
+        state_variables: The state variables of the macromolecule.
+        units_of_information: The units of information of the macromolecule.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the macromolecule"}
@@ -227,7 +344,16 @@ class Macromolecule(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeature(EntityPool):
-    """Class for nucleic acid features"""
+    """Nucleic acid feature entity pool.
+
+    Represents a nucleic acid feature such as a gene or an RNA.
+
+    Attributes:
+        label: The label of the nucleic acid feature.
+        state_variables: The state variables of the nucleic acid feature.
+        units_of_information: The units of information of the nucleic acid
+            feature.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the nucleic acid feature"}
@@ -246,7 +372,15 @@ class NucleicAcidFeature(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemical(EntityPool):
-    """Class for simple chemical"""
+    """Simple chemical entity pool.
+
+    Represents a simple chemical such as a small molecule or an ion.
+
+    Attributes:
+        label: The label of the simple chemical.
+        state_variables: The state variables of the simple chemical.
+        units_of_information: The units of information of the simple chemical.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the simple chemical"}
@@ -263,7 +397,16 @@ class SimpleChemical(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Complex(EntityPool):
-    """Class for complexes"""
+    """Complex entity pool.
+
+    Represents a complex made up of subunits bound together.
+
+    Attributes:
+        label: The label of the complex.
+        state_variables: The state variables of the complex.
+        units_of_information: The units of information of the complex.
+        subunits: The subunits of the complex.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the complex"}
@@ -284,7 +427,13 @@ class Complex(EntityPool):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Multimer(Complex):
-    """Base class for multimers"""
+    """Multimer entity pool.
+
+    A multimer is an aggregate of identical entities, with a given cardinality.
+
+    Attributes:
+        cardinality: The cardinality of the multimer.
+    """
 
     cardinality: int | None = dataclasses.field(
         default=None, metadata={"description": "The cardinality of the multimer"}
@@ -293,35 +442,55 @@ class Multimer(Complex):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimer(Multimer):
-    """Class for macromolecule multimers"""
+    """Macromolecule multimer entity pool.
+
+    A multimer of identical macromolecules.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimer(Multimer):
-    """Class for nucleic acid feature multimers"""
+    """Nucleic acid feature multimer entity pool.
+
+    A multimer of identical nucleic acid features.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimer(Multimer):
-    """Class for simple chemical multimers"""
+    """Simple chemical multimer entity pool.
+
+    A multimer of identical simple chemicals.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimer(Multimer):
-    """Class for complex multimers"""
+    """Complex multimer entity pool.
+
+    A multimer of identical complexes.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FluxRole(SBGNRole):
-    """Base class for flux roles"""
+    """Role of an entity pool participating in a process.
+
+    A flux role associates an entity pool with a process, with a given
+    stoichiometry.
+
+    Attributes:
+        element: The entity pool of the flux role.
+        stoichiometry: The stoichiometry of the flux role.
+    """
 
     element: EntityPool = dataclasses.field(
         metadata={"description": "The entity pool of the flux role"}
@@ -333,21 +502,33 @@ class FluxRole(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Reactant(FluxRole):
-    """Class for reactants"""
+    """Reactant of a process.
+
+    A reactant is an entity pool consumed by a process.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Product(FluxRole):
-    """Class for products"""
+    """Product of a process.
+
+    A product is an entity pool produced by a process.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperatorInput(SBGNRole):
-    """Class for inputs of logical operators"""
+    """Input to a logical operator.
+
+    Represents an input connection to a logical operator.
+
+    Attributes:
+        element: The element of the logical operator input.
+    """
 
     element: typing.Union[
         EntityPool,
@@ -359,7 +540,13 @@ class LogicalOperatorInput(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorInput(SBGNRole):
-    """Class for inputs of equivalence operators"""
+    """Input to an equivalence operator.
+
+    Represents an input connection to an equivalence operator.
+
+    Attributes:
+        element: The element of the equivalence operator input.
+    """
 
     element: EntityPool = dataclasses.field(
         metadata={"description": "The element of the equivalence operator input"}
@@ -368,7 +555,13 @@ class EquivalenceOperatorInput(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperatorOutput(SBGNRole):
-    """Class for outputs of equivalence operators"""
+    """Output of an equivalence operator.
+
+    Represents the output connection of an equivalence operator.
+
+    Attributes:
+        element: The element of the equivalence operator output.
+    """
 
     element: EntityPool = dataclasses.field(
         metadata={"description": "The element of the equivalence operator output"}
@@ -377,7 +570,10 @@ class EquivalenceOperatorOutput(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Process(SBGNModelElement):
-    """Base class for processes"""
+    """Process in an SBGN-PD map.
+
+    A process transforms entity pools into other entity pools.
+    """
 
     pass
 
@@ -393,6 +589,15 @@ class StoichiometricProcess(Process):
     ``has_external_sink`` (an empty-set on the product side). The
     corresponding empty-set glyph lives only in the layout
     (``EmptySetLayout``); the model carries no peer entity pool for it.
+
+    Attributes:
+        reactants: The reactants of the stoichiometric process.
+        products: The products of the stoichiometric process.
+        reversible: Whether the stoichiometric process is reversible or not.
+        has_external_source: Whether the process has an unspecified external
+            source (an empty-set / source-and-sink reactant in SBGN PD).
+        has_external_sink: Whether the process has an unspecified external sink
+            (an empty-set / source-and-sink product in SBGN PD).
     """
 
     reactants: frozenset[Reactant] = dataclasses.field(
@@ -431,42 +636,63 @@ class StoichiometricProcess(Process):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GenericProcess(StoichiometricProcess):
-    """Class for generic processes"""
+    """Generic process.
+
+    A generic process whose mechanism is not otherwise specified.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UncertainProcess(StoichiometricProcess):
-    """Class for uncertain processes"""
+    """Uncertain process.
+
+    A process whose existence or mechanism is uncertain.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Association(GenericProcess):
-    """Class for associations"""
+    """Association process.
+
+    An association binds entity pools together into a complex.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Dissociation(GenericProcess):
-    """Class for dissociations"""
+    """Dissociation process.
+
+    A dissociation breaks a complex apart into its constituent entity pools.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OmittedProcess(GenericProcess):
-    """Class for omitted processes"""
+    """Omitted process.
+
+    Denotes a process whose details are deliberately omitted from the map.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Phenotype(Process):
-    """Class for phenotypes"""
+    """Phenotype process.
+
+    Represents an observable characteristic or system-level outcome.
+
+    Attributes:
+        label: The label of the phenotype.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the phenotype"}
@@ -475,7 +701,13 @@ class Phenotype(Process):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicalOperator(SBGNModelElement):
-    """Class for logical operators"""
+    """Logical operator.
+
+    Represents logical operations (AND, OR, NOT) on entity pools.
+
+    Attributes:
+        inputs: The inputs of the logical operator.
+    """
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
         default_factory=frozenset,
@@ -485,28 +717,45 @@ class LogicalOperator(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OrOperator(LogicalOperator):
-    """Class for or operators"""
+    """Logical OR operator.
+
+    The output is active when at least one input is active.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class AndOperator(LogicalOperator):
-    """Class for and operators"""
+    """Logical AND operator.
+
+    The output is active only when every input is active.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NotOperator(LogicalOperator):
-    """Class for not operators"""
+    """Logical NOT operator.
+
+    The output is active when its (single) input is inactive.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceOperator(SBGNModelElement):
-    """Class for equivalence operators"""
+    """Equivalence operator.
+
+    Defines an entity pool as equivalent to the union of several input entity
+    pools.
+
+    Attributes:
+        inputs: The inputs of the equivalence operator.
+        output: The output of the equivalence operator.
+    """
 
     inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
         default_factory=frozenset,
@@ -519,7 +768,15 @@ class EquivalenceOperator(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Modulation(SBGNModelElement):
-    """Class for modulations"""
+    """Modulation of a process.
+
+    Represents an influence from an entity pool or logical operator on a
+    process.
+
+    Attributes:
+        source: The source of the modulation.
+        target: The target of the modulation.
+    """
 
     source: EntityPool | LogicalOperator = dataclasses.field(
         metadata={"description": "The source of the modulation"}
@@ -531,35 +788,51 @@ class Modulation(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Inhibition(Modulation):
-    """Class for inhibitions"""
+    """Inhibition modulation.
+
+    The source decreases or prevents the activity of the target process.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Stimulation(Modulation):
-    """Class for stimulations"""
+    """Stimulation modulation.
+
+    The source increases the activity of the target process.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Catalysis(Stimulation):
-    """Class for catalyses"""
+    """Catalysis modulation.
+
+    The source catalyses the target process without being consumed by it.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulation(Stimulation):
-    """Class for necessary stimulations"""
+    """Necessary stimulation modulation.
+
+    The target process requires the source to be active in order to proceed.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(SBGNRole):
-    """Class for tag references"""
+    """Reference to a tag.
+
+    Attributes:
+        element: The element of the tag reference.
+    """
 
     element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the tag reference"}
@@ -568,7 +841,14 @@ class TagReference(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Tag(SBGNModelElement):
-    """Class for tags"""
+    """Tag element.
+
+    Tags provide identifiers that can be referenced from other locations.
+
+    Attributes:
+        label: The label of the tag.
+        referred_element: The element referred to by the tag.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the tag"}
@@ -581,7 +861,11 @@ class Tag(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(SBGNRole):
-    """Class for terminal references"""
+    """Reference to a terminal.
+
+    Attributes:
+        element: The element of the terminal reference.
+    """
 
     element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the terminal reference"}
@@ -590,7 +874,14 @@ class TerminalReference(SBGNRole):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Terminal(SBGNAuxiliaryUnit):
-    """Class for terminals"""
+    """Terminal element.
+
+    Terminals represent connection points to submaps.
+
+    Attributes:
+        label: The label of the terminal.
+        referred_element: The element referred to by the terminal.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the terminal"}
@@ -603,7 +894,14 @@ class Terminal(SBGNAuxiliaryUnit):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Submap(SBGNModelElement):
-    """Class for submaps"""
+    """Submap element.
+
+    Submaps represent embedded or referenced sub-diagrams.
+
+    Attributes:
+        label: The label of the submap.
+        terminals: The terminals of the submap.
+    """
 
     label: str | None = dataclasses.field(
         default=None, metadata={"description": "The label of the submap"}
@@ -616,7 +914,20 @@ class Submap(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNPDModel(SBGNModel):
-    """Class for SBGN-PD models"""
+    """SBGN-PD model.
+
+    Represents a complete SBGN Process Description model.
+
+    Attributes:
+        entity_pools: The entity pools of the SBGN-PD model.
+        processes: The processes of the SBGN-PD model.
+        compartments: The compartments of the SBGN-PD model.
+        modulations: The modulations of the SBGN-PD model.
+        logical_operators: The logical operators of the SBGN-PD model.
+        equivalence_operators: The equivalence operators of the SBGN-PD model.
+        submaps: The submaps of the SBGN-PD model.
+        tags: The tags of the SBGN-PD model.
+    """
 
     entity_pools: frozenset[EntityPool] = dataclasses.field(
         default_factory=frozenset,

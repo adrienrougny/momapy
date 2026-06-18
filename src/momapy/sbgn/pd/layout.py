@@ -43,14 +43,24 @@ from momapy.sbgn.layout import SBGNLayout
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNPDLayout(SBGNLayout):
-    """Class for SBGN-PD layouts"""
+    """SBGN-PD layout.
+
+    Represents the visual layout of an SBGN-PD model.
+    """
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StateVariableLayout(_SimpleMixin, SBGNNode):
-    """Class for state variable layouts"""
+    """Layout for state variables.
+
+    Draws a state variable as a stadium-shaped glyph.
+
+    Attributes:
+        width: The width of the state variable layout.
+        height: The height of the state variable layout.
+    """
 
     width: float = dataclasses.field(
         default=12.0, metadata={"description": "The width of the state variable layout"}
@@ -70,7 +80,14 @@ class StateVariableLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
-    """Class for unit of information layouts"""
+    """Layout for units of information.
+
+    Draws a unit of information as a rectangular glyph.
+
+    Attributes:
+        width: The width of the unit of information layout.
+        height: The height of the unit of information layout.
+    """
 
     width: float = 18.0
     height: float = 12.0
@@ -85,7 +102,16 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalLayout(_SimpleMixin, SBGNNode):
-    """Class for terminal layouts"""
+    """Layout for terminals.
+
+    Draws a terminal as a tag-shaped glyph pointing in a given direction.
+
+    Attributes:
+        width: The width of the terminal layout.
+        height: The height of the terminal layout.
+        direction: The direction the terminal glyph points to.
+        angle: The angle of the pointed end of the terminal glyph.
+    """
 
     width: float = 35.0
     height: float = 35.0
@@ -98,7 +124,14 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CardinalityLayout(_SimpleMixin, SBGNNode):
-    """Class for cardinality layouts"""
+    """Layout for cardinalities.
+
+    Draws the cardinality of a multimer as a unit-of-information glyph.
+
+    Attributes:
+        width: The width of the cardinality layout.
+        height: The height of the cardinality layout.
+    """
 
     width: float = 12.0
     height: float = 19.0
@@ -109,7 +142,14 @@ class CardinalityLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntitySubunitLayout(_SimpleMixin, SBGNNode):
-    """Class for unspecified entity subunit layouts"""
+    """Layout for unspecified entity subunits.
+
+    Draws an unspecified entity subunit as an ellipse glyph.
+
+    Attributes:
+        width: The width of the unspecified entity subunit layout.
+        height: The height of the unspecified entity subunit layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -120,7 +160,14 @@ class UnspecifiedEntitySubunitLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalSubunitLayout(_SimpleMixin, SBGNNode):
-    """Class for simple chemical subunit layouts"""
+    """Layout for simple chemical subunits.
+
+    Draws a simple chemical subunit as a stadium glyph.
+
+    Attributes:
+        width: The width of the simple chemical subunit layout.
+        height: The height of the simple chemical subunit layout.
+    """
 
     width: float = 30.0
     height: float = 30.0
@@ -131,7 +178,15 @@ class SimpleChemicalSubunitLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeSubunitLayout(_SimpleMixin, SBGNNode):
-    """Class for macromolecule subunit layouts"""
+    """Layout for macromolecule subunits.
+
+    Draws a macromolecule subunit as a rounded rectangle glyph.
+
+    Attributes:
+        width: The width of the macromolecule subunit layout.
+        height: The height of the macromolecule subunit layout.
+        rounded_corners: The corner radius of the macromolecule subunit layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -143,7 +198,16 @@ class MacromoleculeSubunitLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureSubunitLayout(_SimpleMixin, SBGNNode):
-    """Class for nucleic acid feature subunit layouts"""
+    """Layout for nucleic acid feature subunits.
+
+    Draws a nucleic acid feature subunit as a bottom-rounded rectangle glyph.
+
+    Attributes:
+        width: The width of the nucleic acid feature subunit layout.
+        height: The height of the nucleic acid feature subunit layout.
+        rounded_corners: The corner radius of the nucleic acid feature subunit
+            layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -155,7 +219,15 @@ class NucleicAcidFeatureSubunitLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexSubunitLayout(_SimpleMixin, SBGNNode):
-    """Class for complex subunit layouts"""
+    """Layout for complex subunits.
+
+    Draws a complex subunit as a cut-corner rectangle glyph.
+
+    Attributes:
+        width: The width of the complex subunit layout.
+        height: The height of the complex subunit layout.
+        cut_corners: The size of the cut corners of the complex subunit layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -167,7 +239,14 @@ class ComplexSubunitLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimerSubunitLayout(_MultiMixin, SBGNNode):
-    """Class for simple chemical multimer subunit layouts"""
+    """Layout for simple chemical multimer subunits.
+
+    Draws a simple chemical multimer subunit as stacked stadium glyphs.
+
+    Attributes:
+        width: The width of the simple chemical multimer subunit layout.
+        height: The height of the simple chemical multimer subunit layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -188,7 +267,16 @@ class SimpleChemicalMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimerSubunitLayout(_MultiMixin, SBGNNode):
-    """Class for macromolecule multimer subunit layouts"""
+    """Layout for macromolecule multimer subunits.
+
+    Draws a macromolecule multimer subunit as stacked rounded rectangle glyphs.
+
+    Attributes:
+        width: The width of the macromolecule multimer subunit layout.
+        height: The height of the macromolecule multimer subunit layout.
+        rounded_corners: The corner radius of the macromolecule multimer subunit
+            layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -218,7 +306,17 @@ class MacromoleculeMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimerSubunitLayout(_MultiMixin, SBGNNode):
-    """Class for nucleic acid feature multimer subunit layouts"""
+    """Layout for nucleic acid feature multimer subunits.
+
+    Draws a nucleic acid feature multimer subunit as stacked bottom-rounded
+    rectangle glyphs.
+
+    Attributes:
+        width: The width of the nucleic acid feature multimer subunit layout.
+        height: The height of the nucleic acid feature multimer subunit layout.
+        rounded_corners: The corner radius of the nucleic acid feature multimer
+            subunit layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -244,7 +342,16 @@ class NucleicAcidFeatureMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimerSubunitLayout(_MultiMixin, SBGNNode):
-    """Class for complex multimer subunit layouts"""
+    """Layout for complex multimer subunits.
+
+    Draws a complex multimer subunit as stacked cut-corner rectangle glyphs.
+
+    Attributes:
+        width: The width of the complex multimer subunit layout.
+        height: The height of the complex multimer subunit layout.
+        cut_corners: The size of the cut corners of the complex multimer subunit
+            layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -278,7 +385,16 @@ class ComplexMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CompartmentLayout(_SimpleMixin, SBGNNode):
-    """Class for compartment layouts"""
+    """Layout for compartments.
+
+    Draws a compartment as a rounded rectangle glyph with a thick border.
+
+    Attributes:
+        width: The width of the compartment layout.
+        height: The height of the compartment layout.
+        rounded_corners: The corner radius of the compartment layout.
+        stroke_width: The border stroke width of the compartment layout.
+    """
 
     width: float = 80.0
     height: float = 80.0
@@ -294,7 +410,15 @@ class SubmapLayout(
     _SimpleMixin,
     SBGNNode,
 ):
-    """Class for submap layouts"""
+    """Layout for submaps.
+
+    Draws a submap as a rectangular glyph.
+
+    Attributes:
+        width: The width of the submap layout.
+        height: The height of the submap layout.
+        stroke_width: The border stroke width of the submap layout.
+    """
 
     width: float = 80.0
     height: float = 80.0
@@ -310,7 +434,14 @@ class SubmapLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class UnspecifiedEntityLayout(_SimpleMixin, SBGNNode):
-    """Class for unspecified entity layouts"""
+    """Layout for unspecified entities.
+
+    Draws an unspecified entity as an ellipse glyph.
+
+    Attributes:
+        width: The width of the unspecified entity layout.
+        height: The height of the unspecified entity layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -323,7 +454,14 @@ class UnspecifiedEntityLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalLayout(_SimpleMixin, SBGNNode):
-    """Class for simple chemical layouts"""
+    """Layout for simple chemicals.
+
+    Draws a simple chemical as a stadium glyph.
+
+    Attributes:
+        width: The width of the simple chemical layout.
+        height: The height of the simple chemical layout.
+    """
 
     width: float = 30.0
     height: float = 30.0
@@ -336,7 +474,15 @@ class SimpleChemicalLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeLayout(_SimpleMixin, SBGNNode):
-    """Class for macromolecule layouts"""
+    """Layout for macromolecules.
+
+    Draws a macromolecule as a rounded rectangle glyph.
+
+    Attributes:
+        width: The width of the macromolecule layout.
+        height: The height of the macromolecule layout.
+        rounded_corners: The corner radius of the macromolecule layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -360,7 +506,15 @@ class MacromoleculeLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureLayout(_SimpleMixin, SBGNNode):
-    """Class for nucleic acid feature layouts"""
+    """Layout for nucleic acid features.
+
+    Draws a nucleic acid feature as a bottom-rounded rectangle glyph.
+
+    Attributes:
+        width: The width of the nucleic acid feature layout.
+        height: The height of the nucleic acid feature layout.
+        rounded_corners: The corner radius of the nucleic acid feature layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -380,7 +534,15 @@ class NucleicAcidFeatureLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexLayout(_SimpleMixin, SBGNNode):
-    """Class for complex layouts"""
+    """Layout for complexes.
+
+    Draws a complex as a cut-corner rectangle glyph.
+
+    Attributes:
+        width: The width of the complex layout.
+        height: The height of the complex layout.
+        cut_corners: The size of the cut corners of the complex layout.
+    """
 
     width: float = 44.0
     height: float = 44.0
@@ -408,7 +570,14 @@ class ComplexLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleChemicalMultimerLayout(_MultiMixin, SBGNNode):
-    """Class for simple chemical multimer layouts"""
+    """Layout for simple chemical multimers.
+
+    Draws a simple chemical multimer as stacked stadium glyphs.
+
+    Attributes:
+        width: The width of the simple chemical multimer layout.
+        height: The height of the simple chemical multimer layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 30.0
@@ -429,7 +598,15 @@ class SimpleChemicalMultimerLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MacromoleculeMultimerLayout(_MultiMixin, SBGNNode):
-    """Class for macromolecule multimer layouts"""
+    """Layout for macromolecule multimers.
+
+    Draws a macromolecule multimer as stacked rounded rectangle glyphs.
+
+    Attributes:
+        width: The width of the macromolecule multimer layout.
+        height: The height of the macromolecule multimer layout.
+        rounded_corners: The corner radius of the macromolecule multimer layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -459,7 +636,17 @@ class MacromoleculeMultimerLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NucleicAcidFeatureMultimerLayout(_MultiMixin, SBGNNode):
-    """Class for nucleic acid feature multimer layouts"""
+    """Layout for nucleic acid feature multimers.
+
+    Draws a nucleic acid feature multimer as stacked bottom-rounded rectangle
+    glyphs.
+
+    Attributes:
+        width: The width of the nucleic acid feature multimer layout.
+        height: The height of the nucleic acid feature multimer layout.
+        rounded_corners: The corner radius of the nucleic acid feature multimer
+            layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
@@ -485,7 +672,15 @@ class NucleicAcidFeatureMultimerLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ComplexMultimerLayout(_MultiMixin, SBGNNode):
-    """Class for complex multimer layouts"""
+    """Layout for complex multimers.
+
+    Draws a complex multimer as stacked cut-corner rectangle glyphs.
+
+    Attributes:
+        width: The width of the complex multimer layout.
+        height: The height of the complex multimer layout.
+        cut_corners: The size of the cut corners of the complex multimer layout.
+    """
 
     _n: typing.ClassVar[int] = 2
     width: float = 44.0
@@ -537,7 +732,14 @@ class _EmptySetShape(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EmptySetLayout(_SimpleMixin, SBGNNode):
-    """Class for empty set layouts"""
+    """Layout for empty sets.
+
+    Draws an empty set (source-and-sink) as a circle crossed by a bar.
+
+    Attributes:
+        width: The width of the empty set layout.
+        height: The height of the empty set layout.
+    """
 
     width: float = 22.0
     height: float = 22.0
@@ -552,7 +754,15 @@ class EmptySetLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class PerturbingAgentLayout(_SimpleMixin, SBGNNode):
-    """Class for perturbing agent layouts"""
+    """Layout for perturbing agents.
+
+    Draws a perturbing agent as a concave hexagon glyph.
+
+    Attributes:
+        width: The width of the perturbing agent layout.
+        height: The height of the perturbing agent layout.
+        angle: The angle of the hexagon notches of the perturbing agent layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -575,7 +785,15 @@ class AndOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for and operator layouts"""
+    """Layout for AND operators.
+
+    Draws an AND operator as an ellipse glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the operator glyph.
+        width: The width of the AND operator layout.
+        height: The height of the AND operator layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = "AND"
@@ -595,7 +813,15 @@ class OrOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for or operator layouts"""
+    """Layout for OR operators.
+
+    Draws an OR operator as an ellipse glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the operator glyph.
+        width: The width of the OR operator layout.
+        height: The height of the OR operator layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = "OR"
@@ -615,7 +841,15 @@ class NotOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for not operator layouts"""
+    """Layout for NOT operators.
+
+    Draws a NOT operator as an ellipse glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the operator glyph.
+        width: The width of the NOT operator layout.
+        height: The height of the NOT operator layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
     text: str = "NOT"
@@ -635,7 +869,15 @@ class EquivalenceOperatorLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for equivalence operator layouts"""
+    """Layout for equivalence operators.
+
+    Draws an equivalence operator as an ellipse glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the operator glyph.
+        width: The width of the equivalence operator layout.
+        height: The height of the equivalence operator layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
     text: str = "≡"
@@ -654,7 +896,14 @@ class GenericProcessLayout(
     _SimpleMixin,
     SBGNNode,
 ):
-    """Class for generic process layouts"""
+    """Layout for generic processes.
+
+    Draws a generic process as a square glyph with connectors.
+
+    Attributes:
+        width: The width of the generic process layout.
+        height: The height of the generic process layout.
+    """
 
     width: float = 20.0
     height: float = 20.0
@@ -672,7 +921,15 @@ class OmittedProcessLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for omitted process layouts"""
+    """Layout for omitted processes.
+
+    Draws an omitted process as a square glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the process glyph.
+        width: The width of the omitted process layout.
+        height: The height of the omitted process layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     text: str = "\\\\"
@@ -690,7 +947,15 @@ class UncertainProcessLayout(
     _TextMixin,
     SBGNNode,
 ):
-    """Class for uncertain process layouts"""
+    """Layout for uncertain processes.
+
+    Draws an uncertain process as a square glyph labelled with its text.
+
+    Attributes:
+        text: The text drawn inside the process glyph.
+        width: The width of the uncertain process layout.
+        height: The height of the uncertain process layout.
+    """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
     text: str = "?"
@@ -707,7 +972,15 @@ class AssociationLayout(
     _SimpleMixin,
     SBGNNode,
 ):
-    """Class for association layouts"""
+    """Layout for associations.
+
+    Draws an association as a filled circle glyph with connectors.
+
+    Attributes:
+        width: The width of the association layout.
+        height: The height of the association layout.
+        fill: The fill color of the association glyph.
+    """
 
     width: float = 20.0
     height: float = 20.0
@@ -745,7 +1018,15 @@ class DissociationLayout(
     _SimpleMixin,
     SBGNNode,
 ):
-    """Class for dissociation layouts"""
+    """Layout for dissociations.
+
+    Draws a dissociation as two concentric circles with connectors.
+
+    Attributes:
+        width: The width of the dissociation layout.
+        height: The height of the dissociation layout.
+        sep: The separation between the outer and inner circles.
+    """
 
     width: float = 20.0
     height: float = 20.0
@@ -765,7 +1046,15 @@ class PhenotypeLayout(
     _SimpleMixin,
     SBGNNode,
 ):
-    """Class for phenotype layouts"""
+    """Layout for phenotypes.
+
+    Draws a phenotype as a convex hexagon glyph.
+
+    Attributes:
+        width: The width of the phenotype layout.
+        height: The height of the phenotype layout.
+        angle: The angle of the hexagon points of the phenotype layout.
+    """
 
     width: float = 60.0
     height: float = 30.0
@@ -783,7 +1072,16 @@ class PhenotypeLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagLayout(_SimpleMixin, SBGNNode):
-    """Class for tag layouts"""
+    """Layout for tags.
+
+    Draws a tag as a hexagon glyph pointing in a given direction.
+
+    Attributes:
+        width: The width of the tag layout.
+        height: The height of the tag layout.
+        direction: The direction the tag glyph points to.
+        angle: The angle of the pointed end of the tag glyph.
+    """
 
     width: float = 35.0
     height: float = 35.0
@@ -827,7 +1125,10 @@ class TagLayout(_SimpleMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ConsumptionLayout(SBGNSingleHeadedArc):
-    """Class for consumption layouts"""
+    """Layout for consumptions.
+
+    Draws a consumption as a plain line connecting a reactant to a process.
+    """
 
     def _arrowhead_border_drawing_elements(self):
         return PolyLineArc._arrowhead_border_drawing_elements(self)
@@ -835,7 +1136,15 @@ class ConsumptionLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ProductionLayout(SBGNSingleHeadedArc):
-    """Class for production layouts"""
+    """Layout for productions.
+
+    Draws a production as a line ending in a filled triangular arrowhead.
+
+    Attributes:
+        arrowhead_fill: The fill color of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_width: The width of the arrowhead.
+    """
 
     arrowhead_fill: NoneValueType | Color | None = black
     arrowhead_height: float = 10.0
@@ -847,7 +1156,15 @@ class ProductionLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModulationLayout(SBGNSingleHeadedArc):
-    """Class for modulation layouts"""
+    """Layout for modulations.
+
+    Draws a modulation as a line ending in a diamond-shaped arrowhead.
+
+    Attributes:
+        arrowhead_fill: The fill color of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_width: The width of the arrowhead.
+    """
 
     arrowhead_fill: NoneValueType | Color | None = white
     arrowhead_height: float = 10.0
@@ -859,7 +1176,14 @@ class ModulationLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StimulationLayout(SBGNSingleHeadedArc):
-    """Class for stimulation layouts"""
+    """Layout for stimulations.
+
+    Draws a stimulation as a line ending in an unfilled triangular arrowhead.
+
+    Attributes:
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_width: The width of the arrowhead.
+    """
 
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
@@ -870,7 +1194,17 @@ class StimulationLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class NecessaryStimulationLayout(SBGNSingleHeadedArc):
-    """Class for necessary stimulation layouts"""
+    """Layout for necessary stimulations.
+
+    Draws a necessary stimulation as a line ending in a bar followed by an
+    unfilled triangular arrowhead.
+
+    Attributes:
+        arrowhead_bar_height: The height of the bar of the arrowhead.
+        arrowhead_sep: The separation between the bar and the triangle.
+        arrowhead_triangle_height: The height of the triangle of the arrowhead.
+        arrowhead_triangle_width: The width of the triangle of the arrowhead.
+    """
 
     arrowhead_bar_height: float = 12.0
     arrowhead_sep: float = 3.0
@@ -899,7 +1233,14 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CatalysisLayout(SBGNSingleHeadedArc):
-    """Class for catalysis layouts"""
+    """Layout for catalyses.
+
+    Draws a catalysis as a line ending in an unfilled circular arrowhead.
+
+    Attributes:
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_width: The width of the arrowhead.
+    """
 
     arrowhead_height: float = 10.0
     arrowhead_width: float = 10.0
@@ -910,7 +1251,13 @@ class CatalysisLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class InhibitionLayout(SBGNSingleHeadedArc):
-    """Class for inhibition layouts"""
+    """Layout for inhibitions.
+
+    Draws an inhibition as a line ending in a perpendicular bar.
+
+    Attributes:
+        arrowhead_height: The height of the bar arrowhead.
+    """
 
     arrowhead_height: float = 10.0
 
@@ -920,7 +1267,10 @@ class InhibitionLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LogicArcLayout(SBGNSingleHeadedArc):
-    """Class for logic arc layouts"""
+    """Layout for logic arcs.
+
+    Draws a logic arc as a plain line connecting an input to a logical operator.
+    """
 
     def _arrowhead_border_drawing_elements(self):
         return PolyLineArc._arrowhead_border_drawing_elements(self)
@@ -928,7 +1278,11 @@ class LogicArcLayout(SBGNSingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class EquivalenceArcLayout(SBGNSingleHeadedArc):
-    """Class for equivalence arc layouts"""
+    """Layout for equivalence arcs.
+
+    Draws an equivalence arc as a plain line connecting an input to an
+    equivalence operator.
+    """
 
     def _arrowhead_border_drawing_elements(self):
         return PolyLineArc._arrowhead_border_drawing_elements(self)
