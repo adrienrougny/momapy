@@ -84,7 +84,10 @@ __all__ = [
 
 @dataclass(frozen=True, kw_only=True)
 class PolyLine(SingleHeadedArc):
-    """Class for single-headed arcs with no arrowhead"""
+    """Single-headed arc with no arrowhead.
+
+    A polyline arc drawn as bare line segments, without any arrowhead.
+    """
 
     def _arrowhead_border_drawing_elements(self):
         return []
@@ -92,7 +95,14 @@ class PolyLine(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class Triangle(SingleHeadedArc):
-    """Class for single-headed arcs with a triangle arrowhead"""
+    """Single-headed arc with a triangle arrowhead.
+
+    An arc ending in a triangular arrowhead pointing along the arc.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
@@ -109,7 +119,14 @@ class Triangle(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class ReversedTriangle(SingleHeadedArc):
-    """Class for single-headed arcs with a reversed triangle arrowhead"""
+    """Single-headed arc with a reversed triangle arrowhead.
+
+    An arc ending in a triangular arrowhead pointing back towards the arc.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
@@ -126,7 +143,14 @@ class ReversedTriangle(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class Rectangle(SingleHeadedArc):
-    """Class for single-headed arcs with a rectangle arrowhead"""
+    """Single-headed arc with a rectangle arrowhead.
+
+    An arc ending in a rectangular arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
@@ -142,7 +166,14 @@ class Rectangle(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class Ellipse(SingleHeadedArc):
-    """Class for single-headed arcs with an ellipse arrowhead"""
+    """Single-headed arc with an ellipse arrowhead.
+
+    An arc ending in an elliptical arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 5.0
@@ -158,7 +189,14 @@ class Ellipse(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class Diamond(SingleHeadedArc):
-    """Class for single-headed arcs with a diamond arrowhead"""
+    """Single-headed arc with a diamond arrowhead.
+
+    An arc ending in a diamond-shaped arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 5.0
@@ -174,7 +212,13 @@ class Diamond(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class Bar(SingleHeadedArc):
-    """Class for single-headed arcs with a bar arrowhead"""
+    """Single-headed arc with a bar arrowhead.
+
+    An arc ending in a bar (perpendicular line) arrowhead.
+
+    Attributes:
+        arrowhead_height: The height of the arrowhead.
+    """
 
     arrowhead_height: float = 10.0
 
@@ -188,7 +232,15 @@ class Bar(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class ArcBarb(SingleHeadedArc):
-    """Class for single-headed arcs with an arc barb arrowhead"""
+    """Single-headed arc with an arc-barb arrowhead.
+
+    An arc ending in a curved (arc) barb arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_fill: The fill color of the arrowhead, or no fill.
+    """
 
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
@@ -206,7 +258,15 @@ class ArcBarb(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class StraightBarb(SingleHeadedArc):
-    """Class for single-headed arcs with a straight barb arrowhead"""
+    """Single-headed arc with a straight-barb arrowhead.
+
+    An arc ending in a straight barb arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_fill: The fill color of the arrowhead, or no fill.
+    """
 
     arrowhead_width: float = 10.0
     arrowhead_height: float = 10.0
@@ -224,7 +284,15 @@ class StraightBarb(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class To(SingleHeadedArc):
-    """Class for single-headed arcs with a to arrowhead"""
+    """Single-headed arc with a to arrowhead.
+
+    An arc ending in an arrow-tip ("to") arrowhead.
+
+    Attributes:
+        arrowhead_width: The width of the arrowhead.
+        arrowhead_height: The height of the arrowhead.
+        arrowhead_fill: The fill color of the arrowhead, or no fill.
+    """
 
     arrowhead_width: float = 5.0
     arrowhead_height: float = 10.0
@@ -242,7 +310,16 @@ class To(SingleHeadedArc):
 
 @dataclass(frozen=True, kw_only=True)
 class DoubleTriangle(DoubleHeadedArc):
-    """Class for double-headed arcs with triangle arrowheads"""
+    """Double-headed arc with triangle arrowheads.
+
+    An arc with a triangular arrowhead at each end.
+
+    Attributes:
+        start_arrowhead_width: The width of the start arrowhead.
+        start_arrowhead_height: The height of the start arrowhead.
+        end_arrowhead_width: The width of the end arrowhead.
+        end_arrowhead_height: The height of the end arrowhead.
+    """
 
     start_arrowhead_width: float = 10.0
     start_arrowhead_height: float = 10.0

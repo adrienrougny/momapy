@@ -75,7 +75,27 @@ __all__ = [
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(Shape):
-    """Class for rectangle shapes"""
+    """Rectangle shape.
+
+    A rectangle whose four corners can each be independently rounded or cut.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        top_left_rx: The x-radius of the top-left corner.
+        top_left_ry: The y-radius of the top-left corner.
+        top_left_rounded_or_cut: Whether the top-left corner is rounded or cut.
+        top_right_rx: The x-radius of the top-right corner.
+        top_right_ry: The y-radius of the top-right corner.
+        top_right_rounded_or_cut: Whether the top-right corner is rounded or cut.
+        bottom_right_rx: The x-radius of the bottom-right corner.
+        bottom_right_ry: The y-radius of the bottom-right corner.
+        bottom_right_rounded_or_cut: Whether the bottom-right corner is rounded or cut.
+        bottom_left_rx: The x-radius of the bottom-left corner.
+        bottom_left_ry: The y-radius of the bottom-left corner.
+        bottom_left_rounded_or_cut: Whether the bottom-left corner is rounded or cut.
+    """
 
     position: Point
     width: float
@@ -218,7 +238,15 @@ class Rectangle(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(Shape):
-    """Class for ellipse shapes"""
+    """Ellipse shape.
+
+    An ellipse (or circle) fitting the given width and height.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+    """
 
     position: Point
     width: float
@@ -233,7 +261,15 @@ class Ellipse(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Stadium(Shape):
-    """Class for stadium shapes"""
+    """Stadium shape.
+
+    A stadium (rounded rectangle) with fully rounded left and right ends.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+    """
 
     position: Point
     width: float
@@ -280,7 +316,17 @@ class Stadium(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Hexagon(Shape):
-    """Class for hexagon shapes"""
+    """Hexagon shape.
+
+    A hexagon whose left and right vertex angles are configurable.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        left_angle: The angle of the left vertex, in degrees.
+        right_angle: The angle of the right vertex, in degrees.
+    """
 
     position: Point
     width: float
@@ -349,7 +395,17 @@ class Hexagon(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TurnedHexagon(Shape):
-    """Class for hexagon turned by 90 degrees shapes"""
+    """Turned hexagon shape.
+
+    A hexagon turned by 90 degrees, with configurable top and bottom vertex angles.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        top_angle: The angle of the top vertex, in degrees.
+        bottom_angle: The angle of the bottom vertex, in degrees.
+    """
 
     position: Point
     width: float
@@ -473,7 +529,16 @@ class TurnedHexagon(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Parallelogram(Shape):
-    """Class for parallelogram shapes"""
+    """Parallelogram shape.
+
+    A parallelogram whose slant angle is configurable.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        angle: The angle of the slanted sides, in degrees.
+    """
 
     position: Point
     width: float
@@ -525,7 +590,15 @@ class Parallelogram(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CrossPoint(Shape):
-    """Class for cross point shapes"""
+    """Cross-point shape.
+
+    A crossing pair of horizontal and vertical line segments.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+    """
 
     position: Point
     width: float
@@ -547,7 +620,16 @@ class CrossPoint(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Triangle(Shape):
-    """Class for triangle shapes"""
+    """Triangle shape.
+
+    A triangle pointing in a configurable direction.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        direction: The direction the triangle points towards.
+    """
 
     position: Point
     width: float
@@ -594,7 +676,15 @@ class Triangle(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Diamond(Shape):
-    """Class for diamond shapes"""
+    """Diamond shape.
+
+    A diamond (rhombus) with vertices at the midpoints of its sides.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+    """
 
     position: Point
     width: float
@@ -626,7 +716,14 @@ class Diamond(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Bar(Shape):
-    """Class for bar shapes"""
+    """Bar shape.
+
+    A single vertical bar segment spanning the given height.
+
+    Attributes:
+        position: The position of the center of the shape.
+        height: The height of the shape.
+    """
 
     position: Point
     height: float
@@ -648,7 +745,16 @@ class Bar(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ArcBarb(Shape):
-    """Class for arc barb shapes"""
+    """Arc-barb shape.
+
+    A curved (arc) barb pointing in a configurable direction.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        direction: The direction the barb points towards.
+    """
 
     position: Point
     width: float
@@ -728,7 +834,16 @@ class ArcBarb(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StraightBarb(Shape):
-    """Class for straight barb shapes"""
+    """Straight-barb shape.
+
+    A straight barb pointing in a configurable direction.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        direction: The direction the barb points towards.
+    """
 
     position: Point
     width: float
@@ -793,7 +908,16 @@ class StraightBarb(Shape):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class To(Shape):
-    """Class for to shapes"""
+    """To shape.
+
+    An arrow-tip ("to") shape pointing in a configurable direction.
+
+    Attributes:
+        position: The position of the center of the shape.
+        width: The width of the shape.
+        height: The height of the shape.
+        direction: The direction the arrow tip points towards.
+    """
 
     position: Point
     width: float

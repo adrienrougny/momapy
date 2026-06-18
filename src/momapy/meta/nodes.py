@@ -78,7 +78,24 @@ __all__ = [
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Rectangle(Node):
-    """Class for rectangle nodes"""
+    """Rectangle node.
+
+    A rectangular node whose four corners can each be independently rounded or cut.
+
+    Attributes:
+        top_left_rx: The x-radius of the top-left corner.
+        top_left_ry: The y-radius of the top-left corner.
+        top_left_rounded_or_cut: Whether the top-left corner is rounded or cut.
+        top_right_rx: The x-radius of the top-right corner.
+        top_right_ry: The y-radius of the top-right corner.
+        top_right_rounded_or_cut: Whether the top-right corner is rounded or cut.
+        bottom_right_rx: The x-radius of the bottom-right corner.
+        bottom_right_ry: The y-radius of the bottom-right corner.
+        bottom_right_rounded_or_cut: Whether the bottom-right corner is rounded or cut.
+        bottom_left_rx: The x-radius of the bottom-left corner.
+        bottom_left_ry: The y-radius of the bottom-left corner.
+        bottom_left_rounded_or_cut: Whether the bottom-left corner is rounded or cut.
+    """
 
     top_left_rx: float = 0.0
     top_left_ry: float = 0.0
@@ -116,7 +133,10 @@ class Rectangle(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Ellipse(Node):
-    """Class for ellipse nodes"""
+    """Ellipse node.
+
+    An elliptical (or circular) node fitting the node's width and height.
+    """
 
     def _border_drawing_elements(self):
         shape = EllipseShape(
@@ -129,7 +149,10 @@ class Ellipse(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Stadium(Node):
-    """Class for stadium nodes"""
+    """Stadium node.
+
+    A stadium-shaped (rounded-rectangle) node with fully rounded left and right ends.
+    """
 
     def _border_drawing_elements(self):
         shape = StadiumShape(
@@ -142,7 +165,14 @@ class Stadium(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Hexagon(Node):
-    """Class for hexagon nodes"""
+    """Hexagon node.
+
+    A hexagonal node whose left and right vertex angles are configurable.
+
+    Attributes:
+        left_angle: The angle of the left vertex, in degrees.
+        right_angle: The angle of the right vertex, in degrees.
+    """
 
     left_angle: float = 60.0
     right_angle: float = 60.0
@@ -160,7 +190,14 @@ class Hexagon(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TurnedHexagon(Node):
-    """Class for hexagon turned by 90 degrees nodes"""
+    """Turned hexagon node.
+
+    A hexagonal node turned by 90 degrees, with configurable top and bottom vertex angles.
+
+    Attributes:
+        top_angle: The angle of the top vertex, in degrees.
+        bottom_angle: The angle of the bottom vertex, in degrees.
+    """
 
     top_angle: float = 80.0
     bottom_angle: float = 80.0
@@ -178,7 +215,13 @@ class TurnedHexagon(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Parallelogram(Node):
-    """Class for parallelogram nodes"""
+    """Parallelogram node.
+
+    A parallelogram-shaped node whose slant angle is configurable.
+
+    Attributes:
+        angle: The angle of the slanted sides, in degrees.
+    """
 
     angle: float = 60.0
 
@@ -194,7 +237,10 @@ class Parallelogram(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CrossPoint(Node):
-    """Class for cross point nodes"""
+    """Cross-point node.
+
+    A node drawn as a crossing pair of horizontal and vertical line segments.
+    """
 
     def _border_drawing_elements(self):
         shape = CrossPointShape(
@@ -207,7 +253,13 @@ class CrossPoint(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Triangle(Node):
-    """Class for triangle nodes"""
+    """Triangle node.
+
+    A triangular node pointing in a configurable direction.
+
+    Attributes:
+        direction: The direction the triangle points towards.
+    """
 
     direction: Direction = Direction.RIGHT
 
@@ -223,7 +275,10 @@ class Triangle(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Diamond(Node):
-    """Class for diamond nodes"""
+    """Diamond node.
+
+    A diamond-shaped (rhombus) node with vertices at the midpoints of its sides.
+    """
 
     def _border_drawing_elements(self):
         shape = DiamondShape(
@@ -236,7 +291,10 @@ class Diamond(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Bar(Node):
-    """Class for bar nodes"""
+    """Bar node.
+
+    A node drawn as a single vertical bar segment spanning the node's height.
+    """
 
     def _border_drawing_elements(self):
         shape = BarShape(
@@ -248,7 +306,13 @@ class Bar(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ArcBarb(Node):
-    """Class for arc barb nodes"""
+    """Arc-barb node.
+
+    A node drawn as a curved (arc) barb pointing in a configurable direction.
+
+    Attributes:
+        direction: The direction the barb points towards.
+    """
 
     direction: Direction = Direction.RIGHT
 
@@ -264,7 +328,13 @@ class ArcBarb(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StraightBarb(Node):
-    """Class for straight barb nodes"""
+    """Straight-barb node.
+
+    A node drawn as a straight barb pointing in a configurable direction.
+
+    Attributes:
+        direction: The direction the barb points towards.
+    """
 
     direction: Direction = Direction.RIGHT
 
@@ -280,7 +350,13 @@ class StraightBarb(Node):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class To(Node):
-    """Class for to nodes"""
+    """To node.
+
+    A node drawn as an arrow-tip ("to") shape pointing in a configurable direction.
+
+    Attributes:
+        direction: The direction the arrow tip points towards.
+    """
 
     direction: Direction = Direction.RIGHT
 
