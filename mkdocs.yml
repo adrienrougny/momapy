@@ -23,6 +23,7 @@ nav:
     - Rendering:
       - Core: api_reference/rendering/core.md
       - Skia: api_reference/rendering/skia.md
+      - Cairo: api_reference/rendering/cairo.md
       - SVG-native: api_reference/rendering/svg_native.md
     - SBGN:
       - SBGN: api_reference/sbgn/sbgn.md
