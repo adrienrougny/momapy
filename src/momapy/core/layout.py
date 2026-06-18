@@ -1433,7 +1433,7 @@ class Layout(Node):
         return [path]
 
     def is_sublayout(self, other, flattened=False, unordered=False):
-        """Return `true` if another given layout is a sublayout of the layout, `false` otherwise"""
+        """Return `True` if another given layout is a sublayout of the layout, `False` otherwise"""
 
         def _is_sublist(list1, list2, unordered=False) -> bool:
             if not unordered:

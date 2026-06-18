@@ -124,7 +124,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
         return list(parent_s1 & child_s2)
 
     def is_submapping(self, other) -> bool:
-        """Return `true` if the mapping is a submapping of another `LayoutModelMapping`, `false` otherwise"""
+        """Return `True` if the mapping is a submapping of another `LayoutModelMapping`, `False` otherwise"""
         return self.items() <= other.items()
 
     def __reduce__(self):

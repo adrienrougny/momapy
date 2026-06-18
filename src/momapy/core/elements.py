@@ -199,7 +199,7 @@ class LayoutElement(MapElement, abc.ABC):
     def equals(
         self, other: "LayoutElement", flattened: bool = False, unordered: bool = False
     ) -> bool:
-        """Return `true` if the layout element is equal to another layout element, `false` otherwise"""
+        """Return `True` if the layout element is equal to another layout element, `False` otherwise"""
         if type(self) is type(other):
             if not flattened:
                 return self == other
@@ -211,7 +211,7 @@ class LayoutElement(MapElement, abc.ABC):
         return False
 
     def contains(self, other: "LayoutElement") -> bool:
-        """Return `true` if another layout element is a descendant of the layout element, `false` otherwise"""
+        """Return `True` if another layout element is a descendant of the layout element, `False` otherwise"""
         return other in self.descendants()
 
     def to_geometry(

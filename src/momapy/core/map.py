@@ -24,7 +24,7 @@ class Map(MapElement):
     )
 
     def is_submap(self, other):
-        """Return `true` if another given map is a submap of the `Map`, `false` otherwise"""
+        """Return `True` if another given map is a submap of the `Map`, `False` otherwise"""
         if (
             self.model is None
             or self.layout is None
