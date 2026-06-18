@@ -302,7 +302,7 @@ class Stadium(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.width < self.height:
             object.__setattr__(self, "width", self.height)
 

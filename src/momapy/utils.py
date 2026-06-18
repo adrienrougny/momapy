@@ -101,13 +101,13 @@ class SurjectionDict(dict):
         ```
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._inverse: dict = {}
         for key, value in self.items():
             self._inverse.setdefault(value, set()).add(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         if key in self:
             old_value = self[key]
             self._inverse[old_value].discard(key)
@@ -116,7 +116,7 @@ class SurjectionDict(dict):
         super().__setitem__(key, value)
         self._inverse.setdefault(value, set()).add(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         value = self[key]  # throws expected KeyError if key not in self
         super().__delitem__(key)
         # we know key was in self, hence value is expected to be in self.inverse
@@ -165,13 +165,13 @@ class IdentitySurjectionDict(dict):
         ```
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._identity_inverse: dict[int, set] = {}
         for key, value in self.items():
             self._identity_inverse.setdefault(id(value), set()).add(key)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         if key in self:
             old_value = self[key]
             old_identity = id(old_value)
@@ -182,7 +182,7 @@ class IdentitySurjectionDict(dict):
         super().__setitem__(key, value)
         self._identity_inverse.setdefault(id(value), set()).add(key)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         value = self[key]
         value_identity = id(value)
         super().__delitem__(key)
@@ -242,7 +242,7 @@ class IdentityMultiDict(collections.abc.Mapping):
         ```
     """
 
-    def __init__(self, mapping=None):
+    def __init__(self, mapping=None) -> None:
         self._forward: dict[str, set] = {}
         self._inverse: dict[int, set[str]] = {}
         if mapping is not None:
@@ -373,7 +373,7 @@ class FrozenIdentityMultiDict(frozendict.frozendict):
                 frozen_forward[key] = frozenset(values)
         return super().__new__(cls, frozen_forward)
 
-    def __init__(self, mapping=None):
+    def __init__(self, mapping=None) -> None:
         inverse: dict[int, set[str]] = {}
         for key, bucket in self.items():
             for value in bucket:
@@ -409,7 +409,7 @@ class FrozenSurjectionDict(frozendict.frozendict):
         ```
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         inverse: dict = {}
         for key, value in self.items():
             inverse.setdefault(value, set()).add(key)
@@ -451,7 +451,7 @@ class FrozenIdentitySurjectionDict(frozendict.frozendict):
         ```
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         inverse: dict[int, set] = {}
         for key, value in self.items():
             inverse.setdefault(id(value), set()).add(key)
@@ -504,13 +504,13 @@ def pretty_print(
         ```
     """
 
-    def _print_with_indent(s, indent):
+    def _print_with_indent(s, indent) -> None:
         dark = f"{colorama.Style.DIM}│{colorama.Style.RESET_ALL} "
         light = f"{colorama.Fore.WHITE}│{colorama.Style.RESET_ALL} "
         guides = "".join(dark if i % 2 == 0 else light for i in range(indent))
         print(f"{guides}{s}")
 
-    def _get_value_string(attr_value, max_len=30):
+    def _get_value_string(attr_value, max_len: int = 30):
         s = str(attr_value)
         if len(s) > max_len:
             s = f"{s[:max_len]}..."
@@ -678,7 +678,7 @@ def add_or_replace_element_in_set(
     return existing_element
 
 
-def make_uuid4_as_str():
+def make_uuid4_as_str() -> str:
     """Generate a UUID4 as a string.
 
     Returns:
@@ -862,7 +862,7 @@ def display(
     IPython.display.display(IPython.display.SVG(data=svg_string))
 
 
-def print_source(obj) -> None:
+def print_source(obj: typing.Any) -> None:
     """Display the syntax-highlighted source of an object in a notebook.
 
     This is a notebook helper: it requires IPython and pygments (install with

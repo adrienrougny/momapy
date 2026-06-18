@@ -12,7 +12,9 @@ import pytest
 
 import momapy.io.core
 import momapy.celldesigner.io.celldesigner._writing as cd_writing
-import momapy.celldesigner.io.celldesigner.writer as cd_writer
+from momapy.celldesigner.io.celldesigner._writing_context import (
+    CellDesignerWritingContext,
+)
 from momapy.celldesigner.layout import ModificationLayout
 from momapy.celldesigner.layout import StructuralStateLayout
 
@@ -28,7 +30,7 @@ class _FakeElement:
 
 
 def _writing_context():
-    return cd_writer.CellDesignerWritingContext(
+    return CellDesignerWritingContext(
         map_=None,
         element_to_annotations={},
         element_to_notes={},
@@ -57,7 +59,7 @@ class TestEnsureSbmlSid:
 class TestGetXmlId:
     def test_from_scratch_uuid_projects_to_valid_sid(self):
         ctx = _writing_context()
-        result = cd_writer._get_xml_id(ctx, _FakeElement("89a50724-5240-ae7a"))
+        result = cd_writing.get_xml_id(ctx, _FakeElement("89a50724-5240-ae7a"))
         assert _SID.match(result)
 
     def test_distinct_ids_projecting_equal_are_deduped(self):
@@ -65,25 +67,25 @@ class TestGetXmlId:
         # Bind both objects so they stay alive: the memo is keyed by id().
         element_a = _FakeElement("a-b")
         element_b = _FakeElement("a_b")
-        a = cd_writer._get_xml_id(ctx, element_a, share=False)
-        b = cd_writer._get_xml_id(ctx, element_b, share=False)
+        a = cd_writing.get_xml_id(ctx, element_a, share=False)
+        b = cd_writing.get_xml_id(ctx, element_b, share=False)
         assert {a, b} == {"a_b", "a_b_1"}
 
     def test_share_true_collapses_same_candidate(self):
         # Two distinct objects with the same id_ name one entity -> one id.
         ctx = _writing_context()
-        first = cd_writer._get_xml_id(ctx, _FakeElement("s_x"), share=True)
-        second = cd_writer._get_xml_id(ctx, _FakeElement("s_x"), share=True)
+        first = cd_writing.get_xml_id(ctx, _FakeElement("s_x"), share=True)
+        second = cd_writing.get_xml_id(ctx, _FakeElement("s_x"), share=True)
         assert first == second == "s_x"
 
     def test_metaid_is_unique_per_emission(self):
         # share=False + memoize=False: one object emitted twice -> distinct ids.
         ctx = _writing_context()
         participant = _FakeElement("re_sp")
-        first = cd_writer._get_xml_id(
+        first = cd_writing.get_xml_id(
             ctx, participant, candidate="re_sp", share=False, memoize=False
         )
-        second = cd_writer._get_xml_id(
+        second = cd_writing.get_xml_id(
             ctx, participant, candidate="re_sp", share=False, memoize=False
         )
         assert {first, second} == {"re_sp", "re_sp_1"}
@@ -92,17 +94,17 @@ class TestGetXmlId:
 class TestGetSpeciesId:
     def test_strips_active_suffix(self):
         ctx = _writing_context()
-        assert cd_writer._get_species_id(_FakeElement("s1_active"), ctx) == "s1"
+        assert cd_writing.get_species_id(_FakeElement("s1_active"), ctx) == "s1"
 
     def test_active_and_inactive_share_one_species_id(self):
         ctx = _writing_context()
-        inactive = cd_writer._get_species_id(_FakeElement("s1"), ctx)
-        active = cd_writer._get_species_id(_FakeElement("s1_active"), ctx)
+        inactive = cd_writing.get_species_id(_FakeElement("s1"), ctx)
+        active = cd_writing.get_species_id(_FakeElement("s1_active"), ctx)
         assert inactive == active == "s1"
 
     def test_none_species_is_empty(self):
         ctx = _writing_context()
-        assert cd_writer._get_species_id(None, ctx) == ""
+        assert cd_writing.get_species_id(None, ctx) == ""
 
 
 def _cd_files():

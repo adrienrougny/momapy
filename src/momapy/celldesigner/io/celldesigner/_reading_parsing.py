@@ -471,7 +471,7 @@ def get_t_shape_index(cd_reaction):
     return cd_edit_points.get("tShapeIndex")
 
 
-def has_boolean_input_from_modification(cd_reaction_modification):
+def has_boolean_input_from_modification(cd_reaction_modification) -> bool:
     return cd_reaction_modification.get("type") in [
         "BOOLEAN_LOGIC_GATE_AND",
         "BOOLEAN_LOGIC_GATE_OR",
@@ -650,3 +650,71 @@ def get_ordered_compartment_aliases(cd_model, cd_id_to_cd_element):
         ),
     )
     return ordered_cd_compartment_aliases
+
+
+def get_reactant_id(cd_base_reactant_or_link, cd_reaction):
+    """Compute a deterministic ID for a reactant from XML data.
+
+    Uses the SBML speciesReference metaid if available, otherwise
+    falls back to ``f"{reaction_id}_{species_id}"``.
+
+    Args:
+        cd_base_reactant_or_link: The base reactant or reactant link element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        A deterministic ID string.
+    """
+    cd_species_id = cd_base_reactant_or_link.get(
+        "species"
+    ) or cd_base_reactant_or_link.get("reactant")
+    for cd_reactant in get_reactants(cd_reaction):
+        if cd_reactant.get("species") == cd_species_id:
+            metaid = cd_reactant.get("metaid")
+            if metaid is not None:
+                return metaid
+            break
+    return f"{cd_reaction.get('id')}_{cd_species_id}"
+
+
+def get_product_id(cd_base_product_or_link, cd_reaction):
+    """Compute a deterministic ID for a product from XML data.
+
+    Uses the SBML speciesReference metaid if available, otherwise
+    falls back to ``f"{reaction_id}_{species_id}"``.
+
+    Args:
+        cd_base_product_or_link: The base product or product link element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        A deterministic ID string.
+    """
+    cd_species_id = cd_base_product_or_link.get(
+        "species"
+    ) or cd_base_product_or_link.get("product")
+    for cd_product in get_products(cd_reaction):
+        if cd_product.get("species") == cd_species_id:
+            metaid = cd_product.get("metaid")
+            if metaid is not None:
+                return metaid
+            break
+    return f"{cd_reaction.get('id')}_{cd_species_id}"
+
+
+def get_modifier_metaid(cd_reaction_modification, cd_reaction):
+    """Resolve the SBML modifierSpeciesReference metaid for a modifier.
+
+    Args:
+        cd_reaction_modification: The modification element.
+        cd_reaction: The parent reaction element.
+
+    Returns:
+        The metaid string, or None if not found.
+    """
+    cd_modifier_species_id = cd_reaction_modification.get("modifiers")
+    if cd_modifier_species_id is not None:
+        for modifier_species_reference in get_modifier_species_references(cd_reaction):
+            if modifier_species_reference.get("species") == cd_modifier_species_id:
+                return modifier_species_reference.get("metaid")
+    return None

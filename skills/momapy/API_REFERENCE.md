@@ -139,14 +139,14 @@ Purpose: reader/writer base classes + dispatch.
 - `Reader(ABC)` — `read(file_path, **options) -> ReaderResult`, `check_file(file_path) -> bool`.
 - `Writer(ABC)` — `write(obj, file_path, **options) -> WriterResult`.
 
-### `src/momapy/io/utils.py`
-Purpose: reader-side helpers; shared base contexts.
+### `src/momapy/io/_utils.py`
+Purpose: reader-side helpers; shared base contexts. Wholly internal (`__all__ = []`).
 
 - `ReadingContext` — base context with `xml_root`, `map_key`, `model`, `layout`, `xml_id_to_model_element` (`IdentityMultiDict`), `xml_id_to_layout_element`, `xml_id_to_xml_element`, `element_to_annotations`, `element_to_notes`, `source_id_to_annotations`, `source_id_to_notes`, `layout_model_mapping`, `with_annotations`, `with_notes`, `model_element_cache`, `model_element_remap`, `evicted_elements`.
 - `WritingContext` — base context with `map_`, `element_to_annotations`, `element_to_notes`, `source_id_to_model_element`, `source_id_to_layout_element`, `source_id_to_annotations`, `source_id_to_notes`, `with_annotations`, `with_notes`, `element_to_xml_id`, `used_xml_ids`, `candidate_to_xml_id`.
 - `make_unique_xml_id(candidate, used_xml_ids) -> str`
 - `build_id_mappings(reading_context, obj, real_model_source_ids=None, real_layout_source_ids=None) -> (frozendict, FrozenIdentityMultiDict|None, FrozenSurjectionDict|None)` — builds the `ReaderResult` id dicts. Dispatches `obj` internally: `Map` → uses its `.model`/`.layout`; `Model`/`Layout` → treated as the model/layout itself.
-- `_register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
+- `register_model_element(reading_context, model_element, collection, id_)` (the `id_` is required) and related remap helpers (`remap_model_element`, `resolve_remap`, `apply_remap_to_layout_model_mapping`).
 
 ### `src/momapy/io/pickle.py`
 Purpose: format-agnostic pickle reader/writer. Registered as `"pickle"` in `momapy.io`.
@@ -294,15 +294,19 @@ Purpose: SBGN-AF model classes.
 ### `src/momapy/sbgn/af/map.py`
 - `SBGNAFMap(SBGNMap)` — combines `SBGNAFModel` and `SBGNAFLayout`.
 
-### `src/momapy/sbgn/io/sbgnml/reader.py`
+### `src/momapy/sbgn/io/sbgnml/_reading_context.py`
 - `SBGNMLReadingContext(ReadingContext)` — adds `sbgnml_compartments`, `sbgnml_entity_pools`, `sbgnml_logical_operators`, `sbgnml_stoichiometric_processes`, `sbgnml_phenotypes`, `sbgnml_submaps`, `sbgnml_activities`, `sbgnml_modulations`, `sbgnml_tags`, `sbgnml_glyph_id_to_sbgnml_arcs`.
-- `_SBGNMLReader(Reader)` — base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0, **options)`.
+
+### `src/momapy/sbgn/io/sbgnml/reader.py`
+- `_SBGNMLReader(Reader)` — internal base; `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, xsep=0, ysep=0, **options)`.
 - Registered as `sbgnml-0.2` (`SBGNML0_2Reader`) and `sbgnml-0.3` / `sbgnml` (`SBGNML0_3Reader`).
 
 ### `src/momapy/sbgn/io/sbgnml/writer.py`
-- `_SBGNMLWriter(Writer)` — base class holding the `write()` classmethod and the XML-id helpers (`_reserve_source_xml_ids`, `_get_xml_id`).
+- `_SBGNMLWriter(Writer)` — internal base holding only the `write()` classmethod.
 - `SBGNML0_3Writer(_SBGNMLWriter)` — registered as `sbgnml-0.3` and `sbgnml`.
-- Module-level `make_sbgnml_map(writing_context)` plus private builders `_get_layout_elements`, `_get_frozenset_keys`, `_get_child_layout_element`, `_make_sbgnml_glyph`, `_make_sbgnml_arc_element`.
+
+### `src/momapy/sbgn/io/sbgnml/_writing.py` (serialization helpers, public-named)
+- `make_sbgnml_map(writing_context)`, the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`, and the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements` (plus the pure XML helpers `make_lxml_element`, `ensure_ncname`, `make_sbgnml_*`).
 
 ### `src/momapy/sbgn/io/sbgnml/_reading_model.py` (`make_*` internal helpers)
 - `make_annotations_from_element(sbgnml_element)`, `make_notes_from_element(sbgnml_element)`, `make_and_add_annotations_and_notes(reading_context, sbgnml_element, model_element)`
@@ -410,14 +414,18 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `tidy(map_, modifications_omit_width=False, modifications_omit_height=False, nodes_xsep=4, nodes_ysep=4, modifications_xsep=2, modifications_ysep=2, complexes_xsep=10, complexes_ysep=10, compartments_xsep=25, compartments_ysep=25, layout_xsep=0, layout_ysep=0, arcs_angle_tolerance=5.0)`
 - `get_info(map_: CellDesignerMap) -> MapInfo` (a `TypedDict` with `map_type: str`, `model: dict[str, int]`, `layout: MapLayoutInfo`)
 
-### `src/momapy/celldesigner/io/celldesigner/reader.py`
+### `src/momapy/celldesigner/io/celldesigner/_reading_context.py`
 - `CellDesignerReadingContext(ReadingContext)` — adds `cd_complex_alias_id_to_cd_included_species_ids`, `cd_compartment_aliases`, `cd_compartments`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, `real_model_source_ids` / `real_layout_source_ids` (split ID tracking), `canvas_width`, `canvas_height`, `cd_degraded_alias_ids`, `cd_degraded_species_ids`.
+
+### `src/momapy/celldesigner/io/celldesigner/reader.py`
 - `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
 - Internal: `_KEY_TO_CLASS` (tuple keys → model/layout class pairs).
 
-### `src/momapy/celldesigner/io/celldesigner/writer.py`
+### `src/momapy/celldesigner/io/celldesigner/_writing_context.py`
 - `CellDesignerWritingContext(WritingContext)` — adds `subunit_to_complex`, `degraded_entries`.
-- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring).
+
+### `src/momapy/celldesigner/io/celldesigner/writer.py`
+- `CellDesignerWriter(Writer)` — `write(obj, file_path, element_to_annotations=None, element_to_notes=None, source_id_to_model_element=None, source_id_to_layout_element=None, source_id_to_annotations=None, source_id_to_notes=None, with_annotations=True, with_notes=True, **options)`. **Round-trip caveat:** CellDesigner's link-geometry encoding (anchors, edit points, angles, line directions) is recomputed from momapy's resolved coordinates, so a read/write round-trip yields equivalent (not byte-identical) link geometry (see class docstring). All serialization helpers (the `make_celldesigner_*` / `make_sbml_document_*` builders, id helpers `reserve_source_xml_ids` / `get_xml_id` / `get_species_id`, the `DegradedEntry` dataclass, and the `CD_NS` / `NSMAP` / class→type-map constants) live in `_writing.py`, public-named.
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`
@@ -454,10 +462,11 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_id_to_element_mapping(cd_model) -> dict`
 - `make_complex_alias_to_included_ids_mapping(cd_model) -> dict`
 - XML traversal helpers: `get_annotation`, `get_extension`, `get_species`, `get_reactions`, `get_species_aliases`, `get_included_species_aliases`, `get_complex_species_aliases`, `get_compartments`, `get_compartment_aliases`, `get_protein_templates`, `get_gene_templates`, `get_rna_templates`, `get_antisense_rna_templates`, `get_notes`, `get_rdf`, `get_rdf_from_notes`, `get_width`, `get_height`, `get_bounds`, `get_edit_points_from_participant_link`, `get_edit_points_from_reaction`, etc.
+- Participant-id helpers: `get_reactant_id(cd_base_reactant_or_link, cd_reaction) -> str`, `get_product_id(cd_base_product_or_link, cd_reaction) -> str`, `get_modifier_metaid(cd_reaction_modification, cd_reaction) -> str|None`.
 - Constants: `_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME`, `_TEXT_TO_CHARACTER` (special-character decoding table).
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing.py`
-- Geometry helpers: `_are_collinear(p1, p2, p3, epsilon=1e-6) -> bool`, `_is_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6) -> bool`, `_make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0) -> (Point, Point, Point)`.
+- Geometry helpers: `are_collinear(p1, p2, p3, epsilon=1e-6) -> bool`, `is_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6) -> bool`, `make_non_degenerate_frame(origin, unit_x, unit_y, epsilon=1e-6, scale=1.0) -> (Point, Point, Point)`.
 - Encoding helpers: `color_to_cd_hex(color) -> str`, `encode_name(name) -> str`, `compute_cd_angle(...)`, `node_to_bounds_attrs(node) -> dict`.
 - Reverse mapping constants: `_CD_NAMESPACE`, `_ANCHOR_NAME_TO_LINK_ANCHOR_POSITION`, `_CHARACTER_TO_TEXT`, `_CLASS_TO_CD_STRING`, `_CLASS_TO_REACTION_TYPE`, `_CLASS_TO_MODIFIER_TYPE`, `_MODIFICATION_STATE_TO_CD`.
 
@@ -483,15 +492,17 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Model**: `SBMLModel(Model)` — **does NOT inherit `SBMLModelElement`**; declares its own `name`, `sbo_term`, `metaid`, plus `compartments`, `species`, `reactions`. `is_submodel(other) -> bool`.
 - **Root**: `SBML(SBMLModelElement)` — `xmlns`, `level=3`, `version=2`, `model: SBMLModel | None`.
 
+### `src/momapy/sbml/io/sbml/_reading_context.py`
+- `SBMLReadingContext(momapy.io._utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution), `sbml_id_to_sbml_element`.
+
 ### `src/momapy/sbml/io/sbml/reader.py`
-- `SBMLReadingContext(momapy.io.utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution), `sbml_id_to_sbml_element`.
 - `SBMLReader(Reader)` — `check_file(file_path) -> bool`, `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options) -> ReaderResult`. `return_type="map"` returns an `SBMLMap` (layout `None`), `"model"` returns the `SBMLModel`, `"layout"` raises `NotImplementedError`. Also `_make_empty_map`/`_make_empty_model` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/CellDesigner).
 
 ### `src/momapy/sbml/io/sbml/_reading_model.py` (`make_*` internal helpers)
 - `make_annotations(rdf) -> list[RDFAnnotation]`, `make_notes(notes_element) -> list[str]` (shared with SBGN-ML/CellDesigner readers)
 - `make_annotations_from_element(sbml_element)`, `make_notes_from_element(sbml_element)`
 - `make_and_add_annotations_and_notes(reading_context, sbml_element, model_element, source_id=None)`
-- `_register_model_element(reading_context, model_element, collection, id_)` — id-based dedup + records in `reading_context.sbml_id_to_model_element`
+- `register_model_element(reading_context, model_element, collection, id_)` — id-based dedup + records in `reading_context.sbml_id_to_model_element`
 - `make_compartment(reading_context, sbml_compartment)`
 - `make_species(reading_context, sbml_species)`
 - `make_reaction(reading_context, sbml_reaction)`
@@ -515,5 +526,5 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Frozen dataclasses everywhere**: mutate only via builders (`builder_from_object` → change → `build()`).
 - **`Model` is a `MapElement`, never a `ModelElement`** in any format. `model.descendants()` traverses the `Model` directly by field walking, and the `Model` itself is excluded from its own element set.
 - **Equality on elements**: structural (all fields except `id_`, `metaid`); dedup during read relies on it.
-- **I/O `make_*` functions** are internal helpers of the `_reading_*` / `_writing_*` modules (underscore filenames), inventoried here for maintainer orientation — not part of the public I/O contract (which is `read`/`write`, `Reader`/`Writer`, `get_*`/`list_*`/`register_*`, and `ReaderResult`/`WriterResult`). The context dataclasses (`ReadingContext`/`WritingContext` and subclasses) are likewise internal (`momapy.io.utils.__all__` is empty).
+- **I/O `make_*` functions** are internal helpers of the `_reading_*` / `_writing_*` modules (underscore filenames), inventoried here for maintainer orientation — not part of the public I/O contract (which is `read`/`write`, `Reader`/`Writer`, `get_*`/`list_*`/`register_*`, and `ReaderResult`/`WriterResult`). The context dataclasses (`ReadingContext`/`WritingContext` and subclasses) are likewise internal (`momapy.io._utils.__all__` is empty); each format's subclass lives in its own `_reading_context.py` / `_writing_context.py`.
 - **ReaderResult public dicts**: `id_to_element`, `source_id_to_model_element`, `source_id_to_layout_element` — the SBGN and CellDesigner readers populate both `source_id_to_*` dicts; the split ensures alias ids appear only on the layout side and SBML ids only on the model side for CellDesigner (via `real_model_source_ids` / `real_layout_source_ids` in `build_id_mappings`).

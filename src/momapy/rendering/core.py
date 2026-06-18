@@ -101,7 +101,7 @@ def render_layout_element(
     renderer: str | None = None,
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
-):
+) -> None:
     """Render a layout element to a file in the given format with the given registered renderer
 
     Args:
@@ -130,7 +130,7 @@ def render_layout_elements(
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
-):
+) -> None:
     """Render a collection of layout elements to a file in the given format with the given registered renderer.
 
     Args:
@@ -246,7 +246,7 @@ def render_map(
     renderer: str | None = None,
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
-):
+) -> None:
     """Render a map to a file in the given format with the given registered renderer.
 
     Args:
@@ -281,7 +281,7 @@ def render_maps(
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
     multi_pages: bool = True,
-):
+) -> None:
     """Render a collection of maps to a file in the given format with the given registered renderer.
 
     Args:
@@ -518,7 +518,7 @@ class StatefulRenderer(Renderer):
             state[attr_name] = attr_value
         return state
 
-    def _initialize_current_state(self):
+    def _initialize_current_state(self) -> None:
         state = self._make_initial_current_state()
         self.set_current_state(state)
 
@@ -601,7 +601,9 @@ class StatefulRenderer(Renderer):
             state[attr_name] = getattr(drawing_element, attr_name)
         return state
 
-    def set_current_state_from_drawing_element(self, drawing_element: DrawingElement):
+    def set_current_state_from_drawing_element(
+        self, drawing_element: DrawingElement
+    ) -> None:
         """Set the current state to a state given by a drawing element"""
         state = self._get_state_from_drawing_element(drawing_element)
         self.set_current_state(state)

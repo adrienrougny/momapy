@@ -1432,10 +1432,10 @@ class Layout(Node):
         path = Path(actions=tuple(actions))
         return [path]
 
-    def is_sublayout(self, other, flattened=False, unordered=False):
+    def is_sublayout(self, other, flattened: bool = False, unordered: bool = False):
         """Return `True` if another given layout is a sublayout of the layout, `False` otherwise"""
 
-        def _is_sublist(list1, list2, unordered=False) -> bool:
+        def _is_sublist(list1, list2, unordered: bool = False) -> bool:
             if not unordered:
                 i = 0
                 for elem1 in list1:

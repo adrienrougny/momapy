@@ -88,7 +88,7 @@ class Point(GeometryObject):
     x: float = dataclasses.field(metadata={"description": "The x-coordinate."})
     y: float = dataclasses.field(metadata={"description": "The y-coordinate."})
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "x", round(self.x, ROUNDING))
         object.__setattr__(self, "y", round(self.y, ROUNDING))
 
@@ -1293,7 +1293,7 @@ class EllipticalArc(GeometryObject):
         metadata={"description": "Sweep flag (0 or 1)."}
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
@@ -1661,7 +1661,7 @@ class Bbox(object):
     width: float = dataclasses.field(metadata={"description": "Width of the box."})
     height: float = dataclasses.field(metadata={"description": "Height of the box."})
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "width", round(self.width, ROUNDING))
         object.__setattr__(self, "height", round(self.height, ROUNDING))
 

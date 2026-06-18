@@ -51,7 +51,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
     the per-model-element catalogue of key shapes and anchors.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         object.__setattr__(
             self,
@@ -139,7 +139,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
             {"_singleton_to_key": dict(self._singleton_to_key)},
         )
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
         object.__setattr__(
             self,
@@ -149,9 +149,19 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
 
 
 class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
+    """Mutable builder for [LayoutModelMapping][momapy.core.LayoutModelMapping].
+
+    Builds a layout-to-model mapping incrementally, then produces a frozen
+    [LayoutModelMapping][momapy.core.LayoutModelMapping] via `build()`. It
+    keeps the same key conventions as the frozen mapping (singleton layout
+    keys and frozenset keys, each frozenset anchored in `_singleton_to_key`),
+    but uses mutable containers so elements can be added or replaced while a
+    map is being constructed.
+    """
+
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._singleton_to_key = SurjectionDict()
 
@@ -205,7 +215,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
         layout_element: "LayoutElement",
         model_element: "ModelElement",
         anchor: "LayoutElement | None" = None,
-    ):
+    ) -> None:
         """Add a layout-element to model-element entry to the mapping.
 
         The mapping is many-to-one: several layout elements may map to the
@@ -277,7 +287,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
             {"_singleton_to_key": dict(self._singleton_to_key)},
         )
 
-    def __setstate__(self, state):
+    def __setstate__(self, state) -> None:
         """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
         self._singleton_to_key = SurjectionDict(state["_singleton_to_key"])
 

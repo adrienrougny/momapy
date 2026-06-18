@@ -37,7 +37,7 @@ class PluginRegistry(typing.Generic[T]):
         ```
     """
 
-    def __init__(self, entry_point_group: str | None = None):
+    def __init__(self, entry_point_group: str | None = None) -> None:
         """Initialize the registry.
 
         Args:

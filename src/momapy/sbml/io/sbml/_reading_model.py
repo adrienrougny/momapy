@@ -94,7 +94,7 @@ def make_notes_from_element(sbml_element):
 
 def make_and_add_annotations_and_notes(
     reading_context, sbml_element, model_element, source_id=None
-):
+) -> None:
     """Add the annotations and notes of an SBML element to the context.
 
     Args:
@@ -118,7 +118,7 @@ def make_and_add_annotations_and_notes(
                 reading_context.source_id_to_notes[source_id].update(notes)
 
 
-def _register_model_element(reading_context, model_element, collection, id_):
+def register_model_element(reading_context, model_element, collection, id_):
     """Add a model element to a collection with id-based deduplication.
 
     If an equal element already exists in the collection, the one with the

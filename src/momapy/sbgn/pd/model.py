@@ -832,7 +832,7 @@ class SBGNPDModel(SBGNModel):
             SimpleChemicalMultimerSubunit: SimpleChemicalMultimer,
         }
 
-        def _check_entities(entities, entity_variables_mapping=None):
+        def _check_entities(entities, entity_variables_mapping=None) -> bool:
             if entity_variables_mapping is None:
                 entity_variables_mapping = {}
             for entity in entities:

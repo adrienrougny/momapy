@@ -23,7 +23,6 @@ logic inputs, terminal/tag references).
 import os
 import abc
 import collections
-import dataclasses
 import typing
 
 import frozendict
@@ -38,10 +37,10 @@ from momapy.core.elements import Direction
 from momapy.core.layout import TextLayout
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
-from momapy.io.utils import ReadingContext
-from momapy.io.utils import apply_remap_to_layout_model_mapping
-from momapy.io.utils import build_id_mappings
-from momapy.io.utils import _register_model_element
+from momapy.io._utils import apply_remap_to_layout_model_mapping
+from momapy.io._utils import build_id_mappings
+from momapy.io._utils import register_model_element
+from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
 from momapy.coloring import Color
 from momapy.positioning import set_fit
 from momapy.builder import get_or_make_builder_cls
@@ -154,43 +153,6 @@ from momapy.sbgn.io.sbgnml._reading_layout import (
 )
 
 
-@dataclasses.dataclass
-class SBGNMLReadingContext(ReadingContext):
-    """SBGN-specific reading context."""
-
-    sbgnml_compartments: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_entity_pools: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_logical_operators: list[lxml.objectify.ObjectifiedElement] = (
-        dataclasses.field(default_factory=list)
-    )
-    sbgnml_stoichiometric_processes: list[lxml.objectify.ObjectifiedElement] = (
-        dataclasses.field(default_factory=list)
-    )
-    sbgnml_phenotypes: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_submaps: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_activities: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_modulations: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_tags: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    sbgnml_glyph_id_to_sbgnml_arcs: dict[
-        str, list[lxml.objectify.ObjectifiedElement]
-    ] = dataclasses.field(default_factory=dict)
-    empty_set_xml_ids: set[str] = dataclasses.field(default_factory=set)
-
-
 class _SBGNMLReader(Reader):
     @classmethod
     def read(
@@ -270,7 +232,7 @@ class _SBGNMLReader(Reader):
         pass
 
     @classmethod
-    def _parse_sbgnml_map(cls, reading_context):
+    def _parse_sbgnml_map(cls, reading_context) -> None:
         """Classify glyphs and arcs from the XML root into the reading context."""
         sbgnml_map = reading_context.xml_root
         map_key = reading_context.map_key
@@ -596,7 +558,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.compartments,
@@ -649,7 +611,7 @@ class _SBGNMLReader(Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.entity_pools,
@@ -878,7 +840,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.activities,
@@ -1048,7 +1010,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.submaps,
@@ -1168,7 +1130,7 @@ class _SBGNMLReader(Reader):
                     reference_map_elements.append((reference_model, reference_layout))
             if tag_model is not None:
                 tag_model = object_from_builder(tag_model)
-                tag_model = _register_model_element(
+                tag_model = register_model_element(
                     reading_context,
                     tag_model,
                     reading_context.model.tags,
@@ -1226,7 +1188,7 @@ class _SBGNMLReader(Reader):
                 super_layout_element=None,
             )
             if model_element is not None:
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
@@ -1308,7 +1270,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.processes,
@@ -1444,7 +1406,7 @@ class _SBGNMLReader(Reader):
         sbgnml_production_arc,
         super_sbgnml_element,
         process_direction,
-    ):
+    ) -> None:
         """Set has_external_source / has_external_sink on the parent process.
 
         Production arcs to an empty-set glyph mean external sink, except
@@ -1510,7 +1472,7 @@ class _SBGNMLReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.logical_operators,
@@ -1640,7 +1602,7 @@ class _SBGNMLReader(Reader):
                     source_model_element,
                     target_model_element,
                 )
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     (

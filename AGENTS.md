@@ -55,7 +55,7 @@ src/momapy/
 │   ├── af/           # SBGN Activity Flow glyphs (package)
 │   ├── utils.py      # SBGN utilities (tidying, fitting)
 │   └── io/sbgnml/    # SBGN-ML I/O (see I/O Architecture below)
-│       ├── reader.py, _reading_model.py, _reading_layout.py, ...
+│       ├── reader.py, _reading_context.py, _reading_model.py, _reading_layout.py, ...
 │       └── writer.py, _writing.py, _writing_classification.py
 ├── celldesigner/     # CellDesigner format support (same I/O module structure)
 ├── sbml/             # SBML support
@@ -261,31 +261,46 @@ ride in the same signature.
 The public I/O surface is exactly: `read`/`write`, `Reader`/`Writer`, the
 `get_*`/`list_*`/`register_*` registry functions, and
 `ReaderResult`/`WriterResult`. The context dataclasses
-(`ReadingContext`/`WritingContext`) are **internal** (`momapy.io.utils.__all__`
-is empty), as are the `make_*` functions in the
-`_reading_*`/`_writing_*`/`reader.py`/`writer.py` modules — not part of the
-public contract, inventoried in `API_REFERENCE.md` for maintainer orientation
-only, and may change without a deprecation cycle.
+(`ReadingContext`/`WritingContext` and their per-format subclasses) are
+**internal** (`momapy.io._utils.__all__` is empty), as are the `make_*` and
+serialization helper functions in the `_reading_*`/`_writing_*` modules — not
+part of the public contract, inventoried in `API_REFERENCE.md` for maintainer
+orientation only, and may change without a deprecation cycle.
 
 ### Module structure
 
+**Privacy convention.** Privacy is marked at the lowest fully-internal scope. A
+wholly-internal *module* carries the underscore in its filename (`_writing.py`),
+and its module-level contents are then **public-named** (no per-symbol
+underscore) — module privacy covers them, as in the stdlib (`_pydecimal`, …). A
+*public* module (`reader.py`/`writer.py`) holds **only** public API: an internal
+symbol that must live there gets the underscore on the *symbol* (e.g. the
+internal base `_SBGNMLReader` in `reader.py`). Consequences: no `def _foo` inside
+a `_module.py`, and no free helper functions or module state in
+`reader.py`/`writer.py`.
+
+The shared base contexts and ID-remapping helpers live in the private module
+`io/_utils.py` (`__all__ = []`).
+
 Each format lives in its own subpackage (e.g. `sbgn/io/sbgnml/`, `celldesigner/io/celldesigner/`) with:
 
-- `reader.py` — main reader class (only the `read()` classmethod) + module-level `make_*` functions
+- `reader.py` — **only** the public `Reader` class(es) (the `read()` entry point), plus an underscored internal base (e.g. `_SBGNMLReader`) where the format has one
+- `_reading_context.py` — the format's `ReadingContext` subclass
 - `_reading_model.py` — model-building `make_*` functions
 - `_reading_layout.py` — layout-building `make_*` functions
 - `_reading_classification.py` — maps XML keys to model/layout classes (reader-specific)
 - `_reading_parsing.py` — XML traversal utilities
-- `writer.py` — main writer class (only the `write()` classmethod) + module-level `make_*` functions
-- `_writing.py` — XML construction helpers
+- `writer.py` — **only** the public `Writer` class(es) (the `write()` entry point)
+- `_writing_context.py` — the format's `WritingContext` subclass (CellDesigner only; sbgnml/sbml writers use the base `WritingContext`)
+- `_writing.py` — XML construction + serialization helpers (public-named)
 - `_writing_classification.py` — maps model/layout classes to XML strings (writer-specific)
 
 ### Context objects
 
-Both readers and writers use a **context dataclass** passed as the first argument to every function:
+Both readers and writers use a **context dataclass** passed as the first argument to every function. The base classes live in `io/_utils.py`; each format's subclass lives in its own `_reading_context.py` / `_writing_context.py`:
 
-- **`ReadingContext`** (extends `momapy.io.utils.ReadingContext`): holds `model`, `layout`, `layout_model_mapping`, element ID lookups, classified XML element lists, annotations/notes state. Format-specific subclasses add fields (e.g. `sbgnml_glyph_id_to_sbgnml_arcs`).
-- **`WritingContext`**: holds `map_`, `annotations`, `notes`, `ids`, flags.
+- **`ReadingContext`** (base in `momapy.io._utils`): holds `model`, `layout`, `layout_model_mapping`, element ID lookups, classified XML element lists, annotations/notes state. Format-specific subclasses add fields (e.g. `sbgnml_glyph_id_to_sbgnml_arcs`).
+- **`WritingContext`** (base in `momapy.io._utils`): holds `map_`, `annotations`, `notes`, `ids`, flags.
 
 There is no separate "parsed map" dataclass — classified element lists live directly in the context.
 

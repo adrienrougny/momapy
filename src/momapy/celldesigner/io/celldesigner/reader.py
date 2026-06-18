@@ -65,7 +65,6 @@ Element-specific patterns:
 
 import os
 import collections
-import dataclasses
 import typing
 import warnings
 
@@ -74,11 +73,10 @@ import lxml.objectify
 
 from momapy.core.mapping import LayoutModelMappingBuilder
 from momapy.io.core import Reader, ReaderResult
-from momapy.io.utils import (
-    ReadingContext,
+from momapy.io._utils import (
     apply_remap_to_layout_model_mapping,
     build_id_mappings,
-    _register_model_element,
+    register_model_element,
 )
 from momapy.builder import object_from_builder
 from momapy.utils import IdentityMultiDict, add_or_replace_element_in_set
@@ -103,11 +101,13 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_key_from_species,
     get_key_from_species_template,
     get_modification_residues,
-    get_modifier_species_references,
+    get_modifier_metaid,
     get_notes,
+    get_product_id,
     get_ordered_compartment_aliases,
     get_product_links,
     get_products,
+    get_reactant_id,
     get_reactant_links,
     get_reactants,
     get_reaction_modifications,
@@ -128,6 +128,9 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 )
 from momapy.celldesigner.io.celldesigner import _reading_model
 from momapy.celldesigner.io.celldesigner import _reading_layout
+from momapy.celldesigner.io.celldesigner._reading_context import (
+    CellDesignerReadingContext,
+)
 from momapy.celldesigner.model import (
     AndGate,
     AntisenseRNA,
@@ -233,113 +236,6 @@ from momapy.celldesigner.layout import (
     UnknownTransitionLayout,
     UnknownTriggeringLayout,
 )
-
-
-def _get_reactant_id(cd_base_reactant_or_link, cd_reaction):
-    """Compute a deterministic ID for a reactant from XML data.
-
-    Uses the SBML speciesReference metaid if available, otherwise
-    falls back to ``f"{reaction_id}_{species_id}"``.
-
-    Args:
-        cd_base_reactant_or_link: The base reactant or reactant link element.
-        cd_reaction: The parent reaction element.
-
-    Returns:
-        A deterministic ID string.
-    """
-    cd_species_id = cd_base_reactant_or_link.get(
-        "species"
-    ) or cd_base_reactant_or_link.get("reactant")
-    for cd_reactant in get_reactants(cd_reaction):
-        if cd_reactant.get("species") == cd_species_id:
-            metaid = cd_reactant.get("metaid")
-            if metaid is not None:
-                return metaid
-            break
-    return f"{cd_reaction.get('id')}_{cd_species_id}"
-
-
-def _get_product_id(cd_base_product_or_link, cd_reaction):
-    """Compute a deterministic ID for a product from XML data.
-
-    Uses the SBML speciesReference metaid if available, otherwise
-    falls back to ``f"{reaction_id}_{species_id}"``.
-
-    Args:
-        cd_base_product_or_link: The base product or product link element.
-        cd_reaction: The parent reaction element.
-
-    Returns:
-        A deterministic ID string.
-    """
-    cd_species_id = cd_base_product_or_link.get(
-        "species"
-    ) or cd_base_product_or_link.get("product")
-    for cd_product in get_products(cd_reaction):
-        if cd_product.get("species") == cd_species_id:
-            metaid = cd_product.get("metaid")
-            if metaid is not None:
-                return metaid
-            break
-    return f"{cd_reaction.get('id')}_{cd_species_id}"
-
-
-def _get_modifier_metaid(cd_reaction_modification, cd_reaction):
-    """Resolve the SBML modifierSpeciesReference metaid for a modifier.
-
-    Args:
-        cd_reaction_modification: The modification element.
-        cd_reaction: The parent reaction element.
-
-    Returns:
-        The metaid string, or None if not found.
-    """
-    cd_modifier_species_id = cd_reaction_modification.get("modifiers")
-    if cd_modifier_species_id is not None:
-        for modifier_species_reference in get_modifier_species_references(cd_reaction):
-            if modifier_species_reference.get("species") == cd_modifier_species_id:
-                return modifier_species_reference.get("metaid")
-    return None
-
-
-@dataclasses.dataclass
-class CellDesignerReadingContext(ReadingContext):
-    """CellDesigner-specific reading context."""
-
-    cd_complex_alias_id_to_cd_included_species_ids: dict[str, list[str]] = (
-        dataclasses.field(default_factory=dict)
-    )
-    cd_compartment_aliases: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    cd_compartments: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    cd_species_templates: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    cd_species_aliases: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    cd_reactions: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    cd_modulations: list[lxml.objectify.ObjectifiedElement] = dataclasses.field(
-        default_factory=list
-    )
-    real_model_source_ids: set[str] = dataclasses.field(default_factory=set)
-    real_layout_source_ids: set[str] = dataclasses.field(default_factory=set)
-    canvas_width: float = dataclasses.field(
-        default=0.0,
-        metadata={"description": "Width of the CellDesigner canvas."},
-    )
-    canvas_height: float = dataclasses.field(
-        default=0.0,
-        metadata={"description": "Height of the CellDesigner canvas."},
-    )
-    cd_degraded_alias_ids: set[str] = dataclasses.field(default_factory=set)
-    cd_degraded_species_ids: set[str] = dataclasses.field(default_factory=set)
 
 
 class CellDesignerReader(Reader):
@@ -607,7 +503,7 @@ class CellDesignerReader(Reader):
     }
 
     @classmethod
-    def _parse_cd_model(cls, reading_context):
+    def _parse_cd_model(cls, reading_context) -> None:
         """Pre-scan the CellDesigner model into categorized element lists.
 
         Populates reading_context with ID mappings and categorized
@@ -682,7 +578,7 @@ class CellDesignerReader(Reader):
                 if metaid is not None:
                     real_model_ids.add(metaid)
             for cd_modifier in get_reaction_modifications(cd_reaction):
-                metaid = _get_modifier_metaid(cd_modifier, cd_reaction)
+                metaid = get_modifier_metaid(cd_modifier, cd_reaction)
                 if metaid is not None:
                     real_model_ids.add(metaid)
 
@@ -994,7 +890,7 @@ class CellDesignerReader(Reader):
                     )
                 model_element.outside = outside_model_element
             model_element = object_from_builder(model_element)
-            model_element = _register_model_element(
+            model_element = register_model_element(
                 reading_context,
                 model_element,
                 reading_context.model.compartments,
@@ -1068,7 +964,7 @@ class CellDesignerReader(Reader):
                     order=order,
                 )
             model_element = object_from_builder(model_element)
-            model_element = _register_model_element(
+            model_element = register_model_element(
                 reading_context,
                 model_element,
                 reading_context.model.species_templates,
@@ -1124,7 +1020,6 @@ class CellDesignerReader(Reader):
                 super_cd_element,
                 order,
             )
-            cd_region_id = model_element.id_
             model_element = object_from_builder(model_element)
             super_model_element.regions.add(model_element)
             # we use the model element's id (a composite of the parent and
@@ -1289,7 +1184,7 @@ class CellDesignerReader(Reader):
             if reading_context.model is not None and model_element is not None:
                 model_element = object_from_builder(model_element)
                 if super_model_element is None:  # species case
-                    model_element = _register_model_element(
+                    model_element = register_model_element(
                         reading_context,
                         model_element,
                         reading_context.model.species,
@@ -1638,7 +1533,7 @@ class CellDesignerReader(Reader):
                     layout_elements_for_mapping.append(modifier_layout_element.source)
             if reading_context.model is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.reactions,
@@ -1702,7 +1597,7 @@ class CellDesignerReader(Reader):
         super_model_element,
         super_layout_element,
     ):
-        cd_reactant_id = _get_reactant_id(cd_base_reactant, super_cd_element)
+        cd_reactant_id = get_reactant_id(cd_base_reactant, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_reactant_from_base(
                 reading_context,
@@ -1745,7 +1640,7 @@ class CellDesignerReader(Reader):
         super_model_element,
         super_layout_element,
     ):
-        cd_reactant_id = _get_reactant_id(cd_reactant_link, super_cd_element)
+        cd_reactant_id = get_reactant_id(cd_reactant_link, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_reactant_from_link(
                 reading_context,
@@ -1788,7 +1683,7 @@ class CellDesignerReader(Reader):
         super_model_element,
         super_layout_element,
     ):
-        cd_product_id = _get_product_id(cd_base_product, super_cd_element)
+        cd_product_id = get_product_id(cd_base_product, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_product_from_base(
                 reading_context,
@@ -1831,7 +1726,7 @@ class CellDesignerReader(Reader):
         super_model_element,
         super_layout_element,
     ):
-        cd_product_id = _get_product_id(cd_product_link, super_cd_element)
+        cd_product_id = get_product_id(cd_product_link, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_product_from_link(
                 reading_context,
@@ -1886,7 +1781,7 @@ class CellDesignerReader(Reader):
                         cd_reaction_id=super_cd_element.get("id"),
                     )
                 )
-            modifier_metaid = _get_modifier_metaid(
+            modifier_metaid = get_modifier_metaid(
                 cd_reaction_modification, super_cd_element
             )
             if reading_context.model is not None:
@@ -2007,7 +1902,7 @@ class CellDesignerReader(Reader):
                     )
             if model_element is not None:
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.boolean_logic_gates,
@@ -2091,7 +1986,7 @@ class CellDesignerReader(Reader):
                     target_model_element,
                 )
                 model_element = object_from_builder(model_element)
-                model_element = _register_model_element(
+                model_element = register_model_element(
                     reading_context,
                     model_element,
                     reading_context.model.modulations,

@@ -420,7 +420,7 @@ def apply_remap_to_layout_model_mapping(
                 layout_model_mapping[layout_element] = new_model_element_key
 
 
-def _register_model_element(
+def register_model_element(
     reading_context: ReadingContext,
     model_element: ModelElement,
     collection: set,

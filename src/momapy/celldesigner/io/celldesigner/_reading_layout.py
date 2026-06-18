@@ -27,7 +27,7 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_width,
     make_name,
 )
-from momapy.celldesigner.io.celldesigner._writing import _are_collinear
+from momapy.celldesigner.io.celldesigner._writing import are_collinear
 from momapy.celldesigner.layout import CellDesignerLayout
 from momapy.celldesigner.layout import (
     AntisenseRNAActiveLayout,
@@ -93,7 +93,7 @@ _LAYOUT_TO_ACTIVE_LAYOUT = {
 }
 
 
-def _apply_line_attributes(layout_element, cd_line_element):
+def apply_line_attributes(layout_element, cd_line_element) -> None:
     """Apply width and color from a ``<cd:line>`` XML element to a layout.
 
     Sets ``path_stroke_width`` and ``path_stroke`` on the layout, and
@@ -143,7 +143,7 @@ def make_empty_layout(cd_element):
     return layout
 
 
-def set_layout_size_and_position(reading_context, cd_model):
+def set_layout_size_and_position(reading_context, cd_model) -> None:
     """Populate the layout size and center from the CellDesigner model.
 
     Args:
@@ -380,7 +380,7 @@ _CD_CLASS_TO_SIDE = {
 }
 
 
-def _corner_region(corner, px, py, canvas_width, canvas_height):
+def corner_region(corner, px, py, canvas_width, canvas_height):
     """Return the (left, top, right, bottom) rectangle for a corner close-up.
 
     Args:
@@ -402,7 +402,7 @@ def _corner_region(corner, px, py, canvas_width, canvas_height):
     return 0.0, 0.0, px, py  # SOUTHEAST
 
 
-def _side_region(side, px, py, canvas_width, canvas_height):
+def side_region(side, px, py, canvas_width, canvas_height):
     """Return the (left, top, right, bottom) rectangle for a side close-up.
 
     Args:
@@ -459,7 +459,7 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
         px = float(cd_point.get("x"))
         py = float(cd_point.get("y"))
         if corner is not None:
-            left, top, right, bottom = _corner_region(
+            left, top, right, bottom = corner_region(
                 corner,
                 px,
                 py,
@@ -468,7 +468,7 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
             )
             layout_element.corner = corner
         else:
-            left, top, right, bottom = _side_region(
+            left, top, right, bottom = side_region(
                 side,
                 px,
                 py,
@@ -603,7 +603,7 @@ def make_segments_left_t_shape(reading_context, cd_reaction):
     origin = reactant_layout_element_0.center()
     unit_x = reactant_layout_element_1.center()
     unit_y = product_layout_element.center()
-    if _are_collinear(unit_x, unit_y, origin):
+    if are_collinear(unit_x, unit_y, origin):
         origin = Point(origin.x + 1, origin.y + 1)
     transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
@@ -658,7 +658,7 @@ def make_segments_right_t_shape(reading_context, cd_reaction):
     origin = reactant_layout_element.center()
     unit_x = product_layout_element_0.center()
     unit_y = product_layout_element_1.center()
-    if _are_collinear(unit_x, unit_y, origin):
+    if are_collinear(unit_x, unit_y, origin):
         origin = Point(origin.x + 1, origin.y + 1)
     transformation = get_transformation_for_frame(origin, unit_x, unit_y)
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
@@ -744,7 +744,7 @@ def make_reaction(
         ]
     cd_extension = get_extension(cd_reaction)
     cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element, make_base_reactant_layouts, make_base_product_layouts
 
 
@@ -813,7 +813,7 @@ def make_reactant_from_base(
     layout_element.target = species_layout_element
     cd_extension = get_extension(cd_reaction)
     cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -865,7 +865,7 @@ def make_reactant_from_link(reading_context, cd_reactant_link, super_layout_elem
     layout_element.source = super_layout_element
     layout_element.target = species_layout_element
     cd_line = getattr(cd_reactant_link, "line", None)
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -934,7 +934,7 @@ def make_product_from_base(
     layout_element.target = product_layout_element
     cd_extension = get_extension(cd_reaction)
     cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -986,7 +986,7 @@ def make_product_from_link(reading_context, cd_product_link, super_layout_elemen
     layout_element.source = super_layout_element
     layout_element.target = species_layout_element
     cd_line = getattr(cd_product_link, "line", None)
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -1000,7 +1000,7 @@ _TARGET_LINE_INDEX_TO_ANCHOR_NAME = {
 }
 
 
-def _get_anchor_point_from_target_line_index(reaction_layout, target_line_index):
+def get_anchor_point_from_target_line_index(reaction_layout, target_line_index):
     """Compute the anchor point on the reaction node from targetLineIndex.
 
     The targetLineIndex format is "segmentIndex,anchorId" where anchorId
@@ -1074,7 +1074,7 @@ def make_modifier(
         ]  # first point is origin marker (0,0), last point is the position of the logic gate
     origin = source_layout_element.anchor_point(source_anchor_name)
     cd_target_line_index = cd_reaction_modification.get("targetLineIndex")
-    target_anchor_point = _get_anchor_point_from_target_line_index(
+    target_anchor_point = get_anchor_point_from_target_line_index(
         super_layout_element, cd_target_line_index
     )
     if target_anchor_point is not None:
@@ -1109,7 +1109,7 @@ def make_modifier(
     layout_element.source = source_layout_element
     layout_element.target = super_layout_element
     cd_line = getattr(cd_reaction_modification, "line", None)
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element
 
 
@@ -1128,16 +1128,11 @@ def make_logic_gate(reading_context, cd_element, layout_element_cls):
     """
     if reading_context.layout is None:
         return None
-    cd_id_to_layout_element = reading_context.xml_id_to_layout_element
     layout_element = new_builder_object(layout_element_cls)
     cd_edit_points = cd_element.get("editPoints")
     edit_points = make_points(cd_edit_points)
     position = edit_points[-1]
     layout_element.position = position
-    cd_modifiers = cd_element.get("aliases")
-    layout_input_elements = [
-        cd_id_to_layout_element[cd_input_id] for cd_input_id in cd_modifiers.split(",")
-    ]
     return layout_element
 
 
@@ -1244,5 +1239,5 @@ def make_modulation(
     layout_element.target = target_layout_element
     cd_extension = get_extension(cd_reaction)
     cd_line = getattr(cd_extension, "line", None) if cd_extension is not None else None
-    _apply_line_attributes(layout_element, cd_line)
+    apply_line_attributes(layout_element, cd_line)
     return layout_element

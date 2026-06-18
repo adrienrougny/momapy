@@ -105,7 +105,7 @@ class SVGElement(object):
             s_elements = ""
         return f"{s_indent}<{self.name}{s_attributes}>\n{s_value}{s_elements}{s_indent}</{self.name}>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_string()
 
     def add_element(self, element: "SVGElement") -> None:
@@ -332,7 +332,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = self._make_drawing_element_element(drawing_element)
         self.svg.add_element(element)
 
-    def _make_color_value(self, color):
+    def _make_color_value(self, color) -> str:
         return f"rgb({color.red}, {color.green}, {color.blue})"
 
     def _make_opacity_value(self, color):
@@ -550,16 +550,16 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         value = pa_func(path_action)
         return value
 
-    def _make_move_to_value(self, move_to):
+    def _make_move_to_value(self, move_to) -> str:
         return f"M {move_to.x} {move_to.y}"
 
-    def _make_line_to_value(self, line_to):
+    def _make_line_to_value(self, line_to) -> str:
         return f"L {line_to.x} {line_to.y}"
 
-    def _make_close_value(self, close):
+    def _make_close_value(self, close) -> str:
         return "Z"
 
-    def _make_elliptical_arc_value(self, elliptical_arc):
+    def _make_elliptical_arc_value(self, elliptical_arc) -> str:
         return (
             f"A {elliptical_arc.rx} "
             f"{elliptical_arc.ry} "
@@ -570,7 +570,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             f"{elliptical_arc.y}"
         )
 
-    def _make_quadratic_curve_to_value(self, quadratic_curve_to):
+    def _make_quadratic_curve_to_value(self, quadratic_curve_to) -> str:
         return (
             f"Q {quadratic_curve_to.control_point.x} "
             f"{quadratic_curve_to.control_point.y} "
@@ -578,7 +578,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             f"{quadratic_curve_to.y}"
         )
 
-    def _make_curve_to_value(self, curve_to):
+    def _make_curve_to_value(self, curve_to) -> str:
         return (
             f"C {curve_to.control_point1.x} "
             f"{curve_to.control_point1.y} "
@@ -653,7 +653,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes)
         return element
 
-    def _make_translation_value(self, translation):
+    def _make_translation_value(self, translation) -> str:
         return f"translate({translation.tx} {translation.ty})"
 
     def _make_rotation_value(self, rotation):
@@ -666,10 +666,10 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         value = f"rotate({angle}{s_point})"
         return value
 
-    def _make_scaling_value(self, scaling):
+    def _make_scaling_value(self, scaling) -> str:
         return f"scale({scaling.sx} {scaling.sy})"
 
-    def _make_matrix_transformation_value(self, matrix_transformation):
+    def _make_matrix_transformation_value(self, matrix_transformation) -> str:
         m = matrix_transformation.m
         a, b = m[0][0], m[1][0]
         c, d = m[0][1], m[1][1]

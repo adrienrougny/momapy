@@ -316,7 +316,7 @@ def set_arcs_to_borders(
 
     def _set_arc_to_borders(
         arc_layout_element, source, source_type, target, target_type
-    ):
+    ) -> None:
         points = arc_layout_element.points()
         if source_type == "left":
             start_point = source.left_connector_tip()
@@ -516,7 +516,7 @@ def set_auxiliary_units_to_borders(
             a new map is returned.
     """
 
-    def _rec_set_auxiliary_units_to_borders(layout_element):
+    def _rec_set_auxiliary_units_to_borders(layout_element) -> None:
         for child in layout_element.children():
             if isinstance_or_builder(child, _AUXILIARY_UNIT_LAYOUT_CLASSES):
                 position = layout_element.own_border(child.position)
@@ -553,7 +553,9 @@ def set_auxiliary_units_label_font_size(
             a new map is returned.
     """
 
-    def _rec_set_auxiliary_units_label_font_size(layout_element, font_size: float):
+    def _rec_set_auxiliary_units_label_font_size(
+        layout_element, font_size: float
+    ) -> None:
         for child in layout_element.children():
             if isinstance_or_builder(child, _AUXILIARY_UNIT_LAYOUT_CLASSES):
                 if child.label is not None:

@@ -510,7 +510,7 @@ def set_position(
     obj: Builder,
     position: Point | Builder,
     anchor: str | None = None,
-):
+) -> None:
     """Set the position of a builder object.
 
     Args:
@@ -537,7 +537,7 @@ def set_right_of(
     obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position to the right of obj2 at the specified distance.
 
     Args:
@@ -555,7 +555,7 @@ def set_left_of(
     obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position to the left of obj2 at the specified distance.
 
     Args:
@@ -573,7 +573,7 @@ def set_above_of(
     obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position above obj2 at the specified distance.
 
     Args:
@@ -591,7 +591,7 @@ def set_below_of(
     obj2: (Point | Bbox | LayoutElement | Builder),
     distance: float,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position below obj2 at the specified distance.
 
     Args:
@@ -610,7 +610,7 @@ def set_above_left_of(
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position above and to the left of obj2.
 
     Args:
@@ -630,7 +630,7 @@ def set_above_right_of(
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position above and to the right of obj2.
 
     Args:
@@ -650,7 +650,7 @@ def set_below_left_of(
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position below and to the left of obj2.
 
     Args:
@@ -670,7 +670,7 @@ def set_below_right_of(
     distance1: float,
     distance2: float | None = None,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position below and to the right of obj2.
 
     Args:
@@ -690,7 +690,7 @@ def set_fit(
     xsep: float = 0,
     ysep: float = 0,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj's dimensions and position to fit the given elements.
 
     Args:
@@ -711,7 +711,7 @@ def set_fraction_of(
     arc_layout_element: (SingleHeadedArc | DoubleHeadedArc),
     fraction: float,
     anchor: str | None = None,
-):
+) -> None:
     """Set obj's position and rotation along an arc at the given fraction.
 
     Args:
@@ -731,7 +731,7 @@ def set_mid_of(
     obj2: (Point | Bbox | Node | Builder),
     obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position to the midpoint between obj2 and obj3.
 
     Args:
@@ -749,7 +749,7 @@ def set_cross_hv_of(
     obj2: (Point | Bbox | Node | Builder),
     obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position at the horizontal-vertical cross of obj2 and obj3.
 
     Creates a point using obj2's y-coordinate and obj3's x-coordinate.
@@ -769,7 +769,7 @@ def set_cross_vh_of(
     obj2: (Point | Bbox | Node | Builder),
     obj3: (Point | Bbox | Node | Builder),
     anchor: str | None = None,
-):
+) -> None:
     """Set obj1's position at the vertical-horizontal cross of obj2 and obj3.
 
     Creates a point using obj2's x-coordinate and obj3's y-coordinate.

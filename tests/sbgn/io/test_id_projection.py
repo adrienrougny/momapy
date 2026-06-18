@@ -10,9 +10,8 @@ import re
 import pytest
 
 import momapy.io.core
-import momapy.io.utils
+import momapy.io._utils
 import momapy.sbgn.io.sbgnml._writing as sbgn_writing
-import momapy.sbgn.io.sbgnml.writer as sbgn_writer
 import momapy.utils
 
 _NCNAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_.\-]*$")
@@ -27,7 +26,7 @@ class _FakeElement:
 
 
 def _writing_context(source_id_to_layout_element=None):
-    return momapy.io.utils.WritingContext(
+    return momapy.io._utils.WritingContext(
         map_=None,
         element_to_annotations={},
         element_to_notes={},
@@ -67,14 +66,14 @@ class TestGetXmlId:
     def test_from_scratch_uuid_projects_to_valid_ncname(self):
         ctx = _writing_context()
         element = _FakeElement("89a50724-5240-4529-ae7a-179ae994ec38")
-        result = sbgn_writer._get_xml_id(ctx, element)
+        result = sbgn_writing.get_xml_id(ctx, element)
         assert _NCNAME.match(result)
 
     def test_same_element_is_stable(self):
         ctx = _writing_context()
         element = _FakeElement("9x")
-        first = sbgn_writer._get_xml_id(ctx, element)
-        assert sbgn_writer._get_xml_id(ctx, element) == first
+        first = sbgn_writing.get_xml_id(ctx, element)
+        assert sbgn_writing.get_xml_id(ctx, element) == first
 
     def test_distinct_elements_projecting_equal_are_deduped(self):
         ctx = _writing_context()
@@ -82,8 +81,8 @@ class TestGetXmlId:
         # Bind both objects so they stay alive: the memo is keyed by id().
         element_a = _FakeElement("foo:x")
         element_b = _FakeElement("foo_x")
-        a = sbgn_writer._get_xml_id(ctx, element_a)
-        b = sbgn_writer._get_xml_id(ctx, element_b)
+        a = sbgn_writing.get_xml_id(ctx, element_a)
+        b = sbgn_writing.get_xml_id(ctx, element_b)
         assert {a, b} == {"foo_x", "foo_x_1"}
 
     def test_reserved_source_id_is_kept_verbatim(self):
@@ -91,10 +90,10 @@ class TestGetXmlId:
         bad = _FakeElement("9bad")
         source_map = momapy.utils.FrozenSurjectionDict({"glyph1": good, "9bad": bad})
         ctx = _writing_context(source_map)
-        sbgn_writer._reserve_source_xml_ids(ctx)
-        assert sbgn_writer._get_xml_id(ctx, good) == "glyph1"
+        sbgn_writing.reserve_source_xml_ids(ctx)
+        assert sbgn_writing.get_xml_id(ctx, good) == "glyph1"
         # Invalid source id was not reserved; it gets projected on demand.
-        assert _NCNAME.match(sbgn_writer._get_xml_id(ctx, bad))
+        assert _NCNAME.match(sbgn_writing.get_xml_id(ctx, bad))
 
 
 def _sbgn_files():

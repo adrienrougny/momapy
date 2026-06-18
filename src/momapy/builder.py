@@ -107,7 +107,7 @@ _immutable_collection_to_builder: dict[type, type] = {
 }
 
 
-def _transform_type(type_, make_optional=False, make_union=False):
+def _transform_type(type_, make_optional: bool = False, make_union: bool = False):
     if isinstance(type_, typing.ForwardRef):
         new_type = typing.ForwardRef(f"{type_.__forward_arg__}Builder")
     else:

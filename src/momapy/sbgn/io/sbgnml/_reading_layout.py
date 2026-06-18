@@ -63,7 +63,7 @@ def make_segments(points):
     return segments
 
 
-def make_arc_segments(sbgnml_arc, reverse=False):
+def make_arc_segments(sbgnml_arc, reverse: bool = False):
     sbgnml_points = get_sbgnml_points(sbgnml_arc)
     if reverse:
         sbgnml_points.reverse()
@@ -71,7 +71,7 @@ def make_arc_segments(sbgnml_arc, reverse=False):
     return make_segments(points)
 
 
-def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element):
+def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element) -> None:
     if sbgnml_stoichiometry is None:
         return
     stoichiometry_layout_element = new_builder_object(CardinalityLayout)
@@ -85,7 +85,7 @@ def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element):
         layout_element.layout_elements.append(stoichiometry_layout_element)
 
 
-def set_connector_lengths(layout_element, sbgnml_element):
+def set_connector_lengths(layout_element, sbgnml_element) -> None:
     left_connector_length, right_connector_length = get_connectors_length(
         sbgnml_element
     )
@@ -95,7 +95,7 @@ def set_connector_lengths(layout_element, sbgnml_element):
         layout_element.right_connector_length = right_connector_length
 
 
-def set_position_and_size(layout_element, sbgnml_glyph):
+def set_position_and_size(layout_element, sbgnml_glyph) -> None:
     sbgnml_bbox = sbgnml_glyph.bbox
     x = float(sbgnml_bbox.get("x"))
     y = float(sbgnml_bbox.get("y"))

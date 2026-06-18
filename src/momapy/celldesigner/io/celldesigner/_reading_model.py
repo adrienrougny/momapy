@@ -75,7 +75,7 @@ def make_notes_from_element(cd_element):
 
 def make_and_add_annotations(
     reading_context, cd_element, model_element, source_id=None
-):
+) -> None:
     """Add annotations from an XML element to the reading context.
 
     Populates both ``element_to_annotations`` (keyed by model element,
@@ -99,7 +99,9 @@ def make_and_add_annotations(
                 reading_context.source_id_to_annotations[source_id].update(annotations)
 
 
-def make_and_add_notes(reading_context, cd_element, model_element, source_id=None):
+def make_and_add_notes(
+    reading_context, cd_element, model_element, source_id=None
+) -> None:
     """Add notes from an XML element to the reading context.
 
     Populates both ``element_to_notes`` (merged view) and
@@ -123,7 +125,7 @@ def make_and_add_notes(reading_context, cd_element, model_element, source_id=Non
 
 def make_and_add_annotations_from_notes(
     reading_context, cd_notes, model_element, source_id=None
-):
+) -> None:
     """Add RDF annotations embedded in a ``<notes>`` block.
 
     Used by the CellDesigner reader for included species, where RDF

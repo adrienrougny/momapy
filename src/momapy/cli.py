@@ -173,13 +173,13 @@ class _AppendStyleSource(argparse.Action):
     interleaved order is preserved for merging.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self, parser, namespace, values, option_string=None) -> None:
         if not hasattr(namespace, "style_sources") or namespace.style_sources is None:
             namespace.style_sources = []
         namespace.style_sources.append((self.const, values))
 
 
-def _translate_layout_element(layout_element, translation_x, translation_y):
+def _translate_layout_element(layout_element, translation_x, translation_y) -> None:
     """Recursively translate all positions in a layout element builder.
 
     Walks the layout element tree and shifts all positional attributes
@@ -252,7 +252,7 @@ def _move_map_to_top_left(map_):
     return object_from_builder(map_builder)
 
 
-def _infer_writer(map_):
+def _infer_writer(map_) -> str:
     """Infer the writer name from the map type.
 
     Args:
@@ -467,7 +467,7 @@ def _read_input(input_file_path):
         os.remove(temporary_file.name)
 
 
-def _write_xml_to_stdout(map_, writer):
+def _write_xml_to_stdout(map_, writer) -> None:
     """Write a map as XML to stdout using a temporary file.
 
     Args:
@@ -488,7 +488,7 @@ def _write_xml_to_stdout(map_, writer):
         os.remove(temporary_file_path)
 
 
-def _write_output(map_, reader_result, output_file_path):
+def _write_output(map_, reader_result, output_file_path) -> None:
     """Write a map to a file or to stdout.
 
     When ``output_file_path`` is given, writes to that file. Otherwise,
@@ -622,7 +622,7 @@ def _extract_element_metadata(
     return metadata
 
 
-def _render_svg_string(layout_element, style_sheet=None, to_top_left=False):
+def _render_svg_string(layout_element, style_sheet=None, to_top_left: bool = False):
     """Render a layout element to an SVG string.
 
     Uses the native SVG renderer directly without writing to a file.
@@ -1133,7 +1133,9 @@ $svg_content
 """)
 
 
-def _visualize_map(map_, style_sheet=None, input_file_path=None, to_top_left=False):
+def _visualize_map(
+    map_, style_sheet=None, input_file_path=None, to_top_left: bool = False
+) -> None:
     """Render a map as an interactive HTML page and open it in the browser.
 
     Generates a self-contained HTML file with the map rendered as inline SVG,
@@ -1481,7 +1483,7 @@ def run(args):
         raise ValueError(f"subcommand {args.subcommand} not supported")
 
 
-def main():
+def main() -> None:
     """Parse command-line arguments and run the appropriate command.
 
     This function sets up the argument parser with subcommands and options,

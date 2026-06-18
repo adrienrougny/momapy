@@ -39,7 +39,7 @@ def make_notes_from_element(sbgnml_element):
 
 def make_and_add_annotations_and_notes(
     reading_context, sbgnml_element, model_element, source_id=None
-):
+) -> None:
     """Add annotations and notes from an SBGN-ML element to the context.
 
     Populates both the merged ``element_to_annotations`` /
@@ -70,13 +70,13 @@ def make_and_add_annotations_and_notes(
                 reading_context.source_id_to_notes[source_id].update(notes)
 
 
-def set_label(model_element, sbgnml_element):
+def set_label(model_element, sbgnml_element) -> None:
     sbgnml_label = getattr(sbgnml_element, "label", None)
     if sbgnml_label is not None:
         model_element.label = sbgnml_label.get("text")
 
 
-def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element):
+def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element) -> None:
     sbgnml_compartment_ref = sbgnml_element.get("compartmentRef")
     if sbgnml_compartment_ref is not None:
         model_element.compartment = next(
@@ -84,7 +84,7 @@ def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element):
         )
 
 
-def set_stoichiometry(model_element, sbgnml_stoichiometry):
+def set_stoichiometry(model_element, sbgnml_stoichiometry) -> None:
     if sbgnml_stoichiometry is None:
         return
     sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)

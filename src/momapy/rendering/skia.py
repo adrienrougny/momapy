@@ -197,7 +197,7 @@ class SkiaRenderer(
         config["format"] = format_
         return cls(canvas=canvas, _config=config)
 
-    def begin_session(self):
+    def begin_session(self) -> None:
         """Begin a rendering session.
 
         This method initializes the rendering context. For SkiaRenderer,
@@ -205,7 +205,7 @@ class SkiaRenderer(
         """
         pass
 
-    def end_session(self):
+    def end_session(self) -> None:
         """End the rendering session and save the output.
 
         This method finalizes the rendering, flushes the canvas, and saves
@@ -299,7 +299,7 @@ class SkiaRenderer(
             de_func(drawing_element)
         self.restore()
 
-    def self_save(self):
+    def self_save(self) -> None:
         """Save the Skia canvas state.
 
         This method saves the current state of the Skia canvas, including
@@ -307,7 +307,7 @@ class SkiaRenderer(
         """
         self.canvas.save()
 
-    def self_restore(self):
+    def self_restore(self) -> None:
         """Restore the Skia canvas state.
 
         This method restores the Skia canvas to the state saved by the
@@ -465,7 +465,7 @@ class SkiaRenderer(
         )
         return skia_filter
 
-    def _add_transform_from_drawing_element(self, drawing_element):
+    def _add_transform_from_drawing_element(self, drawing_element) -> None:
         if (
             drawing_element.transform is not None
             and drawing_element.transform is not NoneValue
@@ -480,11 +480,11 @@ class SkiaRenderer(
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _render_group(self, group):
+    def _render_group(self, group) -> None:
         for drawing_element in group.elements:
             self.render_drawing_element(drawing_element)
 
-    def _add_path_action_to_skia_path(self, skia_path, path_action):
+    def _add_path_action_to_skia_path(self, skia_path, path_action) -> None:
         class_ = type(path_action)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
@@ -497,7 +497,7 @@ class SkiaRenderer(
             self._add_path_action_to_skia_path(skia_path, action)
         return skia_path
 
-    def _render_path(self, path):
+    def _render_path(self, path) -> None:
         skia_path = self._make_skia_path(path)
         if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
@@ -506,7 +506,7 @@ class SkiaRenderer(
             skia_paint = self._make_stroke_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
-    def _render_text(self, text):
+    def _render_text(self, text) -> None:
         font_family = self.get_current_value("font_family")
         font_weight = self.get_current_value("font_weight")
         font_style = self.get_current_value("font_style")
@@ -564,7 +564,7 @@ class SkiaRenderer(
                 paint=skia_paint,
             )
 
-    def _render_ellipse(self, ellipse):
+    def _render_ellipse(self, ellipse) -> None:
         skia_rect = skia.Rect(
             ellipse.x - ellipse.rx,
             ellipse.y - ellipse.ry,
@@ -578,7 +578,7 @@ class SkiaRenderer(
             skia_paint = self._make_stroke_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
 
-    def _render_rectangle(self, rectangle):
+    def _render_rectangle(self, rectangle) -> None:
         skia_rect = skia.Rect(
             rectangle.x,
             rectangle.y,
@@ -602,13 +602,13 @@ class SkiaRenderer(
                 paint=skia_paint,
             )
 
-    def _add_move_to(self, skia_path, move_to):
+    def _add_move_to(self, skia_path, move_to) -> None:
         skia_path.moveTo(move_to.x, move_to.y)
 
-    def _add_line_to(self, skia_path, line_to):
+    def _add_line_to(self, skia_path, line_to) -> None:
         skia_path.lineTo(line_to.x, line_to.y)
 
-    def _add_curve_to(self, skia_path, curve_to):
+    def _add_curve_to(self, skia_path, curve_to) -> None:
         skia_path.cubicTo(
             curve_to.control_point1.x,
             curve_to.control_point1.y,
@@ -618,16 +618,16 @@ class SkiaRenderer(
             curve_to.y,
         )
 
-    def _add_quadratic_curve_to(self, skia_path, quadratic_curve_to):
+    def _add_quadratic_curve_to(self, skia_path, quadratic_curve_to) -> None:
         skia_current_point = skia_path.getPoint(skia_path.countPoints() - 1)
         current_point = Point(skia_current_point.fX, skia_current_point.fY)
         curve_to = quadratic_curve_to.to_curve_to(current_point)
         self._add_curve_to(skia_path, curve_to)
 
-    def _add_close_path(self, skia_path, close_path):
+    def _add_close_path(self, skia_path, close_path) -> None:
         skia_path.close()
 
-    def _add_elliptical_arc(self, skia_path, elliptical_arc):
+    def _add_elliptical_arc(self, skia_path, elliptical_arc) -> None:
         if elliptical_arc.arc_flag == 0:
             skia_arc_flag = skia.Path.ArcSize.kSmall_ArcSize
         else:
@@ -646,20 +646,20 @@ class SkiaRenderer(
             y=elliptical_arc.y,
         )
 
-    def _add_translation(self, translation):
+    def _add_translation(self, translation) -> None:
         self.canvas.translate(dx=translation.tx, dy=translation.ty)
 
-    def _add_rotation(self, rotation):
+    def _add_rotation(self, rotation) -> None:
         angle = math.degrees(rotation.angle)
         if rotation.point is not None:
             self.canvas.rotate(degrees=angle, px=rotation.point.x, py=rotation.point.y)
         else:
             self.canvas.rotate(degrees=angle)
 
-    def _add_scaling(self, scaling):
+    def _add_scaling(self, scaling) -> None:
         self.canvas.scale(sx=scaling.sx, sy=scaling.sy)
 
-    def _add_matrix_transformation(self, matrix_transformation):
+    def _add_matrix_transformation(self, matrix_transformation) -> None:
         m = skia.Matrix.MakeAll(
             scaleX=matrix_transformation.m[0][0],
             skewX=matrix_transformation.m[0][1],

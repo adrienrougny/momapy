@@ -13,7 +13,7 @@ def transform_class(sbgnml_class):
     return sbgnml_class.upper().replace(" ", "_")
 
 
-def has_undefined_variable(sbgnml_state_variable):
+def has_undefined_variable(sbgnml_state_variable) -> bool:
     sbgnml_state = getattr(sbgnml_state_variable, "state", None)
     if sbgnml_state is None:
         return True
@@ -197,7 +197,7 @@ def is_operator_left_to_right(
     sbgnml_operator,
     sbgnml_id_to_sbgnml_element,
     sbgnml_glyph_id_to_sbgnml_arcs,
-):
+) -> bool:
     sbgnml_logic_arcs = get_logic_arcs(
         sbgnml_operator,
         sbgnml_id_to_sbgnml_element,
@@ -224,7 +224,7 @@ def is_operator_left_to_right(
     return True
 
 
-def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
+def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> bool:
     process_direction = get_process_direction(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
@@ -267,7 +267,7 @@ def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
             return False
 
 
-def is_process_reversible(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
+def is_process_reversible(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> bool:
     sbgnml_consumption_arcs, _ = get_consumption_and_production_arcs(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )

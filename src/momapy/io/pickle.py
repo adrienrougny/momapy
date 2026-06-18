@@ -46,7 +46,7 @@ def _filter_mapping_by_classes(mapping, include_classes=None, exclude_classes=No
 
 def _filter_annotation_mappings(
     reader_result, include_classes=None, exclude_classes=None
-):
+) -> None:
     """Rebuild `element_to_annotations` / `element_to_notes` filtered."""
     if reader_result.element_to_annotations is not None:
         reader_result.element_to_annotations = _filter_mapping_by_classes(

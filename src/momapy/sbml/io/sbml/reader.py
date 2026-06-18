@@ -2,14 +2,13 @@
 
 Reads an SBML file into an `SBMLMap` (model only; SBML has no layout).
 Follows the shared I/O conventions: a `reading_context` first argument, an
-`SBMLReadingContext` extending `momapy.io.utils.ReadingContext`, and
+`SBMLReadingContext` extending `momapy.io._utils.ReadingContext`, and
 module-level `make_*` element builders in `_reading_model`.
 """
 
 import os
 import typing
 import collections
-import dataclasses
 
 import frozendict
 import lxml.objectify
@@ -18,7 +17,7 @@ from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
-from momapy.io.utils import ReadingContext
+from momapy.sbml.io.sbml._reading_context import SBMLReadingContext
 from momapy.sbml.map import SBMLMap
 from momapy.sbml.model import SBMLModel
 from momapy.sbml.io.sbml._reading_parsing import get_compartments
@@ -34,26 +33,7 @@ from momapy.sbml.io.sbml._reading_model import make_modifier_species_reference
 from momapy.sbml.io.sbml._reading_model import make_reaction
 from momapy.sbml.io.sbml._reading_model import make_species
 from momapy.sbml.io.sbml._reading_model import make_species_reference
-from momapy.sbml.io.sbml._reading_model import _register_model_element
-
-
-@dataclasses.dataclass
-class SBMLReadingContext(ReadingContext):
-    """Reading context for the SBML reader.
-
-    Extends the shared `ReadingContext` with the SBML-specific fields used
-    to resolve cross-references while building the model.
-    """
-
-    sbml_model: typing.Any = dataclasses.field(
-        default=None,
-        metadata={"description": "Source SBML model lxml element being read."},
-    )
-    sbml_id_to_model_element: dict = dataclasses.field(default_factory=dict)
-    """SBML XML id -> frozen model element, used to resolve compartment and
-    species cross-references while building."""
-    sbml_id_to_sbml_element: dict = dataclasses.field(default_factory=dict)
-    """SBML XML id -> source SBML lxml element."""
+from momapy.sbml.io.sbml._reading_model import register_model_element
 
 
 class SBMLReader(Reader):
@@ -214,7 +194,7 @@ class SBMLReader(Reader):
     def _make_and_add_compartment(cls, reading_context, sbml_compartment):
         model_element = make_compartment(reading_context, sbml_compartment)
         model_element = object_from_builder(model_element)
-        model_element = _register_model_element(
+        model_element = register_model_element(
             reading_context,
             model_element,
             reading_context.model.compartments,
@@ -229,7 +209,7 @@ class SBMLReader(Reader):
     def _make_and_add_species(cls, reading_context, sbml_species):
         model_element = make_species(reading_context, sbml_species)
         model_element = object_from_builder(model_element)
-        model_element = _register_model_element(
+        model_element = register_model_element(
             reading_context,
             model_element,
             reading_context.model.species,
@@ -248,7 +228,7 @@ class SBMLReader(Reader):
         for sbml_modifier in get_modifiers(sbml_reaction):
             cls._make_and_add_modifier(reading_context, sbml_modifier, model_element)
         model_element = object_from_builder(model_element)
-        model_element = _register_model_element(
+        model_element = register_model_element(
             reading_context,
             model_element,
             reading_context.model.reactions,

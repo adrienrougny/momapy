@@ -113,13 +113,13 @@ class NoneValueType(object):
     def __deepcopy__(self, memo):
         return self
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return type(self) is type(other)
 
     def __hash__(self):
         return id(NoneValue)
 
-    def __reduce__(self):
+    def __reduce__(self) -> str:
         """Pickle to the module-level `NoneValue` singleton.
 
         Returning the global's name keeps the singleton stable across a
@@ -1223,7 +1223,7 @@ class Ellipse(DrawingElement):
         metadata={"description": "The y-radius of the ellipse"}
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
@@ -1313,7 +1313,7 @@ class Rectangle(DrawingElement):
         metadata={"description": "The y-radius of the rounded corners of the rectangle"}
     )
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         object.__setattr__(self, "width", round(self.width, ROUNDING))
         object.__setattr__(self, "height", round(self.height, ROUNDING))
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
