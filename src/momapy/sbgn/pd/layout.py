@@ -56,10 +56,6 @@ class StateVariableLayout(_SimpleMixin, SBGNNode):
     """Layout for state variables.
 
     Draws a state variable as a stadium-shaped glyph.
-
-    Attributes:
-        width: The width of the state variable layout.
-        height: The height of the state variable layout.
     """
 
     width: float = dataclasses.field(
@@ -83,10 +79,6 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     """Layout for units of information.
 
     Draws a unit of information as a rectangular glyph.
-
-    Attributes:
-        width: The width of the unit of information layout.
-        height: The height of the unit of information layout.
     """
 
     width: float = 18.0
@@ -105,18 +97,18 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
     """Layout for terminals.
 
     Draws a terminal as a tag-shaped glyph pointing in a given direction.
-
-    Attributes:
-        width: The width of the terminal layout.
-        height: The height of the terminal layout.
-        direction: The direction the terminal glyph points to.
-        angle: The angle of the pointed end of the terminal glyph.
     """
 
     width: float = 35.0
     height: float = 35.0
-    direction: Direction = Direction.RIGHT
-    angle: float = 70.0
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the terminal glyph points to"},
+    )
+    angle: float = dataclasses.field(
+        default=70.0,
+        metadata={"description": "The angle of the pointed end of the terminal glyph"},
+    )
 
     def _make_shape(self):
         return TagLayout._make_shape(self)
@@ -127,10 +119,6 @@ class CardinalityLayout(_SimpleMixin, SBGNNode):
     """Layout for cardinalities.
 
     Draws the cardinality of a multimer as a unit-of-information glyph.
-
-    Attributes:
-        width: The width of the cardinality layout.
-        height: The height of the cardinality layout.
     """
 
     width: float = 12.0
@@ -145,10 +133,6 @@ class UnspecifiedEntitySubunitLayout(_SimpleMixin, SBGNNode):
     """Layout for unspecified entity subunits.
 
     Draws an unspecified entity subunit as an ellipse glyph.
-
-    Attributes:
-        width: The width of the unspecified entity subunit layout.
-        height: The height of the unspecified entity subunit layout.
     """
 
     width: float = 60.0
@@ -163,10 +147,6 @@ class SimpleChemicalSubunitLayout(_SimpleMixin, SBGNNode):
     """Layout for simple chemical subunits.
 
     Draws a simple chemical subunit as a stadium glyph.
-
-    Attributes:
-        width: The width of the simple chemical subunit layout.
-        height: The height of the simple chemical subunit layout.
     """
 
     width: float = 30.0
@@ -181,16 +161,16 @@ class MacromoleculeSubunitLayout(_SimpleMixin, SBGNNode):
     """Layout for macromolecule subunits.
 
     Draws a macromolecule subunit as a rounded rectangle glyph.
-
-    Attributes:
-        width: The width of the macromolecule subunit layout.
-        height: The height of the macromolecule subunit layout.
-        rounded_corners: The corner radius of the macromolecule subunit layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the macromolecule subunit layout"
+        },
+    )
 
     def _make_shape(self):
         return MacromoleculeLayout._make_shape(self)
@@ -201,17 +181,16 @@ class NucleicAcidFeatureSubunitLayout(_SimpleMixin, SBGNNode):
     """Layout for nucleic acid feature subunits.
 
     Draws a nucleic acid feature subunit as a bottom-rounded rectangle glyph.
-
-    Attributes:
-        width: The width of the nucleic acid feature subunit layout.
-        height: The height of the nucleic acid feature subunit layout.
-        rounded_corners: The corner radius of the nucleic acid feature subunit
-            layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the nucleic acid feature subunit layout"
+        },
+    )
 
     def _make_shape(self):
         return NucleicAcidFeatureLayout._make_shape(self)
@@ -222,16 +201,16 @@ class ComplexSubunitLayout(_SimpleMixin, SBGNNode):
     """Layout for complex subunits.
 
     Draws a complex subunit as a cut-corner rectangle glyph.
-
-    Attributes:
-        width: The width of the complex subunit layout.
-        height: The height of the complex subunit layout.
-        cut_corners: The size of the cut corners of the complex subunit layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    cut_corners: float = 5.0
+    cut_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The size of the cut corners of the complex subunit layout"
+        },
+    )
 
     def _make_shape(self):
         return ComplexLayout._make_shape(self)
@@ -242,10 +221,6 @@ class SimpleChemicalMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Layout for simple chemical multimer subunits.
 
     Draws a simple chemical multimer subunit as stacked stadium glyphs.
-
-    Attributes:
-        width: The width of the simple chemical multimer subunit layout.
-        height: The height of the simple chemical multimer subunit layout.
     """
 
     _n: typing.ClassVar[int] = 2
@@ -270,18 +245,17 @@ class MacromoleculeMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Layout for macromolecule multimer subunits.
 
     Draws a macromolecule multimer subunit as stacked rounded rectangle glyphs.
-
-    Attributes:
-        width: The width of the macromolecule multimer subunit layout.
-        height: The height of the macromolecule multimer subunit layout.
-        rounded_corners: The corner radius of the macromolecule multimer subunit
-            layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the macromolecule multimer subunit layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -310,18 +284,17 @@ class NucleicAcidFeatureMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
     Draws a nucleic acid feature multimer subunit as stacked bottom-rounded
     rectangle glyphs.
-
-    Attributes:
-        width: The width of the nucleic acid feature multimer subunit layout.
-        height: The height of the nucleic acid feature multimer subunit layout.
-        rounded_corners: The corner radius of the nucleic acid feature multimer
-            subunit layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the nucleic acid feature multimer subunit layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -345,18 +318,17 @@ class ComplexMultimerSubunitLayout(_MultiMixin, SBGNNode):
     """Layout for complex multimer subunits.
 
     Draws a complex multimer subunit as stacked cut-corner rectangle glyphs.
-
-    Attributes:
-        width: The width of the complex multimer subunit layout.
-        height: The height of the complex multimer subunit layout.
-        cut_corners: The size of the cut corners of the complex multimer subunit
-            layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
-    cut_corners: float = 5.0
+    cut_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The size of the cut corners of the complex multimer subunit layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -388,17 +360,14 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
     """Layout for compartments.
 
     Draws a compartment as a rounded rectangle glyph with a thick border.
-
-    Attributes:
-        width: The width of the compartment layout.
-        height: The height of the compartment layout.
-        rounded_corners: The corner radius of the compartment layout.
-        stroke_width: The border stroke width of the compartment layout.
     """
 
     width: float = 80.0
     height: float = 80.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The corner radius of the compartment layout"},
+    )
     stroke_width: float = 3.25
 
     def _make_shape(self):
@@ -413,11 +382,6 @@ class SubmapLayout(
     """Layout for submaps.
 
     Draws a submap as a rectangular glyph.
-
-    Attributes:
-        width: The width of the submap layout.
-        height: The height of the submap layout.
-        stroke_width: The border stroke width of the submap layout.
     """
 
     width: float = 80.0
@@ -437,10 +401,6 @@ class UnspecifiedEntityLayout(_SimpleMixin, SBGNNode):
     """Layout for unspecified entities.
 
     Draws an unspecified entity as an ellipse glyph.
-
-    Attributes:
-        width: The width of the unspecified entity layout.
-        height: The height of the unspecified entity layout.
     """
 
     width: float = 60.0
@@ -457,10 +417,6 @@ class SimpleChemicalLayout(_SimpleMixin, SBGNNode):
     """Layout for simple chemicals.
 
     Draws a simple chemical as a stadium glyph.
-
-    Attributes:
-        width: The width of the simple chemical layout.
-        height: The height of the simple chemical layout.
     """
 
     width: float = 30.0
@@ -477,16 +433,14 @@ class MacromoleculeLayout(_SimpleMixin, SBGNNode):
     """Layout for macromolecules.
 
     Draws a macromolecule as a rounded rectangle glyph.
-
-    Attributes:
-        width: The width of the macromolecule layout.
-        height: The height of the macromolecule layout.
-        rounded_corners: The corner radius of the macromolecule layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The corner radius of the macromolecule layout"},
+    )
 
     def _make_shape(self):
         return RectangleShape(
@@ -509,16 +463,16 @@ class NucleicAcidFeatureLayout(_SimpleMixin, SBGNNode):
     """Layout for nucleic acid features.
 
     Draws a nucleic acid feature as a bottom-rounded rectangle glyph.
-
-    Attributes:
-        width: The width of the nucleic acid feature layout.
-        height: The height of the nucleic acid feature layout.
-        rounded_corners: The corner radius of the nucleic acid feature layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the nucleic acid feature layout"
+        },
+    )
 
     def _make_shape(self):
         return RectangleShape(
@@ -537,16 +491,14 @@ class ComplexLayout(_SimpleMixin, SBGNNode):
     """Layout for complexes.
 
     Draws a complex as a cut-corner rectangle glyph.
-
-    Attributes:
-        width: The width of the complex layout.
-        height: The height of the complex layout.
-        cut_corners: The size of the cut corners of the complex layout.
     """
 
     width: float = 44.0
     height: float = 44.0
-    cut_corners: float = 5.0
+    cut_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The size of the cut corners of the complex layout"},
+    )
 
     def _make_shape(self):
         return RectangleShape(
@@ -573,10 +525,6 @@ class SimpleChemicalMultimerLayout(_MultiMixin, SBGNNode):
     """Layout for simple chemical multimers.
 
     Draws a simple chemical multimer as stacked stadium glyphs.
-
-    Attributes:
-        width: The width of the simple chemical multimer layout.
-        height: The height of the simple chemical multimer layout.
     """
 
     _n: typing.ClassVar[int] = 2
@@ -601,17 +549,17 @@ class MacromoleculeMultimerLayout(_MultiMixin, SBGNNode):
     """Layout for macromolecule multimers.
 
     Draws a macromolecule multimer as stacked rounded rectangle glyphs.
-
-    Attributes:
-        width: The width of the macromolecule multimer layout.
-        height: The height of the macromolecule multimer layout.
-        rounded_corners: The corner radius of the macromolecule multimer layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the macromolecule multimer layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -640,18 +588,17 @@ class NucleicAcidFeatureMultimerLayout(_MultiMixin, SBGNNode):
 
     Draws a nucleic acid feature multimer as stacked bottom-rounded rectangle
     glyphs.
-
-    Attributes:
-        width: The width of the nucleic acid feature multimer layout.
-        height: The height of the nucleic acid feature multimer layout.
-        rounded_corners: The corner radius of the nucleic acid feature multimer
-            layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 60.0
     height: float = 30.0
-    rounded_corners: float = 5.0
+    rounded_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The corner radius of the nucleic acid feature multimer layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -675,17 +622,17 @@ class ComplexMultimerLayout(_MultiMixin, SBGNNode):
     """Layout for complex multimers.
 
     Draws a complex multimer as stacked cut-corner rectangle glyphs.
-
-    Attributes:
-        width: The width of the complex multimer layout.
-        height: The height of the complex multimer layout.
-        cut_corners: The size of the cut corners of the complex multimer layout.
     """
 
     _n: typing.ClassVar[int] = 2
     width: float = 44.0
     height: float = 44.0
-    cut_corners: float = 5.0
+    cut_corners: float = dataclasses.field(
+        default=5.0,
+        metadata={
+            "description": "The size of the cut corners of the complex multimer layout"
+        },
+    )
 
     def _make_subunit_shape(
         self,
@@ -714,9 +661,18 @@ class ComplexMultimerLayout(_MultiMixin, SBGNNode):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _EmptySetShape(Shape):
-    position: Point
-    width: float
-    height: float
+    """Shape for empty set glyphs.
+
+    Draws a circle crossed by a diagonal bar, the SBGN-PD empty set symbol.
+    """
+
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the shape's center"}
+    )
+    width: float = dataclasses.field(metadata={"description": "The width of the shape"})
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape"}
+    )
 
     def drawing_elements(self):
         circle = EllipseDrawing(
@@ -735,10 +691,6 @@ class EmptySetLayout(_SimpleMixin, SBGNNode):
     """Layout for empty sets.
 
     Draws an empty set (source-and-sink) as a circle crossed by a bar.
-
-    Attributes:
-        width: The width of the empty set layout.
-        height: The height of the empty set layout.
     """
 
     width: float = 22.0
@@ -757,16 +709,16 @@ class PerturbingAgentLayout(_SimpleMixin, SBGNNode):
     """Layout for perturbing agents.
 
     Draws a perturbing agent as a concave hexagon glyph.
-
-    Attributes:
-        width: The width of the perturbing agent layout.
-        height: The height of the perturbing agent layout.
-        angle: The angle of the hexagon notches of the perturbing agent layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    angle: float = 70.0
+    angle: float = dataclasses.field(
+        default=70.0,
+        metadata={
+            "description": "The angle of the hexagon notches of the perturbing agent layout"
+        },
+    )
 
     def _make_shape(self):
         return HexagonShape(
@@ -788,15 +740,13 @@ class AndOperatorLayout(
     """Layout for AND operators.
 
     Draws an AND operator as an ellipse glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the operator glyph.
-        width: The width of the AND operator layout.
-        height: The height of the AND operator layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    text: str = "AND"
+    text: str = dataclasses.field(
+        default="AND",
+        metadata={"description": "The text drawn inside the operator glyph"},
+    )
     width: float = 30.0
     height: float = 30.0
 
@@ -816,15 +766,13 @@ class OrOperatorLayout(
     """Layout for OR operators.
 
     Draws an OR operator as an ellipse glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the operator glyph.
-        width: The width of the OR operator layout.
-        height: The height of the OR operator layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    text: str = "OR"
+    text: str = dataclasses.field(
+        default="OR",
+        metadata={"description": "The text drawn inside the operator glyph"},
+    )
     width: float = 30.0
     height: float = 30.0
 
@@ -844,15 +792,13 @@ class NotOperatorLayout(
     """Layout for NOT operators.
 
     Draws a NOT operator as an ellipse glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the operator glyph.
-        width: The width of the NOT operator layout.
-        height: The height of the NOT operator layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 3
-    text: str = "NOT"
+    text: str = dataclasses.field(
+        default="NOT",
+        metadata={"description": "The text drawn inside the operator glyph"},
+    )
     width: float = 30.0
     height: float = 30.0
 
@@ -872,15 +818,13 @@ class EquivalenceOperatorLayout(
     """Layout for equivalence operators.
 
     Draws an equivalence operator as an ellipse glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the operator glyph.
-        width: The width of the equivalence operator layout.
-        height: The height of the equivalence operator layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 2
-    text: str = "≡"
+    text: str = dataclasses.field(
+        default="≡",
+        metadata={"description": "The text drawn inside the operator glyph"},
+    )
     width: float = 30.0
     height: float = 30.0
 
@@ -899,10 +843,6 @@ class GenericProcessLayout(
     """Layout for generic processes.
 
     Draws a generic process as a square glyph with connectors.
-
-    Attributes:
-        width: The width of the generic process layout.
-        height: The height of the generic process layout.
     """
 
     width: float = 20.0
@@ -924,15 +864,13 @@ class OmittedProcessLayout(
     """Layout for omitted processes.
 
     Draws an omitted process as a square glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the process glyph.
-        width: The width of the omitted process layout.
-        height: The height of the omitted process layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    text: str = "\\\\"
+    text: str = dataclasses.field(
+        default="\\\\",
+        metadata={"description": "The text drawn inside the process glyph"},
+    )
     width: float = 20.0
     height: float = 20.0
 
@@ -950,15 +888,13 @@ class UncertainProcessLayout(
     """Layout for uncertain processes.
 
     Draws an uncertain process as a square glyph labelled with its text.
-
-    Attributes:
-        text: The text drawn inside the process glyph.
-        width: The width of the uncertain process layout.
-        height: The height of the uncertain process layout.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable] = lambda obj: obj.width / 1.5
-    text: str = "?"
+    text: str = dataclasses.field(
+        default="?",
+        metadata={"description": "The text drawn inside the process glyph"},
+    )
     width: float = 20.0
     height: float = 20.0
 
@@ -975,11 +911,6 @@ class AssociationLayout(
     """Layout for associations.
 
     Draws an association as a filled circle glyph with connectors.
-
-    Attributes:
-        width: The width of the association layout.
-        height: The height of the association layout.
-        fill: The fill color of the association glyph.
     """
 
     width: float = 20.0
@@ -995,10 +926,22 @@ class AssociationLayout(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _DissociationShape(Shape):
-    position: Point
-    width: float
-    height: float
-    sep: float
+    """Shape for dissociation glyphs.
+
+    Draws two concentric circles separated by a gap, the SBGN-PD dissociation
+    symbol.
+    """
+
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the shape's center"}
+    )
+    width: float = dataclasses.field(metadata={"description": "The width of the shape"})
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape"}
+    )
+    sep: float = dataclasses.field(
+        metadata={"description": "The separation between the outer and inner circles"}
+    )
 
     def drawing_elements(self):
         outer_circle = EllipseDrawing(
@@ -1021,16 +964,14 @@ class DissociationLayout(
     """Layout for dissociations.
 
     Draws a dissociation as two concentric circles with connectors.
-
-    Attributes:
-        width: The width of the dissociation layout.
-        height: The height of the dissociation layout.
-        sep: The separation between the outer and inner circles.
     """
 
     width: float = 20.0
     height: float = 20.0
-    sep: float = 3.0
+    sep: float = dataclasses.field(
+        default=3.0,
+        metadata={"description": "The separation between the outer and inner circles"},
+    )
 
     def _make_shape(self):
         return _DissociationShape(
@@ -1049,16 +990,16 @@ class PhenotypeLayout(
     """Layout for phenotypes.
 
     Draws a phenotype as a convex hexagon glyph.
-
-    Attributes:
-        width: The width of the phenotype layout.
-        height: The height of the phenotype layout.
-        angle: The angle of the hexagon points of the phenotype layout.
     """
 
     width: float = 60.0
     height: float = 30.0
-    angle: float = 70.0
+    angle: float = dataclasses.field(
+        default=70.0,
+        metadata={
+            "description": "The angle of the hexagon points of the phenotype layout"
+        },
+    )
 
     def _make_shape(self):
         return HexagonShape(
@@ -1075,18 +1016,18 @@ class TagLayout(_SimpleMixin, SBGNNode):
     """Layout for tags.
 
     Draws a tag as a hexagon glyph pointing in a given direction.
-
-    Attributes:
-        width: The width of the tag layout.
-        height: The height of the tag layout.
-        direction: The direction the tag glyph points to.
-        angle: The angle of the pointed end of the tag glyph.
     """
 
     width: float = 35.0
     height: float = 35.0
-    direction: Direction = Direction.RIGHT
-    angle: float = 70.0
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the tag glyph points to"},
+    )
+    angle: float = dataclasses.field(
+        default=70.0,
+        metadata={"description": "The angle of the pointed end of the tag glyph"},
+    )
 
     def _make_shape(self):
         if self.direction == Direction.RIGHT:
@@ -1139,16 +1080,15 @@ class ProductionLayout(SBGNSingleHeadedArc):
     """Layout for productions.
 
     Draws a production as a line ending in a filled triangular arrowhead.
-
-    Attributes:
-        arrowhead_fill: The fill color of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_width: The width of the arrowhead.
     """
 
     arrowhead_fill: NoneValueType | Color | None = black
-    arrowhead_height: float = 10.0
-    arrowhead_width: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0, metadata={"description": "The height of the arrowhead"}
+    )
+    arrowhead_width: float = dataclasses.field(
+        default=10.0, metadata={"description": "The width of the arrowhead"}
+    )
 
     def _arrowhead_border_drawing_elements(self):
         return TriangleArc._arrowhead_border_drawing_elements(self)
@@ -1159,16 +1099,15 @@ class ModulationLayout(SBGNSingleHeadedArc):
     """Layout for modulations.
 
     Draws a modulation as a line ending in a diamond-shaped arrowhead.
-
-    Attributes:
-        arrowhead_fill: The fill color of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_width: The width of the arrowhead.
     """
 
     arrowhead_fill: NoneValueType | Color | None = white
-    arrowhead_height: float = 10.0
-    arrowhead_width: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0, metadata={"description": "The height of the arrowhead"}
+    )
+    arrowhead_width: float = dataclasses.field(
+        default=10.0, metadata={"description": "The width of the arrowhead"}
+    )
 
     def _arrowhead_border_drawing_elements(self):
         return DiamondArc._arrowhead_border_drawing_elements(self)
@@ -1179,14 +1118,14 @@ class StimulationLayout(SBGNSingleHeadedArc):
     """Layout for stimulations.
 
     Draws a stimulation as a line ending in an unfilled triangular arrowhead.
-
-    Attributes:
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_width: The width of the arrowhead.
     """
 
-    arrowhead_height: float = 10.0
-    arrowhead_width: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0, metadata={"description": "The height of the arrowhead"}
+    )
+    arrowhead_width: float = dataclasses.field(
+        default=10.0, metadata={"description": "The width of the arrowhead"}
+    )
 
     def _arrowhead_border_drawing_elements(self):
         return TriangleArc._arrowhead_border_drawing_elements(self)
@@ -1198,18 +1137,24 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
 
     Draws a necessary stimulation as a line ending in a bar followed by an
     unfilled triangular arrowhead.
-
-    Attributes:
-        arrowhead_bar_height: The height of the bar of the arrowhead.
-        arrowhead_sep: The separation between the bar and the triangle.
-        arrowhead_triangle_height: The height of the triangle of the arrowhead.
-        arrowhead_triangle_width: The width of the triangle of the arrowhead.
     """
 
-    arrowhead_bar_height: float = 12.0
-    arrowhead_sep: float = 3.0
-    arrowhead_triangle_height: float = 10.0
-    arrowhead_triangle_width: float = 10.0
+    arrowhead_bar_height: float = dataclasses.field(
+        default=12.0,
+        metadata={"description": "The height of the bar of the arrowhead"},
+    )
+    arrowhead_sep: float = dataclasses.field(
+        default=3.0,
+        metadata={"description": "The separation between the bar and the triangle"},
+    )
+    arrowhead_triangle_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the triangle of the arrowhead"},
+    )
+    arrowhead_triangle_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the triangle of the arrowhead"},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         actions = [
@@ -1236,14 +1181,14 @@ class CatalysisLayout(SBGNSingleHeadedArc):
     """Layout for catalyses.
 
     Draws a catalysis as a line ending in an unfilled circular arrowhead.
-
-    Attributes:
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_width: The width of the arrowhead.
     """
 
-    arrowhead_height: float = 10.0
-    arrowhead_width: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0, metadata={"description": "The height of the arrowhead"}
+    )
+    arrowhead_width: float = dataclasses.field(
+        default=10.0, metadata={"description": "The width of the arrowhead"}
+    )
 
     def _arrowhead_border_drawing_elements(self):
         return EllipseArc._arrowhead_border_drawing_elements(self)
@@ -1254,12 +1199,11 @@ class InhibitionLayout(SBGNSingleHeadedArc):
     """Layout for inhibitions.
 
     Draws an inhibition as a line ending in a perpendicular bar.
-
-    Attributes:
-        arrowhead_height: The height of the bar arrowhead.
     """
 
-    arrowhead_height: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0, metadata={"description": "The height of the bar arrowhead"}
+    )
 
     def _arrowhead_border_drawing_elements(self):
         return BarArc._arrowhead_border_drawing_elements(self)

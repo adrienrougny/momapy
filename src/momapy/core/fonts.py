@@ -14,10 +14,14 @@ from momapy.drawing import FontWeight
 class _FontEntry:
     """A cached font entry with metadata."""
 
-    path: str
-    family: str
-    weight: int
-    is_italic: bool
+    path: str = dataclasses.field(metadata={"description": "Path to the font file."})
+    family: str = dataclasses.field(
+        metadata={"description": "Lowercased font family name."}
+    )
+    weight: int = dataclasses.field(metadata={"description": "Font weight (100-900)."})
+    is_italic: bool = dataclasses.field(
+        metadata={"description": "Whether the font is italic or oblique."}
+    )
 
 
 _FONT_WEIGHT_MAP: dict[FontWeight, int] = {

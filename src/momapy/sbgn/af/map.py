@@ -12,10 +12,6 @@ class SBGNAFMap(SBGNMap):
     """SBGN-AF map.
 
     Represents a complete SBGN Activity Flow map with model and layout.
-
-    Attributes:
-        model: The SBGN-AF model.
-        layout: The visual layout of the map.
     """
 
     model: SBGNAFModel | None = None

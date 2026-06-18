@@ -15,12 +15,12 @@ class UnitOfInformation(SBGNModelElement):
     """Unit of information for activities and compartments.
 
     Units of information provide additional information about activities or compartments.
-
-    Attributes:
-        label: The label of the unit of information.
     """
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The label of the unit of information."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -28,12 +28,11 @@ class Compartment(SBGNModelElement):
     """Compartment in an SBGN-AF map.
 
     Compartments represent distinct spatial regions where activities are located.
-
-    Attributes:
-        label: The label of the compartment.
     """
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the compartment."}
+    )
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
         default_factory=frozenset
     )
@@ -104,14 +103,15 @@ class Activity(SBGNModelElement):
     """Activity in an SBGN-AF map.
 
     Activities represent biological activities or processes.
-
-    Attributes:
-        label: The label of the activity.
-        compartment: The compartment containing this activity.
     """
 
-    label: str | None = None
-    compartment: Compartment | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the activity."}
+    )
+    compartment: Compartment | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The compartment containing this activity."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -119,13 +119,11 @@ class BiologicalActivity(Activity):
     """Biological activity.
 
     Represents a biological activity with associated units of information.
-
-    Attributes:
-        units_of_information: Units of information for the activity.
     """
 
     units_of_information: frozenset[UnitOfInformation] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "Units of information for the activity."},
     )
 
 
@@ -146,15 +144,16 @@ class LogicalOperatorInput(SBGNRole):
     """Input to a logical operator.
 
     Represents an input connection to a logical operator.
-
-    Attributes:
-        element: The biological activity or logical operator providing the input.
     """
 
     element: typing.Union[
         BiologicalActivity,
         typing.ForwardRef("LogicalOperator", module=__name__),
-    ]
+    ] = dataclasses.field(
+        metadata={
+            "description": "The biological activity or logical operator providing the input."
+        }
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -162,13 +161,11 @@ class LogicalOperator(SBGNModelElement):
     """Logical operator.
 
     Represents logical operations (AND, OR, NOT, DELAY) on activities.
-
-    Attributes:
-        inputs: Input connections to the logical operator.
     """
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
-        default_factory=frozenset
+        default_factory=frozenset,
+        metadata={"description": "Input connections to the logical operator."},
     )
 
 
@@ -217,14 +214,14 @@ class Influence(SBGNModelElement):
     """Influence between activities.
 
     Represents an influence from a source activity to a target activity.
-
-    Attributes:
-        source: The source activity or logical operator.
-        target: The target activity being influenced.
     """
 
-    source: BiologicalActivity | LogicalOperator
-    target: Activity
+    source: BiologicalActivity | LogicalOperator = dataclasses.field(
+        metadata={"description": "The source activity or logical operator."}
+    )
+    target: Activity = dataclasses.field(
+        metadata={"description": "The target activity being influenced."}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -269,24 +266,20 @@ class NecessaryStimulation(Influence):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(SBGNRole):
-    """Reference to a terminal.
+    """Reference to a terminal."""
 
-    Attributes:
-        element: The activity or compartment being referenced.
-    """
-
-    element: Activity | Compartment
+    element: Activity | Compartment = dataclasses.field(
+        metadata={"description": "The activity or compartment being referenced."}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(SBGNRole):
-    """Reference to a tag.
+    """Reference to a tag."""
 
-    Attributes:
-        element: The activity or compartment being referenced.
-    """
-
-    element: Activity | Compartment
+    element: Activity | Compartment = dataclasses.field(
+        metadata={"description": "The activity or compartment being referenced."}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -294,14 +287,15 @@ class Terminal(SBGNModelElement):
     """Terminal element.
 
     Terminals represent connection points to submaps.
-
-    Attributes:
-        label: The label of the terminal.
-        referred_element: The element referred to by the terminal.
     """
 
-    label: str | None = None
-    referred_element: TerminalReference | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the terminal."}
+    )
+    referred_element: TerminalReference | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The element referred to by the terminal."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -309,14 +303,15 @@ class Tag(SBGNModelElement):
     """Tag element.
 
     Tags provide identifiers that can be referenced from other locations.
-
-    Attributes:
-        label: The label of the tag.
-        referred_element: The element referred to by the tag.
     """
 
-    label: str | None = None
-    referred_element: TagReference | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the tag."}
+    )
+    referred_element: TagReference | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The element referred to by the tag."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -324,13 +319,11 @@ class Submap(SBGNModelElement):
     """Submap element.
 
     Submaps represent embedded or referenced sub-diagrams.
-
-    Attributes:
-        label: The label of the submap.
-        terminals: Terminal connection points of the submap.
     """
 
-    label: str | None = None
+    label: str | None = dataclasses.field(
+        default=None, metadata={"description": "The label of the submap."}
+    )
     terminals: frozenset[Terminal] = dataclasses.field(default_factory=frozenset)
 
 
@@ -339,14 +332,6 @@ class SBGNAFModel(SBGNModel):
     """SBGN-AF model.
 
     Represents a complete SBGN Activity Flow model.
-
-    Attributes:
-        activities: Activities in the model.
-        compartments: Compartments in the model.
-        influences: Influences in the model.
-        logical_operators: Logical operators in the model.
-        submaps: Submaps in the model.
-        tags: Tags in the model.
     """
 
     activities: frozenset[Activity] = dataclasses.field(default_factory=frozenset)

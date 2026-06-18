@@ -45,7 +45,10 @@ class SBMLReadingContext(ReadingContext):
     to resolve cross-references while building the model.
     """
 
-    sbml_model: typing.Any = None
+    sbml_model: typing.Any = dataclasses.field(
+        default=None,
+        metadata={"description": "Source SBML model lxml element being read."},
+    )
     sbml_id_to_model_element: dict = dataclasses.field(default_factory=dict)
     """SBML XML id -> frozen model element, used to resolve compartment and
     species cross-references while building."""

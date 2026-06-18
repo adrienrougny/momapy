@@ -276,9 +276,6 @@ class Selector(object):
 class TypeSelector(Selector):
     """Selector that matches elements by their exact class name.
 
-    Attributes:
-        class_name: The exact class name to match (e.g., "Rectangle").
-
     Examples:
         ```python
         selector = TypeSelector("Rectangle")
@@ -314,9 +311,6 @@ class TypeSelector(Selector):
 @dataclasses.dataclass(frozen=True)
 class ClassSelector(Selector):
     """Selector that matches elements by class (including subclasses).
-
-    Attributes:
-        class_name: The class name to match (matches subclasses too).
 
     Examples:
         ```python
@@ -354,9 +348,6 @@ class ClassSelector(Selector):
 class IdSelector(Selector):
     """Selector that matches elements by their id attribute.
 
-    Attributes:
-        id_: The identifier to match.
-
     Examples:
         ```python
         selector = IdSelector("main_node")
@@ -386,10 +377,6 @@ class IdSelector(Selector):
 @dataclasses.dataclass(frozen=True)
 class ChildSelector(Selector):
     """Selector that matches elements that are direct children of a parent.
-
-    Attributes:
-        parent_selector: The selector for the parent element.
-        child_selector: The selector for the child element.
 
     Examples:
         ```python
@@ -430,10 +417,6 @@ class ChildSelector(Selector):
 @dataclasses.dataclass(frozen=True)
 class DescendantSelector(Selector):
     """Selector that matches elements that are descendants of an ancestor.
-
-    Attributes:
-        ancestor_selector: The selector for any ancestor element.
-        descendant_selector: The selector for the descendant element.
 
     Examples:
         ```python
@@ -478,9 +461,6 @@ class DescendantSelector(Selector):
 class OrSelector(Selector):
     """Selector that matches if any of its component selectors match (OR logic).
 
-    Attributes:
-        selectors: Tuple of selectors, any of which can match.
-
     Examples:
         ```python
         selector = OrSelector((TypeSelector("Rectangle"), TypeSelector("Circle")))
@@ -513,9 +493,6 @@ class OrSelector(Selector):
 class CompoundSelector(Selector):
     """Selector that matches only if all of its component selectors match (AND logic).
 
-    Attributes:
-        selectors: Tuple of selectors, all of which must match.
-
     Examples:
         ```python
         selector = CompoundSelector((TypeSelector("Rectangle"), ClassSelector("Colored")))
@@ -547,9 +524,6 @@ class CompoundSelector(Selector):
 @dataclasses.dataclass(frozen=True)
 class NotSelector(Selector):
     """Selector that matches if none of its component selectors match (NOT logic).
-
-    Attributes:
-        selectors: Tuple of selectors, none of which should match.
 
     Examples:
         ```python

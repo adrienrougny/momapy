@@ -38,9 +38,15 @@ class WritingContext:
     their own fields.
     """
 
-    map_: typing.Any
-    element_to_annotations: dict
-    element_to_notes: dict
+    map_: typing.Any = dataclasses.field(
+        metadata={"description": "The map being written."}
+    )
+    element_to_annotations: dict = dataclasses.field(
+        metadata={"description": "Mapping from map elements to their annotations."}
+    )
+    element_to_notes: dict = dataclasses.field(
+        metadata={"description": "Mapping from map elements to their notes."}
+    )
     source_id_to_model_element: FrozenIdentityMultiDict | None
     """N-to-m source id -> model element mapping; one source id may name
     several model elements (e.g. CellDesigner active/inactive species).
@@ -58,8 +64,12 @@ class WritingContext:
     source_id_to_notes: dict | None
     """Per-source-id notes carried over from the `ReaderResult`; see
     ``source_id_to_annotations``."""
-    with_annotations: bool
-    with_notes: bool
+    with_annotations: bool = dataclasses.field(
+        metadata={"description": "Whether to write annotations."}
+    )
+    with_notes: bool = dataclasses.field(
+        metadata={"description": "Whether to write notes."}
+    )
     element_to_xml_id: dict = dataclasses.field(default_factory=dict)
     """Memo of the unique, format-valid XML id assigned to each element,
     keyed by ``id(element)``.  Seeded with grammar-valid source ids in
@@ -123,10 +133,22 @@ class ReadingContext:
     subclass this and add their own fields.
     """
 
-    xml_root: typing.Any = None
-    map_key: str | None = None
-    model: typing.Any = None
-    layout: typing.Any = None
+    xml_root: typing.Any = dataclasses.field(
+        default=None,
+        metadata={"description": "The root XML element being read."},
+    )
+    map_key: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Classification key for the map being read."},
+    )
+    model: typing.Any = dataclasses.field(
+        default=None,
+        metadata={"description": "The model being built, or None."},
+    )
+    layout: typing.Any = dataclasses.field(
+        default=None,
+        metadata={"description": "The layout being built, or None."},
+    )
     xml_id_to_model_element: IdentityMultiDict = dataclasses.field(
         default_factory=IdentityMultiDict
     )
@@ -149,9 +171,18 @@ class ReadingContext:
     """Per-source-id notes, keyed by the raw XML id of the source
     element.  Parallel to ``element_to_notes``; see
     ``source_id_to_annotations``."""
-    layout_model_mapping: typing.Any = None
-    with_annotations: bool = True
-    with_notes: bool = True
+    layout_model_mapping: typing.Any = dataclasses.field(
+        default=None,
+        metadata={"description": "The layout-model mapping being built, or None."},
+    )
+    with_annotations: bool = dataclasses.field(
+        default=True,
+        metadata={"description": "Whether to read annotations."},
+    )
+    with_notes: bool = dataclasses.field(
+        default=True,
+        metadata={"description": "Whether to read notes."},
+    )
     model_element_cache: dict[ModelElement, ModelElement] = dataclasses.field(
         default_factory=dict
     )

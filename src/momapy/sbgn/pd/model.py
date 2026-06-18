@@ -17,13 +17,6 @@ class StateVariable(SBGNAuxiliaryUnit):
 
     State variables describe the state of a residue of an entity pool, such as
     a phosphorylation site.
-
-    Attributes:
-        variable: The variable of the state variable.
-        value: The value of the state variable.
-        order: The order of the state variable. This is used to distinguish
-            between two or more state variables with undefined variable (i.e.,
-            set to `None`).
     """
 
     variable: str | None = dataclasses.field(
@@ -46,10 +39,6 @@ class UnitOfInformation(SBGNAuxiliaryUnit):
 
     Units of information provide additional, typically free-text, information
     about the element they annotate.
-
-    Attributes:
-        value: The value of the unit of information.
-        prefix: The prefix of the unit of information.
     """
 
     value: str = dataclasses.field(
@@ -66,9 +55,6 @@ class Subunit(SBGNAuxiliaryUnit):
     """Subunit of a complex.
 
     Subunits are the constituent entities that make up a complex.
-
-    Attributes:
-        label: The label of the subunit.
     """
 
     label: str | None = dataclasses.field(
@@ -92,11 +78,6 @@ class MacromoleculeSubunit(Subunit):
     """Macromolecule subunit of a complex.
 
     Represents a macromolecule (protein, gene, RNA, etc.) acting as a subunit.
-
-    Attributes:
-        state_variables: The state variables of the macromolecule subunit.
-        units_of_information: The units of information of the macromolecule
-            subunit.
     """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
@@ -116,12 +97,6 @@ class NucleicAcidFeatureSubunit(Subunit):
     """Nucleic acid feature subunit of a complex.
 
     Represents a nucleic acid feature (gene, RNA, etc.) acting as a subunit.
-
-    Attributes:
-        state_variables: The state variables of the nucleic acid feature
-            subunit.
-        units_of_information: The units of information of the nucleic acid
-            feature subunit.
     """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
@@ -143,11 +118,6 @@ class SimpleChemicalSubunit(Subunit):
     """Simple chemical subunit of a complex.
 
     Represents a simple chemical (small molecule) acting as a subunit.
-
-    Attributes:
-        state_variables: The state variables of the simple chemical subunit.
-        units_of_information: The units of information of the simple chemical
-            subunit.
     """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
@@ -167,11 +137,6 @@ class ComplexSubunit(Subunit):
     """Complex subunit of a complex.
 
     Represents a complex acting as a subunit of another complex.
-
-    Attributes:
-        state_variables: The state variables of the complex subunit.
-        units_of_information: The units of information of the complex subunit.
-        subunits: The subunits of the complex subunit.
     """
 
     state_variables: frozenset[StateVariable] = dataclasses.field(
@@ -193,9 +158,6 @@ class MultimerSubunit(ComplexSubunit):
     """Multimer subunit of a complex.
 
     A multimer is an aggregate of identical entities, with a given cardinality.
-
-    Attributes:
-        cardinality: The cardinality of the multimer subunit.
     """
 
     cardinality: int | None = dataclasses.field(
@@ -250,11 +212,6 @@ class Compartment(SBGNModelElement):
 
     Compartments represent distinct spatial regions in which entity pools are
     located.
-
-    Attributes:
-        label: The label of the compartment.
-        state_variables: The state variables of the compartment.
-        units_of_information: The units of information of the compartment.
     """
 
     label: str | None = dataclasses.field(
@@ -276,9 +233,6 @@ class EntityPool(SBGNModelElement):
 
     An entity pool is a population of entities that are considered equivalent
     for the purpose of the map.
-
-    Attributes:
-        compartment: The compartment of the entity pool.
     """
 
     compartment: Compartment | None = dataclasses.field(
@@ -292,9 +246,6 @@ class PerturbingAgent(EntityPool):
 
     Denotes an external influence (drug, stimulus, mutation) acting on the
     system.
-
-    Attributes:
-        label: The label of the perturbing agent.
     """
 
     label: str | None = dataclasses.field(
@@ -307,9 +258,6 @@ class UnspecifiedEntity(EntityPool):
     """Unspecified entity pool.
 
     Used when the class of the entity is unknown or deliberately abstract.
-
-    Attributes:
-        label: The label of the unspecified entity.
     """
 
     label: str | None = dataclasses.field(
@@ -322,11 +270,6 @@ class Macromolecule(EntityPool):
     """Macromolecule entity pool.
 
     Represents a macromolecule such as a protein, gene, or RNA.
-
-    Attributes:
-        label: The label of the macromolecule.
-        state_variables: The state variables of the macromolecule.
-        units_of_information: The units of information of the macromolecule.
     """
 
     label: str | None = dataclasses.field(
@@ -347,12 +290,6 @@ class NucleicAcidFeature(EntityPool):
     """Nucleic acid feature entity pool.
 
     Represents a nucleic acid feature such as a gene or an RNA.
-
-    Attributes:
-        label: The label of the nucleic acid feature.
-        state_variables: The state variables of the nucleic acid feature.
-        units_of_information: The units of information of the nucleic acid
-            feature.
     """
 
     label: str | None = dataclasses.field(
@@ -375,11 +312,6 @@ class SimpleChemical(EntityPool):
     """Simple chemical entity pool.
 
     Represents a simple chemical such as a small molecule or an ion.
-
-    Attributes:
-        label: The label of the simple chemical.
-        state_variables: The state variables of the simple chemical.
-        units_of_information: The units of information of the simple chemical.
     """
 
     label: str | None = dataclasses.field(
@@ -400,12 +332,6 @@ class Complex(EntityPool):
     """Complex entity pool.
 
     Represents a complex made up of subunits bound together.
-
-    Attributes:
-        label: The label of the complex.
-        state_variables: The state variables of the complex.
-        units_of_information: The units of information of the complex.
-        subunits: The subunits of the complex.
     """
 
     label: str | None = dataclasses.field(
@@ -430,9 +356,6 @@ class Multimer(Complex):
     """Multimer entity pool.
 
     A multimer is an aggregate of identical entities, with a given cardinality.
-
-    Attributes:
-        cardinality: The cardinality of the multimer.
     """
 
     cardinality: int | None = dataclasses.field(
@@ -486,10 +409,6 @@ class FluxRole(SBGNRole):
 
     A flux role associates an entity pool with a process, with a given
     stoichiometry.
-
-    Attributes:
-        element: The entity pool of the flux role.
-        stoichiometry: The stoichiometry of the flux role.
     """
 
     element: EntityPool = dataclasses.field(
@@ -525,9 +444,6 @@ class LogicalOperatorInput(SBGNRole):
     """Input to a logical operator.
 
     Represents an input connection to a logical operator.
-
-    Attributes:
-        element: The element of the logical operator input.
     """
 
     element: typing.Union[
@@ -543,9 +459,6 @@ class EquivalenceOperatorInput(SBGNRole):
     """Input to an equivalence operator.
 
     Represents an input connection to an equivalence operator.
-
-    Attributes:
-        element: The element of the equivalence operator input.
     """
 
     element: EntityPool = dataclasses.field(
@@ -558,9 +471,6 @@ class EquivalenceOperatorOutput(SBGNRole):
     """Output of an equivalence operator.
 
     Represents the output connection of an equivalence operator.
-
-    Attributes:
-        element: The element of the equivalence operator output.
     """
 
     element: EntityPool = dataclasses.field(
@@ -589,15 +499,6 @@ class StoichiometricProcess(Process):
     ``has_external_sink`` (an empty-set on the product side). The
     corresponding empty-set glyph lives only in the layout
     (``EmptySetLayout``); the model carries no peer entity pool for it.
-
-    Attributes:
-        reactants: The reactants of the stoichiometric process.
-        products: The products of the stoichiometric process.
-        reversible: Whether the stoichiometric process is reversible or not.
-        has_external_source: Whether the process has an unspecified external
-            source (an empty-set / source-and-sink reactant in SBGN PD).
-        has_external_sink: Whether the process has an unspecified external sink
-            (an empty-set / source-and-sink product in SBGN PD).
     """
 
     reactants: frozenset[Reactant] = dataclasses.field(
@@ -689,9 +590,6 @@ class Phenotype(Process):
     """Phenotype process.
 
     Represents an observable characteristic or system-level outcome.
-
-    Attributes:
-        label: The label of the phenotype.
     """
 
     label: str | None = dataclasses.field(
@@ -704,9 +602,6 @@ class LogicalOperator(SBGNModelElement):
     """Logical operator.
 
     Represents logical operations (AND, OR, NOT) on entity pools.
-
-    Attributes:
-        inputs: The inputs of the logical operator.
     """
 
     inputs: frozenset[LogicalOperatorInput] = dataclasses.field(
@@ -751,10 +646,6 @@ class EquivalenceOperator(SBGNModelElement):
 
     Defines an entity pool as equivalent to the union of several input entity
     pools.
-
-    Attributes:
-        inputs: The inputs of the equivalence operator.
-        output: The output of the equivalence operator.
     """
 
     inputs: frozenset[EquivalenceOperatorInput] = dataclasses.field(
@@ -772,10 +663,6 @@ class Modulation(SBGNModelElement):
 
     Represents an influence from an entity pool or logical operator on a
     process.
-
-    Attributes:
-        source: The source of the modulation.
-        target: The target of the modulation.
     """
 
     source: EntityPool | LogicalOperator = dataclasses.field(
@@ -828,11 +715,7 @@ class NecessaryStimulation(Stimulation):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TagReference(SBGNRole):
-    """Reference to a tag.
-
-    Attributes:
-        element: The element of the tag reference.
-    """
+    """Reference to a tag."""
 
     element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the tag reference"}
@@ -844,10 +727,6 @@ class Tag(SBGNModelElement):
     """Tag element.
 
     Tags provide identifiers that can be referenced from other locations.
-
-    Attributes:
-        label: The label of the tag.
-        referred_element: The element referred to by the tag.
     """
 
     label: str | None = dataclasses.field(
@@ -861,11 +740,7 @@ class Tag(SBGNModelElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TerminalReference(SBGNRole):
-    """Reference to a terminal.
-
-    Attributes:
-        element: The element of the terminal reference.
-    """
+    """Reference to a terminal."""
 
     element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the terminal reference"}
@@ -877,10 +752,6 @@ class Terminal(SBGNAuxiliaryUnit):
     """Terminal element.
 
     Terminals represent connection points to submaps.
-
-    Attributes:
-        label: The label of the terminal.
-        referred_element: The element referred to by the terminal.
     """
 
     label: str | None = dataclasses.field(
@@ -897,10 +768,6 @@ class Submap(SBGNModelElement):
     """Submap element.
 
     Submaps represent embedded or referenced sub-diagrams.
-
-    Attributes:
-        label: The label of the submap.
-        terminals: The terminals of the submap.
     """
 
     label: str | None = dataclasses.field(
@@ -917,16 +784,6 @@ class SBGNPDModel(SBGNModel):
     """SBGN-PD model.
 
     Represents a complete SBGN Process Description model.
-
-    Attributes:
-        entity_pools: The entity pools of the SBGN-PD model.
-        processes: The processes of the SBGN-PD model.
-        compartments: The compartments of the SBGN-PD model.
-        modulations: The modulations of the SBGN-PD model.
-        logical_operators: The logical operators of the SBGN-PD model.
-        equivalence_operators: The equivalence operators of the SBGN-PD model.
-        submaps: The submaps of the SBGN-PD model.
-        tags: The tags of the SBGN-PD model.
     """
 
     entity_pools: frozenset[EntityPool] = dataclasses.field(

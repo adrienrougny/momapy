@@ -100,10 +100,6 @@ class RDFAnnotation:
     entities themselves, and are therefore plain frozen dataclasses rather
     than ``ModelElement`` subclasses.
 
-    Attributes:
-        qualifier: The BioModels qualifier describing the relationship.
-        resources: Set of resource URIs linked to this annotation.
-
     Examples:
         ```python
         from momapy.sbml.model import RDFAnnotation, BQBiol
@@ -114,7 +110,9 @@ class RDFAnnotation:
         ```
     """
 
-    qualifier: BiomodelQualifier
+    qualifier: BiomodelQualifier = dataclasses.field(
+        metadata={"description": "The BioModels qualifier describing the relationship."}
+    )
     resources: frozenset[str] = dataclasses.field(default_factory=frozenset)
 
 
@@ -123,9 +121,6 @@ class Compartment(SBMLModelElement):
     """SBML compartment representing a bounded region.
 
     A compartment defines a container where species are located.
-
-    Attributes:
-        outside: Optional outer compartment for hierarchical nesting.
 
     Examples:
         ```python
@@ -136,7 +131,12 @@ class Compartment(SBMLModelElement):
 
     outside: typing.Optional[
         typing.ForwardRef("Compartment", module="momapy.sbml.model")
-    ] = None
+    ] = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "Optional outer compartment for hierarchical nesting."
+        },
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -146,9 +146,6 @@ class Species(SBMLModelElement):
     A species represents a population of chemically identical entities
     (molecules, ions, etc.) located in a specific compartment.
 
-    Attributes:
-        compartment: The compartment containing this species.
-
     Examples:
         ```python
         compartment = Compartment(name="cytosol")
@@ -156,18 +153,19 @@ class Species(SBMLModelElement):
         ```
     """
 
-    compartment: Compartment | None = None
+    compartment: Compartment | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The compartment containing this species."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SimpleSpeciesReference(SBMLModelElement):
-    """Base class for species references in reactions.
+    """Base class for species references in reactions."""
 
-    Attributes:
-        referred_species: The species being referenced.
-    """
-
-    referred_species: Species
+    referred_species: Species = dataclasses.field(
+        metadata={"description": "The species being referenced."}
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -185,9 +183,6 @@ class ModifierSpeciesReference(SimpleSpeciesReference):
 class SpeciesReference(SimpleSpeciesReference):
     """Reference to a reactant or product species.
 
-    Attributes:
-        stoichiometry: Optional stoichiometric coefficient.
-
     Examples:
         ```python
         species = Species(name="ATP", compartment=compartment)
@@ -195,7 +190,10 @@ class SpeciesReference(SimpleSpeciesReference):
         ```
     """
 
-    stoichiometry: float | None = None
+    stoichiometry: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Optional stoichiometric coefficient."},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -204,13 +202,6 @@ class Reaction(SBMLModelElement):
 
     Reactions describe the conversion of reactants into products,
     potentially influenced by modifiers.
-
-    Attributes:
-        reversible: Whether the reaction can proceed in both directions.
-        compartment: Optional compartment where the reaction occurs.
-        reactants: Set of species consumed by the reaction.
-        products: Set of species produced by the reaction.
-        modifiers: Set of species that modify the reaction.
 
     Examples:
         ```python
@@ -223,8 +214,13 @@ class Reaction(SBMLModelElement):
         ```
     """
 
-    reversible: bool
-    compartment: Compartment | None = None
+    reversible: bool = dataclasses.field(
+        metadata={"description": "Whether the reaction can proceed in both directions."}
+    )
+    compartment: Compartment | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Optional compartment where the reaction occurs."},
+    )
     reactants: frozenset[SpeciesReference] = dataclasses.field(
         default_factory=frozenset
     )
@@ -241,14 +237,6 @@ class SBMLModel(Model):
     Models aggregate compartments, species, and reactions into a
     complete biological system description.
 
-    Attributes:
-        name: Human-readable name of the model.
-        sbo_term: Optional SBO term identifier for semantic annotation.
-        metaid: Optional metadata identifier for RDF annotations.
-        compartments: Set of compartments in the model.
-        species: Set of species in the model.
-        reactions: Set of reactions in the model.
-
     Examples:
         ```python
         model = SBMLModel(
@@ -260,9 +248,22 @@ class SBMLModel(Model):
         ```
     """
 
-    name: str | None = None
-    sbo_term: str | None = None
-    metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
+    name: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Human-readable name of the model."},
+    )
+    sbo_term: str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "Optional SBO term identifier for semantic annotation."
+        },
+    )
+    metaid: str | None = dataclasses.field(
+        default=None,
+        compare=False,
+        hash=False,
+        metadata={"description": "Optional metadata identifier for RDF annotations."},
+    )
     compartments: frozenset[Compartment] = dataclasses.field(default_factory=frozenset)
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)
     reactions: frozenset[Reaction] = dataclasses.field(default_factory=frozenset)
@@ -278,12 +279,6 @@ class SBML(SBMLModelElement):
     Represents the top-level SBML element containing model metadata
     and the model definition.
 
-    Attributes:
-        xmlns: XML namespace for the SBML version.
-        level: SBML level (version).
-        version: SBML version within the level.
-        model: The model contained in this SBML document.
-
     Examples:
         ```python
         sbml = SBML(
@@ -294,7 +289,19 @@ class SBML(SBMLModelElement):
         ```
     """
 
-    xmlns: str = "http://www.sbml.org/sbml/level3/version2/core"
-    level: int = 3
-    version: int = 2
-    model: SBMLModel | None = None
+    xmlns: str = dataclasses.field(
+        default="http://www.sbml.org/sbml/level3/version2/core",
+        metadata={"description": "XML namespace for the SBML version."},
+    )
+    level: int = dataclasses.field(
+        default=3,
+        metadata={"description": "SBML level (version)."},
+    )
+    version: int = dataclasses.field(
+        default=2,
+        metadata={"description": "SBML version within the level."},
+    )
+    model: SBMLModel | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The model contained in this SBML document."},
+    )

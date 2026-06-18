@@ -158,74 +158,107 @@ class IOResult:
 
 @dataclasses.dataclass
 class ReaderResult(IOResult):
-    """Result from reading a map file.
+    """Result from reading a map file."""
 
-    Attributes:
-        obj: The read map object (MapElement or None).
-        element_to_annotations: Mapping from map elements to their
-            annotations.
-        element_to_notes: Mapping from map elements to their notes.
-        id_to_element: Mapping from momapy element IDs to elements.
-            Contains all model and layout elements regardless of
-            source ID provenance.
-        source_id_to_model_element: Mapping from source file IDs
-            (e.g. XML attributes) to the **set** of model elements
-            named by that ID.  Only contains IDs that exist verbatim
-            in the source file.  One source ID may name several model
-            elements — for example a CellDesigner ``species/@id`` can
-            point at both the active and inactive variants of the
-            same species.  This is a ``Mapping[str, frozenset[ModelElement]]``:
-            use ``.get(id_, frozenset())`` to recover the model elements
-            named by an ID, or the ``.inverse`` property
-            (``id(element) -> frozenset[str]``) to find every source ID
-            that named a given model element.
-        source_id_to_layout_element: Mapping from source file IDs
-            (e.g. XML attributes) to layout elements.  Only contains
-            IDs that exist verbatim in the source file.  Unlike
-            ``source_id_to_model_element``, this is a
-            ``Mapping[str, LayoutElement]``: each source ID names a
-            **single** layout element.  Use ``[id_]`` / ``.get(id_)``
-            to recover the layout element named by an ID, or the
-            ``.inverse`` property — an equality-keyed (not ``id()``-keyed)
-            ``LayoutElement -> frozenset[str]`` — to find every source ID
-            that named a given layout element.
-        source_id_to_annotations: Mapping from source file IDs to the
-            RDF/MIRIAM annotations attached to that specific source
-            element.  Parallel to ``element_to_annotations`` but
-            preserves per-source granularity when several source
-            elements deduplicate to a single model element.  Combine
-            with ``source_id_to_model_element.inverse`` to recover the
-            full set of source-side annotations that merged into a
-            given model element.
-        source_id_to_notes: Mapping from source file IDs to the free
-            text ``<notes>`` blocks attached to that specific source
-            element.  Parallel to ``element_to_notes``; same
-            per-source semantics as ``source_id_to_annotations``.
-        file_path: Path of the file that was read.
-    """
-
-    obj: typing.Any | None = None
-    element_to_annotations: frozendict.frozendict | None = None
-    element_to_notes: frozendict.frozendict | None = None
-    id_to_element: frozendict.frozendict | None = None
-    source_id_to_model_element: FrozenIdentityMultiDict | None = None
-    source_id_to_layout_element: FrozenSurjectionDict | None = None
-    source_id_to_annotations: frozendict.frozendict | None = None
-    source_id_to_notes: frozendict.frozendict | None = None
-    file_path: str | os.PathLike | None = None
+    obj: typing.Any | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The read map object (MapElement or None)."},
+    )
+    element_to_annotations: frozendict.frozendict | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Mapping from map elements to their annotations."},
+    )
+    element_to_notes: frozendict.frozendict | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Mapping from map elements to their notes."},
+    )
+    id_to_element: frozendict.frozendict | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": (
+                "Mapping from momapy element IDs to elements. Contains all "
+                "model and layout elements regardless of source ID provenance."
+            )
+        },
+    )
+    source_id_to_model_element: FrozenIdentityMultiDict | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": (
+                "Mapping from source file IDs (e.g. XML attributes) to the "
+                "**set** of model elements named by that ID. Only contains IDs "
+                "that exist verbatim in the source file. One source ID may name "
+                "several model elements — for example a CellDesigner "
+                "``species/@id`` can point at both the active and inactive "
+                "variants of the same species. This is a "
+                "``Mapping[str, frozenset[ModelElement]]``: use "
+                "``.get(id_, frozenset())`` to recover the model elements named "
+                "by an ID, or the ``.inverse`` property "
+                "(``id(element) -> frozenset[str]``) to find every source ID "
+                "that named a given model element."
+            )
+        },
+    )
+    source_id_to_layout_element: FrozenSurjectionDict | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": (
+                "Mapping from source file IDs (e.g. XML attributes) to layout "
+                "elements. Only contains IDs that exist verbatim in the source "
+                "file. Unlike ``source_id_to_model_element``, this is a "
+                "``Mapping[str, LayoutElement]``: each source ID names a "
+                "**single** layout element. Use ``[id_]`` / ``.get(id_)`` to "
+                "recover the layout element named by an ID, or the ``.inverse`` "
+                "property — an equality-keyed (not ``id()``-keyed) "
+                "``LayoutElement -> frozenset[str]`` — to find every source ID "
+                "that named a given layout element."
+            )
+        },
+    )
+    source_id_to_annotations: frozendict.frozendict | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": (
+                "Mapping from source file IDs to the RDF/MIRIAM annotations "
+                "attached to that specific source element. Parallel to "
+                "``element_to_annotations`` but preserves per-source "
+                "granularity when several source elements deduplicate to a "
+                "single model element. Combine with "
+                "``source_id_to_model_element.inverse`` to recover the full set "
+                "of source-side annotations that merged into a given model "
+                "element."
+            )
+        },
+    )
+    source_id_to_notes: frozendict.frozendict | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": (
+                "Mapping from source file IDs to the free text ``<notes>`` "
+                "blocks attached to that specific source element. Parallel to "
+                "``element_to_notes``; same per-source semantics as "
+                "``source_id_to_annotations``."
+            )
+        },
+    )
+    file_path: str | os.PathLike | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Path of the file that was read."},
+    )
 
 
 @dataclasses.dataclass
 class WriterResult(IOResult):
-    """Result from writing a map file.
+    """Result from writing a map file."""
 
-    Attributes:
-        obj: The written object.
-        file_path: Path of the file that was written.
-    """
-
-    obj: typing.Any | None = None
-    file_path: str | os.PathLike | None = None
+    obj: typing.Any | None = dataclasses.field(
+        default=None,
+        metadata={"description": "The written object."},
+    )
+    file_path: str | os.PathLike | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Path of the file that was written."},
+    )
 
 
 def read(

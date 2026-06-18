@@ -51,7 +51,11 @@ from momapy.geometry import Translation
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class TextLayout(LayoutElement):
-    """Class for text layouts"""
+    """Class for text layouts.
+
+    A text layout draws a piece of text at a position with its own font and
+    styling.
+    """
 
     text: str = dataclasses.field(
         metadata={"description": "The text of the text layout"}
@@ -345,8 +349,10 @@ class TextLayout(LayoutElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Shape(LayoutElement):
-    """Class for basic shapes. The shape is the most simple layout element.
-    It has no children."""
+    """Class for basic shapes.
+
+    A shape is the most simple layout element and has no children.
+    """
 
     def childless(self) -> typing_extensions.Self:
         """Return a copy of the shape with no children.
@@ -369,9 +375,11 @@ class Shape(LayoutElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class GroupLayout(LayoutElement):
-    """Base class for group layouts. A group layout is a layout element grouping other layout elements.
-    It has its own drawing elements and set of children (called self drawing elements and self children, respectively).
-    The drawing elements of a group layout is a group drawing element formed of its self drawing elements and those of its children
+    """Base class for group layouts.
+
+    A group layout is a layout element grouping other layout elements, with its
+    own drawing elements and children combined into a single group drawing
+    element.
     """
 
     layout_elements: tuple[LayoutElement] = dataclasses.field(
@@ -522,7 +530,11 @@ class GroupLayout(LayoutElement):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Node(GroupLayout):
-    """Class for nodes. A node is a layout element with a `position`, a `width`, a `height` and an optional `label`."""
+    """Class for nodes.
+
+    A node is a group layout drawn as a shape with a position, a size, an
+    optional label and its own border styling.
+    """
 
     fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
@@ -558,9 +570,7 @@ class Node(GroupLayout):
     transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
         default=None, metadata={"description": "The transform of the node"}
     )
-    width: float = dataclasses.field(
-        metadata={"description": "The width width of the node"}
-    )
+    width: float = dataclasses.field(metadata={"description": "The width of the node"})
 
     @property
     def x(self) -> float:
@@ -752,7 +762,11 @@ class Node(GroupLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Arc(GroupLayout):
-    """Base class for arcs"""
+    """Base class for arcs.
+
+    An arc is a group layout drawn as a path connecting a source to a target,
+    with its own path styling.
+    """
 
     end_shorten: float = dataclasses.field(
         default=0.0,
@@ -893,7 +907,10 @@ class Arc(GroupLayout):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SingleHeadedArc(Arc):
-    """Base class for single-headed arcs. A single-headed arc is formed of a path and a unique arrowhead at its end"""
+    """Base class for single-headed arcs.
+
+    A single-headed arc is formed of a path and a unique arrowhead at its end.
+    """
 
     arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
@@ -1076,7 +1093,11 @@ class SingleHeadedArc(Arc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class DoubleHeadedArc(Arc):
-    """Base class for double-headed arcs. A double-headed arc is formed of a path and two arrowheads, on at the beginning of the path and one at its end"""
+    """Base class for double-headed arcs.
+
+    A double-headed arc is formed of a path and two arrowheads, one at the start
+    of the path and one at its end.
+    """
 
     end_arrowhead_fill: NoneValueType | Color | None = dataclasses.field(
         default=None,
@@ -1393,7 +1414,10 @@ class DoubleHeadedArc(Arc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Layout(Node):
-    """Class for layouts"""
+    """Class for layouts.
+
+    A layout is the root node holding all the visual elements of a map.
+    """
 
     fill: NoneValueType | Color | None = NoneValue
 

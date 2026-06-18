@@ -330,8 +330,14 @@ class CellDesignerReadingContext(ReadingContext):
     )
     real_model_source_ids: set[str] = dataclasses.field(default_factory=set)
     real_layout_source_ids: set[str] = dataclasses.field(default_factory=set)
-    canvas_width: float = 0.0
-    canvas_height: float = 0.0
+    canvas_width: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "Width of the CellDesigner canvas."},
+    )
+    canvas_height: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "Height of the CellDesigner canvas."},
+    )
     cd_degraded_alias_ids: set[str] = dataclasses.field(default_factory=set)
     cd_degraded_species_ids: set[str] = dataclasses.field(default_factory=set)
 

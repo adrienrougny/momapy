@@ -60,12 +60,11 @@ class SBGNRole(SBGNModelElement):
     """Base class for SBGN roles.
 
     Roles define how elements participate in SBGN processes.
-
-    Attributes:
-        element: The SBGN model element that has this role.
     """
 
-    element: SBGNModelElement
+    element: SBGNModelElement = dataclasses.field(
+        metadata={"description": "The SBGN model element that has this role."}
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -74,11 +73,6 @@ class SBGNNode(Node):
 
     SBGN nodes represent biological entities such as macromolecules,
     simple chemicals, or complexes in SBGN diagrams.
-
-    Attributes:
-        fill: Fill color for the node.
-        stroke: Stroke color for the node border.
-        stroke_width: Width of the node border.
 
     Examples:
         ```python
@@ -115,14 +109,6 @@ class SBGNSingleHeadedArc(SingleHeadedArc):
 
     Single-headed arcs represent directional relationships in SBGN,
     such as stimulation or catalysis.
-
-    Attributes:
-        arrowhead_fill: Fill color for the arrowhead.
-        arrowhead_stroke: Stroke color for the arrowhead border.
-        arrowhead_stroke_width: Width of the arrowhead border.
-        path_fill: Fill color for the arc path.
-        path_stroke: Stroke color for the arc path.
-        path_stroke_width: Width of the arc path.
     """
 
     arrowhead_fill: NoneValueType | Color | None = white
@@ -139,17 +125,6 @@ class SBGNDoubleHeadedArc(DoubleHeadedArc):
 
     Double-headed arcs represent reversible or bidirectional
     relationships in SBGN diagrams.
-
-    Attributes:
-        end_arrowhead_fill: Fill color for the end arrowhead.
-        end_arrowhead_stroke: Stroke color for the end arrowhead border.
-        end_arrowhead_stroke_width: Width of the end arrowhead border.
-        path_fill: Fill color for the arc path.
-        path_stroke: Stroke color for the arc path.
-        path_stroke_width: Width of the arc path.
-        start_arrowhead_fill: Fill color for the start arrowhead.
-        start_arrowhead_stroke: Stroke color for the start arrowhead border.
-        start_arrowhead_stroke_width: Width of the start arrowhead border.
     """
 
     end_arrowhead_fill: NoneValueType | Color | None = white
@@ -191,32 +166,88 @@ class _ConnectorsMixin(_SBGNMixin):
 
     Provides support for left and right connector lines that extend
     from the main shape, used in SBGN process nodes.
-
-    Attributes:
-        direction: Orientation of connectors (HORIZONTAL or VERTICAL).
-        left_to_right: Whether connectors flow left to right.
-        left_connector_length: Length of the left connector.
-        right_connector_length: Length of the right connector.
     """
 
-    direction: Direction = Direction.HORIZONTAL
-    left_to_right: bool = True
-    left_connector_length: float = 10.0
-    right_connector_length: float = 10.0
-    left_connector_stroke: NoneValueType | Color | None = None
-    left_connector_stroke_width: float | None = None
-    left_connector_stroke_dasharray: NoneValueType | tuple[float] | None = None
-    left_connector_stroke_dashoffset: float | None = None
-    left_connector_fill: NoneValueType | Color | None = None
-    left_connector_transform: NoneValueType | tuple[Transformation] | None = None
-    left_connector_filter: NoneValueType | Filter | None = None
-    right_connector_stroke: NoneValueType | Color | None = None
-    right_connector_stroke_width: float | None = None
-    right_connector_stroke_dasharray: NoneValueType | tuple[float] | None = None
-    right_connector_stroke_dashoffset: float | None = None
-    right_connector_fill: NoneValueType | Color | None = None
-    right_connector_transform: NoneValueType | tuple[Transformation] | None = None
-    right_connector_filter: NoneValueType | Filter | None = None
+    direction: Direction = dataclasses.field(
+        default=Direction.HORIZONTAL,
+        metadata={"description": "Orientation of connectors (HORIZONTAL or VERTICAL)."},
+    )
+    left_to_right: bool = dataclasses.field(
+        default=True,
+        metadata={"description": "Whether connectors flow left to right."},
+    )
+    left_connector_length: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "Length of the left connector."},
+    )
+    right_connector_length: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "Length of the right connector."},
+    )
+    left_connector_stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Stroke color for the left connector line."},
+    )
+    left_connector_stroke_width: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Stroke width for the left connector line."},
+    )
+    left_connector_stroke_dasharray: NoneValueType | tuple[float] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Dash pattern for the left connector line."},
+        )
+    )
+    left_connector_stroke_dashoffset: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Dash offset for the left connector line."},
+    )
+    left_connector_fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Fill color for the left connector."},
+    )
+    left_connector_transform: NoneValueType | tuple[Transformation] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Transformations applied to the left connector."},
+        )
+    )
+    left_connector_filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Filter applied to the left connector."},
+    )
+    right_connector_stroke: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Stroke color for the right connector line."},
+    )
+    right_connector_stroke_width: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Stroke width for the right connector line."},
+    )
+    right_connector_stroke_dasharray: NoneValueType | tuple[float] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Dash pattern for the right connector line."},
+        )
+    )
+    right_connector_stroke_dashoffset: float | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Dash offset for the right connector line."},
+    )
+    right_connector_fill: NoneValueType | Color | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Fill color for the right connector."},
+    )
+    right_connector_transform: NoneValueType | tuple[Transformation] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Transformations applied to the right connector."},
+        )
+    )
+    right_connector_filter: NoneValueType | Filter | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Filter applied to the right connector."},
+    )
 
     def left_connector_base(self) -> Point:
         """Get the base point of the left connector.
@@ -394,23 +425,45 @@ class _MultiMixin(_SBGNMixin):
 
     Provides support for nodes composed of multiple stacked units,
     such as macromolecule multimers or complex multimers.
-
-    Attributes:
-        offset: Offset distance between stacked units.
-        subunits_stroke: Tuple of stroke colors for each subunit.
-        subunits_stroke_width: Tuple of stroke widths for each subunit.
-        subunits_fill: Tuple of fill colors for each subunit.
     """
 
     _n: typing.ClassVar[int] = 2
-    offset: float = 3.0
-    subunits_stroke: tuple[NoneValueType | Color] | None = None
-    subunits_stroke_width: tuple[NoneValueType | float] | None = None
-    subunits_stroke_dasharray: tuple[NoneValueType | tuple[float]] | None = None
-    subunits_stroke_dashoffset: tuple[float] | None = None
-    subunits_fill: tuple[NoneValueType | Color] | None = None
-    subunits_transform: tuple[NoneValueType | tuple[Transformation]] | None = None
-    subunits_filter: tuple[NoneValueType | Filter] | None = None
+    offset: float = dataclasses.field(
+        default=3.0,
+        metadata={"description": "Offset distance between stacked units."},
+    )
+    subunits_stroke: tuple[NoneValueType | Color] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of stroke colors for each subunit."},
+    )
+    subunits_stroke_width: tuple[NoneValueType | float] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of stroke widths for each subunit."},
+    )
+    subunits_stroke_dasharray: tuple[NoneValueType | tuple[float]] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Tuple of dash patterns for each subunit."},
+        )
+    )
+    subunits_stroke_dashoffset: tuple[float] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of dash offsets for each subunit."},
+    )
+    subunits_fill: tuple[NoneValueType | Color] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of fill colors for each subunit."},
+    )
+    subunits_transform: tuple[NoneValueType | tuple[Transformation]] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "Tuple of transformations for each subunit."},
+        )
+    )
+    subunits_filter: tuple[NoneValueType | Filter] | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of filters for each subunit."},
+    )
 
     @abc.abstractmethod
     def _make_subunit_shape(
@@ -492,25 +545,35 @@ class _TextMixin(_SBGNMixin):
     Provides support for rendering text labels on SBGN nodes,
     such as state variables or unit of information labels.
 
-    Attributes:
-        text: Text content to display.
-        font_family: Font family for the text.
-        font_style: Font style (normal, italic, etc.).
-        font_weight: Font weight (normal, bold, etc.).
-        font_fill: Fill color for the text.
-        font_stroke: Stroke color for the text outline.
-        _font_size_func: Function to calculate font size. Kept as a
-            ``ClassVar`` because it is a computation rule rather than
-            a style value and relies on descriptor binding.
+    ``_font_size_func`` is kept as a ``ClassVar`` because it is a computation
+    rule rather than a style value and relies on descriptor binding.
     """
 
     _font_size_func: typing.ClassVar[typing.Callable]
-    text: str = ""
-    font_family: str = DEFAULT_FONT_FAMILY
-    font_fill: Color | NoneValueType = black
-    font_stroke: Color | NoneValueType = NoneValue
-    font_style: FontStyle = FontStyle.NORMAL
-    font_weight: FontWeight | float = FontWeight.NORMAL
+    text: str = dataclasses.field(
+        default="",
+        metadata={"description": "Text content to display."},
+    )
+    font_family: str = dataclasses.field(
+        default=DEFAULT_FONT_FAMILY,
+        metadata={"description": "Font family for the text."},
+    )
+    font_fill: Color | NoneValueType = dataclasses.field(
+        default=black,
+        metadata={"description": "Fill color for the text."},
+    )
+    font_stroke: Color | NoneValueType = dataclasses.field(
+        default=NoneValue,
+        metadata={"description": "Stroke color for the text outline."},
+    )
+    font_style: FontStyle = dataclasses.field(
+        default=FontStyle.NORMAL,
+        metadata={"description": "Font style (normal, italic, etc.)."},
+    )
+    font_weight: FontWeight | float = dataclasses.field(
+        default=FontWeight.NORMAL,
+        metadata={"description": "Font weight (normal, bold, etc.)."},
+    )
 
     def _make_text_layout(self):
         """Create a text layout for the label.

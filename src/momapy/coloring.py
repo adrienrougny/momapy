@@ -185,12 +185,6 @@ __all__ = [
 class Color(object):
     """Represents an RGBA color.
 
-    Attributes:
-        red: Red component (0-255).
-        green: Green component (0-255).
-        blue: Blue component (0-255).
-        alpha: Alpha component (0.0-1.0), defaults to 1.0 (fully opaque).
-
     Examples:
         ```python
         color = Color(255, 87, 51)

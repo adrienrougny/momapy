@@ -198,11 +198,24 @@ class _DegradedEntry:
     Production link arc (T-shape link case).
     """
 
-    reaction: typing.Any
-    side: str  # "reactant" or "product"
-    degraded_layout: typing.Any
-    reaction_layout: typing.Any
-    link_arc: typing.Any = None
+    reaction: typing.Any = dataclasses.field(
+        metadata={"description": "The reaction model element owning the participant."}
+    )
+    side: str = dataclasses.field(
+        metadata={"description": 'The participant side, "reactant" or "product".'}
+    )
+    degraded_layout: typing.Any = dataclasses.field(
+        metadata={"description": "The degraded glyph layout element."}
+    )
+    reaction_layout: typing.Any = dataclasses.field(
+        metadata={"description": "The reaction layout element."}
+    )
+    link_arc: typing.Any = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The connecting Consumption/Production link arc layout, or None when the degraded glyph is the reaction's base source/target."
+        },
+    )
 
 
 @dataclasses.dataclass

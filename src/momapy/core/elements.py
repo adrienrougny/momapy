@@ -16,6 +16,12 @@ from momapy.utils import make_uuid4_as_str
 
 
 class Direction(enum.Enum):
+    """Direction of a layout element or axis.
+
+    Encodes either an axis (horizontal or vertical) or one of the four cardinal
+    orientations.
+    """
+
     HORIZONTAL = 1
     VERTICAL = 2
     UP = 3
@@ -25,12 +31,22 @@ class Direction(enum.Enum):
 
 
 class HAlignment(enum.Enum):
+    """Horizontal alignment of text or content.
+
+    Selects how content is positioned along the horizontal axis.
+    """
+
     LEFT = 1
     CENTER = 2
     RIGHT = 3
 
 
 class VAlignment(enum.Enum):
+    """Vertical alignment of text or content.
+
+    Selects how content is positioned along the vertical axis.
+    """
+
     TOP = 1
     CENTER = 2
     BOTTOM = 3
@@ -38,7 +54,10 @@ class VAlignment(enum.Enum):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class MapElement:
-    """Base class for map elements"""
+    """Base class for map elements.
+
+    Common ancestor of every model and layout element making up a map.
+    """
 
     id_: str = dataclasses.field(
         hash=False,
@@ -55,7 +74,10 @@ class MapElement:
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class ModelElement(MapElement):
-    """Base class for model elements"""
+    """Base class for model elements.
+
+    Common ancestor of every element carrying the semantic information of a map.
+    """
 
     def descendants(self) -> list["ModelElement"]:
         """Return every `ModelElement` reachable from `self`, excluding `self`.
@@ -116,7 +138,10 @@ def _walk_model_graph(
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class LayoutElement(MapElement, abc.ABC):
-    """Abstract base class for layout elements"""
+    """Abstract base class for layout elements.
+
+    Common ancestor of every element carrying the visual information of a map.
+    """
 
     @abc.abstractmethod
     def bbox(self) -> Bbox:

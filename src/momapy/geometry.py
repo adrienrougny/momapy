@@ -77,10 +77,6 @@ class GeometryObject(abc.ABC):
 class Point(GeometryObject):
     """Represents a 2D point with x and y coordinates.
 
-    Attributes:
-        x: The x-coordinate.
-        y: The y-coordinate.
-
     Examples:
         ```python
         p = Point(10, 20)
@@ -89,8 +85,8 @@ class Point(GeometryObject):
         ```
     """
 
-    x: float
-    y: float
+    x: float = dataclasses.field(metadata={"description": "The x-coordinate."})
+    y: float = dataclasses.field(metadata={"description": "The y-coordinate."})
 
     def __post_init__(self):
         object.__setattr__(self, "x", round(self.x, ROUNDING))
@@ -222,10 +218,6 @@ class Point(GeometryObject):
 class Line(GeometryObject):
     """Represents an infinite line defined by two points.
 
-    Attributes:
-        p1: First point on the line.
-        p2: Second point on the line.
-
     Examples:
         ```python
         line = Line(Point(0, 0), Point(10, 10))
@@ -234,8 +226,8 @@ class Line(GeometryObject):
         ```
     """
 
-    p1: Point
-    p2: Point
+    p1: Point = dataclasses.field(metadata={"description": "First point on the line."})
+    p2: Point = dataclasses.field(metadata={"description": "Second point on the line."})
 
     def slope(self) -> float:
         """Calculate the slope of the line.
@@ -396,10 +388,6 @@ class Line(GeometryObject):
 class Segment(GeometryObject):
     """Represents a line segment between two points.
 
-    Attributes:
-        p1: Start point.
-        p2: End point.
-
     Examples:
         ```python
         seg = Segment(Point(0, 0), Point(10, 10))
@@ -408,8 +396,8 @@ class Segment(GeometryObject):
         ```
     """
 
-    p1: Point
-    p2: Point
+    p1: Point = dataclasses.field(metadata={"description": "Start point."})
+    p2: Point = dataclasses.field(metadata={"description": "End point."})
 
     def length(self) -> float:
         """Calculate the length of the segment.
@@ -698,11 +686,6 @@ def _find_t_at_arc_length_fraction(
 class QuadraticBezierCurve(GeometryObject):
     """Represents a quadratic Bezier curve.
 
-    Attributes:
-        p1: Start point.
-        p2: End point.
-        control_point: The single control point.
-
     Examples:
         ```python
         curve = QuadraticBezierCurve(
@@ -713,9 +696,11 @@ class QuadraticBezierCurve(GeometryObject):
         ```
     """
 
-    p1: Point
-    p2: Point
-    control_point: Point
+    p1: Point = dataclasses.field(metadata={"description": "Start point."})
+    p2: Point = dataclasses.field(metadata={"description": "End point."})
+    control_point: Point = dataclasses.field(
+        metadata={"description": "The single control point."}
+    )
 
     def evaluate(self, t: float) -> Point:
         """Evaluate the curve at parameter t.
@@ -970,12 +955,6 @@ class QuadraticBezierCurve(GeometryObject):
 class CubicBezierCurve(GeometryObject):
     """Represents a cubic Bezier curve.
 
-    Attributes:
-        p1: Start point.
-        p2: End point.
-        control_point1: First control point.
-        control_point2: Second control point.
-
     Examples:
         ```python
         curve = CubicBezierCurve(
@@ -987,10 +966,14 @@ class CubicBezierCurve(GeometryObject):
         ```
     """
 
-    p1: Point
-    p2: Point
-    control_point1: Point
-    control_point2: Point
+    p1: Point = dataclasses.field(metadata={"description": "Start point."})
+    p2: Point = dataclasses.field(metadata={"description": "End point."})
+    control_point1: Point = dataclasses.field(
+        metadata={"description": "First control point."}
+    )
+    control_point2: Point = dataclasses.field(
+        metadata={"description": "Second control point."}
+    )
 
     def evaluate(self, t: float) -> Point:
         """Evaluate the curve at parameter t.
@@ -1288,15 +1271,6 @@ class CubicBezierCurve(GeometryObject):
 class EllipticalArc(GeometryObject):
     """Represents an elliptical arc.
 
-    Attributes:
-        p1: Start point.
-        p2: End point.
-        rx: X-radius of the ellipse.
-        ry: Y-radius of the ellipse.
-        x_axis_rotation: Rotation of the x-axis in radians.
-        arc_flag: Large arc flag (0 or 1).
-        sweep_flag: Sweep flag (0 or 1).
-
     Examples:
         ```python
         arc = EllipticalArc(
@@ -1305,13 +1279,19 @@ class EllipticalArc(GeometryObject):
         ```
     """
 
-    p1: Point
-    p2: Point
-    rx: float
-    ry: float
-    x_axis_rotation: float
-    arc_flag: int
-    sweep_flag: int
+    p1: Point = dataclasses.field(metadata={"description": "Start point."})
+    p2: Point = dataclasses.field(metadata={"description": "End point."})
+    rx: float = dataclasses.field(metadata={"description": "X-radius of the ellipse."})
+    ry: float = dataclasses.field(metadata={"description": "Y-radius of the ellipse."})
+    x_axis_rotation: float = dataclasses.field(
+        metadata={"description": "Rotation of the x-axis in radians."}
+    )
+    arc_flag: int = dataclasses.field(
+        metadata={"description": "Large arc flag (0 or 1)."}
+    )
+    sweep_flag: int = dataclasses.field(
+        metadata={"description": "Sweep flag (0 or 1)."}
+    )
 
     def __post_init__(self):
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
@@ -1669,11 +1649,6 @@ class EllipticalArc(GeometryObject):
 class Bbox(object):
     """Represents a bounding box.
 
-    Attributes:
-        position: Center point.
-        width: Width of the box.
-        height: Height of the box.
-
     Examples:
         ```python
         bbox = Bbox(Point(5, 5), 10, 10)
@@ -1682,9 +1657,9 @@ class Bbox(object):
         ```
     """
 
-    position: Point
-    width: float
-    height: float
+    position: Point = dataclasses.field(metadata={"description": "Center point."})
+    width: float = dataclasses.field(metadata={"description": "Width of the box."})
+    height: float = dataclasses.field(metadata={"description": "Height of the box."})
 
     def __post_init__(self):
         object.__setattr__(self, "width", round(self.width, ROUNDING))
@@ -1877,13 +1852,11 @@ class Transformation(abc.ABC):
 
 @dataclasses.dataclass(frozen=True)
 class MatrixTransformation(Transformation):
-    """Represents a transformation as a 3x3 matrix.
+    """Represents a transformation as a 3x3 matrix."""
 
-    Attributes:
-        m: The 3x3 transformation matrix.
-    """
-
-    m: numpy.typing.NDArray
+    m: numpy.typing.NDArray = dataclasses.field(
+        metadata={"description": "The 3x3 transformation matrix."}
+    )
 
     def to_matrix(self) -> numpy.typing.NDArray:
         """Get the matrix representation.
@@ -1906,18 +1879,19 @@ class MatrixTransformation(Transformation):
 class Rotation(Transformation):
     """Represents a rotation transformation.
 
-    Attributes:
-        angle: Rotation angle in radians.
-        point: Optional center of rotation (defaults to origin).
-
     Examples:
         ```python
         rot = Rotation(math.pi / 2, Point(5, 5))
         ```
     """
 
-    angle: float
-    point: Point | None = None
+    angle: float = dataclasses.field(
+        metadata={"description": "Rotation angle in radians."}
+    )
+    point: Point | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Optional center of rotation (defaults to origin)."},
+    )
 
     def to_matrix(self) -> numpy.typing.NDArray:
         """Convert to a rotation matrix.
@@ -1954,18 +1928,18 @@ class Rotation(Transformation):
 class Translation(Transformation):
     """Represents a translation transformation.
 
-    Attributes:
-        tx: Translation in x direction.
-        ty: Translation in y direction.
-
     Examples:
         ```python
         trans = Translation(10, 20)
         ```
     """
 
-    tx: float
-    ty: float
+    tx: float = dataclasses.field(
+        metadata={"description": "Translation in x direction."}
+    )
+    ty: float = dataclasses.field(
+        metadata={"description": "Translation in y direction."}
+    )
 
     def to_matrix(self) -> numpy.typing.NDArray:
         """Convert to a translation matrix.
@@ -1989,18 +1963,18 @@ class Translation(Transformation):
 class Scaling(Transformation):
     """Represents a scaling transformation.
 
-    Attributes:
-        sx: Scale factor in x direction.
-        sy: Scale factor in y direction.
-
     Examples:
         ```python
         scale = Scaling(2, 2)  # Double size
         ```
     """
 
-    sx: float
-    sy: float
+    sx: float = dataclasses.field(
+        metadata={"description": "Scale factor in x direction."}
+    )
+    sy: float = dataclasses.field(
+        metadata={"description": "Scale factor in y direction."}
+    )
 
     def to_matrix(self) -> numpy.typing.NDArray:
         """Convert to a scaling matrix.

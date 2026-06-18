@@ -78,40 +78,65 @@ class Rectangle(Shape):
     """Rectangle shape.
 
     A rectangle whose four corners can each be independently rounded or cut.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        top_left_rx: The x-radius of the top-left corner.
-        top_left_ry: The y-radius of the top-left corner.
-        top_left_rounded_or_cut: Whether the top-left corner is rounded or cut.
-        top_right_rx: The x-radius of the top-right corner.
-        top_right_ry: The y-radius of the top-right corner.
-        top_right_rounded_or_cut: Whether the top-right corner is rounded or cut.
-        bottom_right_rx: The x-radius of the bottom-right corner.
-        bottom_right_ry: The y-radius of the bottom-right corner.
-        bottom_right_rounded_or_cut: Whether the bottom-right corner is rounded or cut.
-        bottom_left_rx: The x-radius of the bottom-left corner.
-        bottom_left_ry: The y-radius of the bottom-left corner.
-        bottom_left_rounded_or_cut: Whether the bottom-left corner is rounded or cut.
     """
 
-    position: Point
-    width: float
-    height: float
-    top_left_rx: float = 0.0
-    top_left_ry: float = 0.0
-    top_left_rounded_or_cut: str = "rounded"
-    top_right_rx: float = 0.0
-    top_right_ry: float = 0.0
-    top_right_rounded_or_cut: str = "rounded"
-    bottom_right_rx: float = 0.0
-    bottom_right_ry: float = 0.0
-    bottom_right_rounded_or_cut: str = "rounded"
-    bottom_left_rx: float = 0.0
-    bottom_left_ry: float = 0.0
-    bottom_left_rounded_or_cut: str = "rounded"
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    top_left_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the top-left corner."},
+    )
+    top_left_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the top-left corner."},
+    )
+    top_left_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the top-left corner is rounded or cut."},
+    )
+    top_right_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the top-right corner."},
+    )
+    top_right_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the top-right corner."},
+    )
+    top_right_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the top-right corner is rounded or cut."},
+    )
+    bottom_right_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the bottom-right corner."},
+    )
+    bottom_right_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the bottom-right corner."},
+    )
+    bottom_right_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the bottom-right corner is rounded or cut."},
+    )
+    bottom_left_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the bottom-left corner."},
+    )
+    bottom_left_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the bottom-left corner."},
+    )
+    bottom_left_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the bottom-left corner is rounded or cut."},
+    )
 
     def joint1(self):
         return self.position + (
@@ -241,16 +266,17 @@ class Ellipse(Shape):
     """Ellipse shape.
 
     An ellipse (or circle) fitting the given width and height.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
     """
 
-    position: Point
-    width: float
-    height: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
 
     def drawing_elements(self):
         drawing_element = EllipseDrawing(
@@ -264,16 +290,17 @@ class Stadium(Shape):
     """Stadium shape.
 
     A stadium (rounded rectangle) with fully rounded left and right ends.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
     """
 
-    position: Point
-    width: float
-    height: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
 
     def __post_init__(self):
         if self.width < self.height:
@@ -319,20 +346,23 @@ class Hexagon(Shape):
     """Hexagon shape.
 
     A hexagon whose left and right vertex angles are configurable.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        left_angle: The angle of the left vertex, in degrees.
-        right_angle: The angle of the right vertex, in degrees.
     """
 
-    position: Point
-    width: float
-    height: float
-    left_angle: float
-    right_angle: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    left_angle: float = dataclasses.field(
+        metadata={"description": "The angle of the left vertex, in degrees."}
+    )
+    right_angle: float = dataclasses.field(
+        metadata={"description": "The angle of the right vertex, in degrees."}
+    )
 
     def joint1(self):
         if self.left_angle > 90:
@@ -398,20 +428,23 @@ class TurnedHexagon(Shape):
     """Turned hexagon shape.
 
     A hexagon turned by 90 degrees, with configurable top and bottom vertex angles.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        top_angle: The angle of the top vertex, in degrees.
-        bottom_angle: The angle of the bottom vertex, in degrees.
     """
 
-    position: Point
-    width: float
-    height: float
-    top_angle: float
-    bottom_angle: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    top_angle: float = dataclasses.field(
+        metadata={"description": "The angle of the top vertex, in degrees."}
+    )
+    bottom_angle: float = dataclasses.field(
+        metadata={"description": "The angle of the bottom vertex, in degrees."}
+    )
 
     def joint1(self):
         if self.top_angle >= 90:
@@ -532,18 +565,20 @@ class Parallelogram(Shape):
     """Parallelogram shape.
 
     A parallelogram whose slant angle is configurable.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        angle: The angle of the slanted sides, in degrees.
     """
 
-    position: Point
-    width: float
-    height: float
-    angle: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    angle: float = dataclasses.field(
+        metadata={"description": "The angle of the slanted sides, in degrees."}
+    )
 
     def joint1(self):
         if self.angle >= 90:
@@ -593,16 +628,17 @@ class CrossPoint(Shape):
     """Cross-point shape.
 
     A crossing pair of horizontal and vertical line segments.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
     """
 
-    position: Point
-    width: float
-    height: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
 
     def drawing_elements(self):
         actions = [
@@ -623,18 +659,20 @@ class Triangle(Shape):
     """Triangle shape.
 
     A triangle pointing in a configurable direction.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        direction: The direction the triangle points towards.
     """
 
-    position: Point
-    width: float
-    height: float
-    direction: Direction
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    direction: Direction = dataclasses.field(
+        metadata={"description": "The direction the triangle points towards."}
+    )
 
     def joint1(self):
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
@@ -679,16 +717,17 @@ class Diamond(Shape):
     """Diamond shape.
 
     A diamond (rhombus) with vertices at the midpoints of its sides.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
     """
 
-    position: Point
-    width: float
-    height: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
 
     def joint1(self):
         return self.position + (0, -self.height / 2)
@@ -719,14 +758,14 @@ class Bar(Shape):
     """Bar shape.
 
     A single vertical bar segment spanning the given height.
-
-    Attributes:
-        position: The position of the center of the shape.
-        height: The height of the shape.
     """
 
-    position: Point
-    height: float
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
 
     def joint1(self):
         return Point(0, -self.height / 2)
@@ -748,18 +787,20 @@ class ArcBarb(Shape):
     """Arc-barb shape.
 
     A curved (arc) barb pointing in a configurable direction.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        direction: The direction the barb points towards.
     """
 
-    position: Point
-    width: float
-    height: float
-    direction: Direction
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    direction: Direction = dataclasses.field(
+        metadata={"description": "The direction the barb points towards."}
+    )
 
     def joint1(self):
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
@@ -837,18 +878,20 @@ class StraightBarb(Shape):
     """Straight-barb shape.
 
     A straight barb pointing in a configurable direction.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        direction: The direction the barb points towards.
     """
 
-    position: Point
-    width: float
-    height: float
-    direction: Direction
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    direction: Direction = dataclasses.field(
+        metadata={"description": "The direction the barb points towards."}
+    )
 
     def joint1(self):
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
@@ -911,18 +954,20 @@ class To(Shape):
     """To shape.
 
     An arrow-tip ("to") shape pointing in a configurable direction.
-
-    Attributes:
-        position: The position of the center of the shape.
-        width: The width of the shape.
-        height: The height of the shape.
-        direction: The direction the arrow tip points towards.
     """
 
-    position: Point
-    width: float
-    height: float
-    direction: Direction
+    position: Point = dataclasses.field(
+        metadata={"description": "The position of the center of the shape."}
+    )
+    width: float = dataclasses.field(
+        metadata={"description": "The width of the shape."}
+    )
+    height: float = dataclasses.field(
+        metadata={"description": "The height of the shape."}
+    )
+    direction: Direction = dataclasses.field(
+        metadata={"description": "The direction the arrow tip points towards."}
+    )
 
     def joint1(self):
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:

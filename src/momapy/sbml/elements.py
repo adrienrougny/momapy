@@ -10,13 +10,21 @@ class SBMLModelElement(ModelElement):
     """Abstract base class for all SBML elements.
 
     SBMLModelElement provides common attributes shared by all SBML components.
-
-    Attributes:
-        name: Human-readable name of the element.
-        sbo_term: Optional SBO term identifier for semantic annotation.
-        metaid: Optional metadata identifier for RDF annotations.
     """
 
-    name: str | None = None
-    sbo_term: str | None = None
-    metaid: str | None = dataclasses.field(default=None, compare=False, hash=False)
+    name: str | None = dataclasses.field(
+        default=None,
+        metadata={"description": "Human-readable name of the element."},
+    )
+    sbo_term: str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "Optional SBO term identifier for semantic annotation."
+        },
+    )
+    metaid: str | None = dataclasses.field(
+        default=None,
+        compare=False,
+        hash=False,
+        metadata={"description": "Optional metadata identifier for RDF annotations."},
+    )

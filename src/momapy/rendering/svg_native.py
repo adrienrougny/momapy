@@ -53,12 +53,6 @@ class SVGElement(object):
     This class represents an SVG element with a name, optional text value,
     attributes, and child elements.
 
-    Attributes:
-        name: The tag name of the SVG element (e.g., 'svg', 'rect', 'path')
-        value: Optional text content of the element
-        attributes: Dictionary of attribute names and values
-        elements: List of child SVGElement instances
-
     Examples:
         ```python
         element = SVGElement(
@@ -69,8 +63,15 @@ class SVGElement(object):
         ```
     """
 
-    name: str
-    value: typing.Optional[str] = None
+    name: str = dataclasses.field(
+        metadata={
+            "description": "The tag name of the SVG element (e.g. 'svg', 'rect', 'path')"
+        }
+    )
+    value: typing.Optional[str] = dataclasses.field(
+        default=None,
+        metadata={"description": "The optional text content of the element"},
+    )
     attributes: dict = dataclasses.field(default_factory=dict)
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
@@ -123,9 +124,6 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
     This renderer creates SVG markup directly without external dependencies.
     It supports all standard SVG features including filters, transformations,
     and presentation attributes.
-
-    Attributes:
-        svg: The root SVGElement that will contain all rendered content
 
     Examples:
         ```python
@@ -223,7 +221,11 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         FillRule.EVENODD: "evenodd",
     }
 
-    svg: SVGElement
+    svg: SVGElement = dataclasses.field(
+        metadata={
+            "description": "The root SVG element that will contain all rendered content"
+        }
+    )
     config: dict = dataclasses.field(default_factory=dict)
     _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
 

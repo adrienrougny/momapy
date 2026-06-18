@@ -48,6 +48,7 @@ Examples:
     ```
 """
 
+import dataclasses
 from dataclasses import dataclass
 
 from momapy.coloring import Color
@@ -98,14 +99,16 @@ class Triangle(SingleHeadedArc):
     """Single-headed arc with a triangle arrowhead.
 
     An arc ending in a triangular arrowhead pointing along the arc.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = TriangleShape(
@@ -122,14 +125,16 @@ class ReversedTriangle(SingleHeadedArc):
     """Single-headed arc with a reversed triangle arrowhead.
 
     An arc ending in a triangular arrowhead pointing back towards the arc.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = TriangleShape(
@@ -146,14 +151,16 @@ class Rectangle(SingleHeadedArc):
     """Single-headed arc with a rectangle arrowhead.
 
     An arc ending in a rectangular arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = RectangleShape(
@@ -169,14 +176,16 @@ class Ellipse(SingleHeadedArc):
     """Single-headed arc with an ellipse arrowhead.
 
     An arc ending in an elliptical arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 5.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = EllipseShape(
@@ -192,14 +201,16 @@ class Diamond(SingleHeadedArc):
     """Single-headed arc with a diamond arrowhead.
 
     An arc ending in a diamond-shaped arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 5.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = DiamondShape(
@@ -215,12 +226,12 @@ class Bar(SingleHeadedArc):
     """Single-headed arc with a bar arrowhead.
 
     An arc ending in a bar (perpendicular line) arrowhead.
-
-    Attributes:
-        arrowhead_height: The height of the arrowhead.
     """
 
-    arrowhead_height: float = 10.0
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
 
     def _arrowhead_border_drawing_elements(self):
         shape = BarShape(
@@ -235,15 +246,16 @@ class ArcBarb(SingleHeadedArc):
     """Single-headed arc with an arc-barb arrowhead.
 
     An arc ending in a curved (arc) barb arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_fill: The fill color of the arrowhead, or no fill.
     """
 
-    arrowhead_width: float = 5.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
     def _arrowhead_border_drawing_elements(self):
@@ -261,15 +273,16 @@ class StraightBarb(SingleHeadedArc):
     """Single-headed arc with a straight-barb arrowhead.
 
     An arc ending in a straight barb arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_fill: The fill color of the arrowhead, or no fill.
     """
 
-    arrowhead_width: float = 10.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
     def _arrowhead_border_drawing_elements(self):
@@ -287,15 +300,16 @@ class To(SingleHeadedArc):
     """Single-headed arc with a to arrowhead.
 
     An arc ending in an arrow-tip ("to") arrowhead.
-
-    Attributes:
-        arrowhead_width: The width of the arrowhead.
-        arrowhead_height: The height of the arrowhead.
-        arrowhead_fill: The fill color of the arrowhead, or no fill.
     """
 
-    arrowhead_width: float = 5.0
-    arrowhead_height: float = 10.0
+    arrowhead_width: float = dataclasses.field(
+        default=5.0,
+        metadata={"description": "The width of the arrowhead."},
+    )
+    arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the arrowhead."},
+    )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
     def _arrowhead_border_drawing_elements(self):
@@ -313,18 +327,24 @@ class DoubleTriangle(DoubleHeadedArc):
     """Double-headed arc with triangle arrowheads.
 
     An arc with a triangular arrowhead at each end.
-
-    Attributes:
-        start_arrowhead_width: The width of the start arrowhead.
-        start_arrowhead_height: The height of the start arrowhead.
-        end_arrowhead_width: The width of the end arrowhead.
-        end_arrowhead_height: The height of the end arrowhead.
     """
 
-    start_arrowhead_width: float = 10.0
-    start_arrowhead_height: float = 10.0
-    end_arrowhead_width: float = 10.0
-    end_arrowhead_height: float = 10.0
+    start_arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the start arrowhead."},
+    )
+    start_arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the start arrowhead."},
+    )
+    end_arrowhead_width: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The width of the end arrowhead."},
+    )
+    end_arrowhead_height: float = dataclasses.field(
+        default=10.0,
+        metadata={"description": "The height of the end arrowhead."},
+    )
 
     def _start_arrowhead_border_drawing_elements(self):
         shape = TriangleShape(

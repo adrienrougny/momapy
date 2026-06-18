@@ -81,34 +81,56 @@ class Rectangle(Node):
     """Rectangle node.
 
     A rectangular node whose four corners can each be independently rounded or cut.
-
-    Attributes:
-        top_left_rx: The x-radius of the top-left corner.
-        top_left_ry: The y-radius of the top-left corner.
-        top_left_rounded_or_cut: Whether the top-left corner is rounded or cut.
-        top_right_rx: The x-radius of the top-right corner.
-        top_right_ry: The y-radius of the top-right corner.
-        top_right_rounded_or_cut: Whether the top-right corner is rounded or cut.
-        bottom_right_rx: The x-radius of the bottom-right corner.
-        bottom_right_ry: The y-radius of the bottom-right corner.
-        bottom_right_rounded_or_cut: Whether the bottom-right corner is rounded or cut.
-        bottom_left_rx: The x-radius of the bottom-left corner.
-        bottom_left_ry: The y-radius of the bottom-left corner.
-        bottom_left_rounded_or_cut: Whether the bottom-left corner is rounded or cut.
     """
 
-    top_left_rx: float = 0.0
-    top_left_ry: float = 0.0
-    top_left_rounded_or_cut: str = "rounded"
-    top_right_rx: float = 0.0
-    top_right_ry: float = 0.0
-    top_right_rounded_or_cut: str = "rounded"
-    bottom_right_rx: float = 0.0
-    bottom_right_ry: float = 0.0
-    bottom_right_rounded_or_cut: str = "rounded"
-    bottom_left_rx: float = 0.0
-    bottom_left_ry: float = 0.0
-    bottom_left_rounded_or_cut: str = "rounded"
+    top_left_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the top-left corner."},
+    )
+    top_left_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the top-left corner."},
+    )
+    top_left_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the top-left corner is rounded or cut."},
+    )
+    top_right_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the top-right corner."},
+    )
+    top_right_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the top-right corner."},
+    )
+    top_right_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the top-right corner is rounded or cut."},
+    )
+    bottom_right_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the bottom-right corner."},
+    )
+    bottom_right_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the bottom-right corner."},
+    )
+    bottom_right_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the bottom-right corner is rounded or cut."},
+    )
+    bottom_left_rx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The x-radius of the bottom-left corner."},
+    )
+    bottom_left_ry: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The y-radius of the bottom-left corner."},
+    )
+    bottom_left_rounded_or_cut: str = dataclasses.field(
+        default="rounded",
+        metadata={"description": "Whether the bottom-left corner is rounded or cut."},
+    )
 
     def _border_drawing_elements(self):
         shape = RectangleShape(
@@ -168,14 +190,16 @@ class Hexagon(Node):
     """Hexagon node.
 
     A hexagonal node whose left and right vertex angles are configurable.
-
-    Attributes:
-        left_angle: The angle of the left vertex, in degrees.
-        right_angle: The angle of the right vertex, in degrees.
     """
 
-    left_angle: float = 60.0
-    right_angle: float = 60.0
+    left_angle: float = dataclasses.field(
+        default=60.0,
+        metadata={"description": "The angle of the left vertex, in degrees."},
+    )
+    right_angle: float = dataclasses.field(
+        default=60.0,
+        metadata={"description": "The angle of the right vertex, in degrees."},
+    )
 
     def _border_drawing_elements(self):
         shape = HexagonShape(
@@ -193,14 +217,16 @@ class TurnedHexagon(Node):
     """Turned hexagon node.
 
     A hexagonal node turned by 90 degrees, with configurable top and bottom vertex angles.
-
-    Attributes:
-        top_angle: The angle of the top vertex, in degrees.
-        bottom_angle: The angle of the bottom vertex, in degrees.
     """
 
-    top_angle: float = 80.0
-    bottom_angle: float = 80.0
+    top_angle: float = dataclasses.field(
+        default=80.0,
+        metadata={"description": "The angle of the top vertex, in degrees."},
+    )
+    bottom_angle: float = dataclasses.field(
+        default=80.0,
+        metadata={"description": "The angle of the bottom vertex, in degrees."},
+    )
 
     def _border_drawing_elements(self):
         shape = TurnedHexagonShape(
@@ -218,12 +244,12 @@ class Parallelogram(Node):
     """Parallelogram node.
 
     A parallelogram-shaped node whose slant angle is configurable.
-
-    Attributes:
-        angle: The angle of the slanted sides, in degrees.
     """
 
-    angle: float = 60.0
+    angle: float = dataclasses.field(
+        default=60.0,
+        metadata={"description": "The angle of the slanted sides, in degrees."},
+    )
 
     def _border_drawing_elements(self):
         shape = ParallelogramShape(
@@ -256,12 +282,12 @@ class Triangle(Node):
     """Triangle node.
 
     A triangular node pointing in a configurable direction.
-
-    Attributes:
-        direction: The direction the triangle points towards.
     """
 
-    direction: Direction = Direction.RIGHT
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the triangle points towards."},
+    )
 
     def _border_drawing_elements(self):
         shape = TriangleShape(
@@ -309,12 +335,12 @@ class ArcBarb(Node):
     """Arc-barb node.
 
     A node drawn as a curved (arc) barb pointing in a configurable direction.
-
-    Attributes:
-        direction: The direction the barb points towards.
     """
 
-    direction: Direction = Direction.RIGHT
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the barb points towards."},
+    )
 
     def _border_drawing_elements(self):
         shape = ArcBarbShape(
@@ -331,12 +357,12 @@ class StraightBarb(Node):
     """Straight-barb node.
 
     A node drawn as a straight barb pointing in a configurable direction.
-
-    Attributes:
-        direction: The direction the barb points towards.
     """
 
-    direction: Direction = Direction.RIGHT
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the barb points towards."},
+    )
 
     def _border_drawing_elements(self):
         shape = StraightBarbShape(
@@ -353,12 +379,12 @@ class To(Node):
     """To node.
 
     A node drawn as an arrow-tip ("to") shape pointing in a configurable direction.
-
-    Attributes:
-        direction: The direction the arrow tip points towards.
     """
 
-    direction: Direction = Direction.RIGHT
+    direction: Direction = dataclasses.field(
+        default=Direction.RIGHT,
+        metadata={"description": "The direction the arrow tip points towards."},
+    )
 
     def _border_drawing_elements(self):
         shape = ToShape(

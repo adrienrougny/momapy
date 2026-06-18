@@ -78,6 +78,9 @@ plugins:
             extensions:
               - griffe_fieldz: {include_inherited: true}
               - griffe_inherited_docstrings
+              # local: backfill overridden field descriptions from base classes;
+              # must run after griffe_fieldz
+              - mkdocs_extensions/inherited_field_descriptions.py:InheritedFieldDescriptions
 markdown_extensions:
   - tables
   - toc:

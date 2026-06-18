@@ -137,7 +137,10 @@ NoneValue = NoneValueType()
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class FilterEffect(abc.ABC):
-    """Abstract base class for filter effects."""
+    """Abstract base class for filter effects.
+
+    Filter effects are the individual operations composed inside a filter.
+    """
 
     result: str | None = dataclasses.field(
         default=None, metadata={"description": "The name of the result"}
@@ -148,12 +151,7 @@ class FilterEffect(abc.ABC):
 class DropShadowEffect(FilterEffect):
     """Drop shadow filter effect.
 
-    Attributes:
-        dx: Horizontal offset of the shadow.
-        dy: Vertical offset of the shadow.
-        std_deviation: Standard deviation for blur.
-        flood_opacity: Opacity of the shadow.
-        flood_color: Color of the shadow.
+    Casts a blurred, offset, colored copy of the source graphic behind it.
     """
 
     dx: float = dataclasses.field(
@@ -224,7 +222,10 @@ class DropShadowEffect(FilterEffect):
 
 
 class FilterEffectInput(enum.Enum):
-    """Filter effect input types."""
+    """Filter effect input types.
+
+    Enumerates the predefined source images that a filter effect can read from.
+    """
 
     SOURCE_GRAPHIC = "SOURCE_GRAPHIC"
     SOURCE_ALPHA = "SOURCE_ALPHA"
@@ -235,7 +236,10 @@ class FilterEffectInput(enum.Enum):
 
 
 class CompositionOperator(enum.Enum):
-    """Composition operators for filter effects."""
+    """Composition operators for filter effects.
+
+    Enumerates the ways two inputs can be combined by a composite effect.
+    """
 
     OVER = "OVER"
     IN = "IN"
@@ -250,10 +254,7 @@ class CompositionOperator(enum.Enum):
 class CompositeEffect(FilterEffect):
     """Composite filter effect.
 
-    Attributes:
-        in_: First input or filter effect name.
-        in2: Second input or filter effect name.
-        operator: Composition operator.
+    Combines two inputs using a composition operator.
     """
 
     in_: FilterEffectInput | str | None = dataclasses.field(
@@ -296,9 +297,7 @@ class CompositeEffect(FilterEffect):
 class FloodEffect(FilterEffect):
     """Flood filter effect.
 
-    Attributes:
-        flood_color: Color of the flood.
-        flood_opacity: Opacity of the flood.
+    Fills the filter region with a solid color at a given opacity.
     """
 
     flood_color: Color = dataclasses.field(
@@ -312,7 +311,10 @@ class FloodEffect(FilterEffect):
 
 
 class EdgeMode(enum.Enum):
-    """Edge mode for blur effects."""
+    """Edge mode for blur effects.
+
+    Enumerates how a blur effect treats pixels beyond the input edges.
+    """
 
     DUPLICATE = "DUPLICATE"
     WRAP = "WRAP"
@@ -322,34 +324,53 @@ class EdgeMode(enum.Enum):
 class GaussianBlurEffect(FilterEffect):
     """Gaussian blur filter effect.
 
-    Attributes:
-        in_: Input or filter effect name.
-        std_deviation: Standard deviation for blur.
-        edge_mode: Edge handling mode.
+    Blurs its input with a Gaussian kernel of the given standard deviation.
     """
 
-    in_: FilterEffectInput | str | None = None
-    std_deviation: float = 0.0
-    edge_mode: NoneValueType | EdgeMode = NoneValue
+    in_: FilterEffectInput | str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The effect input or the name of the filter effect input"
+        },
+    )
+    std_deviation: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The standard deviation of the Gaussian blur"},
+    )
+    edge_mode: NoneValueType | EdgeMode = dataclasses.field(
+        default=NoneValue,
+        metadata={"description": "The edge handling mode of the blur effect"},
+    )
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class OffsetEffect(FilterEffect):
     """Offset filter effect.
 
-    Attributes:
-        in_: Input or filter effect name.
-        dx: Horizontal offset.
-        dy: Vertical offset.
+    Shifts its input by a horizontal and vertical offset.
     """
 
-    in_: FilterEffectInput | str | None = None
-    dx: float = 0.0
-    dy: float = 0.0
+    in_: FilterEffectInput | str | None = dataclasses.field(
+        default=None,
+        metadata={
+            "description": "The effect input or the name of the filter effect input"
+        },
+    )
+    dx: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The horizontal offset of the offset effect"},
+    )
+    dy: float = dataclasses.field(
+        default=0.0,
+        metadata={"description": "The vertical offset of the offset effect"},
+    )
 
 
 class FilterUnits(enum.Enum):
-    """Units for filter regions."""
+    """Units for filter regions.
+
+    Enumerates the coordinate systems in which a filter region is expressed.
+    """
 
     USER_SPACE_ON_USE = "USER_SPACE_ON_USE"
     OBJECT_BOUNDING_BOX = "OBJECT_BOUNDING_BOX"
@@ -359,14 +380,7 @@ class FilterUnits(enum.Enum):
 class Filter(object):
     """Filter with multiple effects.
 
-    Attributes:
-        id_: Unique identifier.
-        filter_units: Units for filter region.
-        effects: Tuple of filter effects.
-        width: Width of filter region.
-        height: Height of filter region.
-        x: X position of filter region.
-        y: Y position of filter region.
+    A filter applies a chain of effects to a drawing element within a region.
     """
 
     id_: str = dataclasses.field(
@@ -374,12 +388,27 @@ class Filter(object):
         compare=False,
         default_factory=make_uuid4_as_str,
     )
-    filter_units: FilterUnits = FilterUnits.OBJECT_BOUNDING_BOX
+    filter_units: FilterUnits = dataclasses.field(
+        default=FilterUnits.OBJECT_BOUNDING_BOX,
+        metadata={"description": "The units of the filter region"},
+    )
     effects: tuple[FilterEffect] = dataclasses.field(default_factory=tuple)
-    width: float | str = "120%"
-    height: float | str = "120%"
-    x: float | str = "-10%"
-    y: float | str = "-10%"
+    width: float | str = dataclasses.field(
+        default="120%",
+        metadata={"description": "The width of the filter region"},
+    )
+    height: float | str = dataclasses.field(
+        default="120%",
+        metadata={"description": "The height of the filter region"},
+    )
+    x: float | str = dataclasses.field(
+        default="-10%",
+        metadata={"description": "The x position of the filter region"},
+    )
+    y: float | str = dataclasses.field(
+        default="-10%",
+        metadata={"description": "The y position of the filter region"},
+    )
 
     def to_compat(self) -> typing_extensions.Self:
         """Convert to compatible filter with simpler effects.
@@ -397,7 +426,10 @@ class Filter(object):
 
 
 class FontStyle(enum.Enum):
-    """Font style options."""
+    """Font style options.
+
+    Enumerates the slant variants a font can be rendered with.
+    """
 
     NORMAL = 0
     ITALIC = 1
@@ -405,7 +437,10 @@ class FontStyle(enum.Enum):
 
 
 class FontWeight(enum.Enum):
-    """Font weight options."""
+    """Font weight options.
+
+    Enumerates the thickness variants a font can be rendered with.
+    """
 
     NORMAL = 0
     BOLD = 1
@@ -414,7 +449,10 @@ class FontWeight(enum.Enum):
 
 
 class TextAnchor(enum.Enum):
-    """Text anchor options."""
+    """Text anchor options.
+
+    Enumerates how text is aligned relative to its anchor point.
+    """
 
     START = 0
     MIDDLE = 1
@@ -422,7 +460,10 @@ class TextAnchor(enum.Enum):
 
 
 class FillRule(enum.Enum):
-    """Fill rule for complex shapes."""
+    """Fill rule for complex shapes.
+
+    Enumerates the algorithms used to determine the interior of a shape.
+    """
 
     NONZERO = 0
     EVENODD = 1
@@ -520,22 +561,8 @@ def get_initial_value(attr_name: str) -> typing.Any:
 class DrawingElement(abc.ABC):
     """Abstract base class for drawing elements.
 
-    Attributes:
-        class_: CSS class name.
-        fill: Fill color.
-        fill_rule: Fill rule for complex shapes.
-        filter: Filter to apply.
-        font_family: Font family.
-        font_size: Font size.
-        font_style: Font style.
-        font_weight: Font weight.
-        id_: Element ID.
-        stroke: Stroke color.
-        stroke_dasharray: Stroke dash pattern.
-        stroke_dashoffset: Stroke dash offset.
-        stroke_width: Stroke width.
-        text_anchor: Text anchor.
-        transform: Transformation tuple.
+    Drawing elements carry the SVG-like presentation attributes shared by all
+    primitives.
     """
 
     class_: str | None = dataclasses.field(
@@ -676,9 +703,7 @@ class DrawingElement(abc.ABC):
 class Text(DrawingElement):
     """Text drawing element.
 
-    Attributes:
-        text: The text content.
-        point: Position of the text.
+    Renders a string of text at a given position.
     """
 
     text: str = dataclasses.field(
@@ -728,8 +753,7 @@ class Text(DrawingElement):
 class Group(DrawingElement):
     """Group of drawing elements.
 
-    Attributes:
-        elements: Tuple of child elements.
+    Bundles several drawing elements so they share presentation attributes.
     """
 
     elements: tuple[DrawingElement] = dataclasses.field(
@@ -766,7 +790,10 @@ class Group(DrawingElement):
 
 @dataclasses.dataclass(frozen=True)
 class PathAction(abc.ABC):
-    """Abstract base class for path actions."""
+    """Abstract base class for path actions.
+
+    Path actions are the individual drawing commands that make up a path.
+    """
 
     pass
 
@@ -775,8 +802,7 @@ class PathAction(abc.ABC):
 class MoveTo(PathAction):
     """Move to a point (start a new subpath).
 
-    Attributes:
-        point: The point to move to.
+    Repositions the current point without drawing, starting a new subpath.
     """
 
     point: Point = dataclasses.field(
@@ -814,8 +840,7 @@ class MoveTo(PathAction):
 class LineTo(PathAction):
     """Draw a line to a point.
 
-    Attributes:
-        point: The end point.
+    Draws a straight segment from the current point to the end point.
     """
 
     point: Point = dataclasses.field(
@@ -864,13 +889,7 @@ class LineTo(PathAction):
 class EllipticalArc(PathAction):
     """Draw an elliptical arc.
 
-    Attributes:
-        point: End point.
-        rx: X-radius.
-        ry: Y-radius.
-        x_axis_rotation: Rotation of x-axis.
-        arc_flag: Large arc flag.
-        sweep_flag: Sweep flag.
+    Draws an arc of an ellipse from the current point to the end point.
     """
 
     point: Point = dataclasses.field(
@@ -966,10 +985,7 @@ class EllipticalArc(PathAction):
 class CurveTo(PathAction):
     """Draw a cubic Bezier curve.
 
-    Attributes:
-        point: End point.
-        control_point1: First control point.
-        control_point2: Second control point.
+    Draws a cubic Bezier curve from the current point to the end point.
     """
 
     point: Point = dataclasses.field(
@@ -1033,9 +1049,7 @@ class CurveTo(PathAction):
 class QuadraticCurveTo(PathAction):
     """Draw a quadratic Bezier curve.
 
-    Attributes:
-        point: End point.
-        control_point: Control point.
+    Draws a quadratic Bezier curve from the current point to the end point.
     """
 
     point: Point = dataclasses.field(
@@ -1107,7 +1121,10 @@ class QuadraticCurveTo(PathAction):
 
 @dataclasses.dataclass(frozen=True)
 class ClosePath(PathAction):
-    """Close the current path."""
+    """Close the current path.
+
+    Draws a straight segment back to the start of the current subpath.
+    """
 
     def transformed(
         self,
@@ -1130,8 +1147,7 @@ class ClosePath(PathAction):
 class Path(DrawingElement):
     """Path drawing element composed of path actions.
 
-    Attributes:
-        actions: Tuple of path actions.
+    A path is drawn by executing its sequence of path actions in order.
     """
 
     actions: tuple[PathAction] = dataclasses.field(
@@ -1194,10 +1210,7 @@ class Path(DrawingElement):
 class Ellipse(DrawingElement):
     """Ellipse drawing element.
 
-    Attributes:
-        point: Center point.
-        rx: X-radius.
-        ry: Y-radius.
+    Draws an ellipse from a center point and two radii.
     """
 
     point: Point = dataclasses.field(
@@ -1281,12 +1294,7 @@ class Ellipse(DrawingElement):
 class Rectangle(DrawingElement):
     """Rectangle drawing element with optional rounded corners.
 
-    Attributes:
-        point: Top-left corner.
-        width: Width.
-        height: Height.
-        rx: X-radius for rounded corners.
-        ry: Y-radius for rounded corners.
+    Draws a rectangle from a corner point, a size, and corner radii.
     """
 
     point: Point = dataclasses.field(
