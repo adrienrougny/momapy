@@ -9,6 +9,7 @@ This definition is borrowed from [SBML](https://www.sbml.org) and its extensions
 Features of <span style="font-weight:bold;color:rgb(22 66 81)">moma</span><span style="font-weight:bold;color:rgb(242 200 100)">py</span> include the following:
 
 * support for SBGN PD and AF maps (read/write SBGN-ML with annotations, rendering information, and notes) and CellDesigner (read/write, with annotations and notes)
+* read-only support for SBML (model only, no layout)
 * decomposition of a map object into:
     * a model object;
     * a layout object;
@@ -70,8 +71,10 @@ for process in map_.model.processes:
 Or rendering its layout:
 
 ```python
+from momapy.io import read
 from momapy.rendering import render_map
 
+map_ = read("my_map.sbgn").obj
 render_map(map_, "my_file.svg")
 ```
 
