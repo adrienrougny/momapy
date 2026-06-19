@@ -1523,7 +1523,13 @@ def main() -> None:
         ```
     """
     parser = argparse.ArgumentParser(
-        description="Tool for working with molecular maps.",
+        description=(
+            "Tool for working with molecular maps (SBGN-ML, CellDesigner, "
+            "SBML). Render maps to images (SVG, PDF, PNG, JPEG, WebP), export "
+            "them back to their native format, apply CSS-like style sheets, "
+            "tidy their layout, inspect their contents, and visualize them "
+            "interactively in the browser. Commands can be piped together."
+        ),
     )
     subparsers = parser.add_subparsers(dest="subcommand", required=True)
     render_parser = subparsers.add_parser(
