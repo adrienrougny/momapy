@@ -445,7 +445,7 @@ def _read_input(input_file_path: str | os.PathLike | None) -> typing.Any:
 
     When ``input_file_path`` is ``None``, reads binary data from stdin,
     buffers it to a temporary file, and uses the standard
-    ``momapy.io.core.read()`` auto-detection (content-based
+    ``momapy.io.read()`` auto-detection (content-based
     ``check_file()``) to identify the format.
 
     Args:
@@ -455,7 +455,7 @@ def _read_input(input_file_path: str | os.PathLike | None) -> typing.Any:
     Returns:
         A ``ReaderResult`` containing the parsed map and metadata.
     """
-    from momapy.io.core import read
+    from momapy.io import read
 
     if input_file_path is not None:
         return read(input_file_path)
@@ -486,7 +486,7 @@ def _write_xml_to_stdout(map_: typing.Any, writer: str) -> None:
         writer: The writer name to use (e.g. ``"sbgnml"``,
             ``"celldesigner"``).
     """
-    from momapy.io.core import write
+    from momapy.io import write
 
     temporary_file = tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False)
     temporary_file_path = temporary_file.name
@@ -518,7 +518,7 @@ def _write_output(
         output_file_path: Path to the output file, or ``None`` for
             stdout.
     """
-    from momapy.io.core import write
+    from momapy.io import write
 
     writer = _infer_writer(map_)
     if output_file_path:
