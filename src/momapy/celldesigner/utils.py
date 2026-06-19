@@ -527,7 +527,8 @@ def set_complexes_to_fit_content(
                     )
                 )
                 for subunit_layout in subunit_layouts:
-                    elements.append(subunit_layout)
+                    if subunit_layout in complex_layout.layout_elements:
+                        elements.append(subunit_layout)
             if elements:
                 set_fit(complex_layout, elements, xsep, ysep)
                 if complex_layout.label is not None:
