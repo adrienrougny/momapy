@@ -1299,7 +1299,7 @@ def run(args: argparse.Namespace) -> None:
             map_ = _read_input(input_file_path).obj
             if style_sheet is not None:
                 map_builder = builder_from_object(map_)
-                apply_style_sheet(map_builder.layout, style_sheet)
+                apply_style_sheet(map_builder, style_sheet)
                 map_ = object_from_builder(map_builder)
             if args.tidy:
                 if isinstance(map_, CellDesignerMap):
@@ -1491,7 +1491,7 @@ def run(args: argparse.Namespace) -> None:
             else:
                 style_sheet = style_sheets[0]
             map_builder = builder_from_object(map_)
-            apply_style_sheet(map_builder.layout, style_sheet)
+            apply_style_sheet(map_builder, style_sheet)
             map_ = object_from_builder(map_builder)
         if args.tidy:
             if isinstance(map_, CellDesignerMap):
