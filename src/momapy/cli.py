@@ -59,7 +59,7 @@ Example:
 
     # Piping between commands
     $ momapy export map.xml | momapy render -o output.svg
-    $ momapy export map.xml | momapy tidy fit-nodes | momapy render -o output.svg
+    $ momapy export map.xml | momapy tidy fit-species | momapy render -o output.svg
     $ momapy style map.sbgn -p newt | momapy render -o output.svg
     $ momapy export map.xml | momapy style -p cs_default | momapy render -o output.svg
     $ cat map.sbgn | momapy render -o output.svg
