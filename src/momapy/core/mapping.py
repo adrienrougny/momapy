@@ -52,6 +52,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+        """Initialize the mapping and its frozen singleton-to-key index."""
         super().__init__(*args, **kwargs)
         object.__setattr__(
             self,
@@ -123,11 +124,11 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
                 parent_s1.update(parent_layout.layout_elements)
         return list(parent_s1 & child_s2)
 
-    def is_submapping(self, other) -> bool:
-        """Return `True` if the mapping is a submapping of another `LayoutModelMapping`, `False` otherwise"""
+    def is_submapping(self, other: "LayoutModelMapping") -> bool:
+        """Return `True` if the mapping is a submapping of another `LayoutModelMapping`, `False` otherwise."""
         return self.items() <= other.items()
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[typing.Any, ...]:
         """Pickle hook that preserves `_singleton_to_key` across round-trips.
 
         The inherited `frozendict.__reduce__` only serialises the dict
@@ -139,7 +140,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
             {"_singleton_to_key": dict(self._singleton_to_key)},
         )
 
-    def __setstate__(self, state) -> None:
+    def __setstate__(self, state: dict[str, typing.Any]) -> None:
         """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
         object.__setattr__(
             self,
@@ -162,13 +163,14 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     _cls_to_build: typing.ClassVar[type] = LayoutModelMapping
 
     def __init__(self, *args, **kwargs) -> None:
+        """Initialize the mapping builder and its singleton-to-key index."""
         super().__init__(*args, **kwargs)
         self._singleton_to_key = SurjectionDict()
 
     def get_mapping(
         self,
         map_element: "MapElement",
-    ):
+    ) -> "ModelElement | list[LayoutElement] | None":
         """Return the element(s) mapped to the given map element.
 
         If `map_element` is a key (a layout element or frozenset of layout
@@ -243,7 +245,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
     def build(
         self,
         builder_to_object: dict[int, typing.Any] | None = None,
-    ):
+    ) -> LayoutModelMapping:
         """Build a frozen `LayoutModelMapping` from this builder.
 
         Args:
@@ -273,7 +275,7 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
         object.__setattr__(mapping, "_singleton_to_key", singleton_to_key)
         return mapping
 
-    def __reduce__(self):
+    def __reduce__(self) -> tuple[typing.Any, ...]:
         """Pickle hook that preserves `_singleton_to_key` across round-trips.
 
         The default `dict`-subclass pickle emits SETITEMS before BUILD, so
@@ -287,14 +289,14 @@ class LayoutModelMappingBuilder(IdentitySurjectionDict, Builder):
             {"_singleton_to_key": dict(self._singleton_to_key)},
         )
 
-    def __setstate__(self, state) -> None:
+    def __setstate__(self, state: dict[str, typing.Any]) -> None:
         """Restore `_singleton_to_key` after `__reduce__`-driven unpickle."""
         self._singleton_to_key = SurjectionDict(state["_singleton_to_key"])
 
     @classmethod
     def from_object(
         cls,
-        obj,
+        obj: LayoutModelMapping,
         object_to_builder: "dict[int, Builder] | None" = None,
     ) -> typing_extensions.Self:
         """Build a `LayoutModelMappingBuilder` from a frozen mapping.

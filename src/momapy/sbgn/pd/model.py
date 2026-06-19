@@ -820,7 +820,7 @@ class SBGNPDModel(SBGNModel):
     )
 
     def is_ovav(self) -> bool:
-        """Return `True` if the SBGN-PD model respects the Once a Variable Always a Variable (OVAV) rule, `False` otherwise"""
+        """Return `True` if the SBGN-PD model respects the Once a Variable Always a Variable (OVAV) rule, `False` otherwise."""
         subunit_cls_entity_pool_cls_mapping = {
             MacromoleculeSubunit: Macromolecule,
             NucleicAcidFeatureSubunit: NucleicAcidFeature,
@@ -832,7 +832,10 @@ class SBGNPDModel(SBGNModel):
             SimpleChemicalMultimerSubunit: SimpleChemicalMultimer,
         }
 
-        def _check_entities(entities, entity_variables_mapping=None) -> bool:
+        def _check_entities(
+            entities: typing.Iterable[typing.Any],
+            entity_variables_mapping: dict[typing.Any, set[typing.Any]] | None = None,
+        ) -> bool:
             if entity_variables_mapping is None:
                 entity_variables_mapping = {}
             for entity in entities:
@@ -862,7 +865,7 @@ class SBGNPDModel(SBGNModel):
         return _check_entities(self.entity_pools)
 
     def is_submodel(self, other: "SBGNPDModel") -> bool:
-        """Return `True` if another given SBGN-PD model is a submodel of the SBGN-PD model, `False` otherwise"""
+        """Return `True` if another given SBGN-PD model is a submodel of the SBGN-PD model, `False` otherwise."""
         return (
             self.entity_pools.issubset(other.entity_pools)
             and self.processes.issubset(other.processes)

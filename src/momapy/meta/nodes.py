@@ -44,6 +44,7 @@ import dataclasses
 
 from momapy.core.elements import Direction
 from momapy.core.layout import Node
+from momapy.drawing import DrawingElement
 from momapy.meta.shapes import ArcBarb as ArcBarbShape
 from momapy.meta.shapes import Bar as BarShape
 from momapy.meta.shapes import CrossPoint as CrossPointShape
@@ -132,7 +133,7 @@ class Rectangle(Node):
         metadata={"description": "Whether the bottom-left corner is rounded or cut."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = RectangleShape(
             position=self.position,
             width=self.width,
@@ -160,7 +161,7 @@ class Ellipse(Node):
     An elliptical (or circular) node fitting the node's width and height.
     """
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = EllipseShape(
             position=self.position,
             width=self.width,
@@ -176,7 +177,7 @@ class Stadium(Node):
     A stadium-shaped (rounded-rectangle) node with fully rounded left and right ends.
     """
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = StadiumShape(
             position=self.position,
             width=self.width,
@@ -201,7 +202,7 @@ class Hexagon(Node):
         metadata={"description": "The angle of the right vertex, in degrees."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = HexagonShape(
             position=self.position,
             width=self.width,
@@ -228,7 +229,7 @@ class TurnedHexagon(Node):
         metadata={"description": "The angle of the bottom vertex, in degrees."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = TurnedHexagonShape(
             position=self.position,
             width=self.width,
@@ -251,7 +252,7 @@ class Parallelogram(Node):
         metadata={"description": "The angle of the slanted sides, in degrees."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = ParallelogramShape(
             position=self.position,
             width=self.width,
@@ -268,7 +269,7 @@ class CrossPoint(Node):
     A node drawn as a crossing pair of horizontal and vertical line segments.
     """
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = CrossPointShape(
             position=self.position,
             width=self.width,
@@ -289,7 +290,7 @@ class Triangle(Node):
         metadata={"description": "The direction the triangle points towards."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = TriangleShape(
             position=self.position,
             width=self.width,
@@ -306,7 +307,7 @@ class Diamond(Node):
     A diamond-shaped (rhombus) node with vertices at the midpoints of its sides.
     """
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = DiamondShape(
             position=self.position,
             width=self.width,
@@ -322,7 +323,7 @@ class Bar(Node):
     A node drawn as a single vertical bar segment spanning the node's height.
     """
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = BarShape(
             position=self.position,
             height=self.height,
@@ -342,7 +343,7 @@ class ArcBarb(Node):
         metadata={"description": "The direction the barb points towards."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = ArcBarbShape(
             position=self.position,
             width=self.width,
@@ -364,7 +365,7 @@ class StraightBarb(Node):
         metadata={"description": "The direction the barb points towards."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = StraightBarbShape(
             position=self.position,
             width=self.width,
@@ -386,7 +387,7 @@ class To(Node):
         metadata={"description": "The direction the arrow tip points towards."},
     )
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         shape = ToShape(
             position=self.position,
             width=self.width,

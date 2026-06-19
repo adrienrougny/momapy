@@ -268,7 +268,7 @@ def set_layout_to_fit_content(
     return map_builder
 
 
-def _update_active_layout(layout_element) -> None:
+def _update_active_layout(layout_element: typing.Any) -> None:
     """Update the active layout child to match the parent's size.
 
     If ``layout_element`` has a child whose class name ends with
@@ -465,7 +465,7 @@ def _sort_compartments_inside_out(
     visited = set()
     result = []
 
-    def visit(compartment) -> None:
+    def visit(compartment: typing.Any) -> None:
         compartment_id = id(compartment)
         if compartment_id in visited:
             return
@@ -560,7 +560,9 @@ def set_modifications_to_borders(
             a new map is returned.
     """
 
-    def _recursive_set_modifications_to_borders(layout_element) -> None:
+    def _recursive_set_modifications_to_borders(
+        layout_element: typing.Any,
+    ) -> None:
         for child in layout_element.children():
             if isinstance_or_builder(
                 child,
@@ -603,7 +605,7 @@ def set_modifications_label_font_size(
             a new map is returned.
     """
 
-    def _recursive_set_font_size(layout_element, font_size) -> None:
+    def _recursive_set_font_size(layout_element: typing.Any, font_size: float) -> None:
         for child in layout_element.children():
             if isinstance_or_builder(
                 child,
@@ -644,7 +646,11 @@ def set_arcs_to_borders(
     """
 
     def _set_arc_to_borders(
-        arc_layout_element, source, source_type, target, target_type
+        arc_layout_element: typing.Any,
+        source: typing.Any,
+        source_type: str,
+        target: typing.Any,
+        target_type: str,
     ) -> None:
         points = arc_layout_element.points()
         if source_type == "connector":
@@ -683,19 +689,21 @@ def set_arcs_to_borders(
         TruncationLayout,
     )
 
-    def _snap_start_to_border(layout_element, node) -> None:
+    def _snap_start_to_border(layout_element: typing.Any, node: typing.Any) -> None:
         """Snap segments[0].p1 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[0])
         layout_element.segments[0].p1 = builder_from_object(anchor_point)
 
-    def _snap_end_to_border(layout_element, node) -> None:
+    def _snap_end_to_border(layout_element: typing.Any, node: typing.Any) -> None:
         """Snap segments[-1].p2 to the closest anchor on node."""
         points = layout_element.points()
         anchor_point = _closest_anchor_point(node, points[-1])
         layout_element.segments[-1].p2 = builder_from_object(anchor_point)
 
-    def _snap_end_to_reaction_node(layout_element, reaction_layout) -> None:
+    def _snap_end_to_reaction_node(
+        layout_element: typing.Any, reaction_layout: typing.Any
+    ) -> None:
         """Snap segments[-1].p2 to reaction node border."""
         points = layout_element.points()
         reference = points[-2] if len(points) > 2 else points[0]

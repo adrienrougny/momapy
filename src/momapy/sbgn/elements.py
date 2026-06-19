@@ -18,9 +18,11 @@ from momapy.core.elements import Direction
 from momapy.core.elements import ModelElement
 from momapy.core.layout import DoubleHeadedArc
 from momapy.core.layout import Node
+from momapy.core.layout import Shape
 from momapy.core.layout import SingleHeadedArc
 from momapy.core.layout import TextLayout
 from momapy.drawing import DEFAULT_FONT_FAMILY
+from momapy.drawing import DrawingElement
 from momapy.drawing import Filter
 from momapy.drawing import FontStyle
 from momapy.drawing import FontWeight
@@ -84,7 +86,7 @@ class SBGNNode(Node):
     stroke: NoneValueType | Color | None = black
     stroke_width: float | None = 1.25
 
-    def _border_drawing_elements(self):
+    def _border_drawing_elements(self) -> list[DrawingElement]:
         """Generate drawing elements for the node border.
 
         Returns:
@@ -148,7 +150,7 @@ class _SBGNMixin(object):
 
     @classmethod
     @abc.abstractmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         """Generate drawing elements for this mixin.
 
         Args:
@@ -338,7 +340,7 @@ class _ConnectorsMixin(_SBGNMixin):
             return Point(self.x, self.y - self.height / 2)
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         """Generate drawing elements for connectors.
 
         Args:
@@ -396,7 +398,7 @@ class _SimpleMixin(_SBGNMixin):
     """
 
     @abc.abstractmethod
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         """Create the shape for this node.
 
         Returns:
@@ -405,7 +407,7 @@ class _SimpleMixin(_SBGNMixin):
         pass
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         """Generate drawing elements for the shape.
 
         Args:
@@ -468,10 +470,10 @@ class _MultiMixin(_SBGNMixin):
     @abc.abstractmethod
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         """Create a single subunit shape.
 
         Args:
@@ -485,7 +487,7 @@ class _MultiMixin(_SBGNMixin):
         pass
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         """Generate drawing elements for all subunits.
 
         Args:
@@ -575,7 +577,7 @@ class _TextMixin(_SBGNMixin):
         metadata={"description": "Font weight (normal, bold, etc.)."},
     )
 
-    def _make_text_layout(self):
+    def _make_text_layout(self) -> TextLayout:
         """Create a text layout for the label.
 
         Returns:
@@ -594,7 +596,7 @@ class _TextMixin(_SBGNMixin):
         return text_layout
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         """Generate drawing elements for the text label.
 
         Args:

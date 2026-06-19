@@ -55,6 +55,7 @@ from momapy.coloring import Color
 from momapy.core.elements import Direction
 from momapy.core.layout import DoubleHeadedArc
 from momapy.core.layout import SingleHeadedArc
+from momapy.drawing import DrawingElement
 from momapy.drawing import NoneValue
 from momapy.drawing import NoneValueType
 from momapy.geometry import Point
@@ -90,7 +91,7 @@ class PolyLine(SingleHeadedArc):
     A polyline arc drawn as bare line segments, without any arrowhead.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return []
 
 
@@ -110,7 +111,7 @@ class Triangle(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = TriangleShape(
             position=Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -136,7 +137,7 @@ class ReversedTriangle(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = TriangleShape(
             position=Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -162,7 +163,7 @@ class Rectangle(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = RectangleShape(
             position=Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -187,7 +188,7 @@ class Ellipse(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = EllipseShape(
             position=Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -212,7 +213,7 @@ class Diamond(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = DiamondShape(
             position=Point(self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -233,7 +234,7 @@ class Bar(SingleHeadedArc):
         metadata={"description": "The height of the arrowhead."},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = BarShape(
             position=Point(0, 0),
             height=self.arrowhead_height,
@@ -258,7 +259,7 @@ class ArcBarb(SingleHeadedArc):
     )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = ArcBarbShape(
             position=Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -285,7 +286,7 @@ class StraightBarb(SingleHeadedArc):
     )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = StraightBarbShape(
             position=Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -312,7 +313,7 @@ class To(SingleHeadedArc):
     )
     arrowhead_fill: NoneValueType | Color | None = NoneValue
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = ToShape(
             position=Point(-self.arrowhead_width / 2, 0),
             width=self.arrowhead_width,
@@ -346,7 +347,7 @@ class DoubleTriangle(DoubleHeadedArc):
         metadata={"description": "The height of the end arrowhead."},
     )
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = TriangleShape(
             position=Point(-self.start_arrowhead_width / 2, 0),
             width=self.start_arrowhead_width,
@@ -355,7 +356,7 @@ class DoubleTriangle(DoubleHeadedArc):
         )
         return shape.drawing_elements()
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = TriangleShape(
             position=Point(self.end_arrowhead_width / 2, 0),
             width=self.end_arrowhead_width,

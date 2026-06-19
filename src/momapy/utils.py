@@ -42,6 +42,7 @@ import types
 
 import colorama
 import frozendict
+import typing_extensions
 
 import momapy
 
@@ -63,7 +64,9 @@ __all__ = [
 ]
 
 
-def _freeze_inverse(inverse) -> frozendict.frozendict:
+def _freeze_inverse(
+    inverse: collections.abc.Mapping[typing.Any, collections.abc.Iterable],
+) -> frozendict.frozendict:
     """Snapshot a ``{key: set}`` index as ``frozendict[key, frozenset]``.
 
     Single source of truth for the family's ``.inverse`` shape, so the six
@@ -102,12 +105,14 @@ class SurjectionDict(dict):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+        """Initialize the dict and build the value->keys inverse index."""
         super().__init__(*args, **kwargs)
         self._inverse: dict = {}
         for key, value in self.items():
             self._inverse.setdefault(value, set()).add(key)
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: typing.Any, value: typing.Any) -> None:
+        """Set a key to a value, updating the inverse index."""
         if key in self:
             old_value = self[key]
             self._inverse[old_value].discard(key)
@@ -116,7 +121,8 @@ class SurjectionDict(dict):
         super().__setitem__(key, value)
         self._inverse.setdefault(value, set()).add(key)
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: typing.Any) -> None:
+        """Delete a key, updating the inverse index."""
         value = self[key]  # throws expected KeyError if key not in self
         super().__delitem__(key)
         # we know key was in self, hence value is expected to be in self.inverse
@@ -166,12 +172,14 @@ class IdentitySurjectionDict(dict):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+        """Initialize the dict and build the identity-keyed inverse index."""
         super().__init__(*args, **kwargs)
         self._identity_inverse: dict[int, set] = {}
         for key, value in self.items():
             self._identity_inverse.setdefault(id(value), set()).add(key)
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: typing.Any, value: typing.Any) -> None:
+        """Set a key to a value, updating the identity-keyed inverse index."""
         if key in self:
             old_value = self[key]
             old_identity = id(old_value)
@@ -182,7 +190,8 @@ class IdentitySurjectionDict(dict):
         super().__setitem__(key, value)
         self._identity_inverse.setdefault(id(value), set()).add(key)
 
-    def __delitem__(self, key) -> None:
+    def __delitem__(self, key: typing.Any) -> None:
+        """Delete a key, updating the identity-keyed inverse index."""
         value = self[key]
         value_identity = id(value)
         super().__delitem__(key)
@@ -242,7 +251,11 @@ class IdentityMultiDict(collections.abc.Mapping):
         ```
     """
 
-    def __init__(self, mapping=None) -> None:
+    def __init__(
+        self,
+        mapping: collections.abc.Mapping[str, collections.abc.Iterable] | None = None,
+    ) -> None:
+        """Initialize the multidict, optionally seeding it from a mapping."""
         self._forward: dict[str, set] = {}
         self._inverse: dict[int, set[str]] = {}
         if mapping is not None:
@@ -317,10 +330,12 @@ class IdentityMultiDict(collections.abc.Mapping):
         """
         return frozenset(self._forward[key])
 
-    def __iter__(self):
+    def __iter__(self) -> collections.abc.Iterator[str]:
+        """Iterate over the keys of the multidict."""
         return iter(self._forward)
 
     def __len__(self) -> int:
+        """Return the number of keys in the multidict."""
         return len(self._forward)
 
     @property
@@ -366,14 +381,22 @@ class FrozenIdentityMultiDict(frozendict.frozendict):
         ```
     """
 
-    def __new__(cls, mapping=None):
+    def __new__(
+        cls,
+        mapping: collections.abc.Mapping[str, collections.abc.Iterable] | None = None,
+    ) -> typing_extensions.Self:
+        """Create the frozen forward dict with ``frozenset`` buckets."""
         frozen_forward: dict[str, frozenset] = {}
         if mapping is not None:
             for key, values in mapping.items():
                 frozen_forward[key] = frozenset(values)
         return super().__new__(cls, frozen_forward)
 
-    def __init__(self, mapping=None) -> None:
+    def __init__(
+        self,
+        mapping: collections.abc.Mapping[str, collections.abc.Iterable] | None = None,
+    ) -> None:
+        """Precompute the identity-keyed inverse index from the forward dict."""
         inverse: dict[int, set[str]] = {}
         for key, bucket in self.items():
             for value in bucket:
@@ -410,6 +433,7 @@ class FrozenSurjectionDict(frozendict.frozendict):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+        """Precompute the value->keys inverse index from the forward dict."""
         inverse: dict = {}
         for key, value in self.items():
             inverse.setdefault(value, set()).add(key)
@@ -452,6 +476,7 @@ class FrozenIdentitySurjectionDict(frozendict.frozendict):
     """
 
     def __init__(self, *args, **kwargs) -> None:
+        """Precompute the identity-keyed inverse index from the forward dict."""
         inverse: dict[int, set] = {}
         for key, value in self.items():
             inverse.setdefault(id(value), set()).add(key)
@@ -504,13 +529,13 @@ def pretty_print(
         ```
     """
 
-    def _print_with_indent(s, indent) -> None:
+    def _print_with_indent(s: str, indent: int) -> None:
         dark = f"{colorama.Style.DIM}│{colorama.Style.RESET_ALL} "
         light = f"{colorama.Fore.WHITE}│{colorama.Style.RESET_ALL} "
         guides = "".join(dark if i % 2 == 0 else light for i in range(indent))
         print(f"{guides}{s}")
 
-    def _get_value_string(attr_value, max_len: int = 30):
+    def _get_value_string(attr_value: typing.Any, max_len: int = 30) -> str:
         s = str(attr_value)
         if len(s) > max_len:
             s = f"{s[:max_len]}..."

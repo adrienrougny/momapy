@@ -239,7 +239,7 @@ from momapy.celldesigner.layout import (
 
 
 class CellDesignerReader(Reader):
-    """Class for CellDesigner reader objects"""
+    """Class for CellDesigner reader objects."""
 
     _KEY_TO_CLASS = {
         (
@@ -503,7 +503,7 @@ class CellDesignerReader(Reader):
     }
 
     @classmethod
-    def _parse_cd_model(cls, reading_context) -> None:
+    def _parse_cd_model(cls, reading_context: CellDesignerReadingContext) -> None:
         """Pre-scan the CellDesigner model into categorized element lists.
 
         Populates reading_context with ID mappings and categorized
@@ -669,13 +669,13 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_main_obj(
         cls,
-        cd_model,
+        cd_model: lxml.objectify.ObjectifiedElement,
         return_type: typing.Literal["map", "model", "layout"] = "map",
         with_model: bool = True,
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-    ):
+    ) -> tuple[typing.Any, ...]:
         if return_type == "model" or return_type == "map" and with_model:
             model = _reading_model.make_empty_model(cd_model)
         else:
@@ -817,9 +817,9 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_compartment_from_alias(
         cls,
-        reading_context,
-        cd_compartment_alias,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_compartment_alias: lxml.objectify.ObjectifiedElement,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             cd_compartment = reading_context.xml_id_to_xml_element[
                 cd_compartment_alias.get("compartment")
@@ -863,9 +863,9 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_compartment(
         cls,
-        reading_context,
-        cd_compartment,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_compartment: lxml.objectify.ObjectifiedElement,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             model_element = _reading_model.make_compartment(
                 reading_context, cd_compartment
@@ -916,9 +916,9 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_species_template(
         cls,
-        reading_context,
-        cd_species_template,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_species_template: lxml.objectify.ObjectifiedElement,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             key = get_key_from_species_template(cd_species_template)
             model_element_cls = cls._KEY_TO_CLASS[key]
@@ -978,12 +978,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_modification_residue(
         cls,
-        reading_context,
-        cd_modification_residue,
-        super_cd_element,
-        super_model_element,
-        order,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_modification_residue: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        order: int | None,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             model_element = _reading_model.make_modification_residue(
                 reading_context, cd_modification_residue, super_cd_element, order
@@ -1004,12 +1004,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_region(
         cls,
-        reading_context,
-        cd_region,
-        super_cd_element,
-        super_model_element,
-        order,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_region: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        order: int | None,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None:
             key = get_key_from_region(cd_region)
             model_element_cls = cls._KEY_TO_CLASS[key]
@@ -1035,12 +1035,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_species(
         cls,
-        reading_context,
-        cd_species_alias,
-        super_cd_element=None,
-        super_model_element=None,
-        super_layout_element=None,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_species_alias: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement | None = None,
+        super_model_element: typing.Any = None,
+        super_layout_element: typing.Any = None,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             cd_species = reading_context.xml_id_to_xml_element[
                 cd_species_alias.get("species")
@@ -1256,12 +1256,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_species_modification(
         cls,
-        reading_context,
-        cd_species_modification,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_species_modification: typing.Any,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             cd_species_modification_state = cd_species_modification.get("state")
             if cd_species_modification_state == "empty":
@@ -1318,12 +1318,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_species_structural_state(
         cls,
-        reading_context,
-        cd_species_structural_state,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_species_structural_state: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         cd_species_id = super_cd_element.get("species")
         cd_structural_state_value = cd_species_structural_state.get(
             "structuralState"
@@ -1358,9 +1358,9 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_reaction(
         cls,
-        reading_context,
-        cd_reaction,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_reaction: lxml.objectify.ObjectifiedElement,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction(cd_reaction)
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
@@ -1589,14 +1589,14 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_reactant_from_base(
         cls,
-        reading_context,
-        cd_base_reactant,
-        n_cd_base_reactant,
-        make_layout,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_base_reactant: lxml.objectify.ObjectifiedElement,
+        n_cd_base_reactant: int,
+        make_layout: bool,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         cd_reactant_id = get_reactant_id(cd_base_reactant, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_reactant_from_base(
@@ -1634,12 +1634,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_reactant_from_link(
         cls,
-        reading_context,
-        cd_reactant_link,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_reactant_link: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         cd_reactant_id = get_reactant_id(cd_reactant_link, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_reactant_from_link(
@@ -1675,14 +1675,14 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_product_from_base(
         cls,
-        reading_context,
-        cd_base_product,
-        n_cd_base_product,
-        make_layout,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_base_product: lxml.objectify.ObjectifiedElement,
+        n_cd_base_product: int,
+        make_layout: bool,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         cd_product_id = get_product_id(cd_base_product, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_product_from_base(
@@ -1720,12 +1720,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_product_from_link(
         cls,
-        reading_context,
-        cd_product_link,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_product_link: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         cd_product_id = get_product_id(cd_product_link, super_cd_element)
         if reading_context.model is not None:
             model_element = _reading_model.make_product_from_link(
@@ -1761,12 +1761,12 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_modifier(
         cls,
-        reading_context,
-        cd_reaction_modification,
-        super_cd_element,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_reaction_modification: lxml.objectify.ObjectifiedElement,
+        super_cd_element: lxml.objectify.ObjectifiedElement,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction_modification(cd_reaction_modification)
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]
@@ -1837,10 +1837,10 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_logic_gate(
         cls,
-        reading_context,
-        cd_reaction_modification_or_cd_gate_member,
-        cd_reaction_id,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_reaction_modification_or_cd_gate_member: lxml.objectify.ObjectifiedElement,
+        cd_reaction_id: str,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_gate_member(cd_reaction_modification_or_cd_gate_member)
             cd_modifiers = cd_reaction_modification_or_cd_gate_member.get("aliases")
@@ -1917,9 +1917,9 @@ class CellDesignerReader(Reader):
     @classmethod
     def _make_and_add_modulation(
         cls,
-        reading_context,
-        cd_reaction,
-    ):
+        reading_context: CellDesignerReadingContext,
+        cd_reaction: lxml.objectify.ObjectifiedElement,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_key_from_reaction(cd_reaction)
             model_element_cls, layout_element_cls = cls._KEY_TO_CLASS[key]

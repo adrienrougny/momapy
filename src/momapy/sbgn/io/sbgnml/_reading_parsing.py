@@ -5,15 +5,17 @@ No momapy object construction happens here: all functions work with lxml
 objectify trees and return raw Python / geometry values.
 """
 
+import lxml.etree
+
 from momapy.core.elements import Direction
 from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE
 
 
-def transform_class(sbgnml_class):
+def transform_class(sbgnml_class: str) -> str:
     return sbgnml_class.upper().replace(" ", "_")
 
 
-def has_undefined_variable(sbgnml_state_variable) -> bool:
+def has_undefined_variable(sbgnml_state_variable: lxml.etree._Element) -> bool:
     sbgnml_state = getattr(sbgnml_state_variable, "state", None)
     if sbgnml_state is None:
         return True
@@ -21,11 +23,13 @@ def has_undefined_variable(sbgnml_state_variable) -> bool:
     return sbgnml_variable is None
 
 
-def get_glyphs(sbgnml_element):
+def get_glyphs(sbgnml_element: lxml.etree._Element) -> list[lxml.etree._Element]:
     return list(getattr(sbgnml_element, "glyph", []))
 
 
-def get_glyphs_recursively(sbgnml_element):
+def get_glyphs_recursively(
+    sbgnml_element: lxml.etree._Element,
+) -> list[lxml.etree._Element]:
     sub_glyphs = []
     for sub_glyph in get_glyphs(sbgnml_element):
         sub_glyphs.append(sub_glyph)
@@ -33,23 +37,25 @@ def get_glyphs_recursively(sbgnml_element):
     return sub_glyphs
 
 
-def get_arcs(sbgnml_element):
+def get_arcs(sbgnml_element: lxml.etree._Element) -> list[lxml.etree._Element]:
     return list(getattr(sbgnml_element, "arc", []))
 
 
-def get_ports(sbgnml_element):
+def get_ports(sbgnml_element: lxml.etree._Element) -> list[lxml.etree._Element]:
     return list(getattr(sbgnml_element, "port", []))
 
 
-def get_nexts(sbgnml_arc):
+def get_nexts(sbgnml_arc: lxml.etree._Element) -> list[lxml.etree._Element]:
     return list(getattr(sbgnml_arc, "next", []))
 
 
-def get_sbgnml_points(sbgnml_arc):
+def get_sbgnml_points(sbgnml_arc: lxml.etree._Element) -> list[lxml.etree._Element]:
     return [sbgnml_arc.start] + get_nexts(sbgnml_arc) + [sbgnml_arc.end]
 
 
-def get_annotation(sbgnml_element):
+def get_annotation(
+    sbgnml_element: lxml.etree._Element,
+) -> lxml.etree._Element | None:
     extension = getattr(sbgnml_element, "extension", None)
     if extension is None:
         return None
@@ -61,11 +67,11 @@ def get_annotation(sbgnml_element):
     return annotation
 
 
-def get_notes(sbgnml_element):
+def get_notes(sbgnml_element: lxml.etree._Element) -> lxml.etree._Element | None:
     return getattr(sbgnml_element, "notes", None)
 
 
-def get_rdf(sbgnml_element):
+def get_rdf(sbgnml_element: lxml.etree._Element) -> lxml.etree._Element | None:
     annotation = get_annotation(sbgnml_element)
     if annotation is None:
         return None
@@ -91,7 +97,9 @@ _SBGNML_SUBUNIT_CLASSES = {
 }
 
 
-def get_state_variables(sbgnml_element):
+def get_state_variables(
+    sbgnml_element: lxml.etree._Element,
+) -> list[lxml.etree._Element]:
     return [
         subglyph
         for subglyph in get_glyphs(sbgnml_element)
@@ -99,7 +107,9 @@ def get_state_variables(sbgnml_element):
     ]
 
 
-def get_units_of_information(sbgnml_element):
+def get_units_of_information(
+    sbgnml_element: lxml.etree._Element,
+) -> list[lxml.etree._Element]:
     return [
         subglyph
         for subglyph in get_glyphs(sbgnml_element)
@@ -107,7 +117,7 @@ def get_units_of_information(sbgnml_element):
     ]
 
 
-def get_subunits(sbgnml_element):
+def get_subunits(sbgnml_element: lxml.etree._Element) -> list[lxml.etree._Element]:
     return [
         subglyph
         for subglyph in get_glyphs(sbgnml_element)
@@ -115,7 +125,7 @@ def get_subunits(sbgnml_element):
     ]
 
 
-def get_terminals(sbgnml_element):
+def get_terminals(sbgnml_element: lxml.etree._Element) -> list[lxml.etree._Element]:
     return [
         subglyph
         for subglyph in get_glyphs(sbgnml_element)
@@ -123,14 +133,19 @@ def get_terminals(sbgnml_element):
     ]
 
 
-def get_stoichiometry(sbgnml_element):
+def get_stoichiometry(
+    sbgnml_element: lxml.etree._Element,
+) -> lxml.etree._Element | None:
     for sbgnml_subglyph in get_glyphs(sbgnml_element):
         if sbgnml_subglyph.get("class") == "stoichiometry":
             return sbgnml_subglyph
     return None
 
 
-def get_consumption_and_production_arcs(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
+def get_consumption_and_production_arcs(
+    sbgnml_process: lxml.etree._Element,
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> tuple[list[lxml.etree._Element], list[lxml.etree._Element]]:
     sbgnml_consumption_arcs = []
     sbgnml_production_arcs = []
     for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_process.get("id")]:
@@ -142,10 +157,10 @@ def get_consumption_and_production_arcs(sbgnml_process, sbgnml_glyph_id_to_sbgnm
 
 
 def get_equivalence_arcs(
-    sbgnml_tag_or_terminal,
-    sbgnml_id_to_sbgnml_element,
-    sbgnml_glyph_id_to_sbgnml_arcs,
-):
+    sbgnml_tag_or_terminal: lxml.etree._Element,
+    sbgnml_id_to_sbgnml_element: dict[str, lxml.etree._Element],
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> list[lxml.etree._Element]:
     sbgnml_equivalence_arcs = []
     for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_tag_or_terminal.get("id")]:
         if (
@@ -158,10 +173,10 @@ def get_equivalence_arcs(
 
 
 def get_logic_arcs(
-    sbgnml_operator,
-    sbgnml_id_to_sbgnml_element,
-    sbgnml_glyph_id_to_sbgnml_arcs,
-):
+    sbgnml_operator: lxml.etree._Element,
+    sbgnml_id_to_sbgnml_element: dict[str, lxml.etree._Element],
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> list[lxml.etree._Element]:
     sbgnml_logic_arcs = []
     for sbgnml_arc in sbgnml_glyph_id_to_sbgnml_arcs[sbgnml_operator.get("id")]:
         if (
@@ -172,7 +187,10 @@ def get_logic_arcs(
     return sbgnml_logic_arcs
 
 
-def get_process_direction(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
+def get_process_direction(
+    sbgnml_process: lxml.etree._Element,
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> Direction:
     for sbgnml_port in get_ports(sbgnml_process):
         if float(sbgnml_port.get("x")) < float(sbgnml_process.bbox.get("x")) or float(
             sbgnml_port.get("x")
@@ -185,7 +203,7 @@ def get_process_direction(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs):
     return Direction.VERTICAL  # default is vertical
 
 
-def get_direction(sbgnml_element):
+def get_direction(sbgnml_element: lxml.etree._Element) -> Direction:
     sbgnml_orientation = sbgnml_element.get("orientation")
     if sbgnml_orientation is None:
         return Direction.RIGHT
@@ -194,9 +212,9 @@ def get_direction(sbgnml_element):
 
 
 def is_operator_left_to_right(
-    sbgnml_operator,
-    sbgnml_id_to_sbgnml_element,
-    sbgnml_glyph_id_to_sbgnml_arcs,
+    sbgnml_operator: lxml.etree._Element,
+    sbgnml_id_to_sbgnml_element: dict[str, lxml.etree._Element],
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
 ) -> bool:
     sbgnml_logic_arcs = get_logic_arcs(
         sbgnml_operator,
@@ -224,7 +242,10 @@ def is_operator_left_to_right(
     return True
 
 
-def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> bool:
+def is_process_left_to_right(
+    sbgnml_process: lxml.etree._Element,
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> bool:
     process_direction = get_process_direction(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
@@ -267,7 +288,10 @@ def is_process_left_to_right(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> 
             return False
 
 
-def is_process_reversible(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> bool:
+def is_process_reversible(
+    sbgnml_process: lxml.etree._Element,
+    sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
+) -> bool:
     sbgnml_consumption_arcs, _ = get_consumption_and_production_arcs(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
@@ -276,7 +300,9 @@ def is_process_reversible(sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs) -> boo
     return True
 
 
-def get_connectors_length(sbgnml_process):
+def get_connectors_length(
+    sbgnml_process: lxml.etree._Element,
+) -> tuple[float | None, float | None]:
     left_connector_length = None
     right_connector_length = None
     sbgnml_bbox = sbgnml_process.bbox

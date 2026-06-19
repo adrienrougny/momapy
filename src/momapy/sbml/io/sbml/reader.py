@@ -120,23 +120,23 @@ class SBMLReader(Reader):
         return result
 
     @classmethod
-    def _make_empty_map(cls, sbml_model):
+    def _make_empty_map(cls, sbml_model: typing.Any) -> typing.Any:
         return new_builder_object(SBMLMap)
 
     @classmethod
-    def _make_empty_model(cls, sbml_model):
+    def _make_empty_model(cls, sbml_model: typing.Any) -> typing.Any:
         return new_builder_object(SBMLModel)
 
     @classmethod
     def _make_main_obj(
         cls,
-        sbml_model,
+        sbml_model: typing.Any,
         return_type: typing.Literal["map", "model", "layout"],
         with_model: bool = True,
         with_layout: bool = True,
         with_annotations: bool = True,
         with_notes: bool = True,
-    ):
+    ) -> tuple[typing.Any, typing.Any, typing.Any]:
         if return_type == "layout":
             raise NotImplementedError(
                 "SBML has no layout; return_type='layout' is not supported"
@@ -191,7 +191,11 @@ class SBMLReader(Reader):
         )
 
     @classmethod
-    def _make_and_add_compartment(cls, reading_context, sbml_compartment):
+    def _make_and_add_compartment(
+        cls,
+        reading_context: SBMLReadingContext,
+        sbml_compartment: typing.Any,
+    ) -> typing.Any:
         model_element = make_compartment(reading_context, sbml_compartment)
         model_element = object_from_builder(model_element)
         model_element = register_model_element(
@@ -206,7 +210,9 @@ class SBMLReader(Reader):
         return model_element
 
     @classmethod
-    def _make_and_add_species(cls, reading_context, sbml_species):
+    def _make_and_add_species(
+        cls, reading_context: SBMLReadingContext, sbml_species: typing.Any
+    ) -> typing.Any:
         model_element = make_species(reading_context, sbml_species)
         model_element = object_from_builder(model_element)
         model_element = register_model_element(
@@ -219,7 +225,9 @@ class SBMLReader(Reader):
         return model_element
 
     @classmethod
-    def _make_and_add_reaction(cls, reading_context, sbml_reaction):
+    def _make_and_add_reaction(
+        cls, reading_context: SBMLReadingContext, sbml_reaction: typing.Any
+    ) -> typing.Any:
         model_element = make_reaction(reading_context, sbml_reaction)
         for sbml_reactant in get_reactants(sbml_reaction):
             cls._make_and_add_reactant(reading_context, sbml_reactant, model_element)
@@ -241,8 +249,11 @@ class SBMLReader(Reader):
 
     @classmethod
     def _make_and_add_reactant(
-        cls, reading_context, sbml_species_reference, super_model_element
-    ):
+        cls,
+        reading_context: SBMLReadingContext,
+        sbml_species_reference: typing.Any,
+        super_model_element: typing.Any,
+    ) -> typing.Any:
         model_element = make_species_reference(reading_context, sbml_species_reference)
         super_model_element.reactants.add(model_element)
         reading_context.sbml_id_to_model_element[model_element.id_] = model_element
@@ -250,8 +261,11 @@ class SBMLReader(Reader):
 
     @classmethod
     def _make_and_add_product(
-        cls, reading_context, sbml_species_reference, super_model_element
-    ):
+        cls,
+        reading_context: SBMLReadingContext,
+        sbml_species_reference: typing.Any,
+        super_model_element: typing.Any,
+    ) -> typing.Any:
         model_element = make_species_reference(reading_context, sbml_species_reference)
         super_model_element.products.add(model_element)
         reading_context.sbml_id_to_model_element[model_element.id_] = model_element
@@ -259,8 +273,11 @@ class SBMLReader(Reader):
 
     @classmethod
     def _make_and_add_modifier(
-        cls, reading_context, sbml_modifier_species_reference, super_model_element
-    ):
+        cls,
+        reading_context: SBMLReadingContext,
+        sbml_modifier_species_reference: typing.Any,
+        super_model_element: typing.Any,
+    ) -> typing.Any:
         model_element = make_modifier_species_reference(
             reading_context, sbml_modifier_species_reference
         )

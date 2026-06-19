@@ -1,8 +1,9 @@
-"""Classes for rendering in the SVG format"""
+"""Classes for rendering in the SVG format."""
 
 import dataclasses
 import os
 import typing
+import collections.abc
 import math
 import xml.sax.saxutils
 
@@ -19,6 +20,8 @@ from momapy.drawing import EdgeMode
 from momapy.drawing import Ellipse
 from momapy.drawing import EllipticalArc
 from momapy.drawing import FillRule
+from momapy.drawing import Filter
+from momapy.drawing import FilterEffect
 from momapy.drawing import FilterEffectInput
 from momapy.drawing import FilterUnits
 from momapy.drawing import FloodEffect
@@ -36,9 +39,11 @@ from momapy.drawing import QuadraticCurveTo
 from momapy.drawing import Rectangle
 from momapy.drawing import Text
 from momapy.drawing import TextAnchor
+from momapy.coloring import Color
 from momapy.geometry import MatrixTransformation
 from momapy.geometry import Rotation
 from momapy.geometry import Scaling
+from momapy.geometry import Transformation
 from momapy.geometry import Translation
 from momapy.rendering.core import Renderer
 from momapy.rendering.core import SupportsFileOutput
@@ -106,6 +111,7 @@ class SVGElement(object):
         return f"{s_indent}<{self.name}{s_attributes}>\n{s_value}{s_elements}{s_indent}</{self.name}>"
 
     def __str__(self) -> str:
+        """Return the SVG string representation of the element."""
         return self.to_string()
 
     def add_element(self, element: "SVGElement") -> None:
@@ -332,13 +338,15 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = self._make_drawing_element_element(drawing_element)
         self.svg.add_element(element)
 
-    def _make_color_value(self, color) -> str:
+    def _make_color_value(self, color: Color) -> str:
         return f"rgb({color.red}, {color.green}, {color.blue})"
 
-    def _make_opacity_value(self, color):
+    def _make_opacity_value(self, color: Color) -> str:
         return str(color.alpha)
 
-    def _make_transform_value(self, transform):
+    def _make_transform_value(
+        self, transform: collections.abc.Iterable[Transformation]
+    ) -> str:
         value = " ".join(
             [
                 self._make_transformation_value(transformation)
@@ -347,14 +355,16 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return value
 
-    def _make_transformation_value(self, transformation):
+    def _make_transformation_value(self, transformation: Transformation) -> str:
         class_ = type(transformation)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _make_drawing_element_element_id_class_atrributes(self, drawing_element):
+    def _make_drawing_element_element_id_class_atrributes(
+        self, drawing_element: DrawingElement
+    ) -> dict[str, typing.Any]:
         attributes = {}
         id_ = getattr(drawing_element, "id_", None)
         if id_ is not None:
@@ -364,7 +374,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             attributes["class"] = class_
         return attributes
 
-    def _make_drawing_element_presentation_attributes(self, drawing_element):
+    def _make_drawing_element_presentation_attributes(
+        self, drawing_element: DrawingElement
+    ) -> dict[str, typing.Any]:
         attributes = {}
         for attr_name in PRESENTATION_ATTRIBUTES:
             attr_value = getattr(drawing_element, attr_name)
@@ -403,7 +415,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
                 attributes[attr_name] = attr_value
         return attributes
 
-    def _make_filter_element(self, filter_):
+    def _make_filter_element(self, filter_: Filter) -> SVGElement:
         name = "filter"
         attributes = {}
         attributes["id"] = filter_.id_
@@ -421,7 +433,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes, elements=subelements)
         return element
 
-    def _make_filter_effect_element(self, filter_effect):
+    def _make_filter_effect_element(self, filter_effect: FilterEffect) -> SVGElement:
         class_ = type(filter_effect)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
@@ -429,7 +441,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = fe_func(filter_effect)
         return element
 
-    def _make_drop_shadow_effect_element(self, filter_effect):
+    def _make_drop_shadow_effect_element(
+        self, filter_effect: DropShadowEffect
+    ) -> SVGElement:
         name = "feDropShadow"
         attributes = {}
         attributes["dx"] = filter_effect.dx
@@ -445,7 +459,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return element
 
-    def _make_composite_effect_element(self, filter_effect):
+    def _make_composite_effect_element(
+        self, filter_effect: CompositeEffect
+    ) -> SVGElement:
         name = "feComposite"
         attributes = {}
         if isinstance(filter_effect.in_, FilterEffectInput):
@@ -472,7 +488,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return element
 
-    def _make_flood_effect_element(self, filter_effect):
+    def _make_flood_effect_element(self, filter_effect: FloodEffect) -> SVGElement:
         name = "feFlood"
         attributes = {}
         attributes["flood-opacity"] = filter_effect.flood_opacity
@@ -485,7 +501,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return element
 
-    def _make_gaussian_blur_effect_element(self, filter_effect):
+    def _make_gaussian_blur_effect_element(
+        self, filter_effect: GaussianBlurEffect
+    ) -> SVGElement:
         name = "feGaussianBlur"
         attributes = {}
         if isinstance(filter_effect.in_, FilterEffectInput):
@@ -505,7 +523,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return element
 
-    def _make_offset_effect_element(self, filter_effect):
+    def _make_offset_effect_element(self, filter_effect: OffsetEffect) -> SVGElement:
         name = "feOffset"
         attributes = {}
         attributes["dx"] = filter_effect.dx
@@ -518,7 +536,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         )
         return element
 
-    def _make_drawing_element_element(self, drawing_element):
+    def _make_drawing_element_element(
+        self, drawing_element: DrawingElement
+    ) -> SVGElement:
         class_ = type(drawing_element)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
@@ -526,7 +546,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = de_func(drawing_element)
         return element
 
-    def _make_group_element(self, group):
+    def _make_group_element(self, group: Group) -> SVGElement:
         name = "g"
         presentation_attributes = self._make_drawing_element_presentation_attributes(
             group
@@ -542,7 +562,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes, elements=subelements)
         return element
 
-    def _make_path_action_value(self, path_action):
+    def _make_path_action_value(self, path_action: typing.Any) -> str:
         class_ = type(path_action)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
@@ -550,16 +570,16 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         value = pa_func(path_action)
         return value
 
-    def _make_move_to_value(self, move_to) -> str:
+    def _make_move_to_value(self, move_to: MoveTo) -> str:
         return f"M {move_to.x} {move_to.y}"
 
-    def _make_line_to_value(self, line_to) -> str:
+    def _make_line_to_value(self, line_to: LineTo) -> str:
         return f"L {line_to.x} {line_to.y}"
 
-    def _make_close_value(self, close) -> str:
+    def _make_close_value(self, close: ClosePath) -> str:
         return "Z"
 
-    def _make_elliptical_arc_value(self, elliptical_arc) -> str:
+    def _make_elliptical_arc_value(self, elliptical_arc: EllipticalArc) -> str:
         return (
             f"A {elliptical_arc.rx} "
             f"{elliptical_arc.ry} "
@@ -570,7 +590,9 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             f"{elliptical_arc.y}"
         )
 
-    def _make_quadratic_curve_to_value(self, quadratic_curve_to) -> str:
+    def _make_quadratic_curve_to_value(
+        self, quadratic_curve_to: QuadraticCurveTo
+    ) -> str:
         return (
             f"Q {quadratic_curve_to.control_point.x} "
             f"{quadratic_curve_to.control_point.y} "
@@ -578,7 +600,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             f"{quadratic_curve_to.y}"
         )
 
-    def _make_curve_to_value(self, curve_to) -> str:
+    def _make_curve_to_value(self, curve_to: CurveTo) -> str:
         return (
             f"C {curve_to.control_point1.x} "
             f"{curve_to.control_point1.y} "
@@ -588,7 +610,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             f"{curve_to.y}"
         )
 
-    def _make_path_element(self, path):
+    def _make_path_element(self, path: Path) -> SVGElement:
         name = "path"
         presentation_attributes = self._make_drawing_element_presentation_attributes(
             path
@@ -604,7 +626,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes)
         return element
 
-    def _make_text_element(self, text):
+    def _make_text_element(self, text: Text) -> SVGElement:
         name = "text"
         presentation_attributes = self._make_drawing_element_presentation_attributes(
             text
@@ -619,7 +641,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes, value=value)
         return element
 
-    def _make_ellipse_element(self, ellipse):
+    def _make_ellipse_element(self, ellipse: Ellipse) -> SVGElement:
         name = "ellipse"
         presentation_attributes = self._make_drawing_element_presentation_attributes(
             ellipse
@@ -635,7 +657,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes)
         return element
 
-    def _make_rectangle_element(self, rectangle):
+    def _make_rectangle_element(self, rectangle: Rectangle) -> SVGElement:
         name = "rect"
         presentation_attributes = self._make_drawing_element_presentation_attributes(
             rectangle
@@ -653,10 +675,10 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         element = SVGElement(name=name, attributes=attributes)
         return element
 
-    def _make_translation_value(self, translation) -> str:
+    def _make_translation_value(self, translation: Translation) -> str:
         return f"translate({translation.tx} {translation.ty})"
 
-    def _make_rotation_value(self, rotation):
+    def _make_rotation_value(self, rotation: Rotation) -> str:
         angle = math.degrees(rotation.angle)
         s_point = (
             f" {rotation.point.x} {rotation.point.y}"
@@ -666,10 +688,12 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         value = f"rotate({angle}{s_point})"
         return value
 
-    def _make_scaling_value(self, scaling) -> str:
+    def _make_scaling_value(self, scaling: Scaling) -> str:
         return f"scale({scaling.sx} {scaling.sy})"
 
-    def _make_matrix_transformation_value(self, matrix_transformation) -> str:
+    def _make_matrix_transformation_value(
+        self, matrix_transformation: MatrixTransformation
+    ) -> str:
         m = matrix_transformation.m
         a, b = m[0][0], m[1][0]
         c, d = m[0][1], m[1][1]
@@ -693,7 +717,7 @@ class SVGNativeCompatRenderer(SVGNativeRenderer):
         ```
     """
 
-    def _make_filter_element(self, filter_):
+    def _make_filter_element(self, filter_: Filter) -> SVGElement:
         """Create an SVG filter element with compatibility conversion.
 
         Args:

@@ -6,6 +6,9 @@ objectify trees and return raw Python / geometry values.
 """
 
 import collections
+import typing
+
+import lxml.objectify
 
 from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE, get_prefix_and_name
 
@@ -89,11 +92,15 @@ _TEXT_TO_CHARACTER = {
 }
 
 
-def get_annotation(cd_element):
+def get_annotation(
+    cd_element: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     return getattr(cd_element, "annotation", None)
 
 
-def get_extension(cd_element):
+def get_extension(
+    cd_element: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_annotation = get_annotation(cd_element)
     if cd_annotation is None:
         return None
@@ -101,21 +108,27 @@ def get_extension(cd_element):
     return cd_extension
 
 
-def get_species(cd_model):
+def get_species(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     list_of_species = getattr(cd_model, "listOfSpecies", None)
     if list_of_species is None:
         return []
     return list(getattr(list_of_species, "species", []))
 
 
-def get_reactions(cd_model):
+def get_reactions(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     list_of_reactions = getattr(cd_model, "listOfReactions", None)
     if list_of_reactions is None:
         return []
     return list(getattr(list_of_reactions, "reaction", []))
 
 
-def get_species_aliases(cd_model):
+def get_species_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     # only the non-included ones
     extension = get_extension(cd_model)
     species_aliases = list(getattr(extension.listOfSpeciesAliases, "speciesAlias", []))
@@ -127,7 +140,9 @@ def get_species_aliases(cd_model):
     return species_aliases
 
 
-def get_included_species_aliases(cd_model):
+def get_included_species_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     species_aliases = list(getattr(extension.listOfSpeciesAliases, "speciesAlias", []))
     species_aliases = [
@@ -138,7 +153,9 @@ def get_included_species_aliases(cd_model):
     return species_aliases
 
 
-def get_complex_species_aliases(cd_model):
+def get_complex_species_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     # only the non-included ones
     extension = get_extension(cd_model)
     complex_species_aliases = list(
@@ -156,7 +173,9 @@ def get_complex_species_aliases(cd_model):
     return complex_species_aliases
 
 
-def get_included_complex_species_aliases(cd_model):
+def get_included_complex_species_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     complex_species_aliases = list(
         getattr(
@@ -173,36 +192,50 @@ def get_included_complex_species_aliases(cd_model):
     return complex_species_aliases
 
 
-def get_compartments(cd_model):
+def get_compartments(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     return list(getattr(cd_model.listOfCompartments, "compartment", []))
 
 
-def get_compartment_aliases(cd_model):
+def get_compartment_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     return list(getattr(extension.listOfCompartmentAliases, "compartmentAlias", []))
 
 
-def get_protein_templates(cd_model):
+def get_protein_templates(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     return list(getattr(extension.listOfProteins, "protein", []))
 
 
-def get_gene_templates(cd_model):
+def get_gene_templates(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     return list(getattr(extension.listOfGenes, "gene", []))
 
 
-def get_rna_templates(cd_model):
+def get_rna_templates(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     return list(getattr(extension.listOfRNAs, "RNA", []))
 
 
-def get_antisense_rna_templates(cd_model):
+def get_antisense_rna_templates(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     return list(getattr(extension.listOfAntisenseRNAs, "AntisenseRNA", []))
 
 
-def get_species_templates(cd_model):
+def get_species_templates(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     return (
         get_protein_templates(cd_model)
         + get_gene_templates(cd_model)
@@ -211,7 +244,9 @@ def get_species_templates(cd_model):
     )
 
 
-def get_modification_residues(cd_species_template):
+def get_modification_residues(
+    cd_species_template: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     list_of_modification_residues = getattr(
         cd_species_template, "listOfModificationResidues", None
     )
@@ -224,7 +259,9 @@ def get_modification_residues(cd_species_template):
     return modification_residues
 
 
-def get_regions(cd_species_template):
+def get_regions(
+    cd_species_template: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     list_of_regions = getattr(cd_species_template, "listOfRegions", None)
     if list_of_regions is not None:
         regions = list(getattr(list_of_regions, "region", []))
@@ -233,7 +270,9 @@ def get_regions(cd_species_template):
     return regions
 
 
-def get_included_species(cd_model):
+def get_included_species(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_model)
     list_of_included_species = getattr(extension, "listOfIncludedSpecies", None)
     if list_of_included_species is None:
@@ -241,12 +280,14 @@ def get_included_species(cd_model):
     return list(getattr(list_of_included_species, "species", []))
 
 
-def get_reaction_type(cd_reaction):
+def get_reaction_type(cd_reaction: lxml.objectify.ObjectifiedElement) -> str:
     cd_extension = get_extension(cd_reaction)
     return cd_extension.reactionType.text
 
 
-def get_gate_members(cd_reaction):
+def get_gate_members(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     cd_extension = get_extension(cd_reaction)
     list_of_gate_member = getattr(cd_extension, "listOfGateMember", None)
     if list_of_gate_member is not None:
@@ -256,7 +297,9 @@ def get_gate_members(cd_reaction):
     return gate_members
 
 
-def get_key_from_reaction(cd_reaction):
+def get_key_from_reaction(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> tuple[str, str | None]:
     cd_reaction_type = get_reaction_type(cd_reaction)
     if cd_reaction_type == "BOOLEAN_LOGIC_GATE":
         cd_gate_member = get_gate_members(cd_reaction)[0]
@@ -271,7 +314,9 @@ _TEMPLATE_LOCALNAME_TO_TYPE = {
 }
 
 
-def get_key_from_species_template(cd_species_template):
+def get_key_from_species_template(
+    cd_species_template: lxml.objectify.ObjectifiedElement,
+) -> tuple[str, str | None]:
     template_type = cd_species_template.get("type")
     if template_type is None:
         _, localname = get_prefix_and_name(cd_species_template.tag)
@@ -282,14 +327,19 @@ def get_key_from_species_template(cd_species_template):
     )
 
 
-def get_key_from_region(cd_region):
+def get_key_from_region(
+    cd_region: lxml.objectify.ObjectifiedElement,
+) -> tuple[str, str | None]:
     return (
         "REGION",
         cd_region.get("type"),
     )
 
 
-def get_key_from_species(cd_species, cd_id_to_cd_element):
+def get_key_from_species(
+    cd_species: lxml.objectify.ObjectifiedElement,
+    cd_id_to_cd_element: dict[str, lxml.objectify.ObjectifiedElement],
+) -> tuple[str, str | None]:
     cd_species_template = get_template_from_species(cd_species, cd_id_to_cd_element)
     if cd_species_template is None:
         key = get_class_from_species(cd_species).text
@@ -301,7 +351,9 @@ def get_key_from_species(cd_species, cd_id_to_cd_element):
     return ("SPECIES", key)
 
 
-def get_key_from_reaction_modification(cd_reaction_modification):
+def get_key_from_reaction_modification(
+    cd_reaction_modification: lxml.objectify.ObjectifiedElement,
+) -> tuple[str, str | None]:
     if has_boolean_input_from_modification(cd_reaction_modification):
         cd_reaction_modification_type = cd_reaction_modification.get("modificationType")
     else:
@@ -309,11 +361,15 @@ def get_key_from_reaction_modification(cd_reaction_modification):
     return ("MODIFIER", cd_reaction_modification_type)
 
 
-def get_key_from_gate_member(cd_reaction_modification):
+def get_key_from_gate_member(
+    cd_reaction_modification: lxml.objectify.ObjectifiedElement,
+) -> tuple[str, str | None]:
     return ("GATE", cd_reaction_modification.get("type"))
 
 
-def get_identity(cd_species):
+def get_identity(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_extension = get_extension(cd_species)
     if cd_extension is not None:
         cd_identity = cd_extension.speciesIdentity
@@ -322,7 +378,9 @@ def get_identity(cd_species):
     return cd_identity
 
 
-def get_class_from_species(cd_species):
+def get_class_from_species(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_identity = get_identity(cd_species)
     if cd_identity is None:
         return None
@@ -330,7 +388,9 @@ def get_class_from_species(cd_species):
     return cd_class
 
 
-def get_state(cd_species):
+def get_state(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_species_identity = get_identity(cd_species)
     if cd_species_identity is None:
         return None
@@ -338,25 +398,33 @@ def get_state(cd_species):
     return cd_species_state
 
 
-def get_activity(cd_species_alias):
+def get_activity(
+    cd_species_alias: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     return getattr(cd_species_alias, "activity", None)
 
 
-def get_homodimer(cd_species):
+def get_homodimer(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_species_state = get_state(cd_species)
     if cd_species_state is None:
         return None
     return getattr(cd_species_state, "homodimer", None)
 
 
-def get_hypothetical(cd_species):
+def get_hypothetical(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_species_identity = get_identity(cd_species)
     if cd_species_identity is None:
         return None
     return getattr(cd_species_identity, "hypothetical", None)
 
 
-def get_species_modifications(cd_species):
+def get_species_modifications(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     cd_species_state = get_state(cd_species)
     if cd_species_state is None:
         return []
@@ -366,7 +434,9 @@ def get_species_modifications(cd_species):
     return list(getattr(cd_list_of_modifications, "modification", []))
 
 
-def get_species_structural_states(cd_species):
+def get_species_structural_states(
+    cd_species: lxml.objectify.ObjectifiedElement,
+) -> typing.Any:
     cd_species_state = get_state(cd_species)
     if cd_species_state is None:
         return []
@@ -378,7 +448,10 @@ def get_species_structural_states(cd_species):
     return cd_list_of_structural_states.structuralState
 
 
-def get_template_from_species(cd_species, cd_id_to_cd_element):
+def get_template_from_species(
+    cd_species: lxml.objectify.ObjectifiedElement,
+    cd_id_to_cd_element: dict[str, lxml.objectify.ObjectifiedElement],
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_species_identity = get_identity(cd_species)
     for cd_species_template_type in [
         "proteinReference",
@@ -393,13 +466,18 @@ def get_template_from_species(cd_species, cd_id_to_cd_element):
     return None
 
 
-def get_template_from_species_alias(cd_species_alias, cd_id_to_cd_element):
+def get_template_from_species_alias(
+    cd_species_alias: lxml.objectify.ObjectifiedElement,
+    cd_id_to_cd_element: dict[str, lxml.objectify.ObjectifiedElement],
+) -> lxml.objectify.ObjectifiedElement | None:
     cd_species_id = cd_species_alias.get("species")
     cd_species = cd_id_to_cd_element[cd_species_id]
     return get_template_from_species(cd_species, cd_id_to_cd_element)
 
 
-def get_bounds(cd_element):
+def get_bounds(
+    cd_element: lxml.objectify.ObjectifiedElement,
+) -> tuple[str | None, str | None, str | None, str | None]:
     cd_x = cd_element.bounds.get("x")
     cd_y = cd_element.bounds.get("y")
     cd_w = cd_element.bounds.get("w")
@@ -407,7 +485,7 @@ def get_bounds(cd_element):
     return cd_x, cd_y, cd_w, cd_h
 
 
-def get_anchor_name_for_frame(cd_element):
+def get_anchor_name_for_frame(cd_element: lxml.objectify.ObjectifiedElement) -> str:
     if getattr(cd_element, "linkAnchor", None) is not None:
         cd_element_anchor = cd_element.linkAnchor.get("position")
         anchor_name = _LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.get(
@@ -418,16 +496,22 @@ def get_anchor_name_for_frame(cd_element):
     return anchor_name
 
 
-def get_reactants(cd_reaction):
+def get_reactants(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     return list(getattr(cd_reaction.listOfReactants, "speciesReference", []))
 
 
-def get_base_reactants(cd_reaction):
+def get_base_reactants(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_reaction)
     return list(getattr(extension.baseReactants, "baseReactant", []))
 
 
-def get_reactant_links(cd_reaction):
+def get_reactant_links(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_reaction)
     list_of_reactant_links = getattr(extension, "listOfReactantLinks", None)
     if list_of_reactant_links is None:
@@ -435,16 +519,22 @@ def get_reactant_links(cd_reaction):
     return list(getattr(list_of_reactant_links, "reactantLink", []))
 
 
-def get_products(cd_reaction):
+def get_products(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     return list(getattr(cd_reaction.listOfProducts, "speciesReference", []))
 
 
-def get_base_products(cd_reaction):
+def get_base_products(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_reaction)
     return list(getattr(extension.baseProducts, "baseProduct", []))
 
 
-def get_product_links(cd_reaction):
+def get_product_links(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_reaction)
     list_of_product_links = getattr(extension, "listOfProductLinks", None)
     if list_of_product_links is None:
@@ -452,26 +542,32 @@ def get_product_links(cd_reaction):
     return list(getattr(list_of_product_links, "productLink", []))
 
 
-def get_edit_points_from_reaction(cd_reaction):
+def get_edit_points_from_reaction(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     extension = get_extension(cd_reaction)
     return getattr(extension, "editPoints", None)
 
 
-def get_edit_points_from_participant_link(cd_participant_link):
+def get_edit_points_from_participant_link(
+    cd_participant_link: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     return getattr(cd_participant_link, "editPoints", None)
 
 
-def get_rectangle_index(cd_reaction):
+def get_rectangle_index(cd_reaction: lxml.objectify.ObjectifiedElement) -> str | None:
     extension = get_extension(cd_reaction)
     return extension.connectScheme.get("rectangleIndex")
 
 
-def get_t_shape_index(cd_reaction):
+def get_t_shape_index(cd_reaction: lxml.objectify.ObjectifiedElement) -> str | None:
     cd_edit_points = get_edit_points_from_reaction(cd_reaction)
     return cd_edit_points.get("tShapeIndex")
 
 
-def has_boolean_input_from_modification(cd_reaction_modification) -> bool:
+def has_boolean_input_from_modification(
+    cd_reaction_modification: lxml.objectify.ObjectifiedElement,
+) -> bool:
     return cd_reaction_modification.get("type") in [
         "BOOLEAN_LOGIC_GATE_AND",
         "BOOLEAN_LOGIC_GATE_OR",
@@ -480,11 +576,15 @@ def has_boolean_input_from_modification(cd_reaction_modification) -> bool:
     ]
 
 
-def has_boolean_input_from_reaction(cd_reaction):
+def has_boolean_input_from_reaction(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> bool:
     return get_reaction_type(cd_reaction) == "BOOLEAN_LOGIC_GATE"
 
 
-def get_modifier_species_references(cd_reaction):
+def get_modifier_species_references(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     """Return the list of SBML modifierSpeciesReference elements.
 
     Args:
@@ -499,7 +599,9 @@ def get_modifier_species_references(cd_reaction):
     return list(getattr(list_of_modifiers, "modifierSpeciesReference", []))
 
 
-def get_reaction_modifications(cd_reaction):
+def get_reaction_modifications(
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> list[lxml.objectify.ObjectifiedElement]:
     extension = get_extension(cd_reaction)
     list_of_modification = getattr(extension, "listOfModification", None)
     if list_of_modification is None:
@@ -520,17 +622,17 @@ def get_reaction_modifications(cd_reaction):
     return true_modifications
 
 
-def get_width(cd_model):
+def get_width(cd_model: lxml.objectify.ObjectifiedElement) -> str | None:
     extension = get_extension(cd_model)
     return extension.modelDisplay.get("sizeX")
 
 
-def get_height(cd_model):
+def get_height(cd_model: lxml.objectify.ObjectifiedElement) -> str | None:
     extension = get_extension(cd_model)
     return extension.modelDisplay.get("sizeY")
 
 
-def make_name(name):
+def make_name(name: str | None) -> str | None:
     if name is None:
         return name
     for s, char in _TEXT_TO_CHARACTER.items():
@@ -538,25 +640,33 @@ def make_name(name):
     return name
 
 
-def get_notes(cd_element):
+def get_notes(
+    cd_element: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     return getattr(cd_element, "notes", None)
 
 
-def get_rdf_from_notes(cd_notes):
+def get_rdf_from_notes(
+    cd_notes: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     rdfs = list(cd_notes.iter(f"{{{_RDF_NAMESPACE}}}RDF"))
     if rdfs:
         return rdfs[0]
     return None
 
 
-def get_rdf(cd_element):
+def get_rdf(
+    cd_element: lxml.objectify.ObjectifiedElement,
+) -> lxml.objectify.ObjectifiedElement | None:
     annotation = get_annotation(cd_element)
     if annotation is None:
         return None
     return getattr(annotation, f"{{{_RDF_NAMESPACE}}}RDF", None)
 
 
-def make_id_to_element_mapping(cd_model):
+def make_id_to_element_mapping(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> dict[str, lxml.objectify.ObjectifiedElement]:
     cd_id_to_cd_element = {}
     # compartments
     for cd_compartment in get_compartments(cd_model):
@@ -600,7 +710,9 @@ def make_id_to_element_mapping(cd_model):
     return cd_id_to_cd_element
 
 
-def make_complex_alias_to_included_ids_mapping(cd_model):
+def make_complex_alias_to_included_ids_mapping(
+    cd_model: lxml.objectify.ObjectifiedElement,
+) -> dict[str, list[str]]:
     cd_complex_alias_id_to_cd_included_species_ids = collections.defaultdict(list)
     for cd_species_alias in get_included_species_aliases(cd_model):
         cd_complex_species_alias_id = cd_species_alias.get("complexSpeciesAlias")
@@ -618,7 +730,10 @@ def make_complex_alias_to_included_ids_mapping(cd_model):
     return cd_complex_alias_id_to_cd_included_species_ids
 
 
-def get_ordered_compartment_aliases(cd_model, cd_id_to_cd_element):
+def get_ordered_compartment_aliases(
+    cd_model: lxml.objectify.ObjectifiedElement,
+    cd_id_to_cd_element: dict[str, lxml.objectify.ObjectifiedElement],
+) -> list[lxml.objectify.ObjectifiedElement]:
     cd_compartments = get_compartments(cd_model)
     cd_compartment_id_to_cd_outside_id = {}
     for cd_compartment in cd_compartments:
@@ -652,7 +767,10 @@ def get_ordered_compartment_aliases(cd_model, cd_id_to_cd_element):
     return ordered_cd_compartment_aliases
 
 
-def get_reactant_id(cd_base_reactant_or_link, cd_reaction):
+def get_reactant_id(
+    cd_base_reactant_or_link: lxml.objectify.ObjectifiedElement,
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> str:
     """Compute a deterministic ID for a reactant from XML data.
 
     Uses the SBML speciesReference metaid if available, otherwise
@@ -677,7 +795,10 @@ def get_reactant_id(cd_base_reactant_or_link, cd_reaction):
     return f"{cd_reaction.get('id')}_{cd_species_id}"
 
 
-def get_product_id(cd_base_product_or_link, cd_reaction):
+def get_product_id(
+    cd_base_product_or_link: lxml.objectify.ObjectifiedElement,
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> str:
     """Compute a deterministic ID for a product from XML data.
 
     Uses the SBML speciesReference metaid if available, otherwise
@@ -702,7 +823,10 @@ def get_product_id(cd_base_product_or_link, cd_reaction):
     return f"{cd_reaction.get('id')}_{cd_species_id}"
 
 
-def get_modifier_metaid(cd_reaction_modification, cd_reaction):
+def get_modifier_metaid(
+    cd_reaction_modification: lxml.objectify.ObjectifiedElement,
+    cd_reaction: lxml.objectify.ObjectifiedElement,
+) -> str | None:
     """Resolve the SBML modifierSpeciesReference metaid for a modifier.
 
     Args:

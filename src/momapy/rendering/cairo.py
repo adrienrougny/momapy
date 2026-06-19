@@ -28,8 +28,10 @@ except ModuleNotFoundError as e:
         f"Or install momapy with cairo support: pip install momapy[cairo]"
     ) from e
 
+from momapy.core.elements import LayoutElement
 from momapy.drawing import ClosePath
 from momapy.drawing import CurveTo
+from momapy.drawing import DrawingElement
 from momapy.drawing import Ellipse
 from momapy.drawing import EllipticalArc as EllipticalArcDrawing
 from momapy.drawing import FontStyle
@@ -46,6 +48,7 @@ from momapy.geometry import MatrixTransformation
 from momapy.geometry import Point
 from momapy.geometry import Rotation
 from momapy.geometry import Scaling
+from momapy.geometry import Transformation
 from momapy.geometry import Translation
 from momapy.rendering.core import StatefulRenderer
 from momapy.rendering.core import SupportsFileOutput
@@ -195,7 +198,7 @@ class CairoRenderer(
         surface.finish()
         surface.flush()
 
-    def new_page(self, width, height) -> None:
+    def new_page(self, width: float, height: float) -> None:
         """Create a new page in the output document.
 
         Args:
@@ -212,7 +215,7 @@ class CairoRenderer(
             surface = self.context.get_target()
             surface.set_size(width, height)
 
-    def render_layout_element(self, layout_element) -> None:
+    def render_layout_element(self, layout_element: LayoutElement) -> None:
         """Render a layout element to the output.
 
         Args:
@@ -222,7 +225,7 @@ class CairoRenderer(
         for drawing_element in drawing_elements:
             self.render_drawing_element(drawing_element)
 
-    def render_drawing_element(self, drawing_element) -> None:
+    def render_drawing_element(self, drawing_element: DrawingElement) -> None:
         """Render a drawing element to the output.
 
         Args:
@@ -295,7 +298,9 @@ class CairoRenderer(
             self._make_stroke_paint()
             self.context.stroke()
 
-    def _add_transform_from_drawing_element(self, drawing_element) -> None:
+    def _add_transform_from_drawing_element(
+        self, drawing_element: DrawingElement
+    ) -> None:
         if (
             drawing_element.transform is not None
             and drawing_element.transform is not NoneValue
@@ -303,30 +308,30 @@ class CairoRenderer(
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
 
-    def _add_transformation(self, transformation):
+    def _add_transformation(self, transformation: Transformation) -> None:
         class_ = type(transformation)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _render_group(self, group) -> None:
+    def _render_group(self, group: Group) -> None:
         for drawing_element in group.elements:
             self.render_drawing_element(drawing_element)
 
-    def _add_path_action_to_context(self, path_action) -> None:
+    def _add_path_action_to_context(self, path_action: typing.Any) -> None:
         class_ = type(path_action)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         pa_func = getattr(self, self._pa_class_func_mapping[class_])
         pa_func(path_action)
 
-    def _render_path(self, path) -> None:
+    def _render_path(self, path: Path) -> None:
         for action in path.actions:
             self._add_path_action_to_context(action)
         self._stroke_and_fill()
 
-    def _render_text(self, text) -> None:
+    def _render_text(self, text: Text) -> None:
         pango_layout = gi.repository.PangoCairo.create_layout(self.context)
 
         font_family = self.get_current_value("font_family")
@@ -367,7 +372,7 @@ class CairoRenderer(
             gi.repository.PangoCairo.layout_path(self.context, pango_layout)
             self.context.stroke()
 
-    def _render_ellipse(self, ellipse) -> None:
+    def _render_ellipse(self, ellipse: Ellipse) -> None:
         self.context.save()
         self.context.translate(ellipse.x, ellipse.y)
         self.context.scale(ellipse.rx, ellipse.ry)
@@ -376,17 +381,17 @@ class CairoRenderer(
         self.context.restore()
         self._stroke_and_fill()
 
-    def _render_rectangle(self, rectangle) -> None:
+    def _render_rectangle(self, rectangle: Rectangle) -> None:
         path = rectangle.to_path()
         self._render_path(path)
 
-    def _add_move_to(self, move_to) -> None:
+    def _add_move_to(self, move_to: MoveTo) -> None:
         self.context.move_to(move_to.x, move_to.y)
 
-    def _add_line_to(self, line_to) -> None:
+    def _add_line_to(self, line_to: LineTo) -> None:
         self.context.line_to(line_to.x, line_to.y)
 
-    def _add_curve_to(self, curve_to) -> None:
+    def _add_curve_to(self, curve_to: CurveTo) -> None:
         self.context.curve_to(
             curve_to.control_point1.x,
             curve_to.control_point1.y,
@@ -396,16 +401,16 @@ class CairoRenderer(
             curve_to.y,
         )
 
-    def _add_quadratic_curve_to(self, quadratic_curve_to) -> None:
+    def _add_quadratic_curve_to(self, quadratic_curve_to: QuadraticCurveTo) -> None:
         cairo_current_point = self.context.get_current_point()
         current_point = Point(cairo_current_point[0], cairo_current_point[1])
         curve_to = quadratic_curve_to.to_curve_to(current_point)
         self._add_curve_to(curve_to)
 
-    def _add_close_path(self, close_path) -> None:
+    def _add_close_path(self, close_path: ClosePath) -> None:
         self.context.close_path()
 
-    def _add_elliptical_arc(self, elliptical_arc) -> None:
+    def _add_elliptical_arc(self, elliptical_arc: EllipticalArcDrawing) -> None:
         current_point = self.context.get_current_point()
         p1 = Point(current_point[0], current_point[1])
 
@@ -435,10 +440,10 @@ class CairoRenderer(
 
         self.context.restore()
 
-    def _add_translation(self, translation) -> None:
+    def _add_translation(self, translation: Translation) -> None:
         self.context.translate(translation.tx, translation.ty)
 
-    def _add_rotation(self, rotation) -> None:
+    def _add_rotation(self, rotation: Rotation) -> None:
         if rotation.point is not None:
             self.context.translate(rotation.point.x, rotation.point.y)
             self.context.rotate(rotation.angle)
@@ -446,10 +451,12 @@ class CairoRenderer(
         else:
             self.context.rotate(rotation.angle)
 
-    def _add_scaling(self, scaling) -> None:
+    def _add_scaling(self, scaling: Scaling) -> None:
         self.context.scale(scaling.sx, scaling.sy)
 
-    def _add_matrix_transformation(self, matrix_transformation) -> None:
+    def _add_matrix_transformation(
+        self, matrix_transformation: MatrixTransformation
+    ) -> None:
         m = cairo.Matrix(
             xx=matrix_transformation.m[0][0],
             yx=matrix_transformation.m[1][0],

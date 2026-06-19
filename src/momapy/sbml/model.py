@@ -268,7 +268,8 @@ class SBMLModel(Model):
     species: frozenset[Species] = dataclasses.field(default_factory=frozenset)
     reactions: frozenset[Reaction] = dataclasses.field(default_factory=frozenset)
 
-    def is_submodel(self, other) -> None:
+    def is_submodel(self, other: "SBMLModel") -> None:
+        """Return whether the model is a submodel of another model."""
         pass
 
 

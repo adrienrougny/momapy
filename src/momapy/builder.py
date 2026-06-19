@@ -107,7 +107,11 @@ _immutable_collection_to_builder: dict[type, type] = {
 }
 
 
-def _transform_type(type_, make_optional: bool = False, make_union: bool = False):
+def _transform_type(
+    type_: typing.Any,
+    make_optional: bool = False,
+    make_union: bool = False,
+) -> typing.Any:
     if isinstance(type_, typing.ForwardRef):
         new_type = typing.ForwardRef(f"{type_.__forward_arg__}Builder")
     else:
@@ -144,12 +148,15 @@ def _transform_type(type_, make_optional: bool = False, make_union: bool = False
 
 
 def _make_builder_cls(
-    cls, builder_fields=None, builder_bases=None, builder_namespace=None
-):
+    cls: type,
+    builder_fields: typing.Any = None,
+    builder_bases: typing.Any = None,
+    builder_namespace: typing.Any = None,
+) -> type:
     def _builder_build(
-        self,
+        self: typing.Any,
         builder_to_object: dict[int, typing.Any] | None = None,
-    ):
+    ) -> typing.Any:
         if builder_to_object is not None:
             obj = builder_to_object.get(id(self))
             if obj is not None:
@@ -168,10 +175,10 @@ def _make_builder_cls(
         return obj
 
     def _builder_from_object(
-        cls,
-        obj,
+        cls: type,
+        obj: typing.Any,
         object_to_builder: dict[int, "Builder"] | None = None,
-    ):
+    ) -> typing.Any:
         if object_to_builder is not None:
             builder = object_to_builder.get(id(obj))
             if builder is not None:

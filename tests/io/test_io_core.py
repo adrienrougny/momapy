@@ -43,9 +43,6 @@ def test_register_reader():
         def check_file(cls, file_path):
             return False
 
-    # Save original state
-    original_readers = momapy.io.reader_registry.list_loaded()
-
     try:
         momapy.io.register_reader("test_reader", DummyReader)
         assert momapy.io.reader_registry.is_available("test_reader")
@@ -63,9 +60,6 @@ def test_register_writer():
         @classmethod
         def write(cls, obj, file_path, **options):
             return momapy.io.core.WriterResult()
-
-    # Save original state
-    original_writers = momapy.io.writer_registry.list_loaded()
 
     try:
         momapy.io.register_writer("test_writer", DummyWriter)

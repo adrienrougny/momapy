@@ -8,7 +8,7 @@ from momapy.core.elements import MapElement, ModelElement, _walk_model_graph
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Model(MapElement, abc.ABC):
-    """Abstract base class for models"""
+    """Abstract base class for models."""
 
     @abc.abstractmethod
     def is_submodel(self, other: "Model") -> bool:

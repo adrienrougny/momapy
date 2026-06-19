@@ -145,22 +145,22 @@ class LayoutElement(MapElement, abc.ABC):
 
     @abc.abstractmethod
     def bbox(self) -> Bbox:
-        """Compute and return the bounding box of the layout element"""
+        """Compute and return the bounding box of the layout element."""
         pass
 
     @abc.abstractmethod
     def drawing_elements(self) -> list[DrawingElement]:
-        """Return the drawing elements of the layout element"""
+        """Return the drawing elements of the layout element."""
         pass
 
     @abc.abstractmethod
     def children(self) -> list["LayoutElement"]:
-        """Return the children of the layout element"""
+        """Return the children of the layout element."""
         pass
 
     @abc.abstractmethod
     def childless(self) -> typing_extensions.Self:
-        """Return a copy of the layout element with no children"""
+        """Return a copy of the layout element with no children."""
         pass
 
     def descendants(self) -> list["LayoutElement"]:
@@ -190,7 +190,7 @@ class LayoutElement(MapElement, abc.ABC):
         return descendants
 
     def flattened(self) -> list["LayoutElement"]:
-        """Return a list containing copy of the layout element with no children and all its descendants with no children"""
+        """Return a list containing copy of the layout element with no children and all its descendants with no children."""
         flattened = [self.childless()]
         for child in self.children():
             flattened += child.flattened()
@@ -199,7 +199,7 @@ class LayoutElement(MapElement, abc.ABC):
     def equals(
         self, other: "LayoutElement", flattened: bool = False, unordered: bool = False
     ) -> bool:
-        """Return `True` if the layout element is equal to another layout element, `False` otherwise"""
+        """Return `True` if the layout element is equal to another layout element, `False` otherwise."""
         if type(self) is type(other):
             if not flattened:
                 return self == other
@@ -211,7 +211,7 @@ class LayoutElement(MapElement, abc.ABC):
         return False
 
     def contains(self, other: "LayoutElement") -> bool:
-        """Return `True` if another layout element is a descendant of the layout element, `False` otherwise"""
+        """Return `True` if another layout element is a descendant of the layout element, `False` otherwise."""
         return other in self.descendants()
 
     def to_geometry(
@@ -221,5 +221,5 @@ class LayoutElement(MapElement, abc.ABC):
         return drawing_elements_to_geometry(self.drawing_elements())
 
     def anchor_point(self, anchor_name: str) -> Point:
-        """Return an anchor point of the layout element"""
+        """Return an anchor point of the layout element."""
         return getattr(self, anchor_name)()

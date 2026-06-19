@@ -9,7 +9,9 @@ import dataclasses
 import typing
 
 from momapy.core.elements import Direction
+from momapy.core.layout import Shape
 from momapy.drawing import (
+    DrawingElement,
     LineTo,
     MoveTo,
     Path,
@@ -67,7 +69,7 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     width: float = 18.0
     height: float = 12.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -85,7 +87,7 @@ class UnspecifiedEntityUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     width: float = 18.0
     height: float = 12.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDUnspecifiedEntityLayout._make_shape(self)
 
 
@@ -99,7 +101,7 @@ class SimpleChemicalUnitOfInformationLayout(_SimpleMixin, SBGNNode):
     width: float = 12.0
     height: float = 12.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDSimpleChemicalLayout._make_shape(self)
 
 
@@ -116,7 +118,7 @@ class MacromoleculeUnitOfInformationLayout(_SimpleMixin, SBGNNode):
         default=3.0, metadata={"description": "The radius of the rounded corners."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDMacromoleculeLayout._make_shape(self)
 
 
@@ -133,7 +135,7 @@ class NucleicAcidFeatureUnitOfInformationLayout(_SimpleMixin, SBGNNode):
         default=3.0, metadata={"description": "The radius of the rounded corners."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDNucleicAcidFeatureLayout._make_shape(self)
 
 
@@ -150,7 +152,7 @@ class ComplexUnitOfInformationLayout(_SimpleMixin, SBGNNode):
         default=3.0, metadata={"description": "The size of the cut corners."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDComplexLayout._make_shape(self)
 
 
@@ -167,7 +169,7 @@ class PerturbationUnitOfInformationLayout(_SimpleMixin, SBGNNode):
         default=70.0, metadata={"description": "The angle of the notched sides."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDPerturbingAgentLayout._make_shape(self)
 
 
@@ -188,7 +190,7 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
         default=70.0, metadata={"description": "The angle of the notched side."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDTerminalLayout._make_shape(self)
 
 
@@ -208,7 +210,7 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
         default=3.25, metadata={"description": "The width of the border stroke."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDCompartmentLayout._make_shape(self)
 
 
@@ -225,7 +227,7 @@ class SubmapLayout(_SimpleMixin, SBGNNode):
         default=2.25, metadata={"description": "The width of the border stroke."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDSubmapLayout._make_shape(self)
 
 
@@ -239,7 +241,7 @@ class BiologicalActivityLayout(_SimpleMixin, SBGNNode):
     width: float = 60.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -258,7 +260,7 @@ class PhenotypeLayout(_SimpleMixin, SBGNNode):
         default=70.0, metadata={"description": "The angle of the slanted sides."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDPhenotypeLayout._make_shape(self)
 
 
@@ -281,7 +283,7 @@ class AndOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -306,7 +308,7 @@ class OrOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -331,7 +333,7 @@ class NotOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -356,7 +358,7 @@ class DelayOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -379,7 +381,7 @@ class TagLayout(PDTagLayout):
         default=70.0, metadata={"description": "The angle of the pointed side."}
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return PDTagLayout._make_shape(self)
 
 
@@ -397,7 +399,7 @@ class UnknownInfluenceLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DiamondArc._arrowhead_border_drawing_elements(self)
 
 
@@ -415,7 +417,7 @@ class PositiveInfluenceLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return TriangleArc._arrowhead_border_drawing_elements(self)
 
 
@@ -440,7 +442,7 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead triangle."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(Point(0, -self.arrowhead_bar_height / 2)),
             LineTo(Point(0, self.arrowhead_bar_height / 2)),
@@ -471,7 +473,7 @@ class NegativeInfluenceLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The height of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return BarArc._arrowhead_border_drawing_elements(self)
 
 
@@ -482,7 +484,7 @@ class LogicArcLayout(SBGNSingleHeadedArc):
     Draws a logic arc connecting an activity to a logical operator.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)
 
 
@@ -493,5 +495,5 @@ class EquivalenceArcLayout(SBGNSingleHeadedArc):
     Draws an equivalence arc linking a tag or terminal to its referenced element.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)

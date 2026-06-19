@@ -1,4 +1,4 @@
-"""Bases classes and functions for rendering maps or layout elements"""
+"""Bases classes and functions for rendering maps or layout elements."""
 
 import dataclasses
 import copy
@@ -102,7 +102,7 @@ def render_layout_element(
     style_sheet: StyleSheet | None = None,
     to_top_left: bool = False,
 ) -> None:
-    """Render a layout element to a file in the given format with the given registered renderer
+    """Render a layout element to a file in the given format with the given registered renderer.
 
     Args:
         layout_element: The layout element to render
@@ -401,7 +401,7 @@ class Renderer(abc.ABC):
 
     @classmethod
     def get_lighter_font_weight(cls, font_weight: FontWeight | float) -> float:
-        """Return the boldest font weight lighter than the given font weight"""
+        """Return the boldest font weight lighter than the given font weight."""
         if isinstance(font_weight, FontWeight):
             font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
@@ -418,7 +418,7 @@ class Renderer(abc.ABC):
 
     @classmethod
     def get_bolder_font_weight(cls, font_weight: FontWeight | float) -> float:
-        """Return the lightest font weight bolder than the given font weight"""
+        """Return the lightest font weight bolder than the given font weight."""
         if isinstance(font_weight, FontWeight):
             font_weight = cls.font_weight_value_mapping.get(font_weight)
             if font_weight is None:
@@ -478,12 +478,13 @@ class SupportsFileOutput(abc.ABC):
 
 @dataclasses.dataclass
 class StatefulRenderer(Renderer):
-    """Base class for stateful renderers"""
+    """Base class for stateful renderers."""
 
     _current_state: dict = dataclasses.field(default_factory=dict)
     _states: list[dict] = dataclasses.field(default_factory=list)
 
     def __post_init__(self) -> None:
+        """Initialize the renderer's current state after initialization."""
         self._initialize_current_state()
 
     @abc.abstractmethod
@@ -505,7 +506,7 @@ class StatefulRenderer(Renderer):
         pass
 
     @classmethod
-    def _make_initial_current_state(cls):
+    def _make_initial_current_state(cls) -> dict[str, typing.Any]:
         state = {}
         for (
             attr_name,
@@ -523,12 +524,12 @@ class StatefulRenderer(Renderer):
         self.set_current_state(state)
 
     def save(self) -> None:
-        """Save the current state"""
+        """Save the current state."""
         self._states.append(copy.deepcopy(self.get_current_state()))
         self.self_save()
 
     def restore(self) -> None:
-        """Set the current state to the last saved state"""
+        """Set the current state to the last saved state."""
         if len(self._states) > 0:
             state = self._states.pop()
             self.set_current_state(state)
@@ -540,7 +541,7 @@ class StatefulRenderer(Renderer):
             )
 
     def get_initial_value(self, attr_name: str) -> typing.Any:
-        """Return the initial value for an attribute"""
+        """Return the initial value for an attribute."""
         attr_value = self.initial_values.get(attr_name)
         if attr_value is None:
             attr_d = PRESENTATION_ATTRIBUTES[attr_name]
@@ -550,15 +551,15 @@ class StatefulRenderer(Renderer):
         return attr_value
 
     def get_current_value(self, attr_name: str) -> typing.Any:
-        """Return the current value for an attribute"""
+        """Return the current value for an attribute."""
         return self.get_current_state()[attr_name]
 
     def get_current_state(self) -> dict[str, typing.Any]:
-        """Return the current state"""
+        """Return the current state."""
         return self._current_state
 
     def set_current_value(self, attr_name: str, attr_value: typing.Any) -> None:
-        """Set the current value for an attribute"""
+        """Set the current value for an attribute."""
         if attr_value is None:
             attr_d = PRESENTATION_ATTRIBUTES[attr_name]
             if not attr_d["inherited"]:
@@ -583,11 +584,13 @@ class StatefulRenderer(Renderer):
             self._current_state[attr_name] = attr_value
 
     def set_current_state(self, state: dict) -> None:
-        """Set the current state to the given state"""
+        """Set the current state to the given state."""
         for attr_name, attr_value in state.items():
             self.set_current_value(attr_name, attr_value)
 
-    def _get_state_from_drawing_element(self, drawing_element):
+    def _get_state_from_drawing_element(
+        self, drawing_element: DrawingElement
+    ) -> dict[str, typing.Any]:
         """Return the presentation state from a drawing element.
 
         Args:
@@ -604,6 +607,6 @@ class StatefulRenderer(Renderer):
     def set_current_state_from_drawing_element(
         self, drawing_element: DrawingElement
     ) -> None:
-        """Set the current state to a state given by a drawing element"""
+        """Set the current state to a state given by a drawing element."""
         state = self._get_state_from_drawing_element(drawing_element)
         self.set_current_state(state)

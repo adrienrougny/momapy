@@ -11,7 +11,7 @@ pytestmark = pytest.mark.slow
 try:
     # Try to import the momapy cairo renderer module itself
     # This will fail if any of the dependencies are missing
-    import momapy.rendering.cairo
+    import momapy.rendering.cairo  # noqa: F401
 
     CAIRO_AVAILABLE = True
 except (ImportError, ValueError, AttributeError, ModuleNotFoundError, Exception):

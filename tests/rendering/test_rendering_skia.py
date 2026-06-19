@@ -8,7 +8,7 @@ pytestmark = pytest.mark.slow
 
 # Check if Skia is available
 try:
-    import skia
+    import skia  # noqa: F401
 
     SKIA_AVAILABLE = True
 except (ImportError, ModuleNotFoundError):

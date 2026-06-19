@@ -18,3 +18,4 @@ demos/reactome_analysis/data/
 .claude/
 .venv-sandbox/
 poubelle/
+monkeytype.sqlite3

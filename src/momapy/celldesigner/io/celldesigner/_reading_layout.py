@@ -6,6 +6,7 @@ returns ``None`` early when no layout is being built.
 """
 
 import math
+import typing
 
 from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
@@ -75,6 +76,11 @@ from momapy.celldesigner.layout import (
     DEFAULT_MODIFICATION_FONT_SIZE,
 )
 
+if typing.TYPE_CHECKING:
+    from momapy.celldesigner.io.celldesigner._reading_context import (
+        CellDesignerReadingContext,
+    )
+
 _LAYOUT_TO_ACTIVE_LAYOUT = {
     GenericProteinLayout: GenericProteinActiveLayout,
     IonChannelLayout: IonChannelActiveLayout,
@@ -93,7 +99,9 @@ _LAYOUT_TO_ACTIVE_LAYOUT = {
 }
 
 
-def apply_line_attributes(layout_element, cd_line_element) -> None:
+def apply_line_attributes(
+    layout_element: typing.Any, cd_line_element: typing.Any
+) -> None:
     """Apply width and color from a ``<cd:line>`` XML element to a layout.
 
     Sets ``path_stroke_width`` and ``path_stroke`` on the layout, and
@@ -130,7 +138,7 @@ def apply_line_attributes(layout_element, cd_line_element) -> None:
             layout_element.start_arrowhead_stroke = color_value
 
 
-def make_empty_layout(cd_element):
+def make_empty_layout(cd_element: typing.Any) -> typing.Any:
     """Create an empty CellDesigner layout builder.
 
     Args:
@@ -143,7 +151,9 @@ def make_empty_layout(cd_element):
     return layout
 
 
-def set_layout_size_and_position(reading_context, cd_model) -> None:
+def set_layout_size_and_position(
+    reading_context: "CellDesignerReadingContext", cd_model: typing.Any
+) -> None:
     """Populate the layout size and center from the CellDesigner model.
 
     Args:
@@ -159,7 +169,7 @@ def set_layout_size_and_position(reading_context, cd_model) -> None:
     )
 
 
-def make_segments(points):
+def make_segments(points: list[Point]) -> list[Segment]:
     """Build consecutive line segments from an ordered list of points.
 
     Args:
@@ -175,7 +185,7 @@ def make_segments(points):
     return segments
 
 
-def make_points(cd_edit_points):
+def make_points(cd_edit_points: typing.Any) -> list[Point]:
     """Parse CellDesigner ``<cd:editPoints>`` coordinates into Points.
 
     Args:
@@ -198,14 +208,14 @@ def make_points(cd_edit_points):
 
 
 def make_species(
-    reading_context,
-    cd_species_alias,
-    layout_element_cls,
-    name,
-    homomultimer,
-    hypothetical,
-    active,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_species_alias: typing.Any,
+    layout_element_cls: typing.Any,
+    name: str | None,
+    homomultimer: int,
+    hypothetical: bool,
+    active: bool,
+) -> typing.Any:
     """Create a species layout builder (and its active-border sibling if needed).
 
     Args:
@@ -265,11 +275,11 @@ def make_species(
 
 
 def make_species_modification(
-    reading_context,
-    cd_modification_residue,
-    modification_state,
-    super_layout_element,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_modification_residue: typing.Any,
+    modification_state: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a modification layout builder attached to a species layout.
 
     Args:
@@ -334,8 +344,10 @@ def make_species_modification(
 
 
 def make_species_structural_state(
-    reading_context, cd_species_structural_state, super_layout_element
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_species_structural_state: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a structural state layout builder attached to a species layout.
 
     Args:
@@ -380,7 +392,13 @@ _CD_CLASS_TO_SIDE = {
 }
 
 
-def corner_region(corner, px, py, canvas_width, canvas_height):
+def corner_region(
+    corner: typing.Any,
+    px: float,
+    py: float,
+    canvas_width: float,
+    canvas_height: float,
+) -> tuple[float, float, float, float]:
     """Return the (left, top, right, bottom) rectangle for a corner close-up.
 
     Args:
@@ -402,7 +420,13 @@ def corner_region(corner, px, py, canvas_width, canvas_height):
     return 0.0, 0.0, px, py  # SOUTHEAST
 
 
-def side_region(side, px, py, canvas_width, canvas_height):
+def side_region(
+    side: typing.Any,
+    px: float,
+    py: float,
+    canvas_width: float,
+    canvas_height: float,
+) -> tuple[float, float, float, float]:
     """Return the (left, top, right, bottom) rectangle for a side close-up.
 
     Args:
@@ -424,7 +448,11 @@ def side_region(side, px, py, canvas_width, canvas_height):
     return px, 0.0, canvas_width, canvas_height  # WEST
 
 
-def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_alias):
+def make_compartment_from_alias(
+    reading_context: "CellDesignerReadingContext",
+    cd_compartment: typing.Any,
+    cd_compartment_alias: typing.Any,
+) -> typing.Any:
     """Create a compartment layout builder from a compartment alias.
 
     Dispatches on the alias ``class`` attribute to pick between oval, corner
@@ -521,7 +549,9 @@ def make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_
     return layout_element
 
 
-def make_segments_non_t_shape(reading_context, cd_reaction):
+def make_segments_non_t_shape(
+    reading_context: "CellDesignerReadingContext", cd_reaction: typing.Any
+) -> list[Segment]:
     """Build the arc segments for a straight (non T-shape) reaction.
 
     Used when the reaction has exactly one base reactant and one base product
@@ -577,7 +607,9 @@ def make_segments_non_t_shape(reading_context, cd_reaction):
     return make_segments(points)
 
 
-def make_segments_left_t_shape(reading_context, cd_reaction):
+def make_segments_left_t_shape(
+    reading_context: "CellDesignerReadingContext", cd_reaction: typing.Any
+) -> list[Segment]:
     """Build arc segments for a reaction with two base reactants and one product.
 
     The T-junction is placed at the last edit point relative to the frame
@@ -632,7 +664,9 @@ def make_segments_left_t_shape(reading_context, cd_reaction):
     return make_segments(points)
 
 
-def make_segments_right_t_shape(reading_context, cd_reaction):
+def make_segments_right_t_shape(
+    reading_context: "CellDesignerReadingContext", cd_reaction: typing.Any
+) -> list[Segment]:
     """Build arc segments for a reaction with one reactant and two base products.
 
     The T-junction is placed at the last edit point relative to the frame
@@ -689,12 +723,12 @@ def make_segments_right_t_shape(reading_context, cd_reaction):
 
 
 def make_reaction(
-    reading_context,
-    cd_reaction,
-    layout_element_cls,
-    cd_base_reactants,
-    cd_base_products,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_reaction: typing.Any,
+    layout_element_cls: typing.Any,
+    cd_base_reactants: typing.Any,
+    cd_base_products: typing.Any,
+) -> tuple[typing.Any, bool, bool]:
     """Create a reaction layout builder and flags for T-shape branches.
 
     Args:
@@ -749,12 +783,12 @@ def make_reaction(
 
 
 def make_reactant_from_base(
-    reading_context,
-    cd_base_reactant,
-    n_cd_base_reactant,
-    cd_reaction,
-    super_layout_element,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_base_reactant: typing.Any,
+    n_cd_base_reactant: int,
+    cd_reaction: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a consumption arc layout for a base reactant in a T-shape reaction.
 
     Args:
@@ -817,7 +851,11 @@ def make_reactant_from_base(
     return layout_element
 
 
-def make_reactant_from_link(reading_context, cd_reactant_link, super_layout_element):
+def make_reactant_from_link(
+    reading_context: "CellDesignerReadingContext",
+    cd_reactant_link: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a consumption arc layout from a reactant link.
 
     Args:
@@ -870,12 +908,12 @@ def make_reactant_from_link(reading_context, cd_reactant_link, super_layout_elem
 
 
 def make_product_from_base(
-    reading_context,
-    cd_base_product,
-    n_cd_base_product,
-    cd_reaction,
-    super_layout_element,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_base_product: typing.Any,
+    n_cd_base_product: int,
+    cd_reaction: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a production arc layout for a base product in a T-shape reaction.
 
     Args:
@@ -938,7 +976,11 @@ def make_product_from_base(
     return layout_element
 
 
-def make_product_from_link(reading_context, cd_product_link, super_layout_element):
+def make_product_from_link(
+    reading_context: "CellDesignerReadingContext",
+    cd_product_link: typing.Any,
+    super_layout_element: typing.Any,
+) -> typing.Any:
     """Create a production arc layout from a product link.
 
     Args:
@@ -1000,7 +1042,9 @@ _TARGET_LINE_INDEX_TO_ANCHOR_NAME = {
 }
 
 
-def get_anchor_point_from_target_line_index(reaction_layout, target_line_index):
+def get_anchor_point_from_target_line_index(
+    reaction_layout: typing.Any, target_line_index: str | None
+) -> Point | None:
     """Compute the anchor point on the reaction node from targetLineIndex.
 
     The targetLineIndex format is "segmentIndex,anchorId" where anchorId
@@ -1028,13 +1072,13 @@ def get_anchor_point_from_target_line_index(reaction_layout, target_line_index):
 
 
 def make_modifier(
-    reading_context,
-    cd_reaction_modification,
-    layout_element_cls,
-    source_layout_element,
-    super_layout_element,
-    has_boolean_input,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_reaction_modification: typing.Any,
+    layout_element_cls: typing.Any,
+    source_layout_element: typing.Any,
+    super_layout_element: typing.Any,
+    has_boolean_input: bool,
+) -> typing.Any:
     """Create a modifier arc layout builder.
 
     Args:
@@ -1113,7 +1157,11 @@ def make_modifier(
     return layout_element
 
 
-def make_logic_gate(reading_context, cd_element, layout_element_cls):
+def make_logic_gate(
+    reading_context: "CellDesignerReadingContext",
+    cd_element: typing.Any,
+    layout_element_cls: typing.Any,
+) -> typing.Any:
     """Create a boolean logic gate layout builder.
 
     The gate position is taken from the last edit point encoded on the element.
@@ -1136,7 +1184,11 @@ def make_logic_gate(reading_context, cd_element, layout_element_cls):
     return layout_element
 
 
-def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
+def make_logic_arc(
+    reading_context: "CellDesignerReadingContext",
+    gate_layout_element: typing.Any,
+    input_layout_element: typing.Any,
+) -> typing.Any:
     """Create a logic arc layout connecting a boolean gate to one of its inputs.
 
     Args:
@@ -1160,15 +1212,15 @@ def make_logic_arc(reading_context, gate_layout_element, input_layout_element):
 
 
 def make_modulation(
-    reading_context,
-    cd_reaction,
-    layout_element_cls,
-    source_layout_element,
-    target_layout_element,
-    has_boolean_input,
-    cd_base_reactant,
-    cd_base_product,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_reaction: typing.Any,
+    layout_element_cls: typing.Any,
+    source_layout_element: typing.Any,
+    target_layout_element: typing.Any,
+    has_boolean_input: bool,
+    cd_base_reactant: typing.Any,
+    cd_base_product: typing.Any,
+) -> typing.Any:
     """Create a modulation arc layout builder.
 
     CellDesigner encodes modulations as fake reactions; this resolves the

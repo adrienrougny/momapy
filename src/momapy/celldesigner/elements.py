@@ -20,6 +20,7 @@ and ``*Node`` classes, which is what you should subclass.
 """
 
 import dataclasses
+import typing
 
 from momapy.builder import (
     issubclass_or_builder,
@@ -28,28 +29,28 @@ from momapy.builder import (
 from momapy.coloring import Color, black
 from momapy.core.elements import ModelElement
 from momapy.core.layout import DoubleHeadedArc, SingleHeadedArc
-from momapy.drawing import NoneValue, NoneValueType
+from momapy.drawing import DrawingElement, NoneValue, NoneValueType
 from momapy.sbgn.elements import SBGNNode, _MultiMixin, _SBGNMixin, _SimpleMixin
 
 
 # abstract
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerModelElement(ModelElement):
-    """Base class for CellDesigner model elements"""
+    """Base class for CellDesigner model elements."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerNode(SBGNNode):
-    """Base class for CellDesigner nodes"""
+    """Base class for CellDesigner nodes."""
 
     pass
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerSingleHeadedArc(SingleHeadedArc):
-    """Base class for CellDesigner single-headed arcs"""
+    """Base class for CellDesigner single-headed arcs."""
 
     arrowhead_stroke: NoneValueType | Color | None = black
     arrowhead_stroke_width: float | None = 1.0
@@ -57,7 +58,8 @@ class CellDesignerSingleHeadedArc(SingleHeadedArc):
     path_stroke: NoneValueType | Color | None = black
     path_stroke_width: float | None = 1.0
 
-    def own_drawing_elements(self):
+    def own_drawing_elements(self) -> list[DrawingElement]:
+        """Return the arc's own drawing elements, including those of its mixins."""
         drawing_elements = super_or_builder(
             CellDesignerSingleHeadedArc, self
         ).own_drawing_elements()
@@ -75,13 +77,14 @@ class CellDesignerSingleHeadedArc(SingleHeadedArc):
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerDoubleHeadedArc(DoubleHeadedArc):
-    """Base class for CellDesigner double-headed arcs"""
+    """Base class for CellDesigner double-headed arcs."""
 
     path_fill: NoneValueType | Color | None = NoneValue
     path_stroke: NoneValueType | Color | None = black
     path_stroke_width: float | None = 1.0
 
-    def own_drawing_elements(self):
+    def own_drawing_elements(self) -> list[DrawingElement]:
+        """Return the arc's own drawing elements, including those of its mixins."""
         drawing_elements = super_or_builder(
             CellDesignerDoubleHeadedArc, self
         ).own_drawing_elements()
@@ -100,7 +103,7 @@ class CellDesignerDoubleHeadedArc(DoubleHeadedArc):
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class _SimpleNodeMixin(_SimpleMixin):
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         return _SimpleMixin._mixin_drawing_elements(obj)
 
 
@@ -112,9 +115,9 @@ class _MultiNodeMixin(_MultiMixin):
     )
 
     @property
-    def _n(self):
+    def _n(self) -> int:
         return self.n
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         return _MultiMixin._mixin_drawing_elements(obj)

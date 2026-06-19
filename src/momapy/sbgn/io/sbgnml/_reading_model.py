@@ -5,6 +5,8 @@ argument, checks whether ``reading_context.model`` is ``None``, and
 returns ``None`` early when no model is being built.
 """
 
+import typing
+
 from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
 from momapy.core.elements import Direction
@@ -24,21 +26,34 @@ from momapy.sbgn.io.sbgnml._reading_parsing import is_process_reversible
 from momapy.sbml.io.sbml._reading_model import make_annotations
 from momapy.sbml.io.sbml._reading_model import make_notes
 
+if typing.TYPE_CHECKING:
+    import lxml.objectify
 
-def make_annotations_from_element(sbgnml_element):
+    from momapy.core.elements import ModelElement
+    from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
+
+
+def make_annotations_from_element(
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+) -> list:
     sbgnml_rdf = get_rdf(sbgnml_element)
     if sbgnml_rdf is None:
         return []
     return make_annotations(sbgnml_rdf)
 
 
-def make_notes_from_element(sbgnml_element):
+def make_notes_from_element(
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+) -> list:
     sbgnml_notes = get_notes(sbgnml_element)
     return make_notes(sbgnml_notes)
 
 
 def make_and_add_annotations_and_notes(
-    reading_context, sbgnml_element, model_element, source_id=None
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+    model_element: "ModelElement",
+    source_id: str | None = None,
 ) -> None:
     """Add annotations and notes from an SBGN-ML element to the context.
 
@@ -70,13 +85,20 @@ def make_and_add_annotations_and_notes(
                 reading_context.source_id_to_notes[source_id].update(notes)
 
 
-def set_label(model_element, sbgnml_element) -> None:
+def set_label(
+    model_element: typing.Any,
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+) -> None:
     sbgnml_label = getattr(sbgnml_element, "label", None)
     if sbgnml_label is not None:
         model_element.label = sbgnml_label.get("text")
 
 
-def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element) -> None:
+def set_compartment(
+    model_element: typing.Any,
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+    sbgnml_id_to_model_element: dict,
+) -> None:
     sbgnml_compartment_ref = sbgnml_element.get("compartmentRef")
     if sbgnml_compartment_ref is not None:
         model_element.compartment = next(
@@ -84,7 +106,10 @@ def set_compartment(model_element, sbgnml_element, sbgnml_id_to_model_element) -
         )
 
 
-def set_stoichiometry(model_element, sbgnml_stoichiometry) -> None:
+def set_stoichiometry(
+    model_element: typing.Any,
+    sbgnml_stoichiometry: "lxml.objectify.ObjectifiedElement | None",
+) -> None:
     if sbgnml_stoichiometry is None:
         return
     sbgnml_label = getattr(sbgnml_stoichiometry, "label", None)
@@ -99,7 +124,10 @@ def set_stoichiometry(model_element, sbgnml_stoichiometry) -> None:
         pass
 
 
-def make_compartment(reading_context, sbgnml_compartment):
+def make_compartment(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_compartment: "lxml.objectify.ObjectifiedElement",
+) -> "ModelElement | None":
     """Create a compartment model builder.
 
     Args:
@@ -119,8 +147,10 @@ def make_compartment(reading_context, sbgnml_compartment):
 
 
 def make_entity_pool_or_subunit(
-    reading_context, sbgnml_entity_pool_or_subunit, model_element_cls
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_entity_pool_or_subunit: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type | None,
+) -> "ModelElement | None":
     """Create an entity pool or subunit model builder.
 
     Args:
@@ -147,7 +177,11 @@ def make_entity_pool_or_subunit(
     return model_element
 
 
-def make_activity(reading_context, sbgnml_activity, model_element_cls):
+def make_activity(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_activity: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+) -> "ModelElement | None":
     """Create an activity model builder.
 
     Args:
@@ -171,7 +205,11 @@ def make_activity(reading_context, sbgnml_activity, model_element_cls):
     return model_element
 
 
-def make_state_variable(reading_context, sbgnml_state_variable, order=None):
+def make_state_variable(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_state_variable: "lxml.objectify.ObjectifiedElement",
+    order: int | None = None,
+) -> "ModelElement | None":
     """Create a frozen state variable model element.
 
     Args:
@@ -207,8 +245,10 @@ def make_state_variable(reading_context, sbgnml_state_variable, order=None):
 
 
 def make_unit_of_information(
-    reading_context, sbgnml_unit_of_information, model_element_cls
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_unit_of_information: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+) -> "ModelElement | None":
     """Create a frozen unit of information model element.
 
     Args:
@@ -234,7 +274,11 @@ def make_unit_of_information(
     return model_element
 
 
-def make_submap(reading_context, sbgnml_submap, model_element_cls):
+def make_submap(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_submap: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+) -> "ModelElement | None":
     """Create a submap model builder.
 
     Args:
@@ -254,7 +298,11 @@ def make_submap(reading_context, sbgnml_submap, model_element_cls):
     return model_element
 
 
-def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
+def make_terminal_or_tag(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_terminal_or_tag: "lxml.objectify.ObjectifiedElement",
+    is_terminal: bool,
+) -> "ModelElement | None":
     """Create a terminal or tag model builder.
 
     Args:
@@ -278,7 +326,11 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
     return model_element
 
 
-def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
+def make_reference(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_equivalence_arc: "lxml.objectify.ObjectifiedElement",
+    is_terminal: bool,
+) -> "ModelElement | None":
     """Create a frozen reference model element.
 
     Args:
@@ -310,7 +362,11 @@ def make_reference(reading_context, sbgnml_equivalence_arc, is_terminal):
     return model_element
 
 
-def make_stoichiometric_process(reading_context, sbgnml_process, model_element_cls):
+def make_stoichiometric_process(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_process: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+) -> "ModelElement | None":
     """Create a stoichiometric process model builder.
 
     Args:
@@ -332,7 +388,10 @@ def make_stoichiometric_process(reading_context, sbgnml_process, model_element_c
     return model_element
 
 
-def make_reactant(reading_context, sbgnml_consumption_arc):
+def make_reactant(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_consumption_arc: "lxml.objectify.ObjectifiedElement",
+) -> "ModelElement | None":
     """Create a frozen reactant model element.
 
     Args:
@@ -361,12 +420,12 @@ def make_reactant(reading_context, sbgnml_consumption_arc):
 
 
 def make_product(
-    reading_context,
-    sbgnml_production_arc,
-    super_model_element,
-    super_sbgnml_element,
-    process_direction,
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_production_arc: "lxml.objectify.ObjectifiedElement",
+    super_model_element: typing.Any,
+    super_sbgnml_element: "lxml.objectify.ObjectifiedElement",
+    process_direction: Direction,
+) -> "ModelElement | None":
     """Create a frozen product model element.
 
     Args:
@@ -414,7 +473,11 @@ def make_product(
     return model_element
 
 
-def make_logical_operator(reading_context, sbgnml_logical_operator, model_element_cls):
+def make_logical_operator(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_logical_operator: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+) -> "ModelElement | None":
     """Create a logical operator model builder.
 
     Args:
@@ -434,8 +497,10 @@ def make_logical_operator(reading_context, sbgnml_logical_operator, model_elemen
 
 
 def make_logical_operator_input(
-    reading_context, sbgnml_logic_arc, source_model_element
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_logic_arc: "lxml.objectify.ObjectifiedElement",
+    source_model_element: typing.Any,
+) -> "ModelElement | None":
     """Create a frozen logical operator input model element.
 
     Args:
@@ -456,12 +521,12 @@ def make_logical_operator_input(
 
 
 def make_modulation(
-    reading_context,
-    sbgnml_modulation,
-    model_element_cls,
-    source_model_element,
-    target_model_element,
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_modulation: "lxml.objectify.ObjectifiedElement",
+    model_element_cls: type,
+    source_model_element: typing.Any,
+    target_model_element: typing.Any,
+) -> "ModelElement | None":
     """Create a frozen modulation model element.
 
     Args:

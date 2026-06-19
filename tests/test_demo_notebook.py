@@ -7,8 +7,6 @@ import pathlib
 
 import pytest
 
-pytestmark = pytest.mark.slow
-
 import momapy.io.core
 import momapy.builder
 import momapy.coloring
@@ -25,6 +23,8 @@ import momapy.geometry
 import momapy.meta.shapes
 import momapy.meta.nodes
 import momapy.positioning
+
+pytestmark = pytest.mark.slow
 
 
 def test_demo_notebook(tmp_path):
@@ -131,7 +131,7 @@ def test_demo_notebook(tmp_path):
         css_path = project_root / "src/momapy/sbgn/styling/sbgned_no_cs.css"
         if css_path.exists():
             with open(css_path) as f:
-                my_css = f.read()
+                f.read()
 
         # Rendering section
         r = momapy.io.core.read(demo_dir / "phospho1.sbgn")

@@ -1,16 +1,21 @@
 """Top-level Map class."""
 
 import dataclasses
+import typing
 
 from momapy.core.elements import MapElement
 from momapy.core.layout import Layout
 from momapy.core.mapping import LayoutModelMapping
 from momapy.core.model import Model
 
+if typing.TYPE_CHECKING:
+    from momapy.core.elements import LayoutElement
+    from momapy.core.elements import ModelElement
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class Map(MapElement):
-    """Class for maps"""
+    """Class for maps."""
 
     model: Model | None = dataclasses.field(
         default=None, metadata={"description": "The model of the map"}
@@ -23,8 +28,8 @@ class Map(MapElement):
         metadata={"description": "The layout model mapping of the map"},
     )
 
-    def is_submap(self, other):
-        """Return `True` if another given map is a submap of the `Map`, `False` otherwise"""
+    def is_submap(self, other: "Map") -> bool:
+        """Return `True` if another given map is a submap of the `Map`, `False` otherwise."""
         if (
             self.model is None
             or self.layout is None
@@ -40,7 +45,7 @@ class Map(MapElement):
     def get_mapping(
         self,
         map_element: "MapElement",
-    ):
+    ) -> "ModelElement | list[LayoutElement] | None":
         """Return the layout elements mapped to the given model element.
 
         Returns `None` when the map has no `layout_model_mapping` (for

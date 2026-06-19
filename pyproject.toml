@@ -45,6 +45,7 @@ dev = [
     "mkdocs-jupyter>=0.25.1",
     "mkdocs-pygments>=0.0.2",
     "ruff>=0.12.8",
+    "monkeytype>=23.3.0",
     "pre-commit>=4.5.1",
     "git-cliff>=2.12.0",
     { include-group = "test" },
@@ -67,6 +68,22 @@ tag_regex = '^v(?P<version>([0-9].*))'
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/momapy"]
+
+[tool.ruff.lint]
+extend-select = ["D", "ANN"]
+ignore = ["ANN401", "ANN002", "ANN003"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+mypy-init-return = true
+suppress-none-returning = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "ANN"]
+"scripts/**" = ["D", "ANN"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -17,9 +17,6 @@ def test_register_renderer():
     class DummyRenderer(momapy.rendering.core.Renderer):
         pass
 
-    # Save original state
-    original_renderers = momapy.rendering.renderer_registry.list_loaded()
-
     try:
         momapy.rendering.register_renderer("test_renderer", DummyRenderer)
         assert momapy.rendering.renderer_registry.is_available("test_renderer")

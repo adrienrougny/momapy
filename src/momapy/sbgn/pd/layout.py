@@ -13,6 +13,7 @@ from momapy.coloring import black
 from momapy.coloring import white
 from momapy.core.elements import Direction
 from momapy.core.layout import Shape
+from momapy.drawing import DrawingElement
 from momapy.drawing import Ellipse as EllipseDrawing
 from momapy.drawing import LineTo
 from momapy.drawing import MoveTo
@@ -66,7 +67,7 @@ class StateVariableLayout(_SimpleMixin, SBGNNode):
         metadata={"description": "The height of the state variable layout"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return StadiumShape(
             position=self.position,
             width=self.width,
@@ -84,7 +85,7 @@ class UnitOfInformationLayout(_SimpleMixin, SBGNNode):
     width: float = 18.0
     height: float = 12.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -110,7 +111,7 @@ class TerminalLayout(_SimpleMixin, SBGNNode):
         metadata={"description": "The angle of the pointed end of the terminal glyph"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return TagLayout._make_shape(self)
 
 
@@ -124,7 +125,7 @@ class CardinalityLayout(_SimpleMixin, SBGNNode):
     width: float = 12.0
     height: float = 19.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return UnitOfInformationLayout._make_shape(self)
 
 
@@ -138,7 +139,7 @@ class UnspecifiedEntitySubunitLayout(_SimpleMixin, SBGNNode):
     width: float = 60.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return UnspecifiedEntityLayout._make_shape(self)
 
 
@@ -152,7 +153,7 @@ class SimpleChemicalSubunitLayout(_SimpleMixin, SBGNNode):
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return SimpleChemicalLayout._make_shape(self)
 
 
@@ -172,7 +173,7 @@ class MacromoleculeSubunitLayout(_SimpleMixin, SBGNNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MacromoleculeLayout._make_shape(self)
 
 
@@ -192,7 +193,7 @@ class NucleicAcidFeatureSubunitLayout(_SimpleMixin, SBGNNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return NucleicAcidFeatureLayout._make_shape(self)
 
 
@@ -212,7 +213,7 @@ class ComplexSubunitLayout(_SimpleMixin, SBGNNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return ComplexLayout._make_shape(self)
 
 
@@ -229,10 +230,10 @@ class SimpleChemicalMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return StadiumShape(
             position=position,
             width=width,
@@ -259,10 +260,10 @@ class MacromoleculeMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -298,10 +299,10 @@ class NucleicAcidFeatureMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -332,10 +333,10 @@ class ComplexMultimerSubunitLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -370,7 +371,7 @@ class CompartmentLayout(_SimpleMixin, SBGNNode):
     )
     stroke_width: float = 3.25
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MacromoleculeLayout._make_shape(self)
 
 
@@ -388,7 +389,7 @@ class SubmapLayout(
     height: float = 80.0
     stroke_width: float = 2.25
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -406,7 +407,7 @@ class UnspecifiedEntityLayout(_SimpleMixin, SBGNNode):
     width: float = 60.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -422,7 +423,7 @@ class SimpleChemicalLayout(_SimpleMixin, SBGNNode):
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return StadiumShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -442,7 +443,7 @@ class MacromoleculeLayout(_SimpleMixin, SBGNNode):
         metadata={"description": "The corner radius of the macromolecule layout"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -474,7 +475,7 @@ class NucleicAcidFeatureLayout(_SimpleMixin, SBGNNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -500,7 +501,7 @@ class ComplexLayout(_SimpleMixin, SBGNNode):
         metadata={"description": "The size of the cut corners of the complex layout"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position,
             width=self.width,
@@ -533,10 +534,10 @@ class SimpleChemicalMultimerLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return StadiumShape(
             position=position,
             width=width,
@@ -563,10 +564,10 @@ class MacromoleculeMultimerLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -602,10 +603,10 @@ class NucleicAcidFeatureMultimerLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -636,10 +637,10 @@ class ComplexMultimerLayout(_MultiMixin, SBGNNode):
 
     def _make_subunit_shape(
         self,
-        position,
-        width,
-        height,
-    ):
+        position: Point,
+        width: float,
+        height: float,
+    ) -> Shape:
         return RectangleShape(
             position=position,
             width=width,
@@ -674,7 +675,7 @@ class _EmptySetShape(Shape):
         metadata={"description": "The height of the shape"}
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         circle = EllipseDrawing(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -696,7 +697,7 @@ class EmptySetLayout(_SimpleMixin, SBGNNode):
     width: float = 22.0
     height: float = 22.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _EmptySetShape(
             position=self.position,
             width=self.width,
@@ -720,7 +721,7 @@ class PerturbingAgentLayout(_SimpleMixin, SBGNNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return HexagonShape(
             position=self.position,
             width=self.width,
@@ -750,7 +751,7 @@ class AndOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -776,7 +777,7 @@ class OrOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -802,7 +803,7 @@ class NotOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -828,7 +829,7 @@ class EquivalenceOperatorLayout(
     width: float = 30.0
     height: float = 30.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -848,7 +849,7 @@ class GenericProcessLayout(
     width: float = 20.0
     height: float = 20.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return RectangleShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -874,7 +875,7 @@ class OmittedProcessLayout(
     width: float = 20.0
     height: float = 20.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return GenericProcessLayout._make_shape(self)
 
 
@@ -898,7 +899,7 @@ class UncertainProcessLayout(
     width: float = 20.0
     height: float = 20.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return GenericProcessLayout._make_shape(self)
 
 
@@ -918,7 +919,7 @@ class AssociationLayout(
 
     fill: NoneValueType | Color | None = black
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return EllipseShape(
             position=self.position, width=self.width, height=self.height
         )
@@ -943,7 +944,7 @@ class _DissociationShape(Shape):
         metadata={"description": "The separation between the outer and inner circles"}
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         outer_circle = EllipseDrawing(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -973,7 +974,7 @@ class DissociationLayout(
         metadata={"description": "The separation between the outer and inner circles"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _DissociationShape(
             position=self.position,
             width=self.width,
@@ -1001,7 +1002,7 @@ class PhenotypeLayout(
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return HexagonShape(
             position=self.position,
             width=self.width,
@@ -1029,7 +1030,7 @@ class TagLayout(_SimpleMixin, SBGNNode):
         metadata={"description": "The angle of the pointed end of the tag glyph"},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         if self.direction == Direction.RIGHT:
             return HexagonShape(
                 position=self.position,
@@ -1071,7 +1072,7 @@ class ConsumptionLayout(SBGNSingleHeadedArc):
     Draws a consumption as a plain line connecting a reactant to a process.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1090,7 +1091,7 @@ class ProductionLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead"}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return TriangleArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1109,7 +1110,7 @@ class ModulationLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead"}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DiamondArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1127,7 +1128,7 @@ class StimulationLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead"}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return TriangleArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1156,7 +1157,7 @@ class NecessaryStimulationLayout(SBGNSingleHeadedArc):
         metadata={"description": "The width of the triangle of the arrowhead"},
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(Point(0, -self.arrowhead_bar_height / 2)),
             LineTo(Point(0, self.arrowhead_bar_height / 2)),
@@ -1190,7 +1191,7 @@ class CatalysisLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead"}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return EllipseArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1205,7 +1206,7 @@ class InhibitionLayout(SBGNSingleHeadedArc):
         default=10.0, metadata={"description": "The height of the bar arrowhead"}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return BarArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1216,7 +1217,7 @@ class LogicArcLayout(SBGNSingleHeadedArc):
     Draws a logic arc as a plain line connecting an input to a logical operator.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)
 
 
@@ -1228,5 +1229,5 @@ class EquivalenceArcLayout(SBGNSingleHeadedArc):
     equivalence operator.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLineArc._arrowhead_border_drawing_elements(self)

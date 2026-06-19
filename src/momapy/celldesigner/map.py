@@ -9,7 +9,7 @@ from momapy.core.map import Map
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class CellDesignerMap(Map):
-    """Class for CellDesigner maps"""
+    """Class for CellDesigner maps."""
 
     model: CellDesignerModel | None = None
     layout: CellDesignerLayout | None = None

@@ -119,7 +119,9 @@ from momapy.celldesigner.layout import (
 )
 
 
-def are_collinear(p1, p2, p3, epsilon: float = 1e-6):
+def are_collinear(
+    p1: typing.Any, p2: typing.Any, p3: typing.Any, epsilon: float = 1e-6
+) -> bool:
     """Check if three points are collinear (Minerva compatibility).
 
     Args:
@@ -139,7 +141,9 @@ def are_collinear(p1, p2, p3, epsilon: float = 1e-6):
     return abs(cross) < epsilon
 
 
-def is_degenerate_frame(origin, unit_x, unit_y, epsilon: float = 1e-6):
+def is_degenerate_frame(
+    origin: typing.Any, unit_x: typing.Any, unit_y: typing.Any, epsilon: float = 1e-6
+) -> bool:
     """Check whether a (origin, unit_x, unit_y) frame is singular.
 
     The frame is singular when the basis vectors (unit_x - origin) and
@@ -162,8 +166,12 @@ def is_degenerate_frame(origin, unit_x, unit_y, epsilon: float = 1e-6):
 
 
 def make_non_degenerate_frame(
-    origin, unit_x, unit_y, epsilon: float = 1e-6, scale: float = 1.0
-):
+    origin: typing.Any,
+    unit_x: typing.Any,
+    unit_y: typing.Any,
+    epsilon: float = 1e-6,
+    scale: float = 1.0,
+) -> tuple[typing.Any, typing.Any, typing.Any]:
     """Return a well-conditioned (origin, unit_x, unit_y) triple.
 
     When the supplied frame is singular (coincident or collinear points),
@@ -288,7 +296,7 @@ _MODIFICATION_STATE_TO_CD = {
 }
 
 
-def ensure_sbml_sid(id_str):
+def ensure_sbml_sid(id_str: str | None) -> str:
     """Ensure a string conforms to SBML SId syntax.
 
     SBML Level 2 Version 4 SId: ``[a-zA-Z_][a-zA-Z0-9_]*``.
@@ -309,7 +317,7 @@ def ensure_sbml_sid(id_str):
     return result
 
 
-def encode_name(name):
+def encode_name(name: str | None) -> str | None:
     """Reverse of _parsing.make_name(): replace special chars with CD tokens.
 
     Args:
@@ -325,7 +333,7 @@ def encode_name(name):
     return name
 
 
-def color_to_cd_hex(color):
+def color_to_cd_hex(color: typing.Any) -> str:
     """Convert momapy Color (RRGGBBAA) to CellDesigner hex (AARRGGBB).
 
     Args:
@@ -339,7 +347,7 @@ def color_to_cd_hex(color):
     return hexa[-2:] + hexa[:-2]
 
 
-def node_to_bounds_attrs(node):
+def node_to_bounds_attrs(node: typing.Any) -> dict[str, str]:
     """Extract CellDesigner bounds attributes from a layout node.
 
     Args:
@@ -356,7 +364,7 @@ def node_to_bounds_attrs(node):
     }
 
 
-def points_to_edit_points_text(points):
+def points_to_edit_points_text(points: typing.Any) -> str:
     """Format a list of Points as CellDesigner edit points text.
 
     Args:
@@ -371,7 +379,9 @@ def points_to_edit_points_text(points):
 _ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
 
 
-def infer_anchor_name(species_layout, point, tol: float = 1e-3):
+def infer_anchor_name(
+    species_layout: typing.Any, point: typing.Any, tol: float = 1e-3
+) -> str:
     """Try all 16 named anchors; return closest if within tolerance, else 'center'.
 
     Args:
@@ -391,7 +401,9 @@ def infer_anchor_name(species_layout, point, tol: float = 1e-3):
     return "center"
 
 
-def compute_cd_angle(modification_position, species_layout):
+def compute_cd_angle(
+    modification_position: typing.Any, species_layout: typing.Any
+) -> float:
     """Compute the CellDesigner angle for a modification residue position.
 
     Reverses the forward transform in _layout.make_species_modification:
@@ -425,7 +437,9 @@ def compute_cd_angle(modification_position, species_layout):
     return cd_angle + 0.0  # normalize -0.0 to 0.0
 
 
-def build_frame_and_inverse(origin, unit_x, unit_y):
+def build_frame_and_inverse(
+    origin: typing.Any, unit_x: typing.Any, unit_y: typing.Any
+) -> typing.Any:
     """Build a coordinate frame and return its inverse transformation.
 
     Perturbs the frame points when they are degenerate (coincident or
@@ -444,7 +458,7 @@ def build_frame_and_inverse(origin, unit_x, unit_y):
     return transformation.inverted()
 
 
-def perp_point(origin, unit_x):
+def perp_point(origin: typing.Any, unit_x: typing.Any) -> typing.Any:
     """Compute the perpendicular (90 degree rotation) of unit_x around origin.
 
     Args:
@@ -457,7 +471,9 @@ def perp_point(origin, unit_x):
     return unit_x.transformed(Rotation(math.radians(90), origin))
 
 
-def inverse_edit_points_non_t_shape(reaction_layout, reactant_layout, product_layout):
+def inverse_edit_points_non_t_shape(
+    reaction_layout: typing.Any, reactant_layout: typing.Any, product_layout: typing.Any
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a non-T-shape (1->1) reaction.
 
     Mirrors make_segments_non_t_shape in _layout.py but runs the inverse
@@ -488,11 +504,11 @@ def inverse_edit_points_non_t_shape(reaction_layout, reactant_layout, product_la
 
 
 def inverse_edit_points_left_t_shape(
-    reaction_layout,
-    reactant_layouts,
-    product_layout,
-    base_reactant_consumption_layouts,
-):
+    reaction_layout: typing.Any,
+    reactant_layouts: typing.Any,
+    product_layout: typing.Any,
+    base_reactant_consumption_layouts: typing.Any,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a left-T-shape (2+->1) reaction.
 
     Args:
@@ -577,11 +593,11 @@ def inverse_edit_points_left_t_shape(
 
 
 def inverse_edit_points_right_t_shape(
-    reaction_layout,
-    reactant_layout,
-    product_layouts,
-    base_product_production_layouts,
-):
+    reaction_layout: typing.Any,
+    reactant_layout: typing.Any,
+    product_layouts: typing.Any,
+    base_product_production_layouts: typing.Any,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a right-T-shape (1->2+) reaction.
 
     Args:
@@ -665,8 +681,11 @@ def inverse_edit_points_right_t_shape(
 
 
 def inverse_edit_points_modifier(
-    modifier_layout, source_layout, reaction_layout, has_boolean_input
-):
+    modifier_layout: typing.Any,
+    source_layout: typing.Any,
+    reaction_layout: typing.Any,
+    has_boolean_input: bool,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a modifier arc.
 
     Uses the arc's endpoint on the reaction side as the coordinate
@@ -700,8 +719,10 @@ def inverse_edit_points_modifier(
 
 
 def inverse_edit_points_reactant_link(
-    reactant_link_layout, species_layout, reaction_layout
-):
+    reactant_link_layout: typing.Any,
+    species_layout: typing.Any,
+    reaction_layout: typing.Any,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a reactant link.
 
     Args:
@@ -727,8 +748,10 @@ def inverse_edit_points_reactant_link(
 
 
 def inverse_edit_points_product_link(
-    product_link_layout, species_layout, reaction_layout
-):
+    product_link_layout: typing.Any,
+    species_layout: typing.Any,
+    reaction_layout: typing.Any,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a product link.
 
     Args:
@@ -754,8 +777,11 @@ def inverse_edit_points_product_link(
 
 
 def inverse_edit_points_reactant_from_base(
-    consumption_layout, species_layout, reaction_layout, reactant_anchor_name
-):
+    consumption_layout: typing.Any,
+    species_layout: typing.Any,
+    reaction_layout: typing.Any,
+    reactant_anchor_name: typing.Any,
+) -> list[typing.Any]:
     """Compute frame-space edit points for a base reactant in T-shape.
 
     Args:
@@ -778,8 +804,11 @@ def inverse_edit_points_reactant_from_base(
 
 
 def inverse_edit_points_product_from_base(
-    production_layout, species_layout, reaction_layout, product_anchor_name
-):
+    production_layout: typing.Any,
+    species_layout: typing.Any,
+    reaction_layout: typing.Any,
+    product_anchor_name: typing.Any,
+) -> list[typing.Any]:
     """Compute frame-space edit points for a base product in T-shape.
 
     Args:
@@ -802,8 +831,11 @@ def inverse_edit_points_product_from_base(
 
 
 def inverse_edit_points_modulation(
-    modulation_layout, source_layout, target_layout, has_boolean_input
-):
+    modulation_layout: typing.Any,
+    source_layout: typing.Any,
+    target_layout: typing.Any,
+    has_boolean_input: bool,
+) -> tuple[typing.Any, ...]:
     """Compute frame-space edit points for a modulation (false reaction).
 
     Args:
@@ -830,7 +862,12 @@ def inverse_edit_points_modulation(
     return edit_points, source_anchor_name, target_anchor_name
 
 
-def make_cd_element(tag, ns=None, attributes=None, text=None):
+def make_cd_element(
+    tag: str,
+    ns: str | None = None,
+    attributes: dict[str, str] | None = None,
+    text: str | None = None,
+) -> lxml.etree._Element:
     """Create an lxml Element with optional namespace, attributes, and text.
 
     Args:
@@ -868,7 +905,9 @@ _RDF_NSMAP = {
 }
 
 
-def make_rdf_annotation(annotations, about_id):
+def make_rdf_annotation(
+    annotations: typing.Any, about_id: str
+) -> lxml.etree._Element | None:
     """Build an ``<rdf:RDF>`` element holding BioModels.net annotations.
 
     Args:
@@ -913,7 +952,9 @@ def make_rdf_annotation(annotations, about_id):
     return rdf_element
 
 
-def inject_rdf_into_celldesigner_notes(notes_element, rdf_element) -> None:
+def inject_rdf_into_celldesigner_notes(
+    notes_element: lxml.etree._Element, rdf_element: lxml.etree._Element
+) -> None:
     """Append an ``<rdf:RDF>`` element into the ``<body>`` of a CellDesigner notes.
 
     CellDesigner embeds RDF annotations for included species (subunits)
@@ -961,7 +1002,7 @@ NSMAP = {
 }
 
 
-def modulation_reaction_type(modulation):
+def modulation_reaction_type(modulation: typing.Any) -> str:
     """Determine the CellDesigner reaction type for a modulation.
 
     Rules:
@@ -1053,7 +1094,13 @@ class DegradedEntry:
 # ---------------------------------------------------------------------------
 
 
-def make_lxml_element(tag, ns=None, attrs=None, text=None, nsmap=None):
+def make_lxml_element(
+    tag: str,
+    ns: str | None = None,
+    attrs: dict[str, str] | None = None,
+    text: typing.Any = None,
+    nsmap: dict[str | None, str] | None = None,
+) -> lxml.etree._Element:
     """Create an lxml element."""
     lxml_tag = f"{{{ns}}}{tag}" if ns is not None else tag
     if nsmap is None:
@@ -1066,17 +1113,24 @@ def make_lxml_element(tag, ns=None, attrs=None, text=None, nsmap=None):
     return elem
 
 
-def make_celldesigner_element(tag, attrs=None, text=None):
+def make_celldesigner_element(
+    tag: str, attrs: dict[str, str] | None = None, text: typing.Any = None
+) -> lxml.etree._Element:
     """Shortcut for CellDesigner-namespaced element."""
     return make_lxml_element(tag, ns=CD_NS, attrs=attrs, text=text)
 
 
-def make_sbml_element(tag, attrs=None, text=None, nsmap=None):
+def make_sbml_element(
+    tag: str,
+    attrs: dict[str, str] | None = None,
+    text: typing.Any = None,
+    nsmap: dict[str | None, str] | None = None,
+) -> lxml.etree._Element:
     """Shortcut for SBML-namespaced element."""
     return make_lxml_element(tag, ns=SBML_NS, attrs=attrs, text=text, nsmap=nsmap)
 
 
-def strip_active(species):
+def strip_active(species: typing.Any) -> str:
     """Raw species id derivation: strip the reader's ``_active`` suffixes.
 
     The reader appends ``_active`` to the model ``id_`` of active species
@@ -1092,7 +1146,7 @@ def strip_active(species):
     return id_str
 
 
-def reserve_source_xml_ids(writing_context) -> None:
+def reserve_source_xml_ids(writing_context: typing.Any) -> None:
     """Reserve grammar-valid source ids before any projection (phase 1).
 
     For every model and layout element that carries a source id, reserve
@@ -1132,8 +1186,12 @@ def reserve_source_xml_ids(writing_context) -> None:
 
 
 def get_xml_id(
-    writing_context, element, candidate=None, share: bool = True, memoize: bool = True
-):
+    writing_context: typing.Any,
+    element: typing.Any,
+    candidate: str | None = None,
+    share: bool = True,
+    memoize: bool = True,
+) -> str:
     """Return the valid SId to emit for ``element`` (phase 2).
 
     Resolution order: the per-object memo (a phase-1 reservation or an
@@ -1188,7 +1246,7 @@ def get_xml_id(
     return final
 
 
-def get_species_id(species, writing_context):
+def get_species_id(species: typing.Any, writing_context: typing.Any) -> str:
     """Canonical SBML species id for a model species.
 
     Thin wrapper over ``get_xml_id`` with ``share=True``: a round-tripped
@@ -1205,7 +1263,7 @@ def get_species_id(species, writing_context):
     )
 
 
-def get_alias_id(writing_context, alias_layout):
+def get_alias_id(writing_context: typing.Any, alias_layout: typing.Any) -> str:
     """XML id to emit for a reference to an alias layout element.
 
     Routes through ``get_xml_id`` so the reference matches the alias
@@ -1217,7 +1275,9 @@ def get_alias_id(writing_context, alias_layout):
     return get_xml_id(writing_context, alias_layout)
 
 
-def get_line_attributes(layout, include_type: bool = False):
+def get_line_attributes(
+    layout: typing.Any, include_type: bool = False
+) -> dict[str, str]:
     """Build attributes dict for a ``<cd:line>`` element from a layout.
 
     Reads ``path_stroke_width`` and ``path_stroke`` from the layout,
@@ -1244,12 +1304,14 @@ def get_line_attributes(layout, include_type: bool = False):
     return attrs
 
 
-def get_layout_model_mapping(writing_context):
+def get_layout_model_mapping(writing_context: typing.Any) -> typing.Any:
     """Shortcut to access layout_model_mapping."""
     return writing_context.map_.layout_model_mapping
 
 
-def degraded_species_id(writing_context, degraded_layout) -> str:
+def degraded_species_id(
+    writing_context: typing.Any, degraded_layout: typing.Any
+) -> str:
     """Synthetic SBML species id for a degraded layout glyph.
 
     Derived (class (d)) from the glyph's *projected* alias id, so the
@@ -1259,11 +1321,11 @@ def degraded_species_id(writing_context, degraded_layout) -> str:
     return f"degraded_{get_xml_id(writing_context, degraded_layout)}"
 
 
-def is_degraded_layout(layout_element):
+def is_degraded_layout(layout_element: typing.Any) -> bool:
     return isinstance(layout_element, (DegradedLayout, DegradedActiveLayout))
 
 
-def collect_degraded_entries(writing_context):
+def collect_degraded_entries(writing_context: typing.Any) -> list["DegradedEntry"]:
     """Build the list of degraded-side participants for flagged reactions.
 
     A flagged reaction (``has_external_source`` or ``has_external_sink``)
@@ -1344,7 +1406,9 @@ def collect_degraded_entries(writing_context):
     return entries
 
 
-def degraded_entries_for_reaction(writing_context, reaction, side):
+def degraded_entries_for_reaction(
+    writing_context: typing.Any, reaction: typing.Any, side: str
+) -> list["DegradedEntry"]:
     return [
         e
         for e in writing_context.degraded_entries
@@ -1352,7 +1416,9 @@ def degraded_entries_for_reaction(writing_context, reaction, side):
     ]
 
 
-def sort_modifications_by_layout(writing_context, species):
+def sort_modifications_by_layout(
+    writing_context: typing.Any, species: typing.Any
+) -> list[typing.Any]:
     """Sort a species' modifications by their layout child order.
 
     The modification layout children of the species' alias layout
@@ -1395,7 +1461,9 @@ def sort_modifications_by_layout(writing_context, species):
     return modifications
 
 
-def find_any_alias_layout(writing_context, species):
+def find_any_alias_layout(
+    writing_context: typing.Any, species: typing.Any
+) -> typing.Any:
     """Find any alias layout for a species, including inside complexes."""
     # Try direct lookup first
     for layout_key in get_layouts(writing_context, species):
@@ -1430,7 +1498,7 @@ def find_any_alias_layout(writing_context, species):
     return None
 
 
-def strip_template_prefix(residue_or_region, owner):
+def strip_template_prefix(residue_or_region: typing.Any, owner: typing.Any) -> str:
     """Strip the template id prefix from a residue or region id.
 
     Model ids for ModificationResidue and Region are composite:
@@ -1446,7 +1514,7 @@ def strip_template_prefix(residue_or_region, owner):
     return residue_or_region.id_
 
 
-def build_layout_order_index(layout):
+def build_layout_order_index(layout: typing.Any) -> dict[str, int]:
     """Build a mapping from layout element id to position index.
 
     Walks the layout tree recursively so that both top-level and
@@ -1456,7 +1524,7 @@ def build_layout_order_index(layout):
     index = {}
     counter = [0]
 
-    def _walk(elements) -> None:
+    def _walk(elements: typing.Any) -> None:
         for element in elements:
             index[element.id_] = counter[0]
             counter[0] += 1
@@ -1467,7 +1535,9 @@ def build_layout_order_index(layout):
     return index
 
 
-def sort_aliases_by_layout_order(list_elem, layout_order_index) -> None:
+def sort_aliases_by_layout_order(
+    list_elem: lxml.etree._Element, layout_order_index: dict[str, int]
+) -> None:
     """Sort alias XML children of list_elem by layout element order."""
     sort_xml_children_by_key(
         list_elem,
@@ -1475,7 +1545,9 @@ def sort_aliases_by_layout_order(list_elem, layout_order_index) -> None:
     )
 
 
-def sort_xml_children_by_key(list_elem, key_func) -> None:
+def sort_xml_children_by_key(
+    list_elem: lxml.etree._Element, key_func: typing.Any
+) -> None:
     """Sort XML children of list_elem using the given key function."""
     children = list(list_elem)
     if len(children) <= 1:
@@ -1488,14 +1560,14 @@ def sort_xml_children_by_key(list_elem, key_func) -> None:
 
 
 def participant_layout_position(
-    writing_context,
-    participant,
-    reaction,
-    frozenset_mapping,
-    reaction_layout,
-    is_start,
-    arc_order,
-):
+    writing_context: typing.Any,
+    participant: typing.Any,
+    reaction: typing.Any,
+    frozenset_mapping: typing.Any,
+    reaction_layout: typing.Any,
+    is_start: bool,
+    arc_order: typing.Any,
+) -> float:
     """Get the layout position for a reaction participant.
 
     Uses the arc alias order mapping to determine position.
@@ -1514,7 +1586,9 @@ def participant_layout_position(
     return float("inf")
 
 
-def build_arc_alias_order(writing_context, reaction_layout, arc_cls):
+def build_arc_alias_order(
+    writing_context: typing.Any, reaction_layout: typing.Any, arc_cls: typing.Any
+) -> dict[str, int]:
     """Build a mapping from alias id to layout position for arcs of a reaction.
 
     For each arc of the given class connected to the reaction layout,
@@ -1531,7 +1605,9 @@ def build_arc_alias_order(writing_context, reaction_layout, arc_cls):
     return order
 
 
-def sort_reactions_by_layout_order(list_elem, layout_order_index) -> None:
+def sort_reactions_by_layout_order(
+    list_elem: lxml.etree._Element, layout_order_index: dict[str, int]
+) -> None:
     """Sort reaction XML children of list_elem by layout element order.
 
     Each reaction's layout element id follows the pattern
@@ -1546,7 +1622,9 @@ def sort_reactions_by_layout_order(list_elem, layout_order_index) -> None:
     )
 
 
-def get_layouts(writing_context, model_element):
+def get_layouts(
+    writing_context: typing.Any, model_element: typing.Any
+) -> list[typing.Any]:
     """Get layout elements for a model element.
 
     Returns a list. Items can be single layout elements or frozensets.
@@ -1559,7 +1637,9 @@ def get_layouts(writing_context, model_element):
     return [result]
 
 
-def find_layout_for_species_in_frozenset(writing_context, species, frozenset_mapping):
+def find_layout_for_species_in_frozenset(
+    writing_context: typing.Any, species: typing.Any, frozenset_mapping: typing.Any
+) -> typing.Any:
     """Find the layout element for a species within a reaction frozenset."""
     for elem in frozenset_mapping:
         model = get_layout_model_mapping(writing_context).get_mapping(elem)
@@ -1569,8 +1649,13 @@ def find_layout_for_species_in_frozenset(writing_context, species, frozenset_map
 
 
 def find_layout_for_participant(
-    writing_context, participant, reaction, frozenset_mapping, reaction_layout, is_start
-):
+    writing_context: typing.Any,
+    participant: typing.Any,
+    reaction: typing.Any,
+    frozenset_mapping: typing.Any,
+    reaction_layout: typing.Any,
+    is_start: bool,
+) -> typing.Any:
     """Find the alias layout for a specific reaction participant.
 
     For base participants, the alias is the reaction layout's source
@@ -1612,7 +1697,7 @@ def find_layout_for_participant(
     return None
 
 
-def get_reaction_layout(frozenset_mapping):
+def get_reaction_layout(frozenset_mapping: typing.Any) -> typing.Any:
     """Extract the ReactionLayout from a frozenset."""
     for elem in frozenset_mapping:
         if isinstance(elem, ReactionLayout):
@@ -1621,8 +1706,11 @@ def get_reaction_layout(frozenset_mapping):
 
 
 def collect_arcs_for_reaction(
-    writing_context, reaction_layout, arc_cls, exclude_alias=None
-):
+    writing_context: typing.Any,
+    reaction_layout: typing.Any,
+    arc_cls: typing.Any,
+    exclude_alias: typing.Any = None,
+) -> list[typing.Any]:
     """Collect arc layouts of a given type connected to a reaction layout.
 
     Args:
@@ -1648,12 +1736,12 @@ def collect_arcs_for_reaction(
     return arcs
 
 
-def species_class_string(species):
+def species_class_string(species: typing.Any) -> str:
     """Map a species model class to its CellDesigner class string."""
     return _CLASS_TO_CD_STRING.get(type(species), "UNKNOWN")
 
 
-def template_ref_tag(template) -> str:
+def template_ref_tag(template: typing.Any) -> str:
     """Map a template to its XML reference tag name."""
     if isinstance(template, ProteinTemplate):
         return "proteinReference"
@@ -1666,7 +1754,7 @@ def template_ref_tag(template) -> str:
     return "proteinReference"
 
 
-def modification_state_string(state):
+def modification_state_string(state: typing.Any) -> str:
     """Convert modification state to CellDesigner string."""
     if state is None:
         return "empty"
@@ -1674,12 +1762,14 @@ def modification_state_string(state):
     return _MODIFICATION_STATE_TO_CD.get(name, "empty")
 
 
-def anchor_name_to_position(anchor_name):
+def anchor_name_to_position(anchor_name: typing.Any) -> str | None:
     """Convert an anchor name to CellDesigner link anchor position string."""
     return _ANCHOR_NAME_TO_LINK_ANCHOR_POSITION.get(anchor_name)
 
 
-def compute_target_line_index(reaction_layout, modifier_arc) -> str:
+def compute_target_line_index(
+    reaction_layout: typing.Any, modifier_arc: typing.Any
+) -> str:
     """Compute the CellDesigner targetLineIndex for a modifier.
 
     The targetLineIndex is "segmentIndex,anchorId" where anchorId identifies
@@ -1732,7 +1822,9 @@ def compute_target_line_index(reaction_layout, modifier_arc) -> str:
     return f"0,{best_id}"
 
 
-def infer_anchor_position(species_layout, point, tol: float = 0.5):
+def infer_anchor_position(
+    species_layout: typing.Any, point: typing.Any, tol: float = 0.5
+) -> str | None:
     """Find the CellDesigner linkAnchor position for a point on a species."""
     import math
 
@@ -1755,7 +1847,7 @@ def infer_anchor_position(species_layout, point, tol: float = 0.5):
 # ---------------------------------------------------------------------------
 
 
-def build_make_sbml_element(writing_context):
+def build_make_sbml_element(writing_context: typing.Any) -> lxml.etree._Element:
     sbml = make_lxml_element(
         "sbml",
         attrs={"level": "2", "version": "4"},
@@ -1765,7 +1857,7 @@ def build_make_sbml_element(writing_context):
     return sbml
 
 
-def make_celldesigner_model(writing_context):
+def make_celldesigner_model(writing_context: typing.Any) -> lxml.etree._Element:
     model_id = get_xml_id(
         writing_context,
         writing_context.map_,
@@ -1789,7 +1881,9 @@ def make_celldesigner_model(writing_context):
     return model
 
 
-def build_sbml_notes(writing_context, model_element):
+def build_sbml_notes(
+    writing_context: typing.Any, model_element: typing.Any
+) -> lxml.etree._Element | None:
     """Build a plain ``<notes>`` element for an SBML-namespaced element.
 
     Returns None when ``with_notes`` is disabled or no notes are stored for
@@ -1814,7 +1908,10 @@ def build_sbml_notes(writing_context, model_element):
 
 
 def append_rdf_to_annotation(
-    writing_context, annotation_element, model_element, about_id
+    writing_context: typing.Any,
+    annotation_element: lxml.etree._Element,
+    model_element: typing.Any,
+    about_id: str,
 ) -> None:
     """Append an ``<rdf:RDF>`` block to an ``<annotation>`` element.
 
@@ -1834,7 +1931,7 @@ def append_rdf_to_annotation(
 # --- Extension (CD annotation) ---
 
 
-def make_celldesigner_extension(writing_context):
+def make_celldesigner_extension(writing_context: typing.Any) -> lxml.etree._Element:
     extension = make_celldesigner_element("extension")
     extension.append(make_celldesigner_element("modelVersion", text="4.0"))
     display_attrs = {
@@ -1865,7 +1962,7 @@ COMPARTMENT_LAYOUT_CLASSES = (
 )
 
 
-def compartment_class_name(layout_key) -> str:
+def compartment_class_name(layout_key: typing.Any) -> str:
     if isinstance(layout_key, OvalCompartmentLayout):
         return "OVAL"
     if isinstance(layout_key, CornerCompartmentLayout):
@@ -1875,7 +1972,7 @@ def compartment_class_name(layout_key) -> str:
     return "SQUARE"
 
 
-def compartment_closeup_point(layout_key):
+def compartment_closeup_point(layout_key: typing.Any) -> tuple[float, float]:
     bbox = layout_key.bbox()
     left = bbox.north_west().x
     top = bbox.north_west().y
@@ -1902,7 +1999,9 @@ def compartment_closeup_point(layout_key):
     return left, layout_key.position.y
 
 
-def make_celldesigner_list_of_compartment_aliases(writing_context):
+def make_celldesigner_list_of_compartment_aliases(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_celldesigner_element("listOfCompartmentAliases")
     for comp in sorted(
         writing_context.map_.model.compartments, key=lambda c: c.id_ or ""
@@ -1993,7 +2092,9 @@ def make_celldesigner_list_of_compartment_aliases(writing_context):
 # --- Included species (complex subunits) ---
 
 
-def make_celldesigner_list_of_included_species(writing_context):
+def make_celldesigner_list_of_included_species(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_celldesigner_element("listOfIncludedSpecies")
     seen_ids = set()
     for species in sorted(
@@ -2007,7 +2108,11 @@ def make_celldesigner_list_of_included_species(writing_context):
 
 
 def collect_included_species(
-    writing_context, complex_, root_complex, list_elem, seen_ids
+    writing_context: typing.Any,
+    complex_: typing.Any,
+    root_complex: typing.Any,
+    list_elem: lxml.etree._Element,
+    seen_ids: set[str],
 ) -> None:
     """Recursively collect included species from a complex."""
     for sub in sorted(complex_.subunits, key=lambda s: s.id_ or ""):
@@ -2023,7 +2128,9 @@ def collect_included_species(
             )
 
 
-def make_celldesigner_included_species(writing_context, species, parent_complex):
+def make_celldesigner_included_species(
+    writing_context: typing.Any, species: typing.Any, parent_complex: typing.Any
+) -> lxml.etree._Element:
     species_id = get_species_id(species, writing_context)
     species_element = make_celldesigner_element(
         "species",
@@ -2078,7 +2185,9 @@ def make_celldesigner_included_species(writing_context, species, parent_complex)
 # --- Species identity ---
 
 
-def make_celldesigner_species_identity(writing_context, species):
+def make_celldesigner_species_identity(
+    writing_context: typing.Any, species: typing.Any
+) -> lxml.etree._Element:
     identity = make_celldesigner_element("speciesIdentity")
     identity.append(
         make_celldesigner_element("class", text=species_class_string(species))
@@ -2099,7 +2208,9 @@ def make_celldesigner_species_identity(writing_context, species):
     return identity
 
 
-def make_celldesigner_species_state(writing_context, species):
+def make_celldesigner_species_state(
+    writing_context: typing.Any, species: typing.Any
+) -> lxml.etree._Element | None:
     has_mods = hasattr(species, "modifications") and species.modifications
     has_homo = hasattr(species, "homomultimer") and species.homomultimer > 1
     has_struct = hasattr(species, "structural_states") and species.structural_states
@@ -2142,7 +2253,9 @@ def make_celldesigner_species_state(writing_context, species):
 # --- Complex species aliases ---
 
 
-def get_layouts_for_subunit(writing_context, subunit, parent_complex):
+def get_layouts_for_subunit(
+    writing_context: typing.Any, subunit: typing.Any, parent_complex: typing.Any
+) -> typing.Any:
     """Return layouts of ``subunit`` recorded under ``parent_complex``.
 
     Thin wrapper around
@@ -2153,7 +2266,9 @@ def get_layouts_for_subunit(writing_context, subunit, parent_complex):
     )
 
 
-def make_celldesigner_list_of_complex_species_aliases(writing_context):
+def make_celldesigner_list_of_complex_species_aliases(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_celldesigner_element("listOfComplexSpeciesAliases")
     for species in writing_context.map_.model.species:
         if not isinstance(species, Complex):
@@ -2170,12 +2285,12 @@ def make_celldesigner_list_of_complex_species_aliases(writing_context):
 
 
 def collect_complex_aliases(
-    writing_context,
-    target_complex,
-    complex_alias_list,
-    species_alias_list,
-    parent_layout=None,
-    parent_complex=None,
+    writing_context: typing.Any,
+    target_complex: typing.Any,
+    complex_alias_list: lxml.etree._Element | None,
+    species_alias_list: lxml.etree._Element | None,
+    parent_layout: typing.Any = None,
+    parent_complex: typing.Any = None,
 ) -> None:
     """Walk ``target_complex`` and emit alias entries from the model.
 
@@ -2252,7 +2367,9 @@ def collect_complex_aliases(
 # --- Species aliases ---
 
 
-def make_celldesigner_list_of_species_aliases(writing_context):
+def make_celldesigner_list_of_species_aliases(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_celldesigner_element("listOfSpeciesAliases")
     # Top-level species (non-complex, non-subunit)
     for species in writing_context.map_.model.species:
@@ -2293,7 +2410,9 @@ def make_celldesigner_list_of_species_aliases(writing_context):
     return list_elem
 
 
-def make_celldesigner_degraded_alias(writing_context, degraded_layout):
+def make_celldesigner_degraded_alias(
+    writing_context: typing.Any, degraded_layout: typing.Any
+) -> lxml.etree._Element:
     species_id = degraded_species_id(writing_context, degraded_layout)
     attrs = {
         "id": get_xml_id(writing_context, degraded_layout),
@@ -2361,7 +2480,9 @@ def make_celldesigner_degraded_alias(writing_context, degraded_layout):
     return alias
 
 
-def find_compartment_alias_id(writing_context, species_layout):
+def find_compartment_alias_id(
+    writing_context: typing.Any, species_layout: typing.Any
+) -> str | None:
     """Find the compartment alias containing this species layout."""
     species_center = species_layout.center()
     best_id = None
@@ -2387,7 +2508,13 @@ def find_compartment_alias_id(writing_context, species_layout):
     return best_id
 
 
-def make_celldesigner_alias(writing_context, layout, model, tag, complex_alias_id=None):
+def make_celldesigner_alias(
+    writing_context: typing.Any,
+    layout: typing.Any,
+    model: typing.Any,
+    tag: str,
+    complex_alias_id: str | None = None,
+) -> lxml.etree._Element:
     attrs = {
         "id": get_xml_id(writing_context, layout),
         "species": get_species_id(model, writing_context),
@@ -2477,7 +2604,9 @@ def make_celldesigner_alias(writing_context, layout, model, tag, complex_alias_i
 # --- Proteins (templates) ---
 
 
-def make_celldesigner_list_of_proteins(writing_context):
+def make_celldesigner_list_of_proteins(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_celldesigner_element("listOfProteins")
     for tmpl in sorted(
         writing_context.map_.model.species_templates, key=lambda t: t.id_ or ""
@@ -2513,7 +2642,9 @@ def make_celldesigner_list_of_proteins(writing_context):
     return list_elem
 
 
-def find_residue_angle(writing_context, template, residue):
+def find_residue_angle(
+    writing_context: typing.Any, template: typing.Any, residue: typing.Any
+) -> str:
     """Find the CellDesigner angle for a modification residue from layout data.
 
     CellDesigner stores the badge angle on the (shared) template, while
@@ -2561,7 +2692,7 @@ def find_residue_angle(writing_context, template, residue):
     return "0.0"
 
 
-def collect_subunits(species):
+def collect_subunits(species: typing.Any) -> list[typing.Any]:
     """Recursively collect all subunits of a species.
 
     Args:
@@ -2582,7 +2713,7 @@ def collect_subunits(species):
 # --- Genes, RNAs, AntisenseRNAs (templates) ---
 
 
-def make_celldesigner_list_of_genes(writing_context):
+def make_celldesigner_list_of_genes(writing_context: typing.Any) -> lxml.etree._Element:
     """Build listOfGenes — one entry per GeneTemplate."""
     list_elem = make_celldesigner_element("listOfGenes")
     for tmpl in sorted(
@@ -2603,7 +2734,7 @@ def make_celldesigner_list_of_genes(writing_context):
     return list_elem
 
 
-def make_celldesigner_list_of_rnas(writing_context):
+def make_celldesigner_list_of_rnas(writing_context: typing.Any) -> lxml.etree._Element:
     """Build listOfRNAs — one entry per RNATemplate."""
     list_elem = make_celldesigner_element("listOfRNAs")
     for tmpl in sorted(
@@ -2624,7 +2755,9 @@ def make_celldesigner_list_of_rnas(writing_context):
     return list_elem
 
 
-def make_celldesigner_list_of_antisense_rnas(writing_context):
+def make_celldesigner_list_of_antisense_rnas(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     """Build listOfAntisenseRNAs — one entry per AntisenseRNATemplate."""
     list_elem = make_celldesigner_element("listOfAntisenseRNAs")
     for tmpl in sorted(
@@ -2655,7 +2788,7 @@ REGION_CLASS_TO_CD_TYPE = {
 }
 
 
-def append_template_regions(elem, tmpl) -> None:
+def append_template_regions(elem: lxml.etree._Element, tmpl: typing.Any) -> None:
     """Append listOfRegions to a gene/RNA/antisenseRNA element if regions exist."""
     regions = getattr(tmpl, "regions", None)
     if not regions:
@@ -2674,11 +2807,11 @@ def append_template_regions(elem, tmpl) -> None:
     elem.append(region_list)
 
 
-def all_species_recursive(writing_context):
+def all_species_recursive(writing_context: typing.Any) -> list[typing.Any]:
     """Yield all species including subunits, sorted by id."""
     result = []
 
-    def _collect(species) -> None:
+    def _collect(species: typing.Any) -> None:
         result.append(species)
         if isinstance(species, Complex):
             for sub in species.subunits:
@@ -2692,7 +2825,9 @@ def all_species_recursive(writing_context):
 # --- Compartments ---
 
 
-def make_celldesigner_list_of_compartments(writing_context):
+def make_celldesigner_list_of_compartments(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_lxml_element("listOfCompartments")
     for comp in sorted(
         writing_context.map_.model.compartments, key=lambda c: c.id_ or ""
@@ -2720,7 +2855,9 @@ def make_celldesigner_list_of_compartments(writing_context):
 
 
 def append_compartment_annotation(
-    writing_context, compartment_element, compartment
+    writing_context: typing.Any,
+    compartment_element: lxml.etree._Element,
+    compartment: typing.Any,
 ) -> None:
     """Append ``<annotation>`` with CD extension + optional RDF to a compartment.
 
@@ -2753,7 +2890,9 @@ def append_compartment_annotation(
 # --- SBML species ---
 
 
-def make_celldesigner_list_of_species(writing_context):
+def make_celldesigner_list_of_species(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_lxml_element("listOfSpecies")
     seen_ids = set()
     for species in sorted(
@@ -2779,7 +2918,9 @@ def make_celldesigner_list_of_species(writing_context):
     return list_elem
 
 
-def make_sbml_document_degraded_species(writing_context, degraded_layout):
+def make_sbml_document_degraded_species(
+    writing_context: typing.Any, degraded_layout: typing.Any
+) -> lxml.etree._Element:
     species_id = degraded_species_id(writing_context, degraded_layout)
     attrs = {
         "metaid": species_id,
@@ -2804,7 +2945,9 @@ def make_sbml_document_degraded_species(writing_context, degraded_layout):
     return species_element
 
 
-def make_sbml_document_species(writing_context, species):
+def make_sbml_document_species(
+    writing_context: typing.Any, species: typing.Any
+) -> lxml.etree._Element:
     species_id = get_species_id(species, writing_context)
     comp = getattr(species, "compartment", None)
     comp_id = get_xml_id(writing_context, comp) if comp is not None else "default"
@@ -2843,11 +2986,13 @@ def make_sbml_document_species(writing_context, species):
     return species_element
 
 
-def reaction_xml_id(writing_context, reaction):
-    """XML id a reaction is emitted with, computed as the ``<reaction>``
-    definition does: from the reaction's layout (stripping ``_layout``)
-    when available, else from the reaction model.  Used so references to
-    a reaction (e.g. a species' ``catalyzed`` list) match its definition.
+def reaction_xml_id(writing_context: typing.Any, reaction: typing.Any) -> str:
+    """Return the XML id a reaction is emitted with.
+
+    Computed as the ``<reaction>`` definition does: from the reaction's layout
+    (stripping ``_layout``) when available, else from the reaction model. Used so
+    references to a reaction (e.g. a species' ``catalyzed`` list) match its
+    definition.
     """
     for layout_key in get_layouts(writing_context, reaction):
         if isinstance(layout_key, frozenset):
@@ -2861,7 +3006,9 @@ def reaction_xml_id(writing_context, reaction):
     return get_xml_id(writing_context, reaction)
 
 
-def find_catalyzed_reactions(writing_context, species):
+def find_catalyzed_reactions(
+    writing_context: typing.Any, species: typing.Any
+) -> list[str]:
     """Find reactions catalyzed by this species."""
     result = []
     for reaction in writing_context.map_.model.reactions:
@@ -2874,7 +3021,9 @@ def find_catalyzed_reactions(writing_context, species):
 # --- Reactions ---
 
 
-def make_celldesigner_list_of_reactions(writing_context):
+def make_celldesigner_list_of_reactions(
+    writing_context: typing.Any,
+) -> lxml.etree._Element:
     list_elem = make_lxml_element("listOfReactions")
     for reaction in writing_context.map_.model.reactions:
         layout_keys = get_layouts(writing_context, reaction)
@@ -2916,8 +3065,11 @@ def make_celldesigner_list_of_reactions(writing_context):
 
 
 def make_celldesigner_reaction(
-    writing_context, reaction, frozenset_mapping, reaction_layout
-):
+    writing_context: typing.Any,
+    reaction: typing.Any,
+    frozenset_mapping: typing.Any,
+    reaction_layout: typing.Any,
+) -> lxml.etree._Element:
     # Derive the XML id from the layout when available (supports
     # multiple visual copies of the same reaction).
     if reaction_layout is not None:
@@ -3573,7 +3725,9 @@ def make_celldesigner_reaction(
     return reaction_element
 
 
-def split_base_and_links(participants):
+def split_base_and_links(
+    participants: typing.Any,
+) -> tuple[list[typing.Any], list[typing.Any]]:
     """Split participants into base and link using the base flag."""
     base = [p for p in participants if p.base]
     link = [p for p in participants if not p.base]
@@ -3581,13 +3735,13 @@ def split_base_and_links(participants):
 
 
 def make_sbml_document_species_reference(
-    writing_context,
-    participant,
-    frozenset_mapping,
-    reaction=None,
-    reaction_layout=None,
+    writing_context: typing.Any,
+    participant: typing.Any,
+    frozenset_mapping: typing.Any,
+    reaction: typing.Any = None,
+    reaction_layout: typing.Any = None,
     is_start: bool = True,
-):
+) -> lxml.etree._Element:
     """Build an SBML speciesReference element."""
     species = participant.referred_species
     sbml_species = writing_context.subunit_to_complex.get(id(species), species)
@@ -3634,7 +3788,9 @@ def make_sbml_document_species_reference(
     return species_reference
 
 
-def make_sbml_document_species_reference_from_layout(writing_context, arc_layout):
+def make_sbml_document_species_reference_from_layout(
+    writing_context: typing.Any, arc_layout: typing.Any
+) -> lxml.etree._Element:
     """Build an SBML speciesReference from a known arc layout.
 
     Used when deriving link participants from layout arcs rather than
@@ -3675,8 +3831,13 @@ def make_sbml_document_species_reference_from_layout(writing_context, arc_layout
 
 
 def make_celldesigner_base_participant_from_layout(
-    writing_context, species, alias_layout, tag, reaction_layout, is_start
-):
+    writing_context: typing.Any,
+    species: typing.Any,
+    alias_layout: typing.Any,
+    tag: str,
+    reaction_layout: typing.Any,
+    is_start: bool,
+) -> lxml.etree._Element:
     """Build a baseReactant/baseProduct from a known alias layout."""
     alias_id = get_alias_id(writing_context, alias_layout)
     elem = make_celldesigner_element(
@@ -3700,14 +3861,14 @@ def make_celldesigner_base_participant_from_layout(
 
 
 def make_celldesigner_base_participant(
-    writing_context,
-    participant,
-    tag,
-    frozenset_mapping,
-    reaction_layout,
-    is_start,
-    reaction=None,
-):
+    writing_context: typing.Any,
+    participant: typing.Any,
+    tag: str,
+    frozenset_mapping: typing.Any,
+    reaction_layout: typing.Any,
+    is_start: bool,
+    reaction: typing.Any = None,
+) -> lxml.etree._Element:
     """Build a baseReactant or baseProduct element."""
     species = participant.referred_species
     if reaction is not None:
@@ -3749,8 +3910,13 @@ def make_celldesigner_base_participant(
 
 
 def make_celldesigner_degraded_participant_link(
-    writing_context, arc_layout, degraded_layout, tag, attr_name, reaction_layout
-):
+    writing_context: typing.Any,
+    arc_layout: typing.Any,
+    degraded_layout: typing.Any,
+    tag: str,
+    attr_name: str,
+    reaction_layout: typing.Any,
+) -> lxml.etree._Element:
     """Build a reactantLink/productLink for a degraded link arc."""
     species_id = degraded_species_id(writing_context, degraded_layout)
     link = make_celldesigner_element(
@@ -3802,7 +3968,9 @@ def make_celldesigner_degraded_participant_link(
     return link
 
 
-def make_sbml_document_degraded_species_reference(writing_context, degraded_layout):
+def make_sbml_document_degraded_species_reference(
+    writing_context: typing.Any, degraded_layout: typing.Any
+) -> lxml.etree._Element:
     """Build a speciesReference for a degraded layout (no model peer)."""
     species_id = degraded_species_id(writing_context, degraded_layout)
     species_reference = make_lxml_element(
@@ -3821,8 +3989,12 @@ def make_sbml_document_degraded_species_reference(writing_context, degraded_layo
 
 
 def make_celldesigner_degraded_base_participant(
-    writing_context, degraded_layout, tag, reaction_layout, is_start
-):
+    writing_context: typing.Any,
+    degraded_layout: typing.Any,
+    tag: str,
+    reaction_layout: typing.Any,
+    is_start: bool,
+) -> lxml.etree._Element:
     """Build a baseReactant/baseProduct for a degraded layout glyph."""
     elem = make_celldesigner_element(
         tag,
@@ -3845,8 +4017,11 @@ def make_celldesigner_degraded_base_participant(
 
 
 def find_arc_endpoint_for_species(
-    writing_context, reaction_layout, species_layout, is_start
-):
+    writing_context: typing.Any,
+    reaction_layout: typing.Any,
+    species_layout: typing.Any,
+    is_start: bool,
+) -> typing.Any:
     """Find the arc endpoint connecting a species to a reaction.
 
     Uses the arc's source/target to find the correct arc for this
@@ -3872,15 +4047,15 @@ def find_arc_endpoint_for_species(
 
 
 def make_celldesigner_connect_scheme(
-    writing_context,
-    extension,
-    reaction,
-    reaction_layout,
-    frozenset_mapping,
-    base_reactants,
-    base_products,
-    is_left_t,
-    is_right_t,
+    writing_context: typing.Any,
+    extension: lxml.etree._Element,
+    reaction: typing.Any,
+    reaction_layout: typing.Any,
+    frozenset_mapping: typing.Any,
+    base_reactants: typing.Any,
+    base_products: typing.Any,
+    is_left_t: bool,
+    is_right_t: bool,
 ) -> None:
     """Build connectScheme and editPoints for a reaction."""
     if reaction_layout is None:
@@ -4310,14 +4485,14 @@ def make_celldesigner_connect_scheme(
 
 
 def make_celldesigner_participant_link(
-    writing_context,
-    participant,
-    tag,
-    attr_name,
-    frozenset_mapping,
-    reaction_layout=None,
-    reaction=None,
-):
+    writing_context: typing.Any,
+    participant: typing.Any,
+    tag: str,
+    attr_name: str,
+    frozenset_mapping: typing.Any,
+    reaction_layout: typing.Any = None,
+    reaction: typing.Any = None,
+) -> lxml.etree._Element:
     """Build a reactantLink or productLink element."""
     species = participant.referred_species
     is_start = tag == "reactantLink"
@@ -4412,12 +4587,12 @@ def make_celldesigner_participant_link(
 
 
 def make_celldesigner_participant_link_from_layout(
-    writing_context,
-    arc_layout,
-    tag,
-    attr_name,
-    reaction_layout,
-):
+    writing_context: typing.Any,
+    arc_layout: typing.Any,
+    tag: str,
+    attr_name: str,
+    reaction_layout: typing.Any,
+) -> lxml.etree._Element:
     """Build a reactantLink or productLink from a known arc layout.
 
     Used when deriving link participants from layout arcs rather than
@@ -4497,8 +4672,11 @@ def make_celldesigner_participant_link_from_layout(
 
 
 def make_celldesigner_modification(
-    writing_context, modifier, reaction_layout, frozenset_mapping
-):
+    writing_context: typing.Any,
+    modifier: typing.Any,
+    reaction_layout: typing.Any,
+    frozenset_mapping: typing.Any,
+) -> lxml.etree._Element | None:
     """Build a CD modification element for a reaction modifier."""
     species = modifier.referred_species
     if isinstance(species, BooleanLogicGate):
@@ -4580,8 +4758,12 @@ def make_celldesigner_modification(
 
 
 def make_celldesigner_gate_modifications(
-    writing_context, modifier, gate, reaction_layout, frozenset_mapping
-):
+    writing_context: typing.Any,
+    modifier: typing.Any,
+    gate: typing.Any,
+    reaction_layout: typing.Any,
+    frozenset_mapping: typing.Any,
+) -> list[lxml.etree._Element]:
     """Build CD modification entries for a boolean logic gate modifier.
 
     Returns a list of modification elements: first the gate entry,
@@ -4763,8 +4945,8 @@ def make_celldesigner_gate_modifications(
 
 
 def make_celldesigner_modulation_reaction(
-    writing_context, modulation, frozenset_mapping
-):
+    writing_context: typing.Any, modulation: typing.Any, frozenset_mapping: typing.Any
+) -> lxml.etree._Element | None:
     """Build a modulation as a fake SBML reaction."""
     source = modulation.source
     target = modulation.target
@@ -4981,7 +5163,9 @@ def make_celldesigner_modulation_reaction(
     return reaction_element
 
 
-def make_celldesigner_gate_modulation_reaction(writing_context, modulation):
+def make_celldesigner_gate_modulation_reaction(
+    writing_context: typing.Any, modulation: typing.Any
+) -> lxml.etree._Element:
     """Build a boolean gate modulation as a fake SBML reaction.
 
     Structure: reactionType=BOOLEAN_LOGIC_GATE, baseReactants=gate inputs,

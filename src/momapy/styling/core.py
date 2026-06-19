@@ -9,6 +9,7 @@ import collections.abc
 import dataclasses
 import os
 import pathlib
+import typing
 import pyparsing
 import copy
 
@@ -62,7 +63,8 @@ class StyleSheet(dict):
         ```
     """
 
-    def __or__(self, other):
+    def __or__(self, other: "StyleSheet") -> "StyleSheet":
+        """Return a new stylesheet merging this one with another stylesheet."""
         d = copy.deepcopy(self)
         for key, value in other.items():
             if key in d:
@@ -71,7 +73,8 @@ class StyleSheet(dict):
                 d[key] = value
         return StyleSheet(d)
 
-    def __ior__(self, other):
+    def __ior__(self, other: "StyleSheet") -> "StyleSheet":
+        """Merge another stylesheet into this one in place."""
         return self.__or__(other)
 
     @classmethod
@@ -637,39 +640,41 @@ _css_style_sheet = pyparsing.Group(_css_rule[1, ...])
 
 
 @_css_unset_value.set_parse_action
-def _resolve_css_unset_value(results):
+def _resolve_css_unset_value(results: pyparsing.ParseResults) -> typing.Any:
     return results[0]
 
 
 @_css_none_value.set_parse_action
-def _resolve_css_none_value(results):
+def _resolve_css_none_value(results: pyparsing.ParseResults) -> typing.Any:
     return NoneValue
 
 
 @_css_float_value.set_parse_action
-def _resolve_css_float_value(results):
+def _resolve_css_float_value(results: pyparsing.ParseResults) -> float:
     return float(results[0])
 
 
 @_css_string_value.set_parse_action
-def _resolve_css_string_value(results):
+def _resolve_css_string_value(results: pyparsing.ParseResults) -> str:
     return str(results[0][1:-1])
 
 
 @_css_int_value.set_parse_action
-def _resolve_css_int_value(results):
+def _resolve_css_int_value(results: pyparsing.ParseResults) -> int:
     return int(results[0])
 
 
 @_css_color_name_value.set_parse_action
-def _resolve_css_color_name_value(results):
+def _resolve_css_color_name_value(results: pyparsing.ParseResults) -> typing.Any:
     if not has_color(results[0]):
         raise ValueError(f"{results[0]} is not a valid color name")
     return getattr(momapy.coloring, results[0])
 
 
 @_css_drop_shadow_filter_value.set_parse_action
-def _resolve_css_drop_shadow_filter_value(results):
+def _resolve_css_drop_shadow_filter_value(
+    results: pyparsing.ParseResults,
+) -> typing.Any:
     filter_effect = get_or_make_builder_cls(DropShadowEffect)(
         dx=results[1],
         dy=results[3],
@@ -684,17 +689,17 @@ def _resolve_css_drop_shadow_filter_value(results):
 # Issue: the function cannot return None (pyparsing bug?) otherwise it simply
 # does not apply the function
 @_css_simple_value.set_parse_action
-def _resolve_css_simple_value(results):
+def _resolve_css_simple_value(results: pyparsing.ParseResults) -> typing.Any:
     return results[0]
 
 
 @_css_list_value.set_parse_action
-def _resolve_css_list_value(results):
+def _resolve_css_list_value(results: pyparsing.ParseResults) -> typing.Any:
     return [list(results[0])]
 
 
 @_css_attribute_value.set_parse_action
-def _resolve_css_attribute_value(results):
+def _resolve_css_attribute_value(results: pyparsing.ParseResults) -> typing.Any:
     # see above
     if results[0] == "unset":
         results[0] = None
@@ -702,14 +707,14 @@ def _resolve_css_attribute_value(results):
 
 
 def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
-    def _resolve_import(results):
+    def _resolve_import(results: pyparsing.ParseResults) -> "StyleSheet":
         return StyleSheet.from_file(base_dir / results[1])
 
     import_stmt = _css_import_statement.copy()
     import_stmt.set_parse_action(_resolve_import)
     document = import_stmt[...] + _css_style_sheet[...]
 
-    def _combine(results):
+    def _combine(results: pyparsing.ParseResults) -> "StyleSheet":
         style_sheets = [
             style_sheet for style_sheet in results if style_sheet is not None
         ]
@@ -720,12 +725,12 @@ def _make_document_parser(base_dir: pathlib.Path) -> pyparsing.ParserElement:
 
 
 @_css_attribute_name.set_parse_action
-def _resolve_css_attribute_name(results):
+def _resolve_css_attribute_name(results: pyparsing.ParseResults) -> str:
     return results[0].replace("-", "_")
 
 
 @_css_style.set_parse_action
-def _resolve_css_style(results):
+def _resolve_css_style(results: pyparsing.ParseResults) -> typing.Any:
     return (
         results[0],
         results[2],
@@ -733,57 +738,63 @@ def _resolve_css_style(results):
 
 
 @_css_style_collection.set_parse_action
-def _resolve_css_style_collection(results):
+def _resolve_css_style_collection(
+    results: pyparsing.ParseResults,
+) -> StyleCollection:
     return StyleCollection(dict(list(results[1])))
 
 
 @_css_id.set_parse_action
-def _resolve_css_id(results):
+def _resolve_css_id(results: pyparsing.ParseResults) -> typing.Any:
     return results[0]
 
 
 @_css_id_selector.set_parse_action
-def _resolve_id_selector(results):
+def _resolve_id_selector(results: pyparsing.ParseResults) -> "IdSelector":
     return IdSelector(results[1])
 
 
 @_css_class_name.set_parse_action
-def _resolve_css_class_name(results):
+def _resolve_css_class_name(results: pyparsing.ParseResults) -> typing.Any:
     return results[0]
 
 
 @_css_type_selector.set_parse_action
-def _resolve_css_type_selector(results):
+def _resolve_css_type_selector(results: pyparsing.ParseResults) -> "TypeSelector":
     return TypeSelector(results[0])
 
 
 @_css_class_selector.set_parse_action
-def _resolve_css_class_selector(results):
+def _resolve_css_class_selector(results: pyparsing.ParseResults) -> "ClassSelector":
     return ClassSelector(results[1])
 
 
 @_css_elementary_selector.set_parse_action
-def _resolve_css_elementary_selector(results):
+def _resolve_css_elementary_selector(
+    results: pyparsing.ParseResults,
+) -> typing.Any:
     return results[0]
 
 
 @_css_child_selector.set_parse_action
-def _resolve_css_child_selector(results):
+def _resolve_css_child_selector(results: pyparsing.ParseResults) -> "ChildSelector":
     return ChildSelector(results[0], results[2])
 
 
 @_css_descendant_selector.set_parse_action
-def _resolve_css_descendant_selector(results):
+def _resolve_css_descendant_selector(
+    results: pyparsing.ParseResults,
+) -> "DescendantSelector":
     return DescendantSelector(results[0], results[2])
 
 
 @_css_or_selector.set_parse_action
-def _resolve_css_or_selector(results):
+def _resolve_css_or_selector(results: pyparsing.ParseResults) -> "OrSelector":
     return OrSelector(tuple(results[0]))
 
 
 @_css_rule.set_parse_action
-def _resolve_css_rule(results):
+def _resolve_css_rule(results: pyparsing.ParseResults) -> typing.Any:
     return (
         results[0],
         results[1],
@@ -791,7 +802,7 @@ def _resolve_css_rule(results):
 
 
 @_css_style_sheet.set_parse_action
-def _resolve_css_style_sheet(results):
+def _resolve_css_style_sheet(results: pyparsing.ParseResults) -> StyleSheet:
     return StyleSheet(dict(list(results[0])))
 
 

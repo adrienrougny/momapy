@@ -228,11 +228,11 @@ class _SBGNMLReader(Reader):
 
     @classmethod
     @abc.abstractmethod
-    def _get_map_key(cls, sbgnml_map):
+    def _get_map_key(cls, sbgnml_map: lxml.etree._Element) -> str:
         pass
 
     @classmethod
-    def _parse_sbgnml_map(cls, reading_context) -> None:
+    def _parse_sbgnml_map(cls, reading_context: SBGNMLReadingContext) -> None:
         """Classify glyphs and arcs from the XML root into the reading context."""
         sbgnml_map = reading_context.xml_root
         map_key = reading_context.map_key
@@ -306,7 +306,9 @@ class _SBGNMLReader(Reader):
                 )
 
     @classmethod
-    def _get_map_classes(cls, sbgnml_map):
+    def _get_map_classes(
+        cls, sbgnml_map: lxml.etree._Element
+    ) -> tuple[type, type, type]:
         key = cls._get_map_key(sbgnml_map)
         classes = KEY_TO_CLASS.get(key)
         if classes is None:
@@ -318,19 +320,19 @@ class _SBGNMLReader(Reader):
         return classes
 
     @classmethod
-    def _make_empty_map(cls, sbgnml_map):
+    def _make_empty_map(cls, sbgnml_map: lxml.etree._Element) -> typing.Any:
         map_cls, _, _ = cls._get_map_classes(sbgnml_map)
         builder_cls = get_or_make_builder_cls(map_cls)
         return builder_cls()
 
     @classmethod
-    def _make_empty_model(cls, sbgnml_map):
+    def _make_empty_model(cls, sbgnml_map: lxml.etree._Element) -> typing.Any:
         _, model_cls, _ = cls._get_map_classes(sbgnml_map)
         builder_cls = get_or_make_builder_cls(model_cls)
         return builder_cls()
 
     @classmethod
-    def _make_empty_layout(cls, sbgnml_map):
+    def _make_empty_layout(cls, sbgnml_map: lxml.etree._Element) -> typing.Any:
         _, _, layout_cls = cls._get_map_classes(sbgnml_map)
         builder_cls = get_or_make_builder_cls(layout_cls)
         return builder_cls()
@@ -338,7 +340,7 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_main_obj(
         cls,
-        sbgnml_map,
+        sbgnml_map: lxml.etree._Element,
         return_type: typing.Literal["map", "model", "layout"],
         with_model: bool = True,
         with_layout: bool = True,
@@ -346,7 +348,7 @@ class _SBGNMLReader(Reader):
         with_notes: bool = True,
         xsep: float = 0,
         ysep: float = 0,
-    ):
+    ) -> tuple[typing.Any, ...]:
         if return_type == "model" or return_type == "map" and with_model:
             model = cls._make_empty_model(sbgnml_map)
         else:
@@ -520,9 +522,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_compartment(
         cls,
-        reading_context,
-        sbgnml_compartment,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_compartment: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             model_element = model_make_compartment(reading_context, sbgnml_compartment)
             layout_element = layout_make_compartment(
@@ -596,9 +598,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_entity_pool(
         cls,
-        reading_context,
-        sbgnml_entity_pool,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_entity_pool: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_glyph_key(sbgnml_entity_pool, reading_context.map_key)
             model_element_cls, _ = KEY_TO_CLASS[key]
@@ -640,11 +642,11 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_entity_pool_or_subunit(
         cls,
-        reading_context,
-        sbgnml_entity_pool_or_subunit,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_entity_pool_or_subunit: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             is_subunit = (
                 super_model_element is not None or super_layout_element is not None
@@ -792,9 +794,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_activity(
         cls,
-        reading_context,
-        sbgnml_activity,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_activity: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_glyph_key(sbgnml_activity, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -878,12 +880,12 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_state_variable(
         cls,
-        reading_context,
-        sbgnml_state_variable,
-        super_model_element,
-        super_layout_element,
-        order=None,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_state_variable: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+        order: int | None = None,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             model_element = model_make_state_variable(
                 reading_context, sbgnml_state_variable, order=order
@@ -908,11 +910,11 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_unit_of_information(
         cls,
-        reading_context,
-        sbgnml_unit_of_information,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_unit_of_information: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_subglyph_key(sbgnml_unit_of_information, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -930,9 +932,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_submap(
         cls,
-        reading_context,
-        sbgnml_submap,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_submap: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_glyph_key(sbgnml_submap, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -1087,9 +1089,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_tag(
         cls,
-        reading_context,
-        sbgnml_tag,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_tag: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             tag_model = model_make_terminal_or_tag(
                 reading_context, sbgnml_tag, is_terminal=False
@@ -1177,9 +1179,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_phenotype(
         cls,
-        reading_context,
-        sbgnml_phenotype,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_phenotype: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             model_element, layout_element = cls._make_entity_pool_or_subunit(
                 reading_context=reading_context,
@@ -1217,9 +1219,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_stoichiometric_process(
         cls,
-        reading_context,
-        sbgnml_process,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_process: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_glyph_key(sbgnml_process, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -1316,11 +1318,11 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_reactant(
         cls,
-        reading_context,
-        sbgnml_consumption_arc,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_consumption_arc: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             model_element = model_make_reactant(reading_context, sbgnml_consumption_arc)
             layout_element = layout_make_reactant(
@@ -1352,12 +1354,12 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_product(
         cls,
-        reading_context,
-        sbgnml_production_arc,
-        super_model_element,
-        super_layout_element,
-        super_sbgnml_element,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_production_arc: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+        super_sbgnml_element: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             process_direction = get_process_direction(
                 super_sbgnml_element, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
@@ -1402,10 +1404,10 @@ class _SBGNMLReader(Reader):
 
     @staticmethod
     def _set_empty_set_flag_from_production_arc(
-        super_model_element,
-        sbgnml_production_arc,
-        super_sbgnml_element,
-        process_direction,
+        super_model_element: typing.Any,
+        sbgnml_production_arc: lxml.etree._Element,
+        super_sbgnml_element: lxml.etree._Element,
+        process_direction: Direction,
     ) -> None:
         """Set has_external_source / has_external_sink on the parent process.
 
@@ -1433,9 +1435,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_logical_operator(
         cls,
-        reading_context,
-        sbgnml_logical_operator,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_logical_operator: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_glyph_key(sbgnml_logical_operator, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -1510,11 +1512,11 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_logical_operator_input(
         cls,
-        reading_context,
-        sbgnml_logic_arc,
-        super_model_element,
-        super_layout_element,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_logic_arc: lxml.etree._Element,
+        super_model_element: typing.Any,
+        super_layout_element: typing.Any,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             sbgnml_source_id = sbgnml_logic_arc.get("source")
             # We consider that the source can be the port of a logical operator.
@@ -1566,9 +1568,9 @@ class _SBGNMLReader(Reader):
     @classmethod
     def _make_and_add_modulation(
         cls,
-        reading_context,
-        sbgnml_modulation,
-    ):
+        reading_context: SBGNMLReadingContext,
+        sbgnml_modulation: lxml.etree._Element,
+    ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
             key = get_arc_key(sbgnml_modulation, reading_context.map_key)
             model_element_cls, layout_element_cls = KEY_TO_CLASS[key]
@@ -1673,8 +1675,11 @@ class _SBGNMLReader(Reader):
 
     @classmethod
     def _make_style_sheet(
-        cls, layout, sbgnml_render_information, sbgnml_id_to_layout_element
-    ):
+        cls,
+        layout: typing.Any,
+        sbgnml_render_information: typing.Any,
+        sbgnml_id_to_layout_element: dict[str, typing.Any],
+    ) -> StyleSheet:
         style_sheet = StyleSheet()
         if sbgnml_render_information.background_color is not None:
             style_collection = StyleCollection()
@@ -1775,10 +1780,10 @@ class _SBGNMLReader(Reader):
 
 
 class SBGNML0_2Reader(_SBGNMLReader):
-    """Class for SBGN-ML 0.2 reader objects"""
+    """Class for SBGN-ML 0.2 reader objects."""
 
     @classmethod
-    def _get_map_key(cls, sbgnml_map):
+    def _get_map_key(cls, sbgnml_map: lxml.etree._Element) -> str:
         key = transform_class(sbgnml_map.get("language"))
         return key
 
@@ -1804,10 +1809,10 @@ class SBGNML0_2Reader(_SBGNMLReader):
 
 
 class SBGNML0_3Reader(_SBGNMLReader):
-    """Class for SBGN-ML 0.3 reader objects"""
+    """Class for SBGN-ML 0.3 reader objects."""
 
     @classmethod
-    def _get_map_key(cls, sbgnml_map):
+    def _get_map_key(cls, sbgnml_map: lxml.etree._Element) -> str | None:
         sbgnml_version = sbgnml_map.get("version")
         if sbgnml_version is not None:
             if "sbgn.pd" in sbgnml_version:

@@ -358,7 +358,15 @@ Common fixtures (from `conftest.py`): `sample_point`, `sample_bbox`, `sample_col
 
 ## CI/CD
 
-- **Tests** (`.github/workflows/tests.yml`): ubuntu + windows + macos, Python 3.10/3.11/3.12/3.13/3.14
+- **Lint** (`.github/workflows/tests.yml`, `lint` job): ubuntu, single Python, runs `tox -e lint` =
+  `ruff check src/ tests/` + `ruff format --check src/ tests/`. This is the release quality gate
+  (it replaced the old bespoke `scripts/check_public_api_docs.py` job). It enforces ruff `D`
+  (pydocstyle, **google** convention) and `ANN` (flake8-annotations, **full annotation** coverage)
+  on top of the default `E`/`F` rules. `src/momapy/**` is fully covered; `tests/**` and `scripts/**`
+  are exempt from `D`/`ANN` (but still `E`/`F`-checked). `ANN401` (`Any`), `ANN002`/`ANN003`
+  (`*args`/`**kwargs`) are intentionally allowed. The `test` job has `needs: lint`, so the
+  cross-platform matrix only runs once lint passes (fail-fast).
+- **Tests** (`.github/workflows/tests.yml`, `test` job): ubuntu + windows + macos, Python 3.10/3.11/3.12/3.13/3.14
 - **Release** (`.github/workflows/release.yml`): triggered by `v*.*.*` tags → test → build → publish to PyPI → generate changelog → GitHub release
 - **Docs** (`.github/workflows/docs.yml`): deploy to GitHub Pages after release
 

@@ -107,16 +107,20 @@ __all__ = [
 class NoneValueType(object):
     """Singleton type for None values (as in SVG)."""
 
-    def __copy__(self):
+    def __copy__(self) -> "NoneValueType":
+        """Return the singleton itself, as it is immutable."""
         return self
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo: typing.Any) -> "NoneValueType":
+        """Return the singleton itself, as it is immutable."""
         return self
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: typing.Any) -> bool:
+        """Return whether the other object is also the `NoneValue` singleton."""
         return type(self) is type(other)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
+        """Return the hash of the `NoneValue` singleton."""
         return id(NoneValue)
 
     def __reduce__(self) -> str:
@@ -714,12 +718,12 @@ class Text(DrawingElement):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate of the text position."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate of the text position."""
         return self.point.y
 
@@ -810,12 +814,12 @@ class MoveTo(PathAction):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate."""
         return self.point.y
 
@@ -848,12 +852,12 @@ class LineTo(PathAction):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate."""
         return self.point.y
 
@@ -912,12 +916,12 @@ class EllipticalArc(PathAction):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate."""
         return self.point.y
 
@@ -999,12 +1003,12 @@ class CurveTo(PathAction):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate."""
         return self.point.y
 
@@ -1060,12 +1064,12 @@ class QuadraticCurveTo(PathAction):
     )
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate."""
         return self.point.y
 
@@ -1224,16 +1228,17 @@ class Ellipse(DrawingElement):
     )
 
     def __post_init__(self) -> None:
+        """Round the radii to the rounding precision after initialization."""
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate of center."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate of center."""
         return self.point.y
 
@@ -1314,18 +1319,19 @@ class Rectangle(DrawingElement):
     )
 
     def __post_init__(self) -> None:
+        """Round the width and height to the rounding precision after initialization."""
         object.__setattr__(self, "width", round(self.width, ROUNDING))
         object.__setattr__(self, "height", round(self.height, ROUNDING))
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
     @property
-    def x(self):
+    def x(self) -> float:
         """X coordinate of top-left."""
         return self.point.x
 
     @property
-    def y(self):
+    def y(self) -> float:
         """Y coordinate of top-left."""
         return self.point.y
 

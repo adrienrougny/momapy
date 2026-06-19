@@ -28,6 +28,7 @@ from momapy.coloring import Color, black, white
 from momapy.drawing import (
     ClosePath,
     DEFAULT_FONT_FAMILY,
+    DrawingElement,
     Ellipse as DrawingEllipse,
     EllipticalArc,
     Filter,
@@ -106,7 +107,9 @@ class GenericProteinLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MacromoleculeMultimerLayout._make_subunit_shape(
             self, position, width, height
         )
@@ -131,7 +134,9 @@ class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MacromoleculeMultimerLayout._make_subunit_shape(
             self, position, width, height
         )
@@ -160,103 +165,103 @@ class _IonChannelShape(Shape):
         metadata={"description": "The radius of the rounded corners."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
         return self.position + (
             self.rounded_corners - self.width / 2,
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width - self.rounded_corners,
             -self.height / 2,
         )
 
-    def joint3(self):
+    def joint3(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width,
             self.rounded_corners - self.height / 2,
         )
 
-    def joint4(self):
+    def joint4(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width,
             self.height / 2 - self.rounded_corners,
         )
 
-    def joint5(self):
+    def joint5(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width - self.rounded_corners,
             self.height / 2,
         )
 
-    def joint6(self):
+    def joint6(self) -> Point:
         return self.position + (
             self.rounded_corners - self.width / 2,
             self.height / 2,
         )
 
-    def joint7(self):
+    def joint7(self) -> Point:
         return self.position + (
             -self.width / 2,
             self.height / 2 - self.rounded_corners,
         )
 
-    def joint8(self):
+    def joint8(self) -> Point:
         return self.position + (
             -self.width / 2,
             self.rounded_corners - self.height / 2,
         )
 
-    def joint9(self):
+    def joint9(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width + self.rounded_corners,
             self.height / 2,
         )
 
-    def joint10(self):
+    def joint10(self) -> Point:
         return self.position + (
             self.width / 2 - self.rounded_corners,
             -self.height / 2,
         )
 
-    def joint11(self):
+    def joint11(self) -> Point:
         return self.position + (
             self.width / 2,
             self.rounded_corners - self.height / 2,
         )
 
-    def joint12(self):
+    def joint12(self) -> Point:
         return self.position + (
             self.width / 2,
             self.height / 2 - self.rounded_corners,
         )
 
-    def joint13(self):
+    def joint13(self) -> Point:
         return self.position + (
             self.width / 2 - self.rounded_corners,
             self.height / 2,
         )
 
-    def joint14(self):
+    def joint14(self) -> Point:
         return self.position + (
             self.rounded_corners + self.width / 2 - self.right_rectangle_width,
             self.height / 2,
         )
 
-    def joint15(self):
+    def joint15(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width,
             self.height / 2 - self.rounded_corners,
         )
 
-    def joint16(self):
+    def joint16(self) -> Point:
         return self.position + (
             self.width / 2 - self.right_rectangle_width,
             self.rounded_corners - self.height / 2,
         )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         left_rectangle = DrawingRectangle(
             point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
@@ -294,7 +299,9 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _IonChannelShape(
             position=position,
             width=width,
@@ -303,7 +310,8 @@ class IonChannelLayout(_MultiNodeMixin, CellDesignerNode):
             right_rectangle_width=self.right_rectangle_width,
         )
 
-    def label_center(self):
+    def label_center(self) -> Point:
+        """Return the center point for the node's label."""
         return Point(self.position.x - self.right_rectangle_width / 2, self.position.y)
 
 
@@ -330,7 +338,9 @@ class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _IonChannelShape(
             position=position,
             width=width,
@@ -356,7 +366,9 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
     stroke_width: float | None = 2.0
     # label -12 from south
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesRectangle(
             position=position,
             width=width,
@@ -375,7 +387,8 @@ class ComplexLayout(_MultiNodeMixin, CellDesignerNode):
             bottom_right_rounded_or_cut="cut",
         )
 
-    def label_center(self):
+    def label_center(self) -> Point:
+        """Return the center point for the node's label."""
         return self.south() - (0, 12)
 
 
@@ -398,7 +411,9 @@ class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesRectangle(
             position=position,
             width=width,
@@ -430,7 +445,9 @@ class SimpleMoleculeLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCFF66")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -450,7 +467,9 @@ class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -466,7 +485,9 @@ class IonLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#9999FF")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -486,7 +507,9 @@ class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -503,7 +526,9 @@ class UnknownLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCCCCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -523,7 +548,9 @@ class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesEllipse(position=position, width=width, height=height)
 
 
@@ -544,7 +571,7 @@ class _DegradedShape(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         circle = DrawingEllipse(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -566,7 +593,9 @@ class DegradedLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 30.0
     height: float = 30.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _DegradedShape(position=position, width=width, height=height)
 
 
@@ -586,7 +615,9 @@ class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _DegradedShape(position=position, width=width, height=height)
 
 
@@ -602,7 +633,9 @@ class GeneLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#FFFFCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesRectangle(position=position, width=width, height=height)
 
 
@@ -622,7 +655,9 @@ class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return MetaShapesRectangle(position=position, width=width, height=height)
 
 
@@ -644,7 +679,9 @@ class PhenotypeLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CC99FF")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Hexagon(
             position=position,
             width=width,
@@ -852,7 +889,9 @@ class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Hexagon(
             position=position,
             width=width,
@@ -877,7 +916,9 @@ class RNALayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#66FF66")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Parallelogram(
             position=position, width=width, height=height, angle=self.angle
         )
@@ -1078,7 +1119,9 @@ class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Parallelogram(
             position=position, width=width, height=height, angle=self.angle
         )
@@ -1099,7 +1142,9 @@ class AntisenseRNALayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#FFCCCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Parallelogram(
             position=position,
             width=width,
@@ -1303,7 +1348,9 @@ class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return Parallelogram(
             position=position,
             width=width,
@@ -1342,55 +1389,55 @@ class _TruncatedProteinShape(Shape):
         }
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
         return self.position + (
             self.rounded_corners - self.width / 2,
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
         return self.position + (
             self.width / 2,
             -self.height / 2,
         )
 
-    def joint3(self):
+    def joint3(self) -> Point:
         return self.position + (
             self.width / 2,
             self.height / 2 - self.vertical_truncation * self.height,
         )
 
-    def joint4(self):
+    def joint4(self) -> Point:
         return self.position + (
             self.width / 2 - self.horizontal_truncation * self.width,
             self.vertical_truncation * self.height - self.height / 2,
         )
 
-    def joint5(self):
+    def joint5(self) -> Point:
         return self.position + (
             self.width / 2 - self.horizontal_truncation * self.width,
             self.height / 2,
         )
 
-    def joint6(self):
+    def joint6(self) -> Point:
         return self.position + (
             self.rounded_corners - self.width / 2,
             self.height / 2,
         )
 
-    def joint7(self):
+    def joint7(self) -> Point:
         return self.position + (
             -self.width / 2,
             self.height / 2 - self.rounded_corners,
         )
 
-    def joint8(self):
+    def joint8(self) -> Point:
         return self.position + (
             -self.width / 2,
             self.rounded_corners - self.height / 2,
         )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -1448,7 +1495,9 @@ class TruncatedProteinLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _TruncatedProteinShape(
             position=position,
             width=width,
@@ -1490,7 +1539,9 @@ class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _TruncatedProteinShape(
             position=position,
             width=width,
@@ -1517,7 +1568,9 @@ class ReceptorLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#CCFFCC")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         angle = math.atan2(width / 2, self.vertical_truncation * height)
         angle = get_normalized_angle(angle)
         angle = math.degrees(angle)
@@ -1726,7 +1779,9 @@ class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         angle = math.atan2(width / 2, self.vertical_truncation * height)
         angle = get_normalized_angle(angle)
         angle = math.degrees(angle)
@@ -1764,31 +1819,31 @@ class _DrugShape(Shape):
         metadata={"description": "The separation between the outer and inner outlines."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
         return self.position + (
             -self.width / 2 + self.horizontal_proportion * self.width,
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
         return self.position + (
             self.width / 2 - self.horizontal_proportion * self.width,
             -self.height / 2,
         )
 
-    def joint3(self):
+    def joint3(self) -> Point:
         return self.position + (
             self.width / 2 - self.horizontal_proportion * self.width,
             self.height / 2,
         )
 
-    def joint4(self):
+    def joint4(self) -> Point:
         return self.position + (
             -self.width / 2 + self.horizontal_proportion * self.width,
             self.height / 2,
         )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -1868,7 +1923,9 @@ class DrugLayout(_MultiNodeMixin, CellDesignerNode):
     fill: NoneValueType | Color | None = Color.from_hex("#FF00FF")
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _DrugShape(
             position=position,
             width=width,
@@ -1906,7 +1963,9 @@ class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
     )
     stroke_width: float | None = 1.0
 
-    def _make_subunit_shape(self, position, width, height):
+    def _make_subunit_shape(
+        self, position: Point, width: float, height: float
+    ) -> Shape:
         return _DrugShape(
             position=position,
             width=width,
@@ -1926,7 +1985,7 @@ class StructuralStateLayout(_SimpleNodeMixin, CellDesignerNode):
     width: float = 50.0
     height: float = 16.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -1942,7 +2001,7 @@ class ModificationLayout(_SimpleNodeMixin, CellDesignerNode):
     width: float = 16.0
     height: float = 16.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -1980,7 +2039,7 @@ class _OvalCompartmentShape(Shape):
         },
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         outer_oval = DrawingEllipse(
             point=self.position,
             rx=self.width / 2,
@@ -2023,7 +2082,7 @@ class OvalCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
     )
     width: float = 16.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _OvalCompartmentShape(
             height=self.height,
             inner_fill=self.inner_fill,
@@ -2077,7 +2136,7 @@ class _RectangleCompartmentShape(Shape):
         },
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         outer_rectangle = DrawingRectangle(
             point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
@@ -2135,7 +2194,7 @@ class RectangleCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
         },
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _RectangleCompartmentShape(
             height=self.height,
             inner_fill=self.inner_fill,
@@ -2201,7 +2260,7 @@ class _CornerCompartmentShape(Shape):
         metadata={"description": "The separation between the outer and inner borders."},
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         left = self.position.x - self.width / 2
         right = self.position.x + self.width / 2
         top = self.position.y - self.height / 2
@@ -2327,7 +2386,7 @@ class CornerCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
         metadata={"description": "The separation between the outer and inner borders."},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _CornerCompartmentShape(
             position=self.position,
             width=self.width,
@@ -2370,7 +2429,7 @@ class _LineCompartmentShape(Shape):
         metadata={"description": "The separation between the outer and inner lines."},
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
         left = self.position.x - self.width / 2
         right = self.position.x + self.width / 2
         top = self.position.y - self.height / 2
@@ -2444,7 +2503,7 @@ class LineCompartmentLayout(_SimpleNodeMixin, CellDesignerNode):
         metadata={"description": "The separation between the outer and inner lines."},
     )
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return _LineCompartmentShape(
             position=self.position,
             width=self.width,
@@ -2463,7 +2522,7 @@ class ConsumptionLayout(CellDesignerSingleHeadedArc):
     Draws a consumption as a plain line with no arrowhead.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLine._arrowhead_border_drawing_elements(self)
 
 
@@ -2483,7 +2542,7 @@ class ProductionLayout(CellDesignerSingleHeadedArc):
     )
     end_shorten: float = 2.0
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsTriangle._arrowhead_border_drawing_elements(self)
 
 
@@ -2502,7 +2561,7 @@ class CatalysisLayout(CellDesignerSingleHeadedArc):
         default=7.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsEllipse._arrowhead_border_drawing_elements(self)
 
 
@@ -2522,7 +2581,7 @@ class UnknownCatalysisLayout(CellDesignerSingleHeadedArc):
     )
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsEllipse._arrowhead_border_drawing_elements(self)
 
 
@@ -2538,7 +2597,7 @@ class InhibitionLayout(CellDesignerSingleHeadedArc):
     )
     end_shorten: float = 3.0
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Bar._arrowhead_border_drawing_elements(self)
 
 
@@ -2555,7 +2614,7 @@ class UnknownInhibitionLayout(CellDesignerSingleHeadedArc):
     end_shorten: float = 3.0
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Bar._arrowhead_border_drawing_elements(self)
 
 
@@ -2574,7 +2633,7 @@ class PhysicalStimulationLayout(CellDesignerSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsTriangle._arrowhead_border_drawing_elements(self)
 
 
@@ -2594,7 +2653,7 @@ class UnknownPhysicalStimulationLayout(CellDesignerSingleHeadedArc):
     )
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsTriangle._arrowhead_border_drawing_elements(self)
 
 
@@ -2613,7 +2672,7 @@ class ModulationLayout(CellDesignerSingleHeadedArc):
         default=15.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Diamond._arrowhead_border_drawing_elements(self)
 
 
@@ -2633,7 +2692,7 @@ class UnknownModulationLayout(CellDesignerSingleHeadedArc):
     )
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Diamond._arrowhead_border_drawing_elements(self)
 
 
@@ -2653,7 +2712,7 @@ class PositiveInfluenceLayout(CellDesignerSingleHeadedArc):
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return StraightBarb._arrowhead_border_drawing_elements(self)
 
 
@@ -2674,7 +2733,7 @@ class UnknownPositiveInfluenceLayout(CellDesignerSingleHeadedArc):
     )
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return StraightBarb._arrowhead_border_drawing_elements(self)
 
 
@@ -2700,7 +2759,7 @@ class TriggeringLayout(CellDesignerSingleHeadedArc):
         default=15.0, metadata={"description": "The width of the arrowhead triangle."}
     )
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(Point(0, -self.arrowhead_bar_height / 2)),
             LineTo(Point(0, self.arrowhead_bar_height / 2)),
@@ -2746,7 +2805,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
     )
     path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(Point(0, -self.arrowhead_bar_height / 2)),
             LineTo(Point(0, self.arrowhead_bar_height / 2)),
@@ -2867,17 +2926,17 @@ class _ReactionNodeMixin(_SBGNMixin):
         metadata={"description": "The filter applied to the reaction node."},
     )
 
-    def left_connector_tip(self):
+    def left_connector_tip(self) -> Point:
         segment = self.segments[self.reaction_node_segment]
         position = segment.get_position_at_fraction(self.left_connector_fraction)
         return position
 
-    def right_connector_tip(self):
+    def right_connector_tip(self) -> Point:
         segment = self.segments[self.reaction_node_segment]
         position = segment.get_position_at_fraction(self.right_connector_fraction)
         return position
 
-    def reaction_node_border(self, point):
+    def reaction_node_border(self, point: Point) -> Point:
         reaction_node = self._make_reaction_node()
         rotation = self._make_reaction_node_rotation()
         rotated_point = point.transformed(rotation)
@@ -2887,7 +2946,7 @@ class _ReactionNodeMixin(_SBGNMixin):
         border_point = border_point.transformed(rotation.inverted())
         return border_point
 
-    def reaction_node_angle(self, angle):
+    def reaction_node_angle(self, angle: float) -> Point:
         reaction_node = self._make_reaction_node()
         border_point = reaction_node.own_angle(
             angle, self._get_reaction_node_position()
@@ -2901,26 +2960,26 @@ class _ReactionNodeMixin(_SBGNMixin):
         return border_point
 
     @classmethod
-    def _mixin_drawing_elements(cls, obj):
+    def _mixin_drawing_elements(cls, obj: typing.Any) -> list[DrawingElement]:
         return [obj._make_rotated_reaction_node_drawing_element()]
 
-    def _get_reaction_node_position(self):
+    def _get_reaction_node_position(self) -> Point:
         segment = self.segments[self.reaction_node_segment]
         position = segment.get_position_at_fraction(0.5)
         return position
 
-    def _get_reaction_node_rotation_angle(self):
+    def _get_reaction_node_rotation_angle(self) -> float:
         segment = self.segments[self.reaction_node_segment]
         angle = segment.get_angle_to_horizontal()
         return angle
 
-    def _make_reaction_node_rotation(self):
+    def _make_reaction_node_rotation(self) -> Rotation:
         angle = self._get_reaction_node_rotation_angle()
         position = self._get_reaction_node_position()
         rotation = Rotation(angle, position)
         return rotation
 
-    def _make_reaction_node(self):
+    def _make_reaction_node(self) -> MetaNodesRectangle:
         position = self._get_reaction_node_position()
         if self.reaction_node_text is not None:
             label = TextLayout(
@@ -2951,7 +3010,7 @@ class _ReactionNodeMixin(_SBGNMixin):
         )
         return reaction_node
 
-    def _make_rotated_reaction_node_drawing_element(self):
+    def _make_rotated_reaction_node_drawing_element(self) -> DrawingElement:
         reaction_node = self._make_reaction_node()
         drawing_element = reaction_node.drawing_elements()[0]
         rotation = self._make_reaction_node_rotation()
@@ -2995,12 +3054,12 @@ class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
 
@@ -3050,12 +3109,12 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
 
@@ -3105,12 +3164,12 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
 
@@ -3158,12 +3217,12 @@ class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
 
@@ -3209,12 +3268,12 @@ class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
 
@@ -3272,7 +3331,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             actions = [
                 MoveTo(Point(0, -self.start_arrowhead_bar_height / 2)),
@@ -3296,7 +3355,7 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
             return [bar, sep] + triangle.drawing_elements()
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
             MoveTo(Point(0, -self.end_arrowhead_bar_height / 2)),
             LineTo(Point(0, self.end_arrowhead_bar_height / 2)),
@@ -3355,10 +3414,10 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return DoubleTriangle._end_arrowhead_border_drawing_elements(self)
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         shape = MetaShapesEllipse(
             position=Point(0, 0),
             width=self.start_arrowhead_width,
@@ -3409,12 +3468,12 @@ class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         if self.reversible:
             return DoubleTriangle._start_arrowhead_border_drawing_elements(self)
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         outer_circle = MetaShapesEllipse(
             position=Point(0, 0),
             width=self.end_arrowhead_width,
@@ -3480,10 +3539,10 @@ class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
     )
     start_shorten: float = 2.0
 
-    def _start_arrowhead_border_drawing_elements(self):
+    def _start_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return []
 
-    def _end_arrowhead_border_drawing_elements(self):
+    def _end_arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return []
 
 
@@ -3505,7 +3564,7 @@ class AndGateLayout(
     width: float = 15.0
     height: float = 15.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -3529,7 +3588,7 @@ class OrGateLayout(
     width: float = 15.0
     height: float = 15.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -3553,7 +3612,7 @@ class NotGateLayout(
     width: float = 15.0
     height: float = 15.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -3577,7 +3636,7 @@ class UnknownGateLayout(
     width: float = 15.0
     height: float = 15.0
 
-    def _make_shape(self):
+    def _make_shape(self) -> Shape:
         return MetaShapesEllipse(
             position=self.position, width=self.width, height=self.height
         )
@@ -3590,7 +3649,7 @@ class LogicArcLayout(CellDesignerSingleHeadedArc):
     Draws a logic arc as a plain line connecting an input to a logic gate.
     """
 
-    def _arrowhead_border_drawing_elements(self):
+    def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return PolyLine._arrowhead_border_drawing_elements(self)
 
 

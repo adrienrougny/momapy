@@ -6,6 +6,8 @@ and returns a model element builder (the caller freezes and registers it).
 Mirrors the SBGN-ML / CellDesigner ``_reading_model`` modules.
 """
 
+import typing
+
 import lxml.etree
 
 from momapy.builder import new_builder_object
@@ -28,8 +30,11 @@ from momapy.sbml.io.sbml._qualifiers import (
     QUALIFIER_ATTRIBUTE_TO_QUALIFIER_MEMBER,
 )
 
+if typing.TYPE_CHECKING:
+    from momapy.sbml.io.sbml._reading_context import SBMLReadingContext
 
-def make_annotations(rdf):
+
+def make_annotations(rdf: typing.Any) -> list[RDFAnnotation]:
     """Build RDF annotations from an ``rdf:RDF`` element.
 
     Shared across SBML, CellDesigner and SBGN-ML readers.
@@ -59,7 +64,7 @@ def make_annotations(rdf):
     return annotations
 
 
-def make_notes(notes_element):
+def make_notes(notes_element: typing.Any) -> list[str]:
     """Serialize the first XML child of a ``notes`` element.
 
     Shared across SBML, CellDesigner and SBGN-ML readers.
@@ -78,7 +83,9 @@ def make_notes(notes_element):
     return [lxml.etree.tostring(first_child, encoding="unicode")]
 
 
-def make_annotations_from_element(sbml_element):
+def make_annotations_from_element(
+    sbml_element: typing.Any,
+) -> list[RDFAnnotation]:
     sbml_rdf = get_rdf(sbml_element)
     if sbml_rdf is not None:
         annotations = make_annotations(sbml_rdf)
@@ -87,13 +94,16 @@ def make_annotations_from_element(sbml_element):
     return annotations
 
 
-def make_notes_from_element(sbml_element):
+def make_notes_from_element(sbml_element: typing.Any) -> list[str]:
     sbml_notes = get_notes(sbml_element)
     return make_notes(sbml_notes)
 
 
 def make_and_add_annotations_and_notes(
-    reading_context, sbml_element, model_element, source_id=None
+    reading_context: "SBMLReadingContext",
+    sbml_element: typing.Any,
+    model_element: typing.Any,
+    source_id: str | None = None,
 ) -> None:
     """Add the annotations and notes of an SBML element to the context.
 
@@ -118,7 +128,12 @@ def make_and_add_annotations_and_notes(
                 reading_context.source_id_to_notes[source_id].update(notes)
 
 
-def register_model_element(reading_context, model_element, collection, id_):
+def register_model_element(
+    reading_context: "SBMLReadingContext",
+    model_element: typing.Any,
+    collection: typing.Any,
+    id_: str,
+) -> typing.Any:
     """Add a model element to a collection with id-based deduplication.
 
     If an equal element already exists in the collection, the one with the
@@ -144,7 +159,9 @@ def register_model_element(reading_context, model_element, collection, id_):
     return model_element
 
 
-def make_compartment(reading_context, sbml_compartment):
+def make_compartment(
+    reading_context: "SBMLReadingContext", sbml_compartment: typing.Any
+) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(Compartment)
@@ -155,7 +172,9 @@ def make_compartment(reading_context, sbml_compartment):
     return model_element
 
 
-def make_species(reading_context, sbml_species):
+def make_species(
+    reading_context: "SBMLReadingContext", sbml_species: typing.Any
+) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(Species)
@@ -171,7 +190,9 @@ def make_species(reading_context, sbml_species):
     return model_element
 
 
-def make_reaction(reading_context, sbml_reaction):
+def make_reaction(
+    reading_context: "SBMLReadingContext", sbml_reaction: typing.Any
+) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(Reaction)
@@ -182,7 +203,9 @@ def make_reaction(reading_context, sbml_reaction):
     return model_element
 
 
-def make_species_reference(reading_context, sbml_species_reference):
+def make_species_reference(
+    reading_context: "SBMLReadingContext", sbml_species_reference: typing.Any
+) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(SpeciesReference)
@@ -198,7 +221,10 @@ def make_species_reference(reading_context, sbml_species_reference):
     return model_element
 
 
-def make_modifier_species_reference(reading_context, sbml_modifier_species_reference):
+def make_modifier_species_reference(
+    reading_context: "SBMLReadingContext",
+    sbml_modifier_species_reference: typing.Any,
+) -> typing.Any:
     if reading_context.model is None:
         return None
     model_element = new_builder_object(ModifierSpeciesReference)

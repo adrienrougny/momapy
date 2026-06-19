@@ -6,6 +6,7 @@ of classes handles all formats. Registered under the single name
 `"pickle"` in `momapy.io`.
 """
 
+import collections.abc
 import os
 import pickle
 import typing
@@ -22,7 +23,11 @@ from momapy.io.core import WriterResult
 from momapy.utils import check_parent_dir_exists
 
 
-def _filter_mapping_by_classes(mapping, include_classes=None, exclude_classes=None):
+def _filter_mapping_by_classes(
+    mapping: collections.abc.Mapping,
+    include_classes: collections.abc.Iterable[type] | None = None,
+    exclude_classes: collections.abc.Iterable[type] | None = None,
+) -> collections.abc.Mapping:
     """Return a new mapping of the same type with filtered keys.
 
     A key is kept unless it is an instance of any class in
@@ -45,7 +50,9 @@ def _filter_mapping_by_classes(mapping, include_classes=None, exclude_classes=No
 
 
 def _filter_annotation_mappings(
-    reader_result, include_classes=None, exclude_classes=None
+    reader_result: ReaderResult,
+    include_classes: collections.abc.Iterable[type] | None = None,
+    exclude_classes: collections.abc.Iterable[type] | None = None,
 ) -> None:
     """Rebuild `element_to_annotations` / `element_to_notes` filtered."""
     if reader_result.element_to_annotations is not None:

@@ -1,4 +1,4 @@
-"""Class for rendering with Skia"""
+"""Class for rendering with Skia."""
 
 import dataclasses
 import typing
@@ -24,6 +24,7 @@ from momapy.drawing import DropShadowEffect
 from momapy.drawing import EdgeMode
 from momapy.drawing import Ellipse
 from momapy.drawing import EllipticalArc
+from momapy.drawing import Filter
 from momapy.drawing import FilterEffectInput
 from momapy.drawing import FloodEffect
 from momapy.drawing import FontStyle
@@ -37,10 +38,12 @@ from momapy.drawing import Path
 from momapy.drawing import QuadraticCurveTo
 from momapy.drawing import Rectangle
 from momapy.drawing import Text
+from momapy.geometry import Bbox
 from momapy.geometry import MatrixTransformation
 from momapy.geometry import Point
 from momapy.geometry import Rotation
 from momapy.geometry import Scaling
+from momapy.geometry import Transformation
 from momapy.geometry import Translation
 from momapy.rendering.core import StatefulRenderer
 from momapy.rendering.core import SupportsFileOutput
@@ -315,7 +318,7 @@ class SkiaRenderer(
         """
         self.canvas.restore()
 
-    def _make_stroke_paint(self):
+    def _make_stroke_paint(self) -> typing.Any:
         if self.get_current_value("stroke_dasharray") is not NoneValue:
             skia_path_effect = skia.DashPathEffect.Make(
                 list(self.get_current_value("stroke_dasharray")),
@@ -334,7 +337,7 @@ class SkiaRenderer(
         )
         return skia_paint
 
-    def _make_fill_paint(self):
+    def _make_fill_paint(self) -> typing.Any:
         skia_paint = skia.Paint(
             AntiAlias=True,
             Color4f=skia.Color4f(
@@ -344,7 +347,7 @@ class SkiaRenderer(
         )
         return skia_paint
 
-    def _make_filter_paint(self, filter_, filter_region):
+    def _make_filter_paint(self, filter_: Filter, filter_region: Bbox) -> typing.Any:
         dskia_filters = {}
         for filter_effect in filter_.effects:
             class_ = type(filter_effect)
@@ -357,7 +360,7 @@ class SkiaRenderer(
         skia_paint = skia.Paint(AntiAlias=True, ImageFilter=skia_filter)
         return skia_paint
 
-    def _make_crop_rect_from_filter_region(self, filter_region):
+    def _make_crop_rect_from_filter_region(self, filter_region: Bbox) -> typing.Any:
         crop_rect = skia.IRect.MakeXYWH(
             round(filter_region.north_west().x),
             round(filter_region.north_west().y),
@@ -366,7 +369,9 @@ class SkiaRenderer(
         )
         return crop_rect
 
-    def _make_input_filter_from_reference(self, dskia_filters, filter_reference):
+    def _make_input_filter_from_reference(
+        self, dskia_filters: dict[str, typing.Any], filter_reference: typing.Any
+    ) -> typing.Any:
         if isinstance(filter_reference, FilterEffectInput):
             return None  # all SVG options default to source bitmap in skia
         in_skia_filter = dskia_filters.get(filter_reference)
@@ -375,7 +380,12 @@ class SkiaRenderer(
                 in_skia_filter = dskia_filters[list(dskia_filters.keys())[-1]]
         return in_skia_filter
 
-    def _make_drop_shadow_effect(self, filter_effect, filter_region, dskia_filters):
+    def _make_drop_shadow_effect(
+        self,
+        filter_effect: DropShadowEffect,
+        filter_region: Bbox,
+        dskia_filters: dict[str, typing.Any],
+    ) -> typing.Any:
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         skia_filter = skia.ImageFilters.DropShadow(
             dx=filter_effect.dx,
@@ -390,7 +400,12 @@ class SkiaRenderer(
         )
         return skia_filter
 
-    def _make_composite_effect(self, filter_effect, filter_region, dskia_filters):
+    def _make_composite_effect(
+        self,
+        filter_effect: CompositeEffect,
+        filter_region: Bbox,
+        dskia_filters: dict[str, typing.Any],
+    ) -> typing.Any:
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         in_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in_
@@ -419,7 +434,12 @@ class SkiaRenderer(
             cropRect=crop_rect,
         )
 
-    def _make_flood_effect(self, filter_effect, filter_region, dskia_filters):
+    def _make_flood_effect(
+        self,
+        filter_effect: FloodEffect,
+        filter_region: Bbox,
+        dskia_filters: dict[str, typing.Any],
+    ) -> typing.Any:
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         skia_paint = skia.Paint(
             AntiAlias=True,
@@ -435,7 +455,12 @@ class SkiaRenderer(
         )
         return skia_filter
 
-    def _make_gaussian_blur_effect(self, filter_effect, filter_region, dskia_filters):
+    def _make_gaussian_blur_effect(
+        self,
+        filter_effect: GaussianBlurEffect,
+        filter_region: Bbox,
+        dskia_filters: dict[str, typing.Any],
+    ) -> typing.Any:
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         in_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in_
@@ -452,7 +477,12 @@ class SkiaRenderer(
         )
         return skia_filter
 
-    def _make_offset_effect(self, filter_effect, filter_region, dskia_filters):
+    def _make_offset_effect(
+        self,
+        filter_effect: OffsetEffect,
+        filter_region: Bbox,
+        dskia_filters: dict[str, typing.Any],
+    ) -> typing.Any:
         crop_rect = self._make_crop_rect_from_filter_region(filter_region)
         in_skia_filter = self._make_input_filter_from_reference(
             dskia_filters, filter_effect.in_
@@ -465,7 +495,9 @@ class SkiaRenderer(
         )
         return skia_filter
 
-    def _add_transform_from_drawing_element(self, drawing_element) -> None:
+    def _add_transform_from_drawing_element(
+        self, drawing_element: DrawingElement
+    ) -> None:
         if (
             drawing_element.transform is not None
             and drawing_element.transform is not NoneValue
@@ -473,31 +505,33 @@ class SkiaRenderer(
             for transformation in drawing_element.transform:
                 self._add_transformation(transformation)
 
-    def _add_transformation(self, transformation):
+    def _add_transformation(self, transformation: Transformation) -> None:
         class_ = type(transformation)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         tr_func = getattr(self, self._tr_class_func_mapping[class_])
         return tr_func(transformation)
 
-    def _render_group(self, group) -> None:
+    def _render_group(self, group: Group) -> None:
         for drawing_element in group.elements:
             self.render_drawing_element(drawing_element)
 
-    def _add_path_action_to_skia_path(self, skia_path, path_action) -> None:
+    def _add_path_action_to_skia_path(
+        self, skia_path: typing.Any, path_action: typing.Any
+    ) -> None:
         class_ = type(path_action)
         if issubclass(class_, Builder):
             class_ = class_._cls_to_build
         pa_func = getattr(self, self._pa_class_func_mapping[class_])
         pa_func(skia_path, path_action)
 
-    def _make_skia_path(self, path):
+    def _make_skia_path(self, path: Path) -> typing.Any:
         skia_path = skia.Path()
         for action in path.actions:
             self._add_path_action_to_skia_path(skia_path, action)
         return skia_path
 
-    def _render_path(self, path) -> None:
+    def _render_path(self, path: Path) -> None:
         skia_path = self._make_skia_path(path)
         if self.get_current_value("fill") is not NoneValue:
             skia_paint = self._make_fill_paint()
@@ -506,7 +540,7 @@ class SkiaRenderer(
             skia_paint = self._make_stroke_paint()
             self.canvas.drawPath(path=skia_path, paint=skia_paint)
 
-    def _render_text(self, text) -> None:
+    def _render_text(self, text: Text) -> None:
         font_family = self.get_current_value("font_family")
         font_weight = self.get_current_value("font_weight")
         font_style = self.get_current_value("font_style")
@@ -564,7 +598,7 @@ class SkiaRenderer(
                 paint=skia_paint,
             )
 
-    def _render_ellipse(self, ellipse) -> None:
+    def _render_ellipse(self, ellipse: Ellipse) -> None:
         skia_rect = skia.Rect(
             ellipse.x - ellipse.rx,
             ellipse.y - ellipse.ry,
@@ -578,7 +612,7 @@ class SkiaRenderer(
             skia_paint = self._make_stroke_paint()
             self.canvas.drawOval(oval=skia_rect, paint=skia_paint)
 
-    def _render_rectangle(self, rectangle) -> None:
+    def _render_rectangle(self, rectangle: Rectangle) -> None:
         skia_rect = skia.Rect(
             rectangle.x,
             rectangle.y,
@@ -602,13 +636,13 @@ class SkiaRenderer(
                 paint=skia_paint,
             )
 
-    def _add_move_to(self, skia_path, move_to) -> None:
+    def _add_move_to(self, skia_path: typing.Any, move_to: MoveTo) -> None:
         skia_path.moveTo(move_to.x, move_to.y)
 
-    def _add_line_to(self, skia_path, line_to) -> None:
+    def _add_line_to(self, skia_path: typing.Any, line_to: LineTo) -> None:
         skia_path.lineTo(line_to.x, line_to.y)
 
-    def _add_curve_to(self, skia_path, curve_to) -> None:
+    def _add_curve_to(self, skia_path: typing.Any, curve_to: CurveTo) -> None:
         skia_path.cubicTo(
             curve_to.control_point1.x,
             curve_to.control_point1.y,
@@ -618,16 +652,20 @@ class SkiaRenderer(
             curve_to.y,
         )
 
-    def _add_quadratic_curve_to(self, skia_path, quadratic_curve_to) -> None:
+    def _add_quadratic_curve_to(
+        self, skia_path: typing.Any, quadratic_curve_to: QuadraticCurveTo
+    ) -> None:
         skia_current_point = skia_path.getPoint(skia_path.countPoints() - 1)
         current_point = Point(skia_current_point.fX, skia_current_point.fY)
         curve_to = quadratic_curve_to.to_curve_to(current_point)
         self._add_curve_to(skia_path, curve_to)
 
-    def _add_close_path(self, skia_path, close_path) -> None:
+    def _add_close_path(self, skia_path: typing.Any, close_path: ClosePath) -> None:
         skia_path.close()
 
-    def _add_elliptical_arc(self, skia_path, elliptical_arc) -> None:
+    def _add_elliptical_arc(
+        self, skia_path: typing.Any, elliptical_arc: EllipticalArc
+    ) -> None:
         if elliptical_arc.arc_flag == 0:
             skia_arc_flag = skia.Path.ArcSize.kSmall_ArcSize
         else:
@@ -646,20 +684,22 @@ class SkiaRenderer(
             y=elliptical_arc.y,
         )
 
-    def _add_translation(self, translation) -> None:
+    def _add_translation(self, translation: Translation) -> None:
         self.canvas.translate(dx=translation.tx, dy=translation.ty)
 
-    def _add_rotation(self, rotation) -> None:
+    def _add_rotation(self, rotation: Rotation) -> None:
         angle = math.degrees(rotation.angle)
         if rotation.point is not None:
             self.canvas.rotate(degrees=angle, px=rotation.point.x, py=rotation.point.y)
         else:
             self.canvas.rotate(degrees=angle)
 
-    def _add_scaling(self, scaling) -> None:
+    def _add_scaling(self, scaling: Scaling) -> None:
         self.canvas.scale(sx=scaling.sx, sy=scaling.sy)
 
-    def _add_matrix_transformation(self, matrix_transformation) -> None:
+    def _add_matrix_transformation(
+        self, matrix_transformation: MatrixTransformation
+    ) -> None:
         m = skia.Matrix.MakeAll(
             scaleX=matrix_transformation.m[0][0],
             skewX=matrix_transformation.m[0][1],

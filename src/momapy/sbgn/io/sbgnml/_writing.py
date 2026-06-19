@@ -1,6 +1,7 @@
 """Pure helper functions for SBGN-ML XML element construction."""
 
 import re
+import typing
 
 import lxml.etree
 
@@ -31,6 +32,13 @@ from momapy.sbml.io.sbml._qualifiers import (
     QUALIFIER_MEMBER_TO_QUALIFIER_ATTRIBUTE,
 )
 
+if typing.TYPE_CHECKING:
+    from momapy.core.elements import LayoutElement
+    from momapy.core.elements import ModelElement
+    from momapy.core.layout import TextLayout
+    from momapy.geometry import Point
+    from momapy.io._utils import WritingContext
+
 NSMAP = {
     None: "http://sbgn.org/libsbgn/0.3",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -42,7 +50,13 @@ _NCNAME_INVALID_CHAR_RE = re.compile(r"[^A-Za-z0-9_.\-]")
 _NCNAME_INVALID_START_RE = re.compile(r"^[^A-Za-z_]")
 
 
-def make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=None):
+def make_lxml_element(
+    tag: str,
+    namespace: str | None = None,
+    attributes: dict | None = None,
+    text: str | None = None,
+    nsmap: dict | None = None,
+) -> lxml.etree._Element:
     if namespace is not None:
         lxml_tag = f"{{{namespace}}}{tag}"
     else:
@@ -57,7 +71,7 @@ def make_lxml_element(tag, namespace=None, attributes=None, text=None, nsmap=Non
     return lxml_element
 
 
-def ensure_ncname(id_str):
+def ensure_ncname(id_str: str | None) -> str:
     """Ensure a string conforms to XML NCName syntax (``xs:ID`` for SBGN-ML).
 
     NCName starts with a letter or underscore, then allows letters,
@@ -80,7 +94,7 @@ def ensure_ncname(id_str):
     return result
 
 
-def make_sbgnml_bbox_from_node(node):
+def make_sbgnml_bbox_from_node(node: Node) -> lxml.etree._Element:
     attributes = {
         "x": str(node.x - node.width / 2),
         "y": str(node.y - node.height / 2),
@@ -90,7 +104,9 @@ def make_sbgnml_bbox_from_node(node):
     return make_lxml_element("bbox", attributes=attributes)
 
 
-def make_sbgnml_bbox_from_text_layout(text_layout):
+def make_sbgnml_bbox_from_text_layout(
+    text_layout: "TextLayout",
+) -> lxml.etree._Element:
     bbox = text_layout.bbox()
     attributes = {
         "x": str(bbox.x - bbox.width / 2),
@@ -101,7 +117,7 @@ def make_sbgnml_bbox_from_text_layout(text_layout):
     return make_lxml_element("bbox", attributes=attributes)
 
 
-def make_sbgnml_label(text_layout):
+def make_sbgnml_label(text_layout: "TextLayout") -> lxml.etree._Element:
     attributes = {"text": text_layout.text}
     sbgnml_label = make_lxml_element("label", attributes=attributes)
     sbgnml_bbox = make_sbgnml_bbox_from_text_layout(text_layout)
@@ -109,7 +125,7 @@ def make_sbgnml_label(text_layout):
     return sbgnml_label
 
 
-def make_sbgnml_state(text_layout):
+def make_sbgnml_state(text_layout: "TextLayout") -> lxml.etree._Element:
     attributes = {}
     text_split = text_layout.text.split("@")
     if len(text_split) > 1:
@@ -119,7 +135,7 @@ def make_sbgnml_state(text_layout):
     return make_lxml_element("state", attributes=attributes)
 
 
-def make_sbgnml_entity(name):
+def make_sbgnml_entity(name: str) -> lxml.etree._Element:
     """Create an ``<entity>`` element naming an AF unit-of-information type.
 
     Args:
@@ -131,12 +147,12 @@ def make_sbgnml_entity(name):
     return make_lxml_element("entity", attributes={"name": name})
 
 
-def make_sbgnml_port(point, port_id):
+def make_sbgnml_port(point: "Point", port_id: str) -> lxml.etree._Element:
     attributes = {"id": port_id, "x": str(point.x), "y": str(point.y)}
     return make_lxml_element("port", attributes=attributes)
 
 
-def make_sbgnml_points(points):
+def make_sbgnml_points(points: "list[Point]") -> list[lxml.etree._Element]:
     sbgnml_elements = []
     start_point = points[0]
     sbgnml_elements.append(
@@ -157,7 +173,10 @@ def make_sbgnml_points(points):
     return sbgnml_elements
 
 
-def make_sbgnml_annotation(annotations, sbgnml_id):
+def make_sbgnml_annotation(
+    annotations: typing.Any,
+    sbgnml_id: str,
+) -> lxml.etree._Element:
     sbgnml_annotation = make_lxml_element("annotation")
     sbgnml_rdf = make_lxml_element(tag="RDF", namespace=NSMAP["rdf"], nsmap=NSMAP)
     sbgnml_annotation.append(sbgnml_rdf)
@@ -183,7 +202,11 @@ def make_sbgnml_annotation(annotations, sbgnml_id):
     return sbgnml_annotation
 
 
-def add_annotations_and_notes(writing_context, sbgnml_element, model_element) -> None:
+def add_annotations_and_notes(
+    writing_context: "WritingContext",
+    sbgnml_element: lxml.etree._Element,
+    model_element: "ModelElement",
+) -> None:
     """Append annotation and notes XML to an SBGN-ML element if present."""
     if writing_context.with_annotations and writing_context.element_to_annotations:
         element_annotations = writing_context.element_to_annotations.get(model_element)
@@ -210,7 +233,7 @@ def add_annotations_and_notes(writing_context, sbgnml_element, model_element) ->
 # ---------------------------------------------------------------------------
 
 
-def reserve_source_xml_ids(writing_context) -> None:
+def reserve_source_xml_ids(writing_context: "WritingContext") -> None:
     """Reserve grammar-valid source ids before any projection (phase 1).
 
     For every layout element that carries a source id, reserve that id
@@ -238,7 +261,7 @@ def reserve_source_xml_ids(writing_context) -> None:
             writing_context.used_xml_ids.add(chosen)
 
 
-def get_xml_id(writing_context, element):
+def get_xml_id(writing_context: "WritingContext", element: typing.Any) -> str:
     """Return the unique, valid NCName id to emit for ``element`` (phase 2).
 
     Hits the phase-1 memo first (source ids reserved verbatim); on a
@@ -268,7 +291,10 @@ def get_xml_id(writing_context, element):
 # ---------------------------------------------------------------------------
 
 
-def get_layout_elements(writing_context, model_element):
+def get_layout_elements(
+    writing_context: "WritingContext",
+    model_element: "ModelElement",
+) -> "list[LayoutElement]":
     """Get all layout elements for a model element.
 
     Returns singleton layouts plus the anchors of any frozenset keys
@@ -301,7 +327,10 @@ def get_layout_elements(writing_context, model_element):
     return layout_elements
 
 
-def get_frozenset_keys(writing_context, model_element):
+def get_frozenset_keys(
+    writing_context: "WritingContext",
+    model_element: "ModelElement",
+) -> list[frozenset]:
     """Get all frozenset mapping keys for a process, modulation or operator.
 
     Args:
@@ -317,7 +346,11 @@ def get_frozenset_keys(writing_context, model_element):
     return [item for item in result if isinstance(item, frozenset)]
 
 
-def get_child_layout_element(writing_context, child_model, parent_model):
+def get_child_layout_element(
+    writing_context: "WritingContext",
+    child_model: "ModelElement",
+    parent_model: "ModelElement",
+) -> "LayoutElement | None":
     """Get the layout element for a child model element.
 
     Args:
@@ -343,7 +376,11 @@ def get_child_layout_element(writing_context, child_model, parent_model):
 # ---------------------------------------------------------------------------
 
 
-def make_sbgnml_glyph(writing_context, layout_element, model_element=None):
+def make_sbgnml_glyph(
+    writing_context: "WritingContext",
+    layout_element: "LayoutElement",
+    model_element: "ModelElement | None" = None,
+) -> lxml.etree._Element:
     """Create a ``<glyph>`` XML element from a layout element.
 
     Handles id, class, orientation, compartmentRef, bbox, label/state,
@@ -403,7 +440,10 @@ def make_sbgnml_glyph(writing_context, layout_element, model_element=None):
     return sbgnml_glyph
 
 
-def make_sbgnml_arc_element(writing_context, arc_layout):
+def make_sbgnml_arc_element(
+    writing_context: "WritingContext",
+    arc_layout: "LayoutElement",
+) -> lxml.etree._Element:
     """Create an ``<arc>`` XML element from an arc layout element.
 
     Handles id, class, source, target, points, and direction reversal
@@ -439,11 +479,15 @@ def make_sbgnml_arc_element(writing_context, arc_layout):
     return sbgnml_arc
 
 
-def make_sbgnml_child_glyphs(writing_context, layout_element, model_element):
-    """Create child ``<glyph>`` elements for auxiliary units (state vars,
-    UOIs, subunits, terminals) of a node.
+def make_sbgnml_child_glyphs(
+    writing_context: "WritingContext",
+    layout_element: "LayoutElement",
+    model_element: "ModelElement",
+) -> list[lxml.etree._Element]:
+    """Create child ``<glyph>`` elements for the auxiliary units of a node.
 
-    This walks the ``layout_elements`` of the *layout_element* and creates
+    Auxiliary units are state variables, units of information, subunits and
+    terminals. This walks the ``layout_elements`` of the *layout_element* and creates
     sub-glyphs for each child node.
 
     Args:
@@ -475,7 +519,9 @@ def make_sbgnml_child_glyphs(writing_context, layout_element, model_element):
 # ---------------------------------------------------------------------------
 
 
-def collect_model_elements(writing_context):
+def collect_model_elements(
+    writing_context: "WritingContext",
+) -> "dict[LayoutElement, list[lxml.etree._Element]]":
     """Build a dict mapping layout elements to their serialized XML elements.
 
     Iterates model collections in dependency order, serializes each
@@ -493,7 +539,7 @@ def collect_model_elements(writing_context):
     model = writing_context.map_.model
     is_pd = isinstance(model, SBGNPDModel)
 
-    def _register(layout_el, sbgnml_el) -> None:
+    def _register(layout_el: "LayoutElement", sbgnml_el: lxml.etree._Element) -> None:
         layout_to_xml.setdefault(layout_el, []).append(sbgnml_el)
 
     # 1. Compartments
@@ -716,7 +762,7 @@ def collect_model_elements(writing_context):
     return layout_to_xml
 
 
-def make_sbgnml_map(writing_context):
+def make_sbgnml_map(writing_context: "WritingContext") -> lxml.etree._Element:
     """Build the ``<map>`` XML element using a model-first traversal.
 
     Phase 1: iterates model collections in dependency order, serializes

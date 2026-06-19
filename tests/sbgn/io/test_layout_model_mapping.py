@@ -138,9 +138,6 @@ class TestFrozensetMappings:
             )
             # The frozenset should contain at least the process layout (anchor)
             # plus consumption/production arcs and their entity pool targets
-            arc_count = sum(
-                1 for el in found_key if isinstance(el, momapy.core.layout.Arc)
-            )
             node_count = sum(
                 1 for el in found_key if isinstance(el, momapy.core.layout.Node)
             )

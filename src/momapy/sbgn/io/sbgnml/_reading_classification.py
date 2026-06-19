@@ -4,6 +4,11 @@ Maps SBGN-ML XML element types to momapy model and layout classes.
 Pure logic — depends on parsing and core classes, nothing else.
 """
 
+import types
+import typing
+
+import lxml.etree
+
 import momapy.sbgn.pd
 import momapy.sbgn.af
 
@@ -496,7 +501,9 @@ KEY_TO_CLASS = {
 }
 
 
-def get_glyph_key(sbgnml_glyph, map_key):
+def get_glyph_key(
+    sbgnml_glyph: lxml.etree._Element, map_key: str
+) -> tuple[str, str, str]:
     """Classify a top-level glyph element.
 
     Args:
@@ -510,7 +517,9 @@ def get_glyph_key(sbgnml_glyph, map_key):
     return (map_key, "GLYPH", sbgnml_class)
 
 
-def get_subglyph_key(sbgnml_subglyph, map_key):
+def get_subglyph_key(
+    sbgnml_subglyph: lxml.etree._Element, map_key: str
+) -> tuple[str, str, str]:
     """Classify a sub-glyph element (state variable, unit of information, etc.).
 
     Args:
@@ -528,7 +537,7 @@ def get_subglyph_key(sbgnml_subglyph, map_key):
     return (map_key, "SUBGLYPH", sbgnml_class)
 
 
-def get_arc_key(sbgnml_arc, map_key):
+def get_arc_key(sbgnml_arc: lxml.etree._Element, map_key: str) -> tuple[str, str, str]:
     """Classify an arc element.
 
     Args:
@@ -542,7 +551,9 @@ def get_arc_key(sbgnml_arc, map_key):
     return (map_key, "ARC", sbgnml_class)
 
 
-def get_model_and_layout_classes(key):
+def get_model_and_layout_classes(
+    key: str | tuple[str, ...],
+) -> tuple[type | None, ...]:
     """Get the model and layout classes for a classification key.
 
     Args:
@@ -554,7 +565,7 @@ def get_model_and_layout_classes(key):
     return KEY_TO_CLASS[key]
 
 
-def get_module(map_key):
+def get_module(map_key: str) -> types.ModuleType | None:
     """Get the SBGN module (pd or af) for a map key.
 
     Args:
@@ -566,7 +577,7 @@ def get_module(map_key):
     return KEY_TO_MODULE.get(map_key)
 
 
-def get_module_from_object(obj):
+def get_module_from_object(obj: typing.Any) -> types.ModuleType | None:
     """Get the SBGN module from a model or layout builder/object.
 
     Args:

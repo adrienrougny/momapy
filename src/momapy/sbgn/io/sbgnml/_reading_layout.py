@@ -5,6 +5,8 @@ argument, checks whether ``reading_context.layout`` is ``None``, and
 returns ``None`` early when no layout is being built.
 """
 
+import typing
+
 from momapy.geometry import Point
 from momapy.geometry import Segment
 from momapy.core.elements import HAlignment
@@ -33,8 +35,19 @@ from momapy.sbgn.io.sbgnml._reading_parsing import is_process_left_to_right
 from momapy.sbgn.layout import DEFAULT_AUXILIARY_UNIT_FONT_SIZE
 from momapy.sbgn.layout import DEFAULT_FONT_SIZE
 
+if typing.TYPE_CHECKING:
+    import lxml.objectify
 
-def make_text_layout(text, position, font_size=DEFAULT_FONT_SIZE):
+    from momapy.core.elements import LayoutElement
+    from momapy.core.layout import Layout
+    from momapy.sbgn.io.sbgnml._reading_context import SBGNMLReadingContext
+
+
+def make_text_layout(
+    text: str | None,
+    position: Point,
+    font_size: float = DEFAULT_FONT_SIZE,
+) -> TextLayout:
     if text is None:
         text = ""
     return TextLayout(
@@ -48,14 +61,16 @@ def make_text_layout(text, position, font_size=DEFAULT_FONT_SIZE):
     )
 
 
-def make_points(sbgnml_points):
+def make_points(
+    sbgnml_points: "list[lxml.objectify.ObjectifiedElement]",
+) -> list[Point]:
     return [
         Point(float(sbgnml_point.get("x")), float(sbgnml_point.get("y")))
         for sbgnml_point in sbgnml_points
     ]
 
 
-def make_segments(points):
+def make_segments(points: list[Point]) -> list[Segment]:
     segments = []
     for current_point, following_point in zip(points[:-1], points[1:]):
         segment = Segment(current_point, following_point)
@@ -63,7 +78,10 @@ def make_segments(points):
     return segments
 
 
-def make_arc_segments(sbgnml_arc, reverse: bool = False):
+def make_arc_segments(
+    sbgnml_arc: "lxml.objectify.ObjectifiedElement",
+    reverse: bool = False,
+) -> list[Segment]:
     sbgnml_points = get_sbgnml_points(sbgnml_arc)
     if reverse:
         sbgnml_points.reverse()
@@ -71,7 +89,11 @@ def make_arc_segments(sbgnml_arc, reverse: bool = False):
     return make_segments(points)
 
 
-def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element) -> None:
+def make_stoichiometry_layout(
+    sbgnml_stoichiometry: "lxml.objectify.ObjectifiedElement | None",
+    layout: "Layout",
+    layout_element: typing.Any,
+) -> None:
     if sbgnml_stoichiometry is None:
         return
     stoichiometry_layout_element = new_builder_object(CardinalityLayout)
@@ -85,7 +107,10 @@ def make_stoichiometry_layout(sbgnml_stoichiometry, layout, layout_element) -> N
         layout_element.layout_elements.append(stoichiometry_layout_element)
 
 
-def set_connector_lengths(layout_element, sbgnml_element) -> None:
+def set_connector_lengths(
+    layout_element: typing.Any,
+    sbgnml_element: "lxml.objectify.ObjectifiedElement",
+) -> None:
     left_connector_length, right_connector_length = get_connectors_length(
         sbgnml_element
     )
@@ -95,7 +120,10 @@ def set_connector_lengths(layout_element, sbgnml_element) -> None:
         layout_element.right_connector_length = right_connector_length
 
 
-def set_position_and_size(layout_element, sbgnml_glyph) -> None:
+def set_position_and_size(
+    layout_element: typing.Any,
+    sbgnml_glyph: "lxml.objectify.ObjectifiedElement",
+) -> None:
     sbgnml_bbox = sbgnml_glyph.bbox
     x = float(sbgnml_bbox.get("x"))
     y = float(sbgnml_bbox.get("y"))
@@ -106,7 +134,10 @@ def set_position_and_size(layout_element, sbgnml_glyph) -> None:
     layout_element.height = h
 
 
-def make_compartment(reading_context, sbgnml_compartment):
+def make_compartment(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_compartment: "lxml.objectify.ObjectifiedElement",
+) -> "LayoutElement | None":
     """Create a compartment layout builder.
 
     Args:
@@ -132,8 +163,10 @@ def make_compartment(reading_context, sbgnml_compartment):
 
 
 def make_entity_pool_or_subunit(
-    reading_context, sbgnml_entity_pool_or_subunit, layout_element_cls
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_entity_pool_or_subunit: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create an entity pool or subunit layout builder.
 
     Args:
@@ -158,7 +191,11 @@ def make_entity_pool_or_subunit(
     return layout_element
 
 
-def make_activity(reading_context, sbgnml_activity, layout_element_cls):
+def make_activity(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_activity: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create an activity layout builder.
 
     Args:
@@ -183,7 +220,11 @@ def make_activity(reading_context, sbgnml_activity, layout_element_cls):
     return layout_element
 
 
-def make_state_variable(reading_context, sbgnml_state_variable, text):
+def make_state_variable(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_state_variable: "lxml.objectify.ObjectifiedElement",
+    text: str | None,
+) -> "LayoutElement | None":
     """Create a frozen state variable layout element.
 
     Args:
@@ -210,8 +251,10 @@ def make_state_variable(reading_context, sbgnml_state_variable, text):
 
 
 def make_unit_of_information(
-    reading_context, sbgnml_unit_of_information, layout_element_cls
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_unit_of_information: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create a frozen unit of information layout element.
 
     Args:
@@ -239,7 +282,11 @@ def make_unit_of_information(
     return layout_element
 
 
-def make_submap(reading_context, sbgnml_submap, layout_element_cls):
+def make_submap(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_submap: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create a submap layout builder.
 
     Args:
@@ -265,7 +312,11 @@ def make_submap(reading_context, sbgnml_submap, layout_element_cls):
     return layout_element
 
 
-def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
+def make_terminal_or_tag(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_terminal_or_tag: "lxml.objectify.ObjectifiedElement",
+    is_terminal: bool,
+) -> "LayoutElement | None":
     """Create a terminal or tag layout builder.
 
     Args:
@@ -296,7 +347,11 @@ def make_terminal_or_tag(reading_context, sbgnml_terminal_or_tag, is_terminal):
     return layout_element
 
 
-def make_reference(reading_context, sbgnml_equivalence_arc, super_layout_element):
+def make_reference(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_equivalence_arc: "lxml.objectify.ObjectifiedElement",
+    super_layout_element: typing.Any,
+) -> "LayoutElement | None":
     """Create a frozen reference (equivalence arc) layout element.
 
     Args:
@@ -325,7 +380,11 @@ def make_reference(reading_context, sbgnml_equivalence_arc, super_layout_element
     return layout_element
 
 
-def make_stoichiometric_process(reading_context, sbgnml_process, layout_element_cls):
+def make_stoichiometric_process(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_process: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create a stoichiometric process layout builder.
 
     Args:
@@ -352,7 +411,11 @@ def make_stoichiometric_process(reading_context, sbgnml_process, layout_element_
     return layout_element
 
 
-def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element):
+def make_reactant(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_consumption_arc: "lxml.objectify.ObjectifiedElement",
+    super_layout_element: typing.Any,
+) -> "LayoutElement | None":
     """Create a frozen reactant (consumption) layout element.
 
     Args:
@@ -384,7 +447,11 @@ def make_reactant(reading_context, sbgnml_consumption_arc, super_layout_element)
     return layout_element
 
 
-def make_product(reading_context, sbgnml_production_arc, super_layout_element):
+def make_product(
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_production_arc: "lxml.objectify.ObjectifiedElement",
+    super_layout_element: typing.Any,
+) -> "LayoutElement | None":
     """Create a frozen product (production) layout element.
 
     Args:
@@ -414,10 +481,10 @@ def make_product(reading_context, sbgnml_production_arc, super_layout_element):
 
 
 def make_logical_operator(
-    reading_context,
-    sbgnml_logical_operator,
-    layout_element_cls,
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_logical_operator: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+) -> "LayoutElement | None":
     """Create a logical operator layout builder.
 
     Args:
@@ -447,8 +514,11 @@ def make_logical_operator(
 
 
 def make_logical_operator_input(
-    reading_context, sbgnml_logic_arc, source_layout_element, super_layout_element
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_logic_arc: "lxml.objectify.ObjectifiedElement",
+    source_layout_element: typing.Any,
+    super_layout_element: typing.Any,
+) -> "LayoutElement | None":
     """Create a frozen logical operator input (logic arc) layout element.
 
     Args:
@@ -475,12 +545,12 @@ def make_logical_operator_input(
 
 
 def make_modulation(
-    reading_context,
-    sbgnml_modulation,
-    layout_element_cls,
-    source_layout_element,
-    target_layout_element,
-):
+    reading_context: "SBGNMLReadingContext",
+    sbgnml_modulation: "lxml.objectify.ObjectifiedElement",
+    layout_element_cls: type,
+    source_layout_element: typing.Any,
+    target_layout_element: typing.Any,
+) -> "LayoutElement | None":
     """Create a frozen modulation layout element.
 
     Args:

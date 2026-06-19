@@ -37,7 +37,6 @@ on its own and must be passed as ``anchor=`` when calling
 | [BooleanLogicGate][momapy.celldesigner.BooleanLogicGate] and subclasses (e.g. [AndGate][momapy.celldesigner.AndGate], [OrGate][momapy.celldesigner.OrGate], [NotGate][momapy.celldesigner.NotGate], [UnknownGate][momapy.celldesigner.UnknownGate]) | The gate layout (e.g. [AndGateLayout][momapy.celldesigner.AndGateLayout], [OrGateLayout][momapy.celldesigner.OrGateLayout]) + every [LogicArcLayout][momapy.celldesigner.LogicArcLayout] input + every target species alias layout those logic arcs point to | The gate layout |
 
 Notes:
-
 - [SpeciesTemplate][momapy.celldesigner.SpeciesTemplate] and subclasses (e.g.
   [GenericProteinTemplate][momapy.celldesigner.GenericProteinTemplate], [GeneTemplate][momapy.celldesigner.GeneTemplate]),
   [ModificationResidue][momapy.celldesigner.ModificationResidue], and [Region][momapy.celldesigner.Region] have no layout key:

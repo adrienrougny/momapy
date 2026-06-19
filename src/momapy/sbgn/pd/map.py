@@ -9,7 +9,7 @@ from momapy.sbgn.pd.model import SBGNPDModel
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class SBGNPDMap(SBGNMap):
-    """Class for SBGN-PD maps"""
+    """Class for SBGN-PD maps."""
 
     model: SBGNPDModel | None = None
     layout: SBGNPDLayout | None = None

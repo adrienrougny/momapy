@@ -34,6 +34,7 @@ from momapy.drawing import MoveTo
 from momapy.drawing import NoneValue
 from momapy.drawing import NoneValueType
 from momapy.drawing import Path
+from momapy.drawing import PathAction
 from momapy.drawing import QuadraticCurveTo
 from momapy.drawing import Text
 from momapy.drawing import TextAnchor
@@ -132,16 +133,21 @@ class TextLayout(LayoutElement):
 
     @property
     def x(self) -> float:
-        """Return the y coordinate of the text layout"""
+        """Return the y coordinate of the text layout."""
         return self.position.x
 
     @property
     def y(self) -> float:
-        """Return the y coordinate of the text layout"""
+        """Return the y coordinate of the text layout."""
         return self.position.y
 
     @classmethod
-    def _get_font_file_path(cls, font_family, font_weight, font_style):
+    def _get_font_file_path(
+        cls,
+        font_family: str,
+        font_weight: FontWeight | int,
+        font_style: FontStyle,
+    ) -> str | None:
         return find_font(
             family=font_family,
             weight=font_weight,
@@ -149,7 +155,7 @@ class TextLayout(LayoutElement):
         )
 
     @classmethod
-    def _make_font(cls, font_file_path, font_size):
+    def _make_font(cls, font_file_path: str, font_size: float) -> uharfbuzz.Font:
         with open(font_file_path, "rb") as f:
             fontdata = f.read()
         face = uharfbuzz.Face(fontdata)
@@ -158,7 +164,7 @@ class TextLayout(LayoutElement):
         return font
 
     @classmethod
-    def _get_font_parameters(cls, font):
+    def _get_font_parameters(cls, font: uharfbuzz.Font) -> tuple[float, float, float]:
         font_extents = font.get_font_extents("ltr")
         ascent = font_extents.ascender / 64
         descent = abs(font_extents.descender / 64)
@@ -167,7 +173,7 @@ class TextLayout(LayoutElement):
         return ascent, descent, height
 
     @classmethod
-    def _get_text_width(cls, text, font):
+    def _get_text_width(cls, text: str, font: uharfbuzz.Font) -> float:
         if text:
             buffer = uharfbuzz.Buffer()
             buffer.add_str(text)
@@ -178,7 +184,7 @@ class TextLayout(LayoutElement):
             width = 0.0
         return width
 
-    def _get_line_positions(self):
+    def _get_line_positions(self) -> list[tuple[str, Point, float]]:
         line_positions = []
         font_file_path = self._get_font_file_path(
             self.font_family, self.font_weight, self.font_style
@@ -216,7 +222,7 @@ class TextLayout(LayoutElement):
         return line_positions
 
     def drawing_elements(self) -> list[DrawingElement]:
-        """Return the drawing elements of the text layout"""
+        """Return the drawing elements of the text layout."""
         drawing_elements = []
         lines_positions = self._get_line_positions()
         for line, position, _ in lines_positions:
@@ -245,7 +251,7 @@ class TextLayout(LayoutElement):
         return [group]
 
     def bbox(self) -> Bbox:
-        """Compute and return the bounding box of the layout element"""
+        """Compute and return the bounding box of the layout element."""
         line_positions = self._get_line_positions()
         font_file_path = self._get_font_file_path(
             self.font_family, self.font_weight, self.font_style
@@ -273,77 +279,80 @@ class TextLayout(LayoutElement):
 
     def children(self) -> list[LayoutElement]:
         """Return the children of the text layout.
-        The text layout has no children, so return an empty list"""
+
+        The text layout has no children, so return an empty list.
+        """
         return []
 
     def childless(self) -> typing_extensions.Self:
         """Return a copy of the text layout with no children.
-        The text layout has no children, so return a copy of the text layout
+
+        The text layout has no children, so return a copy of the text layout.
         """
         return copy.deepcopy(self)
 
     def north_west(self) -> Point:
-        """Return the north west anchor of the text layout"""
+        """Return the north west anchor of the text layout."""
         return self.bbox().north_west()
 
     def north_north_west(self) -> Point:
-        """Return the north north west anchor of the text layout"""
+        """Return the north north west anchor of the text layout."""
         return self.bbox().north_north_west()
 
     def north(self) -> Point:
-        """Return the north anchor of the text layout"""
+        """Return the north anchor of the text layout."""
         return self.bbox().north()
 
     def north_north_east(self) -> Point:
-        """Return the north north east anchor of the text layout"""
+        """Return the north north east anchor of the text layout."""
         return self.bbox().north_north_east()
 
     def north_east(self) -> Point:
-        """Return the north east anchor of the text layout"""
+        """Return the north east anchor of the text layout."""
         return self.bbox().north_east()
 
     def east_north_east(self) -> Point:
-        """Return the east north east anchor of the text layout"""
+        """Return the east north east anchor of the text layout."""
         return self.bbox().east_north_east()
 
     def east(self) -> Point:
-        """Return the east anchor of the text layout"""
+        """Return the east anchor of the text layout."""
         return self.bbox().east()
 
     def east_south_east(self) -> Point:
-        """Return the east south east anchor of the text layout"""
+        """Return the east south east anchor of the text layout."""
         return self.bbox().east_south_east()
 
     def south_east(self) -> Point:
-        """Return the south east anchor of the text layout"""
+        """Return the south east anchor of the text layout."""
         return self.bbox().south_east()
 
     def south_south_east(self) -> Point:
-        """Return the south south east anchor of the text layout"""
+        """Return the south south east anchor of the text layout."""
         return self.bbox().south_south_east()
 
     def south(self) -> Point:
-        """Return the south anchor of the text layout"""
+        """Return the south anchor of the text layout."""
         return self.bbox().south()
 
     def south_south_west(self) -> Point:
-        """Return the south south west anchor of the text layout"""
+        """Return the south south west anchor of the text layout."""
         return self.bbox().south_south_west()
 
     def south_west(self) -> Point:
-        """Return the south west anchor of the text layout"""
+        """Return the south west anchor of the text layout."""
         return self.bbox().south_west()
 
     def west_south_west(self) -> Point:
-        """Return the west south west anchor of the text layout"""
+        """Return the west south west anchor of the text layout."""
         return self.bbox().west_south_west()
 
     def west(self) -> Point:
-        """Return the west anchor of the text layout"""
+        """Return the west anchor of the text layout."""
         return self.bbox().west()
 
     def west_north_west(self) -> Point:
-        """Return the west north west anchor of the text layout"""
+        """Return the west north west anchor of the text layout."""
         return self.bbox().west_north_west()
 
 
@@ -356,16 +365,20 @@ class Shape(LayoutElement):
 
     def childless(self) -> typing_extensions.Self:
         """Return a copy of the shape with no children.
-        A shape has no children, so return a copy of the shape"""
+
+        A shape has no children, so return a copy of the shape.
+        """
         return copy.deepcopy(self)
 
     def children(self) -> list[LayoutElement]:
         """Return the children of the shape.
-        A shape has no children, so return an empty list"""
+
+        A shape has no children, so return an empty list.
+        """
         return []
 
     def bbox(self) -> Bbox:
-        """Compute and return the bounding box of the shape"""
+        """Compute and return the bounding box of the shape."""
         primitives = self.to_geometry()
         if not primitives:
             return Bbox(Point(0, 0), 0, 0)
@@ -452,7 +465,7 @@ class GroupLayout(LayoutElement):
         return drawing_elements_to_geometry(self.drawing_elements())
 
     def own_bbox(self) -> Bbox:
-        """Compute and return the bounding box of the self drawing element of the group layout"""
+        """Compute and return the bounding box of the self drawing element of the group layout."""
         primitives = self.own_to_geometry()
         if not primitives:
             return Bbox(Point(0, 0), 0, 0)
@@ -460,7 +473,7 @@ class GroupLayout(LayoutElement):
         return Bbox.union(bboxes)
 
     def bbox(self) -> Bbox:
-        """Compute and return the bounding box of the group layout element"""
+        """Compute and return the bounding box of the group layout element."""
         own_bbox = self.own_bbox()
         bboxes = [child.bbox() for child in self.children()]
         min_x = own_bbox.north_west().x
@@ -485,17 +498,18 @@ class GroupLayout(LayoutElement):
 
     @abc.abstractmethod
     def own_drawing_elements(self) -> list[DrawingElement]:
-        """Return the self drawing elements of the group layout"""
+        """Return the self drawing elements of the group layout."""
         pass
 
     @abc.abstractmethod
     def own_children(self) -> list[LayoutElement]:
-        """Return the self children of the group layout"""
+        """Return the self children of the group layout."""
         pass
 
     def drawing_elements(self) -> list[DrawingElement]:
         """Return the drawing elements of the group layout.
-        The returned drawing elements are a group drawing element formed of the self drawing elements of the group layout and the drawing elements of its children
+
+        The returned drawing elements are a group drawing element formed of the self drawing elements of the group layout and the drawing elements of its children.
         """
         drawing_elements = self.own_drawing_elements()
         for child in self.children():
@@ -523,7 +537,8 @@ class GroupLayout(LayoutElement):
 
     def children(self) -> list[LayoutElement]:
         """Return the children of the group layout.
-        These are the self children of the group layout (returned by the `own_children` method) and the other children of the group layout (given by the `layout_elements` attribute)
+
+        These are the self children of the group layout (returned by the `own_children` method) and the other children of the group layout (given by the `layout_elements` attribute).
         """
         return self.own_children() + list(self.layout_elements)
 
@@ -574,12 +589,12 @@ class Node(GroupLayout):
 
     @property
     def x(self) -> float:
-        """Return the x coordinate of the node"""
+        """Return the x coordinate of the node."""
         return self.position.x
 
     @property
     def y(self) -> float:
-        """Return the y coordinate of the node"""
+        """Return the y coordinate of the node."""
         return self.position.y
 
     @abc.abstractmethod
@@ -587,7 +602,7 @@ class Node(GroupLayout):
         pass
 
     def own_drawing_elements(self) -> list[DrawingElement]:
-        """Return the node's own drawing elements"""
+        """Return the node's own drawing elements."""
         drawing_elements = self._border_drawing_elements()
         group = Group(
             class_=f"{type(self).__name__}_own",
@@ -604,114 +619,115 @@ class Node(GroupLayout):
         return [group]
 
     def own_children(self) -> list[LayoutElement]:
-        """Return the self children of the node. A node has unique child that is its label"""
+        """Return the self children of the node. A node has unique child that is its label."""
         if self.label is not None:
             return [self.label]
         return []
 
     def size(self) -> tuple[float, float]:
-        """Return the size of the node"""
+        """Return the size of the node."""
         return (self.width, self.height)
 
     def north_west(self) -> Point:
-        """Return the north west anchor of the node"""
+        """Return the north west anchor of the node."""
         line = Line(self.center(), self.center() - (self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def north_north_west(self) -> Point:
-        """Return the north north west anchor of the node"""
+        """Return the north north west anchor of the node."""
         line = Line(self.center(), self.center() - (self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def north(self) -> Point:
-        """Return the north anchor of the node"""
+        """Return the north anchor of the node."""
         return self.own_angle(90)
 
     def north_north_east(self) -> Point:
-        """Return the north north east anchor of the node"""
+        """Return the north north east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 4, -self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def north_east(self) -> Point:
-        """Return the north east anchor of the node"""
+        """Return the north east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 2, -self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def east_north_east(self) -> Point:
-        """Return the east north east anchor of the node"""
+        """Return the east north east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 2, -self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def east(self) -> Point:
-        """Return the east anchor of the node"""
+        """Return the east anchor of the node."""
         return self.own_angle(0)
 
     def east_south_east(self) -> Point:
-        """Return the east south east west anchor of the node"""
+        """Return the east south east west anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def south_east(self) -> Point:
-        """Return the south east anchor of the node"""
+        """Return the south east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def south_south_east(self) -> Point:
-        """Return the south south east anchor of the node"""
+        """Return the south south east anchor of the node."""
         line = Line(self.center(), self.center() + (self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def south(self) -> Point:
-        """Return the south anchor of the node"""
+        """Return the south anchor of the node."""
         return self.own_angle(270)
 
     def south_south_west(self) -> Point:
-        """Return the south south west anchor of the node"""
+        """Return the south south west anchor of the node."""
         line = Line(self.center(), self.center() + (-self.width / 4, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def south_west(self) -> Point:
-        """Return the south west anchor of the node"""
+        """Return the south west anchor of the node."""
         line = Line(self.center(), self.center() + (-self.width / 2, self.height / 2))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def west_south_west(self) -> Point:
-        """Return the west south west anchor of the node"""
+        """Return the west south west anchor of the node."""
         line = Line(self.center(), self.center() + (-self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def west(self) -> Point:
-        """Return the west anchor of the node"""
+        """Return the west anchor of the node."""
         return self.own_angle(180)
 
     def west_north_west(self) -> Point:
-        """Return the west north west anchor of the node"""
+        """Return the west north west anchor of the node."""
         line = Line(self.center(), self.center() - (self.width / 2, self.height / 4))
         angle = -line.get_angle_to_horizontal()
         return self.own_angle(angle, unit="radians")
 
     def center(self) -> Point:
-        """Return the center anchor of the node"""
+        """Return the center anchor of the node."""
         return self.position
 
     def label_center(self) -> Point:
-        """Return the label center anchor of the node"""
+        """Return the label center anchor of the node."""
         return self.position
 
     def own_border(self, point: Point) -> Point | None:
         """Return the point on the border of the node that intersects the self drawing elements of the node with the line formed of the center anchor point of the node and the given point.
-        When there are multiple intersection points, the one closest to the given point is returned
+
+        When there are multiple intersection points, the one closest to the given point is returned.
         """
         return get_drawing_elements_border(
             drawing_elements=self.own_drawing_elements(),
@@ -721,7 +737,8 @@ class Node(GroupLayout):
 
     def border(self, point: Point) -> Point | None:
         """Return the point on the border of the node that intersects the drawing elements of the node with the line formed of the center anchor point of the node and the given point.
-        When there are multiple intersection points, the one closest to the given point is returned
+
+        When there are multiple intersection points, the one closest to the given point is returned.
         """
         return get_drawing_elements_border(
             drawing_elements=self.drawing_elements(),
@@ -756,7 +773,7 @@ class Node(GroupLayout):
         )
 
     def childless(self) -> typing_extensions.Self:
-        """Return a copy of the node with no children"""
+        """Return a copy of the node with no children."""
         return dataclasses.replace(self, label=None, layout_elements=tuple([]))
 
 
@@ -841,35 +858,35 @@ class Arc(GroupLayout):
     )
 
     def own_children(self) -> list[LayoutElement]:
-        """Return the self children of the arc"""
+        """Return the self children of the arc."""
         return []
 
     def points(self) -> list[Point]:
-        """Return the points of the arc path"""
+        """Return the points of the arc path."""
         points = []
         for segment in self.segments:
             points.append(segment.p1)
         points.append(segment.p2)
         return points
 
-    def length(self):
-        """Return the total length of the arc path"""
+    def length(self) -> float:
+        """Return the total length of the arc path."""
         return sum([segment.length() for segment in self.segments])
 
     def start_point(self) -> Point:
-        """Return the starting point of the arc"""
+        """Return the starting point of the arc."""
         return self.points()[0]
 
     def end_point(self) -> Point:
-        """Return the ending point of the arc"""
+        """Return the ending point of the arc."""
         return self.points()[-1]
 
     def childless(self) -> typing_extensions.Self:
-        """Return a copy of the arc with no children"""
+        """Return a copy of the arc with no children."""
         return dataclasses.replace(self, layout_elements=tuple([]))
 
     def fraction(self, fraction: float) -> tuple[Point, float]:
-        """Return the position and angle on the arc at a given fraction (of the total arc length)"""
+        """Return the position and angle on the arc at a given fraction (of the total arc length)."""
         current_length = 0
         length_to_reach = fraction * self.length()
         for segment in self.segments:
@@ -882,7 +899,13 @@ class Arc(GroupLayout):
         return position, angle
 
     @classmethod
-    def _make_path_action_from_segment(cls, segment):
+    def _make_path_action_from_segment(
+        cls,
+        segment: Segment
+        | CubicBezierCurve
+        | QuadraticBezierCurve
+        | GeometryEllipticalArc,
+    ) -> PathAction:
         if isinstance_or_builder(segment, Segment):
             path_action = LineTo(segment.p2)
         elif isinstance_or_builder(segment, CubicBezierCurve):
@@ -946,14 +969,14 @@ class SingleHeadedArc(Arc):
     )
 
     def arrowhead_length(self) -> float:
-        """Return the length of the single-headed arc arrowhead"""
+        """Return the length of the single-headed arc arrowhead."""
         bbox = get_drawing_elements_bbox(self._arrowhead_border_drawing_elements())
         if math.isnan(bbox.width):
             return 0.0
         return bbox.east().x
 
     def arrowhead_tip(self) -> Point:
-        """Return the arrowhead tip anchor point of the single-headed arc"""
+        """Return the arrowhead tip anchor point of the single-headed arc."""
         segment = self.segments[-1]
         segment_length = segment.length()
         if segment_length == 0:
@@ -962,7 +985,7 @@ class SingleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def arrowhead_base(self) -> Point:
-        """Return the arrowhead base anchor point of the single-headed arc"""
+        """Return the arrowhead base anchor point of the single-headed arc."""
         arrowhead_length = self.arrowhead_length()
         segment = self.segments[-1]
         segment_length = segment.length()
@@ -972,14 +995,14 @@ class SingleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def arrowhead_bbox(self) -> Bbox:
-        """Return the bounding box of the single-headed arc arrowhead"""
+        """Return the bounding box of the single-headed arc arrowhead."""
         return get_drawing_elements_bbox(self.arrowhead_drawing_elements())
 
-    def arrowhead_border(self, point) -> Point:
+    def arrowhead_border(self, point: Point) -> Point:
         """Return the point at the intersection of the drawing elements of the single-headed arc arrowhead and the line going through the center of these drawing elements and the given point.
-        When there are multiple intersection points, the one closest to the given point is returned
-        """
 
+        When there are multiple intersection points, the one closest to the given point is returned.
+        """
         point = get_drawing_elements_border(self.arrowhead_drawing_elements(), point)
         if point is None:
             return self.arrowhead_tip()
@@ -991,7 +1014,7 @@ class SingleHeadedArc(Arc):
     ) -> list[DrawingElement]:
         pass
 
-    def _get_arrowhead_transformation(self):
+    def _get_arrowhead_transformation(self) -> Transformation:
         arrowhead_length = self.arrowhead_length()
         arrowhead_base = self.arrowhead_base()
         last_segment = self.segments[-1]
@@ -1013,7 +1036,7 @@ class SingleHeadedArc(Arc):
     def arrowhead_drawing_elements(
         self,
     ) -> list[DrawingElement]:
-        """Return the drawing elements of the single-headed arc arrowhead"""
+        """Return the drawing elements of the single-headed arc arrowhead."""
         drawing_elements = self._arrowhead_border_drawing_elements()
         group = Group(
             class_=f"{type(self).__name__}_arrowhead",
@@ -1032,7 +1055,7 @@ class SingleHeadedArc(Arc):
         return [group]
 
     def path_drawing_elements(self) -> list[Path]:
-        """Return the drawing elements of the single-headed arc path"""
+        """Return the drawing elements of the single-headed arc path."""
         arrowhead_length = self.arrowhead_length()
         if len(self.segments) == 1:
             segment = (
@@ -1072,7 +1095,7 @@ class SingleHeadedArc(Arc):
         return [path]
 
     def own_drawing_elements(self) -> list[DrawingElement]:
-        """Return the self drawing elements of the single-headed arc"""
+        """Return the self drawing elements of the single-headed arc."""
         drawing_elements = (
             self.path_drawing_elements() + self.arrowhead_drawing_elements()
         )
@@ -1161,7 +1184,7 @@ class DoubleHeadedArc(Arc):
     )
 
     def start_arrowhead_length(self) -> float:
-        """Return the length of the double-headed arc start arrowhead"""
+        """Return the length of the double-headed arc start arrowhead."""
         bbox = get_drawing_elements_bbox(
             self._start_arrowhead_border_drawing_elements()
         )
@@ -1170,7 +1193,7 @@ class DoubleHeadedArc(Arc):
         return abs(bbox.west().x)
 
     def start_arrowhead_tip(self) -> Point:
-        """Return the tip anchor point of the double-headed arc start arrowhead"""
+        """Return the tip anchor point of the double-headed arc start arrowhead."""
         segment = self.segments[0]
         segment = Segment(segment.p2, segment.p1)
         segment_length = segment.length()
@@ -1180,7 +1203,7 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def start_arrowhead_base(self) -> Point:
-        """Return the base anchor point of the double-headed arc start arrowhead"""
+        """Return the base anchor point of the double-headed arc start arrowhead."""
         arrowhead_length = self.start_arrowhead_length()
         if arrowhead_length == 0:
             return self.start_point()
@@ -1193,12 +1216,13 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def start_arrowhead_bbox(self) -> Bbox:
-        """Return the bounding box of the double-headed arc start arrowhead"""
+        """Return the bounding box of the double-headed arc start arrowhead."""
         return get_drawing_elements_bbox(self.start_arrowhead_drawing_elements())
 
-    def start_arrowhead_border(self, point) -> Point:
+    def start_arrowhead_border(self, point: Point) -> Point:
         """Return the point at the intersection of the drawing elements of the double-headed arc start arrowhead and the line going through the center of these drawing elements and the given point.
-        When there are multiple intersection points, the one closest to the given point is returned
+
+        When there are multiple intersection points, the one closest to the given point is returned.
         """
         point = get_drawing_elements_border(
             self.start_arrowhead_drawing_elements(), point
@@ -1208,14 +1232,14 @@ class DoubleHeadedArc(Arc):
         return point
 
     def end_arrowhead_length(self) -> float:
-        """Return the length of the double-headed arc end arrowhead"""
+        """Return the length of the double-headed arc end arrowhead."""
         bbox = get_drawing_elements_bbox(self._end_arrowhead_border_drawing_elements())
         if math.isnan(bbox.width):
             return 0.0
         return bbox.east().x
 
     def end_arrowhead_tip(self) -> Point:
-        """Return the tip anchor point of the double-headed arc end arrowhead"""
+        """Return the tip anchor point of the double-headed arc end arrowhead."""
         segment = self.segments[-1]
         segment_length = segment.length()
         if segment_length == 0:
@@ -1224,7 +1248,7 @@ class DoubleHeadedArc(Arc):
         return segment.get_position_at_fraction(fraction)
 
     def end_arrowhead_base(self) -> Point:
-        """Return the base anchor point of the double-headed arc end arrowhead"""
+        """Return the base anchor point of the double-headed arc end arrowhead."""
         arrowhead_length = self.end_arrowhead_length()
         if arrowhead_length == 0:
             return self.end_point()
@@ -1235,15 +1259,15 @@ class DoubleHeadedArc(Arc):
         fraction = 1 - (arrowhead_length + self.end_shorten) / segment_length
         return segment.get_position_at_fraction(fraction)
 
-    def end_arrowhead_bbox(self):
-        """Return the bounding box of the double-headed arc start arrowhead"""
+    def end_arrowhead_bbox(self) -> Bbox:
+        """Return the bounding box of the double-headed arc start arrowhead."""
         return get_drawing_elements_bbox(self.end_arrowhead_drawing_elements())
 
-    def end_arrowhead_border(self, point):
+    def end_arrowhead_border(self, point: Point) -> Point:
         """Return the point at the intersection of the drawing elements of the double-headed arc end arrowhead and the line going through the center of these drawing elements and the given point.
-        When there are multiple intersection points, the one closest to the given point is returned
-        """
 
+        When there are multiple intersection points, the one closest to the given point is returned.
+        """
         point = get_drawing_elements_border(
             self.end_arrowhead_drawing_elements(), point
         )
@@ -1265,7 +1289,7 @@ class DoubleHeadedArc(Arc):
         # base of the arrow if at (0, 0), and the direction to the right
         pass
 
-    def _get_start_arrowhead_transformation(self):
+    def _get_start_arrowhead_transformation(self) -> Transformation:
         arrowhead_length = self.start_arrowhead_length()
         arrowhead_base = self.start_arrowhead_base()
         segment = self.segments[0]
@@ -1288,7 +1312,7 @@ class DoubleHeadedArc(Arc):
     def start_arrowhead_drawing_elements(
         self,
     ) -> list[DrawingElement]:
-        """Return the drawing elements of the double-headed arc start arrowhead"""
+        """Return the drawing elements of the double-headed arc start arrowhead."""
         drawing_elements = self._start_arrowhead_border_drawing_elements()
         group = Group(
             class_=f"{type(self).__name__}_start_arrowhead",
@@ -1306,7 +1330,7 @@ class DoubleHeadedArc(Arc):
         group = group.transformed(transformation)
         return [group]
 
-    def _get_end_arrowhead_transformation(self):
+    def _get_end_arrowhead_transformation(self) -> Transformation:
         arrowhead_length = self.end_arrowhead_length()
         arrowhead_base = self.end_arrowhead_base()
         segment = self.segments[-1]
@@ -1328,7 +1352,7 @@ class DoubleHeadedArc(Arc):
     def end_arrowhead_drawing_elements(
         self,
     ) -> list[DrawingElement]:
-        """Return the drawing elements of the double-headed arc end arrowhead"""
+        """Return the drawing elements of the double-headed arc end arrowhead."""
         drawing_elements = self._end_arrowhead_border_drawing_elements()
         group = Group(
             class_=f"{type(self).__name__}_end_arrowhead",
@@ -1347,7 +1371,7 @@ class DoubleHeadedArc(Arc):
         return [group]
 
     def path_drawing_elements(self) -> list[Path]:
-        """Return the drawing elements of the double-headed arc path"""
+        """Return the drawing elements of the double-headed arc path."""
         start_arrowhead_length = self.start_arrowhead_length()
         end_arrowhead_length = self.end_arrowhead_length()
         if len(self.segments) == 1:
@@ -1390,7 +1414,7 @@ class DoubleHeadedArc(Arc):
         return [path]
 
     def own_drawing_elements(self) -> list[DrawingElement]:
-        """Return the self drawing elements of the double-headed arc. These include the drawing elements of the arc path, the start arrowhead, and the end arrowhead"""
+        """Return the self drawing elements of the double-headed arc. These include the drawing elements of the arc path, the start arrowhead, and the end arrowhead."""
         drawing_elements = (
             self.path_drawing_elements()
             + self.start_arrowhead_drawing_elements()
@@ -1432,10 +1456,16 @@ class Layout(Node):
         path = Path(actions=tuple(actions))
         return [path]
 
-    def is_sublayout(self, other, flattened: bool = False, unordered: bool = False):
-        """Return `True` if another given layout is a sublayout of the layout, `False` otherwise"""
+    def is_sublayout(
+        self, other: "Layout", flattened: bool = False, unordered: bool = False
+    ) -> bool:
+        """Return `True` if another given layout is a sublayout of the layout, `False` otherwise."""
 
-        def _is_sublist(list1, list2, unordered: bool = False) -> bool:
+        def _is_sublist(
+            list1: list[LayoutElement],
+            list2: list[LayoutElement],
+            unordered: bool = False,
+        ) -> bool:
             if not unordered:
                 i = 0
                 for elem1 in list1:

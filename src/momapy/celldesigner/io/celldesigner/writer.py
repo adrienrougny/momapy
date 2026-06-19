@@ -82,7 +82,7 @@ class CellDesignerWriter(Writer):
         subunit_to_complex: dict = {}
         if obj.model is not None:
 
-            def _collect(species) -> None:
+            def _collect(species: typing.Any) -> None:
                 if isinstance(species, Complex):
                     for sub in species.subunits:
                         # Map to top-level ancestor, not immediate parent.

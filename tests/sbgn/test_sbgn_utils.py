@@ -232,11 +232,9 @@ class TestSetAuxiliaryUnitsLabelFontSize:
             momapy.sbgn.pd.StateVariableLayout,
             momapy.sbgn.pd.UnitOfInformationLayout,
         )
-        found_any = False
         for le in builder.layout.descendants():
             if momapy.builder.isinstance_or_builder(le, aux_types):
                 if le.label is not None:
-                    found_any = True
                     assert le.label.font_size == target_size, (
                         f"Expected font_size={target_size}, got {le.label.font_size}"
                     )

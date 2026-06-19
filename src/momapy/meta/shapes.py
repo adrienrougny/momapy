@@ -48,6 +48,7 @@ from momapy.core.elements import Direction
 from momapy.core.layout import Shape
 from momapy.geometry import Point
 from momapy.drawing import ClosePath
+from momapy.drawing import DrawingElement
 from momapy.drawing import Ellipse as EllipseDrawing
 from momapy.drawing import EllipticalArc
 from momapy.drawing import LineTo
@@ -138,55 +139,64 @@ class Rectangle(Shape):
         metadata={"description": "Whether the bottom-left corner is rounded or cut."},
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         return self.position + (
             -self.width / 2 + self.top_left_rx,
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         return self.position + (
             self.width / 2 - self.top_right_rx,
             -self.height / 2,
         )
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         return self.position + (
             self.width / 2,
             -self.height / 2 + self.top_right_ry,
         )
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         return self.position + (
             self.width / 2,
             self.height / 2 - self.bottom_right_ry,
         )
 
-    def joint5(self):
+    def joint5(self) -> Point:
+        """Return joint 5 of the shape's border."""
         return self.position + (
             self.width / 2 - self.bottom_right_rx,
             self.height / 2,
         )
 
-    def joint6(self):
+    def joint6(self) -> Point:
+        """Return joint 6 of the shape's border."""
         return self.position + (
             -self.width / 2 + self.bottom_left_rx,
             self.height / 2,
         )
 
-    def joint7(self):
+    def joint7(self) -> Point:
+        """Return joint 7 of the shape's border."""
         return self.position + (
             -self.width / 2,
             self.height / 2 - self.bottom_left_ry,
         )
 
-    def joint8(self):
+    def joint8(self) -> Point:
+        """Return joint 8 of the shape's border."""
         return self.position + (
             -self.width / 2,
             -self.height / 2 + self.top_left_ry,
         )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -278,7 +288,8 @@ class Ellipse(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         drawing_element = EllipseDrawing(
             point=self.position, rx=self.width / 2, ry=self.height / 2
         )
@@ -303,34 +314,40 @@ class Stadium(Shape):
     )
 
     def __post_init__(self) -> None:
+        """Normalize the shape's fields after initialization."""
         if self.width < self.height:
             object.__setattr__(self, "width", self.height)
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         return self.position + (
             self.height / 2 - self.width / 2,
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         return self.position + (
             self.width / 2 - self.height / 2,
             -self.height / 2,
         )
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         return self.position + (
             self.width / 2 - self.height / 2,
             self.height / 2,
         )
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         return self.position + (
             self.height / 2 - self.width / 2,
             self.height / 2,
         )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         drawing_element = RectangleDrawing(
             point=self.position - (self.width / 2, self.height / 2),
             height=self.height,
@@ -364,7 +381,8 @@ class Hexagon(Shape):
         metadata={"description": "The angle of the right vertex, in degrees."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.left_angle > 90:
             return self.position + (-self.width / 2, -self.height / 2)
         angle = math.radians(self.left_angle)
@@ -374,42 +392,48 @@ class Hexagon(Shape):
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.right_angle > 90:
             return self.position + (self.width / 2, -self.height / 2)
         angle = math.radians(self.right_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (self.width / 2 - side_length, -self.height / 2)
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.right_angle <= 90:
             return self.position + (self.width / 2, 0)
         angle = math.radians(180 - self.right_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (self.width / 2 - side_length, 0)
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         if self.right_angle > 90:
             return self.position + (self.width / 2, self.height / 2)
         angle = math.radians(self.right_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (self.width / 2 - side_length, self.height / 2)
 
-    def joint5(self):
+    def joint5(self) -> Point:
+        """Return joint 5 of the shape's border."""
         if self.left_angle > 90:
             return self.position + (-self.width / 2, self.height / 2)
         angle = math.radians(self.left_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (-self.width / 2 + side_length, self.height / 2)
 
-    def joint6(self):
+    def joint6(self) -> Point:
+        """Return joint 6 of the shape's border."""
         if self.left_angle <= 90:
             return self.position + (-self.width / 2, 0)
         angle = math.radians(180 - self.left_angle)
         side_length = abs(self.height / (math.tan(angle)))
         return self.position + (-self.width / 2 + side_length, 0)
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -446,14 +470,16 @@ class TurnedHexagon(Shape):
         metadata={"description": "The angle of the bottom vertex, in degrees."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.top_angle >= 90:
             p = self.position + (-self.width / 2, -self.height / 2)
         else:
             p = self.position + (0, -self.height / 2)
         return p
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.top_angle >= 90:
             angle = math.radians(180 - self.top_angle)
             side_length = abs(self.width / (math.tan(angle)))
@@ -467,7 +493,8 @@ class TurnedHexagon(Shape):
             )
         return p
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.top_angle >= 90:
             p = self.position + (self.width / 2, -self.height / 2)
         else:
@@ -482,7 +509,8 @@ class TurnedHexagon(Shape):
                 )
         return p
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         if self.top_angle >= 90:
             if self.bottom_angle >= 90:
                 p = self.position + (self.width / 2, self.height / 2)
@@ -506,7 +534,8 @@ class TurnedHexagon(Shape):
 
         return p
 
-    def joint5(self):
+    def joint5(self) -> Point:
+        """Return joint 5 of the shape's border."""
         if self.top_angle >= 90:
             if self.bottom_angle >= 90:
                 angle = math.radians(180 - self.top_angle)
@@ -526,7 +555,8 @@ class TurnedHexagon(Shape):
                 )
         return p
 
-    def joint6(self):
+    def joint6(self) -> Point:
+        """Return joint 6 of the shape's border."""
         if self.top_angle >= 90:
             if self.bottom_angle >= 90:
                 return self.position + (-self.width / 2, self.height / 2)
@@ -546,7 +576,8 @@ class TurnedHexagon(Shape):
             )
         return p
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -580,7 +611,8 @@ class Parallelogram(Shape):
         metadata={"description": "The angle of the slanted sides, in degrees."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.angle >= 90:
             return self.position + (-self.width / 2, -self.height / 2)
         angle = math.radians(self.angle)
@@ -590,28 +622,32 @@ class Parallelogram(Shape):
             -self.height / 2,
         )
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.angle <= 90:
             return self.position + (self.width / 2, -self.height / 2)
         angle = math.radians(180 - self.angle)
         side_length = abs(self.height / math.tan(angle))
         return self.position + (self.width / 2 - side_length, -self.height / 2)
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.angle > 90:
             return self.position + (self.width / 2, self.height / 2)
         angle = math.radians(self.angle)
         side_length = abs(self.height / math.tan(angle))
         return self.position + (self.width / 2 - side_length, self.height / 2)
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         if self.angle <= 90:
             return self.position + (-self.width / 2, self.height / 2)
         angle = math.radians(180 - self.angle)
         side_length = abs(self.height / math.tan(angle))
         return self.position + (-self.width / 2 + side_length, self.height / 2)
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -640,7 +676,8 @@ class CrossPoint(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.position - (self.width / 2, 0)),
             LineTo(self.position + (self.width / 2, 0)),
@@ -674,7 +711,8 @@ class Triangle(Shape):
         metadata={"description": "The direction the triangle points towards."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
             p = self.position + (-self.width / 2, -self.height / 2)
         elif self.direction == Direction.UP:
@@ -683,7 +721,8 @@ class Triangle(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.direction == Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif self.direction == Direction.UP or self.direction == Direction.LEFT:
@@ -692,7 +731,8 @@ class Triangle(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.UP:
             p = self.position + (-self.width / 2, self.height / 2)
         elif self.direction == Direction.LEFT:
@@ -701,7 +741,8 @@ class Triangle(Shape):
             p = self.position + (0, self.height / 2)
         return p
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -729,19 +770,24 @@ class Diamond(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         return self.position + (0, -self.height / 2)
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         return self.position + (self.width / 2, 0)
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         return self.position + (0, self.height / 2)
 
-    def joint4(self):
+    def joint4(self) -> Point:
+        """Return joint 4 of the shape's border."""
         return self.position + (-self.width / 2, 0)
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -767,13 +813,16 @@ class Bar(Shape):
         metadata={"description": "The height of the shape."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         return Point(0, -self.height / 2)
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         return Point(0, self.height / 2)
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         actions = [
             MoveTo(self.joint1()),
             LineTo(self.joint2()),
@@ -802,7 +851,8 @@ class ArcBarb(Shape):
         metadata={"description": "The direction the barb points towards."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
             p = self.position + (-self.width / 2, -self.height / 2)
         elif self.direction == Direction.UP:
@@ -811,7 +861,8 @@ class ArcBarb(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.UP:
             p = self.position + (-self.width / 2, self.height / 2)
         elif self.direction == Direction.LEFT:
@@ -820,7 +871,8 @@ class ArcBarb(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         if self.direction == Direction.RIGHT:
             actions = [
                 MoveTo(self.joint1()),
@@ -893,7 +945,8 @@ class StraightBarb(Shape):
         metadata={"description": "The direction the barb points towards."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
             p = self.position + (-self.width / 2, -self.height / 2)
         elif self.direction == Direction.UP:
@@ -902,7 +955,8 @@ class StraightBarb(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.direction == Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif self.direction == Direction.UP or self.direction == Direction.LEFT:
@@ -911,7 +965,8 @@ class StraightBarb(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.UP:
             p = self.position + (-self.width / 2, self.height / 2)
         elif self.direction == Direction.LEFT:
@@ -920,7 +975,8 @@ class StraightBarb(Shape):
             p = self.position + (0, self.height / 2)
         return p
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         if self.direction == Direction.RIGHT:
             actions = [
                 MoveTo(self.joint1()),
@@ -969,7 +1025,8 @@ class To(Shape):
         metadata={"description": "The direction the arrow tip points towards."}
     )
 
-    def joint1(self):
+    def joint1(self) -> Point:
+        """Return joint 1 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.DOWN:
             p = self.position + (-self.width / 2, -self.height / 2)
         elif self.direction == Direction.UP:
@@ -978,7 +1035,8 @@ class To(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint2(self):
+    def joint2(self) -> Point:
+        """Return joint 2 of the shape's border."""
         if self.direction == Direction.RIGHT:
             p = self.position + (self.width / 2, 0)
         elif self.direction == Direction.UP or self.direction == Direction.LEFT:
@@ -987,7 +1045,8 @@ class To(Shape):
             p = self.position + (self.width / 2, -self.height / 2)
         return p
 
-    def joint3(self):
+    def joint3(self) -> Point:
+        """Return joint 3 of the shape's border."""
         if self.direction == Direction.RIGHT or self.direction == Direction.UP:
             p = self.position + (-self.width / 2, self.height / 2)
         elif self.direction == Direction.LEFT:
@@ -996,7 +1055,8 @@ class To(Shape):
             p = self.position + (0, self.height / 2)
         return p
 
-    def drawing_elements(self):
+    def drawing_elements(self) -> list[DrawingElement]:
+        """Return the drawing elements of the shape."""
         if self.direction == Direction.RIGHT:
             actions = [
                 MoveTo(self.joint1()),

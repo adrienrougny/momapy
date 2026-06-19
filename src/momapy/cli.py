@@ -78,6 +78,7 @@ import pickle
 import string
 import sys
 import tempfile
+import typing
 import webbrowser
 
 from momapy.celldesigner.layout import (
@@ -173,13 +174,23 @@ class _AppendStyleSource(argparse.Action):
     interleaved order is preserved for merging.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None) -> None:
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: typing.Any,
+        option_string: str | None = None,
+    ) -> None:
         if not hasattr(namespace, "style_sources") or namespace.style_sources is None:
             namespace.style_sources = []
         namespace.style_sources.append((self.const, values))
 
 
-def _translate_layout_element(layout_element, translation_x, translation_y) -> None:
+def _translate_layout_element(
+    layout_element: typing.Any,
+    translation_x: float,
+    translation_y: float,
+) -> None:
     """Recursively translate all positions in a layout element builder.
 
     Walks the layout element tree and shifts all positional attributes
@@ -227,7 +238,7 @@ def _translate_layout_element(layout_element, translation_x, translation_y) -> N
             _translate_layout_element(child, translation_x, translation_y)
 
 
-def _move_map_to_top_left(map_):
+def _move_map_to_top_left(map_: typing.Any) -> typing.Any:
     """Translate all layout element positions so the layout starts at (0, 0).
 
     Computes the layout bounding box, then translates all positions by
@@ -252,7 +263,7 @@ def _move_map_to_top_left(map_):
     return object_from_builder(map_builder)
 
 
-def _infer_writer(map_) -> str:
+def _infer_writer(map_: typing.Any) -> str:
     """Infer the writer name from the map type.
 
     Args:
@@ -272,7 +283,7 @@ def _infer_writer(map_) -> str:
         raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
 
 
-def _run_tidy_operation(map_, args):
+def _run_tidy_operation(map_: typing.Any, args: argparse.Namespace) -> typing.Any:
     """Run a specific tidy operation on a map.
 
     Args:
@@ -429,7 +440,7 @@ def _run_tidy_operation(map_, args):
         raise ValueError(f"unknown tidy operation: {operation}")
 
 
-def _read_input(input_file_path):
+def _read_input(input_file_path: str | os.PathLike | None) -> typing.Any:
     """Read a map from a file path, or from stdin if path is None.
 
     When ``input_file_path`` is ``None``, reads binary data from stdin,
@@ -467,7 +478,7 @@ def _read_input(input_file_path):
         os.remove(temporary_file.name)
 
 
-def _write_xml_to_stdout(map_, writer) -> None:
+def _write_xml_to_stdout(map_: typing.Any, writer: str) -> None:
     """Write a map as XML to stdout using a temporary file.
 
     Args:
@@ -488,7 +499,11 @@ def _write_xml_to_stdout(map_, writer) -> None:
         os.remove(temporary_file_path)
 
 
-def _write_output(map_, reader_result, output_file_path) -> None:
+def _write_output(
+    map_: typing.Any,
+    reader_result: typing.Any,
+    output_file_path: str | os.PathLike | None,
+) -> None:
     """Write a map to a file or to stdout.
 
     When ``output_file_path`` is given, writes to that file. Otherwise,
@@ -524,7 +539,9 @@ def _write_output(map_, reader_result, output_file_path) -> None:
     _write_xml_to_stdout(map_, writer)
 
 
-def _build_layout_to_model_id_mapping(layout_model_mapping):
+def _build_layout_to_model_id_mapping(
+    layout_model_mapping: typing.Any,
+) -> dict[str, str]:
     """Build a dict mapping layout element IDs to model element IDs.
 
     Iterates the layout-model mapping and extracts the ``id_`` of each
@@ -571,10 +588,10 @@ def _build_layout_to_model_id_mapping(layout_model_mapping):
 
 
 def _extract_element_metadata(
-    layout_element,
-    layout_id_to_model_id=None,
-    parent_id=None,
-):
+    layout_element: typing.Any,
+    layout_id_to_model_id: dict[str, str] | None = None,
+    parent_id: str | None = None,
+) -> dict[str, dict[str, typing.Any]]:
     """Recursively extract metadata from a layout element tree.
 
     Walks the layout element and its children, building a flat dictionary
@@ -622,7 +639,11 @@ def _extract_element_metadata(
     return metadata
 
 
-def _render_svg_string(layout_element, style_sheet=None, to_top_left: bool = False):
+def _render_svg_string(
+    layout_element: typing.Any,
+    style_sheet: typing.Any = None,
+    to_top_left: bool = False,
+) -> str:
     """Render a layout element to an SVG string.
 
     Uses the native SVG renderer directly without writing to a file.
@@ -1134,7 +1155,10 @@ $svg_content
 
 
 def _visualize_map(
-    map_, style_sheet=None, input_file_path=None, to_top_left: bool = False
+    map_: typing.Any,
+    style_sheet: typing.Any = None,
+    input_file_path: str | os.PathLike | None = None,
+    to_top_left: bool = False,
 ) -> None:
     """Render a map as an interactive HTML page and open it in the browser.
 
@@ -1192,7 +1216,7 @@ def _visualize_map(
     webbrowser.open(f"file://{html_file_path}")
 
 
-def _resolve_class(class_path):
+def _resolve_class(class_path: str) -> type:
     """Resolve a class from a string path.
 
     Accepts both colon notation (``module:Class``) and dotted notation
@@ -1230,7 +1254,7 @@ def _resolve_class(class_path):
     return cls
 
 
-def run(args):
+def run(args: argparse.Namespace) -> None:
     """Execute the CLI command based on parsed arguments.
 
     Args:

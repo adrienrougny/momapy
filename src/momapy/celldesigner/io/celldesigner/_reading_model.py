@@ -5,6 +5,8 @@ argument, checks whether ``reading_context.model`` is ``None``, and
 returns ``None`` early when no model is being built.
 """
 
+import typing
+
 from momapy.celldesigner.io.celldesigner._reading_parsing import (
     get_notes,
     get_products,
@@ -29,8 +31,13 @@ from momapy.celldesigner.model import (
     StructuralState,
 )
 
+if typing.TYPE_CHECKING:
+    from momapy.celldesigner.io.celldesigner._reading_context import (
+        CellDesignerReadingContext,
+    )
 
-def make_annotations_from_element(cd_element):
+
+def make_annotations_from_element(cd_element: typing.Any) -> list[typing.Any]:
     """Extract RDF annotations from a CellDesigner XML element.
 
     Args:
@@ -45,7 +52,7 @@ def make_annotations_from_element(cd_element):
     return make_annotations(cd_rdf)
 
 
-def make_annotations_from_notes(cd_notes):
+def make_annotations_from_notes(cd_notes: typing.Any) -> list[typing.Any]:
     """Extract RDF annotations embedded in an SBML notes element.
 
     Args:
@@ -60,7 +67,7 @@ def make_annotations_from_notes(cd_notes):
     return make_annotations(cd_rdf)
 
 
-def make_notes_from_element(cd_element):
+def make_notes_from_element(cd_element: typing.Any) -> typing.Any:
     """Extract the notes block from a CellDesigner XML element.
 
     Args:
@@ -74,7 +81,10 @@ def make_notes_from_element(cd_element):
 
 
 def make_and_add_annotations(
-    reading_context, cd_element, model_element, source_id=None
+    reading_context: "CellDesignerReadingContext",
+    cd_element: typing.Any,
+    model_element: typing.Any,
+    source_id: str | None = None,
 ) -> None:
     """Add annotations from an XML element to the reading context.
 
@@ -100,7 +110,10 @@ def make_and_add_annotations(
 
 
 def make_and_add_notes(
-    reading_context, cd_element, model_element, source_id=None
+    reading_context: "CellDesignerReadingContext",
+    cd_element: typing.Any,
+    model_element: typing.Any,
+    source_id: str | None = None,
 ) -> None:
     """Add notes from an XML element to the reading context.
 
@@ -124,7 +137,10 @@ def make_and_add_notes(
 
 
 def make_and_add_annotations_from_notes(
-    reading_context, cd_notes, model_element, source_id=None
+    reading_context: "CellDesignerReadingContext",
+    cd_notes: typing.Any,
+    model_element: typing.Any,
+    source_id: str | None = None,
 ) -> None:
     """Add RDF annotations embedded in a ``<notes>`` block.
 
@@ -147,7 +163,7 @@ def make_and_add_annotations_from_notes(
                 reading_context.source_id_to_annotations[source_id].update(annotations)
 
 
-def make_empty_model(cd_element):
+def make_empty_model(cd_element: typing.Any) -> typing.Any:
     """Create an empty CellDesigner model builder.
 
     Args:
@@ -160,7 +176,7 @@ def make_empty_model(cd_element):
     return model
 
 
-def make_empty_map(cd_element):
+def make_empty_map(cd_element: typing.Any) -> typing.Any:
     """Create an empty CellDesigner map builder.
 
     Args:
@@ -177,7 +193,9 @@ def make_empty_map(cd_element):
     return map_
 
 
-def make_compartment(reading_context, cd_compartment):
+def make_compartment(
+    reading_context: "CellDesignerReadingContext", cd_compartment: typing.Any
+) -> typing.Any:
     """Create a compartment model builder from a CellDesigner compartment.
 
     Args:
@@ -196,7 +214,11 @@ def make_compartment(reading_context, cd_compartment):
     return model_element
 
 
-def make_species_template(reading_context, cd_species_template, model_element_cls):
+def make_species_template(
+    reading_context: "CellDesignerReadingContext",
+    cd_species_template: typing.Any,
+    model_element_cls: typing.Any,
+) -> typing.Any:
     """Create a species template model builder.
 
     Args:
@@ -216,8 +238,11 @@ def make_species_template(reading_context, cd_species_template, model_element_cl
 
 
 def make_modification_residue(
-    reading_context, cd_modification_residue, super_cd_element, order
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_modification_residue: typing.Any,
+    super_cd_element: typing.Any,
+    order: int,
+) -> typing.Any:
     """Create a modification residue model builder.
 
     Args:
@@ -242,7 +267,13 @@ def make_modification_residue(
     return model_element
 
 
-def make_region(reading_context, cd_region, model_element_cls, super_cd_element, order):
+def make_region(
+    reading_context: "CellDesignerReadingContext",
+    cd_region: typing.Any,
+    model_element_cls: typing.Any,
+    super_cd_element: typing.Any,
+    order: int,
+) -> typing.Any:
     """Create a region model builder.
 
     Args:
@@ -270,14 +301,14 @@ def make_region(reading_context, cd_region, model_element_cls, super_cd_element,
 
 
 def make_species(
-    reading_context,
-    cd_species,
-    model_element_cls,
-    name,
-    homomultimer,
-    hypothetical,
-    active,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_species: typing.Any,
+    model_element_cls: typing.Any,
+    name: str | None,
+    homomultimer: int,
+    hypothetical: bool,
+    active: bool,
+) -> typing.Any:
     """Create a species model builder.
 
     Args:
@@ -327,8 +358,10 @@ def make_species(
 
 
 def make_species_modification(
-    reading_context, modification_state, cd_modification_residue_id
-):
+    reading_context: "CellDesignerReadingContext",
+    modification_state: typing.Any,
+    cd_modification_residue_id: str,
+) -> typing.Any:
     """Create a species modification model builder.
 
     Args:
@@ -353,7 +386,10 @@ def make_species_modification(
     return model_element
 
 
-def make_species_structural_state(reading_context, cd_species_structural_state):
+def make_species_structural_state(
+    reading_context: "CellDesignerReadingContext",
+    cd_species_structural_state: typing.Any,
+) -> typing.Any:
     """Create a species structural state model builder.
 
     Args:
@@ -370,7 +406,11 @@ def make_species_structural_state(reading_context, cd_species_structural_state):
     return model_element
 
 
-def make_reaction(reading_context, cd_reaction, model_element_cls):
+def make_reaction(
+    reading_context: "CellDesignerReadingContext",
+    cd_reaction: typing.Any,
+    model_element_cls: typing.Any,
+) -> typing.Any:
     """Create a reaction model builder.
 
     Args:
@@ -389,7 +429,11 @@ def make_reaction(reading_context, cd_reaction, model_element_cls):
     return model_element
 
 
-def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
+def make_reactant_from_base(
+    reading_context: "CellDesignerReadingContext",
+    cd_base_reactant: typing.Any,
+    cd_reaction: typing.Any,
+) -> typing.Any:
     """Create a reactant model builder from a base reactant XML element.
 
     Args:
@@ -430,7 +474,11 @@ def make_reactant_from_base(reading_context, cd_base_reactant, cd_reaction):
     return model_element
 
 
-def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
+def make_reactant_from_link(
+    reading_context: "CellDesignerReadingContext",
+    cd_reactant_link: typing.Any,
+    cd_reaction: typing.Any,
+) -> typing.Any:
     """Create a reactant model builder from a reactant link XML element.
 
     Args:
@@ -470,7 +518,11 @@ def make_reactant_from_link(reading_context, cd_reactant_link, cd_reaction):
     return model_element
 
 
-def make_product_from_base(reading_context, cd_base_product, cd_reaction):
+def make_product_from_base(
+    reading_context: "CellDesignerReadingContext",
+    cd_base_product: typing.Any,
+    cd_reaction: typing.Any,
+) -> typing.Any:
     """Create a product model builder from a base product XML element.
 
     Args:
@@ -511,7 +563,11 @@ def make_product_from_base(reading_context, cd_base_product, cd_reaction):
     return model_element
 
 
-def make_product_from_link(reading_context, cd_product_link, cd_reaction):
+def make_product_from_link(
+    reading_context: "CellDesignerReadingContext",
+    cd_product_link: typing.Any,
+    cd_reaction: typing.Any,
+) -> typing.Any:
     """Create a product model builder from a product link XML element.
 
     Args:
@@ -551,7 +607,12 @@ def make_product_from_link(reading_context, cd_product_link, cd_reaction):
     return model_element
 
 
-def make_modifier(reading_context, model_element_cls, source_model_element, metaid):
+def make_modifier(
+    reading_context: "CellDesignerReadingContext",
+    model_element_cls: typing.Any,
+    source_model_element: typing.Any,
+    metaid: str,
+) -> typing.Any:
     """Create a modifier model builder.
 
     Args:
@@ -572,7 +633,9 @@ def make_modifier(reading_context, model_element_cls, source_model_element, meta
     return model_element
 
 
-def make_logic_gate(reading_context, model_element_cls):
+def make_logic_gate(
+    reading_context: "CellDesignerReadingContext", model_element_cls: typing.Any
+) -> typing.Any:
     """Create a boolean logic gate model builder.
 
     Args:
@@ -588,7 +651,9 @@ def make_logic_gate(reading_context, model_element_cls):
     return model_element
 
 
-def make_logic_gate_input(reading_context, input_model_element):
+def make_logic_gate_input(
+    reading_context: "CellDesignerReadingContext", input_model_element: typing.Any
+) -> typing.Any:
     """Create a logic gate input model builder.
 
     Args:
@@ -606,12 +671,12 @@ def make_logic_gate_input(reading_context, input_model_element):
 
 
 def make_modulation(
-    reading_context,
-    cd_reaction,
-    model_element_cls,
-    source_model_element,
-    target_model_element,
-):
+    reading_context: "CellDesignerReadingContext",
+    cd_reaction: typing.Any,
+    model_element_cls: typing.Any,
+    source_model_element: typing.Any,
+    target_model_element: typing.Any,
+) -> typing.Any:
     """Create a modulation model builder.
 
     CellDesigner encodes modulations as fake SBML reactions.

@@ -89,26 +89,32 @@ class Point(GeometryObject):
     y: float = dataclasses.field(metadata={"description": "The y-coordinate."})
 
     def __post_init__(self) -> None:
+        """Round the coordinates to the rounding precision after initialization."""
         object.__setattr__(self, "x", round(self.x, ROUNDING))
         object.__setattr__(self, "y", round(self.y, ROUNDING))
 
-    def __add__(self, xy):
+    def __add__(self, xy: "Point | tuple[float, float]") -> "Point":
+        """Return the sum of the point and another point or `(x, y)` pair."""
         if isinstance_or_builder(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x + xy[0], self.y + xy[1])
 
-    def __sub__(self, xy):
+    def __sub__(self, xy: "Point | tuple[float, float]") -> "Point":
+        """Return the difference of the point and another point or `(x, y)` pair."""
         if isinstance_or_builder(xy, Point):
             xy = (xy.x, xy.y)
         return Point(self.x - xy[0], self.y - xy[1])
 
-    def __mul__(self, scalar):
+    def __mul__(self, scalar: float) -> "Point":
+        """Return the point scaled by a scalar."""
         return Point(self.x * scalar, self.y * scalar)
 
-    def __truediv__(self, scalar):
+    def __truediv__(self, scalar: float) -> "Point":
+        """Return the point divided by a scalar."""
         return Point(self.x / scalar, self.y / scalar)
 
     def __iter__(self):
+        """Yield the x and y coordinates of the point in order."""
         yield self.x
         yield self.y
 
@@ -633,7 +639,11 @@ _GL_WEIGHTS_16 = [
 ]
 
 
-def _arc_length(derivative_function, t0: float, t1: float) -> float:
+def _arc_length(
+    derivative_function: collections.abc.Callable[[float], tuple[float, float]],
+    t0: float,
+    t1: float,
+) -> float:
     """Gauss-Legendre quadrature of |derivative(t)| from t0 to t1.
 
     Args:
@@ -655,7 +665,7 @@ def _arc_length(derivative_function, t0: float, t1: float) -> float:
 
 
 def _find_t_at_arc_length_fraction(
-    derivative_function,
+    derivative_function: collections.abc.Callable[[float], tuple[float, float]],
     total_length: float,
     fraction: float,
     tolerance: float = CONVERGENCE_TOLERANCE,
@@ -1294,6 +1304,7 @@ class EllipticalArc(GeometryObject):
     )
 
     def __post_init__(self) -> None:
+        """Round the radii to the rounding precision after initialization."""
         object.__setattr__(self, "rx", round(self.rx, ROUNDING))
         object.__setattr__(self, "ry", round(self.ry, ROUNDING))
 
@@ -1662,6 +1673,7 @@ class Bbox(object):
     height: float = dataclasses.field(metadata={"description": "Height of the box."})
 
     def __post_init__(self) -> None:
+        """Round the width and height to the rounding precision after initialization."""
         object.__setattr__(self, "width", round(self.width, ROUNDING))
         object.__setattr__(self, "height", round(self.height, ROUNDING))
 
@@ -1846,7 +1858,8 @@ class Transformation(abc.ABC):
         """
         pass
 
-    def __mul__(self, other):
+    def __mul__(self, other: "Transformation") -> "MatrixTransformation":
+        """Return the composition of the transformation with another transformation."""
         return MatrixTransformation(numpy.matmul(self.to_matrix(), other.to_matrix()))
 
 
