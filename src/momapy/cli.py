@@ -135,6 +135,7 @@ from momapy.sbgn.utils import (
     set_submaps_to_fit_content as set_submaps_to_fit_content_sbgn,
 )
 from momapy.sbgn.utils import tidy as tidy_sbgn
+from momapy.sbml.map import SBMLMap
 
 
 _BUILTIN_PRESETS = {
@@ -279,6 +280,12 @@ def _infer_writer(map_: typing.Any) -> str:
         return "celldesigner"
     elif isinstance(map_, SBGNMap):
         return "sbgnml"
+    elif isinstance(map_, SBMLMap):
+        raise ValueError(
+            "SBML is read-only in momapy: there is no SBML writer, so SBML "
+            "maps cannot be exported. Convert the map to SBGN-PD first (see "
+            "momapy.transform) to export it as SBGN-ML."
+        )
     else:
         raise ValueError(f"could not infer writer for map type {type(map_).__name__}")
 
@@ -1586,7 +1593,7 @@ def main() -> None:
     )
     export_parser = subparsers.add_parser(
         "export",
-        description="Export a map (SBGN-ML or CellDesigner) to a file in the same format. Useful for roundtrip testing.",
+        description="Export a map (SBGN-ML or CellDesigner) to a file in the same format. Useful for roundtrip testing. SBML is read-only and cannot be exported.",
     )
     export_parser.add_argument(
         "input_file_path",
