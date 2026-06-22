@@ -11,13 +11,15 @@ Condensed module-by-module inventory of public classes and function signatures f
 ## Core library (`src/momapy/core/` and top-level)
 
 ### `src/momapy/core/__init__.py`
-Re-exports: `Direction`, `HAlignment`, `VAlignment`, `MapElement`, `ModelElement`, `LayoutElement`, `Model`, `Map`, `LayoutModelMapping`, `LayoutModelMappingBuilder`, `TextLayout`, `Shape`, `GroupLayout`, `Node`, `Arc`, `SingleHeadedArc`, `DoubleHeadedArc`, `Layout`, `find_font`.
+Re-exports: `Direction`, `Orientation`, `HAlignment`, `VAlignment`, `MapElement`, `ModelElement`, `LayoutElement`, `Model`, `Map`, `LayoutModelMapping`, `LayoutModelMappingBuilder`, `TextLayout`, `Shape`, `GroupLayout`, `Node`, `Arc`, `SingleHeadedArc`, `DoubleHeadedArc`, `Layout`, `find_font`.
 
 ### `src/momapy/core/elements.py`
 Purpose: base element classes for maps, models, and layouts.
 
 Classes:
-- `Direction(enum.Enum)`, `HAlignment(enum.Enum)`, `VAlignment(enum.Enum)`
+- `Direction(enum.Enum)` — four cardinals (`UP`, `RIGHT`, `DOWN`, `LEFT`)
+- `Orientation(enum.Enum)` — axes (`HORIZONTAL`, `VERTICAL`)
+- `HAlignment(enum.Enum)`, `VAlignment(enum.Enum)`
 - `MapElement` — root of everything; `id_: str` (not part of equality/hash).
 - `ModelElement(MapElement)` — base for model-level elements; `descendants() -> list[ModelElement]` walks reachable model elements via scalar refs and `frozenset`/`tuple` fields, deduped by identity, excluding `self`.
 - `LayoutElement(MapElement, ABC)` — visual elements; `bbox() -> Bbox`, `drawing_elements() -> list[DrawingElement]`, `children() -> list[LayoutElement]`, `childless() -> Self`, `descendants() -> list[LayoutElement]`, `flattened() -> list[LayoutElement]`, `equals(other, flattened=False, unordered=False) -> bool`, `contains(other) -> bool`, `to_geometry() -> list[Segment|Curve|Arc]`, `anchor_point(anchor_name: str) -> Point`.
@@ -222,7 +224,7 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 - `SBGNNode(Node)` — base for SBGN glyphs; `fill`, `stroke`, `stroke_width`.
 - `SBGNSingleHeadedArc(SingleHeadedArc)` — arc with one arrowhead; `arrowhead_*`, `path_*` styling fields.
 - `SBGNDoubleHeadedArc(DoubleHeadedArc)` — arc with two arrowheads; `start_arrowhead_*`, `end_arrowhead_*`, `path_*`.
-- `_ConnectorsMixin` — private mixin for process nodes; `direction`, `left_to_right`, `left_connector_length`, `right_connector_length`, per-connector styling.
+- `_ConnectorsMixin` — private mixin for process nodes; `orientation: Orientation`, `left_to_right`, `left_connector_length`, `right_connector_length`, per-connector styling.
 
 ### `src/momapy/sbgn/model.py`
 - `SBGNModel(Model)` — abstract base shared by PD and AF.
@@ -353,7 +355,7 @@ Purpose: SBGN-AF model classes.
 ### `src/momapy/sbgn/io/sbgnml/_writing_classification.py`
 - `CLASS_TO_SBGNML_CLASS: dict` — 72 entries mapping momapy layout classes to SBGN-ML class-attribute strings.
 - `CLASS_TO_SBGNML_ENTITY_NAME: dict` — momapy model classes → SBGN-ML entity-name strings (for AF units of information).
-- `DIRECTION_TO_SBGNML_ORIENTATION: dict` — `Direction` enum → orientation string.
+- `DIRECTION_TO_SBGNML_ORIENTATION: dict` — `Orientation`/`Direction` enum → orientation string.
 - `REVERSED_ARC_TYPES: tuple` — `ConsumptionLayout`, `LogicArcLayout` (PD + AF), `EquivalenceArcLayout` (reversed during serialization).
 
 ---

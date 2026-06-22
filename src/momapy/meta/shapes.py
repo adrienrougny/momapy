@@ -719,6 +719,8 @@ class Triangle(Shape):
             p = self.position + (0, -self.height / 2)
         elif self.direction == Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint2(self) -> Point:
@@ -729,6 +731,8 @@ class Triangle(Shape):
             p = self.position + (self.width / 2, self.height / 2)
         elif self.direction == Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint3(self) -> Point:
@@ -739,6 +743,8 @@ class Triangle(Shape):
             p = self.position + (-self.width / 2, 0)
         elif self.direction == Direction.DOWN:
             p = self.position + (0, self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def drawing_elements(self) -> list[DrawingElement]:
@@ -861,6 +867,8 @@ class ArcBarb(Shape):
             p = self.position + (self.width / 2, self.height / 2)
         elif self.direction == Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint2(self) -> Point:
@@ -871,6 +879,8 @@ class ArcBarb(Shape):
             p = self.position + (self.width / 2, self.height / 2)
         elif self.direction == Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def drawing_elements(self) -> list[DrawingElement]:
@@ -923,6 +933,8 @@ class ArcBarb(Shape):
                     0,
                 ),
             ]
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         drawing_element = Path(actions=actions)
         return [drawing_element]
 
@@ -955,6 +967,8 @@ class StraightBarb(Shape):
             p = self.position + (0, -self.height / 2)
         elif self.direction == Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint2(self) -> Point:
@@ -965,6 +979,8 @@ class StraightBarb(Shape):
             p = self.position + (self.width / 2, self.height / 2)
         elif self.direction == Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint3(self) -> Point:
@@ -975,6 +991,8 @@ class StraightBarb(Shape):
             p = self.position + (-self.width / 2, 0)
         elif self.direction == Direction.DOWN:
             p = self.position + (0, self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def drawing_elements(self) -> list[DrawingElement]:
@@ -1003,6 +1021,8 @@ class StraightBarb(Shape):
                 LineTo(self.joint3()),
                 LineTo(self.joint2()),
             ]
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         drawing_element = Path(actions=actions)
         return [drawing_element]
 
@@ -1035,6 +1055,8 @@ class To(Shape):
             p = self.position + (0, -self.height / 2)
         elif self.direction == Direction.LEFT:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint2(self) -> Point:
@@ -1045,6 +1067,8 @@ class To(Shape):
             p = self.position + (self.width / 2, self.height / 2)
         elif self.direction == Direction.DOWN:
             p = self.position + (self.width / 2, -self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def joint3(self) -> Point:
@@ -1055,6 +1079,8 @@ class To(Shape):
             p = self.position + (-self.width / 2, 0)
         elif self.direction == Direction.DOWN:
             p = self.position + (0, self.height / 2)
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         return p
 
     def drawing_elements(self) -> list[DrawingElement]:
@@ -1140,5 +1166,7 @@ class To(Shape):
                 ),
             ]
 
+        else:
+            raise ValueError(f"unsupported direction: {self.direction}")
         drawing_element = Path(actions=actions)
         return [drawing_element]

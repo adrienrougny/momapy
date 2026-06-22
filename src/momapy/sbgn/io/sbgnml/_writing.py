@@ -397,9 +397,11 @@ def make_sbgnml_glyph(
     sbgnml_id = get_xml_id(writing_context, layout_element)
     sbgnml_class = CLASS_TO_SBGNML_CLASS[type(layout_element)]
     attributes = {"id": sbgnml_id, "class": sbgnml_class}
-    direction = getattr(layout_element, "direction", None)
-    if direction is not None:
-        sbgnml_orientation = DIRECTION_TO_SBGNML_ORIENTATION[direction]
+    orientation_or_direction = getattr(layout_element, "orientation", None)
+    if orientation_or_direction is None:
+        orientation_or_direction = getattr(layout_element, "direction", None)
+    if orientation_or_direction is not None:
+        sbgnml_orientation = DIRECTION_TO_SBGNML_ORIENTATION[orientation_or_direction]
         attributes["orientation"] = sbgnml_orientation
     if model_element is not None and isinstance(
         model_element,

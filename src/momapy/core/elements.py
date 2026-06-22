@@ -16,18 +16,27 @@ from momapy.utils import make_uuid4_as_str
 
 
 class Direction(enum.Enum):
-    """Direction of a layout element or axis.
+    """Cardinal direction a layout element points to.
 
-    Encodes either an axis (horizontal or vertical) or one of the four cardinal
-    orientations.
+    One of the four cardinals (up, right, down, left). For an axis (horizontal
+    or vertical), see `Orientation`.
+    """
+
+    UP = 1
+    RIGHT = 2
+    DOWN = 3
+    LEFT = 4
+
+
+class Orientation(enum.Enum):
+    """Orientation along an axis.
+
+    Either horizontal or vertical. For a cardinal direction (up, right, down,
+    left), see `Direction`.
     """
 
     HORIZONTAL = 1
     VERTICAL = 2
-    UP = 3
-    RIGHT = 4
-    DOWN = 5
-    LEFT = 6
 
 
 class HAlignment(enum.Enum):

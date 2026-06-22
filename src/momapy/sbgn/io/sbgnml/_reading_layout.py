@@ -27,7 +27,7 @@ from momapy.sbgn.pd import TerminalLayout
 from momapy.sbgn.io.sbgnml._reading_classification import get_module_from_object
 from momapy.sbgn.io.sbgnml._reading_parsing import get_connectors_length
 from momapy.sbgn.io.sbgnml._reading_parsing import get_direction
-from momapy.sbgn.io.sbgnml._reading_parsing import get_process_direction
+from momapy.sbgn.io.sbgnml._reading_parsing import get_process_orientation
 from momapy.sbgn.io.sbgnml._reading_parsing import get_sbgnml_points
 from momapy.sbgn.io.sbgnml._reading_parsing import get_stoichiometry
 from momapy.sbgn.io.sbgnml._reading_parsing import is_operator_left_to_right
@@ -401,7 +401,7 @@ def make_stoichiometric_process(
     layout_element = new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_process)
-    layout_element.direction = get_process_direction(
+    layout_element.orientation = get_process_orientation(
         sbgnml_process, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
     )
     layout_element.left_to_right = is_process_left_to_right(
@@ -501,7 +501,7 @@ def make_logical_operator(
     layout_element = new_builder_object(layout_element_cls)
     layout_element.id_ = sbgnml_id
     set_position_and_size(layout_element, sbgnml_logical_operator)
-    layout_element.direction = get_process_direction(
+    layout_element.orientation = get_process_orientation(
         sbgnml_logical_operator, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
     )
     layout_element.left_to_right = is_operator_left_to_right(

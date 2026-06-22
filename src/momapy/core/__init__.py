@@ -1,6 +1,7 @@
 """Core dataclasses for maps, models, and layouts."""
 
 from momapy.core.elements import Direction as Direction
+from momapy.core.elements import Orientation as Orientation
 from momapy.core.elements import HAlignment as HAlignment
 from momapy.core.elements import VAlignment as VAlignment
 from momapy.core.elements import MapElement as MapElement
@@ -30,6 +31,7 @@ from momapy.core.fonts import find_font as find_font
 
 __all__ = [
     "Direction",
+    "Orientation",
     "HAlignment",
     "VAlignment",
     "MapElement",

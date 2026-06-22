@@ -33,7 +33,7 @@ import momapy.sbgn.pd
 
 from momapy.utils import IdentityMultiDict
 from momapy.core.mapping import LayoutModelMappingBuilder
-from momapy.core.elements import Direction
+from momapy.core.elements import Orientation
 from momapy.core.layout import TextLayout
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
@@ -72,7 +72,7 @@ from momapy.sbgn.io.sbgnml._reading_parsing import get_glyphs
 from momapy.sbgn.io.sbgnml._reading_parsing import get_glyphs_recursively
 from momapy.sbgn.io.sbgnml._reading_parsing import get_logic_arcs
 from momapy.sbgn.io.sbgnml._reading_parsing import get_ports
-from momapy.sbgn.io.sbgnml._reading_parsing import get_process_direction
+from momapy.sbgn.io.sbgnml._reading_parsing import get_process_orientation
 from momapy.sbgn.io.sbgnml._reading_parsing import get_state_variables
 from momapy.sbgn.io.sbgnml._reading_parsing import get_subunits
 from momapy.sbgn.io.sbgnml._reading_parsing import get_terminals
@@ -1361,7 +1361,7 @@ class _SBGNMLReader(Reader):
         super_sbgnml_element: lxml.etree._Element,
     ) -> tuple[typing.Any, typing.Any]:
         if reading_context.model is not None or reading_context.layout is not None:
-            process_direction = get_process_direction(
+            process_orientation = get_process_orientation(
                 super_sbgnml_element, reading_context.sbgnml_glyph_id_to_sbgnml_arcs
             )
             model_element = model_make_product(
@@ -1369,7 +1369,7 @@ class _SBGNMLReader(Reader):
                 sbgnml_production_arc,
                 super_model_element,
                 super_sbgnml_element,
-                process_direction,
+                process_orientation,
             )
             layout_element = layout_make_product(
                 reading_context, sbgnml_production_arc, super_layout_element
@@ -1390,7 +1390,7 @@ class _SBGNMLReader(Reader):
                     super_model_element,
                     sbgnml_production_arc,
                     super_sbgnml_element,
-                    process_direction,
+                    process_orientation,
                 )
             if layout_element is not None:
                 reading_context.layout.layout_elements.append(layout_element)
@@ -1407,7 +1407,7 @@ class _SBGNMLReader(Reader):
         super_model_element: typing.Any,
         sbgnml_production_arc: lxml.etree._Element,
         super_sbgnml_element: lxml.etree._Element,
-        process_direction: Direction,
+        process_orientation: Orientation,
     ) -> None:
         """Set has_external_source / has_external_sink on the parent process.
 
@@ -1419,7 +1419,7 @@ class _SBGNMLReader(Reader):
         if not super_model_element.reversible:
             super_model_element.has_external_sink = True
             return
-        if process_direction == Direction.HORIZONTAL:
+        if process_orientation == Orientation.HORIZONTAL:
             on_product_side = float(sbgnml_production_arc.start.get("x")) > float(
                 super_sbgnml_element.bbox.get("x")
             )

@@ -5,6 +5,7 @@ and direction/orientation values.
 """
 
 from momapy.core.elements import Direction
+from momapy.core.elements import Orientation
 from momapy.sbgn.pd import AndOperatorLayout as PDAndOperatorLayout
 from momapy.sbgn.pd import AssociationLayout as PDAssociationLayout
 from momapy.sbgn.pd import CatalysisLayout as PDCatalysisLayout
@@ -192,8 +193,8 @@ CLASS_TO_SBGNML_ENTITY_NAME = {
 }
 
 DIRECTION_TO_SBGNML_ORIENTATION = {
-    Direction.HORIZONTAL: "horizontal",
-    Direction.VERTICAL: "vertical",
+    Orientation.HORIZONTAL: "horizontal",
+    Orientation.VERTICAL: "vertical",
     Direction.RIGHT: "right",
     Direction.LEFT: "left",
     Direction.DOWN: "down",

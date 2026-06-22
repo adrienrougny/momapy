@@ -8,6 +8,7 @@ objectify trees and return raw Python / geometry values.
 import lxml.etree
 
 from momapy.core.elements import Direction
+from momapy.core.elements import Orientation
 from momapy.sbml.io.sbml._reading_parsing import _RDF_NAMESPACE
 
 
@@ -187,20 +188,20 @@ def get_logic_arcs(
     return sbgnml_logic_arcs
 
 
-def get_process_direction(
+def get_process_orientation(
     sbgnml_process: lxml.etree._Element,
     sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
-) -> Direction:
+) -> Orientation:
     for sbgnml_port in get_ports(sbgnml_process):
         if float(sbgnml_port.get("x")) < float(sbgnml_process.bbox.get("x")) or float(
             sbgnml_port.get("x")
         ) >= float(sbgnml_process.bbox.get("x")) + float(
             sbgnml_process.bbox.get("w")
         ):  # LEFT OR RIGHT
-            return Direction.HORIZONTAL
+            return Orientation.HORIZONTAL
         else:
-            return Direction.VERTICAL
-    return Direction.VERTICAL  # default is vertical
+            return Orientation.VERTICAL
+    return Orientation.VERTICAL  # default is vertical
 
 
 def get_direction(sbgnml_element: lxml.etree._Element) -> Direction:
@@ -221,11 +222,11 @@ def is_operator_left_to_right(
         sbgnml_id_to_sbgnml_element,
         sbgnml_glyph_id_to_sbgnml_arcs,
     )
-    operator_direction = get_process_direction(
+    operator_orientation = get_process_orientation(
         sbgnml_operator, sbgnml_glyph_id_to_sbgnml_arcs
     )
     for sbgnml_logic_arc in sbgnml_logic_arcs:
-        if operator_direction == Direction.HORIZONTAL:
+        if operator_orientation == Orientation.HORIZONTAL:
             if float(sbgnml_logic_arc.end.get("x")) < float(
                 sbgnml_operator.bbox.get("x")
             ):
@@ -246,7 +247,7 @@ def is_process_left_to_right(
     sbgnml_process: lxml.etree._Element,
     sbgnml_glyph_id_to_sbgnml_arcs: dict[str, list[lxml.etree._Element]],
 ) -> bool:
-    process_direction = get_process_direction(
+    process_orientation = get_process_orientation(
         sbgnml_process, sbgnml_glyph_id_to_sbgnml_arcs
     )
     sbgnml_consumption_arcs, sbgnml_production_arcs = (
@@ -258,7 +259,7 @@ def is_process_left_to_right(
         if not sbgnml_production_arcs:  # process is reversible
             return True  # defaults to left to right
         sbgnml_production_arc = sbgnml_production_arcs[0]
-        if process_direction == Direction.HORIZONTAL:
+        if process_orientation == Orientation.HORIZONTAL:
             if float(sbgnml_production_arc.start.get("x")) >= float(
                 sbgnml_process.bbox.get("x")
             ):
@@ -273,7 +274,7 @@ def is_process_left_to_right(
             return False
     if sbgnml_consumption_arcs:
         sbgnml_consumption_arc = sbgnml_consumption_arcs[0]
-        if process_direction == Direction.HORIZONTAL:
+        if process_orientation == Orientation.HORIZONTAL:
             if float(sbgnml_consumption_arc.end.get("x")) <= float(
                 sbgnml_process.bbox.get("x")
             ):

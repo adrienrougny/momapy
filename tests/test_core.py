@@ -21,12 +21,16 @@ class _ConcreteArc(momapy.core.layout.Arc):
 
 def test_direction_enum():
     """Test Direction enum."""
-    assert momapy.core.elements.Direction.HORIZONTAL is not None
-    assert momapy.core.elements.Direction.VERTICAL is not None
     assert momapy.core.elements.Direction.UP is not None
     assert momapy.core.elements.Direction.RIGHT is not None
     assert momapy.core.elements.Direction.DOWN is not None
     assert momapy.core.elements.Direction.LEFT is not None
+
+
+def test_orientation_enum():
+    """Test Orientation enum."""
+    assert momapy.core.elements.Orientation.HORIZONTAL is not None
+    assert momapy.core.elements.Orientation.VERTICAL is not None
 
 
 def test_halignment_enum():

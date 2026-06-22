@@ -14,7 +14,7 @@ from momapy.builder import issubclass_or_builder
 from momapy.coloring import Color
 from momapy.coloring import black
 from momapy.coloring import white
-from momapy.core.elements import Direction
+from momapy.core.elements import Orientation
 from momapy.core.elements import ModelElement
 from momapy.core.layout import DoubleHeadedArc
 from momapy.core.layout import Node
@@ -170,8 +170,8 @@ class _ConnectorsMixin(_SBGNMixin):
     from the main shape, used in SBGN process nodes.
     """
 
-    direction: Direction = dataclasses.field(
-        default=Direction.HORIZONTAL,
+    orientation: Orientation = dataclasses.field(
+        default=Orientation.HORIZONTAL,
         metadata={"description": "Orientation of connectors (HORIZONTAL or VERTICAL)."},
     )
     left_to_right: bool = dataclasses.field(
@@ -257,7 +257,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point where the left connector attaches to the shape.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y - self.height / 2)
         else:
             return Point(self.x - self.width / 2, self.y)
@@ -268,7 +268,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point where the right connector attaches to the shape.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y + self.height / 2)
         else:
             return Point(self.x + self.width / 2, self.y)
@@ -279,7 +279,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point at the end of the left connector line.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y - self.height / 2 - self.left_connector_length)
         else:
             return Point(self.x - self.width / 2 - self.left_connector_length, self.y)
@@ -290,7 +290,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point at the end of the right connector line.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y + self.height / 2 + self.right_connector_length)
         else:
             return Point(self.x + self.width / 2 + self.right_connector_length, self.y)
@@ -301,7 +301,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the west side of the element.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x - self.width / 2, self.y)
         else:
             return Point(self.x - self.width / 2 - self.left_connector_length, self.y)
@@ -312,7 +312,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the south side of the element.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y + self.height / 2 + self.right_connector_length)
         else:
             return Point(self.x, self.y + self.height / 2)
@@ -323,7 +323,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the east side of the element.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x + self.width / 2, self.y)
         else:
             return Point(self.x + self.width / 2 + self.right_connector_length, self.y)
@@ -334,7 +334,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             Point on the north side of the element.
         """
-        if self.direction == Direction.VERTICAL:
+        if self.orientation == Orientation.VERTICAL:
             return Point(self.x, self.y - self.height / 2 - self.left_connector_length)
         else:
             return Point(self.x, self.y - self.height / 2)
@@ -349,7 +349,7 @@ class _ConnectorsMixin(_SBGNMixin):
         Returns:
             List of drawing elements for the connector lines.
         """
-        if obj.direction == Direction.VERTICAL:
+        if obj.orientation == Orientation.VERTICAL:
             left_actions = [
                 MoveTo(obj.left_connector_base()),
                 LineTo(obj.left_connector_base() - (0, obj.left_connector_length)),

@@ -9,7 +9,7 @@ import typing
 
 from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
-from momapy.core.elements import Direction
+from momapy.core.elements import Orientation
 from momapy.sbgn.pd import LogicalOperatorInput
 from momapy.sbgn.pd import Product
 from momapy.sbgn.pd import Reactant
@@ -424,7 +424,7 @@ def make_product(
     sbgnml_production_arc: "lxml.objectify.ObjectifiedElement",
     super_model_element: typing.Any,
     super_sbgnml_element: "lxml.objectify.ObjectifiedElement",
-    process_direction: Direction,
+    process_orientation: Orientation,
 ) -> "ModelElement | None":
     """Create a frozen product model element.
 
@@ -433,7 +433,7 @@ def make_product(
         sbgnml_production_arc: The SBGN-ML production arc element.
         super_model_element: The parent process model element builder.
         super_sbgnml_element: The parent process SBGN-ML element.
-        process_direction: The direction of the process.
+        process_orientation: The orientation of the process.
 
     Returns:
         A frozen model element, or None if reading_context.model is None
@@ -446,7 +446,7 @@ def make_product(
         return None
     sbgnml_stoichiometry = get_stoichiometry(sbgnml_production_arc)
     if super_model_element.reversible:
-        if process_direction == Direction.HORIZONTAL:
+        if process_orientation == Orientation.HORIZONTAL:
             if float(sbgnml_production_arc.start.get("x")) > float(
                 super_sbgnml_element.bbox.get("x")
             ):  # RIGHT
