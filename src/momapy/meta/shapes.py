@@ -803,7 +803,9 @@ class Diamond(Shape):
 class Bar(Shape):
     """Bar shape.
 
-    A single vertical bar segment spanning the given height.
+    A single vertical bar segment spanning the given height, centered on
+    ``position``. A bar has no ``width``: it is a single stroke, and its
+    thickness is the stroke width.
     """
 
     position: Point = dataclasses.field(
@@ -815,11 +817,11 @@ class Bar(Shape):
 
     def joint1(self) -> Point:
         """Return joint 1 of the shape's border."""
-        return Point(0, -self.height / 2)
+        return self.position + (0, -self.height / 2)
 
     def joint2(self) -> Point:
         """Return joint 2 of the shape's border."""
-        return Point(0, self.height / 2)
+        return self.position + (0, self.height / 2)
 
     def drawing_elements(self) -> list[DrawingElement]:
         """Return the drawing elements of the shape."""
