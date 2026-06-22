@@ -49,3 +49,28 @@ class TestCellDesignerModel:
         # Check for common model attributes
         assert hasattr(model, "id_")
         assert hasattr(model, "name")
+
+
+class TestCellDesignerRoles:
+    """Tests for the shared species-reference base of CellDesigner roles."""
+
+    def test_all_roles_share_simple_species_reference(self):
+        """Reactant, Product, Modulator and gate input share the base."""
+        from momapy.sbml.model import SimpleSpeciesReference
+        import momapy.celldesigner.model as cd
+
+        for cls in (
+            cd.Reactant,
+            cd.Product,
+            cd.Modulator,
+            cd.BooleanLogicGateInput,
+        ):
+            assert issubclass(cls, SimpleSpeciesReference)
+
+    def test_boolean_logic_gate_input_has_referred_element(self):
+        """A gate input carries referred_element from the shared base."""
+        import momapy.celldesigner.model as cd
+
+        species = cd.Protein(template=cd.ProteinTemplate(name="p"))
+        gate_input = cd.BooleanLogicGateInput(referred_element=species)
+        assert gate_input.referred_element is species

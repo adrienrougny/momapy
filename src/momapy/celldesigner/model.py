@@ -58,6 +58,7 @@ import enum
 from momapy.celldesigner.elements import CellDesignerModelElement
 from momapy.sbml.model import Compartment as SBMLCompartment
 from momapy.sbml.model import Species as SBMLSpecies
+from momapy.sbml.model import SimpleSpeciesReference
 from momapy.sbml.model import SpeciesReference
 from momapy.sbml.model import ModifierSpeciesReference
 from momapy.sbml.model import Reaction as SBMLReaction
@@ -564,15 +565,16 @@ class Product(SpeciesReference, CellDesignerModelElement):
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
-class BooleanLogicGateInput(CellDesignerModelElement):
+class BooleanLogicGateInput(SimpleSpeciesReference, CellDesignerModelElement):
     """Input of a Boolean logic gate.
 
-    A gate input references the species providing one of the gate's operands.
+    A gate input references the species (via the inherited ``referred_element``)
+    providing one of the gate's operands. Like reactants, products and
+    modulators, it is a species reference, so all CellDesigner participation
+    classes share the ``SimpleSpeciesReference`` base.
     """
 
-    referred_element: Species = dataclasses.field(
-        metadata={"description": "The species providing the input"},
-    )
+    pass
 
 
 # abstract
