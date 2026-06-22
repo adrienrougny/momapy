@@ -1812,7 +1812,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
     """Class for SBGN-ML 0.3 reader objects."""
 
     @classmethod
-    def _get_map_key(cls, sbgnml_map: lxml.etree._Element) -> str | None:
+    def _get_map_key(cls, sbgnml_map: lxml.etree._Element) -> str:
         sbgnml_version = sbgnml_map.get("version")
         if sbgnml_version is not None:
             if "sbgn.pd" in sbgnml_version:
@@ -1821,6 +1821,7 @@ class SBGNML0_3Reader(_SBGNMLReader):
                 return "ACTIVITY_FLOW"
             elif "sbgn.er" in sbgnml_version:
                 return "ENTITY_RELATIONSHIP"
+            raise ValueError(f"unrecognized SBGN map version {sbgnml_version!r}")
         else:
             return SBGNML0_2Reader._get_map_key(sbgnml_map)
 
