@@ -146,7 +146,7 @@ class LogicalOperatorInput(SBGNRole):
     Represents an input connection to a logical operator.
     """
 
-    element: typing.Union[
+    referred_element: typing.Union[
         BiologicalActivity,
         typing.ForwardRef("LogicalOperator", module=__name__),
     ] = dataclasses.field(
@@ -268,7 +268,7 @@ class NecessaryStimulation(Influence):
 class TerminalReference(SBGNRole):
     """Reference to a terminal."""
 
-    element: Activity | Compartment = dataclasses.field(
+    referred_element: Activity | Compartment = dataclasses.field(
         metadata={"description": "The activity or compartment being referenced."}
     )
 
@@ -277,7 +277,7 @@ class TerminalReference(SBGNRole):
 class TagReference(SBGNRole):
     """Reference to a tag."""
 
-    element: Activity | Compartment = dataclasses.field(
+    referred_element: Activity | Compartment = dataclasses.field(
         metadata={"description": "The activity or compartment being referenced."}
     )
 

@@ -357,7 +357,7 @@ def make_reference(
     target_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_target_id, ())), None
     )
-    model_element.element = target_model_element
+    model_element.referred_element = target_model_element
     model_element = object_from_builder(model_element)
     return model_element
 
@@ -413,7 +413,7 @@ def make_reactant(
     source_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_source_id, ())), None
     )
-    model_element.element = source_model_element
+    model_element.referred_element = source_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = object_from_builder(model_element)
     return model_element
@@ -467,7 +467,7 @@ def make_product(
     target_model_element = next(
         iter(reading_context.xml_id_to_model_element.get(sbgnml_target_id, ())), None
     )
-    model_element.element = target_model_element
+    model_element.referred_element = target_model_element
     set_stoichiometry(model_element, sbgnml_stoichiometry)
     model_element = object_from_builder(model_element)
     return model_element
@@ -515,7 +515,7 @@ def make_logical_operator_input(
         return None
     model_element = new_builder_object(LogicalOperatorInput)
     model_element.id_ = f"{sbgnml_logic_arc.get('id')}_model"
-    model_element.element = source_model_element
+    model_element.referred_element = source_model_element
     model_element = object_from_builder(model_element)
     return model_element
 

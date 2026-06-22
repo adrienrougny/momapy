@@ -570,7 +570,7 @@ class BooleanLogicGateInput(CellDesignerModelElement):
     A gate input references the species providing one of the gate's operands.
     """
 
-    element: Species = dataclasses.field(
+    referred_element: Species = dataclasses.field(
         metadata={"description": "The species providing the input"},
     )
 
@@ -638,7 +638,7 @@ class KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement
     """
 
     # redefined because can be BooleanLogicGate
-    referred_species: Species | BooleanLogicGate = dataclasses.field(
+    referred_element: Species | BooleanLogicGate = dataclasses.field(
         metadata={"description": "The species the modifier refers to"}
     )
 

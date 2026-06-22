@@ -220,7 +220,7 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 
 - `SBGNModelElement(ModelElement)` — base for SBGN model elements.
 - `SBGNAuxiliaryUnit(SBGNModelElement)` — base for state variables, units of information, terminals, tags.
-- `SBGNRole(SBGNModelElement)` — `element: SBGNModelElement`.
+- `SBGNRole(SBGNModelElement)` — `referred_element: SBGNModelElement`.
 - `SBGNNode(Node)` — base for SBGN glyphs; `fill`, `stroke`, `stroke_width`.
 - `SBGNSingleHeadedArc(SingleHeadedArc)` — arc with one arrowhead; `arrowhead_*`, `path_*` styling fields.
 - `SBGNDoubleHeadedArc(DoubleHeadedArc)` — arc with two arrowheads; `start_arrowhead_*`, `end_arrowhead_*`, `path_*`.
@@ -262,9 +262,9 @@ Purpose: SBGN-PD model classes.
 - **Auxiliary units**: `StateVariable(SBGNAuxiliaryUnit)` — `variable`, `value`, `order`; `UnitOfInformation` — `value`, `prefix`; `Subunit` family with per-type subclasses (`UnspecifiedEntitySubunit`, `MacromoleculeSubunit`, `NucleicAcidFeatureSubunit`, `SimpleChemicalSubunit`, `ComplexSubunit`, `MultimerSubunit` (+ `cardinality`) and the four multimer variants).
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `state_variables`, `units_of_information`.
 - **Entity pools**: `EntityPool(SBGNModelElement)` (`compartment`); subclasses `EmptySet`, `PerturbingAgent`, `UnspecifiedEntity`, `Macromolecule`, `NucleicAcidFeature`, `SimpleChemical`, `Complex` (+ `subunits`), `Multimer(Complex)` (+ `cardinality`) and the four multimer variants.
-- **Flux roles**: `FluxRole(SBGNRole)` — `element: EntityPool`, `stoichiometry`; `Reactant`, `Product`.
+- **Flux roles**: `FluxRole(SBGNRole)` — `referred_element: EntityPool`, `stoichiometry`; `Reactant`, `Product`.
 - **Processes**: `Process(SBGNModelElement)` (`reactants`, `products`); `StoichiometricProcess` (adds `reversible`, `has_external_source`, `has_external_sink`) → `GenericProcess`, `UncertainProcess`, `OmittedProcess`; `GenericProcess` → `Association`, `Dissociation`; `Phenotype(Process)`.
-- **Logical operators**: `LogicalOperator(SBGNModelElement)` (`inputs: frozenset[LogicalOperatorInput]`) → `OrOperator`, `AndOperator`, `NotOperator`. `LogicalOperatorInput(SBGNRole)` — `element: EntityPool | Compartment | LogicalOperator`.
+- **Logical operators**: `LogicalOperator(SBGNModelElement)` (`inputs: frozenset[LogicalOperatorInput]`) → `OrOperator`, `AndOperator`, `NotOperator`. `LogicalOperatorInput(SBGNRole)` — `referred_element: EntityPool | Compartment | LogicalOperator`.
 - **Equivalence operators**: `EquivalenceOperator` (`inputs`, `output`), `EquivalenceOperatorInput`, `EquivalenceOperatorOutput`.
 - **Modulations**: `Modulation(SBGNModelElement)` (`source`, `target`) → `Inhibition`, `Stimulation`. `Stimulation` → `Catalysis`, `NecessaryStimulation`.
 - **Tags/terminals/submaps**: `Tag(SBGNModelElement)` (`label`, `referred_element`), `TagReference(SBGNRole)`, `Terminal(SBGNAuxiliaryUnit)` (`label`, `referred_element`), `TerminalReference(SBGNRole)`, `Submap(SBGNModelElement)` (`label`, `terminals`).
@@ -285,7 +285,7 @@ Purpose: SBGN-AF model classes.
 - **Units of information**: `UnitOfInformation(SBGNModelElement)` (`label`) plus AF-specific subclasses: `MacromoleculeUnitOfInformation`, `NucleicAcidFeatureUnitOfInformation`, `ComplexUnitOfInformation`, `SimpleChemicalUnitOfInformation`, `UnspecifiedEntityUnitOfInformation`, `PerturbationUnitOfInformation`.
 - **Compartment**: `Compartment(SBGNModelElement)` — `label`, `units_of_information`.
 - **Activities**: `Activity(SBGNModelElement)` — `label`, `compartment`; `BiologicalActivity` (+ `units_of_information`), `Phenotype`.
-- **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `element: BiologicalActivity | LogicalOperator`.
+- **Logical operators**: `LogicalOperator` (`inputs`) → `OrOperator`, `AndOperator`, `NotOperator`, `DelayOperator`. `LogicalOperatorInput(SBGNRole)` — `referred_element: BiologicalActivity | LogicalOperator`.
 - **Influences**: `Influence(SBGNModelElement)` (`source`, `target: Activity`) → `UnknownInfluence`, `PositiveInfluence`, `NegativeInfluence`, `NecessaryStimulation`.
 - **Tags/terminals/submaps**: AF `Tag(SBGNModelElement)` and `Terminal(SBGNModelElement)` both use field `referred_element` (AF `Terminal` extends `SBGNModelElement`, unlike PD `Terminal` which extends `SBGNAuxiliaryUnit`); plus `Submap` and the reference roles.
 - **Model**: `SBGNAFModel(SBGNModel)` — `compartments`, `activities`, `influences`, `logical_operators`, `submaps`, `tags`.
@@ -382,8 +382,8 @@ Purpose: CellDesigner model classes.
 - **Templates**: `SpeciesTemplate(CellDesignerModelElement)` (`name`) → `ProteinTemplate` (`modification_residues`) → `GenericProteinTemplate`, `TruncatedProteinTemplate`, `ReceptorTemplate`, `IonChannelTemplate`; `GeneTemplate` (`regions`), `RNATemplate` (`regions`), `AntisenseRNATemplate` (`regions`).
 - **Compartment / species**: `Compartment(SBMLCompartment, CellDesignerModelElement)`; `Species(SBMLSpecies, CellDesignerModelElement)` (`hypothetical`, `active`, `homomultimer`); `Protein` (`template`, `modifications`, `structural_states`) → `GenericProtein`, `TruncatedProtein`, `Receptor`, `IonChannel`; `Gene`, `RNA`, `AntisenseRNA` (each with `template`, `modifications`); `Phenotype`, `Ion`, `SimpleMolecule`, `Drug`, `Unknown`, `Degraded`; `Complex` (`structural_states`, `subunits`).
 - **Reaction participants**: `Reactant(SpeciesReference, CellDesignerModelElement)` (`base`), `Product(SpeciesReference, CellDesignerModelElement)` (`base`).
-- **Boolean logic**: `BooleanLogicGateInput` (`element: Species`); `BooleanLogicGate` (`inputs`) → `AndGate`, `OrGate`, `NotGate`, `UnknownGate`.
-- **Modulators**: `KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement)` (`referred_species: Species | BooleanLogicGate`) → `Modulator` → `Inhibitor`, `PhysicalStimulator` → `Catalyzer`, also `Trigger`, `UnknownCatalyzer`, `UnknownInhibitor`; separate branch `UnknownModulator`.
+- **Boolean logic**: `BooleanLogicGateInput` (`referred_element: Species`); `BooleanLogicGate` (`inputs`) → `AndGate`, `OrGate`, `NotGate`, `UnknownGate`.
+- **Modulators**: `KnownOrUnknownModulator(ModifierSpeciesReference, CellDesignerModelElement)` (`referred_element: Species | BooleanLogicGate`) → `Modulator` → `Inhibitor`, `PhysicalStimulator` → `Catalyzer`, also `Trigger`, `UnknownCatalyzer`, `UnknownInhibitor`; separate branch `UnknownModulator`.
 - **Reactions**: `Reaction(SBMLReaction, CellDesignerModelElement)` (`reactants`, `products`, `modifiers`) → `StateTransition`, `KnownTransitionOmitted`, `UnknownTransition`, `Transcription`, `Translation`, `Transport`, `HeterodimerAssociation`, `Dissociation`, `Truncation`.
 - **Modulations**: `KnownOrUnknownModulation` (`source`, `target`) → `Modulation` → `Catalysis`, `Inhibition`, `PhysicalStimulation`, `Triggering`, `PositiveInfluence`, `NegativeInfluence`; `UnknownModulation` → `UnknownCatalysis`, `UnknownInhibition`, `UnknownPositiveInfluence`, `UnknownNegativeInfluence`, `UnknownPhysicalStimulation`, `UnknownTriggering`.
 - **Model**: `CellDesignerModel(SBMLModel)` — `species_templates`, `boolean_logic_gates`, `modulations`; `is_submodel(other) -> bool`.
@@ -490,7 +490,7 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 
 - **Qualifiers**: `BiomodelQualifier(Enum)` (abstract); `BQModel(BiomodelQualifier)` (HAS_INSTANCE, IS, IS_DERIVED_FROM, IS_DESCRIBED_BY, IS_INSTANCE_OF); `BQBiol(BiomodelQualifier)` (ENCODES, HAS_PART, HAS_PROPERTY, HAS_VERSION, IS, IS_DESCRIBED_BY, IS_ENCODED_BY, IS_HOMOLOG_TO, IS_PART_OF, IS_PROPERTY_OF, IS_VERSION_OF, OCCURS_IN, HAS_TAXON).
 - **Annotation**: `RDFAnnotation` — plain frozen dataclass (metadata, not a model element); `qualifier`, `resources: frozenset[str]`.
-- **Structure**: `Compartment(SBMLModelElement)` — `outside: Compartment | None`; `Species(SBMLModelElement)` — `compartment: Compartment | None`; `SimpleSpeciesReference(SBMLModelElement)` — `referred_species: Species`; `ModifierSpeciesReference(SimpleSpeciesReference)`; `SpeciesReference(SimpleSpeciesReference)` — `stoichiometry: float | None`; `Reaction(SBMLModelElement)` — `reversible`, `compartment`, `reactants`, `products`, `modifiers`.
+- **Structure**: `Compartment(SBMLModelElement)` — `outside: Compartment | None`; `Species(SBMLModelElement)` — `compartment: Compartment | None`; `SimpleSpeciesReference(SBMLModelElement)` — `referred_element: Species`; `ModifierSpeciesReference(SimpleSpeciesReference)`; `SpeciesReference(SimpleSpeciesReference)` — `stoichiometry: float | None`; `Reaction(SBMLModelElement)` — `reversible`, `compartment`, `reactants`, `products`, `modifiers`.
 - **Model**: `SBMLModel(Model)` — **does NOT inherit `SBMLModelElement`**; declares its own `name`, `sbo_term`, `metaid`, plus `compartments`, `species`, `reactions`. `is_submodel(other) -> bool`.
 - **Root**: `SBML(SBMLModelElement)` — `xmlns`, `level=3`, `version=2`, `model: SBMLModel | None`.
 

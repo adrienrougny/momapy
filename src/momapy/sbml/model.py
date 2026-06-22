@@ -163,7 +163,7 @@ class Species(SBMLModelElement):
 class SimpleSpeciesReference(SBMLModelElement):
     """Base class for species references in reactions."""
 
-    referred_species: Species = dataclasses.field(
+    referred_element: Species = dataclasses.field(
         metadata={"description": "The species being referenced."}
     )
 
@@ -186,7 +186,7 @@ class SpeciesReference(SimpleSpeciesReference):
     Examples:
         ```python
         species = Species(name="ATP", compartment=compartment)
-        ref = SpeciesReference(referred_species=species, stoichiometry=2)
+        ref = SpeciesReference(referred_element=species, stoichiometry=2)
         ```
     """
 

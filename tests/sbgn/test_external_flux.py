@@ -24,8 +24,12 @@ class TestSBGNExternalFlux:
         species = momapy.sbgn.pd.UnspecifiedEntity(id_="A")
         process = momapy.sbgn.pd.GenericProcess(
             id_="p1",
-            reactants=frozenset({momapy.sbgn.pd.Reactant(id_="r1", element=species)}),
-            products=frozenset({momapy.sbgn.pd.Product(id_="p2", element=species)}),
+            reactants=frozenset(
+                {momapy.sbgn.pd.Reactant(id_="r1", referred_element=species)}
+            ),
+            products=frozenset(
+                {momapy.sbgn.pd.Product(id_="p2", referred_element=species)}
+            ),
         )
         assert process.has_external_source is False
         assert process.has_external_sink is False
@@ -37,12 +41,12 @@ class TestSBGNExternalFlux:
         b = momapy.sbgn.pd.UnspecifiedEntity(label="B")
         p_a = momapy.sbgn.pd.GenericProcess(
             reactants=frozenset(),
-            products=frozenset({momapy.sbgn.pd.Product(element=a)}),
+            products=frozenset({momapy.sbgn.pd.Product(referred_element=a)}),
             has_external_source=True,
         )
         p_b = momapy.sbgn.pd.GenericProcess(
             reactants=frozenset(),
-            products=frozenset({momapy.sbgn.pd.Product(element=b)}),
+            products=frozenset({momapy.sbgn.pd.Product(referred_element=b)}),
             has_external_source=True,
         )
         assert p_a != p_b
@@ -56,13 +60,17 @@ class TestSBGNExternalFlux:
         b = momapy.sbgn.pd.UnspecifiedEntity(id_="B")
         plain = momapy.sbgn.pd.GenericProcess(
             id_="plain",
-            reactants=frozenset({momapy.sbgn.pd.Reactant(id_="r1", element=a)}),
-            products=frozenset({momapy.sbgn.pd.Product(id_="p1", element=b)}),
+            reactants=frozenset(
+                {momapy.sbgn.pd.Reactant(id_="r1", referred_element=a)}
+            ),
+            products=frozenset({momapy.sbgn.pd.Product(id_="p1", referred_element=b)}),
         )
         with_external = momapy.sbgn.pd.GenericProcess(
             id_="plain",
-            reactants=frozenset({momapy.sbgn.pd.Reactant(id_="r1", element=a)}),
-            products=frozenset({momapy.sbgn.pd.Product(id_="p1", element=b)}),
+            reactants=frozenset(
+                {momapy.sbgn.pd.Reactant(id_="r1", referred_element=a)}
+            ),
+            products=frozenset({momapy.sbgn.pd.Product(id_="p1", referred_element=b)}),
             has_external_source=True,
             has_external_sink=True,
         )
@@ -75,8 +83,10 @@ class TestSBGNExternalFlux:
         b = momapy.sbgn.pd.UnspecifiedEntity(id_="B")
         base_kwargs = dict(
             id_="p",
-            reactants=frozenset({momapy.sbgn.pd.Reactant(id_="r", element=a)}),
-            products=frozenset({momapy.sbgn.pd.Product(id_="prod", element=b)}),
+            reactants=frozenset({momapy.sbgn.pd.Reactant(id_="r", referred_element=a)}),
+            products=frozenset(
+                {momapy.sbgn.pd.Product(id_="prod", referred_element=b)}
+            ),
         )
         combos = {momapy.sbgn.pd.GenericProcess(**base_kwargs) for _ in [0]}
         combos.add(

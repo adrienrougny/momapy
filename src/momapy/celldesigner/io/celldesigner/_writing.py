@@ -1689,7 +1689,7 @@ def find_layout_for_participant(
             if frozenset_mapping is not None and arc_layout not in frozenset_mapping:
                 continue
             return arc_layout.target
-    species = participant.referred_species
+    species = participant.referred_element
     if frozenset_mapping is not None:
         return find_layout_for_species_in_frozenset(
             writing_context, species, frozenset_mapping
@@ -3013,7 +3013,7 @@ def find_catalyzed_reactions(
     result = []
     for reaction in writing_context.map_.model.reactions:
         for modifier in reaction.modifiers:
-            if isinstance(modifier, Catalyzer) and modifier.referred_species is species:
+            if isinstance(modifier, Catalyzer) and modifier.referred_element is species:
                 result.append(reaction_xml_id(writing_context, reaction))
     return sorted(result)
 
@@ -3151,7 +3151,7 @@ def make_celldesigner_reaction(
     # copies (stoichiometry), use consumption arcs to find all aliases.
     base_reactants_element = make_celldesigner_element("baseReactants")
     if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
-        base_species = base_reactants[0].referred_species
+        base_species = base_reactants[0].referred_element
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(layout_element_item, ConsumptionLayout)
@@ -3204,7 +3204,7 @@ def make_celldesigner_reaction(
     # baseProducts — same for right-T with 1 model product but 2 aliases.
     base_products_element = make_celldesigner_element("baseProducts")
     if is_right_t and len(base_products) == 1 and reaction_layout is not None:
-        base_species = base_products[0].referred_species
+        base_species = base_products[0].referred_element
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(layout_element_item, ProductionLayout)
@@ -3257,7 +3257,7 @@ def make_celldesigner_reaction(
     # base arcs from link arcs (both are ConsumptionLayout).
     base_reactant_aliases = set()
     if is_left_t and reaction_layout is not None:
-        base_species_set = {r.referred_species for r in base_reactants}
+        base_species_set = {r.referred_element for r in base_reactants}
         for arc in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(arc, ConsumptionLayout)
@@ -3337,7 +3337,7 @@ def make_celldesigner_reaction(
         if is_right_t:
             # Right-T: exclude all base product arcs by their target alias
             base_product_aliases = set()
-            base_product_species_set = {p.referred_species for p in base_products}
+            base_product_species_set = {p.referred_element for p in base_products}
             for arc in writing_context.map_.layout.layout_elements:
                 if (
                     isinstance(arc, ProductionLayout)
@@ -3425,7 +3425,7 @@ def make_celldesigner_reaction(
     mod_list = make_celldesigner_element("listOfModification")
     modifiers = sorted(reaction.modifiers, key=lambda m: m.id_ or "")
     for modifier in modifiers:
-        species = modifier.referred_species
+        species = modifier.referred_element
         if isinstance(species, BooleanLogicGate):
             # Write gate entry + per-input entries
             gate_mods = make_celldesigner_gate_modifications(
@@ -3456,7 +3456,7 @@ def make_celldesigner_reaction(
     # For left-T with stoichiometry, duplicate from arcs.
     list_of_reactants = make_lxml_element("listOfReactants")
     if is_left_t and len(base_reactants) == 1 and reaction_layout is not None:
-        base_species = base_reactants[0].referred_species
+        base_species = base_reactants[0].referred_element
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(layout_element_item, ConsumptionLayout)
@@ -3553,7 +3553,7 @@ def make_celldesigner_reaction(
     # SBML listOfProducts — same for right-T.
     list_of_products = make_lxml_element("listOfProducts")
     if is_right_t and len(base_products) == 1 and reaction_layout is not None:
-        base_species = base_products[0].referred_species
+        base_species = base_products[0].referred_element
         for layout_element_item in writing_context.map_.layout.layout_elements:
             if (
                 isinstance(layout_element_item, ProductionLayout)
@@ -3651,11 +3651,11 @@ def make_celldesigner_reaction(
     if modifiers:
         list_of_modifiers = make_lxml_element("listOfModifiers")
         for modifier in modifiers:
-            species = modifier.referred_species
+            species = modifier.referred_element
             if isinstance(species, BooleanLogicGate):
                 # Write each input species as a separate modifier
                 for inp in sorted(species.inputs, key=lambda s: s.id_ or ""):
-                    input_species = inp.element
+                    input_species = inp.referred_element
                     sbml_inp = writing_context.subunit_to_complex.get(
                         id(input_species), input_species
                     )
@@ -3743,7 +3743,7 @@ def make_sbml_document_species_reference(
     is_start: bool = True,
 ) -> lxml.etree._Element:
     """Build an SBML speciesReference element."""
-    species = participant.referred_species
+    species = participant.referred_element
     sbml_species = writing_context.subunit_to_complex.get(id(species), species)
     if reaction is not None:
         alias_layout = find_layout_for_participant(
@@ -3870,7 +3870,7 @@ def make_celldesigner_base_participant(
     reaction: typing.Any = None,
 ) -> lxml.etree._Element:
     """Build a baseReactant or baseProduct element."""
-    species = participant.referred_species
+    species = participant.referred_element
     if reaction is not None:
         alias_layout = find_layout_for_participant(
             writing_context,
@@ -4087,7 +4087,7 @@ def make_celldesigner_connect_scheme(
         for base_reactant in base_reactants:
             br_layout = (
                 find_layout_for_species_in_frozenset(
-                    writing_context, base_reactant.referred_species, frozenset_mapping
+                    writing_context, base_reactant.referred_element, frozenset_mapping
                 )
                 if frozenset_mapping
                 else None
@@ -4108,7 +4108,7 @@ def make_celldesigner_connect_scheme(
             product_layout = (
                 find_layout_for_species_in_frozenset(
                     writing_context,
-                    base_products[0].referred_species,
+                    base_products[0].referred_element,
                     frozenset_mapping,
                 )
                 if frozenset_mapping
@@ -4232,7 +4232,7 @@ def make_celldesigner_connect_scheme(
             reactant_layout = (
                 find_layout_for_species_in_frozenset(
                     writing_context,
-                    base_reactants[0].referred_species,
+                    base_reactants[0].referred_element,
                     frozenset_mapping,
                 )
                 if frozenset_mapping
@@ -4241,7 +4241,7 @@ def make_celldesigner_connect_scheme(
         product_layouts = []
         production_layouts = []
         for base_product in base_products:
-            bp_species = base_product.referred_species
+            bp_species = base_product.referred_element
             bp_layout = (
                 find_layout_for_species_in_frozenset(
                     writing_context, bp_species, frozenset_mapping
@@ -4382,7 +4382,7 @@ def make_celldesigner_connect_scheme(
             reactant_layout = (
                 find_layout_for_species_in_frozenset(
                     writing_context,
-                    base_reactants[0].referred_species,
+                    base_reactants[0].referred_element,
                     frozenset_mapping,
                 )
                 if frozenset_mapping
@@ -4392,7 +4392,7 @@ def make_celldesigner_connect_scheme(
             product_layout = (
                 find_layout_for_species_in_frozenset(
                     writing_context,
-                    base_products[0].referred_species,
+                    base_products[0].referred_element,
                     frozenset_mapping,
                 )
                 if frozenset_mapping
@@ -4494,7 +4494,7 @@ def make_celldesigner_participant_link(
     reaction: typing.Any = None,
 ) -> lxml.etree._Element:
     """Build a reactantLink or productLink element."""
-    species = participant.referred_species
+    species = participant.referred_element
     is_start = tag == "reactantLink"
     if reaction is not None:
         alias_layout = find_layout_for_participant(
@@ -4678,7 +4678,7 @@ def make_celldesigner_modification(
     frozenset_mapping: typing.Any,
 ) -> lxml.etree._Element | None:
     """Build a CD modification element for a reaction modifier."""
-    species = modifier.referred_species
+    species = modifier.referred_element
     if isinstance(species, BooleanLogicGate):
         return None
     alias_layout = (
@@ -4816,7 +4816,7 @@ def make_celldesigner_gate_modifications(
     input_species_ids = []
     input_alias_ids = []
     for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
-        input_species = inp.element
+        input_species = inp.referred_element
         sbml_inp = writing_context.subunit_to_complex.get(
             id(input_species), input_species
         )
@@ -4891,7 +4891,7 @@ def make_celldesigner_gate_modifications(
 
     # Per-input entries
     for i, inp in enumerate(sorted(gate.inputs, key=lambda s: s.id_ or "")):
-        input_species = inp.element
+        input_species = inp.referred_element
         sbml_inp = writing_context.subunit_to_complex.get(
             id(input_species), input_species
         )
@@ -5240,13 +5240,13 @@ def make_celldesigner_gate_modulation_reaction(
         # Fallback to gate.inputs if no logic arcs found
         for inp in sorted(gate.inputs, key=lambda s: s.id_ or ""):
             inp_layout = None
-            for layout_key in get_layouts(writing_context, inp.element):
+            for layout_key in get_layouts(writing_context, inp.referred_element):
                 if isinstance(layout_key, frozenset):
                     continue
                 if isinstance(layout_key, CellDesignerNode):
                     inp_layout = layout_key
                     break
-            input_layouts.append((inp.element, inp_layout))
+            input_layouts.append((inp.referred_element, inp_layout))
 
     target_layout = None
     if target is not None:

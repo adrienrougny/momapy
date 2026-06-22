@@ -214,7 +214,7 @@ def make_species_reference(
     if sbml_stoichiometry is not None:
         model_element.stoichiometry = float(sbml_stoichiometry)
     sbml_species_id = sbml_species_reference.get("species")
-    model_element.referred_species = reading_context.sbml_id_to_model_element[
+    model_element.referred_element = reading_context.sbml_id_to_model_element[
         sbml_species_id
     ]
     model_element = object_from_builder(model_element)
@@ -230,7 +230,7 @@ def make_modifier_species_reference(
     model_element = new_builder_object(ModifierSpeciesReference)
     model_element.id_ = sbml_modifier_species_reference.get("metaid")
     sbml_species_id = sbml_modifier_species_reference.get("species")
-    model_element.referred_species = reading_context.sbml_id_to_model_element[
+    model_element.referred_element = reading_context.sbml_id_to_model_element[
         sbml_species_id
     ]
     model_element = object_from_builder(model_element)

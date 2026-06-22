@@ -64,7 +64,7 @@ class SBGNRole(SBGNModelElement):
     Roles define how elements participate in SBGN processes.
     """
 
-    element: SBGNModelElement = dataclasses.field(
+    referred_element: SBGNModelElement = dataclasses.field(
         metadata={"description": "The SBGN model element that has this role."}
     )
 

@@ -470,7 +470,7 @@ def make_reactant_from_base(
         ),
         None,
     )
-    model_element.referred_species = species_model_element
+    model_element.referred_element = species_model_element
     return model_element
 
 
@@ -514,7 +514,7 @@ def make_reactant_from_link(
         ),
         None,
     )
-    model_element.referred_species = species_model_element
+    model_element.referred_element = species_model_element
     return model_element
 
 
@@ -559,7 +559,7 @@ def make_product_from_base(
         ),
         None,
     )
-    model_element.referred_species = species_model_element
+    model_element.referred_element = species_model_element
     return model_element
 
 
@@ -603,7 +603,7 @@ def make_product_from_link(
         ),
         None,
     )
-    model_element.referred_species = species_model_element
+    model_element.referred_element = species_model_element
     return model_element
 
 
@@ -627,7 +627,7 @@ def make_modifier(
     if reading_context.model is None:
         return None
     model_element = new_builder_object(model_element_cls)
-    model_element.referred_species = source_model_element
+    model_element.referred_element = source_model_element
     model_element.id_ = metaid
     model_element.metaid = metaid
     return model_element
@@ -666,7 +666,7 @@ def make_logic_gate_input(
     if reading_context.model is None:
         return None
     model_element = new_builder_object(BooleanLogicGateInput)
-    model_element.element = input_model_element
+    model_element.referred_element = input_model_element
     return model_element
 
 

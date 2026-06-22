@@ -411,7 +411,7 @@ class FluxRole(SBGNRole):
     stoichiometry.
     """
 
-    element: EntityPool = dataclasses.field(
+    referred_element: EntityPool = dataclasses.field(
         metadata={"description": "The entity pool of the flux role"}
     )
     stoichiometry: float | None = dataclasses.field(
@@ -446,7 +446,7 @@ class LogicalOperatorInput(SBGNRole):
     Represents an input connection to a logical operator.
     """
 
-    element: typing.Union[
+    referred_element: typing.Union[
         EntityPool,
         typing.ForwardRef("LogicalOperator", module=__name__),
     ] = dataclasses.field(
@@ -461,7 +461,7 @@ class EquivalenceOperatorInput(SBGNRole):
     Represents an input connection to an equivalence operator.
     """
 
-    element: EntityPool = dataclasses.field(
+    referred_element: EntityPool = dataclasses.field(
         metadata={"description": "The element of the equivalence operator input"}
     )
 
@@ -473,7 +473,7 @@ class EquivalenceOperatorOutput(SBGNRole):
     Represents the output connection of an equivalence operator.
     """
 
-    element: EntityPool = dataclasses.field(
+    referred_element: EntityPool = dataclasses.field(
         metadata={"description": "The element of the equivalence operator output"}
     )
 
@@ -717,7 +717,7 @@ class NecessaryStimulation(Stimulation):
 class TagReference(SBGNRole):
     """Reference to a tag."""
 
-    element: EntityPool | Compartment = dataclasses.field(
+    referred_element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the tag reference"}
     )
 
@@ -742,7 +742,7 @@ class Tag(SBGNModelElement):
 class TerminalReference(SBGNRole):
     """Reference to a terminal."""
 
-    element: EntityPool | Compartment = dataclasses.field(
+    referred_element: EntityPool | Compartment = dataclasses.field(
         metadata={"description": "The element of the terminal reference"}
     )
 
