@@ -156,9 +156,16 @@ def test_list_colors():
     colors = momapy.coloring.list_colors()
     assert isinstance(colors, list)
     assert len(colors) > 0
-    # Check that black color exists
-    color_names = [name for name, _ in colors]
-    assert "black" in color_names
+    # list_colors returns plain names
+    assert all(isinstance(name, str) for name in colors)
+    assert "black" in colors
+
+
+def test_get_color():
+    """Test get_color function."""
+    assert momapy.coloring.get_color("black") is momapy.coloring.black
+    with pytest.raises(KeyError):
+        momapy.coloring.get_color("nonexistent_color_xyz")
 
 
 def test_has_color():

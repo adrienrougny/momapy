@@ -86,7 +86,7 @@ Purpose: CSS-like style sheets.
 
 ### `src/momapy/coloring.py`
 - `Color` — `red`, `green`, `blue`, `alpha=1.0`; `__or__(alpha)`, `to_rgba/to_rgb/to_hex/to_hexa`, `with_alpha`, `from_rgba/from_rgb/from_hex/from_hexa`. Plus 144 named module-level constants.
-- `list_colors() -> list[tuple[str, Color]]`, `print_colors() -> None`, `has_color(color_name: str) -> bool`.
+- `list_colors() -> list[str]`, `get_color(color_name: str) -> Color`, `print_colors() -> None`, `has_color(color_name: str) -> bool`.
 
 ### `src/momapy/positioning.py`
 - `right_of/left_of/above_of/below_of(obj, distance: float) -> Point`

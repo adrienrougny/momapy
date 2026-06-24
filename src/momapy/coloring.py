@@ -32,6 +32,7 @@ import typing_extensions
 __all__ = [
     "Color",
     "list_colors",
+    "get_color",
     "print_colors",
     "has_color",
     "aliceblue",
@@ -484,11 +485,11 @@ class Color(object):
         return cls(red, green, blue, alpha)
 
 
-def list_colors() -> list[tuple[str, Color]]:
-    """Return a list of all available named colors.
+def list_colors() -> list[str]:
+    """Return the names of all available named colors.
 
     Returns:
-        List of tuples (color_name, Color) for all predefined colors.
+        List of color names for all predefined colors.
 
     Examples:
         ```python
@@ -496,11 +497,27 @@ def list_colors() -> list[tuple[str, Color]]:
         len(colors) > 0
         ```
     """
-    return [
-        (color_name, color)
-        for color_name, color in globals().items()
-        if isinstance(color, Color)
-    ]
+    return list(_NAME_TO_COLOR.keys())
+
+
+def get_color(color_name: str) -> Color:
+    """Return the named color with the given name.
+
+    Args:
+        color_name: Name of the color to look up.
+
+    Returns:
+        The corresponding Color.
+
+    Raises:
+        KeyError: If no color with that name exists.
+
+    Examples:
+        ```python
+        get_color("red")
+        ```
+    """
+    return _NAME_TO_COLOR[color_name]
 
 
 def print_colors() -> None:
@@ -513,7 +530,7 @@ def print_colors() -> None:
         print_colors()  # Prints all colors
         ```
     """
-    for color_name, color in list_colors():
+    for color_name, color in _NAME_TO_COLOR.items():
         print(f"\x1b[38;2;{color.red};{color.green};{color.blue}m{color_name}")
 
 
@@ -532,10 +549,7 @@ def has_color(color_name: str) -> bool:
         has_color("not_a_color")
         ```
     """
-    for color_name2, color in globals().items():
-        if isinstance(color, Color) and color_name2 == color_name:
-            return True
-    return False
+    return color_name in _NAME_TO_COLOR
 
 
 maroon = Color.from_rgb(128, 0, 0)
@@ -826,3 +840,8 @@ whitesmoke = Color.from_rgb(245, 245, 245)
 """The color <span style="color:whitesmoke">whitesmoke</span> | <span style="color:whitesmoke;background-color:black">whitesmoke</span>"""
 white = Color.from_rgb(255, 255, 255)
 """The color <span style="color:white">white</span> | <span style="color:white;background-color:black">white</span>"""
+
+_NAME_TO_COLOR: dict[str, Color] = {
+    name: value for name, value in dict(globals()).items() if isinstance(value, Color)
+}
+"""Mapping from color name to Color, built from the module-level constants."""
