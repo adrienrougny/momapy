@@ -330,10 +330,43 @@ def read(
     return result
 
 
+def _detect_writer(obj: typing.Any) -> str:
+    """Infer the registered writer name from the type of a map object.
+
+    Args:
+        obj: The map (or map builder) to write.
+
+    Returns:
+        The name of the registered writer to use.
+
+    Raises:
+        ValueError: If no writer can be inferred for the object, including
+            the read-only SBML case.
+    """
+    from momapy.builder import isinstance_or_builder
+    from momapy.celldesigner.map import CellDesignerMap
+    from momapy.sbgn.map import SBGNMap
+    from momapy.sbml.map import SBMLMap
+
+    if isinstance_or_builder(obj, SBGNMap):
+        return "sbgnml"
+    if isinstance_or_builder(obj, CellDesignerMap):
+        return "celldesigner"
+    if isinstance_or_builder(obj, SBMLMap):
+        raise ValueError(
+            "SBML is read-only: there is no SBML writer. Convert the map to "
+            "another format before writing."
+        )
+    raise ValueError(
+        f"could not infer a writer for object of type {type(obj).__name__!r}; "
+        "pass an explicit writer name"
+    )
+
+
 def write(
     obj: typing.Any,
     file_path: str | os.PathLike,
-    writer: str,
+    writer: str | None = None,
     **options: typing.Any,
 ) -> WriterResult:
     """Write an object to a file.
@@ -341,21 +374,26 @@ def write(
     Args:
         obj: Object to write (typically a MapElement).
         file_path: Path of the file to write to.
-        writer: Name of registered writer to use (e.g., "sbgnml").
+        writer: Name of registered writer to use (e.g., "sbgnml"). When
+            ``None`` (the default), the writer is inferred from the map type:
+            SBGN PD/AF maps use ``sbgnml``, CellDesigner maps use
+            ``celldesigner``, and SBML maps raise a clear "read-only" error.
         options: Additional options passed to the writer.
 
     Returns:
         WriterResult containing the written object and metadata.
 
     Raises:
-        ValueError: If the writer is not found.
+        ValueError: If the writer is not found or cannot be inferred.
 
     Examples:
         ```python
         from momapy.io.core import write
-        write(map_obj, "output.sbgn", writer="sbgnml")
+        write(map_obj, "output.sbgn")
         ```
     """
+    if writer is None:
+        writer = _detect_writer(obj)
     writer_cls = get_writer(writer)
     result = writer_cls.write(obj, file_path, **options)
     return result

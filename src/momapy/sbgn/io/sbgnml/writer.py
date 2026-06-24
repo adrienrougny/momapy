@@ -24,11 +24,12 @@ from momapy.sbgn.io.sbgnml._writing import make_sbgnml_map
 # ---------------------------------------------------------------------------
 
 
-class _SBGNMLWriter(Writer):
-    """Base SBGN-ML writer.
+class SBGNML0_3Writer(Writer):
+    """Class for SBGN-ML 0.3 writer objects.
 
-    All serialization logic lives in module-level functions.  This class
-    only provides the ``write`` entry point.
+    The single SBGN-ML writer (registered under both ``sbgnml`` and
+    ``sbgnml-0.3``). All serialization logic lives in module-level functions;
+    this class only provides the ``write`` entry point.
     """
 
     @classmethod
@@ -94,9 +95,3 @@ class _SBGNMLWriter(Writer):
                 ).decode()
             )
         return WriterResult(obj=obj, file_path=file_path)
-
-
-class SBGNML0_3Writer(_SBGNMLWriter):
-    """Class for SBGN-ML 0.3 writer objects."""
-
-    pass

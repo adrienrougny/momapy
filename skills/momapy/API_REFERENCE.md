@@ -128,7 +128,7 @@ Purpose: CSS-like style sheets.
 
 ### `src/momapy/io/__init__.py`
 - `get_reader(name) -> type[Reader]`, `get_writer(name) -> type[Writer]`, `list_readers() -> list[str]`, `list_writers() -> list[str]`.
-- `read(file_path, reader=None, **options)`, `write(obj, file_path, writer, **options)`.
+- `read(file_path, reader=None, **options)`, `write(obj, file_path, writer=None, **options)` (writer auto-detected from the map type when `None`: SBGN→`sbgnml`, CellDesigner→`celldesigner`, SBML→clear read-only error).
 - `register_reader(name, cls)`, `register_lazy_reader(name, import_path)`, `register_writer(name, cls)`, `register_lazy_writer(name, import_path)`.
 - Module state: `reader_registry`, `writer_registry` (both `PluginRegistry`).
 
@@ -304,8 +304,7 @@ Purpose: SBGN-AF model classes.
 - Registered as `sbgnml-0.2` (`SBGNML0_2Reader`) and `sbgnml-0.3` / `sbgnml` (`SBGNML0_3Reader`).
 
 ### `src/momapy/sbgn/io/sbgnml/writer.py`
-- `_SBGNMLWriter(Writer)` — internal base holding only the `write()` classmethod.
-- `SBGNML0_3Writer(_SBGNMLWriter)` — registered as `sbgnml-0.3` and `sbgnml`.
+- `SBGNML0_3Writer(Writer)` — the single SBGN-ML writer, registered as both `sbgnml-0.3` and `sbgnml`.
 
 ### `src/momapy/sbgn/io/sbgnml/_writing.py` (serialization helpers, public-named)
 - `make_sbgnml_map(writing_context)`, the XML-id helpers `reserve_source_xml_ids`, `get_xml_id`, and the builders `get_layout_elements`, `get_frozenset_keys`, `get_child_layout_element`, `make_sbgnml_glyph`, `make_sbgnml_arc_element`, `make_sbgnml_child_glyphs`, `collect_model_elements` (plus the pure XML helpers `make_lxml_element`, `ensure_ncname`, `make_sbgnml_*`).
