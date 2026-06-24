@@ -110,7 +110,7 @@ class TextLayout(LayoutElement):
         default=None,
         metadata={"description": "The text stroke color of the text layout"},
     )
-    stroke_dasharray: NoneValueType | tuple[float] | None = dataclasses.field(
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "The text stroke dasharray of the text layout"},
     )
@@ -126,7 +126,7 @@ class TextLayout(LayoutElement):
         default=None,
         metadata={"description": "The text anchor of the text layout"},
     )
-    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "The transform of the text layout"},
     )
@@ -395,7 +395,7 @@ class GroupLayout(LayoutElement):
     element.
     """
 
-    layout_elements: tuple[LayoutElement] = dataclasses.field(
+    layout_elements: tuple[LayoutElement, ...] = dataclasses.field(
         default_factory=tuple,
         metadata={
             "description": "The sub-layout elements of the group layout. These are part of the children of the group layout"
@@ -451,9 +451,11 @@ class GroupLayout(LayoutElement):
         default=None,
         metadata={"description": "The text anchor of the group layout"},
     )
-    group_transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The transform of the group layout"},
+    group_transform: NoneValueType | tuple[Transformation, ...] | None = (
+        dataclasses.field(
+            default=None,
+            metadata={"description": "The transform of the group layout"},
+        )
     )
 
     def own_to_geometry(
@@ -582,7 +584,7 @@ class Node(GroupLayout):
     stroke_width: NoneValueType | float | None = dataclasses.field(
         default=None, metadata={"description": "The stroke width of the node"}
     )
-    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation, ...] | None = dataclasses.field(
         default=None, metadata={"description": "The transform of the node"}
     )
     width: float = dataclasses.field(metadata={"description": "The width of the node"})
@@ -819,14 +821,16 @@ class Arc(GroupLayout):
         default=None,
         metadata={"description": "The path stroke width of the arc"},
     )
-    path_transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
-        default=None, metadata={"description": "The path transform of the arc"}
+    path_transform: NoneValueType | tuple[Transformation, ...] | None = (
+        dataclasses.field(
+            default=None, metadata={"description": "The path transform of the arc"}
+        )
     )
     stroke: NoneValueType | Color | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke color of the arc"},
     )
-    stroke_dasharray: NoneValueType | tuple[float] | None = dataclasses.field(
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "The stroke dasharray of the arc"},
     )
@@ -838,7 +842,8 @@ class Arc(GroupLayout):
         default=None, metadata={"description": "The stroke width of the arc"}
     )
     segments: tuple[
-        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc
+        Segment | QuadraticBezierCurve | CubicBezierCurve | GeometryEllipticalArc,
+        ...,
     ] = dataclasses.field(
         default_factory=tuple,
         metadata={"description": "The path segments of the arc"},
@@ -853,7 +858,7 @@ class Arc(GroupLayout):
     target: LayoutElement | None = dataclasses.field(
         default=None, metadata={"description": "The target of the arc"}
     )
-    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation, ...] | None = dataclasses.field(
         default=None, metadata={"description": "The transform of the arc"}
     )
 
@@ -961,7 +966,7 @@ class SingleHeadedArc(Arc):
         default=None,
         metadata={"description": "The arrowhead stroke width of the arc"},
     )
-    arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+    arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The arrowhead transform of the arc"},
@@ -1146,7 +1151,7 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The end arrowhead stroke width of the arc"},
     )
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The end arrowhead transform of the arc"},
@@ -1176,7 +1181,7 @@ class DoubleHeadedArc(Arc):
         default=None,
         metadata={"description": "The start arrowhead stroke width of the arc"},
     )
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = (
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The start arrowhead transform of the arc"},

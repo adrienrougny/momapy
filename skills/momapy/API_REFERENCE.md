@@ -37,9 +37,9 @@ Classes:
 ### `src/momapy/core/layout.py`
 - `TextLayout(LayoutElement)` — `text`, `position`, font styling, `fill`/`stroke`, alignment, `transform`.
 - `Shape(LayoutElement)` — abstract geometric shape.
-- `GroupLayout(LayoutElement)` — `layout_elements: tuple[LayoutElement]`, plus `group_*` styling fields (`group_fill`, `group_stroke`, `group_font_*`, …) and `group_transform`.
+- `GroupLayout(LayoutElement)` — `layout_elements: tuple[LayoutElement, ...]`, plus `group_*` styling fields (`group_fill`, `group_stroke`, `group_font_*`, …) and `group_transform`.
 - `Node(GroupLayout)` — `position`, `width`, `height`, `fill`, `stroke`, `stroke_width`, `filter`; anchors `north/south/east/west/center() -> Point`.
-- `Arc(GroupLayout)` — `segments: tuple[Segment|Curve|Arc]`, line styling.
+- `Arc(GroupLayout)` — `segments: tuple[Segment|Curve|Arc, ...]`, line styling.
 - `SingleHeadedArc(Arc)` / `DoubleHeadedArc(Arc)` — add arrowhead classes.
 - `Layout(Node)` — root container for a map's layout tree.
 

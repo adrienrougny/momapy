@@ -398,7 +398,7 @@ class Filter(object):
         default=FilterUnits.OBJECT_BOUNDING_BOX,
         metadata={"description": "The units of the filter region"},
     )
-    effects: tuple[FilterEffect] = dataclasses.field(default_factory=tuple)
+    effects: tuple[FilterEffect, ...] = dataclasses.field(default_factory=tuple)
     width: float | str = dataclasses.field(
         default="120%",
         metadata={"description": "The width of the filter region"},
@@ -626,7 +626,7 @@ class DrawingElement(abc.ABC):
         default=None,
         metadata={"description": "The text anchor of the drawing element"},
     )
-    transform: NoneValueType | tuple[Transformation] | None = dataclasses.field(
+    transform: NoneValueType | tuple[Transformation, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "The transform of the drawing element"},
     )
@@ -762,7 +762,7 @@ class Group(DrawingElement):
     Bundles several drawing elements so they share presentation attributes.
     """
 
-    elements: tuple[DrawingElement] = dataclasses.field(
+    elements: tuple[DrawingElement, ...] = dataclasses.field(
         default_factory=tuple,
         metadata={"description": "The elements of the group element"},
     )
@@ -1156,7 +1156,7 @@ class Path(DrawingElement):
     A path is drawn by executing its sequence of path actions in order.
     """
 
-    actions: tuple[PathAction] = dataclasses.field(
+    actions: tuple[PathAction, ...] = dataclasses.field(
         default_factory=tuple,
         metadata={"description": "The actions of the path"},
     )

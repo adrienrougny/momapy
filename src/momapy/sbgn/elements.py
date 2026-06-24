@@ -198,7 +198,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Stroke width for the left connector line."},
     )
-    left_connector_stroke_dasharray: NoneValueType | tuple[float] | None = (
+    left_connector_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "Dash pattern for the left connector line."},
@@ -212,7 +212,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Fill color for the left connector."},
     )
-    left_connector_transform: NoneValueType | tuple[Transformation] | None = (
+    left_connector_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "Transformations applied to the left connector."},
@@ -230,7 +230,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Stroke width for the right connector line."},
     )
-    right_connector_stroke_dasharray: NoneValueType | tuple[float] | None = (
+    right_connector_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "Dash pattern for the right connector line."},
@@ -244,7 +244,7 @@ class _ConnectorsMixin(_SBGNMixin):
         default=None,
         metadata={"description": "Fill color for the right connector."},
     )
-    right_connector_transform: NoneValueType | tuple[Transformation] | None = (
+    right_connector_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "Transformations applied to the right connector."},
@@ -438,35 +438,35 @@ class _MultiMixin(_SBGNMixin):
         default=3.0,
         metadata={"description": "Offset distance between stacked units."},
     )
-    subunits_stroke: tuple[NoneValueType | Color] | None = dataclasses.field(
+    subunits_stroke: tuple[NoneValueType | Color, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "Tuple of stroke colors for each subunit."},
     )
-    subunits_stroke_width: tuple[NoneValueType | float] | None = dataclasses.field(
+    subunits_stroke_width: tuple[NoneValueType | float, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "Tuple of stroke widths for each subunit."},
     )
-    subunits_stroke_dasharray: tuple[NoneValueType | tuple[float]] | None = (
+    subunits_stroke_dasharray: tuple[NoneValueType | tuple[float, ...], ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "Tuple of dash patterns for each subunit."},
         )
     )
-    subunits_stroke_dashoffset: tuple[float] | None = dataclasses.field(
+    subunits_stroke_dashoffset: tuple[float, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "Tuple of dash offsets for each subunit."},
     )
-    subunits_fill: tuple[NoneValueType | Color] | None = dataclasses.field(
+    subunits_fill: tuple[NoneValueType | Color, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "Tuple of fill colors for each subunit."},
     )
-    subunits_transform: tuple[NoneValueType | tuple[Transformation]] | None = (
-        dataclasses.field(
-            default=None,
-            metadata={"description": "Tuple of transformations for each subunit."},
-        )
+    subunits_transform: (
+        tuple[NoneValueType | tuple[Transformation, ...], ...] | None
+    ) = dataclasses.field(
+        default=None,
+        metadata={"description": "Tuple of transformations for each subunit."},
     )
-    subunits_filter: tuple[NoneValueType | Filter] | None = dataclasses.field(
+    subunits_filter: tuple[NoneValueType | Filter, ...] | None = dataclasses.field(
         default=None,
         metadata={"description": "Tuple of filters for each subunit."},
     )

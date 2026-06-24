@@ -128,7 +128,7 @@ class GenericProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
         default=5.0, metadata={"description": "The radius of the rounded corners."}
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -332,7 +332,7 @@ class IonChannelActiveLayout(_MultiNodeMixin, CellDesignerNode):
         metadata={"description": "The width of the right-hand gate rectangle."},
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -405,7 +405,7 @@ class ComplexActiveLayout(_MultiNodeMixin, CellDesignerNode):
         default=6.0, metadata={"description": "The size of the cut corners."}
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -461,7 +461,7 @@ class SimpleMoleculeActiveLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 70.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -501,7 +501,7 @@ class IonActiveLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 35.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 35.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -542,7 +542,7 @@ class UnknownActiveLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 60.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -609,7 +609,7 @@ class DegradedActiveLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 30.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 30.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -649,7 +649,7 @@ class GeneActiveLayout(_MultiNodeMixin, CellDesignerNode):
     width: float = 80.0 + DEFAULT_ACTIVE_XSEP * 2
     height: float = 25.0 + DEFAULT_ACTIVE_YSEP * 2
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -883,7 +883,7 @@ class PhenotypeActiveLayout(_MultiNodeMixin, CellDesignerNode):
         },
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -1113,7 +1113,7 @@ class RNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
         default=45.0, metadata={"description": "The slant angle of the parallelogram."}
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -1342,7 +1342,7 @@ class AntisenseRNAActiveLayout(_MultiNodeMixin, CellDesignerNode):
         default=45.0, metadata={"description": "The slant angle of the parallelogram."}
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -1533,7 +1533,7 @@ class TruncatedProteinActiveLayout(_MultiNodeMixin, CellDesignerNode):
         },
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -1773,7 +1773,7 @@ class ReceptorActiveLayout(_MultiNodeMixin, CellDesignerNode):
         metadata={"description": "The proportion of the height taken by the notch."},
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -1957,7 +1957,7 @@ class DrugActiveLayout(_MultiNodeMixin, CellDesignerNode):
         },
     )
     fill: NoneValueType | Color | None = NoneValue
-    stroke_dasharray: NoneValueType | tuple[float] | None = (
+    stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         4,
         2,
     )
@@ -2579,7 +2579,7 @@ class UnknownCatalysisLayout(CellDesignerSingleHeadedArc):
     arrowhead_width: float = dataclasses.field(
         default=7.0, metadata={"description": "The width of the arrowhead."}
     )
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsEllipse._arrowhead_border_drawing_elements(self)
@@ -2612,7 +2612,7 @@ class UnknownInhibitionLayout(CellDesignerSingleHeadedArc):
         default=10.0, metadata={"description": "The height of the arrowhead bar."}
     )
     end_shorten: float = 3.0
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Bar._arrowhead_border_drawing_elements(self)
@@ -2651,7 +2651,7 @@ class UnknownPhysicalStimulationLayout(CellDesignerSingleHeadedArc):
     arrowhead_width: float = dataclasses.field(
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return MetaArcsTriangle._arrowhead_border_drawing_elements(self)
@@ -2690,7 +2690,7 @@ class UnknownModulationLayout(CellDesignerSingleHeadedArc):
     arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the arrowhead."}
     )
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return Diamond._arrowhead_border_drawing_elements(self)
@@ -2731,7 +2731,7 @@ class UnknownPositiveInfluenceLayout(CellDesignerSingleHeadedArc):
     arrowhead_width: float = dataclasses.field(
         default=10.0, metadata={"description": "The width of the arrowhead."}
     )
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         return StraightBarb._arrowhead_border_drawing_elements(self)
@@ -2803,7 +2803,7 @@ class UnknownTriggeringLayout(CellDesignerSingleHeadedArc):
     arrowhead_triangle_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the arrowhead triangle."}
     )
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (12, 4)
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (12, 4)
 
     def _arrowhead_border_drawing_elements(self) -> list[DrawingElement]:
         actions = [
@@ -2902,7 +2902,7 @@ class _ReactionNodeMixin(_SBGNMixin):
     reaction_node_stroke_width: float | None = dataclasses.field(
         default=1.0, metadata={"description": "The stroke width of the reaction node."}
     )
-    reaction_node_stroke_dasharray: NoneValueType | tuple[float] | None = (
+    reaction_node_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The dash pattern of the reaction node's border."},
@@ -2915,7 +2915,7 @@ class _ReactionNodeMixin(_SBGNMixin):
     reaction_node_fill: NoneValueType | Color | None = dataclasses.field(
         default=white, metadata={"description": "The fill color of the reaction node."}
     )
-    reaction_node_transform: NoneValueType | tuple[Transformation] | None = (
+    reaction_node_transform: NoneValueType | tuple[Transformation, ...] | None = (
         dataclasses.field(
             default=None,
             metadata={"description": "The transform applied to the reaction node."},
@@ -3031,10 +3031,10 @@ class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
@@ -3045,10 +3045,10 @@ class StateTransitionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3086,10 +3086,10 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
@@ -3100,10 +3100,10 @@ class KnownTransitionOmittedLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3141,10 +3141,10 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
@@ -3155,10 +3155,10 @@ class UnknownTransitionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3186,15 +3186,15 @@ class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
     end_shorten: float = 2.0
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         12,
         4,
         2,
@@ -3208,10 +3208,10 @@ class TranscriptionLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3239,15 +3239,15 @@ class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
     end_shorten: float = 2.0
-    path_stroke_dasharray: NoneValueType | tuple[float] | None = (
+    path_stroke_dasharray: NoneValueType | tuple[float, ...] | None = (
         12,
         4,
         2,
@@ -3259,10 +3259,10 @@ class TranslationLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3294,10 +3294,10 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
         metadata={"description": "The separation between the end bar and triangle."},
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_triangle_height: float = dataclasses.field(
         default=8.0,
         metadata={"description": "The height of the end arrowhead triangle."},
@@ -3317,10 +3317,10 @@ class TransportLayout(ReactionLayout, _ReactionNodeMixin):
         metadata={"description": "The separation between the start bar and triangle."},
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_triangle_height: float = dataclasses.field(
         default=8.0,
         metadata={"description": "The height of the start arrowhead triangle."},
@@ -3391,10 +3391,10 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the end arrowhead."}
     )
@@ -3405,10 +3405,10 @@ class HeterodimerAssociationLayout(ReactionLayout, _ReactionNodeMixin):
         default=6.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=6.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3439,10 +3439,10 @@ class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
         default=10.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_sep: float = dataclasses.field(
         default=2.0,
         metadata={
@@ -3459,10 +3459,10 @@ class DissociationLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
@@ -3510,10 +3510,10 @@ class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
         default=10.0, metadata={"description": "The height of the end arrowhead."}
     )
     end_arrowhead_stroke: NoneValueType | Color | None = black
-    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    end_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     end_arrowhead_stroke_dashoffset: float | None = None
     end_arrowhead_stroke_width: float | None = 1.0
-    end_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    end_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     end_arrowhead_sep: float = dataclasses.field(
         default=2.0,
         metadata={
@@ -3530,10 +3530,10 @@ class TruncationLayout(ReactionLayout, _ReactionNodeMixin):
         default=8.0, metadata={"description": "The height of the start arrowhead."}
     )
     start_arrowhead_stroke: NoneValueType | Color | None = black
-    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float] | None = None
+    start_arrowhead_stroke_dasharray: NoneValueType | tuple[float, ...] | None = None
     start_arrowhead_stroke_dashoffset: float | None = None
     start_arrowhead_stroke_width: float | None = 1.0
-    start_arrowhead_transform: NoneValueType | tuple[Transformation] | None = None
+    start_arrowhead_transform: NoneValueType | tuple[Transformation, ...] | None = None
     start_arrowhead_width: float = dataclasses.field(
         default=15.0, metadata={"description": "The width of the start arrowhead."}
     )
