@@ -210,23 +210,22 @@ class Color(object):
     def __or__(self, alpha: float) -> "Color":
         """Return a new color with the specified alpha value.
 
-        The `|` operator deliberately takes alpha as a **percentage**
-        (0-100) as an ergonomic shortcut, e.g. ``red | 50`` yields an
-        alpha of ``0.5``. This differs from the 0.0-1.0 scale used by the
-        constructor, `from_rgba`, and `with_alpha`.
+        The `|` operator takes alpha on the same 0.0-1.0 scale used by the
+        constructor, `from_rgba`, and `with_alpha`, e.g. ``red | 0.5`` yields
+        an alpha of ``0.5``.
 
         Args:
-            alpha: Alpha value as percentage (0-100).
+            alpha: Alpha value (0.0-1.0).
 
         Returns:
             A new Color with the specified alpha.
 
         Raises:
-            ValueError: If alpha is not between 0 and 100.
+            ValueError: If alpha is not between 0.0 and 1.0.
         """
-        if alpha < 0 or alpha > 100:
-            raise ValueError("alpha should be a number between 0 and 100")
-        return dataclasses.replace(self, alpha=alpha / 100)
+        if alpha < 0 or alpha > 1:
+            raise ValueError("alpha should be a number between 0.0 and 1.0")
+        return dataclasses.replace(self, alpha=alpha)
 
     def to_rgba(
         self,

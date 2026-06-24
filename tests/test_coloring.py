@@ -26,14 +26,14 @@ class TestColor:
     def test_color_or_operator(self):
         """Test Color alpha setting with | operator."""
         color = momapy.coloring.Color(255, 0, 0)
-        color_with_alpha = color | 50
+        color_with_alpha = color | 0.5
         assert color_with_alpha.alpha == 0.5
 
     def test_color_or_operator_invalid(self):
         """Test Color | operator with invalid alpha."""
         color = momapy.coloring.Color(255, 0, 0)
         with pytest.raises(ValueError):
-            color | 150  # alpha > 100
+            color | 1.5  # alpha > 1.0
 
     def test_color_to_rgba(self):
         """Test Color to_rgba method."""
