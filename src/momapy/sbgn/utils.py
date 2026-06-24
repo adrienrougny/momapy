@@ -58,6 +58,24 @@ from momapy.sbgn.af import UnknownInfluenceLayout
 from momapy.sbgn.af import UnspecifiedEntityUnitOfInformationLayout
 
 
+__all__ = [
+    "MapInfo",
+    "MapLayoutInfo",
+    "get_info",
+    "newt_tidy",
+    "sbgned_tidy",
+    "set_arcs_to_borders",
+    "set_auxiliary_units_label_font_size",
+    "set_auxiliary_units_to_borders",
+    "set_compartments_to_fit_content",
+    "set_complexes_to_fit_content",
+    "set_layout_to_fit_content",
+    "set_nodes_to_fit_labels",
+    "set_submaps_to_fit_content",
+    "tidy",
+]
+
+
 _AUXILIARY_UNIT_LAYOUT_CLASSES = (
     StateVariableLayout,
     PDUnitOfInformationLayout,

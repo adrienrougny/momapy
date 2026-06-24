@@ -68,6 +68,23 @@ from momapy.celldesigner.layout import (
 )
 
 
+__all__ = [
+    "MapInfo",
+    "MapLayoutInfo",
+    "get_info",
+    "highlight_layout_elements",
+    "set_arcs_to_borders",
+    "set_compartments_to_fit_content",
+    "set_complexes_to_fit_content",
+    "set_layout_to_fit_content",
+    "set_modifications_label_font_size",
+    "set_modifications_to_borders",
+    "set_nodes_to_fit_labels",
+    "straighten_arcs",
+    "tidy",
+]
+
+
 _ALL_ANCHOR_NAMES = list(_LINK_ANCHOR_POSITION_TO_ANCHOR_NAME.values())
 
 

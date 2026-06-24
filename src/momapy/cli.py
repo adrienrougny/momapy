@@ -1261,7 +1261,7 @@ def _resolve_class(class_path: str) -> type:
     return cls
 
 
-def run(args: argparse.Namespace) -> None:
+def _run(args: argparse.Namespace) -> None:
     """Execute the CLI command based on parsed arguments.
 
     Args:
@@ -1276,7 +1276,7 @@ def run(args: argparse.Namespace) -> None:
         parser = argparse.ArgumentParser()
         parser.add_argument("subcommand", default="render")
         args = parser.parse_args(["render"])
-        run(args)  # Executes the render command
+        _run(args)  # Executes the render command
         ```
     """
     if args.subcommand == "render":
@@ -1518,7 +1518,8 @@ def main() -> None:
     """Parse command-line arguments and run the appropriate command.
 
     This function sets up the argument parser with subcommands and options,
-    then calls run() with the parsed arguments.
+    then calls the internal ``_run`` with the parsed arguments. It is the
+    single public CLI entry point.
 
     Returns:
         None
@@ -1851,7 +1852,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     try:
-        run(args)
+        _run(args)
     except BrokenPipeError:
         devnull = os.open(os.devnull, os.O_WRONLY)
         os.dup2(devnull, sys.stdout.fileno())

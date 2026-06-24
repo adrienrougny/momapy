@@ -54,12 +54,14 @@ Key `Point` methods: `__add__/sub/mul/truediv`, `to_matrix() -> ndarray`, `to_tu
 
 Key `Bbox` members: constructed as `Bbox(position: Point, width, height)`; `center()`, `size() -> tuple[float, float]`, `anchor_point(anchor_name)`, `isnan()`, and the compass anchors (`north/south/east/west`, `north_east`, …). Classmethods: `around_points(points: Iterable[Point]) -> Bbox`, `union(bboxes: list[Bbox]) -> Bbox`. (There is no `bbox()`, `contains_point()`, `intersects_bbox()`, or `from_points()`.)
 
-Constants: `ROUNDING=4`, `ROUNDING_TOLERANCE`, `ZERO_TOLERANCE=1e-12`, `PARAMETER_TOLERANCE=1e-10`, `CONVERGENCE_TOLERANCE=1e-8`.
+Constants: `ROUNDING: int = 4` (in `__all__`; imported by `drawing`). Internal-only (underscored, not exported): `_ROUNDING_TOLERANCE`, `_ZERO_TOLERANCE`, `_PARAMETER_TOLERANCE`, `_CONVERGENCE_TOLERANCE`.
 
 ### `src/momapy/drawing.py`
 Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
 
 Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point | None`.
+
+Constants (in `__all__`, imported cross-module): `DEFAULT_FONT_FAMILY: str`, `INITIAL_VALUES: dict[str, Any]`, `PRESENTATION_ATTRIBUTES: dict[str, dict[str, Any]]`. Internal-only: `_FONT_WEIGHT_TO_VALUE`.
 
 ### `src/momapy/builder.py`
 - `Builder(ABC)` — `build(builder_to_object=None)`, `from_object(obj, object_to_builder=None) -> Self`.
@@ -119,7 +121,7 @@ Purpose: CSS-like style sheets.
 - `display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None)`, `print_source(obj) -> None` — optional-notebook-dependency helpers.
 
 ### `src/momapy/cli.py`
-- `main()` dispatches subcommands: `render`, `export`, `list`, `info`, `visualize`, `tidy`, `style`.
+- `main()` is the single public entry: parses args and dispatches subcommands (`render`, `export`, `list`, `info`, `visualize`, `tidy`, `style`) to the internal `_run(args)`.
 - Built-in presets registry `_BUILTIN_PRESETS` (cs_default, sbgned, newt, ...).
 
 ---

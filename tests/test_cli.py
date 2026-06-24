@@ -228,6 +228,6 @@ class TestCLIMainEntryPoint:
         assert callable(momapy.cli.main)
 
     def test_cli_module_has_run_function(self):
-        """Test that CLI module has a run function."""
-        assert hasattr(momapy.cli, "run")
-        assert callable(momapy.cli.run)
+        """Test that CLI module has an internal _run function."""
+        assert hasattr(momapy.cli, "_run")
+        assert callable(momapy.cli._run)

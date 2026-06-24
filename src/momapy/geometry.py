@@ -50,6 +50,7 @@ __all__ = [
     "Scaling",
     "Segment",
     "Transformation",
+    "ROUNDING",
     "Translation",
     "get_normalized_angle",
     "get_primitives_anchor_point",
@@ -59,11 +60,11 @@ __all__ = [
 ]
 
 
-ROUNDING = 4
-ROUNDING_TOLERANCE = 10**-ROUNDING
-ZERO_TOLERANCE = 1e-12
-PARAMETER_TOLERANCE = 1e-10
-CONVERGENCE_TOLERANCE = 1e-8
+ROUNDING: int = 4
+_ROUNDING_TOLERANCE = 10**-ROUNDING
+_ZERO_TOLERANCE = 1e-12
+_PARAMETER_TOLERANCE = 1e-10
+_CONVERGENCE_TOLERANCE = 1e-8
 
 
 @dataclasses.dataclass(frozen=True)
@@ -355,7 +356,9 @@ class Line(GeometryObject):
             - (self.p1.x - point.x) * (self.p2.y - self.p1.y)
         ) / math.sqrt((self.p2.x - self.p1.x) ** 2 + (self.p2.y - self.p1.y) ** 2)
 
-    def has_point(self, point: Point, max_distance: float = ROUNDING_TOLERANCE) -> bool:
+    def has_point(
+        self, point: Point, max_distance: float = _ROUNDING_TOLERANCE
+    ) -> bool:
         """Check if a point lies on this line.
 
         Args:
@@ -445,7 +448,9 @@ class Segment(GeometryObject):
         dy = point.y - yy
         return math.sqrt(dx**2 + dy**2)
 
-    def has_point(self, point: Point, max_distance: float = ROUNDING_TOLERANCE) -> bool:
+    def has_point(
+        self, point: Point, max_distance: float = _ROUNDING_TOLERANCE
+    ) -> bool:
         """Check if a point lies on this segment.
 
         Args:
@@ -487,7 +492,7 @@ class Segment(GeometryObject):
             segment_direction_y * line_direction_x
             - segment_direction_x * line_direction_y
         )
-        if abs(denominator) < ZERO_TOLERANCE:
+        if abs(denominator) < _ZERO_TOLERANCE:
             # Parallel or coincident
             line2 = Line(self.p1, self.p2)
             if line.is_coincident_to_line(line2):
@@ -498,7 +503,7 @@ class Segment(GeometryObject):
         t = (
             origin_offset_y * line_direction_x - origin_offset_x * line_direction_y
         ) / denominator
-        if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+        if -_PARAMETER_TOLERANCE <= t <= 1 + _PARAMETER_TOLERANCE:
             t = max(0.0, min(1.0, t))
             point = Point(
                 self.p1.x + t * segment_direction_x,
@@ -668,7 +673,7 @@ def _find_t_at_arc_length_fraction(
     derivative_function: collections.abc.Callable[[float], tuple[float, float]],
     total_length: float,
     fraction: float,
-    tolerance: float = CONVERGENCE_TOLERANCE,
+    tolerance: float = _CONVERGENCE_TOLERANCE,
 ) -> float:
     """Binary search for t such that arc_length(0, t) / total_length ~ fraction.
 
@@ -803,7 +808,7 @@ class QuadraticBezierCurve(GeometryObject):
         ]:
             a, b, c = values
             denominator = a - 2 * b + c
-            if abs(denominator) > ZERO_TOLERANCE:
+            if abs(denominator) > _ZERO_TOLERANCE:
                 t = (a - b) / denominator
                 if 0 < t < 1:
                     point = self.evaluate(t)
@@ -897,8 +902,8 @@ class QuadraticBezierCurve(GeometryObject):
         bx_coeff = a * (-2 * p0x + 2 * p1x) + b * (-2 * p0y + 2 * p1y)
         cx_coeff = a * p0x + b * p0y + c
         roots = []
-        if abs(ax_coeff) < ZERO_TOLERANCE:
-            if abs(bx_coeff) > ZERO_TOLERANCE:
+        if abs(ax_coeff) < _ZERO_TOLERANCE:
+            if abs(bx_coeff) > _ZERO_TOLERANCE:
                 roots.append(-cx_coeff / bx_coeff)
         else:
             disc = bx_coeff * bx_coeff - 4 * ax_coeff * cx_coeff
@@ -908,7 +913,7 @@ class QuadraticBezierCurve(GeometryObject):
                 roots.append((-bx_coeff - sqrt_disc) / (2 * ax_coeff))
         result = []
         for t in roots:
-            if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+            if -_PARAMETER_TOLERANCE <= t <= 1 + _PARAMETER_TOLERANCE:
                 t = max(0.0, min(1.0, t))
                 result.append(self.evaluate(t))
         return result
@@ -1107,8 +1112,8 @@ class CubicBezierCurve(GeometryObject):
             a = -3 * p0 + 9 * p1 - 9 * p2 + 3 * p3
             b = 6 * p0 - 12 * p1 + 6 * p2
             c = -3 * p0 + 3 * p1
-            if abs(a) < ZERO_TOLERANCE:
-                if abs(b) > ZERO_TOLERANCE:
+            if abs(a) < _ZERO_TOLERANCE:
+                if abs(b) > _ZERO_TOLERANCE:
                     t = -c / b
                     if 0 < t < 1:
                         point = self.evaluate(t)
@@ -1219,9 +1224,9 @@ class CubicBezierCurve(GeometryObject):
         roots = numpy.roots([coeff3, coeff2, coeff1, coeff0])
         result = []
         for root in roots:
-            if abs(root.imag) < CONVERGENCE_TOLERANCE:
+            if abs(root.imag) < _CONVERGENCE_TOLERANCE:
                 t = root.real
-                if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+                if -_PARAMETER_TOLERANCE <= t <= 1 + _PARAMETER_TOLERANCE:
                     t = max(0.0, min(1.0, t))
                     result.append(self.evaluate(t))
         return result
@@ -1336,10 +1341,10 @@ class EllipticalArc(GeometryObject):
         B = a * (-ry * sin_sigma) + b * ry * cos_sigma
         C = a * cx + b * cy + c
         R = math.sqrt(A * A + B * B)
-        if R < ZERO_TOLERANCE:
+        if R < _ZERO_TOLERANCE:
             return []
         ratio = -C / R
-        if abs(ratio) > 1 + ZERO_TOLERANCE:
+        if abs(ratio) > 1 + _ZERO_TOLERANCE:
             return []
         ratio = max(-1.0, min(1.0, ratio))
         phi = math.atan2(B, A)
@@ -1351,15 +1356,15 @@ class EllipticalArc(GeometryObject):
             for k in range(-3, 4):
                 theta_c = theta_candidate + k * 2 * math.pi
                 t = (theta_c - theta1) / delta_theta
-                if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+                if -_PARAMETER_TOLERANCE <= t <= 1 + _PARAMETER_TOLERANCE:
                     t = max(0.0, min(1.0, t))
                     point = self.evaluate(t)
                     # Avoid duplicates
                     is_dup = False
                     for existing in result:
                         if (
-                            abs(existing.x - point.x) < ROUNDING_TOLERANCE
-                            and abs(existing.y - point.y) < ROUNDING_TOLERANCE
+                            abs(existing.x - point.x) < _ROUNDING_TOLERANCE
+                            and abs(existing.y - point.y) < _ROUNDING_TOLERANCE
                         ):
                             is_dup = True
                             break
@@ -1568,7 +1573,7 @@ class EllipticalArc(GeometryObject):
                 ):
                     theta_c = normalized + offset
                     t = (theta_c - theta1) / delta_theta
-                    if -PARAMETER_TOLERANCE <= t <= 1 + PARAMETER_TOLERANCE:
+                    if -_PARAMETER_TOLERANCE <= t <= 1 + _PARAMETER_TOLERANCE:
                         points.append(self.evaluate(max(0, min(1, t))))
         return Bbox.around_points(points)
 

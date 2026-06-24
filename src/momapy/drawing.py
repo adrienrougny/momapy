@@ -65,6 +65,9 @@ from momapy.geometry import Transformation
 from momapy.utils import make_uuid4_as_str
 
 __all__ = [
+    "DEFAULT_FONT_FAMILY",
+    "INITIAL_VALUES",
+    "PRESENTATION_ATTRIBUTES",
     "ClosePath",
     "CompositeEffect",
     "CompositionOperator",
@@ -475,7 +478,7 @@ class FillRule(enum.Enum):
     EVENODD = 1
 
 
-PRESENTATION_ATTRIBUTES = {
+PRESENTATION_ATTRIBUTES: dict[str, dict[str, typing.Any]] = {
     "fill": {
         "initial": black,
         "inherited": True,
@@ -530,16 +533,16 @@ PRESENTATION_ATTRIBUTES = {
     },
 }
 
-DEFAULT_FONT_FAMILY = (
+DEFAULT_FONT_FAMILY: str = (
     "Arial" if platform.system() in ("Darwin", "Windows") else "DejaVu Sans"
 )
 
-INITIAL_VALUES = {
+INITIAL_VALUES: dict[str, typing.Any] = {
     "font_family": DEFAULT_FONT_FAMILY,
     "font_size": 16.0,
 }
 
-FONT_WEIGHT_TO_VALUE = {
+_FONT_WEIGHT_TO_VALUE = {
     FontWeight.NORMAL: 400,
     FontWeight.BOLD: 700,
 }
