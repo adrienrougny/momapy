@@ -123,7 +123,7 @@ def render_layout_element(
 
 
 def render_layout_elements(
-    layout_elements: collections.abc.Collection[LayoutElement],
+    layout_elements: collections.abc.Sequence[LayoutElement],
     file_path: str | os.PathLike,
     format_: str | None = None,
     renderer: str | None = None,

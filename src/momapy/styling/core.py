@@ -145,8 +145,8 @@ class StyleSheet(dict):
 
 
 def combine_style_sheets(
-    style_sheets: collections.abc.Collection[StyleSheet],
-) -> StyleSheet:
+    style_sheets: collections.abc.Sequence[StyleSheet],
+) -> StyleSheet | None:
     """Merge multiple StyleSheets into a single StyleSheet.
 
     Args:

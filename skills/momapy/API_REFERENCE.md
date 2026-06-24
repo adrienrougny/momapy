@@ -79,7 +79,7 @@ Purpose: CSS-like style sheets.
 
 - `StyleCollection(dict)`, `StyleSheet(dict)` — `StyleSheet.from_file(path)`, `.from_string(s)`, `.from_files(paths)`, `__or__` merge.
 - `Selector(ABC)` and concrete subclasses: `TypeSelector`, `ClassSelector`, `IdSelector`, `ChildSelector`, `DescendantSelector`, `OrSelector`, `CompoundSelector`, `NotSelector`.
-- `combine_style_sheets(style_sheets) -> StyleSheet`
+- `combine_style_sheets(style_sheets: Sequence[StyleSheet]) -> StyleSheet | None`
 - `apply_style_collection(layout_element, style_collection, strict=True)`
 - `apply_style_sheet(map_or_layout_element, style_sheet, strict=True, ancestors=None)`
 - `get_stylable_attributes(layout_element_or_class, presentation_only=False) -> list[str]`
