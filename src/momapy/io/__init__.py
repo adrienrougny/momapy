@@ -13,6 +13,7 @@ Examples:
 
 from momapy.io.core import get_reader as get_reader
 from momapy.io.core import get_writer as get_writer
+from momapy.io.core import IOResult as IOResult
 from momapy.io.core import list_readers as list_readers
 from momapy.io.core import list_writers as list_writers
 from momapy.io.core import read as read
@@ -32,6 +33,7 @@ from momapy.io.core import WriterResult as WriterResult
 __all__ = [
     "get_reader",
     "get_writer",
+    "IOResult",
     "list_readers",
     "list_writers",
     "read",

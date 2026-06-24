@@ -130,6 +130,7 @@ Purpose: CSS-like style sheets.
 - `get_reader(name) -> type[Reader]`, `get_writer(name) -> type[Writer]`, `list_readers() -> list[str]`, `list_writers() -> list[str]`.
 - `read(file_path, reader=None, **options)`, `write(obj, file_path, writer=None, **options)` (writer auto-detected from the map type when `None`: SBGN→`sbgnml`, CellDesigner→`celldesigner`, SBML→clear read-only error).
 - `register_reader(name, cls)`, `register_lazy_reader(name, import_path)`, `register_writer(name, cls)`, `register_lazy_writer(name, import_path)`.
+- Re-exports the base classes `Reader`, `Writer`, and the result classes `IOResult`, `ReaderResult`, `WriterResult`.
 - Module state: `reader_registry`, `writer_registry` (both `PluginRegistry`).
 
 ### `src/momapy/io/core.py`
@@ -191,6 +192,7 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 - `render_layout_elements(layout_elements, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
 - `render_map(map_, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
 - `render_maps(maps, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
+- Re-exports the base classes `Renderer`, `StatefulRenderer`, `SupportsFileOutput`.
 
 ### `src/momapy/rendering/core.py`
 - `Renderer(ABC)` — abstract backend surface: `begin_session()`, `end_session()`, `new_page(width, height)`, `render_layout_element(layout_element)`, `render_drawing_element(drawing_element)`. `render_map(map_)` is a **concrete convenience method** (default renders `map_.layout` via `render_layout_element`), not part of the abstract contract; the file pipeline does not call it. File output is **not** on this contract; non-file renderers subclass `Renderer` directly.

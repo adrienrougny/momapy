@@ -19,7 +19,10 @@ from momapy.rendering.core import render_layout_element as render_layout_element
 from momapy.rendering.core import render_layout_elements as render_layout_elements
 from momapy.rendering.core import render_map as render_map
 from momapy.rendering.core import render_maps as render_maps
+from momapy.rendering.core import Renderer as Renderer
 from momapy.rendering.core import renderer_registry as renderer_registry
+from momapy.rendering.core import StatefulRenderer as StatefulRenderer
+from momapy.rendering.core import SupportsFileOutput as SupportsFileOutput
 
 
 __all__ = [
@@ -31,7 +34,10 @@ __all__ = [
     "render_layout_elements",
     "render_map",
     "render_maps",
+    "Renderer",
     "renderer_registry",
+    "StatefulRenderer",
+    "SupportsFileOutput",
 ]
 
 
