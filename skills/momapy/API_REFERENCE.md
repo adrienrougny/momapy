@@ -11,7 +11,7 @@ Condensed module-by-module inventory of public classes and function signatures f
 ## Core library (`src/momapy/core/` and top-level)
 
 ### `src/momapy/core/__init__.py`
-Re-exports: `Direction`, `Orientation`, `HAlignment`, `VAlignment`, `MapElement`, `ModelElement`, `LayoutElement`, `Model`, `Map`, `LayoutModelMapping`, `LayoutModelMappingBuilder`, `TextLayout`, `Shape`, `GroupLayout`, `Node`, `Arc`, `SingleHeadedArc`, `DoubleHeadedArc`, `Layout`, `find_font`.
+Re-exports: `Direction`, `Orientation`, `HAlignment`, `VAlignment`, `MapElement`, `ModelElement`, `LayoutElement`, `Model`, `Map`, `LayoutModelMapping`, `LayoutModelMappingBuilder`, `TextLayout`, `Shape`, `GroupLayout`, `Node`, `Arc`, `SingleHeadedArc`, `DoubleHeadedArc`, `Layout`. (`find_font` is **not** re-exported here — use `momapy.core.fonts.find_font`.)
 
 ### `src/momapy/core/elements.py`
 Purpose: base element classes for maps, models, and layouts.

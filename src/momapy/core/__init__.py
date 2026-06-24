@@ -26,8 +26,6 @@ from momapy.core.layout import SingleHeadedArc as SingleHeadedArc
 from momapy.core.layout import DoubleHeadedArc as DoubleHeadedArc
 from momapy.core.layout import Layout as Layout
 
-from momapy.core.fonts import find_font as find_font
-
 
 __all__ = [
     "Direction",
@@ -49,5 +47,4 @@ __all__ = [
     "SingleHeadedArc",
     "DoubleHeadedArc",
     "Layout",
-    "find_font",
 ]
