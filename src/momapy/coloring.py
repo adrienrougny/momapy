@@ -208,7 +208,7 @@ class Color(object):
         metadata={"description": "The alpha component of the color"},
     )
 
-    def __or__(self, alpha: float) -> "Color":
+    def __or__(self, alpha: float) -> typing_extensions.Self:
         """Return a new color with the specified alpha value.
 
         The `|` operator takes alpha on the same 0.0-1.0 scale used by the
