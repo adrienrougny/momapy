@@ -93,7 +93,7 @@ class Builder(abc.ABC):
         pass
 
 
-builders = {}
+_builders: dict[type, type] = {}
 
 _builder_collection_to_immutable: dict[type, type] = {
     list: tuple,
@@ -531,7 +531,7 @@ def has_builder_cls(cls: typing.Type) -> bool:
     Returns:
         True if a builder class is registered, False otherwise.
     """
-    return cls in builders
+    return cls in _builders
 
 
 def get_builder_cls(cls: typing.Type) -> typing.Type:
@@ -543,7 +543,7 @@ def get_builder_cls(cls: typing.Type) -> typing.Type:
     Returns:
         The builder class if registered, None otherwise.
     """
-    return builders.get(cls)
+    return _builders.get(cls)
 
 
 def register_builder_cls(builder_cls: typing.Type) -> None:
@@ -555,7 +555,7 @@ def register_builder_cls(builder_cls: typing.Type) -> None:
         builder_cls: The builder class to register. Must have a `_cls_to_build`
             attribute indicating the target class.
     """
-    builders[builder_cls._cls_to_build] = builder_cls
+    _builders[builder_cls._cls_to_build] = builder_cls
 
 
 def isinstance_or_builder(

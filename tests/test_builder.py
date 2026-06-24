@@ -75,4 +75,4 @@ def test_object_from_builder_function():
 
 def test_builder_registry():
     """Test that builders dictionary exists."""
-    assert isinstance(momapy.builder.builders, dict)
+    assert isinstance(momapy.builder._builders, dict)
