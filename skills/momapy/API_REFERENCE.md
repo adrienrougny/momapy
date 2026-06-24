@@ -90,14 +90,14 @@ Purpose: CSS-like style sheets.
 
 ### `src/momapy/positioning.py`
 - `right_of/left_of/above_of/below_of(obj, distance: float) -> Point`
-- `above_left_of/above_right_of/below_left_of/below_right_of(obj, distance1: float, distance2: float | None = None) -> Point`
+- `above_left_of/above_right_of/below_left_of/below_right_of(obj, distance_y: float, distance_x: float | None = None) -> Point`
 - `fit(elements, xsep=0, ysep=0) -> Bbox`
 - `mid_of(obj1, obj2) -> Point`
 - `cross_vh_of/cross_hv_of(obj1, obj2) -> Point`
 - `fraction_of(arc_layout_element, fraction: float) -> tuple[Point, float]`
 - `set_position(obj, position: Point, anchor: str | None = None)`
 - `set_right_of/set_left_of/set_above_of/set_below_of(obj1, obj2, distance, anchor=None)`
-- `set_above_left_of/set_above_right_of/set_below_left_of/set_below_right_of(obj1, obj2, distance1, distance2=None, anchor=None)`
+- `set_above_left_of/set_above_right_of/set_below_left_of/set_below_right_of(obj1, obj2, distance_y, distance_x=None, anchor=None)`
 - `set_fit(obj, elements, xsep=0, ysep=0, anchor=None)`
 - `set_fraction_of(obj, arc_layout_element, fraction, anchor=None)`
 - `set_mid_of(obj1, obj2, obj3, anchor=None)`
