@@ -25,7 +25,7 @@ from momapy.core.elements import LayoutElement
 from momapy.core.map import Map
 
 
-renderer_registry = PluginRegistry(
+renderer_registry: "PluginRegistry[type[Renderer]]" = PluginRegistry(
     entry_point_group="momapy.renderers",
 )
 

@@ -131,7 +131,7 @@ Purpose: CSS-like style sheets.
 - `read(file_path, reader=None, **options)`, `write(obj, file_path, writer=None, **options)` (writer auto-detected from the map type when `None`: SBGN→`sbgnml`, CellDesigner→`celldesigner`, SBML→clear read-only error).
 - `register_reader(name, cls)`, `register_lazy_reader(name, import_path)`, `register_writer(name, cls)`, `register_lazy_writer(name, import_path)`.
 - Re-exports the base classes `Reader`, `Writer`, and the result classes `IOResult`, `ReaderResult`, `WriterResult`.
-- Module state: `reader_registry`, `writer_registry` (both `PluginRegistry`).
+- Module state: `reader_registry: PluginRegistry[type[Reader]]`, `writer_registry: PluginRegistry[type[Writer]]`.
 
 ### `src/momapy/io/core.py`
 Purpose: reader/writer base classes + dispatch.
@@ -187,7 +187,7 @@ Shape classes (extend `Shape`, override `drawing_elements()`): `Rectangle`, `Ell
 ## Rendering (`src/momapy/rendering/`)
 
 ### `src/momapy/rendering/__init__.py`
-- `get_renderer(name) -> type[Renderer]`, `list_renderers() -> list[str]`, `register_renderer(name, renderer_cls)`, `register_lazy_renderer(name, import_path)`. Registry: `renderer_registry`.
+- `get_renderer(name) -> type[Renderer]`, `list_renderers() -> list[str]`, `register_renderer(name, renderer_cls)`, `register_lazy_renderer(name, import_path)`. Registry: `renderer_registry: PluginRegistry[type[Renderer]]`.
 - `render_layout_element(layout_element, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`
 - `render_layout_elements(layout_elements, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False, multi_pages=True)`
 - `render_map(map_, file_path, format_=None, renderer=None, style_sheet=None, to_top_left=False)`

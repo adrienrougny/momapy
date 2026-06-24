@@ -43,8 +43,12 @@ __all__ = [
 ]
 
 
-reader_registry = PluginRegistry(entry_point_group="momapy.readers")
-writer_registry = PluginRegistry(entry_point_group="momapy.writers")
+reader_registry: "PluginRegistry[type[Reader]]" = PluginRegistry(
+    entry_point_group="momapy.readers"
+)
+writer_registry: "PluginRegistry[type[Writer]]" = PluginRegistry(
+    entry_point_group="momapy.writers"
+)
 
 
 def get_reader(name: str) -> type["Reader"]:
