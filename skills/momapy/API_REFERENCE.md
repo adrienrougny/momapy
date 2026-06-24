@@ -478,7 +478,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 ## SBML (`src/momapy/sbml/`)
 
 ### `src/momapy/sbml/__init__.py`
-Re-exports: `SBMLModelElement`, `SBMLMap`, `BiomodelQualifier`, `BQBiol`, `BQModel`, `Compartment`, `ModifierSpeciesReference`, `RDFAnnotation`, `Reaction`, `SBML`, `SBMLModel`, `SimpleSpeciesReference`, `Species`, `SpeciesReference`.
+Re-exports: `SBMLModelElement`, `SBMLMap`, `BiomodelQualifier`, `BQBiol`, `BQModel`, `Compartment`, `ModifierSpeciesReference`, `RDFAnnotation`, `Reaction`, `SBMLModel`, `SimpleSpeciesReference`, `Species`, `SpeciesReference`.
 
 ### `src/momapy/sbml/map.py`
 - `SBMLMap(Map)` — `model: SBMLModel | None = None`. Model only; SBML has no layout, so the inherited `layout` / `layout_model_mapping` are always `None`.
@@ -493,7 +493,6 @@ Purpose: concrete SBML model classes and BioModels qualifier enums.
 - **Annotation**: `RDFAnnotation` — plain frozen dataclass (metadata, not a model element); `qualifier`, `resources: frozenset[str]`.
 - **Structure**: `Compartment(SBMLModelElement)` — `outside: Compartment | None`; `Species(SBMLModelElement)` — `compartment: Compartment | None`; `SimpleSpeciesReference(SBMLModelElement)` — `referred_element: Species`; `ModifierSpeciesReference(SimpleSpeciesReference)`; `SpeciesReference(SimpleSpeciesReference)` — `stoichiometry: float | None`; `Reaction(SBMLModelElement)` — `reversible`, `compartment`, `reactants`, `products`, `modifiers`.
 - **Model**: `SBMLModel(Model)` — **does NOT inherit `SBMLModelElement`**; declares its own `name`, `sbo_term`, `metaid`, plus `compartments`, `species`, `reactions`. `is_submodel(other) -> bool`.
-- **Root**: `SBML(SBMLModelElement)` — `xmlns`, `level=3`, `version=2`, `model: SBMLModel | None`.
 
 ### `src/momapy/sbml/io/sbml/_reading_context.py`
 - `SBMLReadingContext(momapy.io._utils.ReadingContext)` — adds `sbml_model`, `sbml_id_to_model_element` (SBML id -> frozen model element, for cross-ref resolution), `sbml_id_to_sbml_element`.

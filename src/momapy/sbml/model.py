@@ -271,38 +271,3 @@ class SBMLModel(Model):
     def is_submodel(self, other: "SBMLModel") -> None:
         """Return whether the model is a submodel of another model."""
         pass
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True)
-class SBML(SBMLModelElement):
-    """Root container for SBML documents.
-
-    Represents the top-level SBML element containing model metadata
-    and the model definition.
-
-    Examples:
-        ```python
-        sbml = SBML(
-            model=SBMLModel(name="glycolysis"),
-            level=3,
-            version=2
-        )
-        ```
-    """
-
-    xmlns: str = dataclasses.field(
-        default="http://www.sbml.org/sbml/level3/version2/core",
-        metadata={"description": "XML namespace for the SBML version."},
-    )
-    level: int = dataclasses.field(
-        default=3,
-        metadata={"description": "SBML level (version)."},
-    )
-    version: int = dataclasses.field(
-        default=2,
-        metadata={"description": "SBML version within the level."},
-    )
-    model: SBMLModel | None = dataclasses.field(
-        default=None,
-        metadata={"description": "The model contained in this SBML document."},
-    )
