@@ -234,7 +234,7 @@ Purpose: shared SBGN bases and mixins for PD and AF.
 - Constants (reader defaults, re-exported from `momapy.sbgn`, `momapy.sbgn.pd`, `momapy.sbgn.af`): `DEFAULT_FONT_SIZE = 11.0` (glyph / entity-pool labels), `DEFAULT_AUXILIARY_UNIT_FONT_SIZE = 8.0` (state variable & unit-of-information labels).
 
 ### `src/momapy/sbgn/map.py`
-- `SBGNMap(Map)` — abstract base; `model: SBGNModel`, `layout: SBGNLayout`.
+- `SBGNMap(Map)` — abstract base; `model: SBGNModel | None = None`, `layout: SBGNLayout | None = None`.
 
 ### `src/momapy/sbgn/utils.py`
 Functions (all accept `SBGNMap | Builder`, return same):

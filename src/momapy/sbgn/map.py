@@ -22,5 +22,5 @@ class SBGNMap(Map):
         ```
     """
 
-    model: SBGNModel
-    layout: SBGNLayout
+    model: SBGNModel | None = None
+    layout: SBGNLayout | None = None
