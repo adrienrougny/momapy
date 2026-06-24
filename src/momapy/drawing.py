@@ -258,7 +258,9 @@ class CompositionOperator(enum.Enum):
 class CompositeEffect(FilterEffect):
     """Composite filter effect.
 
-    Combines two inputs using a composition operator.
+    Combines two inputs using a composition operator. The fields ``in_`` and
+    ``in2`` map to SVG ``feComposite``'s ``in`` and ``in2`` attributes (``in_``
+    carries a trailing underscore because ``in`` is a Python keyword).
     """
 
     in_: FilterEffectInput | str | None = dataclasses.field(
