@@ -1448,7 +1448,7 @@ def get_drawing_elements_border(
 def get_drawing_elements_angle(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     angle: float,
-    unit: str = "degrees",
+    unit: typing.Literal["degrees", "radians"] = "degrees",
     center: Point | None = None,
 ) -> Point | None:
     """Get border point at an angle from center.
