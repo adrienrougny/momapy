@@ -63,7 +63,7 @@ class LayoutModelMapping(FrozenIdentitySurjectionDict):
     def get_mapping(
         self,
         map_element: "MapElement",
-    ) -> "ModelElement | list[LayoutElement]":
+    ) -> "ModelElement | list[LayoutElement] | None":
         """Return the model element or layout elements mapped to `map_element`.
 
         Lookup order:

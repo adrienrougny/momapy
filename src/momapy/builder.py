@@ -534,7 +534,7 @@ def has_builder_cls(cls: typing.Type) -> bool:
     return cls in _builders
 
 
-def get_builder_cls(cls: typing.Type) -> typing.Type:
+def get_builder_cls(cls: typing.Type) -> typing.Type | None:
     """Get the registered builder class for a given class.
 
     Args:

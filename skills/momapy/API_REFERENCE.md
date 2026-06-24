@@ -59,12 +59,12 @@ Constants: `ROUNDING=4`, `ROUNDING_TOLERANCE`, `ZERO_TOLERANCE=1e-12`, `PARAMETE
 ### `src/momapy/drawing.py`
 Classes: `NoneValueType`, `FilterEffect(ABC)` + (`DropShadowEffect`, `CompositeEffect`, `FloodEffect`, `GaussianBlurEffect`, `OffsetEffect`), `FilterEffectInput(Enum)`, `CompositionOperator(Enum)`, `EdgeMode(Enum)`, `FilterUnits(Enum)`, `Filter`, `FontStyle(Enum)`, `FontWeight(Enum)`, `TextAnchor(Enum)`, `FillRule(Enum)`, `DrawingElement(ABC)`, `Text(DrawingElement)`, `Group(DrawingElement)`, `PathAction(ABC)` + (`MoveTo`, `LineTo`, `EllipticalArc`, `CurveTo`, `QuadraticCurveTo`, `ClosePath`), `Path(DrawingElement)`, `Ellipse(DrawingElement)`, `Rectangle(DrawingElement)`.
 
-Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point`.
+Functions: `get_initial_value(attr_name: str) -> Any`, `drawing_elements_to_geometry(elements) -> list[Segment|Curve|Arc]`, `get_drawing_elements_border(drawing_elements, point, center=None) -> Point | None`, `get_drawing_elements_angle(drawing_elements, angle, unit="degrees", center=None) -> Point | None`, `get_drawing_elements_bbox(drawing_elements) -> Bbox`, `get_drawing_elements_anchor_point(drawing_elements, anchor_point, center=None) -> Point | None`.
 
 ### `src/momapy/builder.py`
 - `Builder(ABC)` — `build(builder_to_object=None)`, `from_object(obj, object_to_builder=None) -> Self`.
 - `get_or_make_builder_cls(cls, builder_fields=None, builder_bases=None, builder_namespace=None) -> type[Builder]`
-- `has_builder_cls(cls) -> bool`, `get_builder_cls(cls) -> type[Builder]`
+- `has_builder_cls(cls) -> bool`, `get_builder_cls(cls) -> type[Builder] | None`
 - `object_from_builder(builder, builder_to_object=None) -> Any`
 - `builder_from_object(obj, object_to_builder=None) -> Builder`
 - `isinstance_or_builder(obj, cls) -> bool`, `issubclass_or_builder(cls, parent) -> bool`, `super_or_builder(type_, obj) -> type`

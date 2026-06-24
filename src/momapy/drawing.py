@@ -1488,7 +1488,7 @@ def get_drawing_elements_anchor_point(
     drawing_elements: collections.abc.Sequence[DrawingElement],
     anchor_point: str,
     center: Point | None = None,
-) -> Point:
+) -> Point | None:
     """Get anchor point of drawing elements.
 
     Args:
@@ -1497,7 +1497,7 @@ def get_drawing_elements_anchor_point(
         center: Optional center point.
 
     Returns:
-        The anchor point.
+        The anchor point, or None.
     """
     primitives = drawing_elements_to_geometry(drawing_elements)
     return get_primitives_anchor_point(
