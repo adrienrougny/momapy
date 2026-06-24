@@ -94,14 +94,15 @@ class CairoRenderer(
     """
 
     supported_formats: typing.ClassVar[list[str]] = ["pdf", "svg", "png", "ps"]
-    _de_class_func_mapping: typing.ClassVar[dict] = {
+    default_format: typing.ClassVar[str | None] = "pdf"
+    _de_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Group: "_render_group",
         Path: "_render_path",
         Text: "_render_text",
         Ellipse: "_render_ellipse",
         Rectangle: "_render_rectangle",
     }
-    _pa_class_func_mapping: typing.ClassVar[dict] = {
+    _pa_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         MoveTo: "_add_move_to",
         LineTo: "_add_line_to",
         CurveTo: "_add_curve_to",
@@ -109,13 +110,13 @@ class CairoRenderer(
         ClosePath: "_add_close_path",
         EllipticalArcDrawing: "_add_elliptical_arc",
     }
-    _tr_class_func_mapping: typing.ClassVar[dict] = {
+    _tr_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Translation: "_add_translation",
         Rotation: "_add_rotation",
         Scaling: "_add_scaling",
         MatrixTransformation: "_add_matrix_transformation",
     }
-    _te_font_style_slant_mapping: typing.ClassVar[dict] = {
+    _te_font_style_slant_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
         FontStyle.NORMAL: gi.repository.Pango.Style.NORMAL,
         FontStyle.ITALIC: gi.repository.Pango.Style.ITALIC,
         FontStyle.OBLIQUE: gi.repository.Pango.Style.OBLIQUE,
@@ -134,8 +135,8 @@ class CairoRenderer(
         file_path: str | os.PathLike,
         width: float,
         height: float,
-        format_: typing.Literal["pdf", "svg", "png", "ps"] = "pdf",
-        config: dict | None = None,
+        format_: str | None = None,
+        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create a CairoRenderer instance from a file path.
 
@@ -143,7 +144,8 @@ class CairoRenderer(
             file_path: The output file path
             width: The width of the canvas
             height: The height of the canvas
-            format_: The output format (pdf, svg, png, or ps)
+            format_: The output format (pdf, svg, png, or ps). ``None`` selects
+                the backend's :attr:`default_format` ("pdf").
             config: Optional configuration dictionary
 
         Returns:
@@ -157,6 +159,8 @@ class CairoRenderer(
             renderer = CairoRenderer.from_file("output.pdf", 800, 600, "pdf")
             ```
         """
+        if format_ is None:
+            format_ = cls.default_format
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         check_parent_dir_exists(file_path)

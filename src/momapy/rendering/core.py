@@ -4,6 +4,7 @@ import dataclasses
 import copy
 import abc
 import typing
+import typing_extensions
 import collections.abc
 import os
 import pathlib
@@ -336,11 +337,11 @@ class Renderer(abc.ABC):
     directly and has neither ``from_file`` nor ``supported_formats``.
     """
 
-    initial_values: typing.ClassVar[dict] = {
+    initial_values: typing.ClassVar[dict[str, typing.Any]] = {
         "font_family": DEFAULT_FONT_FAMILY,
         "font_weight": FontWeight.NORMAL,
     }
-    font_weight_value_mapping: typing.ClassVar[dict] = {
+    font_weight_value_mapping: typing.ClassVar[dict[FontWeight, int]] = {
         FontWeight.NORMAL: 400,
         FontWeight.BOLD: 700,
     }
@@ -450,6 +451,11 @@ class SupportsFileOutput(abc.ABC):
     """
 
     supported_formats: typing.ClassVar[list[str]] = []
+    default_format: typing.ClassVar[str | None] = None
+    """The format used when ``from_file`` is called with ``format_=None``.
+
+    Subclasses set this to one of their :attr:`supported_formats`.
+    """
 
     @classmethod
     @abc.abstractmethod
@@ -459,15 +465,16 @@ class SupportsFileOutput(abc.ABC):
         width: float,
         height: float,
         format_: str | None = None,
-        config: dict | None = None,
-    ) -> "Renderer":
+        config: dict[str, typing.Any] | None = None,
+    ) -> typing_extensions.Self:
         """Build a renderer that writes its output to ``file_path``.
 
         Args:
             file_path: The output file path.
             width: The width of the canvas.
             height: The height of the canvas.
-            format_: The output format. Backends may default it.
+            format_: The output format. ``None`` selects the backend's
+                :attr:`default_format`.
             config: Optional backend-specific configuration dictionary.
 
         Returns:

@@ -152,14 +152,15 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
     """
 
     supported_formats: typing.ClassVar[list[str]] = ["svg"]
-    _de_class_func_mapping: typing.ClassVar[dict] = {
+    default_format: typing.ClassVar[str | None] = "svg"
+    _de_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Group: "_make_group_element",
         Path: "_make_path_element",
         Text: "_make_text_element",
         Ellipse: "_make_ellipse_element",
         Rectangle: "_make_rectangle_element",
     }
-    _pa_class_func_mapping: typing.ClassVar[dict] = {
+    _pa_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         MoveTo: "_make_move_to_value",
         LineTo: "_make_line_to_value",
         CurveTo: "_make_curve_to_value",
@@ -167,20 +168,20 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         ClosePath: "_make_close_value",
         EllipticalArc: "_make_elliptical_arc_value",
     }
-    _tr_class_func_mapping: typing.ClassVar[dict] = {
+    _tr_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Translation: "_make_translation_value",
         Rotation: "_make_rotation_value",
         Scaling: "_make_scaling_value",
         MatrixTransformation: "_make_matrix_transformation_value",
     }
-    _fe_class_func_mapping: typing.ClassVar[dict] = {
+    _fe_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         DropShadowEffect: "_make_drop_shadow_effect_element",
         CompositeEffect: "_make_composite_effect_element",
         GaussianBlurEffect: "_make_gaussian_blur_effect_element",
         OffsetEffect: "_make_offset_effect_element",
         FloodEffect: "_make_flood_effect_element",
     }
-    _fe_composite_comp_op_value_mapping: typing.ClassVar[dict] = {
+    _fe_composite_comp_op_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         CompositionOperator.OVER: "over",
         CompositionOperator.IN: "in",
         CompositionOperator.OUT: "out",
@@ -189,16 +190,16 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         CompositionOperator.LIGHTER: "lighter",
         CompositionOperator.ARITHMETIC: "arithmetic",
     }
-    _fe_gaussian_blur_edgemode_value_mapping: typing.ClassVar[dict] = {
+    _fe_gaussian_blur_edgemode_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         EdgeMode.WRAP: "wrap",
         EdgeMode.DUPLICATE: "duplicate",
         NoneValue: "none",
     }
-    _fe_filter_unit_value_mapping: typing.ClassVar[dict] = {
+    _fe_filter_unit_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         FilterUnits.USER_SPACE_ON_USE: "UserSpaceOnUse",
         FilterUnits.OBJECT_BOUNDING_BOX: "objectBoundingBox",
     }
-    _fe_input_value_mapping: typing.ClassVar[dict] = {
+    _fe_input_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         FilterEffectInput.SOURCE_GRAPHIC: "SourceGraphic",
         FilterEffectInput.SOURCE_ALPHA: "SourceAlpha",
         FilterEffectInput.BACKGROUND_IMAGE: "BackgroundImage",
@@ -206,23 +207,23 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         FilterEffectInput.FILL_PAINT: "FillPaint",
         FilterEffectInput.STROKE_PAINT: "StrokePaint",
     }
-    _te_font_style_value_mapping: typing.ClassVar[dict] = {
+    _te_font_style_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         FontStyle.NORMAL: "normal",
         FontStyle.ITALIC: "italic",
         FontStyle.OBLIQUE: "oblique",
     }
-    _te_font_weight_value_mapping: typing.ClassVar[dict] = {
+    _te_font_weight_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         FontWeight.NORMAL: "normal",
         FontWeight.BOLD: "bold",
         FontWeight.BOLDER: "bolder",
         FontWeight.LIGHTER: "lighter",
     }
-    _te_text_anchor_value_mapping: typing.ClassVar[dict] = {
+    _te_text_anchor_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         TextAnchor.START: "start",
         TextAnchor.MIDDLE: "middle",
         TextAnchor.END: "end",
     }
-    _de_fill_rule_value_mapping: typing.ClassVar[dict] = {
+    _de_fill_rule_value_mapping: typing.ClassVar[dict[typing.Any, str]] = {
         FillRule.NONZERO: "nonzero",
         FillRule.EVENODD: "evenodd",
     }
@@ -241,8 +242,8 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
         file_path: str | os.PathLike,
         width: float,
         height: float,
-        format_: typing.Literal["svg"] = "svg",
-        config: dict | None = None,
+        format_: str | None = None,
+        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create an SVGNativeRenderer instance from a file path.
 
@@ -250,7 +251,8 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             file_path: The output file path
             width: The width of the SVG canvas
             height: The height of the SVG canvas
-            format_: The output format (must be "svg")
+            format_: The output format. ``None`` selects the backend's
+                :attr:`default_format` ("svg").
             config: Optional configuration dictionary
 
         Returns:
@@ -264,6 +266,8 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             renderer = SVGNativeRenderer.from_file("output.svg", 800, 600, "svg")
             ```
         """
+        if format_ is None:
+            format_ = cls.default_format
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         check_parent_dir_exists(file_path)

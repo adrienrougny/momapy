@@ -93,14 +93,15 @@ class SkiaRenderer(
         "jpeg",
         "webp",
     ]
-    _de_class_func_mapping: typing.ClassVar[dict] = {
+    default_format: typing.ClassVar[str | None] = "pdf"
+    _de_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Group: "_render_group",
         Path: "_render_path",
         Text: "_render_text",
         Ellipse: "_render_ellipse",
         Rectangle: "_render_rectangle",
     }
-    _pa_class_func_mapping: typing.ClassVar[dict] = {
+    _pa_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         MoveTo: "_add_move_to",
         LineTo: "_add_line_to",
         CurveTo: "_add_curve_to",
@@ -108,20 +109,22 @@ class SkiaRenderer(
         ClosePath: "_add_close_path",
         EllipticalArc: "_add_elliptical_arc",
     }
-    _tr_class_func_mapping: typing.ClassVar[dict] = {
+    _tr_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         Translation: "_add_translation",
         Rotation: "_add_rotation",
         Scaling: "_add_scaling",
         MatrixTransformation: "_add_matrix_transformation",
     }
-    _fe_class_func_mapping: typing.ClassVar[dict] = {
+    _fe_class_func_mapping: typing.ClassVar[dict[type, str]] = {
         DropShadowEffect: "_make_drop_shadow_effect",
         CompositeEffect: "_make_composite_effect",
         GaussianBlurEffect: "_make_gaussian_blur_effect",
         OffsetEffect: "_make_offset_effect",
         FloodEffect: "_make_flood_effect",
     }
-    _fe_composite_comp_op_blendmode_mapping: typing.ClassVar[dict] = {
+    _fe_composite_comp_op_blendmode_mapping: typing.ClassVar[
+        dict[typing.Any, typing.Any]
+    ] = {
         CompositionOperator.OVER: skia.BlendMode.kSrcOver,
         CompositionOperator.IN: skia.BlendMode.kSrcIn,
         CompositionOperator.OUT: skia.BlendMode.kSrcOut,
@@ -129,12 +132,14 @@ class SkiaRenderer(
         CompositionOperator.XOR: skia.BlendMode.kXor,
         CompositionOperator.LIGHTER: skia.BlendMode.kLighten,
     }
-    _fe_gaussian_blur_edgemode_tilemode_mapping: typing.ClassVar[dict] = {
+    _fe_gaussian_blur_edgemode_tilemode_mapping: typing.ClassVar[
+        dict[typing.Any, typing.Any]
+    ] = {
         EdgeMode.WRAP: skia.TileMode.kMirror,
         EdgeMode.DUPLICATE: skia.TileMode.kClamp,
         None: skia.TileMode.kDecal,
     }
-    _te_font_style_slant_mapping: typing.ClassVar[dict] = {
+    _te_font_style_slant_mapping: typing.ClassVar[dict[typing.Any, typing.Any]] = {
         FontStyle.NORMAL: skia.FontStyle.Slant.kUpright_Slant,
         FontStyle.ITALIC: skia.FontStyle.Slant.kItalic_Slant,
         FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
@@ -150,8 +155,8 @@ class SkiaRenderer(
         file_path: str | os.PathLike,
         width: float,
         height: float,
-        format_: typing.Literal["pdf", "svg", "png", "jpeg", "webp"] = "pdf",
-        config: dict | None = None,
+        format_: str | None = None,
+        config: dict[str, typing.Any] | None = None,
     ) -> typing_extensions.Self:
         """Create a SkiaRenderer instance from a file path.
 
@@ -159,7 +164,8 @@ class SkiaRenderer(
             file_path: The output file path
             width: The width of the canvas
             height: The height of the canvas
-            format_: The output format (pdf, svg, png, jpeg, or webp)
+            format_: The output format (pdf, svg, png, jpeg, or webp). ``None``
+                selects the backend's :attr:`default_format` ("pdf").
             config: Optional configuration dictionary
 
         Returns:
@@ -173,6 +179,8 @@ class SkiaRenderer(
             renderer = SkiaRenderer.from_file("output.pdf", 800, 600, "pdf")
             ```
         """
+        if format_ is None:
+            format_ = cls.default_format
         if format_ not in cls.supported_formats:
             raise ValueError(f"Unsupported format: {format_}")
         check_parent_dir_exists(file_path)
