@@ -140,9 +140,9 @@ class SkiaRenderer(
         FontStyle.OBLIQUE: skia.FontStyle.Slant.kOblique_Slant,
     }
     canvas: skia.Canvas = dataclasses.field(metadata={"description": "A skia canvas"})
-    _config: dict = dataclasses.field(default_factory=dict)
-    _skia_typefaces: dict = dataclasses.field(default_factory=dict)
-    _skia_fonts: dict = dataclasses.field(default_factory=dict)
+    _config: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
+    _skia_typefaces: dict[tuple, typing.Any] = dataclasses.field(default_factory=dict)
+    _skia_fonts: dict[tuple, typing.Any] = dataclasses.field(default_factory=dict)
 
     @classmethod
     def from_file(

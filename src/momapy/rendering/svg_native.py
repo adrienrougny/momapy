@@ -77,7 +77,7 @@ class SVGElement(object):
         default=None,
         metadata={"description": "The optional text content of the element"},
     )
-    attributes: dict = dataclasses.field(default_factory=dict)
+    attributes: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
     elements: list["SVGElement"] = dataclasses.field(default_factory=list)
 
     def to_string(self, indent: int = 0) -> str:
@@ -232,7 +232,7 @@ class SVGNativeRenderer(Renderer, SupportsFileOutput):
             "description": "The root SVG element that will contain all rendered content"
         }
     )
-    config: dict = dataclasses.field(default_factory=dict)
+    config: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
     _filter_elements: list[SVGElement] = dataclasses.field(default_factory=list)
 
     @classmethod

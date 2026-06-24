@@ -123,8 +123,10 @@ class CairoRenderer(
     context: cairo.Context = dataclasses.field(
         metadata={"description": "A cairo context"}
     )
-    _config: dict = dataclasses.field(default_factory=dict)
-    _pango_font_descriptions: dict = dataclasses.field(default_factory=dict)
+    _config: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
+    _pango_font_descriptions: dict[tuple, typing.Any] = dataclasses.field(
+        default_factory=dict
+    )
 
     @classmethod
     def from_file(

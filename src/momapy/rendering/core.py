@@ -480,8 +480,8 @@ class SupportsFileOutput(abc.ABC):
 class StatefulRenderer(Renderer):
     """Base class for stateful renderers."""
 
-    _current_state: dict = dataclasses.field(default_factory=dict)
-    _states: list[dict] = dataclasses.field(default_factory=list)
+    _current_state: dict[str, typing.Any] = dataclasses.field(default_factory=dict)
+    _states: list[dict[str, typing.Any]] = dataclasses.field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Initialize the renderer's current state after initialization."""
@@ -583,7 +583,7 @@ class StatefulRenderer(Renderer):
         if attr_value is not None:
             self._current_state[attr_name] = attr_value
 
-    def set_current_state(self, state: dict) -> None:
+    def set_current_state(self, state: dict[str, typing.Any]) -> None:
         """Set the current state to the given state."""
         for attr_name, attr_value in state.items():
             self.set_current_value(attr_name, attr_value)
