@@ -151,12 +151,12 @@ def register_lazy_writer(name: str, import_path: str) -> None:
     writer_registry.register_lazy(name, import_path)
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class IOResult:
     """Base class for I/O results."""
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class ReaderResult(IOResult):
     """Result from reading a map file."""
 
@@ -247,7 +247,7 @@ class ReaderResult(IOResult):
     )
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(kw_only=True)
 class WriterResult(IOResult):
     """Result from writing a map file."""
 
