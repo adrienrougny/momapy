@@ -55,6 +55,26 @@ class TestColor:
         rgb = color.to_rgb()
         assert rgb == (255, 128, 64)
 
+    def test_color_from_rgba_custom_range_round_trips(self):
+        """from_rgba inverts to_rgba for custom float ranges."""
+        color = momapy.coloring.Color(255, 128, 64, 0.5)
+        rgb_range = (0.0, 1.0)
+        alpha_range = (0.0, 100.0)
+        rgba = color.to_rgba(rgb_range=rgb_range, alpha_range=alpha_range)
+        assert (
+            momapy.coloring.Color.from_rgba(
+                *rgba, rgb_range=rgb_range, alpha_range=alpha_range
+            )
+            == color
+        )
+
+    def test_color_from_rgb_custom_range(self):
+        """from_rgb accepts a custom rgb_range."""
+        color = momapy.coloring.Color.from_rgb(1.0, 0.502, 0.251, rgb_range=(0.0, 1.0))
+        assert color.red == 255
+        assert color.green == 128
+        assert color.blue == 64
+
     def test_color_to_hex(self):
         """Test Color to_hex method."""
         color = momapy.coloring.Color(255, 128, 64)

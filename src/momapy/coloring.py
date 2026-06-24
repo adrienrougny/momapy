@@ -352,44 +352,83 @@ class Color(object):
 
     @classmethod
     def from_rgba(
-        cls, red: int, green: int, blue: int, alpha: float
+        cls,
+        red: float,
+        green: float,
+        blue: float,
+        alpha: float,
+        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
+        alpha_range: tuple[float, float] = (0.0, 1.0),
     ) -> typing_extensions.Self:
         """Create a color from RGBA components.
 
+        The ``rgb_range`` and ``alpha_range`` arguments mirror
+        :meth:`to_rgba`, so ``from_rgba(*color.to_rgba(rgb_range, alpha_range),
+        rgb_range, alpha_range)`` round-trips.
+
         Args:
-            red: Red component (0-255).
-            green: Green component (0-255).
-            blue: Blue component (0-255).
-            alpha: Alpha component (0.0-1.0).
+            red: Red component, expressed in `rgb_range` units.
+            green: Green component, expressed in `rgb_range` units.
+            blue: Blue component, expressed in `rgb_range` units.
+            alpha: Alpha component, expressed in `alpha_range` units.
+            rgb_range: Range that the RGB components are expressed in,
+                defaults to (0, 255).
+            alpha_range: Range that `alpha` is expressed in, defaults to
+                (0.0, 1.0).
 
         Returns:
-            A new Color instance.
+            A new Color instance, normalized to 0-255 RGB / 0.0-1.0 alpha.
 
         Examples:
             ```python
             Color.from_rgba(255, 87, 51, 0.5)
+            Color.from_rgba(1.0, 0.34, 0.2, 0.5, rgb_range=(0, 1))
             ```
         """
-        return cls(red, green, blue, alpha)
+        rgb_width = rgb_range[1] - rgb_range[0]
+        alpha_width = alpha_range[1] - alpha_range[0]
+        return cls(
+            round((red - rgb_range[0]) / rgb_width * 255),
+            round((green - rgb_range[0]) / rgb_width * 255),
+            round((blue - rgb_range[0]) / rgb_width * 255),
+            (alpha - alpha_range[0]) / alpha_width,
+        )
 
     @classmethod
-    def from_rgb(cls, red: int, green: int, blue: int) -> typing_extensions.Self:
+    def from_rgb(
+        cls,
+        red: float,
+        green: float,
+        blue: float,
+        rgb_range: tuple[float, float] | tuple[int, int] = (0, 255),
+    ) -> typing_extensions.Self:
         """Create a color from RGB components.
 
+        The ``rgb_range`` argument mirrors :meth:`to_rgb`, so
+        ``from_rgb(*color.to_rgb(rgb_range), rgb_range)`` round-trips.
+
         Args:
-            red: Red component (0-255).
-            green: Green component (0-255).
-            blue: Blue component (0-255).
+            red: Red component, expressed in `rgb_range` units.
+            green: Green component, expressed in `rgb_range` units.
+            blue: Blue component, expressed in `rgb_range` units.
+            rgb_range: Range that the RGB components are expressed in,
+                defaults to (0, 255).
 
         Returns:
-            A new Color instance with alpha=1.0.
+            A new Color instance with alpha=1.0, normalized to 0-255 RGB.
 
         Examples:
             ```python
             Color.from_rgb(255, 87, 51)
+            Color.from_rgb(1.0, 0.34, 0.2, rgb_range=(0, 1))
             ```
         """
-        return cls(red, green, blue)
+        rgb_width = rgb_range[1] - rgb_range[0]
+        return cls(
+            round((red - rgb_range[0]) / rgb_width * 255),
+            round((green - rgb_range[0]) / rgb_width * 255),
+            round((blue - rgb_range[0]) / rgb_width * 255),
+        )
 
     @classmethod
     def from_hex(cls, color_str: str) -> typing_extensions.Self:
