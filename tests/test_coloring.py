@@ -65,8 +65,14 @@ class TestColor:
         """Test Color to_hexa method."""
         color = momapy.coloring.Color(255, 128, 64, 0.5)
         hexa_str = color.to_hexa()
-        # 0.5 * 255 = 127.5, which rounds to 127 (0x7f) with int()
-        assert hexa_str == "#ff80407f"
+        # 0.5 * 255 = 127.5, rounded to 128 (0x80)
+        assert hexa_str == "#ff804080"
+
+    def test_color_hexa_round_trip_exact(self):
+        """from_hexa / to_hexa round-trips exactly for every alpha byte."""
+        for n in range(256):
+            hexa_str = f"#ff5733{n:02x}"
+            assert momapy.coloring.Color.from_hexa(hexa_str).to_hexa() == hexa_str
 
     def test_color_with_alpha(self):
         """Test Color with_alpha method."""

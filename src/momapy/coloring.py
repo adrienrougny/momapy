@@ -310,6 +310,10 @@ class Color(object):
     def to_hexa(self) -> str:
         """Return the color as hexadecimal string with alpha.
 
+        The alpha byte is rounded (not truncated), so the
+        ``from_hexa`` / ``to_hexa`` round-trip is exact for every 8-bit
+        alpha value.
+
         Returns:
             Hex color string with alpha (e.g., "#ff5733ff").
 
@@ -319,7 +323,7 @@ class Color(object):
             color.to_hexa()
             ```
         """
-        color_str = f"{self.to_hex()}{format(int(self.alpha * 255), '02x')}"
+        color_str = f"{self.to_hex()}{format(round(self.alpha * 255), '02x')}"
         return color_str
 
     def with_alpha(
