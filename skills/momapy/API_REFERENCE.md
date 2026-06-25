@@ -117,6 +117,7 @@ Purpose: CSS-like style sheets.
 - `pretty_print(obj, max_depth=0, exclude_cls=None)`
 - `get_element_from_collection(element: _T, collection: Iterable[_T]) -> _T | None`, `get_or_return_element_from_collection(element: _T, collection: Iterable[_T]) -> _T`, `add_or_replace_element_in_set(element: _T, set_: set[_T], func: Callable[[_T, _T], bool] | None = None, cache: dict[_T, _T] | None = None) -> _T` — match by equality (`==`), not identity
 - `make_uuid4_as_str() -> str`
+- `check_file_exists(file_path: str | os.PathLike) -> None` — input-side existence check; raises `FileNotFoundError`. Used by `read()` and every reader.
 - `check_parent_dir_exists(file_path: str | os.PathLike) -> None`
 - `display(obj, markers=None, xsep=20.0, ysep=20.0, scale=1.0, style_sheet=None)`, `print_source(obj) -> None` — optional-notebook-dependency helpers.
 

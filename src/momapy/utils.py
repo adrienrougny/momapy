@@ -54,6 +54,7 @@ __all__ = [
     "IdentitySurjectionDict",
     "SurjectionDict",
     "add_or_replace_element_in_set",
+    "check_file_exists",
     "check_parent_dir_exists",
     "display",
     "get_element_from_collection",
@@ -717,6 +718,24 @@ def make_uuid4_as_str() -> str:
         ```
     """
     return str(uuid.uuid4())
+
+
+def check_file_exists(file_path: str | os.PathLike) -> None:
+    """Raise a clear `FileNotFoundError` if `file_path` does not exist.
+
+    Centralizes the input-side existence check so every read path reports a
+    missing file the same way, naming the path, instead of the format-specific
+    `OSError` / `ValueError` each parser would otherwise raise. Mirrors
+    `check_parent_dir_exists`, which guards the output side.
+
+    Args:
+        file_path: Path of the file to check.
+
+    Raises:
+        FileNotFoundError: If no file exists at `file_path`.
+    """
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"no such file: '{file_path}'")
 
 
 def check_parent_dir_exists(file_path: str | os.PathLike) -> None:

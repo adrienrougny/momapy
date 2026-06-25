@@ -17,7 +17,7 @@ from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
 from momapy.io.core import Reader
 from momapy.io.core import ReaderResult
-from momapy.io.core import _check_file_exists
+from momapy.utils import check_file_exists
 from momapy.sbml.io.sbml._reading_context import SBMLReadingContext
 from momapy.sbml.map import SBMLMap
 from momapy.sbml.model import SBMLModel
@@ -97,7 +97,7 @@ class SBMLReader(Reader):
         Raises:
             NotImplementedError: If `return_type="layout"` (SBML has no layout).
         """
-        _check_file_exists(file_path)
+        check_file_exists(file_path)
         sbml_document = lxml.objectify.parse(file_path)
         sbml = sbml_document.getroot()
         obj, annotations, notes = cls._make_main_obj(
