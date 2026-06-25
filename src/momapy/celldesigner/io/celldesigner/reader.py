@@ -78,7 +78,9 @@ from momapy.io._utils import (
     build_id_mappings,
     register_model_element,
 )
+from momapy.builder import new_builder_object
 from momapy.builder import object_from_builder
+from momapy.celldesigner.map import CellDesignerMap
 from momapy.utils import (
     IdentityMultiDict,
     add_or_replace_element_in_set,
@@ -141,6 +143,7 @@ from momapy.celldesigner.model import (
     AntisenseRNATemplate,
     Catalysis,
     Catalyzer,
+    CellDesignerModel,
     CodingRegion,
     Complex,
     Dissociation,
@@ -203,6 +206,7 @@ from momapy.celldesigner.layout import (
     AndGateLayout,
     AntisenseRNALayout,
     CatalysisLayout,
+    CellDesignerLayout,
     ComplexLayout,
     DegradedLayout,
     DissociationLayout,
@@ -672,6 +676,22 @@ class CellDesignerReader(Reader):
         return result
 
     @classmethod
+    def _make_empty_model(cls, cd_model: typing.Any) -> typing.Any:
+        return new_builder_object(CellDesignerModel)
+
+    @classmethod
+    def _make_empty_map(cls, cd_model: typing.Any) -> typing.Any:
+        map_ = new_builder_object(CellDesignerMap)
+        cd_map_id = cd_model.get("id")
+        if cd_map_id is not None:
+            map_.id_ = cd_map_id
+        return map_
+
+    @classmethod
+    def _make_empty_layout(cls, cd_model: typing.Any) -> typing.Any:
+        return new_builder_object(CellDesignerLayout)
+
+    @classmethod
     def _make_main_obj(
         cls,
         cd_model: lxml.objectify.ObjectifiedElement,
@@ -687,11 +707,11 @@ class CellDesignerReader(Reader):
                 "'model' or 'layout'"
             )
         if return_type == "model" or return_type == "map" and with_model:
-            model = _reading_model.make_empty_model(cd_model)
+            model = cls._make_empty_model(cd_model)
         else:
             model = None
         if return_type == "layout" or return_type == "map" and with_layout:
-            layout = _reading_layout.make_empty_layout(cd_model)
+            layout = cls._make_empty_layout(cd_model)
         else:
             layout = None
         element_to_annotations = collections.defaultdict(set)
@@ -777,7 +797,7 @@ class CellDesignerReader(Reader):
         elif return_type == "layout":
             obj = object_from_builder(layout)
         elif return_type == "map":
-            map_ = _reading_model.make_empty_map(cd_model)
+            map_ = cls._make_empty_map(cd_model)
             map_.model = model
             map_.layout = layout
             map_.layout_model_mapping = layout_model_mapping

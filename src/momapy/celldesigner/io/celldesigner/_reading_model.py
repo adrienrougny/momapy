@@ -19,8 +19,6 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
 
 from momapy.sbml.io.sbml._reading_model import make_annotations, make_notes
 from momapy.builder import new_builder_object
-from momapy.celldesigner.map import CellDesignerMap
-from momapy.celldesigner.model import CellDesignerModel
 from momapy.celldesigner.model import (
     BooleanLogicGateInput,
     Compartment,
@@ -161,36 +159,6 @@ def make_and_add_annotations_from_notes(
             reading_context.element_to_annotations[model_element].update(annotations)
             if source_id is not None:
                 reading_context.source_id_to_annotations[source_id].update(annotations)
-
-
-def make_empty_model(cd_element: typing.Any) -> typing.Any:
-    """Create an empty CellDesigner model builder.
-
-    Args:
-        cd_element: The root CellDesigner XML element (unused, kept for symmetry).
-
-    Returns:
-        A new empty CellDesigner model builder.
-    """
-    model = new_builder_object(CellDesignerModel)
-    return model
-
-
-def make_empty_map(cd_element: typing.Any) -> typing.Any:
-    """Create an empty CellDesigner map builder.
-
-    Args:
-        cd_element: The root CellDesigner XML element. Its ``id`` attribute,
-            if present, is copied to the map builder.
-
-    Returns:
-        A new empty CellDesigner map builder.
-    """
-    map_ = new_builder_object(CellDesignerMap)
-    cd_map_id = cd_element.get("id")
-    if cd_map_id is not None:
-        map_.id_ = cd_map_id
-    return map_
 
 
 def make_compartment(

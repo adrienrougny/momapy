@@ -424,7 +424,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `CellDesignerReadingContext(ReadingContext)` — adds `cd_complex_alias_id_to_cd_included_species_ids`, `cd_compartment_aliases`, `cd_compartments`, `cd_species_templates`, `cd_species_aliases`, `cd_reactions`, `cd_modulations`, `real_model_source_ids` / `real_layout_source_ids` (split ID tracking), `canvas_width`, `canvas_height`, `cd_degraded_alias_ids`, `cd_degraded_species_ids`.
 
 ### `src/momapy/celldesigner/io/celldesigner/reader.py`
-- `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`.
+- `CellDesignerReader(Reader)` — `read(file_path, return_type="map", with_model=True, with_layout=True, with_annotations=True, with_notes=True, **options)`. Also `_make_empty_map`/`_make_empty_model`/`_make_empty_layout` and `_make_and_add_*` orchestration classmethods (mirroring SBGN-ML/SBML).
 - Internal: `_KEY_TO_CLASS` (tuple keys → model/layout class pairs).
 
 ### `src/momapy/celldesigner/io/celldesigner/_writing_context.py`
@@ -435,7 +435,6 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_model.py` (`make_*`)
 - `make_annotations_from_element(cd_element)`, `make_annotations_from_notes(cd_notes)`, `make_notes_from_element(cd_element)`, `make_and_add_annotations(reading_context, cd_element, model_element)`
-- `make_empty_model(cd_element)`, `make_empty_map(cd_element)`
 - `make_compartment(reading_context, cd_compartment)`
 - `make_species_template(reading_context, cd_species_template, model_element_cls)`
 - `make_modification_residue(reading_context, cd_modification_residue, super_cd_element, order)`
@@ -451,7 +450,7 @@ Functions (accept `CellDesignerMap | Builder`, return same):
 - `make_modulation(reading_context, cd_reaction, model_element_cls, source_model_element, target_model_element)`
 
 ### `src/momapy/celldesigner/io/celldesigner/_reading_layout.py` (`make_*`)
-- `make_empty_layout(cd_element)`, `set_layout_size_and_position(reading_context, cd_model)`
+- `set_layout_size_and_position(reading_context, cd_model)`
 - `make_segments(points)`, `make_points(cd_edit_points)`
 - `make_species(reading_context, cd_species, ...)`, `make_species_modification(...)`, `make_species_structural_state(...)`
 - `make_compartment_from_alias(reading_context, cd_compartment, cd_compartment_alias)`

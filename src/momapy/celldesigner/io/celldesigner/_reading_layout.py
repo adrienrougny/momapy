@@ -29,7 +29,6 @@ from momapy.celldesigner.io.celldesigner._reading_parsing import (
     make_name,
 )
 from momapy.celldesigner.io.celldesigner._writing import are_collinear
-from momapy.celldesigner.layout import CellDesignerLayout
 from momapy.celldesigner.layout import (
     AntisenseRNAActiveLayout,
     AntisenseRNALayout,
@@ -136,19 +135,6 @@ def apply_line_attributes(
             layout_element.end_arrowhead_stroke = color_value
         if hasattr(layout_element, "start_arrowhead_stroke"):
             layout_element.start_arrowhead_stroke = color_value
-
-
-def make_empty_layout(cd_element: typing.Any) -> typing.Any:
-    """Create an empty CellDesigner layout builder.
-
-    Args:
-        cd_element: The root CellDesigner XML element (unused, kept for symmetry).
-
-    Returns:
-        A new empty CellDesigner layout builder.
-    """
-    layout = new_builder_object(CellDesignerLayout)
-    return layout
 
 
 def set_layout_size_and_position(
